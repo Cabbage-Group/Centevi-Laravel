@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\rutasController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [rutasController::class, 'index']);
+
+Route::get('login', [rutasController::class, 'login']);
+
+Route::get('home', [rutasController::class, 'home']);
