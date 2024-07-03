@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\TestController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/items', [TestController::class, 'index']);
+Route::get('/items/{id}', [TestController::class, 'show']);
+Route::post('/items', [TestController::class, 'store']);
+Route::put('/items/{id}', [TestController::class, 'update']);
+Route::delete('/items/{id}', [TestController::class, 'destroy']);
