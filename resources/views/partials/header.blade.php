@@ -13,6 +13,7 @@
     <link href="{{ asset('assets/css/plugins.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/structure.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link href="{{ asset('assets/css/home/home.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/Paciente/crearPaciente.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <!-- END GLOBAL MANDATORY STYLES -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->

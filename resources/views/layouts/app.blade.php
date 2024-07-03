@@ -50,12 +50,13 @@
                         
                         </header>
                     </div>
-                @include('pages.home')
+                <!-- @include('pages.home')-->
+
+                @yield('content')
+
                 </div>
             </div>
-
         </div>
     </div>
-    @include('partials.footer')
 </div>
 <!--  END CONTENT AREA  -->

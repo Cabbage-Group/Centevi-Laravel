@@ -2,7 +2,6 @@
 @include('partials.header')
 <!-- El resto del contenido de sidebar.blade.php -->
 
-
 <body class="dashboard-analytics admin-header">
     <!-- BEGIN LOADER -->
     <div id="load_screen">
@@ -405,15 +404,14 @@
                 </div>
             </div>
         </div>
+        
         <!--  END SIDEBAR  -->
-
 
         <!-- views/layout/app.blade.php -->
         @include('layouts.app')
         <!-- El resto del contenido de app.blade.php -->
     </div>
     <!-- END MAIN CONTAINER -->
-
     <script src="{{ asset('js/usuarios.js') }}"></script>
     <script src="{{ asset('js/redireccion.js') }}"></script>
 </body>
