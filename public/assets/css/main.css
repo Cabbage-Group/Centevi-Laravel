@@ -2950,3 +2950,8 @@ table .badge-dark {
 .position-relative {
   position: relative;
 }
+
+.img-small {
+  width: 90px;
+  height: 90px;
+}

@@ -7,5 +7,6 @@ use Illuminate\Http\Request;
 
 class SucursalController extends Controller
 {
-    //
+
+
 }
