@@ -19,7 +19,7 @@
  * Included libraries:
  *   DataTables 1.10.16
  */
- table.dataTable {
+table.dataTable {
     clear: both;
     width: 100% !important;
     margin-top: 6px !important;
