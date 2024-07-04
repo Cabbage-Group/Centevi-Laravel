@@ -1,0 +1,12 @@
+form {
+    display: block;
+    margin-top: 0em;
+    unicode-bidi: isolate;
+}
+.widget-content-area {
+    padding: 20px;
+    position: relative;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
