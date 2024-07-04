@@ -409,6 +409,7 @@
 
         <!-- views/layout/app.blade.php -->
         @include('layouts.app')
+        
         <!-- El resto del contenido de app.blade.php -->
     </div>
     <!-- END MAIN CONTAINER -->

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\Sucursales\SucursalesController;
+use App\Http\Controllers\Admin\Usuarios\UsuariosController;
 use App\Http\Controllers\Auth\homeController;
 use App\Http\Controllers\Auth\indexController;
 use App\Http\Controllers\Auth\loginController;
@@ -20,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [indexController::class, 'index']);
 
 Route::get('login', [loginController::class, 'login']);
+
+Route::get('usuarios', [UsuariosController::class, 'usuarios']);
+
+Route::get('sucursales', [SucursalesController::class, 'sucursales']);
 
 Route::get('home', [homeController::class, 'home'])->name('home');
 
