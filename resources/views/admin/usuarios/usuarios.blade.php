@@ -1,31 +1,12 @@
 @extends('partials.sidebar')
 @section('content')
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
-    <title>Centro de Optica</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('img/favicon.ico') }}" />
-    <link href="{{ asset('assets/css/loader.css') }}" rel="stylesheet" type="text/css" />
-    <script src="{{ asset('assets/js/loader.js') }}"></script>
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500,600,700&display=swap" rel="stylesheet">
-    <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/css/plugins.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/css/structure.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('resources/css/admin/usuarios/usuarios.css') }}" rel="stylesheet" type="text/css" class="structure" /> 
-    <link href="{{ asset('assets/css/authentication/form-1.css') }}" rel="stylesheet" type="text/css" />
-    <!-- END GLOBAL MANDATORY STYLES -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/theme-checkbox-radio.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/switches.css') }}">
-</head>
+@include('partials.header')
 
-
-<body class="form">
-<div class="widget-content-area br-4">
+<div class="admin-data-content" style="margin-top:50px;">
+  <div class="row layout-top-spacing">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
+        <div class="widget-content-area br-4">
             <div class="widget-one">
             <div class="row layout-top-spacing" id="cancel-row">
                 
@@ -38,9 +19,9 @@
                         </button>
 
                         <div class="table-responsive">
-                          <div id="zero-config_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4"><div class="dt--top-section"><div class="row"><div class="col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center"><div class="dataTables_length" id="zero-config_length"><label>Results :  <select name="zero-config_length" aria-controls="zero-config" class="form-control"><option value="7">7</option><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></label></div></div><div class="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3"><div id="zero-config_filter" class="dataTables_filter"><label><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="search" class="form-control" placeholder="Search..." aria-controls="zero-config"></label></div></div></div></div><div class="table-responsive"><table id="zero-config" class="table dt-table-hover tablas dataTable" style="width: 100%;" role="grid" aria-describedby="zero-config_info">
+                          <div id="zero-config_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4"><div class="dt--top-section"><div class="row"><div class="col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center"><div class="dataTables_length" id="zero-config_length"><label>Results :  <select name="zero-config_length" aria-controls="zero-config" class="form-control"><option value="7">7</option><option value="10">10</option><option value="20">20</option><option value="50">50</option></select></label></div></div><div class="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3"><div id="zero-config_filter" class="dataTables_filter"><label><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input type="search" class="form-control" placeholder="Search..." aria-controls="zero-config"></label></div></div></div></div><div class="table-responsive"><table id="zero-config" class="table dt-table-hover tablas dataTable" style="width:100%" role="grid" aria-describedby="zero-config_info">
                           <thead>
-                                        <tr role="row"><th style="width: 11px;" class="sorting_asc" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-sort="ascending" aria-label="#: activate to sort column descending">#</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Nombre: activate to sort column ascending" style="width: 156px;">Nombre</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Usuario: activate to sort column ascending" style="width: 64px;">Usuario</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Foto: activate to sort column ascending" style="width: 36px;">Foto</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Perfil: activate to sort column ascending" style="width: 117px;">Perfil</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Estado: activate to sort column ascending" style="width: 122px;">Estado</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Último login: activate to sort column ascending" style="width: 116px;">Último login</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Acciones: activate to sort column ascending" style="width: 104px;">Acciones</th></tr>
+                                        <tr role="row"><th style="width: 10.5234px;" class="sorting_asc" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-sort="ascending" aria-label="#: activate to sort column descending">#</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Nombre: activate to sort column ascending" style="width: 153.82px;">Nombre</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Usuario: activate to sort column ascending" style="width: 78.1406px;">Usuario</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Foto: activate to sort column ascending" style="width: 34.2891px;">Foto</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Perfil: activate to sort column ascending" style="width: 115.477px;">Perfil</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Estado: activate to sort column ascending" style="width: 120px;">Estado</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Último login: activate to sort column ascending" style="width: 123.68px;">Último login</th><th class="sorting" tabindex="0" aria-controls="zero-config" rowspan="1" colspan="1" aria-label="Acciones: activate to sort column ascending" style="width: 101.953px;">Acciones</th></tr>
                            </thead>
                                     <tbody>
 
@@ -194,21 +175,11 @@
                      </div>
                   </div>
                 </div>
-            
             </div>
             </div>
         </div>
+    </div>
+</div>
+</div>
 
-
-    <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
-    <script src="{{ asset('assets/js/libs/jquery-3.1.1.min.js') }}"></script>
-    <script src="{{ asset('bootstrap/js/popper.min.js') }}"></script>
-    <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
-
-    <!-- END GLOBAL MANDATORY SCRIPTS -->
-    <script src="{{ asset('assets/js/authentication/form-1.js') }}"></script>
-
-</body>
-
-</html>
 @endsection

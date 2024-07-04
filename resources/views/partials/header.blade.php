@@ -12,8 +12,13 @@
     <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/plugins.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/structure.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('resources/css/admin/sucursales/sucursales.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('resources/css/admin/usuarios/usuarios.css') }}" rel="stylesheet" type="text/css" class="structure" /> 
+    <link href="{{ asset('assets/css/home/home.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/Paciente/crearPaciente.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/usuarios/usuarios.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/sucursales/sucursales.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
+
     <!-- END GLOBAL MANDATORY STYLES -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
@@ -27,6 +32,10 @@
     <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="{{ asset('public/plugins/table/datatable/datatables.js') }}"></script>
+    <script src="{{ asset('public/js/sucursales/sucursales.js') }}"></script>
+    <script src="{{ asset('public/js/usuarios/usuarios.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             App.init();

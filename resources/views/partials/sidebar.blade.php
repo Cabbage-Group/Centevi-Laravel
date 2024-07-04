@@ -2,7 +2,6 @@
 @include('partials.header')
 <!-- El resto del contenido de sidebar.blade.php -->
 
-
 <body class="dashboard-analytics admin-header">
     <!-- BEGIN LOADER -->
     <div id="load_screen">
@@ -42,32 +41,13 @@
                 <ul class="menu-categories ps">
 
                     <li class="menu-block inicio">
-                        <a href="home"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                        <a href="{{ route('home') }}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round" class="feather feather-home">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg> INICIO </a>
                     </li>
-
-                    <!-- <li class="menu">
-            <a href="#doctores" data-active="false" class="menu-toggle">
-                <div class="base-menu">
-                    <div class="base-icons">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="feather feather-box">
-                            <path
-                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                            </path>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                        </svg>
-                    </div>
-                    <span>Doctores</span>
-                </div>
-            </a>
-        </li> -->
 
                     <li class="menu">
                         <a href="#pacientes" data-active="false" class="menu-toggle">
@@ -424,8 +404,8 @@
                 </div>
             </div>
         </div>
+        
         <!--  END SIDEBAR  -->
-
 
         <!-- views/layout/app.blade.php -->
         @include('layouts.app')
@@ -433,7 +413,6 @@
         <!-- El resto del contenido de app.blade.php -->
     </div>
     <!-- END MAIN CONTAINER -->
-
     <script src="{{ asset('js/usuarios.js') }}"></script>
     <script src="{{ asset('js/redireccion.js') }}"></script>
 </body>
