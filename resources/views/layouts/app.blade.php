@@ -51,9 +51,7 @@
                         </header>
                     </div>
                 <!-- @include('pages.home')-->
-
                 @yield('content')
-
                 </div>
             </div>
         </div>
