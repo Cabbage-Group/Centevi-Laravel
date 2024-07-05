@@ -8,17 +8,10 @@ use App\Http\Controllers\Auth\indexController;
 use App\Http\Controllers\Auth\loginController;
 use App\Http\Controllers\Admin\Pacientes\PacienteContoller;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+use App\Http\Controllers\Admin\BajaVision\BajaVisionController;
+use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
+use App\Http\Controllers\Admin\OptometriaNeonatos\OptometriaNeonatosController;
+use App\Http\Controllers\Admin\OptometriaPediatrica\OptometriaPediatricaController;
 
 Route::get('/', [indexController::class, 'index']);
 
@@ -35,4 +28,17 @@ Route::get('crear-paciente', [PacienteContoller::class, 'crearPaciente']);
 Route::get('optometria-general', [ConsultasController::class, 'ObtometriaGeneral']);
 
 Route::get('ortoptica-vision-binocul', [ConsultasController::class, 'OrtopticaVisionBinocul']);
+
+Route::get('pacientes', [pacienteController::class, 'pacientes']);
+
+Route::get('baja-vision', [BajaVisionController::class, 'bajavision']);
+
+Route::get('consulta-generica', [HistoriaClinicaController::class, 'historiaclinica']);
+
+Route::get('optometria-neonatos', [OptometriaNeonatosController::class, 'optometrianeonatos']);
+
+Route::get('optometria-pediatrica', [OptometriaPediatricaController::class, 'optometriapediatrica']);
+
+
+
 
