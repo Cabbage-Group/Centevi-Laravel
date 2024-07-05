@@ -24,9 +24,43 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/select2/select2.min.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/tables/table-basic.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/widgets/modules-widgets.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/theme-checkbox-radio.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_html5.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_miscellaneous.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_custom.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/contacts.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-add.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-edit.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-list.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-preview.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/mailing-chat.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/notes.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/scrumboard.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/todolist.css') }}">
 
 
+
+
+    <!--
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/select2/select2.min.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/tables/table-basic.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/theme-checkbox-radio.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/Paciente/crearPaciente.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/home/home.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/usuarios/usuarios.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/sucursales/sucursales.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bajavision/bajavision.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/optometrianeonatos/optometrianeonatos.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/optometriapediatrica/optometriapediatrica.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/select2/select2.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/tables/table-basic.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/theme-checkbox-radio.css') }}">
+    -->
     <!-- END GLOBAL MANDATORY STYLES -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
@@ -50,6 +84,9 @@
     <script src="{{ asset('public/js/optometriapediatrica/optometriapediatrica.js') }}"></script>
     <script src="{{ asset('public/js/bajavision/bajavision.js') }}"></script>
     <script src="{{ asset('public/js/historiaclinica/historiaclinica.js') }}"></script>
+    <script src="{{ asset('plugins/apex/apexcharts.js') }}"></script>
+    <script src="{{ asset('assets/js/dashboard/dash_1.js') }}"></script>
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
 
 
 
