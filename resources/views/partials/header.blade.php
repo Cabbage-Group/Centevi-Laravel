@@ -12,16 +12,9 @@
     <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/plugins.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/structure.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('assets/css/home/home.css') }}" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('assets/css/paciente/crearPaciente.css') }}">
     <link href="{{ asset('assets/css/usuarios/usuarios.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link href="{{ asset('assets/css/sucursales/sucursales.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/widgets/modules-widgets.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_html5.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_miscellaneous.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_custom.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/contacts.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-add.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-edit.css') }}">
@@ -32,25 +25,34 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/scrumboard.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/todolist.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/theme-checkbox-radio.css') }}">
-    
-
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/consultas/ortopticaVisionBinocul.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/Paciente/crearPaciente.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/home/home.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/widgets/modules-widgets.css') }}">
+    <link href="{{ asset('assets/css/components/custom-sweetalert.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/dashboard/dash_1.css') }}" rel="stylesheet" type="text/css" class="dashboard-analytics">
     <!-- END GLOBAL MANDATORY STYLES -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
     <link href="{{ asset('plugins/apex/apexcharts.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/dashboard/dash_1.css') }}" rel="stylesheet" type="text/css" class="dashboard-analytics" />
+    <link href="{{ asset('assets/css/dashboard/dash_1.css') }}" rel="stylesheet" type="text/css" class="dashboard-analytics">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_html5.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_miscellaneous.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_custom.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css')}}">
+    <link href="{{ asset('plugins/sweetalerts/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('plugins/sweetalerts/sweetalert.css') }}" rel="stylesheet" type="text/css" />
     <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
 
     <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
     <script src="{{ asset('assets/js/libs/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ asset('bootstrap/js/popper.min.js') }}"></script>
     <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
-    <script src="{{ asset('plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script src="{{ asset('public/plugins/table/datatable/datatables.js') }}"></script>
     <script src="{{ asset('public/js/sucursales/sucursales.js') }}"></script>
     <script src="{{ asset('public/js/usuarios/usuarios.js') }}"></script>
-    <script src="{{ asset('plugins/apex/apexcharts.js') }}"></script>
     <script src="{{ asset('assets/js/dashboard/dash_1.js') }}"></script>
     <script src="{{ asset('assets/js/custom.js') }}"></script>
     <script src="{{ asset('assets/js/usuarios/usuarios.js') }}"></script>
@@ -59,9 +61,6 @@
     <script src="{{ asset('assets/js/paciente/editarPaciente.js') }}"></script>
     <script src="{{ asset('assets/js/paciente/verPaciente.js') }}"></script>
     <script src="{{ asset('assets/js/paciente/eliminarPaciente.js') }}"></script>
-    
-
-
     <script>
         $(document).ready(function() {
             App.init();
@@ -72,11 +71,9 @@
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <script src="{{ asset('plugins/apex/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets/js/dashboard/dash_1.js') }}"></script>
-    <link href="{{ asset('plugins/sweetalerts/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('plugins/sweetalerts/sweetalert.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/css/components/custom-sweetalert.css') }}" rel="stylesheet" type="text/css" />
     <script src="{{ asset('plugins/sweetalerts/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('plugins/sweetalerts/custom-sweetalert.js') }}"></script>
+    <script src="{{ asset('plugins/apex/apexcharts.js') }}"></script>
+    <script src="{{ asset('plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
 </head>

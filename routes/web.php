@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\Usuarios\UsuariosController;
 use App\Http\Controllers\Admin\Home\homeController;
 use App\Http\Controllers\Auth\indexController;
 use App\Http\Controllers\Auth\loginController;
-use App\Http\Controllers\Admin\Pacientes\pacienteController;
+use App\Http\Controllers\Admin\Pacientes\PacienteContoller;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,7 +30,9 @@ Route::get('sucursales', [SucursalesController::class, 'sucursales']);
 
 Route::get('home', [homeController::class, 'home'])->name('home');
 
-Route::get('crear-paciente', [pacienteController::class, 'crearPaciente']);
+Route::get('crear-paciente', [PacienteContoller::class, 'crearPaciente']);
 
 Route::get('optometria-general', [ConsultasController::class, 'ObtometriaGeneral']);
+
+Route::get('ortoptica-vision-binocul', [ConsultasController::class, 'OrtopticaVisionBinocul']);
 

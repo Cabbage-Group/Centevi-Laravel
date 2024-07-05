@@ -10,4 +10,8 @@ class ConsultasController extends Controller
     public function ObtometriaGeneral(){
         return view('admin.consulta.optometriaGeneral');
     }
+
+    public function OrtopticaVisionBinocul(){
+        return view('admin.consulta.OrtopticaVisionBinocul');
+    }
 }

@@ -24,8 +24,7 @@
                                                 <select class="form-control form-small select2-hidden-accessible"
                                                     name="paciente" data-select2-id="1" tabindex="-1"
                                                     aria-hidden="true">
-                                                    <option value="" data-select2-id="3">&lt;--- Seleccione el paciente
-                                                        ---&gt;</option>
+                                                    <option value="" data-select2-id="3">Seleccione el paciente</option>
                                                     <option value="22" data-fecha-nacimiento="2018-08-21"> Número
                                                         Cedula: 8-1219-383 || Nombres: Danna Lucia Gonzalez Quiros
                                                     </option>
