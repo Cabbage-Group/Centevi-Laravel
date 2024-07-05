@@ -1,4 +1,3 @@
-
 .admin-data-content {
     height: calc(100vh - 132px);
     max-width: 100%;
@@ -185,13 +184,118 @@
     margin-right: 0;
 }
 
-/*
-    The below code is for DEMO purpose --- Use it if you are using this demo otherwise, Remove it
-*/
 .navbar .navbar-item.navbar-dropdown {
     margin-left: auto;
 }
 
 .layout-px-spacing {
     min-height: calc(100vh - 145px) !important;
+}
+
+.widget-content-area {
+    padding: 20px;
+    position: relative;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.dashboard {
+    /* background: rgba(203,203,210,.15); */
+    background: #eef1f5;
+    font-family: Quicksand;
+}
+
+.all-card {
+    padding: 30px;
+}
+
+.card {
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, .05);
+    background-color: #fff;
+    margin-bottom: 30px;
+    box-shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
+}
+
+.border-left-pink {
+    border-left: 4px solid #f5365c;
+}
+
+.border-left-orange {
+    border-left: 4px solid #fb6340;
+}
+
+.border-left-yellow {
+    border-left: 4px solid #ffd600;
+}
+
+.border-left-blue {
+    border-left: 4px solid #11cdef;
+}
+
+.text-title {
+    color: #8898aa;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.text-amount {
+    font-weight: 600;
+}
+
+.icon-shape {
+    border-radius: 50%;
+    color: #fff;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15) !important;
+}
+
+.icon-area {
+    background: #f5365c;
+}
+
+.icon-pie {
+    background: #fb6340;
+}
+
+.icon-user {
+    background: #ffd600;
+}
+
+.icon-percent {
+    background: #11cdef;
+}
+
+.chart {
+    padding: 30px;
+}
+
+@media (min-width: 992px) and (max-width: 1300px) {
+    .dashboard .card {
+        .text-title {
+            font-size: 12px;
+        }
+
+        .text-amount {
+            font-size: 18px;
+        }
+
+        .icon-shape {
+            width: 35px;
+            height: 35px;
+            font-size: 20px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .icon-shape {
+            display: none !important;
+        }
+    }
 }

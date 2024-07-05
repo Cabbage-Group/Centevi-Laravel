@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\Consultas\ConsultasController;
 use App\Http\Controllers\Admin\Sucursales\SucursalesController;
 use App\Http\Controllers\Admin\Usuarios\UsuariosController;
-use App\Http\Controllers\Auth\homeController;
+use App\Http\Controllers\Admin\Home\homeController;
 use App\Http\Controllers\Auth\indexController;
 use App\Http\Controllers\Auth\loginController;
 use App\Http\Controllers\Admin\Pacientes\pacienteController;
@@ -30,4 +31,6 @@ Route::get('sucursales', [SucursalesController::class, 'sucursales']);
 Route::get('home', [homeController::class, 'home'])->name('home');
 
 Route::get('crear-paciente', [pacienteController::class, 'crearPaciente']);
+
+Route::get('optometria-general', [ConsultasController::class, 'ObtometriaGeneral']);
 

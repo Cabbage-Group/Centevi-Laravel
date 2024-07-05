@@ -1,11 +1,11 @@
 @extends('partials.sidebar')
 @section('content')
+<link href="{{ asset('assets/css/Paciente/crearPaciente.css') }}" rel="stylesheet" type="text/css" class="structure">
 <div class="admin-data-content" style="margin-top:50px;">
     <div class="row layout-top-spacing">
         <div class="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
             <div class="widget-content-area br-4">
                 <div class="widget-one">
-
                     <div class="row">
                         <div id="flFormsGrid" class="col-lg-12 layout-spacing">
                             <div class="statbox widget box box-shadow">
@@ -84,8 +84,6 @@
                                                     required="">
                                             </div>
                                         </div>
-
-
                                         <div class="form-row mb-4">
                                             <div class="form-group col-md-6">
                                                 <label for="medico">Medico de Cabecera</label>
@@ -93,10 +91,6 @@
                                                     name="medico_cabecera">
                                             </div>
                                         </div>
-
-
-
-
                                         <div class="form-group">
                                             <h4>EN CASO DE URGENCIA</h4>
                                         </div>
@@ -115,7 +109,6 @@
                                                 <input type="text" class="form-control" id="numero_ur" name="nro_ur">
                                             </div>
                                         </div>
-
                                         <div class="form-group">
                                             <h4>MENOR DE EDAD</h4>
                                         </div>
@@ -143,13 +136,14 @@
                                                 <input type="text" class="form-control" id="remitido" name="remitido">
                                             </div>
                                         </div>
-
                                         <input type="hidden" name="sucursal" value="3">
                                         <input type="hidden" name="doctor" value="Administrador">
-
                                         <div class="btn-crear-paciente" style=" width: 150px">
                                             <button type="submit" class="btn btn-success mt-3 btn-crear-paciente">
                                                 <div class="txt-btn-crear">Crear Paciente</div>
+                                                <div class="spinner-border no-mostrar-btn" role="status">
+                                                    <span class="sr-only"> Loading...</span>
+                                                </div>
                                             </button>
                                         </div>
                                     </form>
@@ -157,7 +151,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

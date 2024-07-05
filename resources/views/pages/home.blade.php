@@ -1,12 +1,10 @@
 @section('content')
-
 <div class="admin-data-content" style="margin-top:50px;">
     <div class="row layout-top-spacing">
         <div class="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
             <div class="widget-content-area br-4">
                 <div class="widget-one">
                     <div class="row">
-
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
                             <div class="widget widget-one">
                                 <div class="widget-heading">
@@ -40,11 +38,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="widget-content">
-                                        <div class="w-chart">
-                                            <div id="hybrid_followers"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-6">
@@ -66,11 +59,6 @@
                                                 <p class="w-value">4592</p>
                                                 <h5 class="">PACIENTES MENORES</h5>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="widget-content">
-                                        <div class="w-chart">
-                                            <div id="hybrid_followers"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -96,11 +84,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="widget-content">
-                                        <div class="w-chart">
-                                            <div id="hybrid_followers"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-2 col-md-6">
@@ -122,11 +105,6 @@
                                                 <p class="w-value">2</p>
                                                 <h5 class="">DOCTORES</h5>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="widget-content">
-                                        <div class="w-chart">
-                                            <div id="hybrid_followers"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -156,11 +134,6 @@
                                                 <p class="w-value">5</p>
                                                 <h5 class="">SUCURSALES</h5>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="widget-content">
-                                        <div class="w-chart">
-                                            <div id="hybrid_followers"></div>
                                         </div>
                                     </div>
                                 </div>

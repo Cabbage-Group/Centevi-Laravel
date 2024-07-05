@@ -1,7 +1,6 @@
 <!-- resources/views/sidebar.blade.php -->
 @include('partials.header')
 <!-- El resto del contenido de sidebar.blade.php -->
-
 <body class="dashboard-analytics admin-header">
     <!-- BEGIN LOADER -->
     <div id="load_screen">
@@ -14,20 +13,16 @@
     <!--  END LOADER -->
     <!--  BEGIN MAIN CONTAINER  -->
     <div class="main-container" id="container">
-
         <div class="overlay"></div>
         <div class="search-overlay"></div>
-
         <!--  BEGIN SIDEBAR  -->
         <div class="sidebar-wrapper sidebar-theme">
-
             <div class="theme-logo">
                 <a href="index.html">
                     <img src="{{ asset('img/centevi.png') }}" alt="Logo" class="mb-3"
                         style="max-width: 800px; display: block; margin: 0 auto;">
                 </a>
             </div>
-
             <div class="sidebarCollapseFixed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -36,10 +31,8 @@
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
             </div>
-
             <nav id="compactSidebar">
                 <ul class="menu-categories ps">
-
                     <li class="menu-block inicio">
                         <a href="{{ route('home') }}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -48,7 +41,6 @@
                                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
                             </svg> INICIO </a>
                     </li>
-
                     <li class="menu">
                         <a href="#pacientes" data-active="false" class="menu-toggle">
                             <div class="base-menu">
@@ -82,7 +74,6 @@
                             </div>
                         </a>
                     </li>
-
                     <li class="menu">
                         <a href="#sucursales" data-active="false" class="menu-toggle">
                             <div class="base-menu">
@@ -106,7 +97,6 @@
                             </div>
                         </a>
                     </li>
-
                     <li class="menu">
                         <a href="#recetas" data-active="false" class="menu-toggle">
                             <div class="base-menu">
@@ -122,7 +112,6 @@
                             </div>
                         </a>
                     </li>
-
                     <li class="menu">
                         <a href="#reportes" data-active="false" class="menu-toggle">
                             <div class="base-menu">
@@ -141,12 +130,8 @@
                             </div>
                         </a>
                     </li>
-
-
-
                     <li class="menu">
                         <a href="#configuracion" data-active="false" class="menu-toggle">
-
                             <div class="base-menu">
                                 <div class="base-icons">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -168,9 +153,7 @@
                     </div>
                 </ul>
             </nav>
-
             <div id="compact_submenuSidebar" class="submenu-sidebar ps">
-
                 <div class="submenu" id="pacientes">
                     <ul class="submenu-list" data-parent-element="#uiKit">
                         <li>
@@ -193,10 +176,8 @@
                                         <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
                                     </svg></span> Lista de Pacientes </a>
                         </li>
-
                     </ul>
                 </div>
-
                 <div class="submenu" id="doctores">
                     <ul class="submenu-list" data-parent-element="#doctores">
                         <li>
@@ -211,7 +192,6 @@
                         </li>
                     </ul>
                 </div>
-
                 <div class="submenu" id="consultas">
                     <ul class="submenu-list" data-parent-element="#consultas">
                         <li>
@@ -255,7 +235,7 @@
                                     </svg></span> Baja Visión </a>
                         </li>
                         <li>
-                            <a href="refraccion-general"> <span class="icon"><svg xmlns="http://www.w3.org/2000/svg"
+                            <a href="optometria-general"> <span class="icon"><svg xmlns="http://www.w3.org/2000/svg"
                                         width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                         class="feather feather-git-commit">
@@ -274,11 +254,8 @@
                                         <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
                                     </svg></span> Historia Clínica </a>
                         </li>
-
-
                     </ul>
                 </div>
-
                 <div class="submenu" id="reportes">
                     <ul class="submenu-list" data-parent-element="#reportes">
                         <li>
@@ -291,7 +268,6 @@
                                         <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
                                     </svg></span> Ver Reportes </a>
                         </li>
-
                         <li>
                             <a href="reporte-pacientes-sin-atencion"> <span class="icon"><svg
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -359,10 +335,7 @@
                         </li>
                     </ul>
                 </div>
-
-
                 <div class="submenu" id="recetas">
-
                     <ul class="submenu-list" data-parent-element="#recetas">
                         <li>
                             <a href="recetas"> <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
@@ -376,9 +349,6 @@
                         </li>
                     </ul>
                 </div>
-
-
-
                 <div class="submenu" id="configuracion">
                     <ul class="submenu-list" data-parent-element="#uiKit">
                         <li>
@@ -391,11 +361,8 @@
                                         <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
                                     </svg></span> Ver Usuarios </a>
                         </li>
-
                     </ul>
                 </div>
-
-
                 <div class="ps__rail-x" style="left: 0px; bottom: 0px;">
                     <div class="ps__thumb-x" tabindex="0" style="left: 0px; width: 0px;"></div>
                 </div>
@@ -404,12 +371,9 @@
                 </div>
             </div>
         </div>
-        
         <!--  END SIDEBAR  -->
-
         <!-- views/layout/app.blade.php -->
         @include('layouts.app')
-        
         <!-- El resto del contenido de app.blade.php -->
     </div>
     <!-- END MAIN CONTAINER -->
