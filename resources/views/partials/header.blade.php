@@ -16,10 +16,10 @@
     <link href="{{ asset('assets/css/Paciente/crearPaciente.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link href="{{ asset('assets/css/usuarios/usuarios.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link href="{{ asset('assets/css/sucursales/sucursales.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('assets/css/bajavision/bajavision.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('assets/css/optometrianeonatos/optometrianeonatos.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('assets/css/optometriapediatrica/optometriapediatrica.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/consultas/bajavision/bajavision.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/consultas/optometrianeonatos/optometrianeonatos.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/consultas/optometriapediatrica/optometriapediatrica.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/consultas/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/select2/select2.min.css')}}">
@@ -51,10 +51,10 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/home/home.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/usuarios/usuarios.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/sucursales/sucursales.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bajavision/bajavision.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/optometrianeonatos/optometrianeonatos.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/optometriapediatrica/optometriapediatrica.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/consultas/bajavision/bajavision.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/consultas/optometrianeonatos/optometrianeonatos.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/consultas/optometriapediatrica/optometriapediatrica.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/consultas/historiaclinica/historiaclinica.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/select2/select2.min.css') }}">
@@ -80,10 +80,10 @@
     <script src="{{ asset('plugins/select2/select2.min.js') }}"></script>
     <script src="{{ asset('plugins/select2/custom-select2.js') }}"></script>
     <script src="{{ asset('plugins/bootstrap-maxlength/bootstrap-maxlength.js') }}"></script>
-    <script src="{{ asset('public/js/optometrianeonatos/optometrianeonatos.js') }}"></script>
-    <script src="{{ asset('public/js/optometriapediatrica/optometriapediatrica.js') }}"></script>
-    <script src="{{ asset('public/js/bajavision/bajavision.js') }}"></script>
-    <script src="{{ asset('public/js/historiaclinica/historiaclinica.js') }}"></script>
+    <script src="{{ asset('public/js/consultas/optometrianeonatos/optometrianeonatos.js') }}"></script>
+    <script src="{{ asset('public/js/consultas/optometriapediatrica/optometriapediatrica.js') }}"></script>
+    <script src="{{ asset('public/js/consultas/bajavision/bajavision.js') }}"></script>
+    <script src="{{ asset('public/js/consultas/historiaclinica/historiaclinica.js') }}"></script>
     <script src="{{ asset('plugins/apex/apexcharts.js') }}"></script>
     <script src="{{ asset('assets/js/dashboard/dash_1.js') }}"></script>
     <script src="{{ asset('assets/js/custom.js') }}"></script>

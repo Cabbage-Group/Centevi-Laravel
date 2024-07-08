@@ -3,7 +3,7 @@
 
     <body>
         <head>
-            <link href="{{ asset('assets/css/optometriapediatrica/optometriapediatrica.css') }}" rel="stylesheet"
+            <link href="{{ asset('assets/css/consultas/optometriapediatrica/optometriapediatrica.css') }}" rel="stylesheet"
                 type="text/css" class="structure" />
         </head>
 

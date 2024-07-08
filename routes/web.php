@@ -7,10 +7,10 @@ use App\Http\Controllers\Auth\indexController;
 use App\Http\Controllers\Auth\loginController;
 use App\Http\Controllers\Admin\Pacientes\pacienteController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\BajaVision\BajaVisionController;
-use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
-use App\Http\Controllers\Admin\OptometriaNeonatos\OptometriaNeonatosController;
-use App\Http\Controllers\Admin\OptometriaPediatrica\OptometriaPediatricaController;
+use App\Http\Controllers\Admin\Consultas\BajaVision\BajaVisionController;
+use App\Http\Controllers\Admin\Consultas\HistoriaClinica\HistoriaClinicaController;
+use App\Http\Controllers\Admin\Consultas\OptometriaNeonatos\OptometriaNeonatosController;
+use App\Http\Controllers\Admin\Consultas\OptometriaPediatrica\OptometriaPediatricaController;
 
 Route::get('/', [indexController::class, 'index']);
 

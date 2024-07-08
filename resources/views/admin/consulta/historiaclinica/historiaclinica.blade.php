@@ -3,7 +3,7 @@
 
     <body>
         <head>
-            <link href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css"
+            <link href="{{ asset('assets/css/consultas/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css"
                 class="structure" />
         </head>
 

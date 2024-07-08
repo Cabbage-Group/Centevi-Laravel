@@ -3,7 +3,7 @@
 
 <body>
 <head>
-    <link href="{{ asset('assets/css/bajavision/bajavision.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link href="{{ asset('assets/css/consultas/bajavision/bajavision.css') }}" rel="stylesheet" type="text/css" class="structure" />
 </head>
 
 <div class="row layout-top-spacing">

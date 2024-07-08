@@ -3,7 +3,7 @@
 
 <body>
     <head>
-        <link href="{{ asset('assets/css/optometrianeonatos/optometrianeonatos.css') }}" rel="stylesheet" type="text/css" class="structure" />
+        <link href="{{ asset('assets/css/consultas/optometrianeonatos/optometrianeonatos.css') }}" rel="stylesheet" type="text/css" class="structure" />
     </head>
 
 <div class="row layout-top-spacing">
