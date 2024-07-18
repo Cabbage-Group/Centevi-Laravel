@@ -14,10 +14,8 @@
                                         <span></span>
                                     </div>
                                 </a>
-                        
                             </div>
                             <div class="header-actions">
-
                             <div class="nav-item dropdown user-profile-dropdown">
                                 <a href="#" class="nav-link dropdown-toggle user" id="user-profile-dropdown" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">
                                     <div class="media"><img class="rounded-circle header-profile-user" src="{{ asset('assets/img/90x90.png')}}">
@@ -50,11 +48,9 @@
                         
                         </header>
                     </div>
-                <!-- @include('pages.home')-->
-                @yield('content')
+                    @yield('content')
                 </div>
             </div>
         </div>
     </div>
 </div>
-<!--  END CONTENT AREA  -->

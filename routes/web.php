@@ -1,44 +1,24 @@
 <?php
 
-use App\Http\Controllers\Admin\Consultas\ConsultasController;
-use App\Http\Controllers\Admin\Sucursales\SucursalesController;
-use App\Http\Controllers\Admin\Usuarios\UsuariosController;
-use App\Http\Controllers\Admin\Home\homeController;
-use App\Http\Controllers\Auth\indexController;
-use App\Http\Controllers\Auth\loginController;
-use App\Http\Controllers\Admin\Pacientes\PacienteContoller;
+use App\Http\Controllers\API\reportes\ReportesApiController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\BajaVision\BajaVisionController;
-use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
-use App\Http\Controllers\Admin\OptometriaNeonatos\OptometriaNeonatosController;
-use App\Http\Controllers\Admin\OptometriaPediatrica\OptometriaPediatricaController;
+use App\Http\Controllers\API\usuarios\UsuariosApiController;
+use App\Http\Controllers\API\sucursales\SucursalesApiController;
+use App\Http\Controllers\API\pacientes\PacientesApiController;
+use App\Http\Controllers\API\login\LoginApiController;
 
-Route::get('/', [indexController::class, 'index']);
+Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
+Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
+Route::get('/api/sucursales', [SucursalesApiController::class, 'sucursales']);
+Route::get('/api/reportes', [ReportesApiController::class, 'reportes']);
 
-Route::get('login', [loginController::class, 'login']);
+Route::post('/api/register', [LoginApiController::class, 'register']);
+Route::post('/api/login', [LoginApiController::class,'login']);
 
-Route::get('usuarios', [UsuariosController::class, 'usuarios']);
+Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 
-Route::get('sucursales', [SucursalesController::class, 'sucursales']);
-
-Route::get('home', [homeController::class, 'home'])->name('home');
-
-Route::get('crear-paciente', [PacienteContoller::class, 'crearPaciente']);
-
-Route::get('optometria-general', [ConsultasController::class, 'ObtometriaGeneral']);
-
-Route::get('ortoptica-vision-binocul', [ConsultasController::class, 'OrtopticaVisionBinocul']);
-
-Route::get('pacientes', [pacienteController::class, 'pacientes']);
-
-Route::get('baja-vision', [BajaVisionController::class, 'bajavision']);
-
-Route::get('consulta-generica', [HistoriaClinicaController::class, 'historiaclinica']);
-
-Route::get('optometria-neonatos', [OptometriaNeonatosController::class, 'optometrianeonatos']);
-
-Route::get('optometria-pediatrica', [OptometriaPediatricaController::class, 'optometriapediatrica']);
-
-
+Route::get('/{any}', function () {
+    return view('app');
+})->where('any', '.*');
 
 

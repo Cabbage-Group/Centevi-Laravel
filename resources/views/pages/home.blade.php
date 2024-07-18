@@ -1,3 +1,4 @@
+@extends('partials.sidebar')
 @section('content')
 <div class="admin-data-content" style="margin-top:50px;">
     <div class="row layout-top-spacing">

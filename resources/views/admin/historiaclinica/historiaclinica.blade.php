@@ -3,8 +3,7 @@
 
     <body>
         <head>
-            <link href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css"
-                class="structure" />
+            <link href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css" class="structure" />
         </head>
 
         <div class="row layout-top-spacing">

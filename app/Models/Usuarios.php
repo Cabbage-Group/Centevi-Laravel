@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Usuarios extends Model
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     // Nombre de la tabla
     protected $table = 'usuarios';
@@ -20,6 +22,7 @@ class Usuarios extends Model
      *
      * @var array<int, string>
      */
+    public $timestamps = false;
     protected $fillable = [
         'usuario',
         'nombre',
@@ -51,5 +54,6 @@ class Usuarios extends Model
         'ultimo_login' => 'datetime',
         'editado' => 'date',
     ];
+
 
 }

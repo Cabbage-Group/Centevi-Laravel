@@ -80,13 +80,6 @@
     <script src="{{ asset('public/js/optometriapediatrica/optometriapediatrica.js') }}"></script>
     <script src="{{ asset('public/js/bajavision/bajavision.js') }}"></script>
     <script src="{{ asset('public/js/historiaclinica/historiaclinica.js') }}"></script>
-    <script src="{{ asset('plugins/apex/apexcharts.js') }}"></script>
-    <script src="{{ asset('assets/js/dashboard/dash_1.js') }}"></script>
-    <script src="{{ asset('assets/js/custom.js') }}"></script>
-
-
-
-
     <script>
         $(document).ready(function() {
             App.init();

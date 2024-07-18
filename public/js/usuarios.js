@@ -1,75 +1,73 @@
-
-
 /*=============================================
 SUBIENDO LA FOTO DEL USUARIO
 =============================================*/
-$(".nuevaFoto").change(function(){
+$(".nuevaFoto").change(function () {
 
 	var imagen = this.files[0];
-	
+
 	/*=============================================
-  	VALIDAMOS EL FORMATO DE LA IMAGEN SEA JPG O PNG
-  	=============================================*/
+		VALIDAMOS EL FORMATO DE LA IMAGEN SEA JPG O PNG
+		=============================================*/
 
-  	if(imagen["type"] != "image/jpeg" && imagen["type"] != "image/png"){
+	if (imagen["type"] != "image/jpeg" && imagen["type"] != "image/png") {
 
-  		$(".nuevaFoto").val("");
+		$(".nuevaFoto").val("");
 
-  		 swal({
-		      title: "Error al subir la imagen",
-		      text: "¡La imagen debe estar en formato JPG o PNG!",
-		      type: "error",
-		      confirmButtonText: "¡Cerrar!"
-		    });
+		swal({
+			title: "Error al subir la imagen",
+			text: "¡La imagen debe estar en formato JPG o PNG!",
+			type: "error",
+			confirmButtonText: "¡Cerrar!"
+		});
 
-  	}else if(imagen["size"] > 2000000){
+	} else if (imagen["size"] > 2000000) {
 
-  		$(".nuevaFoto").val("");
+		$(".nuevaFoto").val("");
 
-  		 swal({
-		      title: "Error al subir la imagen",
-		      text: "¡La imagen no debe pesar más de 2MB!",
-		      type: "error",
-		      confirmButtonText: "¡Cerrar!"
-		    });
+		swal({
+			title: "Error al subir la imagen",
+			text: "¡La imagen no debe pesar más de 2MB!",
+			type: "error",
+			confirmButtonText: "¡Cerrar!"
+		});
 
-  	}else{
+	} else {
 
-  		var datosImagen = new FileReader;
-  		datosImagen.readAsDataURL(imagen);
+		var datosImagen = new FileReader;
+		datosImagen.readAsDataURL(imagen);
 
-  		$(datosImagen).on("load", function(event){
+		$(datosImagen).on("load", function (event) {
 
-  			var rutaImagen = event.target.result;
+			var rutaImagen = event.target.result;
 
-  			$(".previsualizar").attr("src", rutaImagen);
+			$(".previsualizar").attr("src", rutaImagen);
 
-  		})
+		})
 
-  	}
+	}
 })
 
 /*=============================================
 EDITAR USUARIO
 =============================================*/
-$(".tablas").on("click", ".btnEditarUsuario", function(){
+$(".tablas").on("click", ".btnEditarUsuario", function () {
 
 	var idUsuario = $(this).attr("idUsuario");
-	
+
 	var datos = new FormData();
 	datos.append("idUsuario", idUsuario);
 
 	$.ajax({
 
-		url:"ajax/usuarios.ajax.php",
+		url: "ajax/usuarios.ajax.php",
 		method: "POST",
 		data: datos,
 		cache: false,
 		contentType: false,
 		processData: false,
 		dataType: "json",
-		success: function(respuesta){
-			
+		success: function (respuesta) {
+
 			$("#editarNombre").val(respuesta["nombre"]);
 			$("#editarUsuario").val(respuesta["usuario"]);
 			$("#editarPerfil").html(respuesta["perfil"]);
@@ -80,11 +78,11 @@ $(".tablas").on("click", ".btnEditarUsuario", function(){
 
 			$("#passwordActual").val(respuesta["password"]);
 
-			if(respuesta["foto"] != ""){
+			if (respuesta["foto"] != "") {
 
 				$(".previsualizarEditar").attr("src", respuesta["foto"]);
 
-			}else{
+			} else {
 
 				$(".previsualizarEditar").attr("src", "vistas/img/usuarios/default/anonymous.png");
 
@@ -99,62 +97,62 @@ $(".tablas").on("click", ".btnEditarUsuario", function(){
 /*=============================================
 ACTIVAR USUARIO
 =============================================*/
-$(".tablas").on("click", ".btnActivar", function(){
+$(".tablas").on("click", ".btnActivar", function () {
 
 	var idUsuario = $(this).attr("idUsuario");
 	var estadoUsuario = $(this).attr("estadoUsuario");
 
 	var datos = new FormData();
- 	datos.append("activarId", idUsuario);
-  	datos.append("activarUsuario", estadoUsuario);
+	datos.append("activarId", idUsuario);
+	datos.append("activarUsuario", estadoUsuario);
 
-  	$.ajax({
+	$.ajax({
 
-	  url:"ajax/usuarios.ajax.php",
-	  method: "POST",
-	  data: datos,
-	  cache: false,
-      contentType: false,
-      processData: false,
-      success: function(respuesta){
+		url: "ajax/usuarios.ajax.php",
+		method: "POST",
+		data: datos,
+		cache: false,
+		contentType: false,
+		processData: false,
+		success: function (respuesta) {
 
-      		if(window.matchMedia("(max-width:767px)").matches){
+			if (window.matchMedia("(max-width:767px)").matches) {
 
-	      		 swal({
-			      title: "El usuario ha sido actualizado",
-			      type: "success",
-			      confirmButtonText: "¡Cerrar!"
-			    }).then(function(result) {
-			        if (result.value) {
+				swal({
+					title: "El usuario ha sido actualizado",
+					type: "success",
+					confirmButtonText: "¡Cerrar!"
+				}).then(function (result) {
+					if (result.value) {
 
-			        	window.location = "usuarios";
+						window.location = "usuarios";
 
-			        }
+					}
 
 
 				});
 
-	      	}
+			}
 
-      }
+		}
 
-  	})
+	})
 
-  	if(estadoUsuario == 0){
+	if (estadoUsuario == 0) {
 
-  		$(this).removeClass('btn-success');
-  		$(this).addClass('btn-danger');
-  		$(this).html('Desactivado');
-  		$(this).attr('estadoUsuario',1);
+		$(this).removeClass('btn-success');
+		$(this).addClass('btn-danger');
+		$(this).html('Desactivado');
+		$(this).attr('estadoUsuario', 1);
 
-  	}else{
+	} else {
 
-  		$(this).addClass('btn-success');
-  		$(this).removeClass('btn-danger');
-  		$(this).html('Activado');
-  		$(this).attr('estadoUsuario',0);
+		$(this).addClass('btn-success');
+		$(this).removeClass('btn-danger');
+		$(this).html('Activado');
+		$(this).attr('estadoUsuario', 0);
 
-  	}
+	}
 
 })
 
@@ -162,7 +160,7 @@ $(".tablas").on("click", ".btnActivar", function(){
 REVISAR SI EL USUARIO YA ESTÁ REGISTRADO
 =============================================*/
 
-$("#nuevoUsuario").change(function(){
+$("#nuevoUsuario").change(function () {
 
 	$(".alert").remove();
 
@@ -171,25 +169,25 @@ $("#nuevoUsuario").change(function(){
 	var datos = new FormData();
 	datos.append("validarUsuario", usuario);
 
-	 $.ajax({
-	    url:"ajax/usuarios.ajax.php",
-	    method:"POST",
-	    data: datos,
-	    cache: false,
-	    contentType: false,
-	    processData: false,
-	    dataType: "json",
-	    success:function(respuesta){
-	    	
-	    	if(respuesta){
+	$.ajax({
+		url: "ajax/usuarios.ajax.php",
+		method: "POST",
+		data: datos,
+		cache: false,
+		contentType: false,
+		processData: false,
+		dataType: "json",
+		success: function (respuesta) {
 
-	    		$("#nuevoUsuario").parent().after('<div class="alert alert-warning">Este usuario ya existe en la base de datos</div>');
+			if (respuesta) {
 
-	    		$("#nuevoUsuario").val("");
+				$("#nuevoUsuario").parent().after('<div class="alert alert-warning">Este usuario ya existe en la base de datos</div>');
 
-	    	}
+				$("#nuevoUsuario").val("");
 
-	    }
+			}
+
+		}
 
 	})
 })
@@ -197,30 +195,31 @@ $("#nuevoUsuario").change(function(){
 /*=============================================
 ELIMINAR USUARIO
 =============================================*/
-$(".tablas").on("click", ".btnEliminarUsuario", function(){
+$(".tablas").on("click", ".btnEliminarUsuario", function () {
 
-  var idUsuario = $(this).attr("idUsuario");
-  var fotoUsuario = $(this).attr("fotoUsuario");
-  var usuario = $(this).attr("usuario");
+	var idUsuario = $(this).attr("idUsuario");
+	var fotoUsuario = $(this).attr("fotoUsuario");
+	var usuario = $(this).attr("usuario");
 
-  swal({
-    title: '¿Está seguro de borrar el usuario?',
-    text: "¡Si no lo está puede cancelar la accíón!",
-    type: 'warning',
-    showCancelButton: true,
-    cancelButtonText: 'Cancelar',
-    confirmButtonText: 'Si, borrar usuario!'
-  }).then(function(result){
+	swal({
+		title: '¿Está seguro de borrar el usuario?',
+		text: "¡Si no lo está puede cancelar la accíón!",
+		type: 'warning',
+		showCancelButton: true,
+		cancelButtonText: 'Cancelar',
+		confirmButtonText: 'Si, borrar usuario!'
+	}).then(function (result) {
 
-    if(result.value){
+		if (result.value) {
 
-      window.location = "index.php?ruta=usuarios&idUsuario="+idUsuario+"&usuario="+usuario+"&fotoUsuario="+fotoUsuario;
+			window.location = "index.php?ruta=usuarios&idUsuario=" + idUsuario + "&usuario=" + usuario + "&fotoUsuario=" + fotoUsuario;
 
-    }
+		}
 
-  })
+	})
 
 })
+
 
 
 
