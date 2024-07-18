@@ -15,5 +15,8 @@ class VerifyCsrfToken extends Middleware
         'http://127.0.0.1:8000/api/register',
         'http://127.0.0.1:8000/api/login',
         'http://127.0.0.1:8000/api/usuarios/*',
+        'http://127.0.0.1:8000/api/pacientes',
+        'http://127.0.0.1:8000/api/pacientes/*',
+        'http://127.0.0.1:8000/api/obtenerHistoriaClinica/*'
     ];
 }
