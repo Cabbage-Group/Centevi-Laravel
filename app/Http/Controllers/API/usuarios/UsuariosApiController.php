@@ -6,42 +6,73 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Usuarios;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UsuariosApiController extends Controller
 {
     public function usuarios(Request $request)
     {
-        // Obtener los parámetros
-        $page = $request->query('page', 1);
-        $limit = $request->query('limit', 50);
-        $sortOrder = $request->query('sortOrder', 'asc');
-        $sortColumn = $request->query('sortColumn', 'id_usuario');
-
-        // Validar los parámetros
-        $request->validate([
+        // Validar los parámetros de entrada
+        $validator = Validator::make($request->all(), [
             'page' => 'integer|min:1',
             'limit' => 'integer|min:1|max:100',
-            'sortOrder' => 'in:asc,desc',
-            'sortColumn' => 'string|in:usuario,nombre,perfil,sucursal,estado,ultimo_login,editado', // Ajusta según los campos que tengas
+            'sortOrder' => Rule::in(['asc', 'desc']),
+            'sortColumn' => Rule::in(['usuario', 'nombre', 'perfil', 'sucursal', 'estado', 'ultimo_login', 'editado', 'id']),
+            'usuarios' => 'string|max:255',
         ]);
 
-        // Obtener los datos paginados
-        $usuarios = Usuarios::orderBy($sortColumn, $sortOrder)
-            ->paginate($limit, ['*'], 'page', $page);
+        // Manejar errores de validación
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
 
-        // Formatear la respuesta
-        return response()->json([
-            'data' => $usuarios->items(),
-            'meta' => [
+        // Obtener los parámetros validados con valores predeterminados
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 10);
+        $sortOrder = $request->input('sortOrder', 'asc');
+        $sortColumn = $request->input('sortColumn', 'id_usuario');
+        $usuarios = $request->input('usuarios');
+
+        try {
+            $query = Usuarios::query();
+
+            // Aplicar filtro de usuarios si se proporciona
+            if ($usuarios) {
+                $query->where('usuario', 'LIKE', '%' . $usuarios . '%');
+            }
+
+            // Aplicar ordenamiento por columna y orden especificados
+            $query->orderBy($sortColumn, $sortOrder);
+
+            // Obtener datos paginados
+            $usuarios = $query->paginate($limit, ['*'], 'page', $page);
+
+            $meta = [
                 'page' => $usuarios->currentPage(),
                 'limit' => $usuarios->perPage(),
                 'total' => $usuarios->total(),
-            ],
-            'status' => [
-                'code' => 200,
-                'message' => 'Usuarios retrieved successfully',
-            ],
-        ]);
+                'sortOrder' => $sortOrder,
+                'sortColumn' => $sortColumn,
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Operación exitosa',
+                'data' => $usuarios->items(),
+                'meta' => $meta,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener usuarios',
+                'errors' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)

@@ -26,14 +26,14 @@ const OptometriaNeonatos = () => {
                                             method="post"
                                             role="form"
                                         >
-                                            <div className="form-row mb-4">
+                                            <div className="form-row mb-12">
                                                 <div className="form-group col-md-12">
                                                     <label htmlFor="inputEmail4">
                                                         Pacientes
                                                     </label>
                                                     <select
                                                         aria-hidden="true"
-                                                        className="form-control form-small select2-hidden-accessible"
+                                                        className="form-control"
                                                         data-select2-id="1"
                                                         name="paciente"
                                                         tabIndex="-1"
@@ -56,178 +56,8 @@ const OptometriaNeonatos = () => {
                                                         >
                                                             {' '}Número Cedula: 4-882-127 || Nombres: Amber Lizeth Martinez Moreno
                                                         </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2013-06-28"
-                                                            value="24"
-                                                        >
-                                                            {' '}Número Cedula: 4-867-2164 || Nombres: Jenna Nicolle Martinez Moreno
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2011-11-22"
-                                                            value="26"
-                                                        >
-                                                            {' '}Número Cedula: 8-1118-185 || Nombres: Ambar Julieta Quintero Xatruch
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2011-07-25"
-                                                            value="27"
-                                                        >
-                                                            {' '}Número Cedula: 0000 || Nombres: Noa Stella Edde Sasson
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2012-07-08"
-                                                            value="28"
-                                                        >
-                                                            {' '}Número Cedula: 8-1128-323 || Nombres: Daniel Antonio Halphen Tapia
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2013-04-09"
-                                                            value="29"
-                                                        >
-                                                            {' '}Número Cedula: 8-1140-1390 || Nombres: Salomon Dayan Yedid
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="1965-08-24"
-                                                            value="32"
-                                                        >
-                                                            {' '}Número Cedula: N-17-806 || Nombres: Laura Fernández Refincor
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2005-12-07"
-                                                            value="33"
-                                                        >
-                                                            {' '}Número Cedula: 8-1029-2242 || Nombres: Luis Fernando Palomo Chan
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2014-04-09"
-                                                            value="35"
-                                                        >
-                                                            {' '}Número Cedula: 8-1156-1202 || Nombres: Jiam Carlos Tam Beitia
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2016-11-07"
-                                                            value="36"
-                                                        >
-                                                            {' '}Número Cedula: 8-1196-30 || Nombres: Luca Josiah Shacklett Arias
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2011-02-18"
-                                                            value="37"
-                                                        >
-                                                            {' '}Número Cedula: 064999726 || Nombres: Gabriela Saray Flores Chavez
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2004-01-30"
-                                                            value="38"
-                                                        >
-                                                            {' '}Número Cedula: 3-753-1045 || Nombres: Victor Adrian Miller Rodriguez
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2021-08-31"
-                                                            value="39"
-                                                        >
-                                                            {' '}Número Cedula: 8-1253-2353 || Nombres: Theo Orozco Calderin
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2014-07-14"
-                                                            value="40"
-                                                        >
-                                                            {' '}Número Cedula: 9-783-2092 || Nombres: Isabel Lunadys Núñez Batista
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2012-12-30"
-                                                            value="41"
-                                                        >
-                                                            {' '}Número Cedula: 8-1135-2150 || Nombres: Leonardo Alarcon Martinez
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="1992-06-15"
-                                                            value="42"
-                                                        >
-                                                            {' '}Número Cedula: 8-883-173 || Nombres: Dilliamileth Esther Canales Bustamante
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2014-08-03"
-                                                            value="43"
-                                                        >
-                                                            {' '}Número Cedula: 8-1161-2268 || Nombres: Gabriel Ben Rubi Scmaffer
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2020-05-22"
-                                                            value="44"
-                                                        >
-                                                            {' '}Número Cedula: 8-1239-1527 || Nombres: Victor Manuel García Farah
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="1942-06-14"
-                                                            value="45"
-                                                        >
-                                                            {' '}Número Cedula: e-8-22365 || Nombres: Shanta Nandwani Nandwani
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2013-10-04"
-                                                            value="47"
-                                                        >
-                                                            {' '}Número Cedula: 9-782-1702 || Nombres: Mariana Elizabeth Palacios Vergara
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="1980-10-31"
-                                                            value="48"
-                                                        >
-                                                            {' '}Número Cedula: PE-9-2046 || Nombres: Sonia Ivette Pimentel Sánchez
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2010-10-08"
-                                                            value="49"
-                                                        >
-                                                            {' '}Número Cedula: 8-1101-1624 || Nombres: Gabriela Sofia Saldaña Dominguez
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="1964-03-07"
-                                                            value="50"
-                                                        >
-                                                            {' '}Número Cedula: E-8-65267 || Nombres: Ravit Yeshurun de Levy
-                                                        </option>
+                                                        
                                                     </select>
-                                                    <span
-                                                        className="select2 select2-container mb-4 select2-container--default form-control-sm"
-                                                        data-select2-id="2"
-                                                        dir="ltr"
-                                                        style={{
-                                                            width: '865px'
-                                                        }}
-                                                    >
-                                                        <span className="selection">
-                                                            <span
-                                                                aria-expanded="false"
-                                                                aria-haspopup="true"
-                                                                aria-labelledby="select2-paciente-yx-container"
-                                                                className="select2-selection select2-selection--single"
-                                                                role="combobox"
-                                                                tabIndex="0"
-                                                            >
-                                                                <span
-                                                                    aria-readonly="true"
-                                                                    className="select2-selection__rendered"
-                                                                    id="select2-paciente-yx-container"
-                                                                    role="textbox"
-                                                                    title="<--- Seleccione el paciente --->"
-                                                                >
-                                                                    {`<--- Seleccione el paciente --->`}
-                                                                </span>
-                                                                <span
-                                                                    className="select2-selection__arrow"
-                                                                    role="presentation"
-                                                                >
-                                                                    <b role="presentation" />
-                                                                </span>
-                                                            </span>
-                                                        </span>
-                                                        <span
-                                                            aria-hidden="true"
-                                                            className="dropdown-wrapper"
-                                                        />
-                                                    </span>
                                                 </div>
                                             </div>
                                             <div className="form-row mb-12">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchPacientes } from '../../redux/features/pacientesSlice.js';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { Link } from 'react-router-dom';
 import PaginationPacientes from './PaginationPacientes.js';
 

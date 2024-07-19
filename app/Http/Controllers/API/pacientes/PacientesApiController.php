@@ -42,4 +42,5 @@ class PacientesApiController extends Controller
             ],
         ]);
     }
+    
 }
