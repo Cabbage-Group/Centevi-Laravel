@@ -29,6 +29,8 @@ Route::get('/api/obtenerHistoriaClinica/{paciente_id}', [PacientesApiController:
 
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
 
+
+Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');
