@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Pacientes;
 use App\Models\HistoriaClinica;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class PacientesApiController extends Controller
 {
@@ -242,6 +242,140 @@ public function obtenerHistoriaClinica($paciente_id)
 }
 
     
+
+public function mostrarUltimaAtencionPacientes(Request $request)
+{
+    $fecha = $request->input('fecha');
+    $page = (int) $request->input('page', 1); // Valor predeterminado si no se proporciona
+    $limit = (int)$request->input('limit', 20); // Valor predeterminado si no se proporciona
+    $orden = trim($request->input('orden', 'asc'));
+    $ordenPor = trim($request->input('ordenPor', 'nombres'));
+    $searchTerm = trim($request->input('search', '')); // Término de búsqueda
+
+    // Validar el parámetro de ordenamiento
+    if (!in_array($orden, ['asc', 'desc'])) {
+        $orden = 'asc'; // Valor por defecto si se proporciona un valor inválido
+    }
+    $camposPermitidos = ['nombres', 'nro_cedula', 'email', 'direccion', 'doctores'];
+    
+    if (!in_array($ordenPor, $camposPermitidos)) {
+        $ordenPor = 'nombres'; // Valor por defecto si se proporciona un campo inválido
+    }
+
+    // Subconsulta para obtener la fecha máxima de atención por paciente
+    $subquery = DB::table(DB::raw("
+        (SELECT paciente, MAX(fecha_atencion) AS ultima_atencion, GROUP_CONCAT(DISTINCT doctor ORDER BY doctor ASC SEPARATOR ', ') AS doctores
+        FROM (
+            SELECT paciente, fecha_atencion, doctor FROM optometria_neonatos
+            UNION
+            SELECT paciente, fecha_atencion, doctor FROM optometria_pediatrica
+            UNION
+            SELECT paciente, fecha_atencion, doctor FROM ortoptica_adultos
+            UNION
+            SELECT paciente, fecha_atencion, doctor FROM consultagenerica
+            UNION
+            SELECT paciente, fecha_atencion, doctor FROM refracciongeneral
+        ) AS todas_las_atenciones
+        GROUP BY paciente) AS todas_las_atenciones"
+    ));
+
+    // Subconsulta para las nuevas tablas
+    $subqueryTerapias = DB::table(DB::raw("
+        (SELECT id_paciente AS paciente, DATE(fecha_creacion) AS fecha_atencion
+        FROM terapias_bajav
+        UNION
+        SELECT id_paciente AS paciente, DATE(fecha_creacion) AS fecha_atencion
+        FROM terapias_optometria_neonatos
+        UNION
+        SELECT id_paciente AS paciente, DATE(fecha_creacion) AS fecha_atencion
+        FROM terapias_optometria_pediatrica
+        UNION
+        SELECT id_paciente AS paciente, DATE(fecha_creacion) AS fecha_atencion
+        FROM terapias_ortoptica_adultos) AS terapias"
+    ));
+
+    // Construir la consulta base
+    $pacientesQuery = DB::table('pacientes')
+        ->leftJoinSub($subquery, 'todas_las_atenciones', function($join) {
+            $join->on('pacientes.id_paciente', '=', 'todas_las_atenciones.paciente');
+        })
+        ->leftJoinSub($subqueryTerapias, 'terapias', function($join) {
+            $join->on('pacientes.id_paciente', '=', 'terapias.paciente');
+        })
+        ->select(
+            'pacientes.id_paciente',
+            'pacientes.nombres',
+            'pacientes.apellidos',
+            'pacientes.nro_cedula',
+            'pacientes.email',
+            'pacientes.direccion',
+            'pacientes.celular',
+            DB::raw('MAX(ultima_atencion) AS ultima_atencion'),
+            DB::raw("GROUP_CONCAT(DISTINCT todas_las_atenciones.doctores ORDER BY todas_las_atenciones.doctores ASC SEPARATOR ', ') AS doctores")
+        )
+        ->groupBy(
+            'pacientes.id_paciente',
+            'pacientes.nombres',
+            'pacientes.apellidos',
+            'pacientes.nro_cedula',
+            'pacientes.email',
+            'pacientes.direccion',
+            'pacientes.celular'
+        );
+
+    // Aplicar filtros de búsqueda si se proporciona un término de búsqueda
+    if ($searchTerm) {
+        $pacientesQuery->where(function ($query) use ($searchTerm) {
+            $query->where('pacientes.nombres', 'like', "%$searchTerm%")
+                  ->orWhere('pacientes.apellidos', 'like', "%$searchTerm%")
+                  ->orWhere('pacientes.nro_cedula', 'like', "%$searchTerm%")
+                  ->orWhere('pacientes.email', 'like', "%$searchTerm%")
+                  ->orWhere('pacientes.direccion', 'like', "%$searchTerm%");
+        });
+    }
+
+    // Aplicar filtros de fecha si se proporcionan
+    if ($fecha !== null) {
+        if (strpos($fecha, ' - ') !== false) {
+            list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
+            $pacientesQuery->havingRaw("COALESCE(ultima_atencion, '1970-01-01') BETWEEN ? AND ?", [$fechaInicio, $fechaFin]);
+        } else {
+            $pacientesQuery->havingRaw("COALESCE(ultima_atencion, '1970-01-01') = ?", [$fecha]);
+        }
+    }
+
+    $totalPacientes = DB::table('pacientes')->count();
+
+
+    // Aplicar ordenamiento
+    if ($ordenPor === 'doctores') {
+        $pacientesQuery->orderBy(DB::raw('TRIM(doctores)'), $orden);
+    } else {
+        $pacientesQuery->orderBy(DB::raw('TRIM(pacientes.' . $ordenPor . ')'), $orden);
+    }
+
+
+
+    // Aplicar limit y offset
+    $offset = ($page - 1) * $limit;
+    $pacientes = $pacientesQuery->offset($offset)->limit($limit)->get();
+
+    return response()->json([
+        'data' => $pacientes,
+        'meta' => [
+            'total' => $totalPacientes,
+            'page' => $page,
+            'limit' => $limit,
+        ],
+        'status' => [
+            'code' => 200,
+            'message' => 'Pacientes retrieved successfully',
+        ],
+    ]);
+}
+
+
+
 
 
 }
