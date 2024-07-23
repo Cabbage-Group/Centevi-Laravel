@@ -16,7 +16,7 @@ class UsuariosApiController extends Controller
         // Validar los parámetros de entrada
         $validator = Validator::make($request->all(), [
             'page' => 'integer|min:1',
-            'limit' => 'integer|min:1|max:100',
+            'limit' => 'integer|min:1|max:10000',
             'sortOrder' => Rule::in(['asc', 'desc']),
             'sortColumn' => Rule::in(['usuario', 'nombre', 'perfil', 'sucursal', 'estado', 'ultimo_login', 'editado', 'id']),
             'usuarios' => 'string|max:255',

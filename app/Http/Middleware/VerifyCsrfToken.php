@@ -19,5 +19,13 @@ class VerifyCsrfToken extends Middleware
         'http://127.0.0.1:8000/api/neonatos/*',
         'http://127.0.0.1:8000/api/pediatrica',
         'http://127.0.0.1:8000/api/pediatrica/*',
+        'http://127.0.0.1:8000/api/ortoptica',
+        'http://127.0.0.1:8000/api/ortoptica/*',
+        'http://127.0.0.1:8000/api/bajavision',
+        'http://127.0.0.1:8000/api/bajavision/*',
+        'http://127.0.0.1:8000/api/ObtometriaGeneral/',
+        'http://127.0.0.1:8000/api/ObtometriaGeneral/*',
+        'http://127.0.0.1:8000/api/historiaclinica',
+        'http://127.0.0.1:8000/api/historiaclinica/*',
     ];
 }
