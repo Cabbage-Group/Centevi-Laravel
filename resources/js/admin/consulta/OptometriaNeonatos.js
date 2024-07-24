@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { crearNeonato } from '../../redux/features/consultas/OptometriaNeonatosSlice.js';
+import { Formik } from 'formik';
 
 const OptometriaNeonatos = () => {
 
@@ -22,16 +23,16 @@ const OptometriaNeonatos = () => {
         a_o: '',
         a_p: '',
         a_f: '',
-        medicamentos:'',
-        tratamientos:'',
-        desarrollo:'',
-        nacimiento:'',
-        parto:'',
-        gateo:'',
-        lenguaje:'',
-        complicaciones:'',
-        perinatales:'',
-        postnatales:'',
+        medicamentos: '',
+        tratamientos: '',
+        desarrollo: '',
+        nacimiento: '',
+        parto: '',
+        gateo: '',
+        lenguaje: '',
+        complicaciones: '',
+        perinatales: '',
+        postnatales: '',
 
         agudeza_visual: {
             tambor: '',
@@ -43,62 +44,62 @@ const OptometriaNeonatos = () => {
             a_ao: ''
         },
         lensometria: {
-            esfera_od:'',
-            cilindro_od:'',
-            eje_od:'',
-            p_base_od:'',
-            add_od:'',
-            esfera_oi:'',
-            cilindro_oi:'',
-            eje_oi:'',
-            p_base_oi:'',
-            add_oi:''
+            esfera_od: '',
+            cilindro_od: '',
+            eje_od: '',
+            p_base_od: '',
+            add_od: '',
+            esfera_oi: '',
+            cilindro_oi: '',
+            eje_oi: '',
+            p_base_oi: '',
+            add_oi: ''
         },
-        lensometria_extra:{
-            len_tipo_lentes:'',
-            len_filtros:'',
-            len_tiempo:'',
-            len_tipo_aro:''
+        lensometria_extra: {
+            len_tipo_lentes: '',
+            len_filtros: '',
+            len_tiempo: '',
+            len_tipo_aro: ''
         },
-        sa_pp:{
-            sa_od:'',
-            pp_od:'',
-            sa_oi:'',
-            pp_oi:''
+        sa_pp: {
+            sa_od: '',
+            pp_od: '',
+            sa_oi: '',
+            pp_oi: ''
         },
-        pruebas_extras:{
-            hirschberg:'',
-            krismsky:'',
-            plan_versiones:'',
-            ct_vp:'',
-            ct_reflejo:'',
-            ducciones_od:'',
-            ducciones_oi:'',
-            posicion_compensatoria:'',
-            fotomotor_od:'',
-            consensual:'',
-            fotomotor_oi:'',
-            fotomotor_consensual:''
+        pruebas_extras: {
+            hirschberg: '',
+            krismsky: '',
+            plan_versiones: '',
+            ct_vp: '',
+            ct_reflejo: '',
+            ducciones_od: '',
+            ducciones_oi: '',
+            posicion_compensatoria: '',
+            fotomotor_od: '',
+            consensual: '',
+            fotomotor_oi: '',
+            fotomotor_consensual: ''
         },
-        refraccion:{
-            refraccion_tipo_lentes:'',
-            refraccion_pd:'',
-            refraccion_uso:'',
-            reflejo_r_od:'',
-            reflejo_r_oi:'',
-            reflejo_r_ao:'',
-            esfera_od_f:'',
-            cilindro_od_f:'',
-            eje_od_f:'',
-            p_base_od_f:'',
-            add_od_f:'',
-            esfera_oi_f:'',
-            cilindro_oi_f:'',
-            eje_oi_f:'',
-            p_base_oi_f:'',
-            add_oi_f:''
+        refraccion: {
+            refraccion_tipo_lentes: '',
+            refraccion_pd: '',
+            refraccion_uso: '',
+            reflejo_r_od: '',
+            reflejo_r_oi: '',
+            reflejo_r_ao: '',
+            esfera_od_f: '',
+            cilindro_od_f: '',
+            eje_od_f: '',
+            p_base_od_f: '',
+            add_od_f: '',
+            esfera_oi_f: '',
+            cilindro_oi_f: '',
+            eje_oi_f: '',
+            p_base_oi_f: '',
+            add_oi_f: ''
         },
-        conducta_seguir:'',
+        conducta_seguir: '',
         // Add other fields as necessary
     });
     useEffect(() => {
@@ -865,460 +866,446 @@ const OptometriaNeonatos = () => {
                                                     />
                                                 </div>
                                             </div>
+
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-6">
+                                                    <label htmlFor="tratamientos">
+                                                        Hirschberg
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="D"
+                                                        name="hirschberg"
+                                                        value={formData.pruebas_extras.hirschberg}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-6">
+                                                    <label htmlFor="tratamientos">
+                                                        Krismsky
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="krismsky"
+                                                        value={formData.pruebas_extras.krismsky}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-12">
+                                                    <label htmlFor="inputAddress">
+                                                        VERSIONES:
+                                                    </label>
+                                                    <textarea
+                                                        className="form-control textarea"
+                                                        id="textarea"
+                                                        maxLength="10000"
+                                                        name="plan_versiones"
+                                                        value={formData.pruebas_extras.plan_versiones}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        rows="15"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        CT: VP:
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="D"
+                                                        name="ct_vp"
+                                                        value={formData.pruebas_extras.ct_vp}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        Reflejo Cocleopalpebral
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="ct_reflejo"
+                                                        value={formData.pruebas_extras.ct_reflejo}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        Ducciones:OD
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="ducciones_od"
+                                                        value={formData.pruebas_extras.ducciones_od}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        OI
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="ducciones_oi"
+                                                        value={formData.pruebas_extras.ducciones_oi}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-8">
+                                                    <label htmlFor="tratamientos">
+                                                        Posición Compensatoria
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="posicion_compensatoria"
+                                                        value={formData.pruebas_extras.posicion_compensatoria}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        Reflejos Pupilares: Fotomotor/OD{' '}
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="D"
+                                                        name="fotomotor_od"
+                                                        value={formData.pruebas_extras.fotomotor_od}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        Consensual
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="consensual"
+                                                        value={formData.pruebas_extras.consensual}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        Fotomotor:OI
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="fotomotor_oi"
+                                                        value={formData.pruebas_extras.fotomotor_oi}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="tratamientos">
+                                                        Consensual
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="I"
+                                                        name="fotomotor_consensual"
+                                                        value={formData.pruebas_extras.fotomotor_consensual}
+                                                        onChange={handlePruebas_extrasChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-6">
+                                                    <label htmlFor="inputAddress">
+                                                        Reflejo retinoscopico OD:
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="inputAddress"
+                                                        name="reflejo_r_od"
+                                                        value={formData.refraccion.reflejo_r_od}
+                                                        onChange={handleRefraccionChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="inputAddress">
+                                                        OI:
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="inputAddress"
+                                                        name="reflejo_r_oi"
+                                                        value={formData.refraccion.reflejo_r_oi}
+                                                        onChange={handleRefraccionChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-3">
+                                                    <label htmlFor="inputAddress">
+                                                        AO:
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="inputAddress"
+                                                        name="reflejo_r_ao"
+                                                        value={formData.refraccion.reflejo_r_ao}
+                                                        onChange={handleRefraccionChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <h5>
+                                                    RECETA FINAL
+                                                </h5>
+                                                <div className="table-responsive">
+                                                    <table className="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th className="text-center">
+                                                                    RX{' '}
+                                                                </th>
+                                                                <th>
+                                                                    ESFERA
+                                                                </th>
+                                                                <th>
+                                                                    CILINDRO
+                                                                </th>
+                                                                <th>
+                                                                    EJE
+                                                                </th>
+                                                                <th>
+                                                                    P/BASE △
+                                                                </th>
+                                                                <th>
+                                                                    ADD
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td className="text-center">
+                                                                    Ojo Derecho
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="esfera_od_f"
+                                                                        value={formData.refraccion.esfera_od_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="cilindro_od_f"
+                                                                        value={formData.refraccion.cilindro_od_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="eje_od_f"
+                                                                        value={formData.refraccion.eje_od_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="p_base_od_f"
+                                                                        value={formData.refraccion.p_base_od_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder="△"
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="add_od_f"
+                                                                        value={formData.refraccion.add_od_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className="text-center">
+                                                                    Ojo Izquierdo
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="esfera_oi_f"
+                                                                        value={formData.refraccion.esfera_oi_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="cilindro_oi_f"
+                                                                        value={formData.refraccion.cilindro_oi_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="eje_oi_f"
+                                                                        value={formData.refraccion.eje_oi_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="p_base_oi_f"
+                                                                        value={formData.refraccion.p_base_oi_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder="△"
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                                <td>
+                                                                    <input
+                                                                        className="form-control"
+                                                                        name="add_oi_f"
+                                                                        value={formData.refraccion.add_oi_f}
+                                                                        onChange={handleRefraccionChange}
+                                                                        placeholder=""
+                                                                        type="text"
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-6">
+                                                    <label htmlFor="inputAddress">
+                                                        Tipo Lentes
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="inputAddress"
+                                                        name="refraccion_tipo_lentes"
+                                                        value={formData.refraccion.refraccion_tipo_lentes}
+                                                        onChange={handleRefraccionChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-2">
+                                                    <label htmlFor="inputAddress">
+                                                        PD:
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="inputAddress"
+                                                        name="refraccion_pd"
+                                                        value={formData.refraccion.refraccion_pd}
+                                                        onChange={handleRefraccionChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                                <div className="form-group col-md-4">
+                                                    <label htmlFor="inputAddress">
+                                                        USO:
+                                                    </label>
+                                                    <input
+                                                        className="form-control"
+                                                        id="inputAddress"
+                                                        name="refraccion_uso"
+                                                        value={formData.refraccion.refraccion_uso}
+                                                        onChange={handleRefraccionChange}
+                                                        placeholder=""
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-row mb-4">
+                                                <div className="form-group col-md-12">
+                                                    <label htmlFor="inputAddress">
+                                                        CONDUCTA A SEGUIR:
+                                                    </label>
+                                                    <textarea
+                                                        className="form-control textarea"
+                                                        id="textarea"
+                                                        maxLength="10000"
+                                                        name="conducta_seguir"
+                                                        value={formData.conducta_seguir}
+                                                        onChange={handleChange}
+                                                        placeholder=""
+                                                        rows="15"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="btn btn-success mt-3"
+                                                type="button"
+                                                onClick={handleSubmit}
+                                            >
+                                                Guardar Consulta
+                                            </button>
+                                            {status === 'loading' && <p>Enviando...</p>}
+                                            {status === 'failed' && <p>Error: {error}</p>}
+                                            {status === 'succeeded' && <p>Neonato creado con éxito</p>}
                                         </form>
                                     </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="tratamientos">
-                                                Hirschberg
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="D"
-                                                name="hirschberg"
-                                                value={formData.pruebas_extras.hirschberg}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="tratamientos">
-                                                Krismsky
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="krismsky"
-                                                value={formData.pruebas_extras.krismsky}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-12">
-                                            <label htmlFor="inputAddress">
-                                                VERSIONES:
-                                            </label>
-                                            <textarea
-                                                className="form-control textarea"
-                                                id="textarea"
-                                                maxLength="10000"
-                                                name="plan_versiones"
-                                                value={formData.pruebas_extras.plan_versiones}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                rows="15"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                CT: VP:
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="D"
-                                                name="ct_vp"
-                                                value={formData.pruebas_extras.ct_vp}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                Reflejo Cocleopalpebral
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="ct_reflejo"
-                                                value={formData.pruebas_extras.ct_reflejo}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                Ducciones:OD
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="ducciones_od"
-                                                value={formData.pruebas_extras.ducciones_od}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                OI
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="ducciones_oi"
-                                                value={formData.pruebas_extras.ducciones_oi}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-8">
-                                            <label htmlFor="tratamientos">
-                                                Posición Compensatoria
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="posicion_compensatoria"
-                                                value={formData.pruebas_extras.posicion_compensatoria}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                Reflejos Pupilares: Fotomotor/OD{' '}
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="D"
-                                                name="fotomotor_od"
-                                                value={formData.pruebas_extras.fotomotor_od}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                Consensual
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="consensual"
-                                                value={formData.pruebas_extras.consensual}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                Fotomotor:OI
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="fotomotor_oi"
-                                                value={formData.pruebas_extras.fotomotor_oi}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="tratamientos">
-                                                Consensual
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="I"
-                                                name="fotomotor_consensual"
-                                                value={formData.pruebas_extras.fotomotor_consensual}
-                                                onChange={handlePruebas_extrasChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="inputAddress">
-                                                Reflejo retinoscopico OD:
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="inputAddress"
-                                                name="reflejo_r_od"
-                                                value={formData.refraccion.reflejo_r_od}
-                                                onChange={handleRefraccionChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="inputAddress">
-                                                OI:
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="inputAddress"
-                                                name="reflejo_r_oi"
-                                                value={formData.refraccion.reflejo_r_oi}
-                                                onChange={handleRefraccionChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-3">
-                                            <label htmlFor="inputAddress">
-                                                AO:
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="inputAddress"
-                                                name="reflejo_r_ao"
-                                                value={formData.refraccion.reflejo_r_ao}
-                                                onChange={handleRefraccionChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <h5>
-                                            RECETA FINAL
-                                        </h5>
-                                        <div className="table-responsive">
-                                            <table className="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="text-center">
-                                                            RX{' '}
-                                                        </th>
-                                                        <th>
-                                                            ESFERA
-                                                        </th>
-                                                        <th>
-                                                            CILINDRO
-                                                        </th>
-                                                        <th>
-                                                            EJE
-                                                        </th>
-                                                        <th>
-                                                            P/BASE △
-                                                        </th>
-                                                        <th>
-                                                            ADD
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td className="text-center">
-                                                            Ojo Derecho
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="esfera_od_f"
-                                                                value={formData.refraccion.esfera_od_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="cilindro_od_f"
-                                                                value={formData.refraccion.cilindro_od_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="eje_od_f"
-                                                                value={formData.refraccion.eje_od_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="p_base_od_f"
-                                                                value={formData.refraccion.p_base_od_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder="△"
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="add_od_f"
-                                                                value={formData.refraccion.add_od_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className="text-center">
-                                                            Ojo Izquierdo
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="esfera_oi_f"
-                                                                value={formData.refraccion.esfera_oi_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="cilindro_oi_f"
-                                                                value={formData.refraccion.cilindro_oi_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="eje_oi_f"
-                                                                value={formData.refraccion.eje_oi_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="p_base_oi_f"
-                                                                value={formData.refraccion.p_base_oi_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder="△"
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                        <td>
-                                                            <input
-                                                                className="form-control"
-                                                                name="add_oi_f"
-                                                                value={formData.refraccion.add_oi_f}
-                                                                onChange={handleRefraccionChange}
-                                                                placeholder=""
-                                                                type="text"
-                                                            />
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-6">
-                                            <label htmlFor="inputAddress">
-                                                Tipo Lentes
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="inputAddress"
-                                                name="refraccion_tipo_lentes"
-                                                value={formData.refraccion.refraccion_tipo_lentes}
-                                                onChange={handleRefraccionChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-2">
-                                            <label htmlFor="inputAddress">
-                                                PD:
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="inputAddress"
-                                                name="refraccion_pd"
-                                                value={formData.refraccion.refraccion_pd}
-                                                onChange={handleRefraccionChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                        <div className="form-group col-md-4">
-                                            <label htmlFor="inputAddress">
-                                                USO:
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                id="inputAddress"
-                                                name="refraccion_uso"
-                                                value={formData.refraccion.refraccion_uso}
-                                                onChange={handleRefraccionChange}
-                                                placeholder=""
-                                                type="text"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-row mb-4">
-                                        <div className="form-group col-md-12">
-                                            <label htmlFor="inputAddress">
-                                                CONDUCTA A SEGUIR:
-                                            </label>
-                                            <textarea
-                                                className="form-control textarea"
-                                                id="textarea"
-                                                maxLength="10000"
-                                                name="conducta_seguir"
-                                                value={formData.conducta_seguir}
-                                                onChange={handleChange}
-                                                placeholder=""
-                                                rows="15"
-                                            />
-                                        </div>
-                                    </div>
-                                    <input
-                                        defaultValue="crear"
-                                        name="crear_optometria_neonatos"
-                                        type="hidden"
-                                    />
-                                    <input
-                                        defaultValue="Administrador"
-                                        name="doctor"
-                                        type="hidden"
-                                    />
-                                    <input
-                                        defaultValue="0"
-                                        name="id_terapia"
-                                        type="hidden"
-                                    />
-                                    <button
-                                        className="btn btn-success mt-3"
-                                        type="button"
-                                        onClick={handleSubmit}
-                                    >
-                                        Guardar Consulta
-                                    </button>
-                                    {status === 'loading' && <p>Enviando...</p>}
-                                    {status === 'failed' && <p>Error: {error}</p>}
-                                    {status === 'succeeded' && <p>Neonato creado con éxito</p>}
                                 </div>
                             </div>
                         </div>
