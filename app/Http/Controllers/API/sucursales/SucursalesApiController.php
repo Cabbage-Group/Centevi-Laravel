@@ -12,15 +12,9 @@ class SucursalesApiController extends Controller
     {
         // Obtener los parámetros
         $page = $request->query('page', 1);
-        $limit = $request->query('limit', 50);
+        $limit = $request->query('limit', 100);
         $sortOrder = $request->query('sortOrder', 'asc');
         $sortColumn = $request->query('sortColumn', 'id_sucursal');
-        // return array(
-        //     $page,
-        //     $limit,
-        //     $sortColumn,
-        //     $sortOrder,
-        // );
 
         // Validar los parámetros
         $request->validate([
