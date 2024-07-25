@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUltimaAtencion, setOrden, setFechaRange, setSearch  } from '../../redux/features/ultimaAtencionSlice';
+import { fetchUltimaAtencion, setOrden, setFechaRange,setOrdenPor, setSearch  } from '../../redux/features/ultimaAtencionSlice';
 import PaginationUltimaAtencion from './PaginationUltimaAtencion';
 
 
@@ -32,11 +32,11 @@ const UltimaAtencion = () => {
         dispatch(fetchUltimaAtencion({ page: currentPage, startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }));
     };
 
-    const handleSort = (field) => {
+    const handleSort = (newOrdenPor) => {
         const newOrder = orden === 'asc' ? 'desc' : 'asc';
         dispatch(setOrden(newOrder));
-        dispatch(setOrdenPor(field));
-        dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: field }));
+        dispatch(setOrdenPor(newOrdenPor));
+        dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
     };
 
 
@@ -226,7 +226,7 @@ const UltimaAtencion = () => {
                                                                 y2="16.65"
                                                             />
                                                         </svg>
-                                                        <input
+                                                                                                    <input
                                                             aria-controls="html5-extension"
                                                             className="form-control"
                                                             placeholder="Search..."

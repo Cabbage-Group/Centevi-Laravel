@@ -22,7 +22,8 @@ import SinAtencion from './admin/reportes/SinAtencion.js';
 import UltimaAtencion from './admin/reportes/UltimaAtencion.js';
 import PacienteAtendidoDia from './admin/reportes/PacienteAtendidoDia.js';
 import ConsultasDiarias from './admin/reportes/ConsultasDiarias.js';
-import TerapiasDiarias from './admin/reportes/TerapiasDiarias.js';
+import TerapiasDiarias from './admin/reportes/TerapiasDiarias.js'
+
 import { Provider } from 'react-redux';
 import store from './redux/store';
 

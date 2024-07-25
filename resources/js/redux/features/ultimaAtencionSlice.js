@@ -1,11 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../config/config';
+import moment from 'moment';
+
+const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 
 export const fetchUltimaAtencion = createAsyncThunk(
     'ultimaAtencion/fetchUltimaAtencion',
-    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = '', endDate = '', search = '' }) => {
+    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
         try {
             const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
@@ -25,7 +28,7 @@ export const fetchUltimaAtencion = createAsyncThunk(
 
 
 const ultimaAtencionSlice = createSlice({
-    name: 'ultimaAtencion',
+    name: 'consultasDiarias',
     initialState: {
         data: [],
         ultimaAtencion: [],
@@ -34,8 +37,8 @@ const ultimaAtencionSlice = createSlice({
         error: null,
         orden: 'asc',
         ordenPor: 'nombres',
-        startDate: '',
-        endDate: '',
+        startDate: getCurrentDate(),
+        endDate: getCurrentDate(),
         search: '',  // Agrega el estado de búsqueda
     },
     reducers: {
