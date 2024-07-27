@@ -30,5 +30,7 @@ class VerifyCsrfToken extends Middleware
                 'http://127.0.0.1:8000/api/pacientes',
                 'http://127.0.0.1:8000/api/pacientes/*',
                 'http://127.0.0.1:8000/api/obtenerHistoriaClinica/*',
+                'http://127.0.0.1:8000/api/ultimaAtencion',
+                'http://127.0.0.1:8000/api/pacientesConsultasDiarias',
         ];
 }

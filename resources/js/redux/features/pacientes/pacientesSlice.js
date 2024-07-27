@@ -1,7 +1,7 @@
 // redux/slices/pacientesSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import API from '../../../config/config';
+import API from '../../../config/config.js';
 
 export const fetchPacientes = createAsyncThunk(
     'pacientes/fetchPacientes',

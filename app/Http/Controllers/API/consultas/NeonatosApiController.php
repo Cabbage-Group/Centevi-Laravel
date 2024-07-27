@@ -21,7 +21,7 @@ class NeonatosApiController extends Controller
                 'sucursal', 'doctor', 'paciente', 'id_terapia', 'edad', 
                 'fecha_atencion', 'm_c', 'a_o', 'a_p', 'a_f', 'medicamentos', 
                 'tratamientos', 'desarrollo', 'nacimiento', 'parto', 'gateo', 
-                'lenguaje', 'complicaciones', 'perinatales', 'agudeza_visual', 
+                'lenguaje', 'complicaciones', 'perinatales', 'postnatales', 'agudeza_visual', 
                 'lensometria', 'lensometria_extra', 'sa_pp', 'pruebas_extras', 
                 'refraccion', 'conducta_seguir', 'plan_versiones', 'fecha_creacion', 
                 'editado'
@@ -74,6 +74,7 @@ class NeonatosApiController extends Controller
                 'meta' => $meta,
             ]);
         } catch (\Exception $e) {
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los registros',
@@ -85,25 +86,35 @@ class NeonatosApiController extends Controller
 
     public function CrearNeonatos(Request $request)
     {
-        // Validar los datos de entrada
         $request->validate([
-            'sucursal' => 'required|integer|max:255',
-            'doctor' => 'required|string|max:255',
-            'paciente' => 'required|integer|max:255',
+            'sucursal' => 'required|integer|max:1000',
+            'doctor' => 'required|string|max:1000',
+            'paciente' => 'required|integer|max:10000',
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
             // Añadir validaciones para los demás campos necesarios
         ]);
+        try {
+            $neonato = OptometriaNeonatos::create($request->all());
 
-        // Crear un nuevo registro en la tabla optometria_neonatos
-        $neonato = OptometriaNeonatos::create($request->all());
+            return response()->json([
+                'success' => true,
+                'message' => 'Neonato creado con éxito',
+                'data' => $neonato,
+            ]); 
+        }
+        catch (\Exception $e) {
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Neonato creado con éxito',
-            'data' => $neonato,
-        ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los registros',
+                'errors' => $e->getMessage(),
+            ], 500);
+        }
+        
+
+        // Crear un nuevo registro en la tabla optometria_neonato
     }
 
     public function EditarNeonatos(Request $request, $id)

@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/auth/Login.js';
 import Sidebar from './components/partials/sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
-import BajaVision from './admin/bajavision/BajaVision.js';
+import BajaVision from './admin/consulta/BajaVision.js';
 import OptometriaGeneral from './admin/consulta/optometriaGeneral.js';
 import OrtopticaVisionBinocular from './admin/consulta/OrtopticaVisionBinocular.js';
 import HistoriaClinica from './admin/consulta/HistoriaClinica.js';

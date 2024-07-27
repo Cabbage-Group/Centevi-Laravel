@@ -1,6 +1,66 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { crearHistoriaClinica } from '../../redux/features/consultas/HistoriaClinicaSlice.js';
 
 const HistoriaClinica = () => {
+    const dispatch = useDispatch();
+    const { pacientes } = useSelector((state) => state.pacientes);
+    const { sucursales } = useSelector((state) => state.sucursales);
+    const { status, error } = useSelector((state) => state.optometriaGeneral);
+    const [selectedPaciente, setSelectedPaciente] = useState(null);
+    const initialValues = {
+        sucursal: '',
+        doctor: 'Dr. Diego',
+        id_terapia: '2',
+        paciente: '',
+        edad: '35',
+        fecha_atencion: '',
+        m_c: '',
+    };
+
+    useEffect(() => {
+        dispatch(fetchSucursales({ page: 1, limit: 100 }));
+        dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (selectedPaciente) {
+            const paciente = pacientes.find(p => p.id_paciente === selectedPaciente);
+            if (paciente && paciente.fecha_nacimiento) {
+                const edad = calculateAge(paciente.fecha_nacimiento);
+                setFieldValue('edad', edad);
+            }
+        }
+    }, [selectedPaciente, pacientes]);
+
+    const calculateAge = (birthDate) => {
+        const today = new Date();
+        const birthDateObj = new Date(birthDate);
+        let age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDifference = today.getMonth() - birthDateObj.getMonth();
+        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDateObj.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const validationSchema = Yup.object({
+        sucursal: Yup.number().required('Required'),
+        paciente: Yup.number().required('Required'),
+        fecha_atencion: Yup.date().required('Required'),
+    });
+
+    const handlePacienteChange = (e, setFieldValue) => {
+
+        const { value } = e.target;
+        console.log(value);
+        setSelectedPaciente(value);
+        setFieldValue('paciente', value);
+    };
     return (
         <div className="row layout-top-spacing">
             <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
@@ -27,161 +87,101 @@ const HistoriaClinica = () => {
                                         </div>
                                     </div>
                                     <div className="widget-content widget-content-area">
-                                        <form
-                                            method="post"
-                                            role="form"
+                                        <Formik
+                                            initialValues={initialValues}
+                                            validationSchema={validationSchema}
+                                            onSubmit={(values, { setSubmitting }) => {
+                                                console.log('Form values:', values);
+                                                dispatch(crearHistoriaClinica(values));
+                                                setSubmitting(false);
+                                            }}
                                         >
-                                            <div className="form-row mb-4">
-                                                <div className="form-group col-md-12">
-                                                    <label htmlFor="inputEmail4">
-                                                        Pacientes
-                                                    </label>
-                                                    <select
-                                                        aria-hidden="true"
-                                                        className="form-control form-small select2-hidden-accessible"
-                                                        data-select2-id="1"
-                                                        name="paciente"
-                                                        tabIndex="-1"
+                                            {({ setFieldValue }) => (
+                                                <Form
+                                                    method="post"
+                                                    role="form"
+                                                >
+                                                    <div className="form-row mb-4">
+                                                        <div className="form-group col-md-12">
+                                                            <label htmlFor="paciente">Pacientes</label>
+                                                            <Field as="select" name="paciente" className="form-control form-small" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
+                                                                <option value="">Seleccione el paciente</option>
+                                                                {pacientes.map((paciente) => (
+                                                                    <option key={paciente.id_paciente} value={paciente.id_paciente}>
+                                                                        Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
+                                                                    </option>
+                                                                ))}
+                                                            </Field>
+                                                            <ErrorMessage name="paciente" component="div" className="text-danger" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-row mb-12">
+                                                        <div className="form-group col-md-6">
+                                                            <label htmlFor="inputSucursal">Sucursal</label>
+                                                            <Field as="select" name="sucursal" className="form-control" id="sucursal">
+                                                                <option value="">Seleccionar sucursal</option>
+                                                                {sucursales.map((sucursal) => (
+                                                                    <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
+                                                                ))}
+                                                            </Field>
+                                                            <ErrorMessage name="sucursal" component="div" className="text-danger" />
+                                                        </div>
+                                                        <div className="form-group col-md-3">
+                                                            <label htmlFor="edad">
+                                                                Edad
+                                                            </label>
+                                                            <Field
+                                                                className="form-control"
+                                                                id="edad"
+                                                                name="edad"
+                                                                readOnly
+                                                            />
+                                                        </div>
+                                                        <div className="form-group col-md-3">
+                                                            <label htmlFor="inputAddress">
+                                                                Fecha de atencion
+                                                            </label>
+                                                            <Field
+                                                                className="form-control"
+                                                                id="inputAddress"
+                                                                max="2024-07-04"
+                                                                name="fecha_atencion"
+                                                                required
+                                                                type="date"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-row mb-4">
+                                                        <div className="form-group col-md-12">
+                                                            <label htmlFor="textarea">
+                                                                Motivo de Consulta:
+                                                            </label>
+                                                            <Field
+                                                                className="form-control textarea"
+                                                                id="textarea"
+                                                                maxLength="10000"
+                                                                name="m_c"
+                                                                placeholder=""
+                                                                rows="25"
+                                                                as="textarea"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        className="btn btn-success mt-3 btn-crear-consulta-generica"
+                                                        type="submit"
                                                     >
-                                                        <option
-                                                            data-select2-id="3"
-                                                            value=""
-                                                        >
-                                                            {`<--- Seleccione el paciente --->`}
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2018-08-21"
-                                                            value="22"
-                                                        >
-                                                            {' '}Número Cedula: 8-1219-383 || Nombres: Danna Lucia Gonzalez Quiros
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2016-09-22"
-                                                            value="23"
-                                                        >
-                                                            {' '}Número Cedula: 4-882-127 || Nombres: Amber Lizeth Martinez Moreno
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2013-06-28"
-                                                            value="24"
-                                                        >
-                                                            {' '}Número Cedula: 4-867-2164 || Nombres: Jenna Nicolle Martinez Moreno
-                                                        </option>
-                                                        <option
-                                                            data-fecha-nacimiento="2011-11-22"
-                                                            value="26"
-                                                        >
-                                                            {' '}Número Cedula: 8-1118-185 || Nombres: Ambar Julieta Quintero Xatruch
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div className="form-row mb-12">
-                                                <div className="form-group col-md-6">
-                                                    <label htmlFor="inputSucursal">
-                                                        Sucursal
-                                                    </label>
-                                                    <select
-                                                        className="form-control"
-                                                        id="sucursal"
-                                                        name="sucursal"
-                                                        required
-                                                    >
-                                                        <option value="">
-                                                            Seleccionar sucursal
-                                                        </option>
-                                                        <option value="3">
-                                                            CENTEVI Centro Médico San Judas Tadeo
-                                                        </option>
-                                                        <option value="4">
-                                                            CENTEVI Consultorios Medicos Paitilla
-                                                        </option>
-                                                        <option value="5">
-                                                            CENTEVI Sede Chitre
-                                                        </option>
-                                                        <option value="7">
-                                                            CENTEVI El Dorado
-                                                        </option>
-                                                        <option value="8">
-                                                            CENTEVI Giras Interior del Pais
-                                                        </option>
-                                                    </select>
-                                                </div>
-                                                <div className="form-group col-md-3">
-                                                    <label htmlFor="edad">
-                                                        Edad
-                                                    </label>
-                                                    <input
-                                                        className="form-control"
-                                                        id="edad"
-                                                        name="edad"
-                                                        readOnly
-                                                        type="text"
-                                                    />
-                                                </div>
-                                                <div className="form-group col-md-3">
-                                                    <label htmlFor="inputAddress">
-                                                        Fecha de atencion
-                                                    </label>
-                                                    <input
-                                                        className="form-control"
-                                                        id="inputAddress"
-                                                        max="2024-07-04"
-                                                        name="fecha_atencion"
-                                                        required
-                                                        type="date"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div className="form-row mb-4">
-                                                <div className="form-group col-md-12">
-                                                    <label htmlFor="textarea">
-                                                        Motivo de Consulta:
-                                                    </label>
-                                                    <textarea
-                                                        className="form-control textarea"
-                                                        id="textarea"
-                                                        maxLength="10000"
-                                                        name="m_c"
-                                                        placeholder=""
-                                                        rows="25"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </form>
+                                                        Guardar Consulta
+                                                    </button>
+                                                    {status === 'loading' && <p>Enviando...</p>}
+                                                    {status === 'failed' && <p>Error: {error}</p>}
+                                                    {status === 'succeeded' && <p>Creado con éxito</p>}
+                                                </Form>
+                                            )}
+                                        </Formik>
+                                        {status === 'error' && <div className="alert alert-danger">{error}</div>}
                                     </div>
                                 </div>
-                                <input
-                                    defaultValue="crear"
-                                    name="crear_consulta_generica"
-                                    type="hidden"
-                                />
-                                <input
-                                    defaultValue="Administrador"
-                                    name="doctor"
-                                    type="hidden"
-                                />
-                                <input
-                                    defaultValue="0"
-                                    name="id_terapia"
-                                    type="hidden"
-                                />
-                                <button
-                                    className="btn btn-success mt-3 btn-crear-consulta-generica"
-                                    type="submit"
-                                >
-                                    <div className="txt-btn-crear">
-                                        Crear Paciente
-                                    </div>
-                                    <div
-                                        className="spinner-border no-mostrar-btn"
-                                        role="status"
-                                    >
-                                        <span className="sr-only">
-                                            {' '}Loading...
-                                        </span>
-                                    </div>
-                                </button>
                             </div>
                         </div>
                     </div>
