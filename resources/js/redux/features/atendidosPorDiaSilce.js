@@ -19,7 +19,6 @@ export const fetchAtendidosPorDia = createAsyncThunk(
             console.log('meta:', response.data.meta);
 
             console.log('mensaje:', response.data);
-            console.log('mensaje: hola', );
 
             return response.data;
         } catch (error) {
@@ -42,7 +41,8 @@ const atendidosPorDiaSlice = createSlice({
         ordenPor: 'PACIENTE_NOMBRE',
         startDate:  getCurrentDate(),
         endDate:  getCurrentDate(),
-        search: '',  
+        search: '', 
+        dataexport: []
     },
     reducers: {
         setOrden(state, action) {
@@ -68,6 +68,8 @@ const atendidosPorDiaSlice = createSlice({
                 state.status = 'succeeded';
                 state.atendidosPorDia = action.payload.data;
                 state.meta = action.payload.meta;
+                state.dataexport = action.payload.export.dataexport;
+               
             })
             .addCase(fetchAtendidosPorDia.rejected, (state, action) => {
                 state.status = 'failed';

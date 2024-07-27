@@ -26,8 +26,6 @@ export const fetchConsultasDiarias = createAsyncThunk(
         }
     }
 );
-
-
 const consultasDiariasSlice = createSlice({
     name: 'consultasDiarias',
     initialState: {
@@ -40,7 +38,8 @@ const consultasDiariasSlice = createSlice({
         ordenPor: 'PACIENTE_NOMBRE',
         startDate: getCurrentDate(),
         endDate: getCurrentDate(),
-        search: '', 
+        search: '',
+        dataexport: []
     },
     reducers: {
         setOrden(state, action) {
@@ -53,7 +52,7 @@ const consultasDiariasSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { // Agrega el reducer para la búsqueda
+        setSearch(state, action) { 
             state.search = action.payload;
         },
     },
@@ -66,6 +65,8 @@ const consultasDiariasSlice = createSlice({
                 state.status = 'succeeded';
                 state.consultasDiarias = action.payload.data;
                 state.meta = action.payload.meta;
+                state.dataexport = action.payload.export.dataexport;
+               
             })
             .addCase(fetchConsultasDiarias.rejected, (state, action) => {
                 state.status = 'failed';

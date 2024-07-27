@@ -36,6 +36,8 @@ Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarC
 
 Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
 
+Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

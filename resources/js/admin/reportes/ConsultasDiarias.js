@@ -4,12 +4,15 @@ import { fetchConsultasDiarias, setOrden, setOrdenPor,setFechaRange } from '../.
 import PaginationConsultasDiarias from './PaginationConsultasDiarias';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import ExportButton from './exportButton';
+import { transformDataForConsultasDiarias } from '../../../utils/dataTransform';
+
 
 const ConsultasDiarias = () => {
 
     const dispatch = useDispatch();
     const metaPacientes = useSelector((state) => state.pacientes.meta);
-    const { consultasDiarias, status, error, meta,totalPages, orden,startDate, endDate, ordenPor,search} = useSelector((state) => state.consultasDiarias);
+    const { consultasDiarias, status, error, meta,totalPages, orden,startDate, endDate, ordenPor,search,dataexport} = useSelector((state) => state.consultasDiarias);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [localEndDate, setLocalEndDate] = useState(endDate);
@@ -181,46 +184,11 @@ const ConsultasDiarias = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-copy buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Copy
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-csv buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            CSV
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-excel buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Excel
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-print btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Print
-                                                        </span>
-                                                    </button>
-                                                    {' '}
+                                                <ExportButton 
+                                                dataexport={dataexport}
+                                                transformData={transformDataForConsultasDiarias}
+                                                fileName="consultas_diarias.xlsx"
+                                                />
                                                 </div>
                                             </div>
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">

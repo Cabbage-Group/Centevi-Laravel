@@ -16,7 +16,7 @@ export const fetchUltimaAtencion = createAsyncThunk(
                 params: { page, limit, orden, ordenPor, fecha, search },
             });
 
-            console.log('mensaje:', response.data);
+            console.log('mensaje:', response.data);         
 
             return response.data;
         } catch (error) {
@@ -39,7 +39,8 @@ const ultimaAtencionSlice = createSlice({
         ordenPor: 'nombres',
         startDate: getCurrentDate(),
         endDate: getCurrentDate(),
-        search: '',  // Agrega el estado de búsqueda
+        search: '',
+        dataexport: []
     },
     reducers: {
         setOrden(state, action) {
@@ -52,7 +53,7 @@ const ultimaAtencionSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { // Agrega el reducer para la búsqueda
+        setSearch(state, action) { 
             state.search = action.payload;
         },
     },
@@ -65,6 +66,9 @@ const ultimaAtencionSlice = createSlice({
                 state.status = 'succeeded';
                 state.ultimaAtencion = action.payload.data;
                 state.meta = action.payload.meta;
+                state.meta = action.payload.meta;
+                state.dataexport = action.payload.export.dataexport;
+            
             })
             .addCase(fetchUltimaAtencion.rejected, (state, action) => {
                 state.status = 'failed';

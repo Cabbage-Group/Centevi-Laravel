@@ -4,16 +4,17 @@ import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
 import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/atendidosPorDiaSilce';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import ExportButton from './exportButton';
+import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 
 
 
-const PacienteAtendidoDia = () => {
+
+const ReportePaciente = () => {
 
     const dispatch = useDispatch();
-
     const metaPacientes = useSelector((state) => state.pacientes.meta);
-    
-    const {  atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search } = useSelector((state) => state.atendidosPorDia);
+    const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search, dataexport} = useSelector((state) => state.atendidosPorDia);
     
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -24,7 +25,7 @@ const PacienteAtendidoDia = () => {
     useEffect(() => {
         dispatch(fetchPacientes({}));
     }, [dispatch]);
-
+   
     useEffect(() => {
         dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20 , orden, ordenPor,startDate, endDate, search: localSearch}));
     }, [dispatch,localSearch,  currentPage, startDate, endDate,orden, ordenPor]);
@@ -185,46 +186,11 @@ const PacienteAtendidoDia = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-copy buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Copy
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-csv buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            CSV
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-excel buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Excel
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-print btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Print
-                                                        </span>
-                                                    </button>
-                                                    {' '}
+                                                <ExportButton 
+                                                dataexport={dataexport}
+                                                transformData={transformDataForAtendidosPorDia}
+                                                fileName="Reporte_Paciente.xlsx"
+                                                />
                                                 </div>
                                             </div>
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
@@ -271,6 +237,9 @@ const PacienteAtendidoDia = () => {
                                         </div>
                                     </div>
                                     <div className="table-responsive">
+                                        {status === 'loading' && <p>Loading...</p>}
+                                        {status === 'failed' && <p>Error: {error}</p>}
+                                        {status === 'succeeded' && (
                                         
                                             <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
                                                 <thead>
@@ -373,9 +342,7 @@ const PacienteAtendidoDia = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                {status === 'loading' && <tr><td colSpan="7">Loading...</td></tr>}
-                                                {status === 'failed' && <tr><td colSpan="7">Error: {error}</td></tr>}
-                                                {status === 'succeeded' && atendidosPorDia.map((atendidoPorDia) => (
+                                                {atendidosPorDia.map((atendidoPorDia) => (
                                                         <tr key={atendidoPorDia.ID_PACIENTE}>
                                                             <td>{atendidoPorDia.PACIENTE_NOMBRE.trim()}</td>
                                                             <td>{atendidoPorDia.PACIENTE_CEDULA}</td>
@@ -388,6 +355,7 @@ const PacienteAtendidoDia = () => {
                                                     ))}
                                                 </tbody>
                                             </table>
+                                        )}
                                         
                                         <PaginationAtendidosPorDia
                                             meta={meta}
@@ -410,4 +378,4 @@ const PacienteAtendidoDia = () => {
     )
 }
 
-export default PacienteAtendidoDia
+export default ReportePaciente 

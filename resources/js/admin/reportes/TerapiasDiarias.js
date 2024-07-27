@@ -4,7 +4,8 @@ import { fetchTerapiasDiarias, setOrden, setOrdenPor,setFechaRange} from '../../
 import PaginationTerapiasDiarias from './PaginationTerapiasDiarias';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientesSlice';
-import * as XLSX from 'xlsx'; // Importa la librería para manejar Excel
+import ExportButton from './exportButton';
+import { transformDataForTerapias } from '../../../utils/dataTransform';
 
 
 const TerapiasDiarias = () => {
@@ -23,9 +24,11 @@ const TerapiasDiarias = () => {
     }, [dispatch]);
 
     useEffect(() => {
+        
         dispatch(fetchTerapiasDiarias({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
     }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
+    
     const handleSearchChange = (event) => {
         setLocalSearch(event.target.value);
     };
@@ -36,8 +39,9 @@ const TerapiasDiarias = () => {
 
     const handleDateChange = () => {
         dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-        dispatch(fetchTerapiasDiarias({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
-            .catch(err => console.error('Error fetching terapias diarias on date change:', err));
+        dispatch(fetchTerapiasDiarias({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor })) 
+
+        
     };
 
     const handleSort = (newOrdenPor) => {
@@ -48,26 +52,7 @@ const TerapiasDiarias = () => {
             .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
     };
 
-    const exportToExcel = () => {
-        if (dataexport.length === 0) {
-            alert('No hay datos para exportar.');
-            return;
-        }
-
-        const ws = XLSX.utils.json_to_sheet(dataexport.map(terapia => ({
-            Nombre: terapia.PACIENTE_NOMBRE.trim(),
-            Cedula: terapia.PACIENTE_CEDULA,
-            Sucursal: terapia.SUCURSAL,
-            Celular: terapia.PACIENTE_CELULAR,
-            Tipo: terapia.TIPO,
-            Fecha: terapia.FECHA_ATENCION,
-            Doctor: terapia.DOCTOR
-        })));
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Terapias Diarias');
-        XLSX.writeFile(wb, 'terapias_diarias.xlsx');
-    };
+  
     
 
 
@@ -204,49 +189,11 @@ const TerapiasDiarias = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-copy buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Copy
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-csv buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            CSV
-                                                        </span>
-                                                    </button>
-                                                    
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-excel buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                        onClick={exportToExcel} // Llama a la función de exportación a Excel
-                                                        disabled={terapiasDiarias.length === 0} // Deshabilita el botón si no hay datos
-                                                    >
-                                                        <span>
-                                                            Excel
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-print btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Print
-                                                        </span>
-                                                    </button>
-                                                    {' '}
+                                                <ExportButton 
+                                                        dataexport={dataexport}
+                                                        transformData={transformDataForTerapias}
+                                                        fileName="terapias_diarias.xlsx"
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">

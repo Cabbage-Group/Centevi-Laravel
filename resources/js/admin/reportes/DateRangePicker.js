@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Button } from 'antd';
+import { DatePicker } from 'antd';
 import moment from 'moment';
-import 'antd/dist/reset.css'; // Importa el CSS de Ant Design
+import 'antd/dist/reset.css'; 
+import { useLocation } from 'react-router-dom';
 
 const { RangePicker } = DatePicker;
 
 const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
     const currentDate = moment().format('YYYY-MM-DD');
+    const location = useLocation();
     const [dates, setDates] = useState([
         startDate ? moment(startDate, 'YYYY-MM-DD') : null,
         endDate ? moment(endDate, 'YYYY-MM-DD') : null,
@@ -17,6 +19,10 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
             setDates([null, null]);
         }
     }, [startDate, endDate, currentDate]);
+
+    useEffect(() => {
+        setDates([null, null]);
+    }, [location.pathname]);
 
     const handleChange = (dates) => {
         if (dates && dates.length === 2) {
@@ -30,7 +36,6 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
 
     const handleApply = () => {
         onApply();
-        setDates([null, null]); 
     };
 
     return (
