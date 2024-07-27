@@ -9,7 +9,7 @@ const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 export const fetchTerapiasDiarias = createAsyncThunk(
     'terapiasDiarias/fetchTerapiasDiarias',
-    async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate ='', endDate ='', search = '' }) => {
+    async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate =getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
         try {
             const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
@@ -35,9 +35,11 @@ const terapiasDiariasSlice = createSlice({
         error: null,
         orden: 'asc',
         ordenPor: 'PACIENTE_NOMBRE',
-        startDate:  '',
-        endDate:  '',
-        search: '',  // Agrega el estado de búsqueda
+        startDate:  getCurrentDate(),
+        endDate:  getCurrentDate(),
+        search: '',
+        dataexport: []
+       
     },
     reducers: {
         setOrden(state, action) {
@@ -63,6 +65,8 @@ const terapiasDiariasSlice = createSlice({
                 state.status = 'succeeded';
                 state.terapiasDiarias = action.payload.data;
                 state.meta = action.payload.meta;
+                state.dataexport = action.payload.export.dataexport;
+                
             })
             .addCase(fetchTerapiasDiarias.rejected, (state, action) => {
                 state.status = 'failed';

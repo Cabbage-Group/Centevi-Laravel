@@ -2,18 +2,25 @@ import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUltimaAtencion, setOrden, setFechaRange,setOrdenPor, setSearch  } from '../../redux/features/ultimaAtencionSlice';
 import PaginationUltimaAtencion from './PaginationUltimaAtencion';
+import DateRangePicker from './DateRangePicker';
+import { fetchPacientes } from '../../redux/features/pacientesSlice';
 
 
 
 const UltimaAtencion = () => {
 
     const dispatch = useDispatch();
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
     const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages , search} = useSelector((state) => state.ultimaAtencion);
 
     const [localStartDate, setLocalStartDate] = useState(startDate);
     const [localSearch, setLocalSearch] = useState(search);
     const [localEndDate, setLocalEndDate] = useState(endDate);
     const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        dispatch(fetchPacientes({}));
+    }, [dispatch]);
 
     useEffect(() => {
         dispatch(fetchUltimaAtencion({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate,search: localSearch  }));
@@ -90,7 +97,7 @@ const UltimaAtencion = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        {meta.total}
+                                                        {metaPacientes.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES
@@ -124,26 +131,15 @@ const UltimaAtencion = () => {
                                 <label>
                                     Buscar por Fecha:
                                 </label>
-                                <input
-                                    className="form-control"
-                                    id="fecha_reporte"
-                                    name="fecha"
-                                    type="text"
-                                    value={`${localStartDate} - ${localEndDate}`}
-                                    onChange={(e) => {
-                                        const [start, end] = e.target.value.split(' - ');
-                                        setLocalStartDate(start || '');
-                                        setLocalEndDate(end || '');
+                                <DateRangePicker
+                                    startDate={localStartDate}
+                                    endDate={localEndDate}
+                                    onChange={(start, end) => {
+                                        setLocalStartDate(start);
+                                        setLocalEndDate(end);
                                     }}
-                                    onBlur={handleDateChange}  // Actualiza fechas cuando se pierde el foco
+                                    onApply={handleDateChange}
                                 />
-                                <button
-                                    className="btn btn-success mt-3"
-                                    id="buscar"
-                                    type="button"
-                                >
-                                    BUSCAR
-                                </button>
                             </div>
                             <div className="table-responsive">
                                 <div

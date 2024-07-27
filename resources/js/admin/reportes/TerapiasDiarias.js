@@ -3,27 +3,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchTerapiasDiarias, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/terapiasDiariasSlice';
 import PaginationTerapiasDiarias from './PaginationTerapiasDiarias';
 import DateRangePicker from './DateRangePicker';
+import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import * as XLSX from 'xlsx'; // Importa la librería para manejar Excel
 
 
 const TerapiasDiarias = () => {
-
-
     const dispatch = useDispatch();
-    
-    const { terapiasDiarias, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search} = useSelector((state) => state.terapiasDiarias);
-    
+
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
+    const { terapiasDiarias, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.terapiasDiarias);
+
     const [currentPage, setCurrentPage] = useState(1);
     const [localSearch, setLocalSearch] = useState(search);
     const [localEndDate, setLocalEndDate] = useState(endDate);
     const [localStartDate, setLocalStartDate] = useState(startDate);
 
-   
     useEffect(() => {
-        dispatch(fetchTerapiasDiarias({ page: currentPage, limit: 20 , orden, ordenPor,startDate, endDate, search: localSearch}));
-    }, [dispatch,localSearch,  currentPage, startDate, endDate,orden, ordenPor]);
+        dispatch(fetchPacientes({}));
+    }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(fetchTerapiasDiarias({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
+    }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
     const handleSearchChange = (event) => {
-        setLocalSearch(event.target.value); 
+        setLocalSearch(event.target.value);
     };
 
     const handlePageChange = (page) => {
@@ -32,7 +36,8 @@ const TerapiasDiarias = () => {
 
     const handleDateChange = () => {
         dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-        dispatch(fetchTerapiasDiarias({ page: currentPage, startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }));
+        dispatch(fetchTerapiasDiarias({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
+            .catch(err => console.error('Error fetching terapias diarias on date change:', err));
     };
 
     const handleSort = (newOrdenPor) => {
@@ -43,17 +48,27 @@ const TerapiasDiarias = () => {
             .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
     };
 
-    const handleInputChange = (value) => {
-        const dates = value.split(' - ').map((date) => parse(date, 'yyyy-MM-dd', new Date()));
-        if (dates.length === 2) {
-            setLocalStartDate(dates[0]);
-            setLocalEndDate(dates[1]);
-            dispatch(setFechaRange({ startDate: dates[0], endDate: dates[1] }));
+    const exportToExcel = () => {
+        if (dataexport.length === 0) {
+            alert('No hay datos para exportar.');
+            return;
         }
+
+        const ws = XLSX.utils.json_to_sheet(dataexport.map(terapia => ({
+            Nombre: terapia.PACIENTE_NOMBRE.trim(),
+            Cedula: terapia.PACIENTE_CEDULA,
+            Sucursal: terapia.SUCURSAL,
+            Celular: terapia.PACIENTE_CELULAR,
+            Tipo: terapia.TIPO,
+            Fecha: terapia.FECHA_ATENCION,
+            Doctor: terapia.DOCTOR
+        })));
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Terapias Diarias');
+        XLSX.writeFile(wb, 'terapias_diarias.xlsx');
     };
-
-
-  
+    
 
 
     return (
@@ -105,7 +120,7 @@ const TerapiasDiarias = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        8819
+                                                         {metaPacientes.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES
@@ -178,13 +193,7 @@ const TerapiasDiarias = () => {
                                     }}
                                     onApply={handleDateChange}
                                 />
-                                <button
-                                    className="btn btn-success mt-3"
-                                    id="buscar"
-                                    type="button"
-                                >
-                                    BUSCAR
-                                </button>
+
                             </div>
                             <div className="table-responsive">
                                 <div
@@ -214,11 +223,14 @@ const TerapiasDiarias = () => {
                                                             CSV
                                                         </span>
                                                     </button>
+                                                    
                                                     {' '}
                                                     <button
                                                         aria-controls="html5-extension"
                                                         className="dt-button buttons-excel buttons-html5 btn btn-sm"
                                                         tabIndex="0"
+                                                        onClick={exportToExcel} // Llama a la función de exportación a Excel
+                                                        disabled={terapiasDiarias.length === 0} // Deshabilita el botón si no hay datos
                                                     >
                                                         <span>
                                                             Excel
@@ -400,7 +412,7 @@ const TerapiasDiarias = () => {
                                                 </tbody>
                                             </table>
                                         )}
-
+                                      
                                         <PaginationTerapiasDiarias
                                             meta={meta}
                                             currentPage={currentPage}

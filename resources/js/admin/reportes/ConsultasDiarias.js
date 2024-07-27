@@ -2,10 +2,13 @@ import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchConsultasDiarias, setOrden, setOrdenPor,setFechaRange } from '../../redux/features/consultasDiariasSlice';
 import PaginationConsultasDiarias from './PaginationConsultasDiarias';
+import DateRangePicker from './DateRangePicker';
+import { fetchPacientes } from '../../redux/features/pacientesSlice';
 
 const ConsultasDiarias = () => {
 
     const dispatch = useDispatch();
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
     const { consultasDiarias, status, error, meta,totalPages, orden,startDate, endDate, ordenPor,search} = useSelector((state) => state.consultasDiarias);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,7 +16,10 @@ const ConsultasDiarias = () => {
     const [localStartDate, setLocalStartDate] = useState(startDate);
     const [localSearch, setLocalSearch] = useState(search);
     
-   
+    useEffect(() => {
+        dispatch(fetchPacientes({}));
+    }, [dispatch]);
+
     useEffect(() => {
         dispatch(fetchConsultasDiarias({page: currentPage, limit: 20, orden, ordenPor,startDate, endDate, search: localSearch }));
     }, [dispatch,localSearch,  currentPage, orden, ordenPor,startDate, endDate]);
@@ -91,7 +97,7 @@ const ConsultasDiarias = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        {meta.total}
+                                                        {metaPacientes.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES
@@ -155,26 +161,16 @@ const ConsultasDiarias = () => {
                                 <label>
                                     Buscar por Fecha:
                                 </label>
-                                <input
-                                    className="form-control"
-                                    id="fecha_reporte"
-                                    name="fecha"
-                                    type="text"
-                                    value={`${localStartDate} - ${localEndDate}`}
-                                    onChange={(e) => {
-                                        const [start, end] = e.target.value.split(' - ');
-                                        setLocalStartDate(start || '');
-                                        setLocalEndDate(end || '');
+                                <DateRangePicker
+                                    startDate={localStartDate}
+                                    endDate={localEndDate}
+                                    onChange={(start, end) => {
+                                        setLocalStartDate(start);
+                                        setLocalEndDate(end);
                                     }}
-                                    onBlur={handleDateChange}  // Actualiza fechas cuando se pierde el foco
+                                    onApply={handleDateChange}
                                 />
-                                <button
-                                    className="btn btn-success mt-3"
-                                    id="buscar"
-                                    type="button"
-                                >
-                                    BUSCAR
-                                </button>
+                                
                             </div>
                             <div className="table-responsive">
                                 <div

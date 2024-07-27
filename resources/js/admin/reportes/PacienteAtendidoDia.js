@@ -2,13 +2,15 @@ import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
 import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/atendidosPorDiaSilce';
+import DateRangePicker from './DateRangePicker';
+import { fetchPacientes } from '../../redux/features/pacientesSlice';
 
 
 
 const PacienteAtendidoDia = () => {
 
     const dispatch = useDispatch();
-    
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
     const {  atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search } = useSelector((state) => state.atendidosPorDia);
     
 
@@ -17,6 +19,9 @@ const PacienteAtendidoDia = () => {
     const [localEndDate, setLocalEndDate] = useState(endDate);
     const [localStartDate, setLocalStartDate] = useState(startDate);
 
+    useEffect(() => {
+        dispatch(fetchPacientes({}));
+    }, [dispatch]);
    
     useEffect(() => {
         dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20 , orden, ordenPor,startDate, endDate, search: localSearch}));
@@ -95,7 +100,7 @@ const PacienteAtendidoDia = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        {meta.total}
+                                                        {metaPacientes.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES
@@ -159,26 +164,15 @@ const PacienteAtendidoDia = () => {
                                 <label>
                                     Buscar por Fecha:
                                 </label>
-                                <input
-                                    className="form-control"
-                                    id="fecha_reporte"
-                                    name="fecha"
-                                    type="text"
-                                    value={`${localStartDate} - ${localEndDate}`}
-                                    onChange={(e) => {
-                                        const [start, end] = e.target.value.split(' - ');
-                                        setLocalStartDate(start || '');
-                                        setLocalEndDate(end || '');
+                                <DateRangePicker
+                                    startDate={localStartDate}
+                                    endDate={localEndDate}
+                                    onChange={(start, end) => {
+                                        setLocalStartDate(start);
+                                        setLocalEndDate(end);
                                     }}
-                                    onBlur={handleDateChange}  // Actualiza fechas cuando se pierde el foco
+                                    onApply={handleDateChange}
                                 />
-                                <button
-                                    className="btn btn-success mt-3"
-                                    id="buscar"
-                                    type="button"
-                                >
-                                    BUSCAR
-                                </button>
                             </div>
                             <div className="table-responsive">
                                 <div
