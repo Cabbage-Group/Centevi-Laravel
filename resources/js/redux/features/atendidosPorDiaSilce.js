@@ -6,40 +6,42 @@ import moment from 'moment';
 const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 
-export const fetchUltimaAtencion = createAsyncThunk(
-    'ultimaAtencion/fetchUltimaAtencion',
-    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
+export const fetchAtendidosPorDia = createAsyncThunk(
+    'atendidosPorDia/fetchAtendidosPorDia',
+    async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate =  getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
         try {
             const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-            const response = await axios.get(`${API}/ultimaAtencion`, {
+            const response = await axios.get(`${API}/pacientesAtendidosPorDiaV2`, {
                 params: { page, limit, orden, ordenPor, fecha, search },
             });
 
-            console.log('mensaje:', response.data);         
+            console.log('meta:', response.data.meta);
+
+            console.log('mensaje:', response.data);
 
             return response.data;
         } catch (error) {
-            console.error('Error fetching ultimaAtencion:', error.response?.data || error.message);
+            console.error('Error fetching pacientesAtendidosPorDiaV2:', error.response?.data || error.message);
             throw error;
         }
     }
 );
 
 
-const ultimaAtencionSlice = createSlice({
-    name: 'consultasDiarias',
+const atendidosPorDiaSlice = createSlice({
+    name: 'atendidosPorDia',
     initialState: {
         data: [],
-        ultimaAtencion: [],
+        atendidosPorDia: [],
         meta: {},
         status: 'idle',
         error: null,
         orden: 'asc',
-        ordenPor: 'nombres',
-        startDate: getCurrentDate(),
-        endDate: getCurrentDate(),
-        search: '',
+        ordenPor: 'PACIENTE_NOMBRE',
+        startDate:  getCurrentDate(),
+        endDate:  getCurrentDate(),
+        search: '', 
         dataexport: []
     },
     reducers: {
@@ -53,24 +55,23 @@ const ultimaAtencionSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { 
+        setSearch(state, action) { // Agrega el reducer para la búsqueda
             state.search = action.payload;
         },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUltimaAtencion.pending, (state) => {
+            .addCase(fetchAtendidosPorDia.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchUltimaAtencion.fulfilled, (state, action) => {
+            .addCase(fetchAtendidosPorDia.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.ultimaAtencion = action.payload.data;
-                state.meta = action.payload.meta;
+                state.atendidosPorDia = action.payload.data;
                 state.meta = action.payload.meta;
                 state.dataexport = action.payload.export.dataexport;
-            
+               
             })
-            .addCase(fetchUltimaAtencion.rejected, (state, action) => {
+            .addCase(fetchAtendidosPorDia.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
@@ -78,5 +79,5 @@ const ultimaAtencionSlice = createSlice({
 });
 
 
-export const { setOrden, setFechaRange, setOrdenPor, setSearch } = ultimaAtencionSlice.actions;
-export default ultimaAtencionSlice.reducer;
+export const { setOrden, setFechaRange, setOrdenPor, setSearch } = atendidosPorDiaSlice.actions;
+export default atendidosPorDiaSlice.reducer;

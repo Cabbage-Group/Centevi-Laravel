@@ -1,6 +1,24 @@
-import React from 'react'
+import React, {useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchPacientesSinAtencion } from '../../redux/features/pacientesSinAtencionSlice';
+import PaginationSinAtencion from './PaginationSinAtencion';
 
 const SinAtencion = () => {
+
+    const dispatch = useDispatch();
+    const { pacientesSinAtencion, status, error, meta, totalPages} = useSelector((state) => state.pacientesSinAtencion);
+    const [currentPage, setCurrentPage] = useState(1);
+
+   
+    useEffect(() => {
+        dispatch(fetchPacientesSinAtencion({ page: currentPage, limit: 20}));
+    }, [dispatch, currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+
     return (
         <div className="row layout-top-spacing">
             <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
@@ -50,10 +68,10 @@ const SinAtencion = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        8819
+                                                        8871
                                                     </p>
                                                     <h5 className="">
-                                                        PACIENTES
+                                                    PACIENTES 
                                                     </h5>
                                                 </div>
                                             </div>
@@ -93,7 +111,7 @@ const SinAtencion = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        3006
+                                                        {meta.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES SIN ATENDER
@@ -330,491 +348,56 @@ const SinAtencion = () => {
                                         </div>
                                     </div>
                                     <div className="table-responsive">
-                                        <table
-                                            aria-describedby="html5-extension_info"
-                                            className="table table-hover non-hover dataTable no-footer"
-                                            id="html5-extension"
-                                            role="grid"
-                                            style={{
-                                                width: '100%'
-                                            }}
-                                        >
-                                            <thead>
-                                                <tr role="row">
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Nombres de Paciente: activate to sort column descending"
-                                                        aria-sort="ascending"
-                                                        className="sorting_asc"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '605px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Nombres de Paciente
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Cedula: activate to sort column ascending"
-                                                        className="sorting"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '232px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Cedula
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Email: activate to sort column ascending"
-                                                        className="sorting"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '418px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Email
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Celular: activate to sort column ascending"
-                                                        className="sorting"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '125px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Celular
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Aaran Nathanie  Blake Niño
-                                                    </td>
-                                                    <td>
-                                                        8-1130-778
-                                                    </td>
-                                                    <td>
-                                                        notiene@gmail.com
-                                                    </td>
-                                                    <td>
-                                                        6011-9492
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Aaron  Ameth  montilla Cuarezma
-                                                    </td>
-                                                    <td>
-                                                        8-1249-20
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6009-5242
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        AARON  ELIAM PEREZ PINZON
-                                                    </td>
-                                                    <td>
-                                                        8-1166-1372
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        62593911
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        AARON DANIEL LARAME ESPINOZA
-                                                    </td>
-                                                    <td>
-                                                        8-1136-834
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6898-4106
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Aaron Eliam Peréz Pinzón DUPLICADO
-                                                    </td>
-                                                    <td>
-                                                        8-1166-1372
-                                                    </td>
-                                                    <td>
-                                                        DUPLICADO@GMAIL.COM
-                                                    </td>
-                                                    <td>
-                                                        6259-3911
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        AARON FREUTAZ ALVAREZ DAVID
-                                                    </td>
-                                                    <td>
-                                                        1151101692
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        000000
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Aaron Ibrahim Jalil Dumbar
-                                                    </td>
-                                                    <td>
-                                                        3-782-397
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6648-8412
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Aarón Alex  Sánchez Camarena{' '}
-                                                    </td>
-                                                    <td>
-                                                        8-1241-1648
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6354-5593
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        ABBI ANDREA VELIZ GARCIA DUPLICADO
-                                                    </td>
-                                                    <td>
-                                                        8-1222-2003
-                                                    </td>
-                                                    <td>
-                                                        DUPLICADO@GMAIL.COM
-                                                    </td>
-                                                    <td>
-                                                        6057-3921
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abbie Andrea Veliz Garcia
-                                                    </td>
-                                                    <td>
-                                                        8-1222-2003
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6057-3921
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abbie Valentina  Ramos Quintero{' '}
-                                                    </td>
-                                                    <td>
-                                                        8-1247-1693
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6821-3061
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abby Evangeline  Gonzalez Solano{' '}
-                                                    </td>
-                                                    <td>
-                                                        8-1179-580
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6965-0356
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        ABDEL ALEJANDRO  RUIZ AGRAZAL
-                                                    </td>
-                                                    <td>
-                                                        8-1163-1727
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6015-4320
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abdel Sajiel  Hall Cordoba{' '}
-                                                    </td>
-                                                    <td>
-                                                        8-1172-1363
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6489-8119
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abdiel Antonio  Montenegro Perez
-                                                    </td>
-                                                    <td>
-                                                        8-1031-1993
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6594-1042
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abdiel Antonio Henríquez Díaz{' '}
-                                                    </td>
-                                                    <td>
-                                                        6-41-2649
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6530-8424
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abdiel Arturo Villalaz Samaniego
-                                                    </td>
-                                                    <td>
-                                                        6-738-581
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        66755747
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        ABEL ANTONIO CASTILLO ROJAS{' '}
-                                                    </td>
-                                                    <td>
-                                                        8-361-729
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6221-8213
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        Abel Guillermo  Sanjur Pacheco{' '}
-                                                    </td>
-                                                    <td>
-                                                        4-801-2483
-                                                    </td>
-                                                    <td />
-                                                    <td>
-                                                        6490-0383
-                                                    </td>
-                                                </tr>
-                                                <tr role="row">
-                                                    <td className="sorting_1">
-                                                        ABI LEE CASTRO HERRERA
-                                                    </td>
-                                                    <td>
-                                                        8-1237-642
-                                                    </td>
-                                                    <td>
-                                                        JCASTRO@TVNMEDIA.COM
-                                                    </td>
-                                                    <td>
-                                                        6302-9695
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                        {status === 'loading' && <p>Loading...</p>}
+                                        {status === 'failed' && <p>Error: {error}</p>}
+                                        {status === 'succeeded' && (
+                                            <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th
+                                                            
+                                                        >
+                                                            Nombre del Paciente
+                                                        </th>
+                                                        <th
+                                                           
+                                                        >
+                                                            Cedula
+                                                        </th>
+                                                        <th
+                                                            
+                                                        >
+                                                            Email
+                                                        </th>
+                                                        <th
+                                                          
+                                                        >
+                                                            Celular
+                                                        </th>
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {pacientesSinAtencion.map((pacienteSinAtencion) => (
+                                                        <tr key={pacienteSinAtencion.id_paciente}>
+                                                            <td>{pacienteSinAtencion.nombres.trim()}</td>
+                                                            <td>{pacienteSinAtencion.nro_cedula}</td>
+                                                            <td>{pacienteSinAtencion.email}</td>
+                                                            <td>{pacienteSinAtencion.celular}</td>
+                                                            
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                        <PaginationSinAtencion
+                                            meta={meta}
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={handlePageChange}
+                                        />                                 
                                     </div>
-                                    <div className="dt--bottom-section d-sm-flex justify-content-sm-between text-center">
-                                        <div className="dt--pages-count  mb-sm-0 mb-3">
-                                            <div
-                                                aria-live="polite"
-                                                className="dataTables_info"
-                                                id="html5-extension_info"
-                                                role="status"
-                                            >
-                                                Showing page 1 of 151
-                                            </div>
-                                        </div>
-                                        <div className="dt--pagination">
-                                            <div
-                                                className="dataTables_paginate paging_simple_numbers"
-                                                id="html5-extension_paginate"
-                                            >
-                                                <ul className="pagination">
-                                                    <li
-                                                        className="paginate_button page-item previous disabled"
-                                                        id="html5-extension_previous"
-                                                    >
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="0"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            <svg
-                                                                className="feather feather-arrow-left"
-                                                                fill="none"
-                                                                height="24"
-                                                                stroke="currentColor"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                                viewBox="0 0 24 24"
-                                                                width="24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <line
-                                                                    x1="19"
-                                                                    x2="5"
-                                                                    y1="12"
-                                                                    y2="12"
-                                                                />
-                                                                <polyline points="12 19 5 12 12 5" />
-                                                            </svg>
-                                                        </a>
-                                                    </li>
-                                                    <li className="paginate_button page-item active">
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="1"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            1
-                                                        </a>
-                                                    </li>
-                                                    <li className="paginate_button page-item ">
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="2"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            2
-                                                        </a>
-                                                    </li>
-                                                    <li className="paginate_button page-item ">
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="3"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            3
-                                                        </a>
-                                                    </li>
-                                                    <li className="paginate_button page-item ">
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="4"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            4
-                                                        </a>
-                                                    </li>
-                                                    <li className="paginate_button page-item ">
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="5"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            5
-                                                        </a>
-                                                    </li>
-                                                    <li
-                                                        className="paginate_button page-item disabled"
-                                                        id="html5-extension_ellipsis"
-                                                    >
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="6"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            …
-                                                        </a>
-                                                    </li>
-                                                    <li className="paginate_button page-item ">
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="7"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            151
-                                                        </a>
-                                                    </li>
-                                                    <li
-                                                        className="paginate_button page-item next"
-                                                        id="html5-extension_next"
-                                                    >
-                                                        <a
-                                                            aria-controls="html5-extension"
-                                                            className="page-link"
-                                                            data-dt-idx="8"
-                                                            href="#"
-                                                            tabIndex="0"
-                                                        >
-                                                            <svg
-                                                                className="feather feather-arrow-right"
-                                                                fill="none"
-                                                                height="24"
-                                                                stroke="currentColor"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                                viewBox="0 0 24 24"
-                                                                width="24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <line
-                                                                    x1="5"
-                                                                    x2="19"
-                                                                    y1="12"
-                                                                    y2="12"
-                                                                />
-                                                                <polyline points="12 5 19 12 12 19" />
-                                                            </svg>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>

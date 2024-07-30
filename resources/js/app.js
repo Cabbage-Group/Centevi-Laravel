@@ -22,7 +22,9 @@ import SinAtencion from './admin/reportes/SinAtencion.js';
 import UltimaAtencion from './admin/reportes/UltimaAtencion.js';
 import PacienteAtendidoDia from './admin/reportes/PacienteAtendidoDia.js';
 import ConsultasDiarias from './admin/reportes/ConsultasDiarias.js';
-import TerapiasDiarias from './admin/reportes/TerapiasDiarias.js';
+import TerapiasDiarias from './admin/reportes/TerapiasDiarias.js'
+import VerReportes from './admin/reportes/VerReportes.js';
+
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
@@ -50,7 +52,7 @@ function AppRouter() {
                     <Route path="/historia-paciente" element={<Sidebar component={<HistoriaPaciente />} />} />
                     <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
                     <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
-                    <Route path="/reportes" element={<Sidebar component={<VerRecetas />} />} />
+                    <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />
                     <Route path="/reportes-sin-atencion" element={<Sidebar component={<SinAtencion />} />} />
                     <Route path="/reportes-ultima-atencion" element={<Sidebar component={<UltimaAtencion />} />} />
                     <Route path="/paciente-atendido-dia" element={<Sidebar component={<PacienteAtendidoDia />} />} />

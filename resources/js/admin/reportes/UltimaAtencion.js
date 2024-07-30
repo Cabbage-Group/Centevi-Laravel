@@ -1,19 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUltimaAtencion, setOrden, setFechaRange, setSearch  } from '../../redux/features/ultimaAtencionSlice';
+import { fetchUltimaAtencion, setOrden, setFechaRange,setOrdenPor, setSearch  } from '../../redux/features/ultimaAtencionSlice';
 import PaginationUltimaAtencion from './PaginationUltimaAtencion';
+import DateRangePicker from './DateRangePicker';
+import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import ExportButton from './exportButton';
+import { transformDataForUltimaAtencion } from '../../../utils/dataTransform';
 
 
 
 const UltimaAtencion = () => {
 
     const dispatch = useDispatch();
-    const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages , search} = useSelector((state) => state.ultimaAtencion);
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
+    const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages , search, dataexport} = useSelector((state) => state.ultimaAtencion);
 
     const [localStartDate, setLocalStartDate] = useState(startDate);
     const [localSearch, setLocalSearch] = useState(search);
     const [localEndDate, setLocalEndDate] = useState(endDate);
     const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        dispatch(fetchPacientes({}));
+    }, [dispatch]);
 
     useEffect(() => {
         dispatch(fetchUltimaAtencion({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate,search: localSearch  }));
@@ -29,14 +38,15 @@ const UltimaAtencion = () => {
 
     const handleDateChange = () => {
         dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-        dispatch(fetchUltimaAtencion({ page: currentPage, startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }));
+        dispatch(fetchTerapiasDiarias({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
+            .catch(err => console.error('Error fetching terapias diarias on date change:', err));
     };
 
-    const handleSort = (field) => {
+    const handleSort = (newOrdenPor) => {
         const newOrder = orden === 'asc' ? 'desc' : 'asc';
         dispatch(setOrden(newOrder));
-        dispatch(setOrdenPor(field));
-        dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: field }));
+        dispatch(setOrdenPor(newOrdenPor));
+        dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
     };
 
 
@@ -90,7 +100,7 @@ const UltimaAtencion = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        {meta.total}
+                                                        {metaPacientes.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES
@@ -124,26 +134,15 @@ const UltimaAtencion = () => {
                                 <label>
                                     Buscar por Fecha:
                                 </label>
-                                <input
-                                    className="form-control"
-                                    id="fecha_reporte"
-                                    name="fecha"
-                                    type="text"
-                                    value={`${localStartDate} - ${localEndDate}`}
-                                    onChange={(e) => {
-                                        const [start, end] = e.target.value.split(' - ');
-                                        setLocalStartDate(start || '');
-                                        setLocalEndDate(end || '');
+                                <DateRangePicker
+                                    startDate={localStartDate}
+                                    endDate={localEndDate}
+                                    onChange={(start, end) => {
+                                        setLocalStartDate(start);
+                                        setLocalEndDate(end);
                                     }}
-                                    onBlur={handleDateChange}  // Actualiza fechas cuando se pierde el foco
+                                    onApply={handleDateChange}
                                 />
-                                <button
-                                    className="btn btn-success mt-3"
-                                    id="buscar"
-                                    type="button"
-                                >
-                                    BUSCAR
-                                </button>
                             </div>
                             <div className="table-responsive">
                                 <div
@@ -154,46 +153,11 @@ const UltimaAtencion = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-copy buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Copy
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-csv buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            CSV
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-excel buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Excel
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-print btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Print
-                                                        </span>
-                                                    </button>
-                                                    {' '}
+                                                    <ExportButton 
+                                                        dataexport={dataexport}
+                                                        transformData={transformDataForUltimaAtencion}
+                                                        fileName="ultimaAtencion_diarias.xlsx"
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
@@ -226,7 +190,7 @@ const UltimaAtencion = () => {
                                                                 y2="16.65"
                                                             />
                                                         </svg>
-                                                        <input
+                                                                                                    <input
                                                             aria-controls="html5-extension"
                                                             className="form-control"
                                                             placeholder="Search..."
