@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchSucursales } from '../../redux/features/sucursalesSlice';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 
 
 const Sucursales = () => {

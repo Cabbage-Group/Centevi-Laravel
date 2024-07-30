@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import API from '../../config/config';
+import API from '../../../config/config.js';
 
 export const fetchSucursales = createAsyncThunk(
     'sucursales/fetchSucursales',

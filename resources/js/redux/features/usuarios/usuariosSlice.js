@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import API from '../../config/config';
+import API from '../../../config/config';
 
 export const fetchUsuarios = createAsyncThunk(
     'usuarios/fetchUsuarios',
@@ -10,7 +10,6 @@ export const fetchUsuarios = createAsyncThunk(
                 params: { page, limit, sortOrder, sortColumn }
             });
 
-            console.log('mensaje:', response.data)
 
             return response.data;
         } catch (error) {
@@ -19,6 +18,20 @@ export const fetchUsuarios = createAsyncThunk(
         }
     }
 );
+
+export const updateEstadoUsuario = createAsyncThunk(
+    'usuarios/updateEstadoUsuario',
+    async ({ id_usuario, estado }) => {
+        try {
+            const response = await axios.put(`${API}/usuarios/${id_usuario}`, { estado });
+            return response.data;
+        } catch (error) {
+            console.error('Error updating usuario:', error.response.data);
+            throw error;
+        }
+    }
+);
+
 
 const usuariosSlice = createSlice({
     name: 'usuarios',
@@ -41,6 +54,21 @@ const usuariosSlice = createSlice({
                 state.meta = action.payload.meta;
             })
             .addCase(fetchUsuarios.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(updateEstadoUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateEstadoUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Actualiza el estado del usuario en la lista local
+                const updatedUsuario = action.payload.data;
+                state.usuarios = state.usuarios.map(usuario =>
+                    usuario.id_usuario === updatedUsuario.id_usuario ? updatedUsuario : usuario
+                );
+            })
+            .addCase(updateEstadoUsuario.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

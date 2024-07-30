@@ -1,11 +1,11 @@
 // redux/slices/pacientesSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import API from '../../config/config';
+import API from '../../../config/config.js';
 
 export const fetchPacientes = createAsyncThunk(
     'pacientes/fetchPacientes',
-    async ({ page = 1, limit = 2, sortOrder = 'asc', sortColumn = 'nombres' }) => {
+    async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres' }) => {
         const response = await axios.get(`${API}/pacientes`, {
             params: { page, limit, sortOrder, sortColumn }
         });

@@ -15,6 +15,8 @@ class OptometriaNeonatos extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id_consulta';
 
+    public $timestamps = false;
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'sucursal',
@@ -36,6 +38,7 @@ class OptometriaNeonatos extends Model
         'lenguaje',
         'complicaciones',
         'perinatales',
+        'postnatales',
         'agudeza_visual',
         'lensometria',
         'lensometria_extra',

@@ -6,7 +6,8 @@ use App\Http\Controllers\API\usuarios\UsuariosApiController;
 use App\Http\Controllers\API\sucursales\SucursalesApiController;
 use App\Http\Controllers\API\pacientes\PacientesApiController;
 use App\Http\Controllers\API\login\LoginApiController;
-
+use App\Http\Controllers\ReportesApiController;
+use App\Models\Pacientes;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
@@ -18,6 +19,7 @@ Route::post('/api/login', [LoginApiController::class,'login']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 
+
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
@@ -26,18 +28,34 @@ Route::delete('/api/pacientes/{id}', [PacientesApiController::class, 'eliminarpa
 
 Route::get('/api/obtenerHistoriaClinica/{paciente_id}', [PacientesApiController::class, 'obtenerHistoriaClinica']);
 
+Route::post('/api/neonatos', [NeonatosApiController::class, 'CrearNeonatos']);
+Route::put('/api/neonatos/{id}', [NeonatosApiController::class, 'EditarNeonatos']);
+Route::delete('/api/neonatos/{id}', [NeonatosApiController::class, 'DeleteNeonatos']);
+Route::get('/api/neonatos', [NeonatosApiController::class, 'ObtenerNeonatos']);
+
+Route::post('/api/pediatrica', [PediatricaApiController::class, 'crearPediatrica']);
+Route::put('/api/pediatrica/{id}', [PediatricaApiController::class, 'editarPediatrica']);
+Route::delete('/api/pediatrica/{id}', [PediatricaApiController::class, 'eliminarPediatrica']);
+
+Route::post('/api/ortoptica', [OrtopticaApiController::class, 'CrearOrtoptica']);
+Route::put('/api/ortoptica/{id}', [OrtopticaApiController::class, 'EditarOrtoptica']);
+Route::delete('/api/ortoptica/{id}', [OrtopticaApiController::class, 'DeleteOrtoptica']);
+
+Route::post('/api/bajavision', [BajaVisionApiController::class, 'CrearBajaVision']);
+Route::put('/api/bajavision/{id}', [BajaVisionApiController::class, 'EditarBajaVision']);
+Route::delete('/api/bajavision/{id}', [BajaVisionApiController::class, 'DeleteBajaVision']);
+
+Route::post('/api/ObtometriaGeneral', [OptometriaGeneralApiController::class, 'CrearRefraccionGeneral']);
+Route::put('/api/ObtometriaGeneral/{id}', [OptometriaGeneralApiController::class, 'EditarRefraccionGeneral']);
+Route::delete('/api/ObtometriaGeneral/{id}', [OptometriaGeneralApiController::class, 'DeleteRefraccionGeneral']);
+
+Route::post('/api/historiaclinica', [HistoriaClinicaApiController::class, 'CrearHistoriaClinica']);
+Route::put('/api/historiaclinica/{id}', [HistoriaClinicaApiController::class, 'EditarHistoriaClinica']);
+Route::delete('/api/historiaclinica/{id}', [HistoriaClinicaApiController::class, 'DeleteHistoriaClinica']);
+
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
 
 Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
-
-Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'PacientesTerapiasDiarias']);
-
-Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarCantidadPacientesSinAtender']);
-
-Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
-
-Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
-
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');
