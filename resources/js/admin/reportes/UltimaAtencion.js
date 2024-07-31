@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUltimaAtencion, setOrden, setFechaRange,setOrdenPor, setSearch  } from '../../redux/features/ultimaAtencionSlice';
+import { fetchUltimaAtencion, setOrden, setFechaRange,setOrdenPor, setSearch  } from '../../redux/features/reportes/ultimaAtencionSlice';
 import PaginationUltimaAtencion from './PaginationUltimaAtencion';
 import DateRangePicker from './DateRangePicker';
-import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForUltimaAtencion } from '../../../utils/dataTransform';
 

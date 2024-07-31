@@ -1,6 +1,6 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPacientesSinAtencion } from '../../redux/features/pacientesSinAtencionSlice';
+import { fetchPacientesSinAtencion } from '../../redux/features/reportes/pacientesSinAtencionSlice';
 import PaginationSinAtencion from './PaginationSinAtencion';
 
 const SinAtencion = () => {

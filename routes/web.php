@@ -6,8 +6,15 @@ use App\Http\Controllers\API\usuarios\UsuariosApiController;
 use App\Http\Controllers\API\sucursales\SucursalesApiController;
 use App\Http\Controllers\API\pacientes\PacientesApiController;
 use App\Http\Controllers\API\login\LoginApiController;
-use App\Http\Controllers\ReportesApiController;
+use App\Http\Controllers\API\consultas\NeonatosApiController;
+use App\Http\Controllers\API\consultas\PediatricaApiController;
+use App\Http\Controllers\API\consultas\OrtopticaApiController;
+use App\Http\Controllers\API\consultas\BajaVisionApiController;
+use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
+use App\Http\Controllers\API\consultas\HistoriaClinicaApiController;
 use App\Models\Pacientes;
+
+
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
@@ -56,6 +63,15 @@ Route::delete('/api/historiaclinica/{id}', [HistoriaClinicaApiController::class,
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
 
 Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
+
+Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'PacientesTerapiasDiarias']);
+
+Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarCantidadPacientesSinAtender']);
+
+Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
+
+Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

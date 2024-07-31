@@ -53,24 +53,24 @@ class PacientesApiController extends Controller
     {
         // Validar los datos de entrada para pacientes
         $validator = Validator::make($request->all(), [
-            "sucursal" => 'required|int|max:11',
-            "doctor" => 'required|string|max:255',
-            'nombres' => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
-            'nro_cedula' => 'required|string|max:20|unique:pacientes',
-            'email' => 'required|string|email|max:255|unique:pacientes',
+            "sucursal" => 'nullable|int|max:11',
+            "doctor" => 'nullable|string|max:255',
+            'nombres' => 'nullable|string|max:255',
+            'apellidos' => 'nullable|string|max:255',
+            'nro_cedula' => 'nullable|string|max:20|unique:pacientes',
+            'email' => 'nullable|string|email|max:255|unique:pacientes',
             'nro_seguro' => 'nullable|string|max:20',
-            'fecha_nacimiento' => 'required|date',
-            'genero' => 'required|string|in:masculino,femenino,otro',
+            'fecha_nacimiento' => 'nullable|date',
+            'genero' => 'nullable|string',
             'lugar_nacimiento' => 'nullable|string|max:255',
-            'direccion' => 'required|string|max:255',
+            'direccion' => 'nullable|string|max:255',
             'ocupacion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:20',
             'celular' => 'nullable|string|max:20',
             'medico' => 'nullable|string|max:255',
             'urgencia' => 'nullable|string',
             'menor' => 'nullable|string',
-            "fecha_creacion" => 'required|date'
+            "fecha_creacion" => 'nullable|date'
         ]);
 
         // Retornar errores de validación si los hay

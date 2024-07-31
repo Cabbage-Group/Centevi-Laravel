@@ -1,9 +1,9 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchConsultasDiarias, setOrden, setOrdenPor,setFechaRange } from '../../redux/features/consultasDiariasSlice';
+import { fetchConsultasDiarias, setOrden, setOrdenPor,setFechaRange } from '../../redux/features/reportes/consultasDiariasSlice';
 import PaginationConsultasDiarias from './PaginationConsultasDiarias';
 import DateRangePicker from './DateRangePicker';
-import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForConsultasDiarias } from '../../../utils/dataTransform';
 
