@@ -50,69 +50,104 @@ class PacientesApiController extends Controller
     }
 
     public function crearpaciente(Request $request)
+{
+    // Validar los datos de entrada para pacientes
+    $validator = Validator::make($request->all(), [
+        "sucursal" => 'nullable|int|max:11',
+        "doctor" => 'nullable|string|max:255',
+        'nombres' => 'nullable|string|max:255',
+        'apellidos' => 'nullable|string|max:255',
+        'email' => 'nullable|string|email|max:255',
+        'nro_seguro' => 'nullable|string|max:20',
+        'fecha_nacimiento' => 'nullable|date',
+        'genero' => 'nullable|string',
+        'lugar_nacimiento' => 'nullable|string|max:255',
+        'direccion' => 'nullable|string|max:255',
+        'ocupacion' => 'nullable|string|max:255',
+        'telefono' => 'nullable|string|max:20',
+        'celular' => 'nullable|string|max:20',
+        'medico' => 'nullable|string|max:255',
+        'urgencia' => 'nullable|string',
+        'menor' => 'nullable|string',
+        'fecha_creacion' => 'nullable|date',
+        'nro_cedula' => 'nullable|string|max:20|unique:pacientes',
+    ]);
+
+    // Retornar errores de validación si los hay
+    if ($validator->fails()) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Validation errors',
+            'data' => [],
+            'mensaje_dev' => "Opps el numero de cedula ya existe"
+        ], 400);
+    }
+
+    // Obtener los datos de la solicitud y rellenar los valores faltantes
+    $data = $request->all();
+    $defaults = [
+        'sucursal' => '1', //cambiar cuando se realize la parte de login
+        'doctor' => 'Pepe', //cambiar cuando se realize la parte de login
+        'nombres' => '',
+        'apellidos' => '',
+        'email' => '',
+        'nro_seguro' => '',
+        'fecha_nacimiento' => '',
+        'genero' => '',
+        'lugar_nacimiento' => '',
+        'direccion' => '',
+        'ocupacion' => '',
+        'telefono' => '',
+        'celular' => '',
+        'medico' => '',
+        'urgencia' => '',
+        'menor' => '',
+        'fecha_creacion' => now()->format('Y/m/d'),
+        'nro_cedula' => ''
+    ];
+
+    // Rellenar datos faltantes con valores predeterminados
+    $data = array_merge($defaults, $data);
+
+    // Crear un nuevo paciente
+    $paciente = Pacientes::create($data);
+
+    // Retornar respuesta exitosa
+    return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Paciente registrado correctamente',
+        'data' => [$paciente],
+        'mensaje_dev' => null
+    ], 201);
+}
+
+
+
+    public function verificarCedula(Request $request)
     {
-        // Validar los datos de entrada para pacientes
         $validator = Validator::make($request->all(), [
-            "sucursal" => 'nullable|int|max:11',
-            "doctor" => 'nullable|string|max:255',
-            'nombres' => 'nullable|string|max:255',
-            'apellidos' => 'nullable|string|max:255',
-            'nro_cedula' => 'nullable|string|max:20|unique:pacientes',
-            'email' => 'nullable|string|email|max:255|unique:pacientes',
-            'nro_seguro' => 'nullable|string|max:20',
-            'fecha_nacimiento' => 'nullable|date',
-            'genero' => 'nullable|string',
-            'lugar_nacimiento' => 'nullable|string|max:255',
-            'direccion' => 'nullable|string|max:255',
-            'ocupacion' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:20',
-            'celular' => 'nullable|string|max:20',
-            'medico' => 'nullable|string|max:255',
-            'urgencia' => 'nullable|string',
-            'menor' => 'nullable|string',
-            "fecha_creacion" => 'nullable|date'
+            'nro_cedula' => 'nullable|string|max:20',
         ]);
 
-        // Retornar errores de validación si los hay
         if ($validator->fails()) {
             return response()->json([
                 'respuesta' => false,
                 'mensaje' => 'Validation errors',
                 'data' => [],
-                'mensaje_dev' => $validator->errors()
+                'mensaje_dev' => 'Número de cédula inválido'
             ], 400);
         }
 
-        // Crear un nuevo paciente
-        $paciente = Pacientes::create([
-            "sucursal" => $request->sucursal,
-            "doctor" => $request->doctor,
-            'nombres' => $request->nombres,
-            'apellidos' => $request->apellidos,
-            'nro_cedula' => $request->nro_cedula,
-            'email' => $request->email,
-            'nro_seguro' => $request->nro_seguro,
-            'fecha_nacimiento' => $request->fecha_nacimiento,
-            'genero' => $request->genero,
-            'lugar_nacimiento' => $request->lugar_nacimiento,
-            'direccion' => $request->direccion,
-            'ocupacion' => $request->ocupacion,
-            'telefono' => $request->telefono,
-            'celular' => $request->celular,
-            'medico' => $request->medico,
-            'urgencia' => $request->urgencia,
-            'menor' => $request->menor,
-            "fecha_creacion" => $request->fecha_creacion
-        ]);
+        $exists = Pacientes::where('nro_cedula', $request->input('nro_cedula'))->exists();
 
-        // Retornar respuesta exitosa
         return response()->json([
             'respuesta' => true,
-            'mensaje' => 'Paciente registrado correctamente',
-            'data' => [$paciente],
-            'mensaje_dev' => null
-        ], 201);
+            'data' => ['exists' => $exists]
+        ], 200);
     }
+
+    
+
 
     public function editarpaciente(Request $request, $id)
     {

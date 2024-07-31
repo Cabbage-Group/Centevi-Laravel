@@ -72,6 +72,8 @@ Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'M
 
 Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
 
+Route::post('/api/verificar-cedula', [PacientesApiController::class, 'verificarCedula']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

@@ -35,6 +35,7 @@ class VerifyCsrfToken extends Middleware
         'http://127.0.0.1:8000/api/pacientesTerapiasDiarias',
         'http://127.0.0.1:8000/api/pacientesSinAtender',
         'http://127.0.0.1:8000/api/pacientesAtendidosPorDiaV2',
-        'http://127.0.0.1:8000/api/todosLospacientesSinAtender'
+        'http://127.0.0.1:8000/api/todosLospacientesSinAtender',
+        'http://127.0.0.1:8000/api/verificar-cedula'
     ];
 }
