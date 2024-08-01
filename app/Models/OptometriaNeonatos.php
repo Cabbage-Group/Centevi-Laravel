@@ -38,6 +38,7 @@ class OptometriaNeonatos extends Model
         'lenguaje',
         'complicaciones',
         'perinatales',
+        'postnatales',
         'agudeza_visual',
         'lensometria',
         'lensometria_extra',

@@ -6,6 +6,14 @@ export const crearNeonato = createAsyncThunk(
     'optometriaNeonatos/crearNeonato',
     async (data, { rejectWithValue }) => {
         try {
+            
+            data['agudeza_visual'] = JSON.stringify(data.agudeza_visual);
+            data['lensometria'] = JSON.stringify(data.lensometria);
+            data['lensometria_extra'] = JSON.stringify(data.lensometria_extra);
+            data['pruebas_extras'] = JSON.stringify(data.pruebas_extras);
+            data['refraccion'] = JSON.stringify(data.refraccion);
+            data['sa_pp'] = JSON.stringify(data.sa_pp);
+
             const response = await axios.post(`${API}/neonatos`, data);
             return response.data;
         } catch (error) {

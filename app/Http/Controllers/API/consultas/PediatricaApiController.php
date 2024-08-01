@@ -15,7 +15,7 @@ class PediatricaApiController extends Controller
             // Aquí puedes agregar las reglas de validación para los campos
             'sucursal' => 'required|integer|max:255',
             'doctor' => 'required|string|max:255',
-            'paciente' => 'required|integer|max:255',
+            'paciente' => 'required|integer|max:10000',
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
