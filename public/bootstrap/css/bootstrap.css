@@ -266,6 +266,7 @@ button,
 [type="reset"],
 [type="submit"] {
   -webkit-appearance: button;
+  appearance: auto;
 }
 
 button:not(:disabled),
@@ -325,6 +326,7 @@ progress {
 [type="search"] {
   outline-offset: -2px;
   -webkit-appearance: none;
+  appearance: auto;
 }
 
 [type="search"]::-webkit-search-decoration {
@@ -577,12 +579,10 @@ pre code {
 }
 
 .row {
-  display: -ms-flexbox;
+  margin-top: 8px;
   display: flex;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
+  margin-right: -6px;
+  margin-left: -6px;
 }
 
 .no-gutters {

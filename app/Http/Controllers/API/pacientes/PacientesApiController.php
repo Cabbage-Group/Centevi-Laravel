@@ -49,6 +49,31 @@ class PacientesApiController extends Controller
         ]);
     }
 
+    public function VerPaciente ($id)
+    {
+        // Buscar el paciente por ID
+        $paciente = Pacientes::find($id);
+
+        // Verificar si el paciente existe
+        if (!$paciente) {
+            return response()->json([
+                'status' => [
+                    'code' => 404,
+                    'message' => 'Paciente not found',
+                ],
+            ], 404);
+        }
+
+        // Formatear la respuesta
+        return response()->json([
+            'data' => $paciente,
+            'status' => [
+                'code' => 200,
+                'message' => 'Paciente retrieved successfully',
+            ],
+        ]);
+    }
+
     public function crearpaciente(Request $request)
     {
         // Validar los datos de entrada para pacientes
@@ -1014,9 +1039,6 @@ class PacientesApiController extends Controller
         ]);
     }
 
-
-
-
     public function MostrarPacientesAtendidosPorDiaV2(Request $request)
     {
 
@@ -1459,4 +1481,5 @@ class PacientesApiController extends Controller
 
         ]);
     }
+
 }

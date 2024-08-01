@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\OrtopticaAdultos;
+
 class OrtopticaApiController extends Controller
 {
     // Crear OrtopticaAdultos
@@ -98,4 +99,29 @@ class OrtopticaApiController extends Controller
             'message' => 'Registro eliminado exitosamente',
         ], 200);
     }
+
+    public function mostrarOrtopticaAdultos(Request $request)
+    {
+        // Obtén los parámetros de la solicitud
+        $item = $request->query('item');
+        $item2 = $request->query('item2');
+        $valor = $request->query('valor');
+        $valor2 = $request->query('valor2');
+
+        if ($item && $item2) {
+            // Consulta con parámetros
+            $result = OrtopticaAdultos::where($item, $valor)
+                ->where($item2, $valor2)
+                ->get(['id_consulta', 'fecha_creacion', 'doctor']);
+        } else {
+            // Consulta sin parámetros
+            $result = OrtopticaAdultos::all();
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro exitosamente',
+            'dataOA' => $result,
+        ], 200);
+    }
+
 }

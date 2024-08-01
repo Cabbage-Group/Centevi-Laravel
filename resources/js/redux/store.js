@@ -11,6 +11,14 @@ import consultasDiariasSlice from './features/reportes/consultasDiariasSlice';
 import terapiasDiariasSlice from './features/reportes/terapiasDiariasSlice';
 import pacientesSinAtencionSlice from './features/reportes/pacientesSinAtencionSlice';
 import atendidosPorDiaSilce from './features/reportes/atendidosPorDiaSilce';
+import VerPacienteSlice from './features/pacientes/VerPacienteSlice';
+import EditarPacienteSlice from './features/pacientes/EditarPacienteSlice';
+import MostrarOrtopticaSlice from './features/pacientes/MostrarOrtopticaSlice';
+import MostrarBajaVisionSlice from './features/pacientes/MostrarBajaVisionSlice';
+import MostrarGeneralSlice from './features/pacientes/MostrarGeneralSlice';
+import MostrarNeonatosSlice from './features/pacientes/MostrarNeonatosSlice';
+import MostrarPediatricaSlice from './features/pacientes/MostrarPediatricaSlice';
+import MostrarConsultaGenerica from './features/pacientes/MostrarConsultaGenerica';
 
 const store = configureStore({
         reducer: {
@@ -26,6 +34,14 @@ const store = configureStore({
                 terapiasDiarias: terapiasDiariasSlice,
                 pacientesSinAtencion: pacientesSinAtencionSlice,
                 atendidosPorDia: atendidosPorDiaSilce,
+                verPaciente: VerPacienteSlice,
+                editarPaciente: EditarPacienteSlice,
+                mostrarOrtoptica: MostrarOrtopticaSlice,
+                mostrarBajaVision:MostrarBajaVisionSlice,
+                mostrarGeneral: MostrarGeneralSlice,
+                mostrarNeonatos: MostrarNeonatosSlice,
+                mostrarPediatrica: MostrarPediatricaSlice,
+                mostrarConsultaGenerica: MostrarConsultaGenerica,
         }
 });
 

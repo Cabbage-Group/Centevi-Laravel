@@ -24,10 +24,10 @@ import PacienteAtendidoDia from './admin/reportes/PacienteAtendidoDia.js';
 import ConsultasDiarias from './admin/reportes/ConsultasDiarias.js';
 import TerapiasDiarias from './admin/reportes/TerapiasDiarias.js'
 import VerReportes from './admin/reportes/VerReportes.js';
-
+import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
+import EditarPaciente from './admin/Paciente/EditarPaciente.js';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
 
 function AppRouter() {
     return (
@@ -48,8 +48,9 @@ function AppRouter() {
                     <Route path="/crear-paciente" element={<Sidebar component={<CrearPaciente />} />} />
                     <Route path="/usuarios" element={<Sidebar component={<Usuarios />} />} />
                     <Route path="/lista-pacientes" element={<Sidebar component={<ListaPaciente />} />} />
-                    
-                    <Route path="/historia-paciente" element={<Sidebar component={<HistoriaPaciente />} />} />
+
+                    <Route path="/historia-paciente/:id" element={<Sidebar component={<HistoriaPaciente />} />} />
+                    <Route path="/editar-paciente/:id" element={<Sidebar component={<EditarPaciente />} />} />
                     <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
                     <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
                     <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />

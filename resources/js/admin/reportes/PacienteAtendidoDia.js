@@ -1,22 +1,17 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
-import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/atendidosPorDiaSilce';
+import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSilce';
 import DateRangePicker from './DateRangePicker';
-import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
-
-
-
 
 const PacienteAtendidoDia = () => {
 
     const dispatch = useDispatch();
     const metaPacientes = useSelector((state) => state.pacientes.meta);
     const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search, dataexport} = useSelector((state) => state.atendidosPorDia);
-    
-
     const [currentPage, setCurrentPage] = useState(1);
     const [localSearch, setLocalSearch] = useState(search);
     const [localEndDate, setLocalEndDate] = useState(endDate);
@@ -25,7 +20,7 @@ const PacienteAtendidoDia = () => {
     useEffect(() => {
         dispatch(fetchPacientes({}));
     }, [dispatch]);
-   
+
     useEffect(() => {
         dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20 , orden, ordenPor,startDate, endDate, search: localSearch}));
     }, [dispatch,localSearch,  currentPage, startDate, endDate,orden, ordenPor]);

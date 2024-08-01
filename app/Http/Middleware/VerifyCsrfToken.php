@@ -27,6 +27,8 @@ class VerifyCsrfToken extends Middleware
         'http://127.0.0.1:8000/api/ObtometriaGeneral/*',
         'http://127.0.0.1:8000/api/historiaclinica',
         'http://127.0.0.1:8000/api/historiaclinica/*',
+        'http://127.0.0.1:8000/api/consultagenerica',
+        'http://127.0.0.1:8000/api/consultagenerica/*',
         'http://127.0.0.1:8000/api/pacientes',
         'http://127.0.0.1:8000/api/pacientes/*',
         'http://127.0.0.1:8000/api/obtenerHistoriaClinica/*',

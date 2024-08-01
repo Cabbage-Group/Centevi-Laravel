@@ -84,19 +84,42 @@ class OptometriaGeneralApiController extends Controller
     public function DeleteRefraccionGeneral($id)
     {
         $refraccionGeneral = RefraccionGeneral::find($id);
-
         if (!$refraccionGeneral) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registro no encontrado',
             ], 404);
         }
-
         $refraccionGeneral->delete();
-
         return response()->json([
             'success' => true,
             'message' => 'Registro eliminado exitosamente',
         ], 200);
     }
+
+    // Mostrar RefraccionGeneral por id_paciente
+    public function mostrarRefraccionGeneral(Request $request)
+    {
+        // Obtén los parámetros de la solicitud
+        $item = $request->query('item');
+        $item2 = $request->query('item2');
+        $valor = $request->query('valor');
+        $valor2 = $request->query('valor2');
+
+        if ($item && $item2) {
+            // Consulta con parámetros
+            $result = RefraccionGeneral::where($item, $valor)
+                ->where($item2, $valor2)
+                ->get(['id_consulta', 'fecha_creacion', 'doctor']);
+        } else {
+            // Consulta sin parámetros
+            $result = RefraccionGeneral::all();
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro exitosamente',
+            'dataRG' => $result,
+        ], 200);
+    }
+
 }

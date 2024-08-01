@@ -1,6 +1,6 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPacientesSinAtencion } from '../../redux/features/pacientesSinAtencionSlice';
+import { fetchPacientesSinAtencion } from '../../redux/features/reportes/pacientesSinAtencionSlice';
 import PaginationSinAtencion from './PaginationSinAtencion';
 
 const SinAtencion = () => {
@@ -9,7 +9,6 @@ const SinAtencion = () => {
     const { pacientesSinAtencion, status, error, meta, totalPages} = useSelector((state) => state.pacientesSinAtencion);
     const [currentPage, setCurrentPage] = useState(1);
 
-   
     useEffect(() => {
         dispatch(fetchPacientesSinAtencion({ page: currentPage, limit: 20}));
     }, [dispatch, currentPage]);

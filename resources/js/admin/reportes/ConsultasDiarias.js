@@ -1,9 +1,9 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchConsultasDiarias, setOrden, setOrdenPor,setFechaRange } from '../../redux/features/consultasDiariasSlice';
+import { fetchConsultasDiarias, setOrden, setOrdenPor,setFechaRange } from '../../redux/features/reportes/consultasDiariasSlice.js';
 import PaginationConsultasDiarias from './PaginationConsultasDiarias';
 import DateRangePicker from './DateRangePicker';
-import { fetchPacientes } from '../../redux/features/pacientesSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import ExportButton from './exportButton';
 import { transformDataForConsultasDiarias } from '../../../utils/dataTransform';
 
@@ -49,8 +49,7 @@ const ConsultasDiarias = () => {
         dispatch(fetchConsultasDiarias({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
     };
 
- 
-   
+
     return (
         <div className="row layout-top-spacing">
             <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">

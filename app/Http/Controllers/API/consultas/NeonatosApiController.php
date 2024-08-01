@@ -172,4 +172,28 @@ class NeonatosApiController extends Controller
         ]);
     }
 
+    public function mostrarOptometriaNeonatos(Request $request)
+    {
+        // Obtén los parámetros de la solicitud
+        $item = $request->query('item');
+        $item2 = $request->query('item2');
+        $valor = $request->query('valor');
+        $valor2 = $request->query('valor2');
+
+        if ($item && $item2) {
+            // Consulta con parámetros
+            $result = OptometriaNeonatos::where($item, $valor)
+                ->where($item2, $valor2)
+                ->get(['id_consulta', 'fecha_creacion', 'doctor']);
+        } else {
+            // Consulta sin parámetros
+            $result = OptometriaNeonatos::all();
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro exitosamente',
+            'dataON' => $result,
+        ], 200);
+    }
+
 }
