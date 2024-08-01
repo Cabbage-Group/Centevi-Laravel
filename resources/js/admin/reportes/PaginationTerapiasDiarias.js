@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PaginationUltimaAtencion= ({ onPageChange, meta }) => {
+const PaginationTerapiasDiarias= ({ onPageChange, meta }) => {
     const totalPages = Math.ceil(meta.total / meta.limit);
     const pageNumbers = [];
     const maxPageNumbersToShow = 2;
@@ -100,4 +100,4 @@ const PaginationUltimaAtencion= ({ onPageChange, meta }) => {
     );
 };
 
-export default PaginationUltimaAtencion;
+export default PaginationTerapiasDiarias;

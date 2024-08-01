@@ -1,46 +1,45 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import API from '../../config/config';
+import API from '../../../config/config';
 import moment from 'moment';
+
 
 const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 
-export const fetchUltimaAtencion = createAsyncThunk(
-    'ultimaAtencion/fetchUltimaAtencion',
-    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
+export const fetchTerapiasDiarias = createAsyncThunk(
+    'terapiasDiarias/fetchTerapiasDiarias',
+    async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate =getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
         try {
             const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-            const response = await axios.get(`${API}/ultimaAtencion`, {
+            const response = await axios.get(`${API}/pacientesTerapiasDiarias`, {
                 params: { page, limit, orden, ordenPor, fecha, search },
-            });
-
-            console.log('mensaje:', response.data);         
-
-            return response.data;
+            })
+            return response.data
         } catch (error) {
-            console.error('Error fetching ultimaAtencion:', error.response?.data || error.message);
+            console.error('Error fetching pacientesTerapiasDiarias:', error.response?.data || error.message);
             throw error;
         }
     }
 );
 
 
-const ultimaAtencionSlice = createSlice({
-    name: 'consultasDiarias',
+const terapiasDiariasSlice = createSlice({
+    name: 'terapiasDiarias',
     initialState: {
         data: [],
-        ultimaAtencion: [],
+        terapiasDiarias: [],
         meta: {},
         status: 'idle',
         error: null,
         orden: 'asc',
-        ordenPor: 'nombres',
-        startDate: getCurrentDate(),
-        endDate: getCurrentDate(),
+        ordenPor: 'PACIENTE_NOMBRE',
+        startDate:  getCurrentDate(),
+        endDate:  getCurrentDate(),
         search: '',
         dataexport: []
+       
     },
     reducers: {
         setOrden(state, action) {
@@ -53,24 +52,23 @@ const ultimaAtencionSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { 
+        setSearch(state, action) { // Agrega el reducer para la búsqueda
             state.search = action.payload;
-        },
+        }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUltimaAtencion.pending, (state) => {
+            .addCase(fetchTerapiasDiarias.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchUltimaAtencion.fulfilled, (state, action) => {
+            .addCase(fetchTerapiasDiarias.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.ultimaAtencion = action.payload.data;
-                state.meta = action.payload.meta;
+                state.terapiasDiarias = action.payload.data;
                 state.meta = action.payload.meta;
                 state.dataexport = action.payload.export.dataexport;
-            
+                
             })
-            .addCase(fetchUltimaAtencion.rejected, (state, action) => {
+            .addCase(fetchTerapiasDiarias.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
@@ -78,5 +76,5 @@ const ultimaAtencionSlice = createSlice({
 });
 
 
-export const { setOrden, setFechaRange, setOrdenPor, setSearch } = ultimaAtencionSlice.actions;
-export default ultimaAtencionSlice.reducer;
+export const { setOrden, setFechaRange, setOrdenPor, setSearch } = terapiasDiariasSlice.actions;
+export default terapiasDiariasSlice.reducer;

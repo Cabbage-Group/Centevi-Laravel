@@ -12,8 +12,8 @@ use App\Http\Controllers\API\consultas\OrtopticaApiController;
 use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\HistoriaClinicaApiController;
-use App\Http\Controllers\ReportesApiController;
 use App\Models\Pacientes;
+
 
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -63,6 +63,16 @@ Route::delete('/api/historiaclinica/{id}', [HistoriaClinicaApiController::class,
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
 
 Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
+
+Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'PacientesTerapiasDiarias']);
+
+Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarCantidadPacientesSinAtender']);
+
+Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
+
+Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
+
+Route::post('/api/verificar-cedula', [PacientesApiController::class, 'verificarCedula']);
 
 Route::get('/{any}', function () {
     return view('app');
