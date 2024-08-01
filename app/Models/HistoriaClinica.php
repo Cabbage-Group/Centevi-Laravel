@@ -15,8 +15,7 @@ class HistoriaClinica extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id_consulta';
 
-    // Indicación de si los IDs son autoincrementales o no
-    public $incrementing = false;
+    public $timestamps = false;
 
     // Atributos que son asignables en masa
     protected $fillable = [

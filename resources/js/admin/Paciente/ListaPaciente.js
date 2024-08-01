@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchPacientes } from '../../redux/features/pacientesSlice.js';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { Link } from 'react-router-dom';
 import PaginationPacientes from './PaginationPacientes.js';
 
@@ -46,11 +46,11 @@ const ListaPaciente = () => {
                                                     display: 'flex'
                                                 }}
                                             >
-                                                <a
-                                                    className="btn btn-success mb-4 ml-3 mt-4"
-                                                ><Link to={"/crear-paciente"}>
+                                                <a className="btn btn-success mb-4 ml-3 mt-4">
+                                                    <Link to={"/crear-paciente"}>
                                                         Agregar Paciente
-                                                    </Link></a>
+                                                    </Link>
+                                                </a>
                                                 <input
                                                     className="form-control txt-buscar-cedula"
                                                     name=""
@@ -101,24 +101,26 @@ const ListaPaciente = () => {
                                                                 <div className="btn-group">
                                                                     <button
                                                                         className="btn btn-primary btnVerHistoria"
-                                                                        data-target="#modalEditarUsuario"
+                                                                        data-target="hitoriapaciente"
                                                                         data-toggle="modal"
                                                                         id_paciente="1"
                                                                     >
-                                                                        <svg
-                                                                            className="h-6 w-6"
-                                                                            fill="none"
-                                                                            stroke="currentColor"
-                                                                            viewBox="0 0 24 24"
-                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                        >
-                                                                            <path
-                                                                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                                                                                strokeLinecap="round"
-                                                                                strokeLinejoin="round"
-                                                                                strokeWidth="2"
-                                                                            />
-                                                                        </svg>
+                                                                        <Link to={"/historia-paciente"}>
+                                                                            <svg
+                                                                                className="h-6 w-6"
+                                                                                fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                            >
+                                                                                <path
+                                                                                    d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    strokeWidth="2"
+                                                                                />
+                                                                            </svg>
+                                                                        </Link>
                                                                     </button>
                                                                     <button
                                                                         className="btn btn-warning btnEditarPaciente"

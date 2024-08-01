@@ -1,6 +1,134 @@
-import React from 'react'
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { Formik, Form, Field } from 'formik';
+import Swal from 'sweetalert2';
+import { crearPacientes, verificarCedula } from '../../redux/features/pacientes/crearPacientesSlice';
 
 const CrearPaciente = () => {
+    const dispatch = useDispatch();
+
+    const initialValues = {
+        sucursal: "",
+        doctor: "",
+        nombres: "",
+        apellidos: "",
+        nro_cedula: "",
+        email: "",
+        nro_seguro: "",
+        fecha_nacimiento: "",
+        genero: "",
+        lugar_nacimiento: "",
+        direccion: "",
+        ocupacion: "",
+        telefono: "",
+        celular: "",
+        medico: "",
+        urgencia: {
+            nombre_ur: "",
+            parentesco_ur: "",
+            nro_ur: ""
+        },
+        menor: {
+            responsable: "",
+            parentesco: "",
+            nro_celular_responsable: "",
+            remitido: ""
+        }
+    };
+
+    const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+        try {
+            // Filtrar los campos vacíos
+            const cleanedValues = Object.keys(values).reduce((acc, key) => {
+                if (typeof values[key] === 'object' && values[key] !== null) {
+                    const nestedCleaned = Object.keys(values[key]).reduce((nestedAcc, nestedKey) => {
+                        if (values[key][nestedKey]) {
+                            nestedAcc[nestedKey] = values[key][nestedKey];
+                        }
+                        return nestedAcc;
+                    }, {});
+                    if (Object.keys(nestedCleaned).length > 0) {
+                        acc[key] = nestedCleaned;
+                    }
+                } else if (values[key]) {
+                    acc[key] = values[key];
+                }
+                return acc;
+            }, {});
+
+            // Verificar cédula antes de crear paciente
+            const nroCedula = cleanedValues.nro_cedula;
+            const cedulaExists = await dispatch(verificarCedula(nroCedula)).unwrap();
+
+            if (cedulaExists) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cédula existente',
+                    text: 'La cédula ingresada ya existe. Por favor, ingresa una cédula diferente.',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Cerrar'
+                });
+                setSubmitting(false);
+                return;
+            }
+
+            Swal.fire({
+                title: 'Cargando...',
+                text: 'Estamos procesando tu solicitud',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            await dispatch(crearPacientes(cleanedValues)).unwrap();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'El paciente ha sido guardado correctamente',
+                showConfirmButton: true,
+                confirmButtonText: 'Cerrar'
+            });
+
+            // Resetear el formulario
+            resetForm();
+        } catch (error) {
+            let errorMessage = error.message || 'Error desconocido';
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al guardar el paciente',
+                text: errorMessage,
+                showConfirmButton: true,
+                confirmButtonText: 'Cerrar'
+            });
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleCedulaBlur = async (nroCedula, setFieldValue) => {
+        if (nroCedula) {
+            try {
+                const response = await dispatch(verificarCedula(nroCedula)).unwrap();
+                if (response) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cédula existente',
+                        text: 'La cédula ingresada ya existe. Por favor, ingresa una cédula diferente.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Cerrar'
+                    });
+                    // Limpiar el campo
+                    setFieldValue('nro_cedula', '');
+                }
+            } catch (error) {
+                console.error('Error verificando la cédula:', error);
+            }
+        }
+    };
+
     return (
         <div
             className="admin-data-content"
@@ -28,294 +156,270 @@ const CrearPaciente = () => {
                                             </div>
                                         </div>
                                         <div className="widget-content widget-content-area">
-                                            <form
-                                                method="post"
-                                                role="form"
+                                            <Formik
+                                                initialValues={initialValues}
+                                                onSubmit={handleSubmit}
                                             >
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="nombres">
-                                                            Nombres
-                                                        </label>
-                                                        <input
-                                                            className="form-control nombres"
-                                                            id="nombres"
-                                                            name="nombres"
-                                                            required
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="apellidos">
-                                                            Apellidos
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="apellidos"
-                                                            name="apellidos"
-                                                            required
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="email">
-                                                            Email
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="email"
-                                                            name="email"
-                                                            required
-                                                            type="email"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-3">
-                                                        <label htmlFor="nro_cedula">
-                                                            Nro.Cedula
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="nro_cedula"
-                                                            name="nro_cedula"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-3">
-                                                        <label htmlFor="nro_seguro">
-                                                            Nro.Seguro Social
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="nro_seguro"
-                                                            name="nro_seguro"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-3">
-                                                        <label>
-                                                            Fecha de Nacimiento
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            name="fecha_nacimiento"
-                                                            type="date"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-3">
-                                                        <label htmlFor="inputAddress">
-                                                            Genero
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            name="genero"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="lugarNacimiento">
-                                                            Lugar de Nacimiento
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="lugarNacimiento"
-                                                            name="lugar_nacimiento"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-8">
-                                                        <label htmlFor="inputAddress2">
-                                                            Direccion Residencial
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="inputAddress2"
-                                                            name="direccion"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="ocupacion">
-                                                            Ocupación
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="ocupacion"
-                                                            name="ocupacion"
-                                                            required
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="telefono">
-                                                            Teléfono de casa
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="telefono"
-                                                            name="telefono"
-                                                            required
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="celular">
-                                                            Número de celular
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="celular"
-                                                            name="celular"
-                                                            required
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-6">
-                                                        <label htmlFor="medico">
-                                                            Medico de Cabecera
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="medico"
-                                                            name="medico_cabecera"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-group">
-                                                    <h4>
-                                                        EN CASO DE URGENCIA
-                                                    </h4>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="responsable">
-                                                            {' '}Por favor colocar el nombre
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="nombre"
-                                                            name="nombre_ur"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="parentesco">
-                                                            {' '}Parentesco
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="parentesco_ur"
-                                                            name="parentesco_ur"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="nro_celular_responsable">
-                                                            {' '}Nro.Celular
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="numero_ur"
-                                                            name="nro_ur"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-group">
-                                                    <h4>
-                                                        MENOR DE EDAD
-                                                    </h4>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-6">
-                                                        <label htmlFor="responsable">
-                                                            {' '}Por favor colocar el nombre del acudiente o                                                    responsable
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="responsable"
-                                                            name="responsable"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-6">
-                                                        <label htmlFor="parentesco">
-                                                            {' '}Parentesco
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="parentesco"
-                                                            name="parentesco"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="form-row mb-4">
-                                                    <div className="form-group col-md-6">
-                                                        <label htmlFor="nro_celular_responsable">
-                                                            {' '}Nro.Celular
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="nro_celular_responsable"
-                                                            name="nro_celular_responsable"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                    <div className="form-group col-md-4">
-                                                        <label htmlFor="urg_celular">
-                                                            Remitido Por{' '}
-                                                        </label>
-                                                        <input
-                                                            className="form-control"
-                                                            id="remitido"
-                                                            name="remitido"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <input
-                                                    defaultValue="3"
-                                                    name="sucursal"
-                                                    type="hidden"
-                                                />
-                                                <input
-                                                    defaultValue="Administrador"
-                                                    name="doctor"
-                                                    type="hidden"
-                                                />
-                                                <div
-                                                    className="btn-crear-paciente"
-                                                    style={{
-                                                        width: '150px'
-                                                    }}
-                                                >
-                                                    <button
-                                                        className="btn btn-success mt-3 btn-crear-paciente"
-                                                        type="submit"
+                                                {({ setFieldValue, resetForm }) => (
+                                                    <Form
+                                                        method="post"
+                                                        role="form"
                                                     >
-                                                        <div className="txt-btn-crear">
-                                                            Crear Paciente
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="nombres">
+                                                                    Nombres
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control nombres"
+                                                                    id="nombres"
+                                                                    name="nombres"
+                                                                    required
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="apellidos">
+                                                                    Apellidos
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="apellidos"
+                                                                    name="apellidos"
+                                                                    required
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="email">
+                                                                    Email
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="email"
+                                                                    name="email"
+                                                                    required
+                                                                    type="email"
+                                                                />
+                                                            </div>
                                                         </div>
-                                                        <div
-                                                            className="spinner-border no-mostrar-btn"
-                                                            role="status"
-                                                        >
-                                                            <span className="sr-only">
-                                                                {' '}Loading...
-                                                            </span>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-3">
+                                                                <label htmlFor="nro_cedula">
+                                                                    Nro.Cédula
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="nro_cedula"
+                                                                    name="nro_cedula"
+                                                                    onBlur={(e) => handleCedulaBlur(e.target.value, setFieldValue)}
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-3">
+                                                                <label htmlFor="nro_seguro">
+                                                                    Nro.Seguro Social
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="nro_seguro"
+                                                                    name="nro_seguro"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-3">
+                                                                <label>
+                                                                    Fecha de Nacimiento
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    name="fecha_nacimiento"
+                                                                    required
+                                                                    type="date"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-3">
+                                                                <label htmlFor="inputAddress">
+                                                                    Género
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    name="genero"
+                                                                    as="input"
+                                                                />
+                                                            </div>
                                                         </div>
-                                                    </button>
-                                                </div>
-                                            </form>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="lugarNacimiento">
+                                                                    Lugar de Nacimiento
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="lugarNacimiento"
+                                                                    name="lugar_nacimiento"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-8">
+                                                                <label htmlFor="inputAddress2">
+                                                                    Dirección Residencial
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="inputAddress2"
+                                                                    name="direccion"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="ocupacion">
+                                                                    Ocupación
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="ocupacion"
+                                                                    name="ocupacion"
+                                                                    required
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="telefono">
+                                                                    Teléfono
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="telefono"
+                                                                    name="telefono"
+                                                                    required
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="celular">
+                                                                    Celular
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="celular"
+                                                                    name="celular"
+                                                                    required
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="medico">
+                                                                    Médico
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="medico"
+                                                                    name="medico"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="urgencia_nombre">
+                                                                    Nombre de Urgencia
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="urgencia_nombre"
+                                                                    name="urgencia.nombre_ur"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="urgencia_parentesco">
+                                                                    Parentesco de Urgencia
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="urgencia_parentesco"
+                                                                    name="urgencia.parentesco_ur"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="urgencia_nro">
+                                                                    Nro. de Urgencia
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="urgencia_nro"
+                                                                    name="urgencia.nro_ur"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="menor_responsable">
+                                                                    Responsable
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="menor_responsable"
+                                                                    name="menor.responsable"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="menor_parentesco">
+                                                                    Parentesco
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="menor_parentesco"
+                                                                    name="menor.parentesco"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-4">
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="menor_nro_celular">
+                                                                    Nro. Celular Responsable
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="menor_nro_celular"
+                                                                    name="menor.nro_celular_responsable"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                            <div className="form-group col-md-6">
+                                                                <label htmlFor="menor_remitido">
+                                                                    Remitido
+                                                                </label>
+                                                                <Field
+                                                                    className="form-control"
+                                                                    id="menor_remitido"
+                                                                    name="menor.remitido"
+                                                                    as="input"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row">
+                                                            <div className="form-group col-md-12">
+                                                                <button
+                                                                    type="submit"
+                                                                    className="btn btn-primary"
+                                                                >
+                                                                    Guardar Paciente
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </Form>
+                                                )}
+                                            </Formik>
                                         </div>
                                     </div>
                                 </div>
@@ -325,7 +429,7 @@ const CrearPaciente = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default CrearPaciente
+export default CrearPaciente;
