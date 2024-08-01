@@ -34,8 +34,16 @@ class Receta extends Model
         'fecha_creacion',
     ];
 
+    public $timestamps = false;
+
+
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'fecha_creacion' => 'datetime',
     ];
+
+    public function paciente()
+    {
+        return $this->belongsTo(Pacientes::class, 'id_paciente', 'id_paciente');
+    }
 }
