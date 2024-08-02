@@ -4,101 +4,123 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { crearRecetas } from '../../redux/features/recetas/crearRecetasSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import * as Yup from 'yup';
+import { useParams, useLocation } from 'react-router-dom';
+import { fetchVerUnaReceta } from '../../redux/features/recetas/verUnaRecetaSlice';
+import ReactToPrint from 'react-to-print';
 
-const CrearReceta = () => {
 
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const { pacientes } = useSelector((state) => state.pacientes);
-    const { sucursales } = useSelector((state) => state.sucursales);
-    const { status, error } = useSelector((state) => state.recetas);
-    const [selectedPaciente, setSelectedPaciente] = useState(null);
-    const initialValues = {
-        id_paciente: "",
-        nro_receta: "",
-        direccion: "",
-        cedula: "",
-        telefono: "",
-        rx: {
-            esfera_od: "",
-            cilindro_od: "",
-            eje_od: "",
-            add_od: "",
-            prisma_od: "",
-            distancia_od: "",
-            altura_od: "",
-            esfera_oi: "",
-            cilindro_oi: "",
-            eje_oi: "",
-            add_oi: "",
-            prisma_oi: "",
-            distancia_oi: "",
-            altura_oi: ""
 
-        },
-        tipo_lente: "",
-        material: {
-            material_1: "",
-            gris_m: "",
-            cafe_m: "",
-            material_2: ""
-        },
-        tratamientos: {
-            transitions: "",
-            filtro_a: "",
-            gris_t: "",
-            cafe_t: "",
-            fotocromatico_t: "",
-            antireflejo_t: "",
-            espejado: "",
-            uv: "",
-            tinte: "",
-            degradante: "",
-            uniforme: "",
-            color_t: "",
-            intensidad_t: ""
-        },
-        aro_propio: {
-            aro_centevi: "",
-            propio: "",
-            codigo_aro: "",
-            color_aro: "",
-            marca: "",
-            elaborado: "",
-        },
-        observacion: "",
-        medidas: {
-            alto_l: "",
-            ancho_b_l: "",
-            separacion_l: "",
-            diagonal_l: "",
-        },
-        sucursal: "",
-        doctor: "",
-
-    };
-
-    useEffect(() => {
-        console.log('Pacientes:', pacientes);
-    }, [pacientes]);
-
-    useEffect(() => {
-        dispatch(fetchSucursales({ page: 1, limit: 100 }));
-        dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-    }, [dispatch]);
-
-    const handleSubmit = (values) => {
-        console.log('Valores del formulario al enviar:', values);
-        dispatch(crearRecetas(values));
-        navigate(-1);
-    };
-
+const SelectReceta = () => {
     
 
+
+
+    const { id_receta } = useParams();
+    const { pacientes } = useSelector((state) => state.pacientes);
+    const { sucursales } = useSelector((state) => state.sucursales);
+    const dispatch = useDispatch();
+    const location = useLocation();
+    const { data, status, error } = useSelector((state) => state.verUnaReceta);
+
+    const [pacienteNombre, setPacienteNombre] = useState('');
+    const [Nro_receta, setNro_receta] = useState('');
+    const [Direccion, setDireccion] = useState('');
+    const [Telefono, setTelefono] = useState('');
+    const [Cedula, setCedula] = useState('');
+    const [Doctor, setDoctor] = useState('');
+    const [Observacion, setObservacion] = useState('');
+    const [rxData, setRxData] = useState(null);
+    const [tipoLente, setTipoLente] = useState('');
+    const [tratamientosData, setTratamientosData] = useState(null);
+    const [materialData, setMaterialData] = useState(null);
+    const [aro_propioData, setAro_propioData] = useState(null);
+    const [medidasData, setMedidasData] = useState(null);
+
+
+    useEffect(() => {
+
+        setPacienteNombre('');
+        if (id_receta) {
+            dispatch(fetchVerUnaReceta(id_receta));
+        }
+    }, [dispatch, id_receta, location.pathname]);
+
+    useEffect(() => {
+        if (data) {
+            setPacienteNombre(data.PACIENTE_NOMBRE);
+            setDireccion(data.DIRECCION);
+            setNro_receta(data.NRO_RECETA);
+            setTelefono(data.TELEFONO);
+            setCedula(data.CEDULA);
+            setDoctor(data.DOCTOR);
+            setObservacion(data.OBSERVACION);
+            setTipoLente(data.TIPO_LENTE);
+            if (data.RX) {
+                try {
+                    const parsedRx = JSON.parse(data.RX);
+                    setRxData(parsedRx);
+                } catch (e) {
+                    console.error('Error parsing RX data:', e);
+                }
+            }
+            if (data.TRATAMIENTOS) {
+                try {
+                    const parsedTratamientos = JSON.parse(data.TRATAMIENTOS);
+                    setTratamientosData(parsedTratamientos);
+                } catch (e) {
+                    console.error('Error parsing TRATAMIENTOS data:', e);
+                }
+            }
+            if (data.MATERIAL) {
+                try {
+                    const parsedMaterial = JSON.parse(data.MATERIAL);
+                    setMaterialData(parsedMaterial);
+                } catch (e) {
+                    console.error('Error parsing Material data:', e);
+                }
+            }
+            if (data.ARO_PROPIO) {
+                try {
+                    const parsedAro_propio = JSON.parse(data.ARO_PROPIO);
+                    setAro_propioData(parsedAro_propio);
+                } catch (e) {
+                    console.error('Error parsing Aro_propio data:', e);
+                }
+            }
+            if (data.MEDIDAS) {
+                try {
+                    const parsedMedidas = JSON.parse(data.MEDIDAS);
+                    setMedidasData(parsedMedidas);
+                } catch (e) {
+                    console.error('Error parsing Medidas data:', e);
+                }
+            }
+        }
+    }, [data]);
+
+
+    const printPage = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        const printableContent = document.querySelector('.printable').innerHTML;
+        printWindow.document.write('<html><head><title>Print</title>');
+        printWindow.document.write('<style>body { font-family: Arial, sans-serif; } .printable { padding: 20px; }</style>'); // Agrega estilos si es necesario
+        printWindow.document.write('</head><body >');
+        printWindow.document.write(printableContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+      };
+
+    if (status === 'loading') return <div>Loading...</div>;
+    if (status === 'failed') return <div>Error: {error}</div>;
     return (
-        <div className="admin-data-content" data-select2-id="15">
+
+        
+        <div>
+        <button onClick={printPage}>Imprimir</button>
+        <div className="printable" data-select2-id="15">
+            
             <div className="row layout-top-spacing">
                 <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
                     <div className="widget-content-area br-4">
@@ -110,24 +132,18 @@ const CrearReceta = () => {
                                 >
                                     <div className="statbox widget box box-shadow">
                                         <div className="widget-header">
+                                        
+                                            {rxData && medidasData && aro_propioData && materialData && tratamientosData ? (
+                                                <div className="widget-content widget-content-area" >
+                                                    
+                                                    <Formik                                                  >
 
-                                           
-
-
-                                            <div className="widget-content widget-content-area" >
-                                                <Formik
-                                                    initialValues={initialValues}
-
-                                                    onSubmit={handleSubmit}
-                                                >
-
-                                                    {({ setFieldValue ,values}) => (
-                                                        <Form
-
-                                                        >
-
-
-                                                            <div className="form-row" style={{marginBottom: "2rem"}}>
+                                                        <Form  >
+                                                        
+                                                    
+                                                       
+                                                        
+                                                          <div className="form-row" style={{ marginBottom: "2rem" }}>
 
                                                                 <div className="col-md-4" >
                                                                     <img
@@ -151,56 +167,45 @@ const CrearReceta = () => {
                                                                 </div>
                                                                 <div class="col-md-2"  >
                                                                     <h4>Nro. Orden</h4>
-                                                                    <Field style={{ color: "red", fontWeight: "bold" , marginBottom: "1rem"}} 
-                                                                    type="text" class="form-control"                                                            
-                                                                    name="nro_receta"
+                                                                    <input style={{ color: "red", fontWeight: "bold", marginBottom: "1rem" }}
+                                                                        type="text" class="form-control"
+                                                                        id="pacienteNombre"
+                                                                        name="nro_receta"
+                                                                        value={Nro_receta}
+                                                                        readOnly
                                                                     />
                                                                 </div>
 
 
                                                                 <div className="form-group col-md-4" >
                                                                     <label htmlFor="pacientes">Pacientes</label>
-                                                                    <Field
+                                                                    <input
                                                                         as="select"
                                                                         name="id_paciente"
                                                                         className="form-control"
-                                                                        onChange={(e) => {
-                                                                            const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                                                            setFieldValue('paciente', e.target.value);
-                                                                            setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                                                        }}
-                                                                       
+                                                                        value={pacienteNombre}
+                                                                        onChange={(e) => setPacienteNombre(e.target.value)}
+                                                                        readOnly
                                                                     >
-                                                                        <option value="">Seleccione el paciente</option>
-                                                                        {pacientes.map((paciente) => (
-                                                                            <option key={paciente.id_paciente} value={paciente.id_paciente}>
-                                                                                Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
-                                                                            </option>
-                                                                        ))}
-                                                                    </Field>
-                                                                    <ErrorMessage name="id_paciente" component="div" className="text-danger" />
+
+                                                                    </input>
+
 
                                                                 </div>
 
 
                                                                 <div className="form-group col-md-4" >
                                                                     <label htmlFor="inputSucursal">Sucursal</label>
-                                                                    <Field
+                                                                    <input
                                                                         as="select"
                                                                         name="sucursal"
                                                                         className="form-control"
-                                                                        onChange={(e) => {
-                                                                            const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === parseInt(e.target.value));
-                                                                            setFieldValue('sucursal', e.target.value);
-                                                                            setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
-                                                                        }}
+                                                                        value={Direccion}
+                                                                        readOnly
                                                                     >
-                                                                        <option value="">Seleccionar sucursal</option>
-                                                                        {sucursales.map((sucursal) => (
-                                                                            <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
-                                                                        ))}
-                                                                    </Field>
-                                                                    <ErrorMessage name="sucursal" component="div" className="text-danger" />
+
+                                                                    </input>
+
                                                                 </div>
                                                                 <div className="form-group col-md-2">
                                                                     <label htmlFor="cedula">
@@ -209,8 +214,8 @@ const CrearReceta = () => {
                                                                     <Field
                                                                         className="form-control"
                                                                         name="cedula"
-
-                                                                        type="text"
+                                                                        value={Cedula}
+                                                                        readOnly
                                                                     />
                                                                 </div>
                                                                 <div className="form-group col-md-2">
@@ -220,8 +225,8 @@ const CrearReceta = () => {
                                                                     <Field
                                                                         className="form-control"
                                                                         name="telefono"
-
-                                                                        type="text"
+                                                                        value={Telefono}
+                                                                        readOnly
                                                                     />
                                                                 </div>
                                                             </div>
@@ -231,6 +236,7 @@ const CrearReceta = () => {
                                                                     marginTop: '-30px'
                                                                 }}
                                                             >
+
                                                                 <div className="form-group col-md-12">
                                                                     <div className="table-responsive">
                                                                         <table className="table table-bordered">
@@ -306,35 +312,42 @@ const CrearReceta = () => {
                                                                                         OD
                                                                                     </td>
                                                                                     <td>
-                                                                                        <Field
+                                                                                        <input
                                                                                             className="form-control"
                                                                                             name="rx.esfera_od"
+                                                                                            id="esfera_od"
+                                                                                            type="text"
+                                                                                            value={rxData.esfera_od || ''}
+                                                                                            readOnly
 
-                                                                                            as="input"
+
                                                                                         />
                                                                                     </td>
                                                                                     <td>
-                                                                                        <Field
+                                                                                        <input
                                                                                             className="form-control"
                                                                                             name="rx.cilindro_od"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.cilindro_od || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
-                                                                                        <Field
+                                                                                        <input
                                                                                             className="form-control"
                                                                                             name="rx.eje_od"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.eje_od || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.add_od"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.add_od || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
@@ -342,23 +355,27 @@ const CrearReceta = () => {
                                                                                             className="form-control"
                                                                                             defaultValue="△"
                                                                                             name="rx.prisma_od"
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.prisma_od || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.distancia_od"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.distancia_od || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.altura_od"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.altura_od || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                 </tr>
@@ -370,32 +387,36 @@ const CrearReceta = () => {
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.esfera_oi"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.esfera_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.cilindro_oi"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.cilindro_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.eje_oi"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.eje_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.add_oi"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.add_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
@@ -403,23 +424,27 @@ const CrearReceta = () => {
                                                                                             className="form-control"
                                                                                             defaultValue="△"
                                                                                             name="rx.prisma_oi"
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.prisma_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.distancia_oi"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.distancia_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
                                                                                             name="rx.altura_oi"
-
-                                                                                            as="input"
+                                                                                            type="text"
+                                                                                            value={rxData.altura_oi || ''}
+                                                                                            readOnly
                                                                                         />
                                                                                     </td>
                                                                                 </tr>
@@ -427,7 +452,9 @@ const CrearReceta = () => {
                                                                         </table>
                                                                     </div>
                                                                 </div>
+
                                                             </div>
+
                                                             <div
                                                                 style={{
                                                                     border: '2px solid blue',
@@ -441,76 +468,25 @@ const CrearReceta = () => {
                                                                             TIPO DE LENTE:
                                                                         </h6>
                                                                     </div>
-                                                                    <div className="col-md-2 p-2">
-                                                                        <div className="n-chk">
-                                                                            <label className="new-control new-radio radio-classic-primary">
-                                                                                <Field
-                                                                                    className="new-control-input"
-                                                                                    value="monofocal"
-                                                                                    name="tipo_lente"
-                                                                                    type="radio"
-                                                                                />
-                                                                                <span className="new-control-indicator" />
-                                                                                Monofocal
-                                                                            </label>
+                                                                    {['monofocal', 'bifocal', 'interview', 'antifatigue', 'progresivo'].map((lente) => (
+                                                                        <div className="col-md-2 p-2" key={lente}>
+                                                                            <div className="n-chk">
+                                                                                <label className="new-control new-radio radio-classic-primary">
+                                                                                    <input
+                                                                                        className="new-control-input"
+                                                                                        value={lente}
+                                                                                        name="tipo_lente"
+                                                                                        type="radio"
+                                                                                        checked={tipoLente === lente} // Marca el radio button si coincide con el estado
+                                                                                        readOnly // Solo lectura para visualización
+                                                                                    />
+                                                                                    <span className="new-control-indicator" />
+                                                                                    {lente.charAt(0).toUpperCase() + lente.slice(1)} {/* Capitaliza la primera letra */}
+                                                                                </label>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                    <div className="col-md-2 p-2">
-                                                                        <div className="n-chk">
-                                                                            <label className="new-control new-radio radio-classic-primary">
-                                                                                <Field
-                                                                                    className="new-control-input"
-                                                                                    value="bifocal"
-                                                                                    name="tipo_lente"
-                                                                                    type="radio"
-                                                                                />
-                                                                                <span className="new-control-indicator" />
-                                                                                Bifocal
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="col-md-2 p-2">
-                                                                        <div className="n-chk">
-                                                                            <label className="new-control new-radio radio-classic-primary">
-                                                                                <Field
-                                                                                    className="new-control-input"
-                                                                                    value="interview"
-                                                                                    name="tipo_lente"
-                                                                                    type="radio"
-                                                                                />
-                                                                                <span className="new-control-indicator" />
-                                                                                Interview
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="col-md-2 p-2">
-                                                                        <div className="n-chk">
-                                                                            <label className="new-control new-radio radio-classic-primary">
-                                                                                <Field
-                                                                                    className="new-control-input"
-                                                                                    value="antifatigue"
-                                                                                    name="tipo_lente"
-                                                                                    type="radio"
-                                                                                />
-                                                                                <span className="new-control-indicator" />
-                                                                                Antifatigue
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="col-md-2 p-2">
-                                                                        <div className="n-chk">
-                                                                            <label className="new-control new-radio radio-classic-primary">
-                                                                                <Field
-                                                                                    className="new-control-input"
-                                                                                    value="progresivo"
-                                                                                    name="tipo_lente"
-                                                                                    type="radio"
-                                                                                />
-                                                                                <span className="new-control-indicator" />
-                                                                                Progresivo
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
+                                                                    ))}
+
                                                                 </div>
                                                             </div>
                                                             <div
@@ -521,6 +497,7 @@ const CrearReceta = () => {
                                                                     padding: '10px 50px'
                                                                 }}
                                                             >
+
                                                                 <div className="row p-1">
                                                                     <div className="col-md-2">
                                                                         <h6 className="text-center p-2">
@@ -532,9 +509,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="transitions"
+                                                                                    value={tratamientosData.transitions}
                                                                                     name="tratamientos.transitions"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={tratamientosData.transitions === 'transitions'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Transitions
@@ -546,9 +525,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="filtro_a"
+                                                                                    value={tratamientosData.filtro_a}
                                                                                     name="tratamientos.filtro_a"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.filtro_a === 'filtro_a'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Filtro de luz azul
@@ -562,7 +543,8 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="tratamientos.gris_t"
-
+                                                                            value={tratamientosData.gris_t}
+                                                                            readOnly
                                                                             type="text"
                                                                         />
                                                                     </div>
@@ -573,11 +555,15 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="tratamientos.cafe_t"
-
+                                                                            value={tratamientosData.cafe_t}
+                                                                            readOnly
                                                                             type="text"
                                                                         />
                                                                     </div>
                                                                 </div>
+
+
+
                                                                 <div className="row p-2">
                                                                     <div className="col-md-2">
                                                                         <h6 className="text-center p-2" />
@@ -587,15 +573,18 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-checkbox checkbox-outline-success">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="fotocromatico"
+                                                                                    value={tratamientosData.fotocromatico_t}
                                                                                     name="tratamientos.fotocromatico_t"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.fotocromatico_t === 'fotocromatico'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Fotocromático
                                                                             </label>
                                                                         </div>
                                                                     </div>
+
                                                                     <div className="col-md-2">
                                                                         <div className="n-chk">
                                                                             <label className="new-control new-checkbox checkbox-outline-success">
@@ -604,50 +593,64 @@ const CrearReceta = () => {
                                                                                     value="antireflejo"
                                                                                     name="tratamientos.antireflejo_t"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.antireflejo === 'antireflejo'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Antireflejo
                                                                             </label>
                                                                         </div>
                                                                     </div>
+
                                                                     <div className="col-md-2">
                                                                         <div className="n-chk">
                                                                             <label className="new-control new-checkbox checkbox-outline-success">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="espejado"
+                                                                                    value={tratamientosData.espejado}
                                                                                     name="tratamientos.espejado"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.espejado === 'espejado'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Espejado
                                                                             </label>
                                                                         </div>
                                                                     </div>
+
                                                                     <div className="col-md-2">
                                                                         <div className="n-chk">
                                                                             <label className="new-control new-checkbox checkbox-outline-success">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="uv"
+                                                                                    value={tratamientosData.uv}
                                                                                     name="tratamientos.uv"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.uv === 'uv'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 UV
                                                                             </label>
                                                                         </div>
                                                                     </div>
+
+
                                                                 </div>
+
+
                                                                 <div className="row p-2">
                                                                     <div className="col-md-2">
                                                                         <div className="n-chk">
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="tinte"
+                                                                                    value={tratamientosData.tinte}
                                                                                     name="tratamientos.tinte"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.tinte === 'tinte'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Tinte
@@ -659,9 +662,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="degradante"
+                                                                                    value={tratamientosData.degradante}
                                                                                     name="tratamientos.degradante"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.degradante === 'degradante'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Degradante
@@ -673,9 +678,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="uniforme"
+                                                                                    value={tratamientosData.uniforme}
                                                                                     name="tratamientos.uniforme"
                                                                                     type="checkbox"
+                                                                                    checked={tratamientosData.uniforme === 'uniforme'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Uniforme
@@ -689,7 +696,7 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="tratamientos.color_t"
-
+                                                                            value={tratamientosData.color_t}
                                                                             type="text"
                                                                         />
                                                                     </div>
@@ -700,12 +707,15 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="tratamientos.intensidad_t"
-
+                                                                            value={tratamientosData.intensidad_t}
                                                                             type="text"
                                                                         />
                                                                     </div>
+
                                                                 </div>
+
                                                             </div>
+
                                                             <div
                                                                 className="p-2"
                                                                 style={{
@@ -725,9 +735,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="cr_39"
+                                                                                    value={materialData.material_1}
                                                                                     name="material.material_1"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_1 === 'cr_39'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 CR-39
@@ -739,9 +751,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="policarbonato"
+                                                                                    value={materialData.material_1}
                                                                                     name="material.material_1"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_1 === 'policarbonato'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 Policarbonato
@@ -758,9 +772,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="drivewear"
+                                                                                    value={materialData.material_1}
                                                                                     name="material.material_1"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_1 === 'drivewear'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 DRIVEWEAR
@@ -772,9 +788,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="polarizado"
+                                                                                    value={materialData.material_1}
                                                                                     name="material.material_1"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_1 === 'polarizado'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 POLARIZADO
@@ -786,9 +804,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="thin_lite"
+                                                                                    value={materialData.material_2}
                                                                                     name="material.material_2"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_2 === 'thin_lite'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 THIN & LITE
@@ -800,9 +820,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="policolor"
+                                                                                    value={materialData.material_2}
                                                                                     name="material.material_2"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_2 === 'policolor'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 POLICOLOR
@@ -814,9 +836,11 @@ const CrearReceta = () => {
                                                                             <label className="new-control new-radio radio-classic-primary">
                                                                                 <Field
                                                                                     className="new-control-input"
-                                                                                    value="super_thin"
+                                                                                    value={materialData.material_2}
                                                                                     name="material.material_2"
-                                                                                    type="radio"
+                                                                                    type="checkbox"
+                                                                                    checked={materialData.material_2 === 'super_thin'}
+                                                                                    readOnly
                                                                                 />
                                                                                 <span className="new-control-indicator" />
                                                                                 {' '}SUPER THIN & LITE
@@ -838,9 +862,11 @@ const CrearReceta = () => {
                                                                         <label className="new-control new-radio radio-classic-primary">
                                                                             <Field
                                                                                 className="new-control-input"
-                                                                                value="aro_centevi"
+                                                                                value={aro_propioData.aro_centevi}
                                                                                 name="propio"
                                                                                 type="checkbox"
+                                                                                checked={aro_propioData.aro_centevi === 'aro_centevi'}
+                                                                                readOnly
                                                                             />
                                                                             <span className="new-control-indicator" />
                                                                             <strong>
@@ -850,9 +876,10 @@ const CrearReceta = () => {
                                                                         <label className="new-control new-radio radio-classic-primary">
                                                                             <Field
                                                                                 className="new-control-input"
-                                                                                value="aro_propio"
+                                                                                value={aro_propioData.aro_centevi}
                                                                                 name="aro_propio.propio"
-                                                                                type="checkbox"
+                                                                                checked={aro_propioData.aro_centevi === 'aro_propio'}
+                                                                                readOnly
                                                                             />
                                                                             <span className="new-control-indicator" />
                                                                             <strong>
@@ -872,9 +899,11 @@ const CrearReceta = () => {
                                                                                 <label className="new-control new-radio radio-classic-primary">
                                                                                     <Field
                                                                                         className="new-control-input"
-                                                                                        value="metal_c"
+                                                                                        value={aro_propioData.aro_centevi}
                                                                                         name="aro_propio.aro_centevi"
-                                                                                        type="radio"
+                                                                                        type="checkbox"
+                                                                                        checked={aro_propioData.aro_centevi === 'metal_c'}
+                                                                                        readOnly
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Metal Completo
@@ -882,9 +911,11 @@ const CrearReceta = () => {
                                                                                 <label className="new-control new-radio radio-classic-primary">
                                                                                     <Field
                                                                                         className="new-control-input"
-                                                                                        value="metal_semi"
+                                                                                        value={aro_propioData.aro_centevi}
                                                                                         name="aro_propio.aro_centevi"
                                                                                         type="radio"
+                                                                                        checked={aro_propioData.aro_centevi === 'metal_semi'}
+                                                                                        readOnly
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Metal Semi - Aire
@@ -892,9 +923,11 @@ const CrearReceta = () => {
                                                                                 <label className="new-control new-radio radio-classic-primary">
                                                                                     <Field
                                                                                         className="new-control-input"
-                                                                                        value="aire"
+                                                                                        value={aro_propioData.aro_centevi}
                                                                                         name="aro_propio.aro_centevi"
                                                                                         type="radio"
+                                                                                        checked={aro_propioData.aro_centevi === 'aire'}
+                                                                                        readOnly
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Al Aire
@@ -914,9 +947,11 @@ const CrearReceta = () => {
                                                                                 <label className="new-control new-checkbox checkbox-outline-info">
                                                                                     <Field
                                                                                         className="new-control-input"
-                                                                                        value="pasta_c"
+                                                                                        value={aro_propioData.propio}
                                                                                         name="aro_propio.propio"
                                                                                         type="checkbox"
+                                                                                        checked={aro_propioData.propio === 'pasta_c'}
+                                                                                        readOnly
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Pasta Completo
@@ -926,9 +961,11 @@ const CrearReceta = () => {
                                                                                 <label className="new-control new-checkbox checkbox-outline-primary">
                                                                                     <Field
                                                                                         className="new-control-input"
-                                                                                        value="pasta_semi"
+                                                                                        value={aro_propioData.propio}
                                                                                         name="aro_propio.propio"
                                                                                         type="checkbox"
+                                                                                        checked={aro_propioData.propio === 'pasta_semi'}
+                                                                                        readOnly
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Pasta Semi - Aire
@@ -938,9 +975,10 @@ const CrearReceta = () => {
                                                                                 <label className="new-control new-checkbox checkbox-outline-success">
                                                                                     <Field
                                                                                         className="new-control-input"
-                                                                                        value="seguridad"
+                                                                                        value={aro_propioData.propio}
                                                                                         name="aro_propio.propio"
-                                                                                        type="checkbox"
+                                                                                        checked={aro_propioData.propio === 'seguridad'}
+                                                                                        readOnly
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Seguridad
@@ -955,8 +993,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="aro_propio.codigo_aro"
-
+                                                                            value={aro_propioData.codigo_aro}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-2">
@@ -966,8 +1005,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="aro_propio.color_aro"
-
+                                                                            value={aro_propioData.color_aro}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-6 mt-3">
@@ -977,8 +1017,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="aro_propio.marca"
-
+                                                                            value={aro_propioData.marca}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -1004,8 +1045,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="medidas.alto_l"
-
+                                                                            value={medidasData.alto_l}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-2">
@@ -1015,8 +1057,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="medidas.ancho_b_l"
-
+                                                                            value={medidasData.ancho_b_l}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-2">
@@ -1026,8 +1069,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="medidas.diagonal_l"
-
+                                                                            value={medidasData.diagonal_l}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-2">
@@ -1037,8 +1081,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="medidas.separacion_l"
-
+                                                                            value={medidasData.separacion_l}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -1059,8 +1104,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="doctor"
-                                                                            as="input"
+                                                                            value={Doctor}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-6">
@@ -1070,8 +1116,9 @@ const CrearReceta = () => {
                                                                         <Field
                                                                             className="form-control"
                                                                             name="aro_propio.elaborado"
-                                                                            as="input"
+                                                                            value={aro_propioData.elaborado}
                                                                             type="text"
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                     <div className="col-md-12">
@@ -1083,8 +1130,8 @@ const CrearReceta = () => {
                                                                             id="textarea"
                                                                             maxLength="800"
                                                                             name="observacion"
-                                                                            placeholder="Esta área tiene un limite de 800 caracteres."
-                                                                            rows="6"
+                                                                            value={Observacion}
+                                                                            readOnly
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -1103,24 +1150,21 @@ const CrearReceta = () => {
                                                                 name="doctor"
                                                                 type="hidden"
                                                             />
-                                                            <button
-                                                                className="btn btn-success mt-3"
-                                                                type="submit"
-                                                            >
-                                                                Crear Receta
-                                                            </button>
-
+                                                            
                                                             {status === 'loading' && <p>Enviando...</p>}
                                                             {status === 'failed' && <p>Error: {error}</p>}
                                                             {status === 'succeeded' && <p>Neonato creado con éxito</p>}
 
                                                         </Form>
-                                                    )}
-                                                </Formik>
 
-                                                {status === 'error' && <div className="alert alert-danger">{error}</div>}
+                                                    </Formik>
 
-                                            </div>
+                                                    {status === 'error' && <div className="alert alert-danger">{error}</div>}
+
+                                                </div>
+                                            ) : (
+                                                <div>No hay datos de receta disponibles.</div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -1131,7 +1175,11 @@ const CrearReceta = () => {
                 </div>
             </div>
         </div>
+        </div>
     )
 }
 
-export default CrearReceta
+
+
+export default SelectReceta
+

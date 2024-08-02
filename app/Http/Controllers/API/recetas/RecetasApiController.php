@@ -45,10 +45,24 @@ class RecetasApiController extends Controller
             return [
                 'ID_RECETA' => $receta->id_receta,
                 'ID_PACIENTE' => $receta->id_paciente,
+                'NRO_RECETA'=>$receta->nro_receta,
+                'DIRECCION'=>$receta->direccion,
+                'CEDULA'=>$receta->cedula,
+                'TELEFONO'=>$receta->telefono,
+                'RX'=>$receta->rx,
+                'TIPO_LENTE'=>$receta->tipo_lente,
+                'MATERIAL'=>$receta->material,
+                'TRATAMIENTOS'=>$receta->tratamientos,
+                'ARO_PROPIO'=>$receta->aro_propio,
+                'OBSERVACION'=>$receta->observacion,
+                'MEDIDAS'=>$receta->medidas,
+                'SUCURSAL'=>$receta->sucursal,
+                'DOCTOR' => $receta->doctor,
+                'FECHA_ATENCION' => Carbon::parse($receta->fecha_creacion)->format('Y-m-d H:i:s'),
                 'PACIENTE_NOMBRE' => $receta->paciente->nombres ?? 'N/A',
                 'PACIENTE_APELLIDO' => $receta->paciente->apellidos ?? 'N/A',
-                'FECHA_ATENCION' => Carbon::parse($receta->fecha_creacion)->format('Y-m-d H:i:s'),
-                'DOCTOR' => $receta->doctor
+             
+                
 
             ];
         });
@@ -70,69 +84,142 @@ class RecetasApiController extends Controller
 
 
     public function crearRecetas(Request $request)
-{
-    // Validar los datos de entrada para recetas
-    $validator = Validator::make($request->all(), [
-        "id_paciente" => 'nullable|integer',
-        "nro_receta" => 'nullable|string|max:255',
-        'direccion' => 'nullable|string|max:255',
-        'cedula' => 'nullable|string|max:255|unique:receta,cedula', // Agregar validación de unicidad
-        'telefono' => 'nullable|string|max:255',
-        'rx' => 'nullable|string|max:300',
-        'tipo_lente' => 'nullable|string|max:255', // Dependiendo del formato esperado
-        'material' => 'nullable|string|max:255', // Dependiendo del formato esperado
-        'tratamientos' => 'nullable|string|max:255',
-        'aro_propio' => 'nullable|string|max:255',
-        'observacion' => 'nullable|string|max:255',
-        'medidas' => 'nullable|string|max:300',
-        'sucursal' => 'nullable|integer|max:543',
-        'doctor' => 'nullable|string|max:255',
-        'fecha_creacion' => 'nullable|date',    
-    ]);
+    {
+        // Validar los datos de entrada para recetas
+        $validator = Validator::make($request->all(), [
+            "id_paciente" => 'nullable|integer',
+            "nro_receta" => 'nullable|string|max:255',
+            'direccion' => 'nullable|string|max:255',
+            'cedula' => 'nullable|string|max:255|unique:receta,cedula', // Agregar validación de unicidad
+            'telefono' => 'nullable|string|max:255',
+            'rx' => 'nullable|string|max:300',
+            'tipo_lente' => 'nullable|string|max:255', // Dependiendo del formato esperado
+            'material' => 'nullable|string|max:255', // Dependiendo del formato esperado
+            'tratamientos' => 'nullable|string',
+            'aro_propio' => 'nullable|string|max:255',
+            'observacion' => 'nullable|string|max:255',
+            'medidas' => 'nullable|string|max:300',
+            'sucursal' => 'nullable|integer|max:543',
+            'doctor' => 'nullable|string|max:255',
+            'fecha_creacion' => 'nullable|date',
+        ]);
 
-    // Retornar errores de validación si los hay
-    if ($validator->fails()) {
+        // Retornar errores de validación si los hay
+        if ($validator->fails()) {
+            return response()->json([
+                'respuesta' => false,
+                'mensaje' => 'Validation errors',
+                'data' => $validator->errors(),
+                'mensaje_dev' => "Oops, validation errors occurred."
+            ], 400);
+        }
+
+        // Obtener los datos de la solicitud y rellenar los valores faltantes
+        $data = $request->all();
+        $defaults = [
+            "id_paciente" => null,
+            "nro_receta" => '',
+            'direccion' => '',
+            'cedula' => '',
+            'telefono' => '',
+            'rx' => '',
+            'tipo_lente' => '',
+            'material' => '',
+            'tratamientos' => '',
+            'aro_propio' => '',
+            'observacion' => '',
+            'medidas' => '',
+            'sucursal' => null,
+            'doctor' => '',
+            'fecha_creacion' => now()->format('Y-m-d'), // Asegúrate de usar el formato correcto
+        ];
+
+        // Rellenar datos faltantes con valores predeterminados
+        $data = array_merge($defaults, $data);
+
+        // Crear una nueva receta
+        $receta = Receta::create($data);
+
+        // Retornar respuesta exitosa
         return response()->json([
-            'respuesta' => false,
-            'mensaje' => 'Validation errors',
-            'data' => $validator->errors(),
-            'mensaje_dev' => "Oops, validation errors occurred."
-        ], 400);
+            'respuesta' => true,
+            'mensaje' => 'Receta registrada correctamente',
+            'data' => [$receta],
+            'mensaje_dev' => null
+        ], 201);
     }
 
-    // Obtener los datos de la solicitud y rellenar los valores faltantes
-    $data = $request->all();
-    $defaults = [
-        "id_paciente" => null,
-        "nro_receta" => '',
-        'direccion' => '',
-        'cedula' => '',
-        'telefono' => '',
-        'rx' => '',
-        'tipo_lente' => '',
-        'material' => '',
-        'tratamientos' => '',
-        'aro_propio' => '',
-        'observacion' => '',
-        'medidas' => '',
-        'sucursal' => null,
-        'doctor' => '',
-        'fecha_creacion' => now()->format('Y-m-d'), // Asegúrate de usar el formato correcto
-    ];
 
-    // Rellenar datos faltantes con valores predeterminados
-    $data = array_merge($defaults, $data);
+    public function eliminarReceta($id_receta)
+    {
+        // Buscar la receta por ID
+        $receta = Receta::find($id_receta);
 
-    // Crear una nueva receta
-    $receta = Receta::create($data);
+        // Verificar si la receta existe
+        if (!$receta) {
+            return response()->json([
+                'respuesta' => false,
+                'mensaje' => 'Receta no encontrada',
+                'mensaje_dev' => "No se encontró ninguna receta con el ID proporcionado."
+            ], 404);
+        }
 
-    // Retornar respuesta exitosa
-    return response()->json([
-        'respuesta' => true,
-        'mensaje' => 'Receta registrada correctamente',
-        'data' => [$receta],
-        'mensaje_dev' => null
-    ], 201);
-}
+        // Eliminar la receta
+        $receta->delete();
 
+        // Retornar respuesta exitosa
+        return response()->json([
+            'respuesta' => true,
+            'mensaje' => 'Receta eliminada correctamente',
+            'mensaje_dev' => null
+        ], 200);
+    }
+
+    public function verReceta($id_receta)
+    {
+        // Buscar la receta por ID
+        $receta = Receta::join('pacientes', 'receta.id_paciente', '=', 'pacientes.id_paciente')
+            ->select('receta.*', DB::raw('TRIM(pacientes.nombres) as nombres'), DB::raw('TRIM(pacientes.apellidos) as apellidos'))
+            ->where('receta.id_receta', $id_receta)
+            ->first();
+
+        // Verificar si la receta existe
+        if (!$receta) {
+            return response()->json([
+                'respuesta' => false,
+                'mensaje' => 'Receta no encontrada',
+                'mensaje_dev' => "No se encontró ninguna receta con el ID proporcionado."
+            ], 404);
+        }
+
+        // Formatear los datos de la receta
+        $data = [
+            'ID_RECETA' => $receta->id_receta,
+            'ID_PACIENTE' => $receta->id_paciente,
+            'NRO_RECETA' => $receta->nro_receta,
+            'DIRECCION' => $receta->direccion,
+            'CEDULA' => $receta->cedula,
+            'TELEFONO' => $receta->telefono,
+            'RX' => $receta->rx,
+            'TIPO_LENTE' => $receta->tipo_lente,
+            'MATERIAL' => $receta->material,
+            'TRATAMIENTOS' => $receta->tratamientos,
+            'ARO_PROPIO' => $receta->aro_propio,
+            'OBSERVACION' => $receta->observacion,
+            'MEDIDAS' => $receta->medidas,
+            'SUCURSAL' => $receta->sucursal,
+            'DOCTOR' => $receta->doctor,
+            'FECHA_ATENCION' => Carbon::parse($receta->fecha_creacion)->format('Y-m-d H:i:s'),
+            'PACIENTE_NOMBRE' => $receta->nombres ?? 'N/A',
+            'PACIENTE_APELLIDO' => $receta->apellidos ?? 'N/A',
+        ];
+
+        // Retornar respuesta exitosa
+        return response()->json([
+            'respuesta' => true,
+            'mensaje' => 'Receta encontrada correctamente',
+            'data' => $data,
+            'mensaje_dev' => null
+        ], 200);
+    }
 }

@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { fecthRecetas } from '../../redux/features/recetas/recetasSlice';
 import PaginationRecetas from '../reportes/PaginationRecetas';
+import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
+import Swal from 'sweetalert2';
 
 const VerRecetas = () => {
     const dispatch = useDispatch();
@@ -18,6 +20,41 @@ const VerRecetas = () => {
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
+
+    const handleEliminarReceta = async (id_receta) => {
+        try {
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás recuperar esta receta después de eliminarla!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+    
+            if (result.isConfirmed) {
+                await dispatch(eliminarRecetas(id_receta));
+                dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
+                
+                Swal.fire(
+                    'Eliminado!',
+                    'La receta ha sido eliminada.',
+                    'success'
+                );
+            }
+        } catch (error) {
+            Swal.fire(
+                'Error',
+                'Hubo un problema al eliminar la receta.',
+                'error'
+            );
+        }
+    };
+    
+    
+    
 
     return (
 
@@ -188,9 +225,9 @@ const VerRecetas = () => {
                                                                 <td>{receta.FECHA_ATENCION}</td>
                                                                 <td>
                                                                     <div className="btn-group">
-                                                                        <button
+                                                                    <Link to={`/select-receta/${receta.ID_RECETA}`}
                                                                             className="btnVerReceta btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                            id_receta="185"
+                                                                            
                                                                         >
                                                                             <svg
                                                                                 className="h-6 w-6"
@@ -212,7 +249,7 @@ const VerRecetas = () => {
                                                                                     strokeWidth="2"
                                                                                 />
                                                                             </svg>
-                                                                        </button>
+                                                                            </Link>
                                                                         <button
                                                                             className="btn btn-warning btnEditarReceta"
                                                                             data-target="#modalEditarSucursal"
@@ -235,6 +272,7 @@ const VerRecetas = () => {
                                                                             </svg>
                                                                         </button>
                                                                         <button
+                                                                            onClick={() => handleEliminarReceta(receta.ID_RECETA)} 
                                                                             borrar_receta="185"
                                                                             className="btn btn-danger btnEliminarReceta"
                                                                         >

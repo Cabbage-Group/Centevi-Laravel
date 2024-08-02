@@ -28,6 +28,7 @@ import VerReportes from './admin/reportes/VerReportes.js';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
+import SelectReceta from './admin/recetas/SelectReceta.js';
 
 function AppRouter() {
     return (
@@ -58,6 +59,8 @@ function AppRouter() {
                     <Route path="/paciente-atendido-dia" element={<Sidebar component={<PacienteAtendidoDia />} />} />
                     <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
+
+                    <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
 
                 </Routes>
             </Router>
