@@ -83,6 +83,8 @@ Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta
 
 Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
 
+Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

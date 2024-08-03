@@ -250,7 +250,7 @@ const VerRecetas = () => {
                                                                                 />
                                                                             </svg>
                                                                             </Link>
-                                                                        <button
+                                                                        <Link to={`/editar-receta/${receta.ID_RECETA}`}
                                                                             className="btn btn-warning btnEditarReceta"
                                                                             data-target="#modalEditarSucursal"
                                                                             data-toggle="modal"
@@ -270,7 +270,7 @@ const VerRecetas = () => {
                                                                                     strokeWidth="2"
                                                                                 />
                                                                             </svg>
-                                                                        </button>
+                                                                        </Link>
                                                                         <button
                                                                             onClick={() => handleEliminarReceta(receta.ID_RECETA)} 
                                                                             borrar_receta="185"

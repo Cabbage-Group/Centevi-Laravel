@@ -222,4 +222,61 @@ class RecetasApiController extends Controller
             'mensaje_dev' => null
         ], 200);
     }
+
+
+    public function editarReceta(Request $request, $id_receta)
+{
+    // Validar los datos de entrada para recetas
+    $validator = Validator::make($request->all(), [
+        "id_paciente" => 'nullable|integer',
+        "nro_receta" => 'nullable|string|max:255',
+        'direccion' => 'nullable|string|max:255',
+        'cedula' => 'nullable|string|max:255', 
+        'telefono' => 'nullable|string|max:255',
+        'rx' => 'nullable|string|max:300',
+        'tipo_lente' => 'nullable|string|max:255',
+        'material' => 'nullable|string|max:255',
+        'tratamientos' => 'nullable|string',
+        'aro_propio' => 'nullable|string|max:255',
+        'observacion' => 'nullable|string|max:255',
+        'medidas' => 'nullable|string|max:300',
+        'sucursal' => 'nullable|integer|max:543',
+        'doctor' => 'nullable|string|max:255',
+        'fecha_creacion' => 'nullable|date',
+    ]);
+
+    // Retornar errores de validación si los hay
+    if ($validator->fails()) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Validation errors',
+            'data' => $validator->errors(),
+            'mensaje_dev' => "Oops, validation errors occurred."
+        ], 400);
+    }
+
+    // Buscar la receta por ID
+    $receta = Receta::find($id_receta);
+
+    // Verificar si la receta existe
+    if (!$receta) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Receta no encontrada',
+            'mensaje_dev' => "No se encontró ninguna receta con el ID proporcionado."
+        ], 404);
+    }
+
+    // Actualizar los datos de la receta
+    $receta->update($request->all());
+
+    // Retornar respuesta exitosa
+    return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Receta actualizada correctamente',
+        'data' => $receta,
+        'mensaje_dev' => null
+    ], 200);
+}
+
 }

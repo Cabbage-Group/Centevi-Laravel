@@ -15,6 +15,7 @@ import crearPacientesSlice from './features/pacientes/crearPacientesSlice';
 import recetasSlice from './features/recetas/recetasSlice';
 import crearRecetasSlice from './features/recetas/crearRecetasSlice';
 import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
+import editarRecetasSlice from './features/recetas/editarRecetasSlice';
 
 const store = configureStore({
         reducer: {
@@ -33,7 +34,8 @@ const store = configureStore({
                 atendidosPorDia: atendidosPorDiaSilce,
                 crearPacientes: crearPacientesSlice,
                 crearRecetas: crearRecetasSlice,
-                verUnaReceta: verUnaRecetaSlice
+                verUnaReceta: verUnaRecetaSlice,
+                editarReceta: editarRecetasSlice
                 
         }
 });
