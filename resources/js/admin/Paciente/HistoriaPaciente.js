@@ -25,7 +25,7 @@ const HistoriaPaciente = () => {
     const { dataRG = [] } = useSelector((state) => state.mostrarGeneral);
     const { dataON = [] } = useSelector((state) => state.mostrarNeonatos);
     const { dataOP = [] } = useSelector((state) => state.mostrarPediatrica);
-    const { dataCG = [], status, error } = useSelector((state) => state.mostrarConsultaGenerica);
+    const { dataCG = [] } = useSelector((state) => state.mostrarConsultaGenerica);
 
     let urgencia = {};
     let menor = {};
@@ -90,8 +90,7 @@ const HistoriaPaciente = () => {
                                                         <p>
                                                             Creado por:{' '}
                                                             <b>
-                                                                {verPaciente ?
-                                                                    verPaciente.doctor?.trim() : ''}
+                                                                {verPaciente ? verPaciente.doctor?.trim() : ''}
                                                             </b>
                                                         </p>
                                                     </div>
@@ -471,28 +470,31 @@ const HistoriaPaciente = () => {
                                                                                 <td>{item.doctor}</td>
                                                                                 <td>{item.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <button className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle" id_consulta="56">
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                        >
-                                                                                            <path
-                                                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                            <path
-                                                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                    <Link to={`/ver-ortoptica/${id}`}>
+                                                                                        <button className="btnVerConsulta btn btn-primary mb-2 p-1 mr-2 rounded-circle" id_consulta="56">
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                                <path
+                                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
+                                                                                    <Link to={`/editar-ortoptica/${id}`}>
                                                                                     <button
                                                                                         className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
                                                                                         id_consulta="56"
@@ -512,6 +514,7 @@ const HistoriaPaciente = () => {
                                                                                             />
                                                                                         </svg>
                                                                                     </button>
+                                                                                    </Link>
                                                                                     <button
                                                                                         borrar_consulta="56"
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"

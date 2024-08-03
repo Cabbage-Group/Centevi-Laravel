@@ -158,7 +158,10 @@ const OrtopticaVisionBinocular = () => {
         conducta_seguir: '',
         plan_versiones: '',
         fecha_creacion: '',
-        editado: '',
+        editado: {
+            doctor:'',
+            fecha_edicion:''
+        },
     };
 
     useEffect(() => {
@@ -194,7 +197,6 @@ const OrtopticaVisionBinocular = () => {
     });
 
     const handlePacienteChange = (e, setFieldValue) => {
-
         const { value } = e.target;
         console.log(value);
         setSelectedPaciente(value);

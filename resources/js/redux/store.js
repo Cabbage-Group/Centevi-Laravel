@@ -19,12 +19,18 @@ import MostrarGeneralSlice from './features/pacientes/MostrarGeneralSlice';
 import MostrarNeonatosSlice from './features/pacientes/MostrarNeonatosSlice';
 import MostrarPediatricaSlice from './features/pacientes/MostrarPediatricaSlice';
 import MostrarConsultaGenerica from './features/pacientes/MostrarConsultaGenerica';
+import crearPacientesSlice from './features/pacientes/crearPacientesSlice';
+import recetasSlice from './features/recetas/recetasSlice';
+import crearRecetasSlice from './features/recetas/crearRecetasSlice';
+import VerOrtopticaSlice from './features/pacientes/VerOrtopticaSlice';
+import EditarOrtopticaSlice from './features/consultas/EditarOrtopticaSlice';
 
 const store = configureStore({
         reducer: {
                 sucursales: sucursalesReducer,
                 usuarios: usuariosSlice,
                 pacientes: pacientesSlice,
+                recetas: recetasSlice,
                 optometriaNeonatos: optometriaNeonatosReducer,
                 optometriaPediatrica: OptometriaPediatricaSlice ,
                 ortoptica: OrtopticaV_BSlice,
@@ -42,6 +48,10 @@ const store = configureStore({
                 mostrarNeonatos: MostrarNeonatosSlice,
                 mostrarPediatrica: MostrarPediatricaSlice,
                 mostrarConsultaGenerica: MostrarConsultaGenerica,
+                crearPacientes: crearPacientesSlice,
+                crearRecetas: crearRecetasSlice,
+                verOrtoptica: VerOrtopticaSlice,
+                editarOrtoptica: EditarOrtopticaSlice,
         }
 });
 

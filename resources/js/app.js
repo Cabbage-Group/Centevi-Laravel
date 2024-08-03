@@ -28,6 +28,8 @@ import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
 import EditarPaciente from './admin/Paciente/EditarPaciente.js';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import VerOrtoptica from './admin/Paciente/VerOrtoptica.js';
+import EditarOrtoptica from './admin/consulta/EditarOrtoptica.js';
 
 function AppRouter() {
     return (
@@ -47,10 +49,14 @@ function AppRouter() {
                     <Route path="/optometria-pediatra" element={<Sidebar component={<OptometriaPediatra />} />} />
                     <Route path="/crear-paciente" element={<Sidebar component={<CrearPaciente />} />} />
                     <Route path="/usuarios" element={<Sidebar component={<Usuarios />} />} />
-                    <Route path="/lista-pacientes" element={<Sidebar component={<ListaPaciente />} />} />
 
+                    <Route path="/lista-pacientes" element={<Sidebar component={<ListaPaciente />} />} />
                     <Route path="/historia-paciente/:id" element={<Sidebar component={<HistoriaPaciente />} />} />
                     <Route path="/editar-paciente/:id" element={<Sidebar component={<EditarPaciente />} />} />
+
+                    <Route path="/ver-ortoptica/:id" element={<Sidebar component={<VerOrtoptica/>} />} />
+                    <Route path="/editar-ortoptica/:id" element={<Sidebar component={<EditarOrtoptica/>} />} />
+
                     <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
                     <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
                     <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />

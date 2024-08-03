@@ -124,4 +124,29 @@ class OrtopticaApiController extends Controller
         ], 200);
     }
 
+    public function VerOrtoptica($id)
+    {
+        // Buscar el registro en la tabla OrtopticaAdultos por id
+        $ortoptica = OrtopticaAdultos::where('paciente', $id)->first();
+    
+        // Verificar si el registro existe
+        if (!$ortoptica) {
+            return response()->json([
+                'status' => [
+                    'code' => 404,
+                    'message' => 'Paciente not found',
+                ],
+            ], 404);
+        }
+    
+        // Formatear la respuesta
+        return response()->json([
+            'data' => $ortoptica,
+            'status' => [
+                'code' => 200,
+                'message' => 'Paciente retrieved successfully',
+            ],
+        ]);
+    }
+    
 }

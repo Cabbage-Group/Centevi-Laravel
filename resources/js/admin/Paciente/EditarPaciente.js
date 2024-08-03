@@ -45,14 +45,22 @@ const EditarPaciente = () => {
         }
     });
 
-    let urgencias = {};
-    let menores = {};
-    try {
-        urgencias = verPaciente && verPaciente.urgencia ? JSON.parse(verPaciente.urgencia) : {};
-        menores = verPaciente && verPaciente.menor ? JSON.parse(verPaciente.menor) : {};
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-    }
+    useEffect(() => {
+        if (verPaciente) {
+            try {
+                const parsedUrgencias = verPaciente.urgencia ? JSON.parse(verPaciente.urgencia) : {};
+                setUrgencias(parsedUrgencias);
+            } catch (error) {
+                console.error('Error parsing JSON for urgencias:', error);
+            }
+            try {
+                const parsedMenores = verPaciente.menor ? JSON.parse(verPaciente.menor) : {};
+                setMenores(parsedMenores);
+            } catch (error) {
+                console.error('Error parsing JSON for menores:', error);
+            }
+        }
+    }, [verPaciente]);
 
 
     useEffect(() => {
@@ -86,33 +94,33 @@ const EditarPaciente = () => {
     }, [verPaciente]);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            [name]: value,
-        }));
-    };
-
-    const handleUrgenciaChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            urgencia: {
-                ...prevFormData.urgencia,
+        const { name, value, dataset } = e.target;
+    
+        setFormData((prevFormData) => {
+            // Check if the input belongs to "urgencia" or "menor"
+            if (dataset.group === 'urgencia') {
+                return {
+                    ...prevFormData,
+                    urgencia: {
+                        ...prevFormData.urgencia,
+                        [name]: value,
+                    },
+                };
+            } else if (dataset.group === 'menor') {
+                return {
+                    ...prevFormData,
+                    menor: {
+                        ...prevFormData.menor,
+                        [name]: value,
+                    },
+                };
+            }
+            // Default case for regular inputs
+            return {
+                ...prevFormData,
                 [name]: value,
-            },
-        }));
-    };
-
-    const handleMenorChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            menor: {
-                ...prevFormData.menor,
-                [name]: value,
-            },
-        }));
+            };
+        });
     };
 
     const handleSubmit = (e) => {
@@ -155,7 +163,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control labelBold"
                                                             value={formData.nombres}
-                                                            id="nombres"
                                                             name="nombres"
                                                             placeholder="Nombres"
                                                             type="text"
@@ -167,7 +174,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control labelBold"
                                                             value={formData.apellidos}
-                                                            id="apellidos"
                                                             name="apellidos"
                                                             placeholder="Apellidos"
                                                             type="text"
@@ -179,7 +185,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control labelBold"
                                                             value={formData.email}
-                                                            id="email"
                                                             name="email"
                                                             placeholder="Email"
                                                             type="email"
@@ -238,7 +243,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.lugar_nacimiento}
-                                                            id="lugar_nacimiento"
                                                             name="lugar_nacimiento"
                                                             placeholder="Lugar de Nacimiento"
                                                             type="text"
@@ -250,7 +254,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.direccion}
-                                                            id="direccion"
                                                             name="direccion"
                                                             placeholder="Dirección"
                                                             type="text"
@@ -262,7 +265,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.ocupacion}
-                                                            id="ocupacion"
                                                             name="ocupacion"
                                                             placeholder="Ocupación"
                                                             type="text"
@@ -274,7 +276,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.telefono}
-                                                            id="telefono"
                                                             name="telefono"
                                                             placeholder="Teléfono"
                                                             type="text"
@@ -286,7 +287,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.celular}
-                                                            id="celular"
                                                             name="celular"
                                                             placeholder="Celular"
                                                             type="text"
@@ -300,7 +300,6 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.medico}
-                                                            id="medico"
                                                             name="medico"
                                                             placeholder="Médico"
                                                             type="text"
@@ -319,11 +318,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.urgencia.nombre_ur}
-                                                            id="nombre_ur"
                                                             name="nombre_ur"
                                                             placeholder="Nombre de Contacto"
                                                             type="text"
-                                                            onChange={handleUrgenciaChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -331,11 +329,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.urgencia.parentesco_ur}
-                                                            id="parentesco_ur"
                                                             name="parentesco_ur"
                                                             placeholder="Parentesco"
                                                             type="text"
-                                                            onChange={handleUrgenciaChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -343,11 +340,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.urgencia.nro_ur}
-                                                            id="nro_ur"
                                                             name="nro_ur"
                                                             placeholder="Número de Contacto"
                                                             type="text"
-                                                            onChange={handleUrgenciaChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                 </div>
@@ -358,11 +354,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.menor.responsable}
-                                                            id="responsable"
                                                             name="responsable"
                                                             placeholder="Nombre del Responsable"
                                                             type="text"
-                                                            onChange={handleMenorChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -370,11 +365,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.menor.parentesco}
-                                                            id="parentesco"
                                                             name="parentesco"
                                                             placeholder="Parentesco"
                                                             type="text"
-                                                            onChange={handleMenorChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -384,11 +378,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.menor.nro_celular_responsable}
-                                                            id="nro_celular_responsable"
                                                             name="nro_celular_responsable"
                                                             placeholder="Número de Celular del Responsable"
                                                             type="text"
-                                                            onChange={handleMenorChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -398,11 +391,10 @@ const EditarPaciente = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.menor.remitido}
-                                                            id="remitido"
                                                             name="remitido"
                                                             placeholder="Remitido"
                                                             type="text"
-                                                            onChange={handleMenorChange}
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                 </div>

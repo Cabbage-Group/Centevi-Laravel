@@ -105,7 +105,7 @@ const ListaPaciente = () => {
                                                                         className="btn btn-primary btnVerHistoria"
                                                                         data-target="hitoriapaciente"
                                                                         data-toggle="modal"
-                                                                        id_paciente="1"
+                                                                        
                                                                     >
                                                                         <Link to={`/historia-paciente/${paciente.id_paciente}`}>
                                                                             <svg
@@ -124,8 +124,6 @@ const ListaPaciente = () => {
                                                                             </svg>
                                                                         </Link>
                                                                     </button>
-
-
 
                                                                     <button
                                                                         className="btn btn-warning btnEditarPaciente"

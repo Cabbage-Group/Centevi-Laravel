@@ -8,8 +8,6 @@ import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 
 
-
-
 const ReportePaciente = () => {
 
     const dispatch = useDispatch();
