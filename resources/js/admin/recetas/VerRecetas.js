@@ -1,24 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { fecthRecetas } from '../../redux/features/recetas/recetasSlice';
-import PaginationRecetas from '../reportes/PaginationRecetas';
+import { fecthRecetas, setOrden, setOrdenPor } from '../../redux/features/recetas/recetasSlice';
+import PaginationRecetas from './PaginationRecetas';
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
 
 const VerRecetas = () => {
     const dispatch = useDispatch();
-    const { recetas, status, error, meta, totalPages, orden, ordenPor } = useSelector((state) => state.recetas);
+    const { recetas, status, error, meta, totalPages, orden, ordenPor, search } = useSelector((state) => state.recetas);
 
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [localSearch, setLocalSearch] = useState(search);
     useEffect(() => {
 
-        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
-    }, [dispatch, currentPage, orden, ordenPor]);
+        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor,search:localSearch }));
+    }, [dispatch,localSearch, currentPage, orden, ordenPor]);
+
+    const handleSort = (newOrdenPor) => {
+        const newOrder = orden === 'asc' ? 'desc' : 'asc';
+        dispatch(setOrden(newOrder));
+        dispatch(setOrdenPor(newOrdenPor));
+        dispatch(fecthRecetas({ page: currentPage,limit: 7, orden: newOrder, ordenPor: newOrdenPor }))
+            .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
+    };
+
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    const handleSearchChange = (event) => {
+        setLocalSearch(event.target.value);
     };
 
     const handleEliminarReceta = async (id_receta) => {
@@ -136,11 +149,13 @@ const VerRecetas = () => {
                                                                     y2="16.65"
                                                                 />
                                                             </svg>
-                                                            <input
-                                                                aria-controls="zero-config"
+                                                                <input
+                                                                aria-controls="html5-extension"
                                                                 className="form-control"
                                                                 placeholder="Search..."
                                                                 type="search"
+                                                                value={localSearch}
+                                                                onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
                                                             />
                                                         </label>
                                                     </div>
@@ -164,7 +179,7 @@ const VerRecetas = () => {
                                                         <tr role="row">
                                                             <th
                                                                 aria-controls="zero-config"
-                                                                aria-label="Nombres Paciente: activate to sort column ascending"
+                                                                aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                                 aria-sort="descending"
                                                                 className="sorting_desc"
                                                                 colSpan="1"
@@ -173,12 +188,13 @@ const VerRecetas = () => {
                                                                     width: '527px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                onClick={() => handleSort('PACIENTE_NOMBRE')}
                                                             >
                                                                 Nombres Paciente
                                                             </th>
                                                             <th
                                                                 aria-controls="zero-config"
-                                                                aria-label="Doctor: activate to sort column ascending"
+                                                                aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                                 className="sorting"
                                                                 colSpan="1"
                                                                 rowSpan="1"
@@ -186,12 +202,13 @@ const VerRecetas = () => {
                                                                     width: '266px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                onClick={() => handleSort('DOCTOR')}
                                                             >
                                                                 Doctor
                                                             </th>
                                                             <th
                                                                 aria-controls="zero-config"
-                                                                aria-label="Fecha de creacion: activate to sort column ascending"
+                                                                aria-label={`Fecha_atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                                 className="sorting"
                                                                 colSpan="1"
                                                                 rowSpan="1"
@@ -199,6 +216,7 @@ const VerRecetas = () => {
                                                                     width: '299px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                onClick={() => handleSort('fecha_creacion')}
                                                             >
                                                                 Fecha de creacion
                                                             </th>
@@ -212,6 +230,7 @@ const VerRecetas = () => {
                                                                     width: '314px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                
                                                             >
                                                                 Action
                                                             </th>

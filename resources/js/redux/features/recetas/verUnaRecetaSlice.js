@@ -8,7 +8,7 @@ export const fetchVerUnaReceta = createAsyncThunk(
   'receta/fetchReceta',
   async (id_receta) => {
     const response = await axios.get(`${API}/recetas/${id_receta}`);
-    console.log('pacientenmombre:',response.data.PACIENTE_NOMBRE)
+   
     return response.data;
   }
 );

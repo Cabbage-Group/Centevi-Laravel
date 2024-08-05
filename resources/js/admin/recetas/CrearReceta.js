@@ -5,6 +5,7 @@ import { crearRecetas } from '../../redux/features/recetas/crearRecetasSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 
 const CrearReceta = () => {
@@ -89,12 +90,26 @@ const CrearReceta = () => {
         dispatch(fetchPacientes({ page: 1, limit: 10000 }));
     }, [dispatch]);
 
-    const handleSubmit = (values) => {
+    const handleSubmit = async (values) => {
         console.log('Valores del formulario al enviar:', values);
-        dispatch(crearRecetas(values));
-        navigate(-1);
-    };
+        const result = await dispatch(crearRecetas(values));
 
+        if (result.meta.requestStatus === 'fulfilled') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Receta creada',
+                text: 'La receta se ha creado exitosamente.',
+            }).then(() => {
+                navigate(-1);
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al crear la receta. Por favor, intenta de nuevo.',
+            });
+        }
+    };
     
 
     return (
@@ -340,7 +355,9 @@ const CrearReceta = () => {
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
-                                                                                            defaultValue="△"
+                                                                                            placeholder="△"  
+                                                                                            type="text"
+                                                                                            value="△"                                                                                  
                                                                                             name="rx.prisma_od"
                                                                                             as="input"
                                                                                         />
@@ -401,7 +418,9 @@ const CrearReceta = () => {
                                                                                     <td>
                                                                                         <Field
                                                                                             className="form-control"
-                                                                                            defaultValue="△"
+                                                                                            value="△"
+                                                                                            type="text"
+                                                                                            placeholder="△"  
                                                                                             name="rx.prisma_oi"
                                                                                             as="input"
                                                                                         />
@@ -1079,8 +1098,8 @@ const CrearReceta = () => {
                                                                             Observación
                                                                         </label>
                                                                         <Field
-                                                                            className="form-control textarea"
-                                                                            id="textarea"
+                                                                            className="form-control textarea"                                                                    
+                                                                            as = "textarea"
                                                                             maxLength="800"
                                                                             name="observacion"
                                                                             placeholder="Esta área tiene un limite de 800 caracteres."
@@ -1110,15 +1129,16 @@ const CrearReceta = () => {
                                                                 Crear Receta
                                                             </button>
 
-                                                            {status === 'loading' && <p>Enviando...</p>}
-                                                            {status === 'failed' && <p>Error: {error}</p>}
-                                                            {status === 'succeeded' && <p>Neonato creado con éxito</p>}
+                                                           
 
                                                         </Form>
                                                     )}
                                                 </Formik>
 
                                                 {status === 'error' && <div className="alert alert-danger">{error}</div>}
+                                                {status === 'loading' && <p>Enviando...</p>}
+                                                {status === 'failed' && <p>Error: {error}</p>}
+                                                {status === 'succeeded' && <p>Neonato creado con éxito</p>}
 
                                             </div>
                                         </div>

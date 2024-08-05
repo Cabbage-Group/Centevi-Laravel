@@ -12,9 +12,6 @@ import ReactToPrint from 'react-to-print';
 
 const SelectReceta = () => {
     
-
-
-
     const { id_receta } = useParams();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);

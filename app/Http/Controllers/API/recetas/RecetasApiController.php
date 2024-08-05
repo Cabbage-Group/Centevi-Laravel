@@ -12,75 +12,93 @@ use Illuminate\Support\Facades\Validator;
 class RecetasApiController extends Controller
 {
     public function recetas(Request $request)
-    {
-        // Obtener los parámetros
-        $page = $request->input('page', 1);
-        $limit = (int)$request->input('limit', 7);
-        $orden = $request->input('orden', 'asc');
-        $ordenPor = $request->input('ordenPor', 'nombres');
+{
+    // Obtener los parámetros
+    $page = $request->input('page', 1);
+    $limit = (int)$request->input('limit', 7);
+    $orden = $request->input('orden', 'asc');
+    $ordenPor = $request->input('ordenPor', 'nombres');
+    $search = $request->input('search', '');
 
+    $orden = in_array($orden, ['asc', 'desc']) ? $orden : 'asc';
+    $ordenPor = in_array($ordenPor, [
+        'id_paciente', 'nombres', 'nro_receta', 'direccion', 'cedula',
+        'telefono', 'rx', 'tipo_lente', 'material', 'tratamientos',
+        'aro_propio', 'observacion', 'medidas', 'sucursal', 'doctor',
+        'fecha_creacion'
+    ]) ? $ordenPor : 'nombres';
 
-        $orden = in_array($orden, ['asc', 'desc']) ? $orden : 'asc';
-        $ordenPor = in_array($ordenPor, [
-            'id_paciente', 'nombres', 'nro_receta', 'direccion', 'cedula',
-            'telefono', 'rx', 'tipo_lente', 'meterial', 'tratamientos',
-            'aro_propio', 'observacion', 'medidas', 'sucursal', 'doctor',
-            'fecha_creacion'
-        ]) ? $ordenPor : 'nombres';
+    $query = Receta::join('pacientes', 'receta.id_paciente', '=', 'pacientes.id_paciente')
+        ->select('receta.*', DB::raw('TRIM(pacientes.nombres) as nombres'), DB::raw('TRIM(pacientes.apellidos) as apellidos'));
 
-        $query = Receta::join('pacientes', 'receta.id_paciente', '=', 'pacientes.id_paciente')
-            ->select('receta.*', DB::raw('TRIM(pacientes.nombres) as nombres'), DB::raw('TRIM(pacientes.apellidos) as apellidos'));
-
-        // Ordenar según el campo seleccionado
-        if (in_array($ordenPor, ['nombres', 'apellidos'])) {
-            $query->orderBy(DB::raw("TRIM(pacientes.$ordenPor)"), $orden);
-        } else {
-            $query->orderBy("receta.$ordenPor", $orden);
-        }
-
-        $recetas = $query->paginate($limit, ['*'], 'page', $page);
-
-
-        $data = $recetas->map(function ($receta) {
-            return [
-                'ID_RECETA' => $receta->id_receta,
-                'ID_PACIENTE' => $receta->id_paciente,
-                'NRO_RECETA'=>$receta->nro_receta,
-                'DIRECCION'=>$receta->direccion,
-                'CEDULA'=>$receta->cedula,
-                'TELEFONO'=>$receta->telefono,
-                'RX'=>$receta->rx,
-                'TIPO_LENTE'=>$receta->tipo_lente,
-                'MATERIAL'=>$receta->material,
-                'TRATAMIENTOS'=>$receta->tratamientos,
-                'ARO_PROPIO'=>$receta->aro_propio,
-                'OBSERVACION'=>$receta->observacion,
-                'MEDIDAS'=>$receta->medidas,
-                'SUCURSAL'=>$receta->sucursal,
-                'DOCTOR' => $receta->doctor,
-                'FECHA_ATENCION' => Carbon::parse($receta->fecha_creacion)->format('Y-m-d H:i:s'),
-                'PACIENTE_NOMBRE' => $receta->paciente->nombres ?? 'N/A',
-                'PACIENTE_APELLIDO' => $receta->paciente->apellidos ?? 'N/A',
-             
-                
-
-            ];
+    // Aplicar búsqueda
+    if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('pacientes.nombres', 'like', "%{$search}%")
+                ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
+                ->orWhere('receta.nro_receta', 'like', "%{$search}%")
+                ->orWhere('receta.direccion', 'like', "%{$search}%")
+                ->orWhere('receta.cedula', 'like', "%{$search}%")
+                ->orWhere('receta.telefono', 'like', "%{$search}%")
+                ->orWhere('receta.rx', 'like', "%{$search}%")
+                ->orWhere('receta.tipo_lente', 'like', "%{$search}%")
+                ->orWhere('receta.material', 'like', "%{$search}%")
+                ->orWhere('receta.tratamientos', 'like', "%{$search}%")
+                ->orWhere('receta.aro_propio', 'like', "%{$search}%")
+                ->orWhere('receta.observacion', 'like', "%{$search}%")
+                ->orWhere('receta.medidas', 'like', "%{$search}%")
+                ->orWhere('receta.sucursal', 'like', "%{$search}%")
+                ->orWhere('receta.doctor', 'like', "%{$search}%")
+                ->orWhere(DB::raw("DATE_FORMAT(receta.fecha_creacion, '%Y-%m-%d %H:%i:%s')"), 'like', "%{$search}%");
         });
-
-
-        return response()->json([
-            'data' => $data,
-            'meta' => [
-                'page' => $recetas->currentPage(),
-                'limit' => $recetas->perPage(),
-                'total' => $recetas->total(),
-            ],
-            'status' => [
-                'code' => 200,
-                'message' => 'Recetas retrieved successfully',
-            ],
-        ]);
     }
+
+    // Ordenar según el campo seleccionado
+    if (in_array($ordenPor, ['nombres', 'apellidos'])) {
+        $query->orderBy(DB::raw("TRIM(pacientes.$ordenPor)"), $orden);
+    } else {
+        $query->orderBy($ordenPor,$orden);
+    }
+
+    $recetas = $query->paginate($limit, ['*'], 'page', $page);
+
+    $data = $recetas->map(function ($receta) {
+        return [
+            'ID_RECETA' => $receta->id_receta,
+            'ID_PACIENTE' => $receta->id_paciente,
+            'NRO_RECETA' => $receta->nro_receta,
+            'DIRECCION' => $receta->direccion,
+            'CEDULA' => $receta->cedula,
+            'TELEFONO' => $receta->telefono,
+            'RX' => $receta->rx,
+            'TIPO_LENTE' => $receta->tipo_lente,
+            'MATERIAL' => $receta->material,
+            'TRATAMIENTOS' => $receta->tratamientos,
+            'ARO_PROPIO' => $receta->aro_propio,
+            'OBSERVACION' => $receta->observacion,
+            'MEDIDAS' => $receta->medidas,
+            'SUCURSAL' => $receta->sucursal,
+            'DOCTOR' => $receta->doctor,
+            'FECHA_ATENCION' => Carbon::parse($receta->fecha_creacion)->format('Y-m-d H:i:s'),
+            'PACIENTE_NOMBRE' => $receta->paciente->nombres ?? 'N/A',
+            'PACIENTE_APELLIDO' => $receta->paciente->apellidos ?? 'N/A',
+        ];
+    });
+
+    return response()->json([
+        'data' => $data,
+        'meta' => [
+            'page' => $recetas->currentPage(),
+            'limit' => $recetas->perPage(),
+            'total' => $recetas->total(),
+        ],
+        'status' => [
+            'code' => 200,
+            'message' => 'Recetas retrieved successfully',
+        ],
+    ]);
+}
+
 
 
     public function crearRecetas(Request $request)
