@@ -9,7 +9,7 @@ export const fetchMostrarOrtoptica = createAsyncThunk(
         const response = await axios.get(`${API}/mostrar-ortoptica`, {
             params: { item, item2, valor, valor2 },
         });
-        // console.log(response.data)
+        console.log(response.data)
         return response.data;
     }
 );
@@ -29,7 +29,8 @@ const MostrarOrtopticaSlice = createSlice({
             .addCase(fetchMostrarOrtoptica.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.dataOA = action.payload.dataOA;
-                // console.log('Datos obtenidos:', state.dataOA);
+                // console.log('ID Consulta:', state.consultaIds);
+                console.log('Datos obtenidos:', state.dataOA);
             })
             .addCase(fetchMostrarOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';

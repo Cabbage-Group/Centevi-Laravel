@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Validator;
 
 class OptometriaGeneralApiController extends Controller
 {
-    // Crear RefraccionGeneral
     public function CrearRefraccionGeneral(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -22,7 +21,7 @@ class OptometriaGeneralApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Otras validaciones aquí...
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -30,15 +29,29 @@ class OptometriaGeneralApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-
-        $refraccionGeneral = RefraccionGeneral::create($request->all());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registro creado exitosamente',
-            'data' => $refraccionGeneral,
-        ], 201);
+    
+        try {
+            // Preparar los datos para la creación
+            $datos = $request->all();
+            $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+    
+            // Crear el registro
+            $refraccionGeneral = RefraccionGeneral::create($datos);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Registro creado exitosamente',
+                'data' => $refraccionGeneral,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el registro',
+                'errors' => $e->getMessage(),
+            ], 500);
+        }
     }
+    
 
     // Editar RefraccionGeneral
     public function EditarRefraccionGeneral(Request $request, $id)

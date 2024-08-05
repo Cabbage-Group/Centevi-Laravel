@@ -5,8 +5,13 @@ import API from '../../../config/config.js';
 // Thunk para actualizar un Ortoptica por ID
 export const fetchEditarOrtoptica = createAsyncThunk(
     'Ortopticas/fetchEditarOrtoptica',
-    async ({ id, data }) => {
+    async ({ id, id_consulta, data }, { rejectWithValue }) => {
         try {
+
+            // Definir un valor predeterminado para id_terapia si no se proporciona
+            if (!data.id_terapia) {
+                data.id_terapia = '0'; // Valor predeterminado
+            }
 
             data['av_sc'] = JSON.stringify(data.av_sc);
             data['av_cc'] = JSON.stringify(data.av_cc);
@@ -22,8 +27,10 @@ export const fetchEditarOrtoptica = createAsyncThunk(
             data['acomodacion_extra'] = JSON.stringify(data.acomodacion_extra);
             data['vergencia'] = JSON.stringify(data.vergencia);
             data['pruebas_extra'] = JSON.stringify(data.pruebas_extra);
+            data['editado'] = JSON.stringify(data.editado);
 
-            const response = await axios.put(`${API}/ortoptica/${id}`, data);
+            const response = await axios.put(`${API}/ortoptica/${id}/${id_consulta}`, data);
+            console.log(response.data)
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);

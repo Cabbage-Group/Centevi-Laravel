@@ -9,7 +9,7 @@ export const fetchMostrarNeonatos = createAsyncThunk(
         const response = await axios.get(`${API}/mostrar-neonatos`, {
             params: { item, item2, valor, valor2 },
         });
-        // console.log(response.data)
+        console.log(response.data)
         return response.data;
     }
 );
@@ -29,7 +29,7 @@ const MostrarNeonatosSlice = createSlice({
             .addCase(fetchMostrarNeonatos.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.dataON = action.payload.dataON;
-                // console.log('Datos obtenidos:', state.dataOA);
+                console.log('Datos obtenidos:', state.dataON);
             })
             .addCase(fetchMostrarNeonatos.rejected, (state, action) => {
                 state.status = 'failed';

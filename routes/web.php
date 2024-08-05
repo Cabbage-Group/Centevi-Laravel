@@ -30,9 +30,7 @@ Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
-
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
-
 Route::delete('/api/pacientes/{id}', [PacientesApiController::class, 'eliminarpaciente']);
 
 Route::get('/api/obtenerconsultagenerica/{paciente_id}', [PacientesApiController::class, 'obtenerconsultagenerica']);
@@ -48,10 +46,10 @@ Route::post('/api/pediatrica', [PediatricaApiController::class, 'crearPediatrica
 Route::put('/api/pediatrica/{id}', [PediatricaApiController::class, 'editarPediatrica']);
 Route::delete('/api/pediatrica/{id}', [PediatricaApiController::class, 'eliminarPediatrica']);
 
-Route::get('/api/ver-ortoptica/{id}', [OrtopticaApiController::class, 'VerOrtoptica']);
+Route::get('/api/ver-ortoptica/{id}/{id_consulta}', [OrtopticaApiController::class, 'VerOrtoptica']);
 Route::get('/api/mostrar-ortoptica', [OrtopticaApiController::class, 'mostrarOrtopticaAdultos']);
 Route::post('/api/ortoptica', [OrtopticaApiController::class, 'CrearOrtoptica']);
-Route::put('/api/ortoptica/{id}', [OrtopticaApiController::class, 'EditarOrtoptica']);
+Route::put('/api/ortoptica/{id}/{id_consulta}', [OrtopticaApiController::class, 'EditarOrtoptica']);
 Route::delete('/api/ortoptica/{id}', [OrtopticaApiController::class, 'DeleteOrtoptica']);
 
 Route::get('/api/mostrar-bajavision', [BajaVisionApiController::class, 'mostrarBajaVision']);

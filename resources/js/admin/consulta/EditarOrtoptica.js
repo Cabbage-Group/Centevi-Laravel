@@ -11,17 +11,17 @@ const EditarOrtoptica = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { id, id_consulta } = useParams();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
-    const { id } = useParams();
-    const { data: ortoptica } = useSelector((state)=> state.verOrtoptica)
+    const { data: ortoptica } = useSelector((state) => state.verOrtoptica)
 
     const [formData, setFormData] = useState({
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
-        edad: '35',
+        edad: '',
         fecha_atencion: '',
         m_c: '',
         a_o: '',
@@ -181,6 +181,8 @@ const EditarOrtoptica = () => {
         let acomodacion_extra = {};
         let vergencia = {};
         let editado = {};
+        let ojo_dominante = '';
+        let mano_dominante = '';
 
         try {
             av_sc = ortoptica && ortoptica.av_sc ? JSON.parse(ortoptica.av_sc) : {};
@@ -198,9 +200,17 @@ const EditarOrtoptica = () => {
             acomodacion_extra = ortoptica && ortoptica.acomodacion_extra ? JSON.parse(ortoptica.acomodacion_extra) : {};
             vergencia = ortoptica && ortoptica.vergencia ? JSON.parse(ortoptica.vergencia) : {};
             editado = ortoptica && ortoptica.editado ? JSON.parse(ortoptica.editado) : {};
+            ojo_dominante = ortoptica && ortoptica.ojo_dominante ? ortoptica.ojo_dominante : '';
+            mano_dominante = ortoptica && ortoptica.mano_dominante ? ortoptica.mano_dominante : '';
         } catch (error) {
             console.error('Error parsing JSON:', error);
         }
+
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            ojo_dominante,
+            mano_dominante,
+        }));
     }, [ortoptica]);
 
     useEffect(() => {
@@ -243,18 +253,19 @@ const EditarOrtoptica = () => {
     }, [ortoptica]);
 
     useEffect(() => {
-        if (id) {
-            dispatch(fetchEditarOrtoptica(id));
+        if (id && id_consulta) {
+            dispatch(fetchVerOrtoptica({ id, id_consulta }));
             dispatch(fetchSucursales({ page: 1, limit: 100 }));
             dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-            dispatch(fetchVerOrtoptica(id));
         }
-    }, [dispatch, id]);
+    }, [dispatch, id, id_consulta]);
 
 
     const handleChange = (e) => {
         const { name, value, dataset } = e.target;
-    
+
+        console.log('Handling change for:', name, value, dataset.group);
+
         setFormData((prevFormData) => {
             switch (dataset.group) {
                 case 'av_sc':
@@ -369,6 +380,11 @@ const EditarOrtoptica = () => {
                             [name]: value,
                         },
                     };
+                case 'id_terapia':
+                    return {
+                        ...prevFormData,
+                        id_terapia: value,
+                    };
                 default:
                     return {
                         ...prevFormData,
@@ -377,14 +393,14 @@ const EditarOrtoptica = () => {
             }
         });
     };
-    
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        dispatch(fetchEditarOrtoptica({ id, data: formData }));
+        console.log('Submitting form with data:', formData); // Agrega esta línea para depuración
+        dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
         navigate(''); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
     };
-
 
     return (
         <div
@@ -397,7 +413,7 @@ const EditarOrtoptica = () => {
                 <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
                     <div className="widget-content-area br-4">
                         <form
-                            method="post"
+                            method="put"
                             role="form"
                             onSubmit={handleSubmit}
                         >
@@ -801,7 +817,8 @@ const EditarOrtoptica = () => {
                                                                             value="IZQUIERDO"
                                                                             name="ojo_dominante"
                                                                             type="radio"
-                                                                            checked={formData ? formData.ojo_dominante === 'IZQUIERDO' : true}
+                                                                            checked={formData.ojo_dominante === 'IZQUIERDO'}
+                                                                            onChange={handleChange}
                                                                         />
                                                                         <span className="new-control-indicator" />
                                                                         IZQUIERDO
@@ -816,7 +833,8 @@ const EditarOrtoptica = () => {
                                                                             value="DERECHO"
                                                                             name="ojo_dominante"
                                                                             type="radio"
-                                                                            checked={formData ? formData.ojo_dominante === 'DERECHO' : true}
+                                                                            checked={formData.ojo_dominante === 'DERECHO'}
+                                                                            onChange={handleChange}
                                                                         />
                                                                         <span className="new-control-indicator" />
                                                                         DERECHO
@@ -838,7 +856,8 @@ const EditarOrtoptica = () => {
                                                                             value="IZQUIERDA"
                                                                             name="mano_dominante"
                                                                             type="radio"
-                                                                            checked={formData ? formData.mano_dominante === 'IZQUIERDA' : true}
+                                                                            checked={formData.mano_dominante === 'IZQUIERDA'}
+                                                                            onChange={handleChange}
                                                                         />
                                                                         <span className="new-control-indicator" />
                                                                         IZQUIEDA
@@ -853,7 +872,8 @@ const EditarOrtoptica = () => {
                                                                             value="DERECHO"
                                                                             name="mano_dominante"
                                                                             type="radio"
-                                                                            checked={formData ? formData.mano_dominante === 'DERECHO' : true}
+                                                                            checked={formData.mano_dominante === 'DERECHO'}
+                                                                            onChange={handleChange}
                                                                         />
                                                                         <span className="new-control-indicator" />
                                                                         DERECHA
@@ -1994,7 +2014,7 @@ const EditarOrtoptica = () => {
                                         </div>
                                         <div className="form-row mb-4">
                                             <button type="submit" className="btn btn-success mt-3">
-                                                    Editar Ortoptica
+                                                Editar Ortoptica
                                             </button>
                                         </div>
                                     </div>

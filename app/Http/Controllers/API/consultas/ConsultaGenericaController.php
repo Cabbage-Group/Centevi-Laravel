@@ -9,37 +9,43 @@ use Illuminate\Support\Facades\Validator;
 
 class ConsultaGenericaController extends Controller
 {
-        // Crear ConsultaGenerica
-        public function CrearConsultaGenerica(Request $request)
-        {
-            $validator = Validator::make($request->all(), [
-                // Validaciones necesarias
-                'sucursal' => 'required|integer|max:255',
-                'doctor' => 'required|string|max:255',
-                'paciente' => 'required|integer|max:10000',
-                'id_terapia' => 'required|integer',
-                'edad' => 'required|integer',
-                'fecha_atencion' => 'required|date',
-                'm_c' => 'required|string',
-            ]);
+    public function CrearConsultaGenerica(Request $request)
+    {
+        // Validaciones necesarias
+        $validator = Validator::make($request->all(), [
+            'sucursal' => 'required|integer|max:255',
+            'doctor' => 'required|string|max:255',
+            'paciente' => 'required|integer|max:10000',
+            'id_terapia' => 'required|integer',
+            'edad' => 'required|integer',
+            'fecha_atencion' => 'required|date',
+            'm_c' => 'required|string',
+            // Otras validaciones aquí...
+        ]);
     
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error de validación',
-                    'errors' => $validator->errors(),
-                ], 400);
-            }
-    
-            $ConsultaGenerica = ConsultaGenerica::create($request->all());
-    
+        if ($validator->fails()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Registro creado exitosamente',
-                'data' => $ConsultaGenerica,
-            ], 201);
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $validator->errors(),
+            ], 400);
         }
     
+        // Preparar los datos para la creación
+        $datos = $request->all();
+        $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+    
+        // Crear el registro
+        $consultaGenerica = ConsultaGenerica::create($datos);
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro creado exitosamente',
+            'data' => $consultaGenerica,
+        ], 201);
+    }
+    
+
         // Editar ConsultaGenerica
         public function EditarConsultaGenerica(Request $request, $id)
         {

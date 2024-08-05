@@ -146,6 +146,7 @@ const EditarPaciente = () => {
                                             </div>
                                         </div>
                                         <div className="widget-content widget-content-area">
+                                            
                                             <form method="post" role="form" onSubmit={handleSubmit}>
                                                 <div className="form-row mb-4">
                                                     <div className="form-group col-md-6">

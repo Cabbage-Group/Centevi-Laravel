@@ -16,9 +16,11 @@ const formatToDateDisplay = (dateStr) => {
 const VerOrtoptica = () => {
 
     const dispatch = useDispatch();
+    const { id, id_consulta } = useParams();
+    console.log(id, 'y', id_consulta)
+
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
-    const { id } = useParams();
     const { data: ortoptica } = useSelector((state) => state.verOrtoptica);
 
     let av_sc = {};
@@ -74,12 +76,12 @@ const VerOrtoptica = () => {
     };
 
     useEffect(() => {
-        if (id) {
-            dispatch(fetchVerOrtoptica(id));
+        if (id && id_consulta) {
+            dispatch(fetchVerOrtoptica({ id, id_consulta })); 
             dispatch(fetchSucursales({ page: 1, limit: 100 }));
             dispatch(fetchPacientes({ page: 1, limit: 10000 }));
         }
-    }, [dispatch, id]);
+    }, [dispatch, id , id_consulta]);
 
     return (
         <div

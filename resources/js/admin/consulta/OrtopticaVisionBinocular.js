@@ -15,7 +15,7 @@ const OrtopticaVisionBinocular = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
@@ -43,36 +43,36 @@ const OrtopticaVisionBinocular = () => {
         },
         ojo_dominante: '',
         mano_dominante: '',
-        lensometria: [
-            {
-                esfera_od: '',
-                cilindro_od: '',
-                eje_od: '',
-                p_base_od: '',
-                add_od: '',
-                esfera_oi: '',
-                cilindro_oi: '',
-                eje_oi: '',
-                p_base_oi: '',
-                add_oi: ''
-            },
-        ],
-        lensometria_extra: [
-            {
-                len_tipo_lentes: '',
-                len_filtros: '',
-                len_tiempo: '',
-                len_tipo_arco: ''
-            },
-        ],
-        sa_pp: [
-            {
-                sa_od: '',
-                pp_od: '',
-                sa_oi: '',
-                pp_oi: ''
-            },
-        ],
+        lensometria:
+        {
+            esfera_od: '',
+            cilindro_od: '',
+            eje_od: '',
+            p_base_od: '',
+            add_od: '',
+            esfera_oi: '',
+            cilindro_oi: '',
+            eje_oi: '',
+            p_base_oi: '',
+            add_oi: ''
+        },
+
+        lensometria_extra:
+        {
+            len_tipo_lentes: '',
+            len_filtros: '',
+            len_tiempo: '',
+            len_tipo_arco: ''
+        },
+
+        sa_pp:
+        {
+            sa_od: '',
+            pp_od: '',
+            sa_oi: '',
+            pp_oi: ''
+        },
+
         visuscopia: {
             viscopia_od: "",
             viscopia_oi: "",
@@ -89,36 +89,36 @@ const OrtopticaVisionBinocular = () => {
             ppc_l: "",
             ppc_fr: "",
             ppc_posicion: "",
-            helshoswky:"",
-            von_graefe:"",
+            helshoswky: "",
+            von_graefe: "",
         },
         refraccion: {
-            esfera_od_f:"",
-            cilindro_od_f:"",
-            eje_od_f:"",
-            p_base_od_f:"",
-            add_od_f:"",
-            agz_od_f:"",
-            esfera_oi_f:"",
-            cilindro_oi_f:"",
-            eje_oi_f:"",
-            p_base_oi_f:"",
-            add_oi_f:"",
-            agz_oi_f:""
+            esfera_od_f: "",
+            cilindro_od_f: "",
+            eje_od_f: "",
+            p_base_od_f: "",
+            add_od_f: "",
+            agz_od_f: "",
+            esfera_oi_f: "",
+            cilindro_oi_f: "",
+            eje_oi_f: "",
+            p_base_oi_f: "",
+            add_oi_f: "",
+            agz_oi_f: ""
         },
         lentes_contacto: {
-            poder_od:"",
-            poder_oi:"",
-            cb_od:"",
-            cb_oi:"",
-            dia_od:"",
-            dia_oi:"",
-            lente_marca:"",
-            lente_tipo:"",
-            lente_marca_1:"",
-            lente_pd_1:"",
-            lente_dnp_1:"",
-            lente_altura_1:""
+            poder_od: "",
+            poder_oi: "",
+            cb_od: "",
+            cb_oi: "",
+            dia_od: "",
+            dia_oi: "",
+            lente_marca: "",
+            lente_tipo: "",
+            lente_marca_1: "",
+            lente_pd_1: "",
+            lente_dnp_1: "",
+            lente_altura_1: ""
         },
         pruebas: {
             vl_luces: "",
@@ -129,38 +129,38 @@ const OrtopticaVisionBinocular = () => {
         pruebas_extra: {
             estereosis: "",
             randot: "",
-            lang: "",   
+            lang: "",
             seg_arco: "",
             vision_color: ""
         },
-        acomodacion:{
-            aa_od:"",
-            aa_oi:"",
-            fan_od:"",
-            fan_cpm:"",
-            aco_oi:"",
-            aco_cpm:"",
-            acp_fab:"",
-            aco_falla:""
+        acomodacion: {
+            aa_od: "",
+            aa_oi: "",
+            fan_od: "",
+            fan_cpm: "",
+            aco_oi: "",
+            aco_cpm: "",
+            acp_fab: "",
+            aco_falla: ""
         },
-        acomodacion_extra:{
-            mem_od:"",
-            mem_oi:"",
-            mem_arn:"",
-            mem_arp:""
+        acomodacion_extra: {
+            mem_od: "",
+            mem_oi: "",
+            mem_arn: "",
+            mem_arp: ""
         },
-        vergencia:{
-            v_vt_vl:"",
-            v_bt_vp:"",
-            v_bn_vl:"",
-            v_bn_vp:""
+        vergencia: {
+            v_vt_vl: "",
+            v_bt_vp: "",
+            v_bn_vl: "",
+            v_bn_vp: ""
         },
         conducta_seguir: '',
         plan_versiones: '',
         fecha_creacion: '',
         editado: {
-            doctor:'',
-            fecha_edicion:''
+            doctor: '',
+            fecha_edicion: ''
         },
     };
 
@@ -204,7 +204,7 @@ const OrtopticaVisionBinocular = () => {
     };
 
     return (
-        <div className="admin-data-content" data-select2-id="12" style={{ marginTop: '50px'}}>
+        <div className="admin-data-content" data-select2-id="12" style={{ marginTop: '50px' }}>
             <div className="row layout-top-spacing" data-select2-id="11">
                 <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing" data-select2-id="10">
                     <div className="widget-content-area br-4" data-select2-id="9">
@@ -594,7 +594,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                     name="eje_od"
                                                                                     placeholder=""
                                                                                     as="input"
-                                                                                />    
+                                                                                />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
@@ -647,7 +647,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                     name="p_base_oi"
                                                                                     placeholder="△"
                                                                                     as="input"
-                                                                                />    
+                                                                                />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
@@ -1007,7 +1007,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 name="vl_bg"
                                                                                 placeholder=""
                                                                                 as="input"
-                                                                            />    
+                                                                            />
                                                                         </td>
                                                                         <td>
                                                                             <Field
@@ -1280,7 +1280,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                     name="esfera_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
-                                                                                    />
+                                                                                />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
@@ -1312,7 +1312,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                     name="add_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
-                                                                                />   
+                                                                                />
                                                                             </td>
                                                                             <td>
                                                                                 <Field

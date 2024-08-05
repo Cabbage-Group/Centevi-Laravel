@@ -20,7 +20,7 @@ const HistoriaPaciente = () => {
     const dispatch = useDispatch();
     const { id } = useParams();
     const { data: verPaciente, } = useSelector((state) => state.verPaciente);
-    const { dataOA = [] } = useSelector((state) => state.mostrarOrtoptica);
+    const { dataOA } = useSelector((state) => state.mostrarOrtoptica);
     const { dataBV = [] } = useSelector((state) => state.mostrarBajaVision);
     const { dataRG = [] } = useSelector((state) => state.mostrarGeneral);
     const { dataON = [] } = useSelector((state) => state.mostrarNeonatos);
@@ -463,15 +463,18 @@ const HistoriaPaciente = () => {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        {dataOA.map((item, index) => (
-                                                                            <tr key={index}>
+                                                                        {dataOA.map((OA, index) => (
+                                                                            <tr key={OA.id_consulta}>
                                                                                 <td className="text-center">{index + 1}</td>
                                                                                 <td>Consulta Ortoptica Adultos</td>
-                                                                                <td>{item.doctor}</td>
-                                                                                <td>{item.fecha_creacion}</td>
+                                                                                <td>{OA.doctor}</td>
+                                                                                <td>{OA.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <Link to={`/ver-ortoptica/${id}`}>
-                                                                                        <button className="btnVerConsulta btn btn-primary mb-2 p-1 mr-2 rounded-circle" id_consulta="56">
+                                                                                    <Link to={`/ver-ortoptica/${OA.paciente}/${OA.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
+                                                                                        >
                                                                                             <svg
                                                                                                 className="h-6 w-6"
                                                                                                 fill="none"
@@ -494,27 +497,28 @@ const HistoriaPaciente = () => {
                                                                                             </svg>
                                                                                         </button>
                                                                                     </Link>
-                                                                                    <Link to={`/editar-ortoptica/${id}`}>
-                                                                                    <button
-                                                                                        className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                    <Link to={`/editar-ortoptica/${OA.paciente}/${OA.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
                                                                                     </Link>
+
                                                                                     <button
                                                                                         borrar_consulta="56"
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
@@ -535,6 +539,7 @@ const HistoriaPaciente = () => {
                                                                                             />
                                                                                         </svg>
                                                                                     </button>
+
                                                                                 </td>
                                                                             </tr>
                                                                         ))}

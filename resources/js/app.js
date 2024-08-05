@@ -54,8 +54,8 @@ function AppRouter() {
                     <Route path="/historia-paciente/:id" element={<Sidebar component={<HistoriaPaciente />} />} />
                     <Route path="/editar-paciente/:id" element={<Sidebar component={<EditarPaciente />} />} />
 
-                    <Route path="/ver-ortoptica/:id" element={<Sidebar component={<VerOrtoptica/>} />} />
-                    <Route path="/editar-ortoptica/:id" element={<Sidebar component={<EditarOrtoptica/>} />} />
+                    <Route path="/ver-ortoptica/:id/:id_consulta" element={<Sidebar component={<VerOrtoptica />} />} />
+                    <Route path="/editar-ortoptica/:id/:id_consulta" element={<Sidebar component={<EditarOrtoptica/>} />} />
 
                     <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
                     <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />

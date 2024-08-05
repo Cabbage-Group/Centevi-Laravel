@@ -5,8 +5,8 @@ import API from '../../../config/config.js';
 // Thunk para obtener un Ortoptica por ID de paciente
 export const fetchVerOrtoptica = createAsyncThunk(
     'Ortoptica/fetchVerOrtoptica',
-    async (id) => {
-        const response = await axios.get(`${API}/ver-ortoptica/${id}`);
+    async ({ id, id_consulta } ) => {
+        const response = await axios.get(`${API}/ver-ortoptica/${id}/${id_consulta}`);
         console.log(response.data)
         return response.data;
     }
