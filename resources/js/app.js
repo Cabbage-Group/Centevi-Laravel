@@ -30,6 +30,9 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import VerOrtoptica from './admin/Paciente/VerOrtoptica.js';
 import EditarOrtoptica from './admin/consulta/EditarOrtoptica.js';
+import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
+import SelectReceta from './admin/recetas/SelectReceta.js';
+import EditarReceta from './admin/recetas/EditarReceta.js';
 
 function AppRouter() {
     return (
@@ -65,6 +68,10 @@ function AppRouter() {
                     <Route path="/paciente-atendido-dia" element={<Sidebar component={<PacienteAtendidoDia />} />} />
                     <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
+
+                    <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
+
+                    <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
                 </Routes>
             </Router>

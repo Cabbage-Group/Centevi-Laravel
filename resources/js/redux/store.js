@@ -24,6 +24,8 @@ import recetasSlice from './features/recetas/recetasSlice';
 import crearRecetasSlice from './features/recetas/crearRecetasSlice';
 import VerOrtopticaSlice from './features/pacientes/VerOrtopticaSlice';
 import EditarOrtopticaSlice from './features/consultas/EditarOrtopticaSlice';
+import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
+import editarRecetasSlice from './features/recetas/editarRecetasSlice';
 
 const store = configureStore({
         reducer: {
@@ -52,6 +54,9 @@ const store = configureStore({
                 crearRecetas: crearRecetasSlice,
                 verOrtoptica: VerOrtopticaSlice,
                 editarOrtoptica: EditarOrtopticaSlice,
+                verUnaReceta: verUnaRecetaSlice,
+                editarReceta: editarRecetasSlice
+                
         }
 });
 
