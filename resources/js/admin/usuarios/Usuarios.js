@@ -1,34 +1,91 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsuarios, updateEstadoUsuario } from '../../redux/features/usuarios/usuariosSlice.js';
+import { fetchUsuarios, updateUsuario, deleteUsuario , updateEstadoUsuario} from '../../redux/features/usuarios/usuariosSlice.js';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import PaginationUsuarios from './PaginationUsuarios.js';
+import { useParams } from 'react-router-dom';
+import Swal from 'sweetalert2';
+
 
 const Usuarios = () => {
 
     const dispatch = useDispatch();
     const { meta, usuarios, status, error, totalPages } = useSelector((state) => state.usuarios);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedUsuario, setSelectedUsuario] = useState(null);
+    const { sucursales } = useSelector((state) => state.sucursales);
+    const [previewImage, setPreviewImage] = useState('');
 
-    // Estado local para manejar el ordenamiento
+    const [formValues, setFormValues] = useState({
+        nombre: selectedUsuario?.nombre || '',
+        usuario: selectedUsuario?.usuario || '',
+        perfil: selectedUsuario?.perfil || '',
+        sucursal: selectedUsuario?.sucursal || '',
+        password: selectedUsuario?.password || ''
+    });
+
+    useEffect(() => {
+        if (selectedUsuario) {
+            setFormValues({
+                nombre: selectedUsuario.nombre || '',
+                usuario: selectedUsuario.usuario || '',
+                perfil: selectedUsuario.perfil || '',
+                sucursal: selectedUsuario.sucursal || '',
+                password: selectedUsuario.password || ''
+            });
+            setPreviewImage(selectedUsuario.foto || '');
+        }
+    }, [selectedUsuario]);
+
+    useEffect(() => {
+        dispatch(fetchSucursales({}));
+
+    }, [dispatch, currentPage]);
+
     const [sortOrder, setSortOrder] = useState('asc');
-    const [sortColumn, setSortColumn] = useState('nombre'); // Columna por defecto
+    const [sortColumn, setSortColumn] = useState('nombre'); 
 
     useEffect(() => {
         dispatch(fetchUsuarios({ page: currentPage, limit: 6, sortOrder, sortColumn }));
     }, [dispatch, currentPage, sortOrder, sortColumn]);
+
+
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
     };
 
     const handleSort = (column) => {
-        // Cambia el orden de la columna si ya está seleccionada o establece ascendente por defecto
         if (sortColumn === column) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
         } else {
             setSortColumn(column);
             setSortOrder('asc');
         }
+    };
+
+    const handleEditClick = (usuario) => {
+        setSelectedUsuario(usuario);
+        setIsModalVisible(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
+        setSelectedUsuario(null);
+    };
+
+
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormValues({
+            ...formValues,
+            [name]: value,
+
+        });
+
     };
 
     const handleChangeEstado = async (id_usuario, estado) => {
@@ -38,6 +95,88 @@ const Usuarios = () => {
             console.error('Error updating estado:', error);
         }
     };
+
+
+
+
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        const formData = {
+            nombre: formValues.nombre,
+            usuario: formValues.usuario,
+            perfil: formValues.perfil,
+            sucursal: formValues.sucursal,
+            password: formValues.password
+        };
+
+        console.log('formData:', formData);
+
+        dispatch(updateUsuario({
+            id_usuario: selectedUsuario.id_usuario,
+            data: formData
+        }))
+            .then(() => {
+
+                Swal.fire({
+                    title: 'Éxito!',
+                    text: 'Usuario actualizado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    didClose: () => {
+
+                        window.location.reload();
+                    }
+
+                });
+
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Hubo un problema al actualizar el usuario.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
+
+    };
+
+    const handleDeleteClick = (usuario) => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: `¿Deseas eliminar el usuario ${usuario.nombre}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(deleteUsuario(usuario.id_usuario))
+                    .then(() => {
+                        Swal.fire({
+                            title: 'Eliminado!',
+                            text: 'Usuario eliminado correctamente.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Hubo un problema al eliminar el usuario.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
+    };
+
+
+
+
 
     return (
         <div>
@@ -225,10 +364,11 @@ const Usuarios = () => {
                                                                             <td>
                                                                                 <div className="btn-group">
                                                                                     <button
+                                                                                        onClick={() => handleEditClick(usuario)}
                                                                                         className="btn btn-warning btnEditarUsuario"
                                                                                         data-toggle="modal"
                                                                                         data-target="#modalEditarUsuario"
-                                                                                        idusuario={usuario.id_usuario}
+
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -250,6 +390,7 @@ const Usuarios = () => {
                                                                                         fotousuario={`vistas/img/usuarios/${usuario.usuario}/912.jpg`}
                                                                                         idusuario={usuario.id_usuario}
                                                                                         usuario={usuario.usuario}
+                                                                                        onClick={() => handleDeleteClick(usuario)}
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -371,6 +512,7 @@ const Usuarios = () => {
                                     className="close"
                                     data-dismiss="modal"
                                     type="button"
+
                                 >
                                     ×
                                 </button>
@@ -519,193 +661,203 @@ const Usuarios = () => {
                     </div>
                 </div>
             </div>
-            <div
-                className="modal fade"
-                id="modalEditarUsuario"
-                role="dialog"
-            >
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <form
-                            encType="multipart/form-data"
-                            method="post"
-                            role="form"
-                        >
-                            <div
-                                className="modal-header"
-                                style={{
-                                    background: '#1abc9c',
-                                    color: 'white'
-                                }}
+            {isModalVisible && selectedUsuario && (
+                <div
+                    className="modal fade show"
+                    id="modalEditarUsuario"
+                    role="dialog"
+                    onClick={handleModalClose}
+                >
+
+                    <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-content">
+
+                            <form
+                                encType="multipart/form-data"
+                                method="post"
+                                role="form"
+                                onSubmit={handleFormSubmit}
                             >
-                                <button
-                                    className="close"
-                                    data-dismiss="modal"
-                                    type="button"
+
+                                <div
+                                    className="modal-header"
+                                    style={{
+                                        background: '#1abc9c',
+                                        color: 'white'
+                                    }}
                                 >
-                                    ×
-                                </button>
-                                <h4 className="modal-title">
-                                    Editar usuario
-                                </h4>
-                            </div>
-                            <div className="modal-body">
-                                <div className="box-body">
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-user" />
-                                            </span>
-                                            <input
-                                                className="form-control input-lg"
-                                                defaultValue=""
-                                                id="editarNombre"
-                                                name="editarNombre"
-                                                required
-                                                type="text"
-                                            />
+                                    <button
+                                        className="close"
+                                        data-dismiss="modal"
+                                        type="button"
+                                        onClick={handleModalClose}
+                                    >
+                                        ×
+                                    </button>
+                                    <h4 className="modal-title">
+                                        Editar usuario
+                                    </h4>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="box-body">
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-user" />
+                                                </span>
+                                                <input
+                                                    className="form-control input-lg"
+                                                    defaultValue={selectedUsuario?.nombre || ''}
+                                                    id="editarNombre"
+                                                    name="nombre"
+                                                    onChange={handleChange}
+                                                    required
+                                                    type="text"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-key" />
-                                            </span>
-                                            <input
-                                                className="form-control input-lg"
-                                                defaultValue=""
-                                                id="editarUsuario"
-                                                name="editarUsuario"
-                                                readOnly
-                                                type="text"
-                                            />
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-key" />
+                                                </span>
+                                                <input
+                                                    className="form-control input-lg"
+                                                    defaultValue={selectedUsuario?.usuario || ''}
+                                                    id="editarUsuario"
+                                                    name="editarUsuario"
+                                                    onChange={handleChange}
+                                                    readOnly
+                                                    type="text"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-lock" />
-                                            </span>
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-lock" />
+                                                </span>
+                                                <input
+                                                    className="form-control input-lg"
+                                                    defaultValue=""
+                                                    name="password"
+                                                    onChange={handleChange}
+                                                    placeholder="Escriba la nueva contraseña"
+                                                    type="password"
+                                                />
+                                                <input
+                                                    id="passwordActual"
+                                                    name="passwordActual"
+                                                    type="hidden"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-users" />
+                                                </span>
+                                                <select
+                                                    className="form-control input-lg"
+                                                    defaultValue={selectedUsuario?.perfil || ''}
+                                                    name="perfil"
+                                                    onChange={handleChange}
+                                                >
+                                                    <option
+                                                        id="editarPerfil"
+                                                        value=""
+                                                    />
+                                                    <option value="">
+                                                        Selecionar perfil
+                                                    </option>
+                                                    <option value="superadministrador">
+                                                        SuperAdministrador
+                                                    </option>
+                                                    <option value="administrador">
+                                                        Administrador
+                                                    </option>
+                                                    <option value="gestor">
+                                                        Gestor
+                                                    </option>
+                                                    <option value="doctor">
+                                                        Doctor
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-users" />
+                                                </span>
+                                                <select
+                                                    className="form-control input-lg"
+                                                    defaultValue={selectedUsuario?.sucursal || ''}
+                                                    id="editarSucursal"
+                                                    name="sucursal"
+                                                    onChange={handleChange}
+
+                                                >
+                                                    <option value={""}>Selecionar Sucursal</option>
+                                                    {sucursales.map((sucursal) => (
+                                                        <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                                                            {sucursal.nombre}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <div className="panel">
+                                                SUBIR FOTO
+                                            </div>
                                             <input
-                                                className="form-control input-lg"
-                                                name="editarPassword"
-                                                placeholder="Escriba la nueva contraseña"
-                                                type="password"
+                                                className="nuevaFoto"
+                                                name="editarFoto"
+                                                type="file"
+                                            />
+                                            <p className="help-block">
+                                                Peso máximo de la foto 2MB
+                                            </p>
+                                            <img
+                                                className="img-thumbnail previsualizarEditar"
+                                                src={previewImage || selectedUsuario?.foto}
+                                                width="100px"
                                             />
                                             <input
-                                                id="passwordActual"
-                                                name="passwordActual"
+                                                id="fotoActual"
+                                                name="fotoActual"
                                                 type="hidden"
                                             />
                                         </div>
                                     </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-users" />
-                                            </span>
-                                            <select
-                                                className="form-control input-lg"
-                                                name="editarPerfil"
-                                            >
-                                                <option
-                                                    id="editarPerfil"
-                                                    value=""
-                                                />
-                                                <option value="">
-                                                    Selecionar perfil
-                                                </option>
-                                                <option value="superadministrador">
-                                                    SuperAdministrador
-                                                </option>
-                                                <option value="administrador">
-                                                    Administrador
-                                                </option>
-                                                <option value="gestor">
-                                                    Gestor
-                                                </option>
-                                                <option value="doctor">
-                                                    Doctor
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-users" />
-                                            </span>
-                                            <select
-                                                className="form-control input-lg"
-                                                id="editarSucursal"
-                                                name="editarSucursal"
-                                            >
-                                                <option value="">
-                                                    Selecionar Sucursal
-                                                </option>
-                                                <option value="3">
-                                                    CENTEVI Centro Médico San Judas Tadeo
-                                                </option>
-                                                <option value="4">
-                                                    CENTEVI Consultorios Medicos Paitilla
-                                                </option>
-                                                <option value="5">
-                                                    CENTEVI Sede Chitre
-                                                </option>
-                                                <option value="7">
-                                                    CENTEVI El Dorado
-                                                </option>
-                                                <option value="8">
-                                                    CENTEVI Giras Interior del Pais
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="panel">
-                                            SUBIR FOTO
-                                        </div>
-                                        <input
-                                            className="nuevaFoto"
-                                            name="editarFoto"
-                                            type="file"
-                                        />
-                                        <p className="help-block">
-                                            Peso máximo de la foto 2MB
-                                        </p>
-                                        <img
-                                            className="img-thumbnail previsualizarEditar"
-                                            src="vistas/img/usuarios/default/anonymous.png"
-                                            width="100px"
-                                        />
-                                        <input
-                                            id="fotoActual"
-                                            name="fotoActual"
-                                            type="hidden"
-                                        />
-                                    </div>
                                 </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button
-                                    className="btn btn-default pull-left"
-                                    data-dismiss="modal"
-                                    type="button"
-                                >
-                                    Salir
-                                </button>
-                                <button
-                                    className="btn btn-success"
-                                    type="submit"
-                                >
-                                    Modificar usuario
-                                </button>
-                            </div>
-                        </form>
+                                <div className="modal-footer">
+                                    <button
+                                        className="btn btn-default pull-left"
+                                        data-dismiss="modal"
+                                        type="button"
+                                        onClick={handleModalClose}
+                                    >
+                                        Salir
+                                    </button>
+                                    <button
+                                        className="btn btn-success"
+                                        type="submit"
+                                    >
+                                        Modificar usuario
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+
                     </div>
+
                 </div>
-            </div>
+            )}
         </div>
+
     )
 }
 

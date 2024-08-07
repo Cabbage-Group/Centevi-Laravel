@@ -19,6 +19,37 @@ export const fetchUsuarios = createAsyncThunk(
     }
 );
 
+export const updateUsuario = createAsyncThunk(
+    'usuarios/updateUsuario',
+    async ({ id_usuario, data}) => {
+        try {
+            console.log('id1:',id_usuario)
+            console.log('data2:',data)
+           
+            const response = await axios.put(`${API}/usuarios/${id_usuario}`, data);
+           
+            return response.data;
+        } catch (error) {
+            console.error('Error updating usuario:', error.response.data);
+            throw error;
+        }
+    }
+);
+
+export const deleteUsuario = createAsyncThunk(
+    'usuarios/deleteUsuario',
+    async (id_usuario) => {
+        try {
+            await axios.delete(`${API}/usuarios/${id_usuario}`);
+            return id_usuario;  // Devuelve el ID del usuario eliminado para que pueda ser usado en el reducer
+        } catch (error) {
+            console.error('Error deleting usuario:', error.response.data);
+            throw error;
+        }
+    }
+);
+
+
 export const updateEstadoUsuario = createAsyncThunk(
     'usuarios/updateEstadoUsuario',
     async ({ id_usuario, estado }) => {
@@ -31,7 +62,6 @@ export const updateEstadoUsuario = createAsyncThunk(
         }
     }
 );
-
 
 const usuariosSlice = createSlice({
     name: 'usuarios',
@@ -54,6 +84,31 @@ const usuariosSlice = createSlice({
                 state.meta = action.payload.meta;
             })
             .addCase(fetchUsuarios.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(updateUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const index = state.usuarios.findIndex(receta => receta.id_usuario === action.payload.data.id_usuario);
+                if (index !== -1) {
+                    state.usuarios[index] = action.payload.data;
+                }
+            })
+            .addCase(updateUsuario.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(deleteUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.usuarios = state.usuarios.filter(usuario => usuario.id_usuario !== action.payload);
+            })
+            .addCase(deleteUsuario.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             })

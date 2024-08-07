@@ -81,7 +81,7 @@ class UsuariosApiController extends Controller
         $request->validate([
             'usuario' => 'string|max:255',
             'nombre' => 'string|max:255',
-            'password' => 'nullable|string|min:8', // La contraseña es opcional
+            'password' => 'nullable|string', // La contraseña es opcional
             'perfil' => 'string|max:255',
             'sucursal' => 'integer',
             'foto' => 'string|max:255',
@@ -102,7 +102,7 @@ class UsuariosApiController extends Controller
             ], 404);
         }
 
-        // Actualizar los campos
+        
         $usuario->usuario = $request->input('usuario', $usuario->usuario);
         $usuario->nombre = $request->input('nombre', $usuario->nombre);
         if ($request->filled('password')) {
@@ -126,4 +126,41 @@ class UsuariosApiController extends Controller
             ],
         ]);
     }
+
+    public function delete($id)
+{
+    try {
+        // Buscar el usuario por ID
+        $usuario = Usuarios::find($id);
+
+        // Verificar si el usuario existe
+        if (!$usuario) {
+            return response()->json([
+                'status' => [
+                    'code' => 404,
+                    'message' => 'Usuario no encontrado',
+                ],
+            ], 404);
+        }
+
+        // Eliminar el usuario
+        $usuario->delete();
+
+        return response()->json([
+            'status' => [
+                'code' => 200,
+                'message' => 'Usuario eliminado con éxito',
+            ],
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => [
+                'code' => 500,
+                'message' => 'Error al eliminar el usuario',
+            ],
+            'errors' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }

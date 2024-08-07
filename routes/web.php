@@ -27,6 +27,8 @@ Route::post('/api/login', [LoginApiController::class,'login']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 
+Route::delete('/api/usuarios/{id}', [UsuariosApiController::class, 'delete']);
+
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 
@@ -84,6 +86,8 @@ Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta
 Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
 
 Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
+
+
 
 Route::get('/{any}', function () {
     return view('app');
