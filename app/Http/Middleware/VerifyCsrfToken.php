@@ -27,10 +27,20 @@ class VerifyCsrfToken extends Middleware
                 'http://127.0.0.1:8000/api/ObtometriaGeneral/*',
                 'http://127.0.0.1:8000/api/historiaclinica',
                 'http://127.0.0.1:8000/api/historiaclinica/*',
+                'http://127.0.0.1:8000/api/consultagenerica',
+                'http://127.0.0.1:8000/api/consultagenerica/*',
                 'http://127.0.0.1:8000/api/pacientes',
                 'http://127.0.0.1:8000/api/pacientes/*',
                 'http://127.0.0.1:8000/api/obtenerHistoriaClinica/*',
                 'http://127.0.0.1:8000/api/ultimaAtencion',
                 'http://127.0.0.1:8000/api/pacientesConsultasDiarias',
+                'http://127.0.0.1:8000/api/pacientesTerapiasDiarias',
+                'http://127.0.0.1:8000/api/pacientesSinAtender',
+                'http://127.0.0.1:8000/api/pacientesAtendidosPorDiaV2',
+                'http://127.0.0.1:8000/api/todosLospacientesSinAtender',
+                'http://127.0.0.1:8000/api/todosLospacientesSinAtender',
+                'http://127.0.0.1:8000/api/verificar-cedula',
+                'http://127.0.0.1:8000/api/recetas',
+
         ];
 }

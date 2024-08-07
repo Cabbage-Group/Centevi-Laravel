@@ -1,11 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../config/config';
+import moment from 'moment';
+
+const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 
 export const fetchUltimaAtencion = createAsyncThunk(
     'ultimaAtencion/fetchUltimaAtencion',
-    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = '', endDate = '', search = '' }) => {
+    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
         try {
             const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
@@ -13,7 +16,7 @@ export const fetchUltimaAtencion = createAsyncThunk(
                 params: { page, limit, orden, ordenPor, fecha, search },
             });
 
-            console.log('mensaje:', response.data);
+            console.log('mensaje:', response.data);         
 
             return response.data;
         } catch (error) {
@@ -25,7 +28,7 @@ export const fetchUltimaAtencion = createAsyncThunk(
 
 
 const ultimaAtencionSlice = createSlice({
-    name: 'ultimaAtencion',
+    name: 'consultasDiarias',
     initialState: {
         data: [],
         ultimaAtencion: [],
@@ -34,9 +37,10 @@ const ultimaAtencionSlice = createSlice({
         error: null,
         orden: 'asc',
         ordenPor: 'nombres',
-        startDate: '',
-        endDate: '',
-        search: '',  // Agrega el estado de búsqueda
+        startDate: getCurrentDate(),
+        endDate: getCurrentDate(),
+        search: '',
+        dataexport: []
     },
     reducers: {
         setOrden(state, action) {
@@ -49,7 +53,7 @@ const ultimaAtencionSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { // Agrega el reducer para la búsqueda
+        setSearch(state, action) { 
             state.search = action.payload;
         },
     },
@@ -62,6 +66,9 @@ const ultimaAtencionSlice = createSlice({
                 state.status = 'succeeded';
                 state.ultimaAtencion = action.payload.data;
                 state.meta = action.payload.meta;
+                state.meta = action.payload.meta;
+                state.dataexport = action.payload.export.dataexport;
+            
             })
             .addCase(fetchUltimaAtencion.rejected, (state, action) => {
                 state.status = 'failed';

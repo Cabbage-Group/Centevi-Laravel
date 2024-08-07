@@ -99,4 +99,29 @@ class HistoriaClinicaApiController extends Controller
             'message' => 'Registro eliminado exitosamente',
         ], 200);
     }
+
+    public function mostrarHistoriaClinica(Request $request)
+    {
+        // Obtén los parámetros de la solicitud
+        $item = $request->query('item');
+        $item2 = $request->query('item2');
+        $valor = $request->query('valor');
+        $valor2 = $request->query('valor2');
+
+        if ($item && $item2) {
+            // Consulta con parámetros
+            $result = HistoriaClinica::where($item, $valor)
+                ->where($item2, $valor2)
+                ->get(['id_consulta', 'fecha_atencion', 'doctor']);
+            
+        } else {
+            // Consulta sin parámetros
+            $result = HistoriaClinica::all();
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro exitosamente',
+            'dataHC' => $result,
+        ], 200);
+    }
 }

@@ -1,6 +1,57 @@
-import React from 'react'
+import React, {useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
+import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSilce';
+import DateRangePicker from './DateRangePicker';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
+import ExportButton from './exportButton';
+import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 
-const VerReportes = () => {
+
+const ReportePaciente = () => {
+
+    const dispatch = useDispatch();
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
+    const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search, dataexport} = useSelector((state) => state.atendidosPorDia);
+    
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [localSearch, setLocalSearch] = useState(search);
+    const [localEndDate, setLocalEndDate] = useState(endDate);
+    const [localStartDate, setLocalStartDate] = useState(startDate);
+
+    useEffect(() => {
+        dispatch(fetchPacientes({}));
+    }, [dispatch]);
+   
+    useEffect(() => {
+        dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20 , orden, ordenPor,startDate, endDate, search: localSearch}));
+    }, [dispatch,localSearch,  currentPage, startDate, endDate,orden, ordenPor]);
+
+    const handleSearchChange = (event) => {
+        setLocalSearch(event.target.value); 
+    };
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const handleDateChange = () => {
+        dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
+        dispatch(fetchAtendidosPorDia({ page: currentPage, startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }));
+    };
+
+    const handleSort = (newOrdenPor) => {
+        const newOrder = orden === 'asc' ? 'desc' : 'asc';
+        dispatch(setOrden(newOrder));
+        dispatch(setOrdenPor(newOrdenPor));
+        dispatch(fetchAtendidosPorDia({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor}));
+    };
+
+
+
+
+
     return (
         <div className="row layout-top-spacing">
             <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
@@ -50,7 +101,7 @@ const VerReportes = () => {
                                                 </div>
                                                 <div className="">
                                                     <p className="w-value">
-                                                        8819
+                                                        {metaPacientes.total}
                                                     </p>
                                                     <h5 className="">
                                                         PACIENTES
@@ -114,20 +165,15 @@ const VerReportes = () => {
                                 <label>
                                     Buscar por Fecha:
                                 </label>
-                                <input
-                                    className="form-control"
-                                    defaultValue=""
-                                    id="fecha_reporte"
-                                    name="fecha"
-                                    type="text"
+                                <DateRangePicker
+                                    startDate={localStartDate}
+                                    endDate={localEndDate}
+                                    onChange={(start, end) => {
+                                        setLocalStartDate(start);
+                                        setLocalEndDate(end);
+                                    }}
+                                    onApply={handleDateChange}
                                 />
-                                <button
-                                    className="btn btn-success mt-3"
-                                    id="buscar"
-                                    type="button"
-                                >
-                                    BUSCAR
-                                </button>
                             </div>
                             <div className="table-responsive">
                                 <div
@@ -138,46 +184,11 @@ const VerReportes = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-copy buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Copy
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-csv buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            CSV
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-excel buttons-html5 btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Excel
-                                                        </span>
-                                                    </button>
-                                                    {' '}
-                                                    <button
-                                                        aria-controls="html5-extension"
-                                                        className="dt-button buttons-print btn btn-sm"
-                                                        tabIndex="0"
-                                                    >
-                                                        <span>
-                                                            Print
-                                                        </span>
-                                                    </button>
-                                                    {' '}
+                                                <ExportButton 
+                                                dataexport={dataexport}
+                                                transformData={transformDataForAtendidosPorDia}
+                                                fileName="Reporte_Paciente.xlsx"
+                                                />
                                                 </div>
                                             </div>
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
@@ -215,6 +226,8 @@ const VerReportes = () => {
                                                             className="form-control"
                                                             placeholder="Search..."
                                                             type="search"
+                                                            value={localSearch}
+                                                            onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
                                                         />
                                                     </label>
                                                 </div>
@@ -222,125 +235,137 @@ const VerReportes = () => {
                                         </div>
                                     </div>
                                     <div className="table-responsive">
-                                        <table
-                                            aria-describedby="html5-extension_info"
-                                            className="table table-hover non-hover dataTable no-footer"
-                                            id="html5-extension"
-                                            role="grid"
-                                            style={{
-                                                width: '100%'
-                                            }}
-                                        >
-                                            <thead>
-                                                <tr role="row">
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Nombres de Paciente: activate to sort column descending"
-                                                        aria-sort="ascending"
-                                                        className="sorting_asc"
+                                        {status === 'loading' && <p>Loading...</p>}
+                                        {status === 'failed' && <p>Error: {error}</p>}
+                                        {status === 'succeeded' && (
+                                        
+                                            <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
+                                                <thead>
+                                                    <tr role="row">
+                                                        <th
+
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('PACIENTE_NOMBRE')}
+                                                            
+                                                        >
+                                                            Nombre del Paciente
+                                                        </th>
+                                                        <th
+
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Cedula: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('PACIENTE_CEDULA')}
+                                                           
+                                                        >
+                                                            Cedula
+                                                        </th>
+                                                        <th
+
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Sucursal: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('SUCURSAL')}
+                                                            
+                                                        >
+                                                            Sucursal
+                                                        </th>
+                                                        <th
+                                                        aria-controls="zero-config"
+                                                        aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                        className={`sorting ${orden}`}
                                                         colSpan="1"
                                                         rowSpan="1"
-                                                        style={{
-                                                            width: '283px'
-                                                        }}
+                                                        style={{ width: '153.82px' }}
                                                         tabIndex="0"
-                                                    >
-                                                        Nombres de Paciente
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Cedula: activate to sort column ascending"
-                                                        className="sorting"
+                                                        onClick={() => handleSort('PACIENTE_CELULAR')}
+                                                          
+                                                        >
+                                                            Celular
+                                                        </th>
+                                                        <th
+
+                                                        aria-controls="zero-config"
+                                                        aria-label={`Tipo: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                        className={`sorting ${orden}`}
                                                         colSpan="1"
                                                         rowSpan="1"
-                                                        style={{
-                                                            width: '111px'
-                                                        }}
+                                                        style={{ width: '153.82px' }}
                                                         tabIndex="0"
-                                                    >
-                                                        Cedula
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Sucursal: activate to sort column ascending"
-                                                        className="sorting"
+                                                        onClick={() => handleSort('TIPO')}
+                                                                                                                    
+                                                        >
+                                                            Tipo de Consulta
+                                                        </th>
+                                                        <th
+                                                        aria-controls="zero-config"
+                                                        aria-label={`Fecha atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                        className={`sorting ${orden}`}
                                                         colSpan="1"
                                                         rowSpan="1"
-                                                        style={{
-                                                            width: '131px'
-                                                        }}
+                                                        style={{ width: '153.82px' }}
                                                         tabIndex="0"
-                                                    >
-                                                        Sucursal
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Celular: activate to sort column ascending"
-                                                        className="sorting"
+                                                        onClick={() => handleSort('FECHA_ATENCION')}
+                                                            
+                                                        >
+                                                            Fecha de atención
+                                                        </th>
+                                                        <th
+                                                        aria-controls="zero-config"
+                                                        aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                        className={`sorting ${orden}`}
                                                         colSpan="1"
                                                         rowSpan="1"
-                                                        style={{
-                                                            width: '114px'
-                                                        }}
+                                                        style={{ width: '153.82px' }}
                                                         tabIndex="0"
-                                                    >
-                                                        Celular
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Tipo de Consulta: activate to sort column ascending"
-                                                        className="sorting"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '230px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Tipo de Consulta
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Fecha de atención: activate to sort column ascending"
-                                                        className="sorting"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '248px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Fecha de atención
-                                                    </th>
-                                                    <th
-                                                        aria-controls="html5-extension"
-                                                        aria-label="Doctor: activate to sort column ascending"
-                                                        className="sorting"
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{
-                                                            width: '111px'
-                                                        }}
-                                                        tabIndex="0"
-                                                    >
-                                                        Doctor
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr className="">
-                                                    <td
-                                                        className="dataTables_empty"
-                                                        colSpan="7"
-                                                        valign="top"
-                                                    >
-                                                        No data available in table
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                                        onClick={() => handleSort('DOCTOR')}
+                                                            
+                                                        >
+                                                            Doctor
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {atendidosPorDia.map((atendidoPorDia) => (
+                                                        <tr key={atendidoPorDia.ID_PACIENTE}>
+                                                            <td>{atendidoPorDia.PACIENTE_NOMBRE.trim()}</td>
+                                                            <td>{atendidoPorDia.PACIENTE_CEDULA}</td>
+                                                            <td>{atendidoPorDia.SUCURSAL}</td>
+                                                            <td>{atendidoPorDia.PACIENTE_CELULAR}</td>
+                                                            <td>{atendidoPorDia.TIPO}</td>
+                                                            <td>{atendidoPorDia.FECHA_ATENCION}</td>
+                                                            <td>{atendidoPorDia.DOCTOR}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        )}
+                                        
+                                        <PaginationAtendidosPorDia
+                                            meta={meta}
+                                            currentPage={currentPage}
+                                            totalPages={totalPages}
+                                            onPageChange={handlePageChange}
+                                        />  
+                                        
+
+                                                                          
                                     </div>
-                                    
+                            
                                 </div>
                             </div>
                         </div>
@@ -351,4 +376,4 @@ const VerReportes = () => {
     )
 }
 
-export default VerReportes
+export default ReportePaciente 

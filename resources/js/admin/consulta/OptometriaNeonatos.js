@@ -16,7 +16,7 @@ const OptometriaNeonatos = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'ejmplo doctor',
-        id_terapia: '1',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
