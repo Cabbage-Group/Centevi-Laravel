@@ -30,7 +30,7 @@ class HistoriaClinica extends Model
 
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
-        'fecha_atencion' => 'date',
+        'fecha_atencion' => 'datetime',
     ];
 }
 

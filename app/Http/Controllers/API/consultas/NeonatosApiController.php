@@ -83,9 +83,9 @@ class NeonatosApiController extends Controller
         }
     }
 
-
     public function CrearNeonatos(Request $request)
     {
+        // Validaciones necesarias
         $request->validate([
             'sucursal' => 'required|integer|max:1000',
             'doctor' => 'required|string|max:1000',
@@ -95,9 +95,15 @@ class NeonatosApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Añadir validaciones para los demás campos necesarios
         ]);
+    
         try {
-            $neonato = OptometriaNeonatos::create($request->all());
-
+            // Preparar los datos para la creación
+            $datos = $request->all();
+            $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+    
+            // Crear el registro
+            $neonato = OptometriaNeonatos::create($datos);
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Neonato creado con éxito',
@@ -105,16 +111,12 @@ class NeonatosApiController extends Controller
             ]); 
         }
         catch (\Exception $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los registros',
                 'errors' => $e->getMessage(),
             ], 500);
         }
-        
-
-        // Crear un nuevo registro en la tabla optometria_neonato
     }
 
     public function EditarNeonatos(Request $request, $id)
@@ -170,6 +172,30 @@ class NeonatosApiController extends Controller
             'success' => true,
             'message' => 'Neonato eliminado con éxito',
         ]);
+    }
+
+    public function mostrarOptometriaNeonatos(Request $request)
+    {
+        // Obtén los parámetros de la solicitud
+        $item = $request->query('item');
+        $item2 = $request->query('item2');
+        $valor = $request->query('valor');
+        $valor2 = $request->query('valor2');
+
+        if ($item && $item2) {
+            // Consulta con parámetros
+            $result = OptometriaNeonatos::where($item, $valor)
+                ->where($item2, $valor2)
+                ->get(['id_consulta', 'fecha_creacion', 'doctor']);
+        } else {
+            // Consulta sin parámetros
+            $result = OptometriaNeonatos::all();
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro exitosamente',
+            'dataON' => $result,
+        ], 200);
     }
 
 }

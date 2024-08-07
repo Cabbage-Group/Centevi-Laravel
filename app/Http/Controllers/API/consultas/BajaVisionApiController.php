@@ -9,11 +9,10 @@ use Illuminate\Support\Facades\Validator;
 
 class BajaVisionApiController extends Controller
 {
-    // Crear BajaVision
     public function CrearBajaVision(Request $request)
     {
+        // Validaciones necesarias
         $validator = Validator::make($request->all(), [
-            // Validaciones necesarias
             'sucursal' => 'required|integer|max:255',
             'doctor' => 'required|string|max:255',
             'paciente' => 'required|integer|max:10000',
@@ -22,7 +21,7 @@ class BajaVisionApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Otras validaciones aquí...
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -30,15 +29,21 @@ class BajaVisionApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-
-        $bajaVision = BajaVision::create($request->all());
-
+    
+        // Preparar los datos para la creación
+        $datos = $request->all();
+        $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+    
+        // Crear el registro
+        $bajaVision = BajaVision::create($datos);
+    
         return response()->json([
             'success' => true,
             'message' => 'Registro creado exitosamente',
             'data' => $bajaVision,
         ], 201);
     }
+    
 
     // Editar BajaVision
     public function EditarBajaVision(Request $request, $id)
@@ -99,4 +104,30 @@ class BajaVisionApiController extends Controller
             'message' => 'Registro eliminado exitosamente',
         ], 200);
     }
+
+    public function mostrarBajaVision(Request $request)
+    {
+        // Obtén los parámetros de la solicitud
+        $item = $request->query('item');
+        $item2 = $request->query('item2');
+        $valor = $request->query('valor');
+        $valor2 = $request->query('valor2');
+
+        if ($item && $item2) {
+            // Consulta con parámetros
+            $result = BajaVision::where($item, $valor)
+                ->where($item2, $valor2)
+                ->get(['id_consulta', 'fecha_creacion', 'doctor']);
+        } else {
+            // Consulta sin parámetros
+            $result = BajaVision::all();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registro exitosamente',
+            'dataBV' => $result,
+        ], 200);
+    }
+
 }
