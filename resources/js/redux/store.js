@@ -12,12 +12,17 @@ import terapiasDiariasSlice from './features/reportes/terapiasDiariasSlice';
 import pacientesSinAtencionSlice from './features/reportes/pacientesSinAtencionSlice';
 import atendidosPorDiaSilce from './features/reportes/atendidosPorDiaSlice';
 import crearPacientesSlice from './features/pacientes/crearPacientesSlice';
+import recetasSlice from './features/recetas/recetasSlice';
+import crearRecetasSlice from './features/recetas/crearRecetasSlice';
+import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
+import editarRecetasSlice from './features/recetas/editarRecetasSlice';
 
 const store = configureStore({
         reducer: {
                 sucursales: sucursalesReducer,
                 usuarios: usuariosSlice,
                 pacientes: pacientesSlice,
+                recetas: recetasSlice,
                 optometriaNeonatos: optometriaNeonatosReducer,
                 optometriaPediatrica: OptometriaPediatricaSlice ,
                 ortoptica: OrtopticaV_BSlice,
@@ -27,7 +32,11 @@ const store = configureStore({
                 terapiasDiarias: terapiasDiariasSlice,
                 pacientesSinAtencion: pacientesSinAtencionSlice,
                 atendidosPorDia: atendidosPorDiaSilce,
-                crearPacientes: crearPacientesSlice
+                crearPacientes: crearPacientesSlice,
+                crearRecetas: crearRecetasSlice,
+                verUnaReceta: verUnaRecetaSlice,
+                editarReceta: editarRecetasSlice
+                
         }
 });
 

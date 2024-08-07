@@ -12,6 +12,7 @@ use App\Http\Controllers\API\consultas\OrtopticaApiController;
 use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\HistoriaClinicaApiController;
+use App\Http\Controllers\API\recetas\RecetasApiController;
 use App\Models\Pacientes;
 
 
@@ -73,6 +74,16 @@ Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'M
 Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
 
 Route::post('/api/verificar-cedula', [PacientesApiController::class, 'verificarCedula']);
+
+Route::get('/api/recetas', [RecetasApiController::class, 'recetas']);
+
+Route::post('/api/recetas', [RecetasApiController::class, 'crearRecetas']);
+
+Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta']);
+
+Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
+
+Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
 
 Route::get('/{any}', function () {
     return view('app');
