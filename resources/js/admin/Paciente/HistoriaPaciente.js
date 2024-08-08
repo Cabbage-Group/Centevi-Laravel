@@ -7,6 +7,12 @@ import { fetchMostrarGeneral } from '../../redux/features/pacientes/MostrarGener
 import { fetchMostrarNeonatos } from '../../redux/features/pacientes/MostrarNeonatosSlice';
 import { fetchMostrarPediatrica } from '../../redux/features/pacientes/MostrarPediatricaSlice';
 import { fetchMostrarConsultaGenerica } from '../../redux/features/pacientes/MostrarConsultaGenerica';
+import { deleteOptometriaGeneral } from '../../redux/features/consultas/DeleteGeneralSlice';
+import { DeleteBajaVision } from '../../redux/features/consultas/DeleteBajaVisionSlice';
+import { DeleteConsultaGenerica } from '../../redux/features/consultas/DeleteConsultaGenericaSlice';
+import { DeleteNeonatos } from '../../redux/features/consultas/DeleteNeonatosSlice';
+import { DeleteOrtoptica } from '../../redux/features/consultas/DeleteOrtopticaSlice';
+import { DeletePediatrica } from '../../redux/features/consultas/DeletePediatricaSlice';
 import { useParams, Link } from 'react-router-dom';
 
 const formatToDateDisplay = (dateStr) => {
@@ -15,17 +21,18 @@ const formatToDateDisplay = (dateStr) => {
     return `${day}/${month}/${year}`;
 };
 
+
 const HistoriaPaciente = () => {
 
     const dispatch = useDispatch();
     const { id } = useParams();
     const { data: verPaciente, } = useSelector((state) => state.verPaciente);
     const { dataOA } = useSelector((state) => state.mostrarOrtoptica);
-    const { dataBV = [] } = useSelector((state) => state.mostrarBajaVision);
-    const { dataRG = [] } = useSelector((state) => state.mostrarGeneral);
-    const { dataON = [] } = useSelector((state) => state.mostrarNeonatos);
-    const { dataOP = [] } = useSelector((state) => state.mostrarPediatrica);
-    const { dataCG = [] } = useSelector((state) => state.mostrarConsultaGenerica);
+    const { dataBV } = useSelector((state) => state.mostrarBajaVision);
+    const { dataRG } = useSelector((state) => state.mostrarGeneral);
+    const { dataON } = useSelector((state) => state.mostrarNeonatos);
+    const { dataOP } = useSelector((state) => state.mostrarPediatrica);
+    const { dataCG } = useSelector((state) => state.mostrarConsultaGenerica);
 
     let urgencia = {};
     let menor = {};
@@ -48,6 +55,89 @@ const HistoriaPaciente = () => {
         }
     }, [dispatch, id]);
 
+    const handleDeleteOptometriaGeneral = (id_consulta) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
+            dispatch(deleteOptometriaGeneral(id_consulta))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Consulta eliminada exitosamente');
+                        dispatch(fetchMostrarGeneral({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                    } else {
+                        alert('Hubo un error al intentar eliminar la consulta.');
+                    }
+                });
+        }
+    };
+
+    const handleDeleteBajaVision = (id_consulta) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
+            dispatch(DeleteBajaVision(id_consulta))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Consulta eliminada exitosamente');
+                        dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                    } else {
+                        alert('Hubo un error al intentar eliminar la consulta.');
+                    }
+                });
+        }
+    };
+
+    const handleDeleteConsultaGenerica = (id_consulta) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
+            dispatch(DeleteConsultaGenerica(id_consulta))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Consulta eliminada exitosamente');
+                        dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                    } else {
+                        alert('Hubo un error al intentar eliminar la consulta.');
+                    }
+                });
+        }
+    };
+
+    const handleDeleteNeonatos = (id_consulta) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
+            dispatch(DeleteNeonatos(id_consulta))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Consulta eliminada exitosamente');
+                        dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                    } else {
+                        alert('Hubo un error al intentar eliminar la consulta.');
+                    }
+                });
+        }
+    };
+
+    const handleDeleteOrtoptica = (id_consulta) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
+            dispatch(DeleteOrtoptica(id_consulta))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Consulta eliminada exitosamente');
+                        dispatch(fetchMostrarOrtoptica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                    } else {
+                        alert('Hubo un error al intentar eliminar la consulta.');
+                    }
+                });
+        }
+    };
+
+    const handleDeletePediatrica = (id_consulta) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
+            dispatch(DeletePediatrica(id_consulta))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Consulta eliminada exitosamente');
+                        dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                    } else {
+                        alert('Hubo un error al intentar eliminar la consulta.');
+                    }
+                });
+        }
+    };
 
     return (
         <div
@@ -518,11 +608,10 @@ const HistoriaPaciente = () => {
                                                                                             </svg>
                                                                                         </button>
                                                                                     </Link>
-
                                                                                     <button
-                                                                                        borrar_consulta="56"
+                                                                                        key={OA.id_consulta}
+                                                                                        onClick={() => handleDeleteOrtoptica(OA.id_consulta)}
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_paciente="22"
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -539,7 +628,6 @@ const HistoriaPaciente = () => {
                                                                                             />
                                                                                         </svg>
                                                                                     </button>
-
                                                                                 </td>
                                                                             </tr>
                                                                         ))}
@@ -592,58 +680,64 @@ const HistoriaPaciente = () => {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        {dataBV.map((item, index) => (
-                                                                            <tr key={index}>
+                                                                        {dataBV.map((BV, index) => (
+                                                                            <tr key={BV.id_consulta}>
                                                                                 <td className="text-center">{index + 1}</td>
                                                                                 <td>Consulta Optometría Baja Vision</td>
-                                                                                <td>{item.doctor}</td>
-                                                                                <td>{item.fecha_creacion}</td>
+                                                                                <td>{BV.doctor}</td>
+                                                                                <td>{BV.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <button
-                                                                                        className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                    <Link to={`/ver-bajaVision/${id}/${BV.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                            <path
-                                                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                                <path
+                                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
+                                                                                    <Link to={`/editar-bajaVision/${id}/${BV.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
                                                                                     <button
+                                                                                        key={BV.id_consulta}
+                                                                                        onClick={() => handleDeleteBajaVision(BV.id_consulta)}
                                                                                         borrar_consulta="56"
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
                                                                                         id_paciente="22"
@@ -715,60 +809,65 @@ const HistoriaPaciente = () => {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        {dataRG.map((item, index) => (
-                                                                            <tr key={index}>
+                                                                        {dataRG.map((RG, index) => (
+                                                                            <tr key={RG.id_consulta}>
                                                                                 <td className="text-center">{index + 1}</td>
                                                                                 <td>Consulta Optometría General</td>
-                                                                                <td>{item.doctor}</td>
-                                                                                <td>{item.fecha_creacion}</td>
+                                                                                <td>{RG.doctor}</td>
+                                                                                <td>{RG.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <button
-                                                                                        className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                    <Link to={`/ver-refraccion/${id}/${RG.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnVerConsultaRG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                            <path
-                                                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                                <path
+                                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
+                                                                                    <Link to={`/editar-OptometriaGeneral/${id}/${RG.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnEditarConsultaRG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
                                                                                     <button
-                                                                                        borrar_consulta="56"
-                                                                                        className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                                                                        key={RG.id_consulta}
+                                                                                        onClick={() => handleDeleteOptometriaGeneral(RG.id_consulta)}
+                                                                                        className="btnEliminarConsultaRG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
                                                                                         id_paciente="22"
                                                                                     >
                                                                                         <svg
@@ -838,61 +937,65 @@ const HistoriaPaciente = () => {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        {dataON.map((item, index) => (
-                                                                            <tr key={index}>
+                                                                        {dataON.map((ON, index) => (
+                                                                            <tr key={ON.id_consulta}>
                                                                                 <td className="text-center">{index + 1}</td>
                                                                                 <td>Consulta Optometría Neonatos</td>
-                                                                                <td>{item.doctor}</td>
-                                                                                <td>{item.fecha_creacion}</td>
+                                                                                <td>{ON.doctor}</td>
+                                                                                <td>{ON.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <button
-                                                                                        className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                    <Link to={`/ver-neonatos/${id}/${ON.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                            <path
-                                                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                                <path
+                                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
+                                                                                    <Link to={`/editar-neonato/${id}/${ON.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
                                                                                     <button
-                                                                                        borrar_consulta="56"
+                                                                                        key={ON.id_consulta}
+                                                                                        onClick={() => handleDeleteNeonatos(ON.id_consulta)}
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_paciente="22"
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -961,61 +1064,65 @@ const HistoriaPaciente = () => {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        {dataOP.map((item, index) => (
-                                                                            <tr key={index}>
+                                                                        {dataOP.map((OP, index) => (
+                                                                            <tr key={OP.id_consulta}>
                                                                                 <td className="text-center">{index + 1}</td>
                                                                                 <td>Consulta Optometría Pediatrica</td>
-                                                                                <td>{item.doctor}</td>
-                                                                                <td>{item.fecha_creacion}</td>
+                                                                                <td>{OP.doctor}</td>
+                                                                                <td>{OP.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <button
-                                                                                        className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                    <Link to={`/ver-pediatrica/${id}/${OP.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                            <path
-                                                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                                <path
+                                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
+                                                                                    <Link to={`/editar-pediatrica/${id}/${OP.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
                                                                                     <button
-                                                                                        borrar_consulta="56"
+                                                                                        key={OP.id_consulta}
+                                                                                        onClick={() => handleDeletePediatrica(OP.id_consulta)}
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_paciente="22"
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -1084,61 +1191,65 @@ const HistoriaPaciente = () => {
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        {dataCG.map((item, index) => (
-                                                                            <tr key={index}>
+                                                                        {dataCG.map((CG, index) => (
+                                                                            <tr key={CG.id_consulta}>
                                                                                 <td className="text-center">{index + 1}</td>
                                                                                 <td>Consulta Consulta Generica</td>
-                                                                                <td>{item.doctor}</td>
-                                                                                <td>{item.fecha_creacion}</td>
+                                                                                <td>{CG.doctor}</td>
+                                                                                <td>{CG.fecha_creacion}</td>
                                                                                 <td>
-                                                                                    <button
-                                                                                        className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                    <Link to={`/ver-consultagenericas/${id}/${CG.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnVerConsultaCG btn btn-primary mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                            <path
-                                                                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_consulta="56"
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                                <path
+                                                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
+                                                                                    <Link to={`/editar-ConsultaGenerica/${id}/${CG.id_consulta}`}>
+                                                                                        <button
+                                                                                            className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                                                                            id_consulta="56"
                                                                                         >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
+                                                                                            <svg
+                                                                                                className="h-6 w-6"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                            >
+                                                                                                <path
+                                                                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                                    strokeLinecap="round"
+                                                                                                    strokeLinejoin="round"
+                                                                                                    strokeWidth="2"
+                                                                                                />
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                    </Link>
                                                                                     <button
-                                                                                        borrar_consulta="56"
+                                                                                        key={CG.id_consulta}
+                                                                                        onClick={() => handleDeleteConsultaGenerica(CG.id_consulta)}
                                                                                         className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                                                                        id_paciente="22"
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -1416,105 +1527,6 @@ const HistoriaPaciente = () => {
                                                         </svg>
                                                         <a
                                                             className="btn btn-info"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/Consulta Dic 2021 1era TPC.pdf"
-                                                            target="_blank"
-                                                            title="Visualizar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                                <path
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <a
-                                                            className="btn btn-primary"
-                                                            download="Consulta Dic 2021 1era TPC.pdf"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/Consulta Dic 2021 1era TPC.pdf"
-                                                            title="Descargar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <button
-                                                            borrar_documento="933"
-                                                            className="btn btn-danger eliminarDocumentoPaciente"
-                                                            id_paciente="22"
-                                                            nombre="Consulta Dic 2021 1era TPC.pdf"
-                                                            type="submit"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <p className="mt-3">
-                                                            Nombre:Consulta Dic 2021 1era TPC.pdf
-                                                        </p>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6"
-                                                        style={{
-                                                            backgroundColor: '#e1e1e1',
-                                                            border: '2px solid black',
-                                                            borderRadius: '20px 20px',
-                                                            minWidth: '100px'
-                                                        }}
-                                                    >
-                                                        <svg
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            style={{
-                                                                width: '60px'
-                                                            }}
-                                                            viewBox="0 0 24 24"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <path
-                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                            />
-                                                        </svg>
-                                                        <a
-                                                            className="btn btn-info"
                                                             href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/COnsulta Enero 2022 Chitre.pdf"
                                                             target="_blank"
                                                             title="Visualizar Archivo"
@@ -1585,303 +1597,6 @@ const HistoriaPaciente = () => {
                                                         </button>
                                                         <p className="mt-3">
                                                             Nombre:COnsulta Enero 2022 Chitre.pdf
-                                                        </p>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6"
-                                                        style={{
-                                                            backgroundColor: '#e1e1e1',
-                                                            border: '2px solid black',
-                                                            borderRadius: '20px 20px',
-                                                            minWidth: '100px'
-                                                        }}
-                                                    >
-                                                        <svg
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            style={{
-                                                                width: '60px'
-                                                            }}
-                                                            viewBox="0 0 24 24"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <path
-                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                            />
-                                                        </svg>
-                                                        <a
-                                                            className="btn btn-info"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/COnsulta Marzo 2022 Chitre.pdf"
-                                                            target="_blank"
-                                                            title="Visualizar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                                <path
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <a
-                                                            className="btn btn-primary"
-                                                            download="COnsulta Marzo 2022 Chitre.pdf"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/COnsulta Marzo 2022 Chitre.pdf"
-                                                            title="Descargar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <button
-                                                            borrar_documento="935"
-                                                            className="btn btn-danger eliminarDocumentoPaciente"
-                                                            id_paciente="22"
-                                                            nombre="COnsulta Marzo 2022 Chitre.pdf"
-                                                            type="submit"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <p className="mt-3">
-                                                            Nombre:COnsulta Marzo 2022 Chitre.pdf
-                                                        </p>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6"
-                                                        style={{
-                                                            backgroundColor: '#e1e1e1',
-                                                            border: '2px solid black',
-                                                            borderRadius: '20px 20px',
-                                                            minWidth: '100px'
-                                                        }}
-                                                    >
-                                                        <svg
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            style={{
-                                                                width: '60px'
-                                                            }}
-                                                            viewBox="0 0 24 24"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <path
-                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                            />
-                                                        </svg>
-                                                        <a
-                                                            className="btn btn-info"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/Orden Lentes Chitre  Marzo 2022.pdf"
-                                                            target="_blank"
-                                                            title="Visualizar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                                <path
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <a
-                                                            className="btn btn-primary"
-                                                            download="Orden Lentes Chitre  Marzo 2022.pdf"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/Orden Lentes Chitre  Marzo 2022.pdf"
-                                                            title="Descargar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <button
-                                                            borrar_documento="936"
-                                                            className="btn btn-danger eliminarDocumentoPaciente"
-                                                            id_paciente="22"
-                                                            nombre="Orden Lentes Chitre  Marzo 2022.pdf"
-                                                            type="submit"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <p className="mt-3">
-                                                            Nombre:Orden Lentes Chitre  Marzo 2022.pdf
-                                                        </p>
-                                                    </div>
-                                                    <div
-                                                        className="col-md-6"
-                                                        style={{
-                                                            backgroundColor: '#e1e1e1',
-                                                            border: '2px solid black',
-                                                            borderRadius: '20px 20px',
-                                                            minWidth: '100px'
-                                                        }}
-                                                    >
-                                                        <svg
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            style={{
-                                                                width: '60px'
-                                                            }}
-                                                            viewBox="0 0 24 24"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <path
-                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                            />
-                                                        </svg>
-                                                        <a
-                                                            className="btn btn-info"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/Orden de Enero 2024,Danna Gonzalez.pdf"
-                                                            target="_blank"
-                                                            title="Visualizar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                                <path
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <a
-                                                            className="btn btn-primary"
-                                                            download="Orden de Enero 2024,Danna Gonzalez.pdf"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/Orden de Enero 2024,Danna Gonzalez.pdf"
-                                                            title="Descargar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <button
-                                                            borrar_documento="18606"
-                                                            className="btn btn-danger eliminarDocumentoPaciente"
-                                                            id_paciente="22"
-                                                            nombre="Orden de Enero 2024,Danna Gonzalez.pdf"
-                                                            type="submit"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                            >
-                                                                <path
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <p className="mt-3">
-                                                            Nombre:Orden de Enero 2024,Danna Gonzalez.pdf
                                                         </p>
                                                     </div>
                                                 </div>

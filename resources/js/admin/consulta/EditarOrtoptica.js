@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchEditarOrtoptica } from '../../redux/features/consultas/EditarOrtopticaSlice.js';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
 import { fetchVerOrtoptica } from '../../redux/features/pacientes/VerOrtopticaSlice.js';
-
 
 const EditarOrtoptica = () => {
 
@@ -19,7 +18,6 @@ const EditarOrtoptica = () => {
     const [formData, setFormData] = useState({
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '0',
         paciente: '',
         edad: '',
         fecha_atencion: '',
@@ -166,54 +164,6 @@ const EditarOrtoptica = () => {
     });
 
     useEffect(() => {
-        let av_sc = {};
-        let av_cc = {};
-        let lensometria = {};
-        let lensometria_extra = {};
-        let sa_pp = {};
-        let visuscopia = {};
-        let visuscopia_extra = {};
-        let refraccion = {};
-        let lentes_contacto = {};
-        let pruebas = {};
-        let pruebas_extra = {};
-        let acomodacion = {};
-        let acomodacion_extra = {};
-        let vergencia = {};
-        let editado = {};
-        let ojo_dominante = '';
-        let mano_dominante = '';
-
-        try {
-            av_sc = ortoptica && ortoptica.av_sc ? JSON.parse(ortoptica.av_sc) : {};
-            av_cc = ortoptica && ortoptica.av_cc ? JSON.parse(ortoptica.av_cc) : {};
-            lensometria = ortoptica && ortoptica.lensometria ? JSON.parse(ortoptica.lensometria) : {};
-            lensometria_extra = ortoptica && ortoptica.lensometria_extra ? JSON.parse(ortoptica.lensometria_extra) : {};
-            sa_pp = ortoptica && ortoptica.sa_pp ? JSON.parse(ortoptica.sa_pp) : {};
-            visuscopia = ortoptica && ortoptica.visuscopia ? JSON.parse(ortoptica.visuscopia) : {};
-            visuscopia_extra = ortoptica && ortoptica.visuscopia_extra ? JSON.parse(ortoptica.visuscopia_extra) : {};
-            refraccion = ortoptica && ortoptica.refraccion ? JSON.parse(ortoptica.refraccion) : {};
-            lentes_contacto = ortoptica && ortoptica.lentes_contacto ? JSON.parse(ortoptica.lentes_contacto) : {};
-            pruebas = ortoptica && ortoptica.pruebas ? JSON.parse(ortoptica.pruebas) : {};
-            pruebas_extra = ortoptica && ortoptica.pruebas_extra ? JSON.parse(ortoptica.pruebas_extra) : {};
-            acomodacion = ortoptica && ortoptica.acomodacion ? JSON.parse(ortoptica.acomodacion) : {};
-            acomodacion_extra = ortoptica && ortoptica.acomodacion_extra ? JSON.parse(ortoptica.acomodacion_extra) : {};
-            vergencia = ortoptica && ortoptica.vergencia ? JSON.parse(ortoptica.vergencia) : {};
-            editado = ortoptica && ortoptica.editado ? JSON.parse(ortoptica.editado) : {};
-            ojo_dominante = ortoptica && ortoptica.ojo_dominante ? ortoptica.ojo_dominante : '';
-            mano_dominante = ortoptica && ortoptica.mano_dominante ? ortoptica.mano_dominante : '';
-        } catch (error) {
-            console.error('Error parsing JSON:', error);
-        }
-
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            ojo_dominante,
-            mano_dominante,
-        }));
-    }, [ortoptica]);
-
-    useEffect(() => {
         if (ortoptica) {
             setFormData({
                 sucursal: ortoptica.sucursal || '',
@@ -263,8 +213,6 @@ const EditarOrtoptica = () => {
 
     const handleChange = (e) => {
         const { name, value, dataset } = e.target;
-
-        console.log('Handling change for:', name, value, dataset.group);
 
         setFormData((prevFormData) => {
             switch (dataset.group) {
@@ -394,10 +342,8 @@ const EditarOrtoptica = () => {
         });
     };
 
-
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Submitting form with data:', formData); // Agrega esta línea para depuración
         dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
         navigate(''); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
     };
@@ -467,14 +413,15 @@ const EditarOrtoptica = () => {
                                                         <select
                                                             className="form-control"
                                                             name="paciente"
+                                                            value={formData.paciente || ''} // Asigna el valor del paciente seleccionado
+                                                            onChange={(e) => setFormData({ ...formData, paciente: e.target.value })} // Manejo del cambio
                                                         >
-                                                            <option >
-                                                                {pacientes.filter(paciente => paciente.id_paciente === ortoptica.paciente).map((paciente) => (
-                                                                    <option key={paciente.id_paciente} value={formData.paciente.id_paciente}>
-                                                                        Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
-                                                                    </option>
-                                                                ))}
-                                                            </option>
+                                                            <option value="">Seleccione un paciente</option> {/* Opción por defecto */}
+                                                            {pacientes.filter(paciente => paciente.id_paciente === ortoptica.paciente).map((paciente) => (
+                                                                <option key={paciente.id_paciente} value={paciente.id_paciente}>
+                                                                    Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
+                                                                </option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -486,16 +433,18 @@ const EditarOrtoptica = () => {
                                                         <select
                                                             className="form-control"
                                                             name="sucursal"
+                                                            value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
+                                                            onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
                                                         >
-                                                            <option>
-                                                                {sucursales.filter(sucursal => sucursal.id_sucursal === ortoptica.sucursal).map((sucursal) => (
-                                                                    <option key={sucursal.id_sucursal} value={formData.sucursal.id_sucursal}>
-                                                                        {sucursal.nombre}
-                                                                    </option>
-                                                                ))}
-                                                            </option>
+                                                            <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
+                                                            {sucursales.filter(sucursal => sucursal.id_sucursal === ortoptica.sucursal).map((sucursal) => (
+                                                                <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                                                                    {sucursal.nombre}
+                                                                </option>
+                                                            ))}
                                                         </select>
                                                     </div>
+
                                                     <div className="form-group col-md-3">
                                                         <label htmlFor="edad">
                                                             Edad
@@ -545,7 +494,6 @@ const EditarOrtoptica = () => {
                                                         <input
                                                             className="form-control"
                                                             value={formData.a_o}
-                                                            id="lugarNacimiento"
                                                             name="a_o"
                                                             placeholder="A/O"
                                                             type="text"
@@ -661,7 +609,6 @@ const EditarOrtoptica = () => {
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_od_vp}
                                                                                 name="av/sc_od_vp"
-                                                                                placeholder="od_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
                                                                             />
@@ -671,7 +618,6 @@ const EditarOrtoptica = () => {
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_oi_vp}
                                                                                 name="av/sc_oi_vp"
-                                                                                placeholder="oi_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
                                                                             />

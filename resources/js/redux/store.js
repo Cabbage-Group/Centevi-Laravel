@@ -24,6 +24,16 @@ import recetasSlice from './features/recetas/recetasSlice';
 import crearRecetasSlice from './features/recetas/crearRecetasSlice';
 import VerOrtopticaSlice from './features/pacientes/VerOrtopticaSlice';
 import EditarOrtopticaSlice from './features/consultas/EditarOrtopticaSlice';
+import VerBajaVisionSlice from './features/pacientes/VerBajaVisionSlice';
+import VerNeonatosSlice from './features/pacientes/VerNeonatosSlice';
+import VerConsultaGenericaSlice from './features/pacientes/VerConsultaGenericaSlice';
+import VerPediatricaSlice from './features/pacientes/VerPediatricaSlice';
+import VerRefraccionGeneralSlice from './features/pacientes/VerRefraccionGeneralSlice';
+import EditarBajaVisionSlice from './features/consultas/EditarBajaVisionSlice';
+import EditarNeonatoSlice from './features/consultas/EditarNeonatoSlice';
+import EditarPediatricaSlice from './features/consultas/EditarPediatricaSlice';
+import EditarConsultaGenericaSlice from './features/consultas/EditarConsultaGenericaSlice';
+import EditarGeneralSlice from './features/consultas/EditarGeneralSlice';
 
 const store = configureStore({
         reducer: {
@@ -32,7 +42,7 @@ const store = configureStore({
                 pacientes: pacientesSlice,
                 recetas: recetasSlice,
                 optometriaNeonatos: optometriaNeonatosReducer,
-                optometriaPediatrica: OptometriaPediatricaSlice ,
+                optometriaPediatrica: OptometriaPediatricaSlice,
                 ortoptica: OrtopticaV_BSlice,
                 optometriaGeneral: OptometriaGeneralSlice,
                 ultimaAtencion: ultimaAtencionSlice,
@@ -52,6 +62,16 @@ const store = configureStore({
                 crearRecetas: crearRecetasSlice,
                 verOrtoptica: VerOrtopticaSlice,
                 editarOrtoptica: EditarOrtopticaSlice,
+                verBajaVision: VerBajaVisionSlice,
+                verNeonatos: VerNeonatosSlice,
+                verConsultaGenerica: VerConsultaGenericaSlice,
+                verPediatrica: VerPediatricaSlice,
+                verRefraccionGeneral: VerRefraccionGeneralSlice,
+                editarBajaVision: EditarBajaVisionSlice,
+                editarNeonatos: EditarNeonatoSlice,
+                editarPediatrica: EditarPediatricaSlice,
+                editarConsultaGenerica: EditarConsultaGenericaSlice,
+                editarRefraccionGeneral: EditarGeneralSlice,
         }
 });
 

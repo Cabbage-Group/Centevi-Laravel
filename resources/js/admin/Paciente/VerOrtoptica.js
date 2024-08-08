@@ -17,7 +17,6 @@ const VerOrtoptica = () => {
 
     const dispatch = useDispatch();
     const { id, id_consulta } = useParams();
-    console.log(id, 'y', id_consulta)
 
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);

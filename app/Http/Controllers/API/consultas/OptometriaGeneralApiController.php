@@ -54,9 +54,11 @@ class OptometriaGeneralApiController extends Controller
     
 
     // Editar RefraccionGeneral
-    public function EditarRefraccionGeneral(Request $request, $id)
+    public function EditarRefraccionGeneral(Request $request, $pacienteId, $consultaId)
     {
-        $refraccionGeneral = RefraccionGeneral::find($id);
+        $refraccionGeneral = RefraccionGeneral::where('paciente', $pacienteId)
+                                ->where('id_consulta', $consultaId)
+                                ->first();
 
         if (!$refraccionGeneral) {
             return response()->json([
@@ -67,9 +69,9 @@ class OptometriaGeneralApiController extends Controller
 
         $validator = Validator::make($request->all(), [
             // Validaciones necesarias
-            'sucursal' => 'required|integer|max:255',
-            'doctor' => 'required|string|max:255',
-            'paciente' => 'required|integer|max:255',
+            'sucursal' => 'required|integer',
+            'doctor' => 'required|string',
+            'paciente' => 'required|integer',
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
@@ -133,6 +135,33 @@ class OptometriaGeneralApiController extends Controller
             'message' => 'Registro exitosamente',
             'dataRG' => $result,
         ], 200);
+    }
+
+    public function VerRefraccionGeneral ($id, $id_consulta)
+    {
+        // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
+        $ortoptica = RefraccionGeneral::where('paciente', $id)
+            ->where('id_consulta', $id_consulta)
+            ->first();
+    
+        // Verificar si el registro existe
+        if (!$ortoptica) {
+            return response()->json([
+                'status' => [
+                    'code' => 404,
+                    'message' => 'Registro not found',
+                ],
+            ], 404);
+        }
+    
+        // Formatear la respuesta
+        return response()->json([
+            'data' => $ortoptica,
+            'status' => [
+                'code' => 200,
+                'message' => 'Registro retrieved successfully',
+            ],
+        ]);
     }
 
 }

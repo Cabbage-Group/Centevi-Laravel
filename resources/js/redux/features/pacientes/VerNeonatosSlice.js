@@ -2,17 +2,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config.js';
 
-// Thunk para obtener un Ortoptica por ID de paciente
-export const fetchVerOrtoptica = createAsyncThunk(
-    'Ortoptica/fetchVerOrtoptica',
+// Thunk para obtener un NfetchVerNeonatos por ID de paciente
+export const fetchVerNeonatos = createAsyncThunk(
+    'VerNeonatos/fetchVerNeonatos',
     async ({ id, id_consulta } ) => {
-        const response = await axios.get(`${API}/ver-ortoptica/${id}/${id_consulta}`);
+        const response = await axios.get(`${API}/ver-neonatos/${id}/${id_consulta}`);
         return response.data;
     }
 );
 
-const VerOrtopticaSlice = createSlice({
-    name: 'verOrtoptica',
+const fetchVerNeonatosSlice = createSlice({
+    name: 'verNeonatos',
     initialState: {
         data: {},
         status: 'idle',
@@ -21,18 +21,18 @@ const VerOrtopticaSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchVerOrtoptica.pending, (state) => {
+            .addCase(fetchVerNeonatos.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchVerOrtoptica.fulfilled, (state, action) => {
+            .addCase(fetchVerNeonatos.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.data = action.payload.data;
             })
-            .addCase(fetchVerOrtoptica.rejected, (state, action) => {
+            .addCase(fetchVerNeonatos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
     },
 });
 
-export default VerOrtopticaSlice.reducer;
+export default fetchVerNeonatosSlice.reducer;

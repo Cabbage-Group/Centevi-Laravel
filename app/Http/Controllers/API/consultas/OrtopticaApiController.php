@@ -66,6 +66,7 @@ public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
         'sucursal' => 'required|integer',
         'doctor' => 'required|string',
         'paciente' => 'required|integer',
+        'id_terapia' => 'required|integer',
         'edad' => 'required|integer',
         'fecha_atencion' => 'required|date',
         // Otras validaciones aquí...

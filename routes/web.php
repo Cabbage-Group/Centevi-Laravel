@@ -22,12 +22,10 @@ Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
 Route::get('/api/pacientes/{id}', [PacientesApiController::class, 'VerPaciente']);
 Route::get('/api/sucursales', [SucursalesApiController::class, 'sucursales']);
 
-
 Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
-
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
@@ -35,15 +33,17 @@ Route::delete('/api/pacientes/{id}', [PacientesApiController::class, 'eliminarpa
 
 Route::get('/api/obtenerconsultagenerica/{paciente_id}', [PacientesApiController::class, 'obtenerconsultagenerica']);
 
+Route::get('/api/ver-neonatos/{id}/{id_consulta}', [NeonatosApiController::class, 'VerOptometriaNeonatos']);
 Route::get('/api/mostrar-neonatos', [NeonatosApiController::class, 'mostrarOptometriaNeonatos']);
 Route::post('/api/neonatos', [NeonatosApiController::class, 'CrearNeonatos']);
-Route::put('/api/neonatos/{id}', [NeonatosApiController::class, 'EditarNeonatos']);
+Route::put('/api/neonatos/{id}/{id_consulta}', [NeonatosApiController::class, 'EditarNeonatos']);
 Route::delete('/api/neonatos/{id}', [NeonatosApiController::class, 'DeleteNeonatos']);
 Route::get('/api/neonatos', [NeonatosApiController::class, 'ObtenerNeonatos']);
 
+Route::get('/api/ver-pediatrica/{id}/{id_consulta}', [PediatricaApiController::class, 'VerOptometriaPediatrica']);
 Route::get('/api/mostrar-pediatrica', [PediatricaApiController::class, 'mostrarOptometriaPediatrica']);
 Route::post('/api/pediatrica', [PediatricaApiController::class, 'crearPediatrica']);
-Route::put('/api/pediatrica/{id}', [PediatricaApiController::class, 'editarPediatrica']);
+Route::put('/api/pediatrica/{id}/{id_consulta}', [PediatricaApiController::class, 'editarPediatrica']);
 Route::delete('/api/pediatrica/{id}', [PediatricaApiController::class, 'eliminarPediatrica']);
 
 Route::get('/api/ver-ortoptica/{id}/{id_consulta}', [OrtopticaApiController::class, 'VerOrtoptica']);
@@ -52,19 +52,22 @@ Route::post('/api/ortoptica', [OrtopticaApiController::class, 'CrearOrtoptica'])
 Route::put('/api/ortoptica/{id}/{id_consulta}', [OrtopticaApiController::class, 'EditarOrtoptica']);
 Route::delete('/api/ortoptica/{id}', [OrtopticaApiController::class, 'DeleteOrtoptica']);
 
+Route::get('/api/ver-bajavision/{id}/{id_consulta}', [BajaVisionApiController::class, 'verBajaVision']);
 Route::get('/api/mostrar-bajavision', [BajaVisionApiController::class, 'mostrarBajaVision']);
 Route::post('/api/bajavision', [BajaVisionApiController::class, 'CrearBajaVision']);
-Route::put('/api/bajavision/{id}', [BajaVisionApiController::class, 'EditarBajaVision']);
+Route::put('/api/bajavision/{id}/{id_consulta}', [BajaVisionApiController::class, 'EditarBajaVision']);
 Route::delete('/api/bajavision/{id}', [BajaVisionApiController::class, 'DeleteBajaVision']);
 
+Route::get('/api/ver-refraccion/{id}/{id_consulta}', [OptometriaGeneralApiController::class, 'verRefraccionGeneral']);
 Route::get('/api/mostrar-refraccion', [OptometriaGeneralApiController::class, 'mostrarRefraccionGeneral']);
 Route::post('/api/ObtometriaGeneral', [OptometriaGeneralApiController::class, 'CrearRefraccionGeneral']);
-Route::put('/api/ObtometriaGeneral/{id}', [OptometriaGeneralApiController::class, 'EditarRefraccionGeneral']);
+Route::put('/api/ObtometriaGeneral/{id}/{id_consulta}', [OptometriaGeneralApiController::class, 'EditarRefraccionGeneral']);
 Route::delete('/api/ObtometriaGeneral/{id}', [OptometriaGeneralApiController::class, 'DeleteRefraccionGeneral']);
 
+Route::get('/api/ver-consultagenerica/{id}/{id_consulta}', [ConsultaGenericaController::class, 'VerConsultaGenerica']);
 Route::get('/api/mostrar-consultagenerica', [ConsultaGenericaController::class, 'mostrarconsultagenerica']);
 Route::post('/api/consultagenerica', [ConsultaGenericaController::class, 'Crearconsultagenerica']);
-Route::put('/api/consultagenerica/{id}', [ConsultaGenericaController::class, 'Editarconsultagenerica']);
+Route::put('/api/consultagenerica/{id}/{id_consulta}', [ConsultaGenericaController::class, 'Editarconsultagenerica']);
 Route::delete('/api/consultagenerica/{id}', [ConsultaGenericaController::class, 'Deleteconsultagenerica']);
 
 Route::get('/api/mostrar-historiaclinica', [HistoriaClinicaController::class, 'mostrarHistoriaClinica']);
