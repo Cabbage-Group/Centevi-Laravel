@@ -29,6 +29,8 @@ Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 
 Route::delete('/api/usuarios/{id}', [UsuariosApiController::class, 'delete']);
 
+Route::post('/api/usuarios', [UsuariosApiController::class, 'add']);
+
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 

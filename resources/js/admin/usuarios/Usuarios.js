@@ -1,42 +1,74 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsuarios, updateUsuario, deleteUsuario , updateEstadoUsuario} from '../../redux/features/usuarios/usuariosSlice.js';
+import { fetchUsuarios, updateUsuario, deleteUsuario , updateEstadoUsuario, createUsuario} from '../../redux/features/usuarios/usuariosSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import PaginationUsuarios from './PaginationUsuarios.js';
-import { useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 
 const Usuarios = () => {
 
     const dispatch = useDispatch();
-    const { meta, usuarios, status, error, totalPages } = useSelector((state) => state.usuarios);
+    const { meta, usuarios, status, error, totalPages, search } = useSelector((state) => state.usuarios);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedUsuario, setSelectedUsuario] = useState(null);
     const { sucursales } = useSelector((state) => state.sucursales);
-    const [previewImage, setPreviewImage] = useState('');
+    const [localSearch, setLocalSearch] = useState(search);
+    const [isEditMode, setIsEditMode] = useState(false); 
+    const [fotoPreview, setFotoPreview] = useState('');
+    const [file, setFile] = useState(null);
 
     const [formValues, setFormValues] = useState({
-        nombre: selectedUsuario?.nombre || '',
-        usuario: selectedUsuario?.usuario || '',
-        perfil: selectedUsuario?.perfil || '',
-        sucursal: selectedUsuario?.sucursal || '',
-        password: selectedUsuario?.password || ''
+        nombre: '',
+        usuario: '',
+        perfil: '',
+        sucursal: '',
+        password: '',
+        foto: null 
     });
 
+    
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setFormValues({
+            ...formValues,
+            foto: file
+        });
+
+        // Generar la vista previa de la imagen
+        if (file) {
+            const fileURL = URL.createObjectURL(file);
+            setFotoPreview(fileURL);
+        }
+    };
+
     useEffect(() => {
-        if (selectedUsuario) {
+        if (selectedUsuario && isEditMode) {
             setFormValues({
                 nombre: selectedUsuario.nombre || '',
                 usuario: selectedUsuario.usuario || '',
                 perfil: selectedUsuario.perfil || '',
                 sucursal: selectedUsuario.sucursal || '',
-                password: selectedUsuario.password || ''
+                password: '',
+                foto: null
+              
             });
-            setPreviewImage(selectedUsuario.foto || '');
+            setFotoPreview(selectedUsuario.foto || '');
+        } else {
+            setFormValues({
+                nombre: '',
+                usuario: '',
+                perfil: '',
+                sucursal: '',
+                password: '',
+                foto: null
+               
+            });
+            setFotoPreview('');
         }
-    }, [selectedUsuario]);
+    }, [selectedUsuario, isEditMode]);
 
     useEffect(() => {
         dispatch(fetchSucursales({}));
@@ -47,10 +79,12 @@ const Usuarios = () => {
     const [sortColumn, setSortColumn] = useState('nombre'); 
 
     useEffect(() => {
-        dispatch(fetchUsuarios({ page: currentPage, limit: 6, sortOrder, sortColumn }));
-    }, [dispatch, currentPage, sortOrder, sortColumn]);
+        dispatch(fetchUsuarios({ page: currentPage, limit: 7, sortOrder, sortColumn, search: localSearch }));
+    }, [dispatch,localSearch, currentPage, sortOrder, sortColumn]);
 
-
+    const handleSearchChange = (event) => {
+        setLocalSearch(event.target.value);
+    };
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -67,14 +101,23 @@ const Usuarios = () => {
 
     const handleEditClick = (usuario) => {
         setSelectedUsuario(usuario);
+        setIsEditMode(true);
+        setIsModalVisible(true);
+    };
+
+    const handleCreateClick = () => {
+        setSelectedUsuario(null);
+        setIsEditMode(false);
         setIsModalVisible(true);
     };
 
     const handleModalClose = () => {
         setIsModalVisible(false);
         setSelectedUsuario(null);
+        setFile(null);
     };
 
+    
 
 
     const handleChange = (e) => {
@@ -101,44 +144,78 @@ const Usuarios = () => {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        const formData = {
-            nombre: formValues.nombre,
-            usuario: formValues.usuario,
-            perfil: formValues.perfil,
-            sucursal: formValues.sucursal,
-            password: formValues.password
-        };
+         
+        const formData = new FormData();
+        formData.append('usuario', formValues.usuario);
+        formData.append('nombre', formValues.nombre);
+        formData.append('password', formValues.password);
+        formData.append('perfil', formValues.perfil);
+        formData.append('sucursal', formValues.sucursal);
 
-        console.log('formData:', formData);
 
-        dispatch(updateUsuario({
-            id_usuario: selectedUsuario.id_usuario,
-            data: formData
-        }))
-            .then(() => {
+        if (formValues.foto) { 
+            formData.append('foto', formValues.foto);
+            console.log('Foto added to formData:', formValues.foto);
+        } else {
+            console.log('No photo to upload');
+        }
 
-                Swal.fire({
-                    title: 'Éxito!',
-                    text: 'Usuario actualizado correctamente.',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    didClose: () => {
+        if (isEditMode) {
+            formData.append('_method', 'PUT');
 
-                        window.location.reload();
-                    }
-
+            for (let pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
+            }
+    
+            dispatch(updateUsuario({
+                id_usuario: selectedUsuario.id_usuario,
+                data: formData
+            }))
+                .then(() => {
+                    Swal.fire({
+                        title: 'Éxito!',
+                        text: 'Usuario actualizado correctamente.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        didClose: () => {
+                            window.location.reload();
+                        }
+                      
+                       
+                    });
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Hubo un problema al actualizar el usuario.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
-
-            })
-            .catch((error) => {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Hubo un problema al actualizar el usuario.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
+        } else {
+            dispatch(createUsuario(formData))
+                .then(() => {
+                    Swal.fire({
+                        title: 'Éxito!',
+                        text: 'Usuario creado correctamente.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        didClose: () => {
+                            window.location.reload();
+                        }
+                       
+                    });
+                })
+                .catch((error) => {
+                    const errorMessage = error.response?.data?.message || 'Hubo un problema al crear el usuario.';
+                    Swal.fire({
+                        title: 'Error!',
+                        text: errorMessage,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
-            });
-
+        }
     };
 
     const handleDeleteClick = (usuario) => {
@@ -153,7 +230,9 @@ const Usuarios = () => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                dispatch(deleteUsuario(usuario.id_usuario))
+               
+                 dispatch(deleteUsuario(usuario.id_usuario))
+                 
                     .then(() => {
                         Swal.fire({
                             title: 'Eliminado!',
@@ -161,11 +240,18 @@ const Usuarios = () => {
                             icon: 'success',
                             confirmButtonText: 'OK'
                         });
+
+                        if (usuarios.length === 1 && currentPage > 1) {
+                            setCurrentPage(currentPage - 1);
+                        } else {
+                            dispatch(fetchUsuarios({ page: currentPage, limit: 7, sortOrder, sortColumn, search: localSearch }));
+                        }
                     })
                     .catch((error) => {
+                        const errorMessage = error.response?.data?.message || 'Hubo un problema al actualizar el usuario.';
                         Swal.fire({
                             title: 'Error!',
-                            text: 'Hubo un problema al eliminar el usuario.',
+                            text: errorMessage,
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
@@ -188,7 +274,12 @@ const Usuarios = () => {
                                 <div className="row layout-top-spacing" id="cancel-row">
                                     <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                                         <div className="widget-content widget-content-area br-6">
-                                            <button className="btn btn-success mt-3 ml-4" data-target="#modalAgregarUsuario" data-toggle="modal">
+                                            <button 
+                                            className="btn btn-success mt-3 ml-4" 
+                                            data-target="#modalAgregarUsuario" 
+                                            data-toggle="modal"
+                                            onClick={handleCreateClick}
+                                            >
                                                 Agregar usuario
                                             </button>
                                             <div className="table-responsive">
@@ -203,7 +294,14 @@ const Usuarios = () => {
                                                                         <circle cx="11" cy="11" r="8" />
                                                                         <line x1="21" x2="16.65" y1="21" y2="16.65" />
                                                                     </svg>
-                                                                    <input aria-controls="zero-config" className="form-control" placeholder="Search..." type="search" />
+                                                                    <input
+                                                                            aria-controls="html5-extension"
+                                                                            className="form-control"
+                                                                            placeholder="Search..."
+                                                                            type="search"
+                                                                            value={localSearch}
+                                                                            onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                                                        />
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -226,6 +324,7 @@ const Usuarios = () => {
                                                                 <thead>
                                                                     <tr role="row">
                                                                         <th
+                                                                        
                                                                             aria-controls="zero-config"
                                                                             aria-label="#: activate to sort column descending"
                                                                             aria-sort="ascending"
@@ -235,6 +334,7 @@ const Usuarios = () => {
                                                                                 width: '10.5234px'
                                                                             }}
                                                                             tabIndex="0"
+                                                                            
                                                                         >
                                                                             #
                                                                         </th>
@@ -338,9 +438,12 @@ const Usuarios = () => {
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    {usuarios.map((usuario) => (
+                                                                    {usuarios.map((usuario, index) => (
                                                                         <tr key={usuario.id_usuario}>
-                                                                            <td className="sorting_1">{usuario.id_usuario}</td>
+                                                                           <td>
+                                                                                {index + 1 + (currentPage - 1) * 6} 
+                                                                               
+                                                                            </td>
                                                                             <td>{usuario.nombre}</td>
                                                                             <td>{usuario.usuario}</td>
                                                                             <td>
@@ -486,20 +589,22 @@ const Usuarios = () => {
                     </div>
                 </div>
             </div>
+         {isModalVisible && (
             <div
                 aria-hidden="true"
                 className="modal fade"
                 id="modalAgregarUsuario"
-                style={{
-                    display: 'none'
-                }}
+                
             >
-                <div className="modal-dialog">
+                <div 
+                    className="modal-dialog" 
+                    >
                     <div className="modal-content">
                         <form
                             encType="multipart/form-data"
                             method="post"
                             role="form"
+                            onSubmit={handleFormSubmit}
                         >
                             <div
                                 className="modal-header"
@@ -512,6 +617,7 @@ const Usuarios = () => {
                                     className="close"
                                     data-dismiss="modal"
                                     type="button"
+                                    onClick={handleModalClose}
 
                                 >
                                     ×
@@ -529,10 +635,11 @@ const Usuarios = () => {
                                             </span>
                                             <input
                                                 className="form-control input-lg"
-                                                name="nuevoNombre"
+                                                name="nombre"
                                                 placeholder="Ingresar nombre"
                                                 required
                                                 type="text"
+                                                onChange={handleChange}
                                             />
                                         </div>
                                     </div>
@@ -544,10 +651,11 @@ const Usuarios = () => {
                                             <input
                                                 className="form-control input-lg"
                                                 id="nuevoUsuario"
-                                                name="nuevoUsuario"
+                                                name="usuario"
                                                 placeholder="Ingresar usuario"
                                                 required
                                                 type="text"
+                                                onChange={handleChange}
                                             />
                                         </div>
                                     </div>
@@ -558,10 +666,11 @@ const Usuarios = () => {
                                             </span>
                                             <input
                                                 className="form-control input-lg"
-                                                name="nuevoPassword"
+                                                name="password"
                                                 placeholder="Ingresar contraseña"
                                                 required
                                                 type="password"
+                                                onChange={handleChange}
                                             />
                                         </div>
                                     </div>
@@ -572,7 +681,9 @@ const Usuarios = () => {
                                             </span>
                                             <select
                                                 className="form-control input-lg"
-                                                name="nuevoPerfil"
+                                                name="perfil"
+                                                onChange={handleChange}
+                                                required
                                             >
                                                 <option value="">
                                                     Selecionar perfil
@@ -599,26 +710,15 @@ const Usuarios = () => {
                                             </span>
                                             <select
                                                 className="form-control input-lg"
-                                                name="nuevaSucursal"
-                                            >
-                                                <option value="">
-                                                    Selecionar Sucursal
-                                                </option>
-                                                <option value="3">
-                                                    CENTEVI Centro Médico San Judas Tadeo
-                                                </option>
-                                                <option value="4">
-                                                    CENTEVI Consultorios Medicos Paitilla
-                                                </option>
-                                                <option value="5">
-                                                    CENTEVI Sede Chitre
-                                                </option>
-                                                <option value="7">
-                                                    CENTEVI El Dorado
-                                                </option>
-                                                <option value="8">
-                                                    CENTEVI Giras Interior del Pais
-                                                </option>
+                                                name="sucursal"
+                                                onChange={handleChange}
+                                                required                                            >
+                                                <option value={""}>Selecionar Sucursal</option>
+                                                    {sucursales.map((sucursal) => (
+                                                        <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                                                            {sucursal.nombre}
+                                                        </option>
+                                                    ))}
                                             </select>
                                         </div>
                                     </div>
@@ -628,17 +728,24 @@ const Usuarios = () => {
                                         </div>
                                         <input
                                             className="nuevaFoto"
-                                            name="nuevaFoto"
+                                            name="foto"
                                             type="file"
+                                            accept="image/*"
+                                            required
+                                            onChange={handleFileChange}
+                                            
                                         />
                                         <p className="help-block">
                                             Peso máximo de la foto 2MB
                                         </p>
-                                        <img
-                                            className="img-thumbnail previsualizar"
-                                            src="vistas/img/usuarios/default/anonymous.png"
-                                            width="100px"
-                                        />
+                                        {/* Vista previa de la imagen */}
+                                        {fotoPreview && (
+                                            <img
+                                                src={fotoPreview}
+                                                alt="Vista previa"
+                                                style={{ width: '100px', height: 'auto', marginTop: '10px' }}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -647,6 +754,7 @@ const Usuarios = () => {
                                     className="btn btn-default pull-left"
                                     data-dismiss="modal"
                                     type="button"
+                                    onClick={handleModalClose}
                                 >
                                     Salir
                                 </button>
@@ -661,15 +769,16 @@ const Usuarios = () => {
                     </div>
                 </div>
             </div>
+        )}
             {isModalVisible && selectedUsuario && (
                 <div
                     className="modal fade show"
                     id="modalEditarUsuario"
                     role="dialog"
-                    onClick={handleModalClose}
+                    
                 >
 
-                    <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-dialog">
                         <div className="modal-content">
 
                             <form
@@ -815,15 +924,21 @@ const Usuarios = () => {
                                                 className="nuevaFoto"
                                                 name="editarFoto"
                                                 type="file"
+                                                accept="image/*"
+                                                
+                                                onChange={handleFileChange}
                                             />
                                             <p className="help-block">
                                                 Peso máximo de la foto 2MB
                                             </p>
-                                            <img
-                                                className="img-thumbnail previsualizarEditar"
-                                                src={previewImage || selectedUsuario?.foto}
-                                                width="100px"
-                                            />
+                                             {/* Vista previa de la imagen */}
+                                            {fotoPreview && (
+                                                <img
+                                                    src={fotoPreview}
+                                                    alt="Vista previa"
+                                                    style={{ width: '100px', height: 'auto', marginTop: '10px' }}
+                                                />
+                                            )}
                                             <input
                                                 id="fotoActual"
                                                 name="fotoActual"

@@ -4,10 +4,10 @@ import API from '../../../config/config';
 
 export const fetchUsuarios = createAsyncThunk(
     'usuarios/fetchUsuarios',
-    async ({ page = 1, limit = 2, sortOrder = 'asc', sortColumn = 'nombre' }) => {
+    async ({ page = 1, limit = 7, sortOrder = 'asc', sortColumn = 'nombre', search = '' }) => {
         try {
             const response = await axios.get(`${API}/usuarios`, {
-                params: { page, limit, sortOrder, sortColumn }
+                params: { page, limit, sortOrder, sortColumn, search }
             });
 
 
@@ -19,23 +19,31 @@ export const fetchUsuarios = createAsyncThunk(
     }
 );
 
+
 export const updateUsuario = createAsyncThunk(
     'usuarios/updateUsuario',
-    async ({ id_usuario, data}) => {
+    async ({ id_usuario, data }) => {
         try {
-            console.log('id1:',id_usuario)
-            console.log('data2:',data)
-           
-            const response = await axios.put(`${API}/usuarios/${id_usuario}`, data);
-           
+            // Crear FormData y agregar el campo _method
+            const formData = new FormData();
+            formData.append('_method', 'PUT'); // Agregar el campo _method para simular PUT
+            for (const [key, value] of data.entries()) {
+                formData.append(key, value);
+            }
+
+            const response = await axios.post(`${API}/usuarios/${id_usuario}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Asegúrate de que el tipo de contenido es correcto
+                },
+            });
+
             return response.data;
         } catch (error) {
-            console.error('Error updating usuario:', error.response.data);
+            console.error('Error updating usuario:', error.response?.data || error.message);
             throw error;
         }
     }
 );
-
 export const deleteUsuario = createAsyncThunk(
     'usuarios/deleteUsuario',
     async (id_usuario) => {
@@ -44,6 +52,19 @@ export const deleteUsuario = createAsyncThunk(
             return id_usuario;  // Devuelve el ID del usuario eliminado para que pueda ser usado en el reducer
         } catch (error) {
             console.error('Error deleting usuario:', error.response.data);
+            throw error;
+        }
+    }
+);
+
+export const createUsuario = createAsyncThunk(
+    'usuarios/createUsuario',
+    async (newUsuarioData) => {
+        try {
+            const response = await axios.post(`${API}/usuarios`, newUsuarioData);
+            return response.data;  // Retorna los datos del usuario recién creado
+        } catch (error) {
+            console.error('Error creating usuario:', error.response.data);
             throw error;
         }
     }
@@ -71,6 +92,7 @@ const usuariosSlice = createSlice({
         meta: {},
         status: 'idle',
         error: null,
+        search: ''
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -124,6 +146,17 @@ const usuariosSlice = createSlice({
                 );
             })
             .addCase(updateEstadoUsuario.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(createUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(createUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.usuarios.push(action.payload.data);  // Agrega el nuevo usuario a la lista
+            })
+            .addCase(createUsuario.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
