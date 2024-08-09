@@ -4,10 +4,10 @@ import API from '../../../config/config';
 
 export const fetchUsuarios = createAsyncThunk(
     'usuarios/fetchUsuarios',
-    async ({ page = 1, limit = 2, sortOrder = 'asc', sortColumn = 'nombre' }) => {
+    async ({ page = 1, limit = 7, sortOrder = 'asc', sortColumn = 'nombre', search = '' }) => {
         try {
             const response = await axios.get(`${API}/usuarios`, {
-                params: { page, limit, sortOrder, sortColumn }
+                params: { page, limit, sortOrder, sortColumn, search }
             });
 
 
@@ -18,6 +18,58 @@ export const fetchUsuarios = createAsyncThunk(
         }
     }
 );
+
+
+export const updateUsuario = createAsyncThunk(
+    'usuarios/updateUsuario',
+    async ({ id_usuario, data }) => {
+        try {
+            // Crear FormData y agregar el campo _method
+            const formData = new FormData();
+            formData.append('_method', 'PUT'); // Agregar el campo _method para simular PUT
+            for (const [key, value] of data.entries()) {
+                formData.append(key, value);
+            }
+
+            const response = await axios.post(`${API}/usuarios/${id_usuario}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Asegúrate de que el tipo de contenido es correcto
+                },
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Error updating usuario:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+);
+export const deleteUsuario = createAsyncThunk(
+    'usuarios/deleteUsuario',
+    async (id_usuario) => {
+        try {
+            await axios.delete(`${API}/usuarios/${id_usuario}`);
+            return id_usuario;  // Devuelve el ID del usuario eliminado para que pueda ser usado en el reducer
+        } catch (error) {
+            console.error('Error deleting usuario:', error.response.data);
+            throw error;
+        }
+    }
+);
+
+export const createUsuario = createAsyncThunk(
+    'usuarios/createUsuario',
+    async (newUsuarioData) => {
+        try {
+            const response = await axios.post(`${API}/usuarios`, newUsuarioData);
+            return response.data;  // Retorna los datos del usuario recién creado
+        } catch (error) {
+            console.error('Error creating usuario:', error.response.data);
+            throw error;
+        }
+    }
+);
+
 
 export const updateEstadoUsuario = createAsyncThunk(
     'usuarios/updateEstadoUsuario',
@@ -32,7 +84,6 @@ export const updateEstadoUsuario = createAsyncThunk(
     }
 );
 
-
 const usuariosSlice = createSlice({
     name: 'usuarios',
     initialState: {
@@ -41,6 +92,7 @@ const usuariosSlice = createSlice({
         meta: {},
         status: 'idle',
         error: null,
+        search: ''
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -57,6 +109,31 @@ const usuariosSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message;
             })
+            .addCase(updateUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const index = state.usuarios.findIndex(receta => receta.id_usuario === action.payload.data.id_usuario);
+                if (index !== -1) {
+                    state.usuarios[index] = action.payload.data;
+                }
+            })
+            .addCase(updateUsuario.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(deleteUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.usuarios = state.usuarios.filter(usuario => usuario.id_usuario !== action.payload);
+            })
+            .addCase(deleteUsuario.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
             .addCase(updateEstadoUsuario.pending, (state) => {
                 state.status = 'loading';
             })
@@ -69,6 +146,17 @@ const usuariosSlice = createSlice({
                 );
             })
             .addCase(updateEstadoUsuario.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(createUsuario.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(createUsuario.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.usuarios.push(action.payload.data);  // Agrega el nuevo usuario a la lista
+            })
+            .addCase(createUsuario.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

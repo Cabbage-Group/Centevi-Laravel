@@ -34,6 +34,9 @@ import EditarNeonatoSlice from './features/consultas/EditarNeonatoSlice';
 import EditarPediatricaSlice from './features/consultas/EditarPediatricaSlice';
 import EditarConsultaGenericaSlice from './features/consultas/EditarConsultaGenericaSlice';
 import EditarGeneralSlice from './features/consultas/EditarGeneralSlice';
+import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
+import editarRecetasSlice from './features/recetas/editarRecetasSlice';
+
 
 const store = configureStore({
         reducer: {
@@ -71,7 +74,10 @@ const store = configureStore({
                 editarNeonatos: EditarNeonatoSlice,
                 editarPediatrica: EditarPediatricaSlice,
                 editarConsultaGenerica: EditarConsultaGenericaSlice,
-                editarRefraccionGeneral: EditarGeneralSlice,
+                verUnaReceta: verUnaRecetaSlice,
+                editarReceta: editarRecetasSlice
+                
+
         }
 });
 

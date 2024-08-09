@@ -2,6 +2,8 @@ require('./bootstrap');
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 import Login from './components/auth/Login.js';
 import Sidebar from './components/partials/sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
@@ -26,8 +28,6 @@ import TerapiasDiarias from './admin/reportes/TerapiasDiarias.js'
 import VerReportes from './admin/reportes/VerReportes.js';
 import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
 import EditarPaciente from './admin/Paciente/EditarPaciente.js';
-import { Provider } from 'react-redux';
-import store from './redux/store';
 import VerOrtoptica from './admin/Paciente/VerOrtoptica.js';
 import EditarOrtoptica from './admin/consulta/EditarOrtoptica.js';
 import VerBajaVision from './admin/Paciente/VerBajaVision.js';
@@ -40,6 +40,8 @@ import EditarNeonatos from './admin/consulta/EditarNeonatos.js';
 import EditarPediatra from './admin/consulta/EditarPediatra.js';
 import EditarConsultaGenerica from './admin/consulta/EditarConsultaGenerica.js';
 import EditarGeneral from './admin/consulta/EditarGeneral.js';
+import SelectReceta from './admin/recetas/SelectReceta.js';
+import EditarReceta from './admin/recetas/EditarReceta.js';
 
 function AppRouter() {
     return (
@@ -91,6 +93,8 @@ function AppRouter() {
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
 
                     <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+                    <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
+                    <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
                 </Routes>
             </Router>
         </Provider>

@@ -26,6 +26,8 @@ Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
+Route::delete('/api/usuarios/{id}', [UsuariosApiController::class, 'delete']);
+Route::post('/api/usuarios', [UsuariosApiController::class, 'add']);
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
@@ -76,22 +78,18 @@ Route::put('/api/historiaclinica/{id}', [HistoriaClinicaController::class, 'Edit
 Route::delete('/api/historiaclinica/{id}', [HistoriaClinicaController::class, 'DeleteHistoriaClinica']);
 
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
-
 Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
-
 Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'PacientesTerapiasDiarias']);
-
 Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarCantidadPacientesSinAtender']);
-
 Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
-
 Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
-
 Route::post('/api/verificar-cedula', [PacientesApiController::class, 'verificarCedula']);
 
 Route::get('/api/recetas', [RecetasApiController::class, 'recetas']);
-
 Route::post('/api/recetas', [RecetasApiController::class, 'crearRecetas']);
+Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta']);
+Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
+Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
 
 
 Route::get('/{any}', function () {
