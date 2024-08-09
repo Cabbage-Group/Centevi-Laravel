@@ -14,11 +14,12 @@ export const crearHistoriaClinica = createAsyncThunk(
     }
 );
 
+
 const HistoriaClinicaSlice = createSlice({
     name: 'HistoriaClinica',
     initialState: {
         HistoriaClinica: null,
-        status: 'idle', 
+        status: 'idle',
         error: null,
     },
     reducers: {},

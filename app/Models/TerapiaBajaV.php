@@ -32,4 +32,6 @@ class TerapiaBajaV extends Model
         'completado' => 'boolean',
         'pagado' => 'boolean',
     ];
+
+    public $timestamps = false;
 }

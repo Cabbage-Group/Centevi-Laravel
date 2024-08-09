@@ -15,7 +15,7 @@ const OptometriaGeneral = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
@@ -43,7 +43,7 @@ const OptometriaGeneral = () => {
         },
         ojo_dominante: '',
         mano_dominante: '',
-        lensometria: [
+        lensometria: 
             {
                 esfera_od: '',
                 cilindro_od: '',
@@ -56,23 +56,21 @@ const OptometriaGeneral = () => {
                 p_base_oi: '',
                 add_oi: ''
             },
-        ],
-        lensometria_extra: [
+        lensometria_extra: 
             {
                 len_tipo_lentes: '',
                 len_filtros: '',
                 len_tiempo: '',
                 len_tipo_aro: ''
             },
-        ],
-        sa_pp: [
+
+        sa_pp: 
             {
                 sa_od: '',
                 pp_od: '',
                 sa_oi: '',
                 pp_oi: ''
             },
-        ],
         visuscopia: {
             hirschberg: "",
             ct_vl: "",

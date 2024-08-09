@@ -16,7 +16,7 @@ const OptometriaNeonatos = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'ejmplo doctor',
-        id_terapia: '1',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
@@ -34,7 +34,7 @@ const OptometriaNeonatos = () => {
         complicaciones: '',
         perinatales: '',
         postnatales: '',
-        agudeza_visual: [
+        agudeza_visual: 
             {
                 tambor: '',
                 fija: '',
@@ -43,9 +43,8 @@ const OptometriaNeonatos = () => {
                 test: '',
                 a_oi: '',
                 a_ao: ''
-            }
-        ],
-        lensometria: [
+            },
+        lensometria: 
             {
                 esfera_od: '',
                 cilindro_od: '',
@@ -58,26 +57,23 @@ const OptometriaNeonatos = () => {
                 p_base_oi: '',
                 add_oi: ''
             },
-        ],
 
-        lensometria_extra: [
+        lensometria_extra: 
             {
                 len_tipo_lentes: '',
                 len_filtros: '',
                 len_tiempo: '',
                 len_tipo_aro: ''
             },
-        ],
-
-        sa_pp: [
+        sa_pp: 
             {
                 sa_od: '',
                 pp_od: '',
                 sa_oi: '',
                 pp_oi: ''
             },
-        ],
-        pruebas_extras: [
+        
+        pruebas_extras: 
             {
                 hirschberg: '',
                 krismsky: '',
@@ -92,8 +88,7 @@ const OptometriaNeonatos = () => {
                 fotomotor_oi: '',
                 fotomotor_consensual: ''
             },
-        ],
-        refraccion: [
+        refraccion: 
             {
                 refraccion_tipo_lentes: '',
                 refraccion_pd: '',
@@ -112,7 +107,6 @@ const OptometriaNeonatos = () => {
                 p_base_oi_f: '',
                 add_oi_f: ''
             },
-        ],
         conducta_seguir: '',
         plan_versiones: '',
         fecha_creacion: '',

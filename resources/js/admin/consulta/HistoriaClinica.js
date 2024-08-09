@@ -15,7 +15,7 @@ const HistoriaClinica = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',

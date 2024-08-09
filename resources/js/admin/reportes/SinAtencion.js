@@ -9,7 +9,6 @@ const SinAtencion = () => {
     const { pacientesSinAtencion, status, error, meta, totalPages} = useSelector((state) => state.pacientesSinAtencion);
     const [currentPage, setCurrentPage] = useState(1);
 
-   
     useEffect(() => {
         dispatch(fetchPacientesSinAtencion({ page: currentPage, limit: 20}));
     }, [dispatch, currentPage]);

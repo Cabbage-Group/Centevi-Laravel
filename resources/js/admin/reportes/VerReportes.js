@@ -1,13 +1,11 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
-import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSlice';
+import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSilce';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
-
-
 
 
 const ReportePaciente = () => {

@@ -15,7 +15,7 @@ const BajaVision = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
@@ -26,7 +26,7 @@ const BajaVision = () => {
         medicamentos: '',
         tratamientos: '',
         dx_oft_princ: '',
-        objetivos:'',
+        objetivos: '',
         av_sc: {
             av_sc_od_vl: "",
             av_sc_oi_vl: "",
@@ -43,68 +43,68 @@ const BajaVision = () => {
             av_cc_od_ph: "",
             av_cc_oi_ph: ""
         },
-        vision_exentrica:{
-            ve_D:"",
-            ve_I:""
+        vision_exentrica: {
+            ve_D: "",
+            ve_I: ""
         },
-        lensometria: [
-            {
-                esfera_od: '',
-                cilindro_od: '',
-                eje_od: '',
-                p_base_od: '',
-                add_od: '',
-                esfera_oi: '',
-                cilindro_oi: '',
-                eje_oi: '',
-                p_base_oi: '',
-                add_oi: ''
-            },
-        ],
-        lensometria_extra: [
-            {
-                len_tipo_lentes: '',
-                len_filtros: '',
-                len_tiempo: '',
-                len_tipo_aro: ''
-            },
-        ],
+        lensometria:
+        {
+            esfera_od: '',
+            cilindro_od: '',
+            eje_od: '',
+            p_base_od: '',
+            add_od: '',
+            esfera_oi: '',
+            cilindro_oi: '',
+            eje_oi: '',
+            p_base_oi: '',
+            add_oi: ''
+        },
+
+        lensometria_extra:
+        {
+            len_tipo_lentes: '',
+            len_filtros: '',
+            len_tiempo: '',
+            len_tipo_aro: ''
+        },
+
         cv_so: {
-            cv_od:"",
-            so_od:"",
-            cv_oi:"",
-            so_oi:""
+            cv_od: "",
+            so_od: "",
+            cv_oi: "",
+            so_oi: ""
         },
-        amsler:{
-            amsler_od:"",
-            amsler_oi:""
+        amsler: {
+            amsler_od: "",
+            amsler_oi: ""
         },
-        sensibilidad_c:{
-            sensibilidad_od:"",
-            sensibilidad_oi:""
+        sensibilidad_c: {
+            sensibilidad_od: "",
+            sensibilidad_oi: ""
         },
         refraccion: {
-            receta_lejos_od:"",
-            av_vl_od:"",
-            receta_cerca_od:"",
-            av_vp_od:"",
-            receta_lejos_oi:"",
-            av_vl_oi:"",
-            receta_cerca_oi:"",
-            av_vp_oi:"",
-            tipo_lente_lejos:"",
-            tipo_lente_cerca:""
+            receta_lejos_od: "",
+            av_vl_od: "",
+            receta_cerca_od: "",
+            av_vp_od: "",
+            receta_lejos_oi: "",
+            av_vl_oi: "",
+            receta_cerca_oi: "",
+            av_vp_oi: "",
+            tipo_lente_lejos: "",
+            tipo_lente_cerca: ""
         },
         pruebas: {
-            vl_luces:"",
-            vp_luces:"",
-            vision_color:"",
-            prueba_od:"",
-            prueba_oi:""
+            vl_luces: "",
+            vp_luces: "",
+            vision_color: "",
+            prueba_od: "",
+            prueba_oi: ""
         },
-        ayudas_opticas:'',
-        ayudas_no_opticas:'',
-        plan_rehabilitacion:'',
+        ayudas_opticas: '',
+        ayudas_no_opticas: '',
+        plan_rehabilitacion: '',
         plan_versiones: '',
         fecha_creacion: '',
         editado: '',
