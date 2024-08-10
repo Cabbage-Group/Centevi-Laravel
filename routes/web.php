@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\API\Documentos\DocumentosPacientesApiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\usuarios\UsuariosApiController;
 use App\Http\Controllers\API\sucursales\SucursalesApiController;
@@ -13,12 +14,10 @@ use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController; 
-use App\Http\Controllers\API\consultas\HistoriaClinicaApiController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
 use App\Http\Controllers\API\terapias\Terapia_Bajav_ApiController;
 use App\Http\Controllers\API\terapias\Terapias_Bajav_ApiController;
-use App\Models\Pacientes;
-use App\Models\TerapiasBajaV;
+
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
@@ -29,11 +28,8 @@ Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
-
 Route::delete('/api/usuarios/{id}', [UsuariosApiController::class, 'delete']);
-
 Route::post('/api/usuarios', [UsuariosApiController::class, 'add']);
-
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
@@ -84,28 +80,22 @@ Route::put('/api/historiaclinica/{id}', [HistoriaClinicaController::class, 'Edit
 Route::delete('/api/historiaclinica/{id}', [HistoriaClinicaController::class, 'DeleteHistoriaClinica']);
 
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
-
 Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
-
 Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'PacientesTerapiasDiarias']);
-
 Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarCantidadPacientesSinAtender']);
-
 Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
-
 Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
-
 Route::post('/api/verificar-cedula', [PacientesApiController::class, 'verificarCedula']);
 
 Route::get('/api/recetas', [RecetasApiController::class, 'recetas']);
-
 Route::post('/api/recetas', [RecetasApiController::class, 'crearRecetas']);
-
 Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta']);
-
 Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
-
 Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
+
+Route::post('/api/documentos/subir', [DocumentosPacientesApiController::class, 'uploadDocument']);
+Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::class, 'index']);
+Route::delete('/api/documentos/{idDocumento}', [DocumentosPacientesApiController::class, 'destroy']);
 
 
 Route::get('/api/terapias_bajav/{id_paciente}/{id_terapia}', [Terapias_Bajav_ApiController::class, 'verUnaTerapias_Bajav']);

@@ -1,4 +1,5 @@
 {
+
     "private": true,
     "scripts": {
         "dev": "npm run development",
@@ -47,3 +48,4 @@
         "yup": "^1.4.0"
     }
 }
+

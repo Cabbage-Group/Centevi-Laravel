@@ -2292,8 +2292,21 @@
   height: 100%;
   border: none;
   background-color: #fff; }
-  .widget-one .widget-content {
-    font-size: 14px; }
+
+
+.widget-one .widget-content {
+
+font-size: 14px; 
+
+    font-size: 14px; 
+    padding: 20px;
+    position: relative;
+    background-color: #fff;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+    
+
   .widget-one .w-numeric-value {
     position: absolute;
     display: flex;

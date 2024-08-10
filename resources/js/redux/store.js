@@ -22,8 +22,6 @@ import MostrarConsultaGenerica from './features/pacientes/MostrarConsultaGeneric
 import crearPacientesSlice from './features/pacientes/crearPacientesSlice';
 import recetasSlice from './features/recetas/recetasSlice';
 import crearRecetasSlice from './features/recetas/crearRecetasSlice';
-import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
-import editarRecetasSlice from './features/recetas/editarRecetasSlice';
 import VerOrtopticaSlice from './features/pacientes/VerOrtopticaSlice';
 import EditarOrtopticaSlice from './features/consultas/EditarOrtopticaSlice';
 import VerBajaVisionSlice from './features/pacientes/VerBajaVisionSlice';
@@ -36,6 +34,12 @@ import EditarNeonatoSlice from './features/consultas/EditarNeonatoSlice';
 import EditarPediatricaSlice from './features/consultas/EditarPediatricaSlice';
 import EditarConsultaGenericaSlice from './features/consultas/EditarConsultaGenericaSlice';
 import EditarGeneralSlice from './features/consultas/EditarGeneralSlice';
+import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
+import editarRecetasSlice from './features/recetas/editarRecetasSlice';
+
+import DocumentosPacientesSlice from './features/documentos/DocumentosPacientesSlice';
+import VerDocumentosSlice from './features/documentos/VerDocumentosSlice';
+
 
 
 const store = configureStore({
@@ -63,8 +67,21 @@ const store = configureStore({
                 mostrarConsultaGenerica: MostrarConsultaGenerica,
                 crearPacientes: crearPacientesSlice,
                 crearRecetas: crearRecetasSlice,
+                verOrtoptica: VerOrtopticaSlice,
+                editarOrtoptica: EditarOrtopticaSlice,
+                verBajaVision: VerBajaVisionSlice,
+                verNeonatos: VerNeonatosSlice,
+                verConsultaGenerica: VerConsultaGenericaSlice,
+                verPediatrica: VerPediatricaSlice,
+                verRefraccionGeneral: VerRefraccionGeneralSlice,
+                editarBajaVision: EditarBajaVisionSlice,
+                editarNeonatos: EditarNeonatoSlice,
+                editarPediatrica: EditarPediatricaSlice,
+                editarConsultaGenerica: EditarConsultaGenericaSlice,
+                editarGeneral: EditarGeneralSlice,
                 verUnaReceta: verUnaRecetaSlice,
                 editarReceta: editarRecetasSlice,
+
                 verOrtoptica: VerOrtopticaSlice,
                 editarOrtoptica: EditarOrtopticaSlice,
                 verBajaVision: VerBajaVisionSlice,
@@ -77,6 +94,11 @@ const store = configureStore({
                 editarPediatrica: EditarPediatricaSlice,
                 editarConsultaGenerica: EditarConsultaGenericaSlice,
                 editarRefraccionGeneral: EditarGeneralSlice,
+
+                subirDocumento: DocumentosPacientesSlice,
+                verDocumento: VerDocumentosSlice,
+                
+
         }
 });
 

@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import store from './redux/store';
 import Login from './components/auth/Login.js';
 import Sidebar from './components/partials/sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
@@ -29,6 +31,7 @@ import VerReportes from './admin/reportes/VerReportes.js';
 import HistoriaPaciente from './admin/Paciente/HistoriaPaciente.js';
 import EditarPaciente from './admin/Paciente/EditarPaciente.js';
 
+
 import VerOrtoptica from './admin/Paciente/VerOrtoptica.js';
 import EditarOrtoptica from './admin/consulta/EditarOrtoptica.js';
 import VerBajaVision from './admin/Paciente/VerBajaVision.js';
@@ -41,6 +44,8 @@ import EditarNeonatos from './admin/consulta/EditarNeonatos.js';
 import EditarPediatra from './admin/consulta/EditarPediatra.js';
 import EditarConsultaGenerica from './admin/consulta/EditarConsultaGenerica.js';
 import EditarGeneral from './admin/consulta/EditarGeneral.js';
+
+
 
 import SelectReceta from './admin/recetas/SelectReceta.js';
 import EditarReceta from './admin/recetas/EditarReceta.js';
@@ -94,11 +99,15 @@ function AppRouter() {
                     <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
 
+                    <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
                     <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
-
                     <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
+
                     <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+
+
+                    <Route path="/terapia-pediatrica/:id_receta" element={<Sidebar component={<terapiaOptomtriaPediatrica/>} />} />
 
                 </Routes>
             </Router>

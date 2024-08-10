@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
 class VerifyCsrfToken extends Middleware
 {
+
     /**
      * The URIs that should be excluded from CSRF verification.
      *
@@ -45,13 +46,11 @@ class VerifyCsrfToken extends Middleware
         'http://127.0.0.1:8000/api/terapias_bajav',
         'http://127.0.0.1:8000/api/terapias_bajav/*/*',
         'http://127.0.0.1:8000/api/terapias_bajav/*',
-        
 
         'http://127.0.0.1:8000/api/terapia_bajav',
         'http://127.0.0.1:8000/api/terapia_bajav/*/*',
         'http://127.0.0.1:8000/api/terapia_bajav/*',
 
-        
-
+        'http://127.0.0.1:8000/api/documentos/subir',
         ];
 }
