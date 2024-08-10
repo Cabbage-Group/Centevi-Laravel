@@ -42,6 +42,7 @@ import EditarConsultaGenerica from './admin/consulta/EditarConsultaGenerica.js';
 import EditarGeneral from './admin/consulta/EditarGeneral.js';
 import SelectReceta from './admin/recetas/SelectReceta.js';
 import EditarReceta from './admin/recetas/EditarReceta.js';
+import terapiaOptomtriaPediatrica from './admin/terapias/terapiaOptomtriaPediatrica.js';
 
 function AppRouter() {
     return (
@@ -96,7 +97,7 @@ function AppRouter() {
                     <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
                     <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
-                    <Route path="/terapia-pediatrica/:id_receta" element={<Sidebar component={<terapiaOptomtriaPediatrica/>} />} />
+                    <Route path="/terapia-pediatrica" element={<Sidebar component={<terapiaOptomtriaPediatrica/>} />} />
                 </Routes>
             </Router>
         </Provider>
