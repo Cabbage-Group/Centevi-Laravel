@@ -41,6 +41,7 @@ class VerifyCsrfToken extends Middleware
                 'http://127.0.0.1:8000/api/todosLospacientesSinAtender',
                 'http://127.0.0.1:8000/api/verificar-cedula',
                 'http://127.0.0.1:8000/api/recetas',
+                'http://127.0.0.1:8000/api/documentos/subir',
 
         ];
 }

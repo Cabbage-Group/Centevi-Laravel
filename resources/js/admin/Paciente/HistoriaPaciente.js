@@ -13,6 +13,9 @@ import { DeleteConsultaGenerica } from '../../redux/features/consultas/DeleteCon
 import { DeleteNeonatos } from '../../redux/features/consultas/DeleteNeonatosSlice';
 import { DeleteOrtoptica } from '../../redux/features/consultas/DeleteOrtopticaSlice';
 import { DeletePediatrica } from '../../redux/features/consultas/DeletePediatricaSlice';
+import { uploadDocumento } from '../../redux/features/documentos/DocumentosPacientesSlice';
+import { fetchVerDocumentosSlice } from '../../redux/features/documentos/VerDocumentosSlice';
+import { deleteDocumento } from '../../redux/features/documentos/deleteDocumentoSlice';
 import { useParams, Link } from 'react-router-dom';
 
 const formatToDateDisplay = (dateStr) => {
@@ -33,6 +36,9 @@ const HistoriaPaciente = () => {
     const { dataON } = useSelector((state) => state.mostrarNeonatos);
     const { dataOP } = useSelector((state) => state.mostrarPediatrica);
     const { dataCG } = useSelector((state) => state.mostrarConsultaGenerica);
+    const [documento, setDocumento] = useState(null);
+    const { uploading } = useSelector((state) => state.subirDocumento);
+    const { documentos } = useSelector((state) => state.verDocumento);
 
     let urgencia = {};
     let menor = {};
@@ -52,9 +58,45 @@ const HistoriaPaciente = () => {
             dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
             dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
             dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+            dispatch(fetchVerDocumentosSlice(id));
         }
     }, [dispatch, id]);
 
+    const handleFileChange = (e) => {
+        setDocumento(e.target.files[0]);
+    };
+
+    const handleFileUpload = (e) => {
+        e.preventDefault();
+        if (!documento) {
+            alert('Selecciona un archivo primero');
+            return;
+        }
+        dispatch(uploadDocumento({ documento, id_paciente: id }))
+            .then((result) => {
+                if (result.meta.requestStatus === 'fulfilled') {
+                    alert('Documento subido exitosamente');
+                    dispatch(fetchVerDocumentosSlice(id)); // Actualiza la lista de documentos
+                    setDocumento(null); // Limpiar el archivo seleccionado
+                } else {
+                    alert('Hubo un error al intentar subir el documento.');
+                }
+            });
+    };
+
+    const handleDeleteDocument = (id_documento) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar este documento?')) {
+            dispatch(deleteDocumento(id_documento))
+                .then((result) => {
+                    if (result.meta.requestStatus === 'fulfilled') {
+                        alert('Documento eliminado exitosamente');
+                        dispatch(fetchVerDocumentosSlice(id)); // Actualizar la lista de documentos
+                    } else {
+                        alert('Hubo un error al intentar eliminar el documento.');
+                    }
+                });
+        }
+    };
     const handleDeleteOptometriaGeneral = (id_consulta) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
             dispatch(deleteOptometriaGeneral(id_consulta))
@@ -1295,7 +1337,7 @@ const HistoriaPaciente = () => {
                                                 <div
                                                     className="widget-header mt-4"
                                                     style={{
-                                                        paddingTop: '15%'
+                                                        paddingTop: '5%'
                                                     }}
                                                 >
                                                     <div className="row">
@@ -1366,7 +1408,8 @@ const HistoriaPaciente = () => {
                                                                         style={{
                                                                             marginBottom: '-80px',
                                                                             position: 'absolute',
-                                                                            zIndex: '3'
+                                                                            zIndex: '3',
+                                                                            marginLeft: 420,
                                                                         }}
                                                                     >
                                                                         <svg
@@ -1400,12 +1443,13 @@ const HistoriaPaciente = () => {
                                                                                 2024-06-07 10:46:20
                                                                             </b>
                                                                         </p>
+                                                                        <Link to=''>
                                                                         <a
                                                                             className="btn btn-success mb-4 ml-3 mt-4"
-                                                                            href="index.php?ruta=terapiasOptometriaPediatrica&id_terapia=620&id_paciente=22"
                                                                         >
                                                                             VER
                                                                         </a>
+                                                                        </Link>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1413,192 +1457,146 @@ const HistoriaPaciente = () => {
                                                     </div>
                                                 </div>
                                                 <div className="row mt-3 p-3">
-                                                    <h6>
-                                                        SUBIR DOCUMENTOS DEL PACIENTE:
-                                                    </h6>
-                                                    <div
-                                                        className="col-lg-12 layout-spacing"
-                                                        id="fuSingleFile"
-                                                    >
+                                                    <h6>SUBIR DOCUMENTOS DEL PACIENTE:</h6>
+                                                    <div className="col-lg-12 layout-spacing" id="fuSingleFile">
                                                         <div className="statbox widget box box-shadow">
                                                             <div className="widget-header">
                                                                 <div className="row">
-                                                                    <div className="col-xl-12 col-md-12 col-sm-12 col-12">
-                                                                    </div>
+                                                                    <div className="col-xl-12 col-md-12 col-sm-12 col-12"></div>
                                                                 </div>
                                                             </div>
                                                             <div className="widget-content widget-content-area">
-                                                                <div
-                                                                    className="custom-file-container"
-                                                                    data-upload-id="myFirstImage"
-                                                                >
-                                                                    <label>
-                                                                        Limpiar{' '}
-                                                                        <a
-                                                                            className="custom-file-container__image-clear"
-                                                                            href="javascript:void(0)"
-                                                                        >
-                                                                            x
-                                                                        </a>
-                                                                    </label>
-                                                                    <form
-                                                                        encType="multipart/form-data"
-                                                                        method="post"
-                                                                        role="form"
-                                                                    >
+                                                                <div className="custom-file-container" data-upload-id="myFirstImage">
+                                                                    <form onSubmit={handleFileUpload}>
                                                                         <label className="custom-file-container__custom-file">
                                                                             <input
                                                                                 className="custom-file-container__custom-file__custom-file-input"
-                                                                                name="documento"
-                                                                                required
                                                                                 type="file"
+                                                                                onChange={handleFileChange}
+                                                                                required
                                                                             />
                                                                             <span className="custom-file-container__custom-file__custom-file-control">
                                                                                 Subir archivo...
-                                                                                <span className="custom-file-container__custom-file__custom-file-control__button">
-                                                                                    {' '}Buscar{' '}
-                                                                                </span>
+                                                                                <span className="custom-file-container__custom-file__custom-file-control__button">Buscar</span>
                                                                             </span>
                                                                         </label>
-                                                                        <input
-                                                                            defaultValue="Danna Lucia "
-                                                                            name="nombrePaciente"
-                                                                            type="hidden"
-                                                                        />
-                                                                        <input
-                                                                            defaultValue="Gonzalez Quiros"
-                                                                            name="apellidoPaciente"
-                                                                            type="hidden"
-                                                                        />
-                                                                        <input
-                                                                            defaultValue="22"
-                                                                            name="id_paciente"
-                                                                            type="hidden"
-                                                                        />
-                                                                        <input
-                                                                            defaultValue="subir_documento"
-                                                                            name="nuevoDocumento"
-                                                                            type="hidden"
-                                                                        />
                                                                         <button
                                                                             className="btn btn-primary mt-4"
                                                                             type="submit"
+                                                                            disabled={uploading}
                                                                         >
-                                                                            Subir Documento
+                                                                            {uploading ? 'Subiendo...' : 'Subir Documento'}
                                                                         </button>
                                                                     </form>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="row">
-                                                        <div className="col-xl-12 col-md-12 col-sm-12 col-12">
-                                                            <h4 className="p-2">
-                                                                DOCUMENTOS PACIENTE:
-                                                            </h4>
-                                                        </div>
-                                                    </div>
+                                                </div>
+                                                <div className="col-xl-12 col-md-12 col-sm-12 col-12">
+                                                    <h4 className="p-2">DOCUMENTOS PACIENTE:</h4>
                                                 </div>
                                                 <div className="row mt-4">
-                                                    <div
-                                                        className="col-md-6"
-                                                        style={{
-                                                            backgroundColor: '#e1e1e1',
-                                                            border: '2px solid black',
-                                                            borderRadius: '20px 20px',
-                                                            minWidth: '100px'
-                                                        }}
-                                                    >
-                                                        <svg
-                                                            fill="none"
-                                                            stroke="currentColor"
+                                                    {documentos && documentos.map((doc) => (
+                                                        <div
+                                                            key={doc.id_documento}
+                                                            className="col-md-6"
                                                             style={{
-                                                                width: '60px'
+                                                                backgroundColor: '#e1e1e1',
+                                                                border: '2px solid black',
+                                                                borderRadius: '20px 20px',
+                                                                minWidth: '100px'
                                                             }}
-                                                            viewBox="0 0 24 24"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <path
-                                                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                strokeWidth="2"
-                                                            />
-                                                        </svg>
-                                                        <a
-                                                            className="btn btn-info"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/COnsulta Enero 2022 Chitre.pdf"
-                                                            target="_blank"
-                                                            title="Visualizar Archivo"
                                                         >
                                                             <svg
-                                                                className="h-6 w-6"
                                                                 fill="none"
                                                                 stroke="currentColor"
+                                                                style={{
+                                                                    width: '60px'
+                                                                }}
                                                                 viewBox="0 0 24 24"
                                                                 xmlns="http://www.w3.org/2000/svg"
                                                             >
                                                                 <path
-                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                                <path
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                                                                     strokeLinecap="round"
                                                                     strokeLinejoin="round"
                                                                     strokeWidth="2"
                                                                 />
                                                             </svg>
-                                                        </a>
-                                                        <a
-                                                            className="btn btn-primary"
-                                                            download="COnsulta Enero 2022 Chitre.pdf"
-                                                            href="vistas/img/documentos_pacientes/DannaLuciaGonzalezQuiros/COnsulta Enero 2022 Chitre.pdf"
-                                                            title="Descargar Archivo"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            <a
+                                                                className="btn btn-info"
+                                                                href={doc.url}
+                                                                target="_blank"
+                                                                title="Visualizar Archivo"
                                                             >
-                                                                <path
-                                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </a>
-                                                        <button
-                                                            borrar_documento="934"
-                                                            className="btn btn-danger eliminarDocumentoPaciente"
-                                                            id_paciente="22"
-                                                            nombre="COnsulta Enero 2022 Chitre.pdf"
-                                                            type="submit"
-                                                        >
-                                                            <svg
-                                                                className="h-6 w-6"
-                                                                fill="none"
-                                                                stroke="currentColor"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                <svg
+                                                                    className="h-6 w-6"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                >
+                                                                    <path
+                                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth="2"
+                                                                    />
+                                                                    <path
+                                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth="2"
+                                                                    />
+                                                                </svg>
+                                                            </a>
+                                                            <a
+                                                                className="btn btn-primary"
+                                                                download={doc.nombre}
+                                                                href={`/storage/app/public/documentos_pacientes/${doc.id_documento}`}
+                                                                title="Descargar Archivo"
                                                             >
-                                                                <path
-                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <p className="mt-3">
-                                                            Nombre:COnsulta Enero 2022 Chitre.pdf
-                                                        </p>
-                                                    </div>
+                                                                <svg
+                                                                    className="h-6 w-6"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                >
+                                                                    <path
+                                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth="2"
+                                                                    />
+                                                                </svg>
+                                                            </a>
+                                                            <button
+                                                                borrar_documento="32"
+                                                                className="btn btn-danger eliminarDocumentoPaciente"
+                                                                onClick={() => handleDeleteDocument(doc.id_documento)}
+                                                            >
+                                                                <svg
+                                                                    className="h-6 w-6"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                >
+                                                                    <path
+                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth="2"
+                                                                    />
+                                                                </svg>
+                                                            </button>
+                                                            <p className="mt-3">
+                                                                Nombre:{doc.nombre}
+                                                            </p>
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         </div>

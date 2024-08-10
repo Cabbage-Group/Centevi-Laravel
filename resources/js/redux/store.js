@@ -36,6 +36,8 @@ import EditarConsultaGenericaSlice from './features/consultas/EditarConsultaGene
 import EditarGeneralSlice from './features/consultas/EditarGeneralSlice';
 import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
 import editarRecetasSlice from './features/recetas/editarRecetasSlice';
+import DocumentosPacientesSlice from './features/documentos/DocumentosPacientesSlice';
+import VerDocumentosSlice from './features/documentos/VerDocumentosSlice';
 
 
 const store = configureStore({
@@ -74,8 +76,11 @@ const store = configureStore({
                 editarNeonatos: EditarNeonatoSlice,
                 editarPediatrica: EditarPediatricaSlice,
                 editarConsultaGenerica: EditarConsultaGenericaSlice,
+                editarGeneral: EditarGeneralSlice,
                 verUnaReceta: verUnaRecetaSlice,
-                editarReceta: editarRecetasSlice
+                editarReceta: editarRecetasSlice,
+                subirDocumento: DocumentosPacientesSlice,
+                verDocumento: VerDocumentosSlice,
                 
 
         }

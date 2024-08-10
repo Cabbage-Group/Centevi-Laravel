@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\API\Documentos\DocumentosPacientesApiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\usuarios\UsuariosApiController;
 use App\Http\Controllers\API\sucursales\SucursalesApiController;
@@ -90,6 +91,11 @@ Route::post('/api/recetas', [RecetasApiController::class, 'crearRecetas']);
 Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta']);
 Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
 Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
+
+Route::post('/api/documentos/subir', [DocumentosPacientesApiController::class, 'uploadDocument']);
+Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::class, 'index']);
+Route::delete('/api/documentos/{idDocumento}', [DocumentosPacientesApiController::class, 'destroy']);
+
 
 
 Route::get('/{any}', function () {

@@ -95,6 +95,8 @@ function AppRouter() {
                     <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
                     <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
                     <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
+
+                    <Route path="/terapia-pediatrica/:id_receta" element={<Sidebar component={<terapiaOptomtriaPediatrica/>} />} />
                 </Routes>
             </Router>
         </Provider>
