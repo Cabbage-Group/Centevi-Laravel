@@ -14,17 +14,11 @@ use Carbon\Carbon;
 class Terapias_Bajav_ApiController extends Controller
 {
 
-    public function verTerapias_bajav($id_paciente, $id_terapia = null)
+    public function verTerapias_bajav($id_paciente)
     {
        
         $query = TerapiasBajaV::where('id_paciente', $id_paciente);
-    
-       
-        if ($id_terapia) {
-            $query->where('id_terapia', $id_terapia);
-        }
-    
-      
+        
         $terapias = $query->get();
     
      

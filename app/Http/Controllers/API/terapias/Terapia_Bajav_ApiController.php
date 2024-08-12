@@ -58,7 +58,7 @@ class Terapia_Bajav_ApiController extends Controller
     public function verTerapia_bajav($id_terapia = null)
     {
         
-        // Buscar las terapias asociadas con el id_terapia y opcionalmente con id_sesion
+       
         $query = TerapiaBajaV::where('id_terapia', $id_terapia);
 
         $terapias = $query->get();

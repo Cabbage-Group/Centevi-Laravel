@@ -4,8 +4,6 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './redux/store';
 import Login from './components/auth/Login.js';
 import Sidebar from './components/partials/sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
