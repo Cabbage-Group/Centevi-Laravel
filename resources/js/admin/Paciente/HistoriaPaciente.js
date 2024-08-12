@@ -16,6 +16,7 @@ import { DeletePediatrica } from '../../redux/features/consultas/DeletePediatric
 import { uploadDocumento } from '../../redux/features/documentos/DocumentosPacientesSlice';
 import { fetchVerDocumentosSlice } from '../../redux/features/documentos/VerDocumentosSlice';
 import { deleteDocumento } from '../../redux/features/documentos/deleteDocumentoSlice';
+import { fetchTerapiasBajaVision, createTerapiasBajaVision } from '../../redux/features/terapias/terapiasBajaVisionSlice';
 import { useParams, Link } from 'react-router-dom';
 
 const formatToDateDisplay = (dateStr) => {
@@ -39,6 +40,7 @@ const HistoriaPaciente = () => {
     const [documento, setDocumento] = useState(null);
     const { uploading } = useSelector((state) => state.subirDocumento);
     const { documentos } = useSelector((state) => state.verDocumento);
+    const { terapias, status, error } = useSelector((state) => state.terapiasBajaVision);
 
     let urgencia = {};
     let menor = {};
@@ -59,8 +61,28 @@ const HistoriaPaciente = () => {
             dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
             dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
             dispatch(fetchVerDocumentosSlice(id));
+            dispatch(fetchTerapiasBajaVision(id));
         }
     }, [dispatch, id]);
+
+    const handleCreateTerapias = () => {
+        const nuevaTerapia = {
+            id_paciente: id,
+            evaluacion: '',  
+            motivo: '',
+            fecha_creacion: new Date().toISOString().split('T')[0] 
+        };
+
+        dispatch(createTerapiasBajaVision(nuevaTerapia))
+        .unwrap() 
+        .then((response) => {
+            alert('Terapia Creada con exito')
+        })
+        .catch((error) => {
+            // Maneja el error aquí
+            console.error('Error al crear terapia:', error);
+        });
+    };
 
     const handleFileChange = (e) => {
         setDocumento(e.target.files[0]);
@@ -83,6 +105,7 @@ const HistoriaPaciente = () => {
                 }
             });
     };
+
 
     const handleDeleteDocument = (id_documento) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar este documento?')) {
@@ -1350,23 +1373,14 @@ const HistoriaPaciente = () => {
                                                 </div>
                                                 <div className="row mt-4">
                                                     <div className="col-md-3">
-                                                        <form
-                                                            method="post"
-                                                            role="form"
-                                                        >
-                                                            <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                        <form onSubmit={(e) => e.preventDefault()}>
+                                                            <button 
+                                                                className="btn btn-success mb-4 ml-3 mt-4"
+                                                                onClick={handleCreateTerapias}
+                                                            >
                                                                 Crear Terapia Baja Vision
                                                             </button>
-                                                            <input
-                                                                defaultValue="22"
-                                                                name="id_paciente"
-                                                                type="hidden"
-                                                            />
-                                                            <input
-                                                                defaultValue="crear"
-                                                                name="crear_terapiaBV"
-                                                                type="hidden"
-                                                            />
+
                                                         </form>
                                                     </div>
                                                     <div className="col-md-3">
@@ -1377,21 +1391,14 @@ const HistoriaPaciente = () => {
                                                             <button className="btn btn-success mb-4 ml-3 mt-4">
                                                                 Crear Terapia Optometría Pediatrica
                                                             </button>
-                                                            <input
-                                                                defaultValue="22"
-                                                                name="id_paciente"
-                                                                type="hidden"
-                                                            />
-                                                            <input
-                                                                defaultValue="crear"
-                                                                name="crear_optometria_p"
-                                                                type="hidden"
-                                                            />
+                                                            
                                                         </form>
                                                     </div>
                                                 </div>
+                                                
                                                 <div className="row">
-                                                    <div className="col-md-12">
+                                                    {terapias.map((terapia) => (
+                                                    <div key={terapia.id_terapia} className="col-md-12">
                                                         <div className="widget-content widget-content-area">
                                                             <div
                                                                 className="card component-card_7"
@@ -1403,8 +1410,8 @@ const HistoriaPaciente = () => {
                                                                 <div className="card-body">
                                                                     <button
                                                                         className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                                                        id_paciente="22"
-                                                                        id_terapia="620"
+                                                                        id_paciente={terapia.id_paciente}
+                                                                        id_terapia={terapia.id_terapia}
                                                                         style={{
                                                                             marginBottom: '-80px',
                                                                             position: 'absolute',
@@ -1428,34 +1435,36 @@ const HistoriaPaciente = () => {
                                                                         </svg>
                                                                     </button>
                                                                     <h5 className="">
-                                                                        Terapia Optometría Pediatrica:
+                                                                        Terapia Baja Vision:
                                                                     </h5>
                                                                     <div className="rating-stars">
                                                                         <p>
                                                                             Cantidad de terapias realizadas{' '}
                                                                             <b>
-                                                                                3
+                                                                                {terapia.cantidad}
                                                                             </b>
                                                                         </p>
                                                                         <p>
                                                                             Fecha de creación:{' '}
                                                                             <b>
-                                                                                2024-06-07 10:46:20
+                                                                                {terapia.fecha_creacion}
                                                                             </b>
                                                                         </p>
-                                                                        <Link to=''>
-                                                                        <a
-                                                                            className="btn btn-success mb-4 ml-3 mt-4"
-                                                                        >
-                                                                            VER
-                                                                        </a>
+                                                                        <Link to='/terapia-pediatrica'>
+                                                                            <a
+                                                                                className="btn btn-success mb-4 ml-3 mt-4"
+                                                                            >
+                                                                                VER
+                                                                            </a>
                                                                         </Link>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    ))}
                                                 </div>
+                                                
                                                 <div className="row mt-3 p-3">
                                                     <h6>SUBIR DOCUMENTOS DEL PACIENTE:</h6>
                                                     <div className="col-lg-12 layout-spacing" id="fuSingleFile">

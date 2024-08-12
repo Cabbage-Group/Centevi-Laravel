@@ -2292,6 +2292,7 @@
   height: 100%;
   border: none;
   background-color: #fff; }
+
   .widget-one .widget-content {
     font-size: 14px; 
     padding: 20px;
@@ -2300,7 +2301,7 @@
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
   }
-    
+  
   .widget-one .w-numeric-value {
     position: absolute;
     display: flex;

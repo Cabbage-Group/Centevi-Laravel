@@ -38,6 +38,8 @@ import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
 import editarRecetasSlice from './features/recetas/editarRecetasSlice';
 import DocumentosPacientesSlice from './features/documentos/DocumentosPacientesSlice';
 import VerDocumentosSlice from './features/documentos/VerDocumentosSlice';
+import terapiasBajaVisionSlice from './features/terapias/terapiasBajaVisionSlice';
+
 
 
 const store = configureStore({
@@ -81,8 +83,7 @@ const store = configureStore({
                 editarReceta: editarRecetasSlice,
                 subirDocumento: DocumentosPacientesSlice,
                 verDocumento: VerDocumentosSlice,
-                
-
+                terapiasBajaVision: terapiasBajaVisionSlice,
         }
 });
 

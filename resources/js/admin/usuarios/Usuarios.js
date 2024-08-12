@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsuarios, updateUsuario, deleteUsuario , updateEstadoUsuario, createUsuario} from '../../redux/features/usuarios/usuariosSlice.js';
+import { fetchUsuarios, updateUsuario, deleteUsuario, updateEstadoUsuario, createUsuario } from '../../redux/features/usuarios/usuariosSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import PaginationUsuarios from './PaginationUsuarios.js';
 import Swal from 'sweetalert2';
@@ -15,7 +15,7 @@ const Usuarios = () => {
     const [selectedUsuario, setSelectedUsuario] = useState(null);
     const { sucursales } = useSelector((state) => state.sucursales);
     const [localSearch, setLocalSearch] = useState(search);
-    const [isEditMode, setIsEditMode] = useState(false); 
+    const [isEditMode, setIsEditMode] = useState(false);
     const [fotoPreview, setFotoPreview] = useState('');
     const [file, setFile] = useState(null);
 
@@ -25,10 +25,10 @@ const Usuarios = () => {
         perfil: '',
         sucursal: '',
         password: '',
-        foto: null 
+        foto: null
     });
 
-    
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -37,7 +37,7 @@ const Usuarios = () => {
             foto: file
         });
 
-        // Generar la vista previa de la imagen
+
         if (file) {
             const fileURL = URL.createObjectURL(file);
             setFotoPreview(fileURL);
@@ -53,7 +53,7 @@ const Usuarios = () => {
                 sucursal: selectedUsuario.sucursal || '',
                 password: '',
                 foto: null
-              
+
             });
             setFotoPreview(selectedUsuario.foto || '');
         } else {
@@ -64,7 +64,7 @@ const Usuarios = () => {
                 sucursal: '',
                 password: '',
                 foto: null
-               
+
             });
             setFotoPreview('');
         }
@@ -76,11 +76,11 @@ const Usuarios = () => {
     }, [dispatch, currentPage]);
 
     const [sortOrder, setSortOrder] = useState('asc');
-    const [sortColumn, setSortColumn] = useState('nombre'); 
+    const [sortColumn, setSortColumn] = useState('nombre');
 
     useEffect(() => {
         dispatch(fetchUsuarios({ page: currentPage, limit: 7, sortOrder, sortColumn, search: localSearch }));
-    }, [dispatch,localSearch, currentPage, sortOrder, sortColumn]);
+    }, [dispatch, localSearch, currentPage, sortOrder, sortColumn]);
 
     const handleSearchChange = (event) => {
         setLocalSearch(event.target.value);
@@ -117,7 +117,7 @@ const Usuarios = () => {
         setFile(null);
     };
 
-    
+
 
 
     const handleChange = (e) => {
@@ -144,7 +144,7 @@ const Usuarios = () => {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
-         
+
         const formData = new FormData();
         formData.append('usuario', formValues.usuario);
         formData.append('nombre', formValues.nombre);
@@ -153,7 +153,7 @@ const Usuarios = () => {
         formData.append('sucursal', formValues.sucursal);
 
 
-        if (formValues.foto) { 
+        if (formValues.foto) {
             formData.append('foto', formValues.foto);
             console.log('Foto added to formData:', formValues.foto);
         } else {
@@ -166,7 +166,7 @@ const Usuarios = () => {
             for (let pair of formData.entries()) {
                 console.log(`${pair[0]}: ${pair[1]}`);
             }
-    
+
             dispatch(updateUsuario({
                 id_usuario: selectedUsuario.id_usuario,
                 data: formData
@@ -180,8 +180,8 @@ const Usuarios = () => {
                         didClose: () => {
                             window.location.reload();
                         }
-                      
-                       
+
+
                     });
                 })
                 .catch((error) => {
@@ -203,7 +203,7 @@ const Usuarios = () => {
                         didClose: () => {
                             window.location.reload();
                         }
-                       
+
                     });
                 })
                 .catch((error) => {
@@ -230,9 +230,9 @@ const Usuarios = () => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-               
-                 dispatch(deleteUsuario(usuario.id_usuario))
-                 
+
+                dispatch(deleteUsuario(usuario.id_usuario))
+
                     .then(() => {
                         Swal.fire({
                             title: 'Eliminado!',
@@ -274,11 +274,11 @@ const Usuarios = () => {
                                 <div className="row layout-top-spacing" id="cancel-row">
                                     <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                                         <div className="widget-content widget-content-area br-6">
-                                            <button 
-                                            className="btn btn-success mt-3 ml-4" 
-                                            data-target="#modalAgregarUsuario" 
-                                            data-toggle="modal"
-                                            onClick={handleCreateClick}
+                                            <button
+                                                className="btn btn-success mt-3 ml-4"
+                                                data-target="#modalAgregarUsuario"
+                                                data-toggle="modal"
+                                                onClick={handleCreateClick}
                                             >
                                                 Agregar usuario
                                             </button>
@@ -295,13 +295,13 @@ const Usuarios = () => {
                                                                         <line x1="21" x2="16.65" y1="21" y2="16.65" />
                                                                     </svg>
                                                                     <input
-                                                                            aria-controls="html5-extension"
-                                                                            className="form-control"
-                                                                            placeholder="Search..."
-                                                                            type="search"
-                                                                            value={localSearch}
-                                                                            onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
-                                                                        />
+                                                                        aria-controls="html5-extension"
+                                                                        className="form-control"
+                                                                        placeholder="Search..."
+                                                                        type="search"
+                                                                        value={localSearch}
+                                                                        onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                                                    />
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -324,7 +324,7 @@ const Usuarios = () => {
                                                                 <thead>
                                                                     <tr role="row">
                                                                         <th
-                                                                        
+
                                                                             aria-controls="zero-config"
                                                                             aria-label="#: activate to sort column descending"
                                                                             aria-sort="ascending"
@@ -334,7 +334,7 @@ const Usuarios = () => {
                                                                                 width: '10.5234px'
                                                                             }}
                                                                             tabIndex="0"
-                                                                            
+
                                                                         >
                                                                             #
                                                                         </th>
@@ -437,22 +437,21 @@ const Usuarios = () => {
                                                                         </th>
                                                                     </tr>
                                                                 </thead>
+
                                                                 <tbody>
                                                                     {usuarios.map((usuario, index) => (
                                                                         <tr key={usuario.id_usuario}>
-                                                                           <td>
-                                                                                {index + 1 + (currentPage - 1) * 6} 
-                                                                               
-                                                                            </td>
+                                                                            <td>{index + 1 + (currentPage - 1) * 7}</td>
                                                                             <td>{usuario.nombre}</td>
                                                                             <td>{usuario.usuario}</td>
                                                                             <td>
-                                                                                <img
-                                                                                    className="img-thumbnail"
-                                                                                    src={`vistas/img/usuarios/${usuario.usuario}/912.jpg`}
-                                                                                    width="40px"
-                                                                                    alt={`${usuario.nombre} - Foto`}
-                                                                                />
+                                                                                {usuario.foto && (
+                                                                                    <img
+                                                                                        src={usuario.foto} 
+                                                                                        alt={`${usuario.nombre} - Foto`}
+                                                                                        style={{ width: '50px', height: 'auto', marginTop: '10px' }}
+                                                                                    />
+                                                                                )}
                                                                             </td>
                                                                             <td>{usuario.perfil}</td>
                                                                             <td>
@@ -471,7 +470,6 @@ const Usuarios = () => {
                                                                                         className="btn btn-warning btnEditarUsuario"
                                                                                         data-toggle="modal"
                                                                                         data-target="#modalEditarUsuario"
-
                                                                                     >
                                                                                         <svg
                                                                                             className="h-6 w-6"
@@ -490,9 +488,6 @@ const Usuarios = () => {
                                                                                     </button>
                                                                                     <button
                                                                                         className="btn btn-danger btnEliminarUsuario"
-                                                                                        fotousuario={`vistas/img/usuarios/${usuario.usuario}/912.jpg`}
-                                                                                        idusuario={usuario.id_usuario}
-                                                                                        usuario={usuario.usuario}
                                                                                         onClick={() => handleDeleteClick(usuario)}
                                                                                     >
                                                                                         <svg
@@ -515,6 +510,7 @@ const Usuarios = () => {
                                                                         </tr>
                                                                     ))}
                                                                 </tbody>
+
                                                                 <tfoot>
                                                                     <tr>
                                                                         <th
@@ -589,196 +585,197 @@ const Usuarios = () => {
                     </div>
                 </div>
             </div>
-         {isModalVisible && (
-            <div
-                aria-hidden="true"
-                className="modal fade"
-                id="modalAgregarUsuario"
-                
-            >
-                <div 
-                    className="modal-dialog" 
-                    >
-                    <div className="modal-content">
-                        <form
-                            encType="multipart/form-data"
-                            method="post"
-                            role="form"
-                            onSubmit={handleFormSubmit}
-                        >
-                            <div
-                                className="modal-header"
-                                style={{
-                                    background: '#1abc9c',
-                                    color: 'white'
-                                }}
-                            >
-                                <button
-                                    className="close"
-                                    data-dismiss="modal"
-                                    type="button"
-                                    onClick={handleModalClose}
+            {isModalVisible && (
+                <div
+                    aria-hidden="true"
+                    className="modal fade"
+                    id="modalAgregarUsuario"
 
+                >
+                    <div
+                        className="modal-dialog"
+                    >
+                        <div className="modal-content">
+                            <form
+                                encType="multipart/form-data"
+                                method="post"
+                                role="form"
+                                onSubmit={handleFormSubmit}
+                            >
+                                <div
+                                    className="modal-header"
+                                    style={{
+                                        background: '#1abc9c',
+                                        color: 'white'
+                                    }}
                                 >
-                                    ×
-                                </button>
-                                <h4 className="modal-title">
-                                    Agregar usuario
-                                </h4>
-                            </div>
-                            <div className="modal-body">
-                                <div className="box-body">
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-user" />
-                                            </span>
-                                            <input
-                                                className="form-control input-lg"
-                                                name="nombre"
-                                                placeholder="Ingresar nombre"
-                                                required
-                                                type="text"
-                                                onChange={handleChange}
-                                            />
+                                    <button
+                                        className="close"
+                                        data-dismiss="modal"
+                                        type="button"
+                                        onClick={handleModalClose}
+
+                                    >
+                                        ×
+                                    </button>
+                                    <h4 className="modal-title">
+                                        Agregar usuario
+                                    </h4>
+                                </div>
+                                <div className="modal-body">
+                                    <div className="box-body">
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-user" />
+                                                </span>
+                                                <input
+                                                    className="form-control input-lg"
+                                                    name="nombre"
+                                                    placeholder="Ingresar nombre"
+                                                    required
+                                                    type="text"
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-key" />
-                                            </span>
-                                            <input
-                                                className="form-control input-lg"
-                                                id="nuevoUsuario"
-                                                name="usuario"
-                                                placeholder="Ingresar usuario"
-                                                required
-                                                type="text"
-                                                onChange={handleChange}
-                                            />
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-key" />
+                                                </span>
+                                                <input
+                                                    className="form-control input-lg"
+                                                    id="nuevoUsuario"
+                                                    name="usuario"
+                                                    placeholder="Ingresar usuario"
+                                                    required
+                                                    type="text"
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-lock" />
-                                            </span>
-                                            <input
-                                                className="form-control input-lg"
-                                                name="password"
-                                                placeholder="Ingresar contraseña"
-                                                required
-                                                type="password"
-                                                onChange={handleChange}
-                                            />
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-lock" />
+                                                </span>
+                                                <input
+                                                    className="form-control input-lg"
+                                                    name="password"
+                                                    placeholder="Ingresar contraseña"
+                                                    required
+                                                    type="password"
+                                                    onChange={handleChange}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-users" />
-                                            </span>
-                                            <select
-                                                className="form-control input-lg"
-                                                name="perfil"
-                                                onChange={handleChange}
-                                                required
-                                            >
-                                                <option value="">
-                                                    Selecionar perfil
-                                                </option>
-                                                <option value="superadministrador">
-                                                    SuperAdministrador
-                                                </option>
-                                                <option value="administrador">
-                                                    Administrador
-                                                </option>
-                                                <option value="gestor">
-                                                    Gestor
-                                                </option>
-                                                <option value="doctor">
-                                                    Doctor
-                                                </option>
-                                            </select>
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-users" />
+                                                </span>
+                                                <select
+                                                    className="form-control input-lg"
+                                                    name="perfil"
+                                                    onChange={handleChange}
+                                                    required
+                                                >
+                                                    <option value="">
+                                                        Selecionar perfil
+                                                    </option>
+                                                    <option value="superadministrador">
+                                                        SuperAdministrador
+                                                    </option>
+                                                    <option value="administrador">
+                                                        Administrador
+                                                    </option>
+                                                    <option value="gestor">
+                                                        Gestor
+                                                    </option>
+                                                    <option value="doctor">
+                                                        Doctor
+                                                    </option>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="input-group">
-                                            <span className="input-group-addon">
-                                                <i className="fa fa-users" />
-                                            </span>
-                                            <select
-                                                className="form-control input-lg"
-                                                name="sucursal"
-                                                onChange={handleChange}
-                                                required                                            >
-                                                <option value={""}>Selecionar Sucursal</option>
+                                        <div className="form-group">
+                                            <div className="input-group">
+                                                <span className="input-group-addon">
+                                                    <i className="fa fa-users" />
+                                                </span>
+                                                <select
+                                                    className="form-control input-lg"
+                                                    name="sucursal"
+                                                    onChange={handleChange}
+                                                    required                                            >
+                                                    <option value={""}>Selecionar Sucursal</option>
                                                     {sucursales.map((sucursal) => (
                                                         <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                                             {sucursal.nombre}
                                                         </option>
                                                     ))}
-                                            </select>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <div className="panel">
-                                            SUBIR FOTO
-                                        </div>
-                                        <input
-                                            className="nuevaFoto"
-                                            name="foto"
-                                            type="file"
-                                            accept="image/*"
-                                            required
-                                            onChange={handleFileChange}
-                                            
-                                        />
-                                        <p className="help-block">
-                                            Peso máximo de la foto 2MB
-                                        </p>
-                                        {/* Vista previa de la imagen */}
-                                        {fotoPreview && (
-                                            <img
-                                                src={fotoPreview}
-                                                alt="Vista previa"
-                                                style={{ width: '100px', height: 'auto', marginTop: '10px' }}
+                                        <div className="form-group">
+                                            <div className="panel">
+                                                SUBIR FOTO
+                                            </div>
+                                            <input
+                                                className="nuevaFoto"
+                                                name="foto"
+                                                type="file"
+                                                accept="image/*"
+                                                required
+                                                onChange={handleFileChange}
+
                                             />
-                                        )}
+                                            <p className="help-block">
+                                                Peso máximo de la foto 2MB
+                                            </p>
+                                            {/* Vista previa de la imagen */}
+                                            {fotoPreview && (
+                                                <img
+                                                    src={fotoPreview}
+                                                    alt="Vista previa"
+                                                    style={{ width: '100px', height: 'auto', marginTop: '10px' }}
+                                                />
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button
-                                    className="btn btn-default pull-left"
-                                    data-dismiss="modal"
-                                    type="button"
-                                    onClick={handleModalClose}
-                                >
-                                    Salir
-                                </button>
-                                <button
-                                    className="btn btn-success"
-                                    type="submit"
-                                >
-                                    Guardar usuario
-                                </button>
-                            </div>
-                        </form>
+                                <div className="modal-footer">
+                                    <button
+                                        className="btn btn-default pull-left"
+                                        data-dismiss="modal"
+                                        type="button"
+                                        onClick={handleModalClose}
+                                    >
+                                        Salir
+                                    </button>
+                                    <button
+                                        className="btn btn-success"
+                                        type="submit"
+                                    >
+                                        Guardar usuario
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        )}
+            )}
             {isModalVisible && selectedUsuario && (
                 <div
                     className="modal fade show"
                     id="modalEditarUsuario"
                     role="dialog"
-                    
+
+
                 >
 
-                    <div className="modal-dialog">
+                    <div className="modal-dialog" >
                         <div className="modal-content">
 
                             <form
@@ -925,13 +922,13 @@ const Usuarios = () => {
                                                 name="editarFoto"
                                                 type="file"
                                                 accept="image/*"
-                                                
+
                                                 onChange={handleFileChange}
                                             />
                                             <p className="help-block">
                                                 Peso máximo de la foto 2MB
                                             </p>
-                                             {/* Vista previa de la imagen */}
+                                            {/* Vista previa de la imagen */}
                                             {fotoPreview && (
                                                 <img
                                                     src={fotoPreview}

@@ -16,7 +16,9 @@ use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController; 
 use App\Http\Controllers\API\consultas\HistoriaClinicaApiController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
-use App\Models\Pacientes;
+use App\Http\Controllers\API\terapias\Terapia_Bajav_ApiController;
+use App\Http\Controllers\API\terapias\Terapias_Bajav_ApiController;
+
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
@@ -95,6 +97,18 @@ Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
 Route::post('/api/documentos/subir', [DocumentosPacientesApiController::class, 'uploadDocument']);
 Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::class, 'index']);
 Route::delete('/api/documentos/{idDocumento}', [DocumentosPacientesApiController::class, 'destroy']);
+
+
+Route::get('/api/terapias_bajav/{id_paciente}/{id_terapia}', [Terapias_Bajav_ApiController::class, 'verUnaTerapias_Bajav']);
+Route::get('/api/terapias_bajav/{id_paciente}', [Terapias_Bajav_ApiController::class, 'verTerapias_Bajav']);
+Route::post('/api/terapias_bajav', [Terapias_Bajav_ApiController::class, 'crearTerapias_Bajav']);
+Route::put('/api/terapias_bajav/{id}', [Terapias_Bajav_ApiController::class, 'editarTerapias_Bajav']);
+
+Route::get('/api/terapia_bajav/{id_paciente}/{id_terapia}/{id_sesion}', [Terapia_Bajav_ApiController::class, 'verUnaTerapia_Bajav']);
+Route::delete('/api/terapia_bajav/{id_terapia}/{id_sesion}', [Terapia_Bajav_ApiController::class, 'eliminarTerapia_bajav']);
+Route::get('/api/terapia_bajav/{id_terapia}', [Terapia_Bajav_ApiController::class, 'verTerapia_Bajav']);
+Route::put('/api/terapia_bajav/{id_sesion}', [Terapia_Bajav_ApiController::class, 'editarTerapia_bajav']);
+Route::post('/api/terapia_bajav', [Terapia_Bajav_ApiController::class, 'crearTerapia_Bajav']);
 
 
 

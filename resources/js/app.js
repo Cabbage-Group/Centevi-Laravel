@@ -1,9 +1,9 @@
 require('./bootstrap');
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/auth/Login.js';
 import Sidebar from './components/partials/sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
@@ -42,7 +42,8 @@ import EditarConsultaGenerica from './admin/consulta/EditarConsultaGenerica.js';
 import EditarGeneral from './admin/consulta/EditarGeneral.js';
 import SelectReceta from './admin/recetas/SelectReceta.js';
 import EditarReceta from './admin/recetas/EditarReceta.js';
-import terapiaOptomtriaPediatrica from './admin/terapias/terapiaOptomtriaPediatrica.js';
+import TerapiasOptometriaPediatrica from './admin/terapias/terapiasOptometriaPediatrica.js';
+import TerapiasBajaVision from './admin/terapias/terapiasBajaVision.js';
 
 function AppRouter() {
     return (
@@ -97,7 +98,10 @@ function AppRouter() {
                     <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
                     <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
-                    <Route path="/terapia-pediatrica" element={<Sidebar component={<terapiaOptomtriaPediatrica/>} />} />
+                    <Route path="/terapias-pediatrica" element={<Sidebar component={<TerapiasOptometriaPediatrica/>} />} />
+                    <Route path="/terapias-bajavision" element={<Sidebar component={<TerapiasBajaVision/>} />} />
+                    <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+
                 </Routes>
             </Router>
         </Provider>

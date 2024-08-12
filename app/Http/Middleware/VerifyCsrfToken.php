@@ -43,5 +43,12 @@ class VerifyCsrfToken extends Middleware
                 'http://127.0.0.1:8000/api/recetas',
                 'http://127.0.0.1:8000/api/documentos/subir',
 
+                'http://127.0.0.1:8000/api/terapias_bajav',
+                'http://127.0.0.1:8000/api/terapias_bajav/*/*',
+                'http://127.0.0.1:8000/api/terapias_bajav/*',
+                'http://127.0.0.1:8000/api/terapia_bajav',
+                'http://127.0.0.1:8000/api/terapia_bajav/*/*',
+                'http://127.0.0.1:8000/api/terapia_bajav/*',
+
         ];
 }
