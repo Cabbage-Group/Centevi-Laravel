@@ -7,7 +7,6 @@ use App\Models\TerapiaBajaV;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\TerapiasBajaV;
-
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -16,18 +15,11 @@ class Terapias_Bajav_ApiController extends Controller
 
     public function verTerapias_bajav($id_paciente, $id_terapia = null)
     {
-       
         $query = TerapiasBajaV::where('id_paciente', $id_paciente);
-    
-       
         if ($id_terapia) {
             $query->where('id_terapia', $id_terapia);
         }
-    
-      
         $terapias = $query->get();
-    
-     
         if ($terapias->isEmpty()) {
             return response()->json([
                 'respuesta' => false,
@@ -35,13 +27,9 @@ class Terapias_Bajav_ApiController extends Controller
                 'mensaje_dev' => "No se encontraron terapias con los parámetros proporcionados.",
             ], 404);
         }
-    
-     
         foreach ($terapias as &$terapia) {
             $terapia->cantidad = TerapiaBajaV::where('id_terapia', $terapia->id_terapia)->count();
         }
-    
-  
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapias encontradas correctamente.',
@@ -49,36 +37,37 @@ class Terapias_Bajav_ApiController extends Controller
             'mensaje_dev' => null
         ], 200);
     }
-    
 
-
-
-    public function verUnaTerapias_bajav($id_paciente, $id_terapia= 0)
+    public function verUnaTerapias_bajav($id_paciente, $id_terapia = null)
     {
-        
-        $query = TerapiasBajaV::where('id_paciente', $id_paciente);
-
+        $terapia = TerapiasBajaV::where('id_paciente', $id_paciente);
         if ($id_terapia) {
-            $query->where('id_terapia', $id_terapia);
+            $terapia->where('id_terapia', $id_terapia);
         }
+        $terapia = $terapia->first();
 
-        $terapias = $query->first();
-        
-        $array = [];
-
-        array_push($array, $terapias);
-
-        $query2 = TerapiaBajaV::where('id_terapia', $id_terapia)->count();
-
-        $array[0]['cantidad'] = $query2;
-
+        if (!$terapia) {
+            return response()->json([
+                'respuesta' => false,
+                'data' => null,
+                'mensaje_dev' => 'No data found for the given parameters'
+            ], 404);
+        }
+    
+        // Count the number of records matching the provided id_terapia
+        $cantidad = TerapiasBajaV::where('id_terapia', $id_terapia)->count();
+    
+        // Add the count to the response data
+        $terapia->cantidad = $cantidad;
+    
+        // Return the response as JSON
         return response()->json([
             'respuesta' => true,
-            'data' => $array,
+            'data' => $terapia,
             'mensaje_dev' => null
         ], 200);
     }
-
+    
 
     public function crearTerapias_Bajav(Request $request)
     {
@@ -88,8 +77,6 @@ class Terapias_Bajav_ApiController extends Controller
             'motivo' => 'nullable|string|max:255',
             'fecha_creacion' => 'nullable|date',
         ]);
-
-
         if ($validator->fails()) {
             return response()->json([
                 'respuesta' => false,
@@ -98,7 +85,6 @@ class Terapias_Bajav_ApiController extends Controller
                 'mensaje_dev' => "Oops, validation errors occurred."
             ], 400);
         }
-
         $data = $request->all();
         $defaults = [
             "id_paciente" => null,
@@ -106,14 +92,8 @@ class Terapias_Bajav_ApiController extends Controller
             'motivo' => null,
             'fecha_creacion' => now()->format('Y-m-d'),
         ];
-
-
         $data = array_merge($defaults, $data);
-
-
         $terapias_bajav= TerapiasBajaV::create($data);
-
-
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapiasbajav registrada correctamente',
@@ -131,8 +111,6 @@ class Terapias_Bajav_ApiController extends Controller
             'motivo' => 'nullable|string|max:255',
             'fecha_creacion' => 'nullable|date',
         ]);
-
-
         if ($validator->fails()) {
             return response()->json([
                 'respuesta' => false,
@@ -141,11 +119,7 @@ class Terapias_Bajav_ApiController extends Controller
                 'mensaje_dev' => "Oops, validation errors occurred."
             ], 400);
         }
-
-
         $terapias_bajav = TerapiasBajaV::find($id_terapia);
-
-
         if (!$terapias_bajav) {
             return response()->json([
                 'respuesta' => false,
@@ -153,10 +127,7 @@ class Terapias_Bajav_ApiController extends Controller
                 'mensaje_dev' => "No se encontró ninguna terapias_bajav con el ID proporcionado."
             ], 404);
         }
-
         $terapias_bajav->update($request->all());
-
-
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapias_bajav actualizada correctamente',

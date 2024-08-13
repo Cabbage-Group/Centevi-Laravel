@@ -120,7 +120,6 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
         'pagado' => 'nullable|boolean',
         'sucursal' => 'nullable|integer'
     ]);
-
     if ($validator->fails()) {
         return response()->json([
             'respuesta' => false,
@@ -129,10 +128,8 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
             'mensaje_dev' => "Oops, validation errors occurred."
         ], 400);
     }
-
     // Buscar la terapia por ID
     $terapia_bajav = TerapiaBajaV::find($id_sesion);
-
     if (!$terapia_bajav) {
         return response()->json([
             'respuesta' => false,
@@ -140,14 +137,10 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
             'mensaje_dev' => "No se encontró ninguna sesioncon el ID proporcionado."
         ], 404);
     }
-
     // Convertir el campo sesion de JSON a objeto
     $sesionData = json_decode($request->input('sesion'), true);
-
-
     // Determinar si el campo completado debe ser 1 o 0
     $completado = 1;
-
     if (is_array($sesionData)) {
         // Verificar los campos `resultado` y `actividad` (exceptuando `actividad_casa`)
         foreach ($sesionData as $key => $value) {
@@ -163,14 +156,12 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
     } else {
         $completado = 0; // Si `sesion` no es un JSON válido, marcar como no completado
     }
-
     // Actualizar la terapia
     $terapia_bajav->update([
         'sesion' => $request->input('sesion'),
         'pagado' => $request->input('pagado'),
         'sucursal' => $request->input('sucursal'),
         'completado' => $completado,
-
     ]);
 
     return response()->json([
@@ -180,12 +171,6 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
         'mensaje_dev' => null
     ], 200);
 }
-
-
-
-
-
-
 
     public function crearTerapia_Bajav(Request $request)
     {

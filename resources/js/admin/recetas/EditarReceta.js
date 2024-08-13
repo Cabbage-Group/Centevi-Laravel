@@ -83,8 +83,6 @@ const EditarReceta = () => {
     });
 
     useEffect(() => {
-
-    
         if (id_receta) {
             dispatch(fetchVerUnaReceta(id_receta));
         }
@@ -121,7 +119,7 @@ const EditarReceta = () => {
     }, [editarStatus]);
 
 
-     const handleSubmit = (values) => {
+    const handleSubmit = (values) => {
         const updatedData = {
             id: id_receta,
             data: {
@@ -142,9 +140,6 @@ const EditarReceta = () => {
     if (status === 'loading') return <div>Loading...</div>;
     if (status === 'failed') return <div>Error: {error}</div>;
     return (
-
-
-
         <div className="printable" data-select2-id="15">
 
             <div className="row layout-top-spacing">
@@ -171,9 +166,6 @@ const EditarReceta = () => {
 
 
                                                             <Form  >
-
-
-
 
                                                                 <div className="form-row" style={{ marginBottom: "2rem" }}>
 
@@ -206,11 +198,8 @@ const EditarReceta = () => {
                                                                             name="nro_receta"
                                                                             value={values.nro_receta}
                                                                             onChange={handleChange}
-
                                                                         />
                                                                     </div>
-
-
                                                                     <div className="form-group col-md-4" >
                                                                         <label htmlFor="pacientes">Pacientes</label>
                                                                         <input
@@ -218,18 +207,10 @@ const EditarReceta = () => {
                                                                             name="id_paciente"
                                                                             className="form-control"
                                                                             value={values.paciente_nombre}
-
-                                                                          
                                                                             
-
                                                                         >
-
                                                                         </input>
-
-
                                                                     </div>
-
-
                                                                     <div className="form-group col-md-4" >
                                                                         <label htmlFor="inputSucursal">Sucursal</label>
                                                                         <Field
@@ -242,9 +223,8 @@ const EditarReceta = () => {
                                                                                 setFieldValue('sucursal', e.target.value);
                                                                                 setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
                                                                             }}
-
                                                                         >
-                                                                             <option value={''}></option>
+                                                                            <option value={''}></option>
                                                                             {sucursales.map((sucursal) => (
                                                                             <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
                                                                         ))}
@@ -261,7 +241,7 @@ const EditarReceta = () => {
                                                                             name="cedula"
                                                                             value={values.cedula}
                                                                             onChange={handleChange}
-                                                                           
+                                                                        
 
                                                                         />
                                                                     </div>

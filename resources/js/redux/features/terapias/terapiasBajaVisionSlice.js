@@ -20,6 +20,24 @@ export const createTerapiasBajaVision = createAsyncThunk(
     }
 );
 
+// Async thunk for editing an existing Terapia Baja Vision
+export const editTerapiasBajaVision = createAsyncThunk(
+    'terapiasBajaVision/editTerapiaBajaVision',
+    async ({ id_terapia, terapiaData }) => {
+        const response = await axios.put(`${API}/terapias_bajav/${id_terapia}`, terapiaData);
+        return response.data;
+    }
+);
+
+// Async thunk for deleting a Terapia Baja Vision
+export const deleteTerapiasBajaVision = createAsyncThunk(
+    'terapiasBajaVision/deleteTerapiaBajaVision',
+    async ({ id_paciente, id_terapia }) => {
+        const response = await axios.delete(`${API}/terapias_bajav/${id_paciente}/${id_terapia}`);
+        return response.data;
+    }
+);
+
 const terapiasBajaVisionSlice = createSlice({
     name: 'terapiasBajaVision',
     initialState: {
@@ -53,6 +71,40 @@ const terapiasBajaVisionSlice = createSlice({
                 state.terapias.push(action.payload.data[0]);
             })
             .addCase(createTerapiasBajaVision.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+
+            // Handling edit
+            .addCase(editTerapiasBajaVision.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(editTerapiasBajaVision.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const updatedTerapia = action.payload.data;
+                const index = Array.isArray(state.terapias)
+                    ? state.terapias.findIndex(t => t.id_terapia === updatedTerapia.id_terapia)
+                    : -1;
+                if (index !== -1) {
+                    state.terapias[index] = updatedTerapia;
+                }
+            })
+            .addCase(editTerapiasBajaVision.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+
+            // Handling delete
+            .addCase(deleteTerapiasBajaVision.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteTerapiasBajaVision.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Remove the deleted therapy from the state
+                const { id_terapia } = action.meta.arg;
+                state.terapias = state.terapias.filter(t => t.id_terapia !== id_terapia);
+            })
+            .addCase(deleteTerapiasBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

@@ -1515,26 +1515,6 @@ const EditarBajaVision = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <input
-                                                defaultValue="editar"
-                                                name="editar_baja_vision"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="exito"
-                                                name="actualizar"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="22"
-                                                name="id_consulta"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="SuperAdmin"
-                                                name="editadoDoctor"
-                                                type="hidden"
-                                            />
                                             <button
                                                 className="btn btn-success mt-3"
                                                 type="submit"

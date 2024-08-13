@@ -99,7 +99,8 @@ function AppRouter() {
                     <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
                     <Route path="/terapias-pediatrica" element={<Sidebar component={<TerapiasOptometriaPediatrica/>} />} />
-                    <Route path="/terapias-bajavision" element={<Sidebar component={<TerapiasBajaVision/>} />} />
+                    <Route path="/terapias-bajavision/:id/:id_terapia" element={<Sidebar component={<TerapiasBajaVision/>} />} />
+
                     <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
 
                 </Routes>

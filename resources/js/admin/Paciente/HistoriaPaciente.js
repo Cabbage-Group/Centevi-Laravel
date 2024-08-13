@@ -25,6 +25,16 @@ const formatToDateDisplay = (dateStr) => {
     return `${day}/${month}/${year}`;
 };
 
+const calculateAge = (birthDate) => {
+    const today = new Date();
+    const birthDateObj = new Date(birthDate);
+    let age = today.getFullYear() - birthDateObj.getFullYear();
+    const monthDiff = today.getMonth() - birthDateObj.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
+        age--;
+    }
+    return age;
+};
 
 const HistoriaPaciente = () => {
 
@@ -40,7 +50,8 @@ const HistoriaPaciente = () => {
     const [documento, setDocumento] = useState(null);
     const { uploading } = useSelector((state) => state.subirDocumento);
     const { documentos } = useSelector((state) => state.verDocumento);
-    const { terapias, status, error } = useSelector((state) => state.terapiasBajaVision);
+    const { terapias } = useSelector((state) => state.terapiasBajaVision);
+    const [age, setAge] = useState(null);
 
     let urgencia = {};
     let menor = {};
@@ -50,6 +61,13 @@ const HistoriaPaciente = () => {
     } catch (error) {
         console.error('Error parsing JSON:', error);
     }
+
+    useEffect(() => {
+        if (verPaciente && verPaciente.fecha_nacimiento) {
+            const calculatedAge = calculateAge(verPaciente.fecha_nacimiento);
+            setAge(calculatedAge);
+        }
+    }, [verPaciente]);
 
     useEffect(() => {
         if (id) {
@@ -65,23 +83,24 @@ const HistoriaPaciente = () => {
         }
     }, [dispatch, id]);
 
+
     const handleCreateTerapias = () => {
         const nuevaTerapia = {
             id_paciente: id,
-            evaluacion: '',  
+            evaluacion: '',
             motivo: '',
-            fecha_creacion: new Date().toISOString().split('T')[0] 
+            fecha_creacion: new Date().toISOString().split('T')[0]
         };
 
         dispatch(createTerapiasBajaVision(nuevaTerapia))
-        .unwrap() 
-        .then((response) => {
-            alert('Terapia Creada con exito')
-        })
-        .catch((error) => {
-            // Maneja el error aquí
-            console.error('Error al crear terapia:', error);
-        });
+            .unwrap()
+            .then((response) => {
+                alert('Terapia Creada con exito')
+            })
+            .catch((error) => {
+                // Maneja el error aquí
+                console.error('Error al crear terapia:', error);
+            });
     };
 
     const handleFileChange = (e) => {
@@ -1374,97 +1393,110 @@ const HistoriaPaciente = () => {
                                                 <div className="row mt-4">
                                                     <div className="col-md-3">
                                                         <form onSubmit={(e) => e.preventDefault()}>
-                                                            <button 
+                                                            <button
                                                                 className="btn btn-success mb-4 ml-3 mt-4"
                                                                 onClick={handleCreateTerapias}
                                                             >
                                                                 Crear Terapia Baja Vision
                                                             </button>
-
                                                         </form>
                                                     </div>
-                                                    <div className="col-md-3">
-                                                        <form
-                                                            method="post"
-                                                            role="form"
-                                                        >
-                                                            <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                Crear Terapia Optometría Pediatrica
-                                                            </button>
-                                                            
-                                                        </form>
-                                                    </div>
+                                                    {age !== null && (
+                                                        <>
+                                                            {age < 3 && (
+                                                                <div className="col-md-3">
+                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                        Crear Terapia Optometría Neonatos
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {age >= 3 && age <= 18 && (
+                                                                <div className="col-md-3">
+                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                        Crear Terapia Optometría Pediatrica
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {age > 18 && (
+                                                                <div className="col-md-3">
+                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                        Crear Terapia Ortoptica Adultos
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
                                                 </div>
-                                                
+
                                                 <div className="row">
                                                     {terapias.map((terapia) => (
-                                                    <div key={terapia.id_terapia} className="col-md-12">
-                                                        <div className="widget-content widget-content-area">
-                                                            <div
-                                                                className="card component-card_7"
-                                                                style={{
-                                                                    background: 'rgb(0 150 136 / 11%)',
-                                                                    width: '100%'
-                                                                }}
-                                                            >
-                                                                <div className="card-body">
-                                                                    <button
-                                                                        className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                                                        id_paciente={terapia.id_paciente}
-                                                                        id_terapia={terapia.id_terapia}
-                                                                        style={{
-                                                                            marginBottom: '-80px',
-                                                                            position: 'absolute',
-                                                                            zIndex: '3',
-                                                                            marginLeft: 420,
-                                                                        }}
-                                                                    >
-                                                                        <svg
-                                                                            className="h-6 w-6"
-                                                                            fill="none"
-                                                                            stroke="currentColor"
-                                                                            viewBox="0 0 24 24"
-                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                        <div key={terapia.id_terapia} className="col-md-12">
+                                                            <div className="widget-content widget-content-area">
+                                                                <div
+                                                                    className="card component-card_7"
+                                                                    style={{
+                                                                        background: 'rgb(0 150 136 / 11%)',
+                                                                        width: '100%'
+                                                                    }}
+                                                                >
+                                                                    <div className="card-body">
+                                                                        <button
+                                                                            className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                                                            id_paciente={terapia.id_paciente}
+                                                                            id_terapia={terapia.id_terapia}
+                                                                            style={{
+                                                                                marginBottom: '-80px',
+                                                                                position: 'absolute',
+                                                                                zIndex: '3',
+                                                                                marginLeft: 420,
+                                                                            }}
                                                                         >
-                                                                            <path
-                                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                                strokeLinecap="round"
-                                                                                strokeLinejoin="round"
-                                                                                strokeWidth="2"
-                                                                            />
-                                                                        </svg>
-                                                                    </button>
-                                                                    <h5 className="">
-                                                                        Terapia Baja Vision:
-                                                                    </h5>
-                                                                    <div className="rating-stars">
-                                                                        <p>
-                                                                            Cantidad de terapias realizadas{' '}
-                                                                            <b>
-                                                                                {terapia.cantidad}
-                                                                            </b>
-                                                                        </p>
-                                                                        <p>
-                                                                            Fecha de creación:{' '}
-                                                                            <b>
-                                                                                {terapia.fecha_creacion}
-                                                                            </b>
-                                                                        </p>
-                                                                        <Link to='/terapia-pediatrica'>
-                                                                            <a
-                                                                                className="btn btn-success mb-4 ml-3 mt-4"
+                                                                            <svg
+                                                                                className="h-6 w-6"
+                                                                                fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24"
+                                                                                xmlns="http://www.w3.org/2000/svg"
                                                                             >
-                                                                                VER
-                                                                            </a>
-                                                                        </Link>
+                                                                                <path
+                                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    strokeWidth="2"
+                                                                                />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <h5 className="">
+                                                                            Terapia Baja Vision:
+                                                                        </h5>
+                                                                        <div className="rating-stars">
+                                                                            <p>
+                                                                                Cantidad de terapias realizadas{' '}
+                                                                                <b>
+                                                                                    {terapia.cantidad}
+                                                                                </b>
+                                                                            </p>
+                                                                            <p>
+                                                                                Fecha de creación:{' '}
+                                                                                <b>
+                                                                                    {terapia.fecha_creacion}
+                                                                                </b>
+                                                                            </p>
+                                                                            <Link to={`/terapias-bajavision/${id}/${terapia.id_terapia}`}>
+                                                                                <a
+                                                                                    className="btn btn-success mb-4 ml-3 mt-4"
+                                                                                >
+                                                                                    VER
+                                                                                </a>
+                                                                            </Link>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
                                                     ))}
                                                 </div>
-                                                
+
                                                 <div className="row mt-3 p-3">
                                                     <h6>SUBIR DOCUMENTOS DEL PACIENTE:</h6>
                                                     <div className="col-lg-12 layout-spacing" id="fuSingleFile">
