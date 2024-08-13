@@ -42,8 +42,8 @@ import EditarConsultaGenerica from './admin/consulta/EditarConsultaGenerica.js';
 import EditarGeneral from './admin/consulta/EditarGeneral.js';
 import SelectReceta from './admin/recetas/SelectReceta.js';
 import EditarReceta from './admin/recetas/EditarReceta.js';
-import TerapiasOptometriaPediatrica from './admin/terapias/terapiasOptometriaPediatrica.js';
 import TerapiasBajaVision from './admin/terapias/terapiasBajaVision.js';
+import terapiaOptometriaPediatrica from './admin/terapias/terapiasOptometriaPediatrica.js'
 
 function AppRouter() {
     return (
@@ -98,10 +98,7 @@ function AppRouter() {
                     <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
                     <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
-                    <Route path="/terapias-pediatrica" element={<Sidebar component={<TerapiasOptometriaPediatrica/>} />} />
-                    <Route path="/terapias-bajavision/:id/:id_terapia" element={<Sidebar component={<TerapiasBajaVision/>} />} />
-
-                    <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+                    <Route path="/terapia-pediatrica/:id_receta" element={<Sidebar component={<terapiaOptometriaPediatrica/>} />} />
 
                 </Routes>
             </Router>

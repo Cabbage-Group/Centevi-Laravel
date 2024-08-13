@@ -1401,6 +1401,7 @@ const HistoriaPaciente = () => {
                                                             </button>
                                                         </form>
                                                     </div>
+
                                                     {age !== null && (
                                                         <>
                                                             {age < 3 && (
@@ -1496,7 +1497,6 @@ const HistoriaPaciente = () => {
                                                         </div>
                                                     ))}
                                                 </div>
-
                                                 <div className="row mt-3 p-3">
                                                     <h6>SUBIR DOCUMENTOS DEL PACIENTE:</h6>
                                                     <div className="col-lg-12 layout-spacing" id="fuSingleFile">

@@ -154,7 +154,7 @@ const usuariosSlice = createSlice({
             })
             .addCase(createUsuario.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.usuarios.push(action.payload.data);  // Agrega el nuevo usuario a la lista
+                state.usuarios.push(action.payload.data);  
             })
             .addCase(createUsuario.rejected, (state, action) => {
                 state.status = 'failed';

@@ -14,10 +14,15 @@ use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController; 
-use App\Http\Controllers\API\consultas\HistoriaClinicaApiController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
 use App\Http\Controllers\API\terapias\Terapia_Bajav_ApiController;
+use App\Http\Controllers\API\terapias\Terapia_Optometria_Neonatos_ApiController;
+use App\Http\Controllers\API\terapias\Terapia_Optometria_Pediatrica_ApiController;
+use App\Http\Controllers\API\terapias\Terapia_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\terapias\Terapias_Bajav_ApiController;
+use App\Http\Controllers\API\terapias\Terapias_Optometria_Neonatos_ApiController;
+use App\Http\Controllers\API\terapias\Terapias_Optometria_Pediatrica_ApiController;
+use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -104,6 +109,13 @@ Route::get('/api/terapias_bajav/{id_paciente}', [Terapias_Bajav_ApiController::c
 Route::post('/api/terapias_bajav', [Terapias_Bajav_ApiController::class, 'crearTerapias_Bajav']);
 Route::put('/api/terapias_bajav/{id}', [Terapias_Bajav_ApiController::class, 'editarTerapias_Bajav']);
 
+
+Route::get('/api/terapias_optometria_neonatos/{id_paciente}', [Terapias_Optometria_Neonatos_ApiController::class, 'verTerapias_optometria_neonatos']);
+
+Route::get('/api/terapias_optometria_pediatrica/{id_paciente}', [Terapias_Optometria_Pediatrica_ApiController::class, 'verTerapias_optometria_pediatrica']);
+
+Route::get('/api/terapias_ortoptica_adultos/{id_terapia}', [Terapias_Ortoptica_Adultos_ApiController::class, 'verTerapias_ortoptica_adultos']);
+
 Route::get('/api/terapia_bajav/{id_paciente}/{id_terapia}/{id_sesion}', [Terapia_Bajav_ApiController::class, 'verUnaTerapia_Bajav']);
 Route::delete('/api/terapia_bajav/{id_terapia}/{id_sesion}', [Terapia_Bajav_ApiController::class, 'eliminarTerapia_bajav']);
 Route::get('/api/terapia_bajav/{id_terapia}', [Terapia_Bajav_ApiController::class, 'verTerapia_Bajav']);
@@ -111,9 +123,13 @@ Route::put('/api/terapia_bajav/{id_sesion}', [Terapia_Bajav_ApiController::class
 Route::post('/api/terapia_bajav', [Terapia_Bajav_ApiController::class, 'crearTerapia_Bajav']);
 
 
+Route::get('/api/terapia_optometria_neonatos/{id_terapia}', [Terapia_Optometria_Neonatos_ApiController::class, 'verTerapia_optometria_neonatos']);
+
+Route::get('/api/terapia_optometria_pediatrica/{id_terapia}', [Terapia_Optometria_Pediatrica_ApiController::class, 'verTerapia_optometria_pediatrica']);
+
+Route::get('/api/terapia_ortoptica_adultos/{id_terapia}', [Terapia_Ortoptica_Adultos_ApiController::class, 'verTerapia_ortoptica_adultos']);
 
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');
-
 

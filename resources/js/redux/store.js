@@ -36,11 +36,20 @@ import EditarConsultaGenericaSlice from './features/consultas/EditarConsultaGene
 import EditarGeneralSlice from './features/consultas/EditarGeneralSlice';
 import verUnaRecetaSlice from './features/recetas/verUnaRecetaSlice';
 import editarRecetasSlice from './features/recetas/editarRecetasSlice';
+import VerOrtopticaSlice from './features/pacientes/VerOrtopticaSlice';
+import EditarOrtopticaSlice from './features/consultas/EditarOrtopticaSlice';
+import VerBajaVisionSlice from './features/pacientes/VerBajaVisionSlice';
+import VerNeonatosSlice from './features/pacientes/VerNeonatosSlice';
+import VerConsultaGenericaSlice from './features/pacientes/VerConsultaGenericaSlice';
+import VerPediatricaSlice from './features/pacientes/VerPediatricaSlice';
+import VerRefraccionGeneralSlice from './features/pacientes/VerRefraccionGeneralSlice';
+import EditarBajaVisionSlice from './features/consultas/EditarBajaVisionSlice';
+import EditarNeonatoSlice from './features/consultas/EditarNeonatoSlice';
+import EditarPediatricaSlice from './features/consultas/EditarPediatricaSlice';
+import EditarConsultaGenericaSlice from './features/consultas/EditarConsultaGenericaSlice';
+import EditarGeneralSlice from './features/consultas/EditarGeneralSlice';
 import DocumentosPacientesSlice from './features/documentos/DocumentosPacientesSlice';
 import VerDocumentosSlice from './features/documentos/VerDocumentosSlice';
-import terapiasBajaVisionSlice from './features/terapias/terapiasBajaVisionSlice';
-import verUnaTerapiaBajaVisionSlice from './features/terapias/verUnaTerapiaBajaVisionSlice';
-
 
 
 const store = configureStore({
@@ -82,10 +91,21 @@ const store = configureStore({
                 editarGeneral: EditarGeneralSlice,
                 verUnaReceta: verUnaRecetaSlice,
                 editarReceta: editarRecetasSlice,
+                verOrtoptica: VerOrtopticaSlice,
+                editarOrtoptica: EditarOrtopticaSlice,
+                verBajaVision: VerBajaVisionSlice,
+                verNeonatos: VerNeonatosSlice,
+                verConsultaGenerica: VerConsultaGenericaSlice,
+                verPediatrica: VerPediatricaSlice,
+                verRefraccionGeneral: VerRefraccionGeneralSlice,
+                editarBajaVision: EditarBajaVisionSlice,
+                editarNeonatos: EditarNeonatoSlice,
+                editarPediatrica: EditarPediatricaSlice,
+                editarConsultaGenerica: EditarConsultaGenericaSlice,
+                editarRefraccionGeneral: EditarGeneralSlice,
                 subirDocumento: DocumentosPacientesSlice,
                 verDocumento: VerDocumentosSlice,
-                terapiasBajaVision: terapiasBajaVisionSlice,
-                verTerapiaBajaVision: verUnaTerapiaBajaVisionSlice,
+
         }
 });
 
