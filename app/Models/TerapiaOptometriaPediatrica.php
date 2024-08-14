@@ -15,6 +15,9 @@ class TerapiaOptometriaPediatrica extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id';
 
+    public $timestamps = false;
+
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'id_terapia',

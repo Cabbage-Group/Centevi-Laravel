@@ -14,7 +14,6 @@ class Terapia_Bajav_ApiController extends Controller
 
     public function verUnaTerapia_bajav($id_paciente, $id_terapia = null, $id_sesion = null)
     {
-        // Buscar el paciente por su ID
         $paciente = Pacientes::find($id_paciente);
 
         if (!$paciente) {
@@ -25,7 +24,6 @@ class Terapia_Bajav_ApiController extends Controller
             ], 404);
         }
 
-        // Buscar las terapias asociadas con el id_terapia y opcionalmente con id_sesion
         $query = TerapiaBajaV::where('id_terapia', $id_terapia);
 
         if ($id_sesion) {
@@ -81,28 +79,20 @@ class Terapia_Bajav_ApiController extends Controller
         ], 200);
     }
 
-    public function eliminarTerapia_bajav($id_terapia, $id_sesion = null)
+    public function eliminarTerapia_bajav($id_terapia)
 {
-    // Buscar la terapia con el id_terapia y opcionalmente el id_sesion
-    $query = TerapiaBajaV::where('id_terapia', $id_terapia);
+    
+    $terapia_bajav = TerapiaBajaV::find($id_terapia);
 
-    if ($id_sesion) {
-        $query->where('id', $id_sesion);
-    }
-
-    $terapia = $query->first();
-
-    // Verificar si la terapia fue encontrada
-    if (!$terapia) {
+    if (!$terapia_bajav) {
         return response()->json([
             'respuesta' => false,
             'mensaje' => 'Terapia no encontrada',
-            'mensaje_dev' => "No se encontró ninguna terapia con los parámetros proporcionados.",
+            'mensaje_dev' => "No se encontró ninguna terapias_bajav con el ID proporcionado."
         ], 404);
     }
 
-    // Eliminar la terapia
-    $terapia->delete();
+    $terapia_bajav->delete();
 
     return response()->json([
         'respuesta' => true,
@@ -114,7 +104,6 @@ class Terapia_Bajav_ApiController extends Controller
 
 public function editarTerapia_bajav(Request $request, $id_sesion)
 {
-    // Validar los datos de entrada
     $validator = Validator::make($request->all(), [
         "id_terapia" => 'nullable|integer',
         'pagado' => 'nullable|boolean',
@@ -130,7 +119,6 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
         ], 400);
     }
 
-    // Buscar la terapia por ID
     $terapia_bajav = TerapiaBajaV::find($id_sesion);
 
     if (!$terapia_bajav) {
@@ -141,37 +129,41 @@ public function editarTerapia_bajav(Request $request, $id_sesion)
         ], 404);
     }
 
-    // Convertir el campo sesion de JSON a objeto
+ 
     $sesionData = json_decode($request->input('sesion'), true);
-
-
-    // Determinar si el campo completado debe ser 1 o 0
+  
     $completado = 1;
 
     if (is_array($sesionData)) {
-        // Verificar los campos `resultado` y `actividad` (exceptuando `actividad_casa`)
+      
         foreach ($sesionData as $key => $value) {
             if (str_contains($key, 'resultado') && empty($value)) {
-                $completado = 0; // No completado si hay campos `resultado` vacíos
+                $completado = 0; 
                 break;
             }
             if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
-                $completado = 0; // No completado si hay campos `actividad` vacíos (excepto `actividad_casa`)
+                $completado = 0; 
                 break;
             }
         }
     } else {
-        $completado = 0; // Si `sesion` no es un JSON válido, marcar como no completado
+        $completado = 0; 
     }
 
-    // Actualizar la terapia
-    $terapia_bajav->update([
+    $updateData = [
         'sesion' => $request->input('sesion'),
-        'pagado' => $request->input('pagado'),
-        'sucursal' => $request->input('sucursal'),
         'completado' => $completado,
+    ];
 
-    ]);
+    if ($request->has('pagado')) {
+        $updateData['pagado'] = $request->input('pagado');
+    }
+
+    if ($request->has('sucursal')) {
+        $updateData['sucursal'] = $request->input('sucursal');
+    }
+
+    $terapia_bajav->update($updateData);
 
     return response()->json([
         'respuesta' => true,
