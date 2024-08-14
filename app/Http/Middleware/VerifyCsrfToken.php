@@ -50,18 +50,41 @@ class VerifyCsrfToken extends Middleware
                 'http://127.0.0.1:8000/api/terapia_bajav/*/*',
                 'http://127.0.0.1:8000/api/terapia_bajav/*',
 
+                'http://127.0.0.1:8000/api/sucursales',
+                'http://127.0.0.1:8000/api/sucursales/*',
+
+
+                'http://127.0.0.1:8000/api/terapias_bajav',
+                'http://127.0.0.1:8000/api/terapias_bajav/*/*',
+                'http://127.0.0.1:8000/api/terapias_bajav/*',
+
                 'http://127.0.0.1:8000/api/terapias_optometria_neonatos/*',
+                'http://127.0.0.1:8000/api/terapias_optometria_neonatos/*/*',
+                'http://127.0.0.1:8000/api/terapias_optometria_neonatos',
 
                 'http://127.0.0.1:8000/api/terapias_optometria_pediatrica/*',
+                'http://127.0.0.1:8000/api/terapias_optometria_pediatrica/*/*',
+                'http://127.0.0.1:8000/api/terapias_optometria_pediatrica',
 
                 'http://127.0.0.1:8000/api/terapias_ortoptica_adultos/*',
+                'http://127.0.0.1:8000/api/terapias_ortoptica_adultos/*/*',
+                'http://127.0.0.1:8000/api/terapias_ortoptica_adultos',
 
                 'http://127.0.0.1:8000/api/terapia_optometria_neonatos/*',
+                'http://127.0.0.1:8000/api/terapia_optometria_neonatos/*/*',
+                'http://127.0.0.1:8000/api/terapia_optometria_neonatos',
 
                 'http://127.0.0.1:8000/api/terapia_optometria_pediatrica/*',
+                'http://127.0.0.1:8000/api/terapia_optometria_pediatrica/*/*',
+                'http://127.0.0.1:8000/api/terapia_optometria_pediatrica',
 
                 'http://127.0.0.1:8000/api/terapia_ortoptica_adultos/*',
+                'http://127.0.0.1:8000/api/terapia_ortoptica_adultos/*/*',
+                'http://127.0.0.1:8000/api/terapia_ortoptica_adultos',
 
                 'http://127.0.0.1:8000/api/documentos/subir',
+
+
+
         ];
 }

@@ -18,6 +18,7 @@ class Terapia_Bajav_ApiController extends Controller
         $paciente = Pacientes::select('id_paciente', 'sucursal', 'nombres', 'apellidos', 'nro_cedula')
             ->where('id_paciente', $id_paciente)
             ->first();
+
         if (!$paciente) {
             return response()->json([
                 'respuesta' => false,
@@ -25,7 +26,7 @@ class Terapia_Bajav_ApiController extends Controller
                 'mensaje_dev' => "No se encontró ningún paciente con el ID proporcionado.",
             ], 404);
         }
-        // Buscar las terapias asociadas con el id_terapia y opcionalmente con id_sesion
+
         $query = TerapiaBajaV::where('id_terapia', $id_terapia);
         if ($id_sesion) {
             $query->where('id', $id_sesion);
@@ -69,31 +70,27 @@ class Terapia_Bajav_ApiController extends Controller
         ], 200);
     }
 
-    public function eliminarTerapia_bajav($id_terapia, $id_sesion = null)
+    public function eliminarTerapia_bajav($id_terapia)
     {
-        // Buscar la terapia con el id_terapia y opcionalmente el id_sesion
-        $query = TerapiaBajaV::where('id_terapia', $id_terapia);
-        if ($id_sesion) {
-            $query->where('id', $id_sesion);
-        }
-        $terapia = $query->first();
-        // Verificar si la terapia fue encontrada
-        if (!$terapia) {
+
+        $terapia_bajav = TerapiaBajaV::find($id_terapia);
+
+        if (!$terapia_bajav) {
             return response()->json([
                 'respuesta' => false,
                 'mensaje' => 'Terapia no encontrada',
-                'mensaje_dev' => "No se encontró ninguna terapia con los parámetros proporcionados.",
+                'mensaje_dev' => "No se encontró ninguna terapias_bajav con el ID proporcionado."
             ], 404);
         }
-        // Eliminar la terapia
-        $terapia->delete();
+
+        $terapia_bajav->delete();
+
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapia eliminada correctamente',
             'mensaje_dev' => null
         ], 200);
     }
-
 
     public function editarTerapia_bajav(Request $request, $id_sesion)
     {

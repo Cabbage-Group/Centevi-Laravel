@@ -24,16 +24,16 @@ export const updateUsuario = createAsyncThunk(
     'usuarios/updateUsuario',
     async ({ id_usuario, data }) => {
         try {
-            // Crear FormData y agregar el campo _method
+           
             const formData = new FormData();
-            formData.append('_method', 'PUT'); // Agregar el campo _method para simular PUT
+            formData.append('_method', 'PUT'); 
             for (const [key, value] of data.entries()) {
                 formData.append(key, value);
             }
 
             const response = await axios.post(`${API}/usuarios/${id_usuario}`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data', // Asegúrate de que el tipo de contenido es correcto
+                    'Content-Type': 'multipart/form-data', 
                 },
             });
 
@@ -44,12 +44,13 @@ export const updateUsuario = createAsyncThunk(
         }
     }
 );
+
 export const deleteUsuario = createAsyncThunk(
     'usuarios/deleteUsuario',
     async (id_usuario) => {
         try {
             await axios.delete(`${API}/usuarios/${id_usuario}`);
-            return id_usuario;  // Devuelve el ID del usuario eliminado para que pueda ser usado en el reducer
+            return id_usuario;  
         } catch (error) {
             console.error('Error deleting usuario:', error.response.data);
             throw error;
@@ -62,7 +63,7 @@ export const createUsuario = createAsyncThunk(
     async (newUsuarioData) => {
         try {
             const response = await axios.post(`${API}/usuarios`, newUsuarioData);
-            return response.data;  // Retorna los datos del usuario recién creado
+            return response.data; 
         } catch (error) {
             console.error('Error creating usuario:', error.response.data);
             throw error;

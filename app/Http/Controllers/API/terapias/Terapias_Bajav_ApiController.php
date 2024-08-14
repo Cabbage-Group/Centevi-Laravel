@@ -7,8 +7,7 @@ use App\Models\TerapiaBajaV;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\TerapiasBajaV;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+
 
 class Terapias_Bajav_ApiController extends Controller
 {
@@ -129,6 +128,28 @@ class Terapias_Bajav_ApiController extends Controller
             'respuesta' => true,
             'mensaje' => 'Terapias_bajav actualizada correctamente',
             'data' => $terapias_bajav,
+            'mensaje_dev' => null
+        ], 200);
+    }
+
+    public function eliminarTerapias_Bajav($id_terapia)
+    {
+        $terapias_bajav = TerapiasBajaV::find($id_terapia);
+
+        if (!$terapias_bajav) {
+            return response()->json([
+                'respuesta' => false,
+                'mensaje' => 'Terapia no encontrada',
+                'mensaje_dev' => "No se encontró ninguna terapias_bajav con el ID proporcionado."
+            ], 404);
+        }
+
+        $terapias_bajav->delete();
+
+        return response()->json([
+            'respuesta' => true,
+            'mensaje' => 'Terapias_bajav eliminada correctamente',
+            'data' => null,
             'mensaje_dev' => null
         ], 200);
     }

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
+import { fetchPacientes, eliminarPaciente } from '../../redux/features/pacientes/pacientesSlice.js';
 import { Link } from 'react-router-dom';
 import PaginationPacientes from './PaginationPacientes.js';
+import Swal from 'sweetalert2';
 
 
 const ListaPaciente = () => {
@@ -17,6 +18,39 @@ const ListaPaciente = () => {
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    const handleEliminarPaciente = (id_paciente) => {
+        // Mostrar alerta de confirmación
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Esta acción no se puede deshacer",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Dispatch the eliminarPaciente thunk
+                dispatch(eliminarPaciente(id_paciente))
+                    .then(() => {
+                        Swal.fire(
+                            'Eliminado',
+                            'El paciente ha sido eliminado.',
+                            'success'
+                        );
+                    })
+                    .catch((error) => {
+                        Swal.fire(
+                            'Error',
+                            'Hubo un problema al eliminar el paciente.',
+                            'error'
+                        );
+                    });
+            }
+        });
     };
 
     if (status === 'loading') {
@@ -131,6 +165,7 @@ const ListaPaciente = () => {
                                                                         data-toggle="modal"
                                                                         id_paciente="1"
                                                                     >
+                                                                        <Link to={`/editar-paciente/${paciente.id_paciente}`}>
                                                                         <svg
                                                                             className="h-6 w-6"
                                                                             fill="none"
@@ -145,10 +180,12 @@ const ListaPaciente = () => {
                                                                                 strokeWidth="2"
                                                                             />
                                                                         </svg>
+                                                                        </Link>
                                                                     </button>
                                                                     <button
                                                                         borrar_paciente="1"
                                                                         className="btn btn-danger btnEliminarPaciente"
+                                                                        onClick={() => handleEliminarPaciente(paciente.id_paciente)}
                                                                     >
                                                                         <svg
                                                                             className="h-6 w-6"

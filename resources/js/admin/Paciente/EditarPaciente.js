@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchVerPaciente } from '../../redux/features/pacientes/VerPacienteSlice';
 import { fetchEditarPaciente } from '../../redux/features/pacientes/EditarPacienteSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const formatToDateDisplay = (dateStr) => {
     if (!dateStr) return '';
@@ -14,7 +15,7 @@ const EditarPaciente = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id } = useParams();
-    const { data: verPaciente } = useSelector((state) => state.verPaciente);
+    const { data: verPaciente, status, error } = useSelector((state) => state.verPaciente);
 
     const [formData, setFormData] = useState({
         sucursal: "1",
@@ -97,7 +98,7 @@ const EditarPaciente = () => {
         const { name, value, dataset } = e.target;
     
         setFormData((prevFormData) => {
-            // Check if the input belongs to "urgencia" or "menor"
+           
             if (dataset.group === 'urgencia') {
                 return {
                     ...prevFormData,
@@ -115,7 +116,7 @@ const EditarPaciente = () => {
                     },
                 };
             }
-            // Default case for regular inputs
+            
             return {
                 ...prevFormData,
                 [name]: value,
@@ -123,11 +124,34 @@ const EditarPaciente = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        dispatch(fetchEditarPaciente({ id, data: formData }));
-        navigate(-1); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
+        try {
+           
+            await dispatch(fetchEditarPaciente({ id, data: formData })).unwrap();
+    
+           
+            Swal.fire({
+                icon: 'success',
+                title: 'Paciente actualizado',
+                text: 'Los datos del paciente han sido actualizados exitosamente',
+                confirmButtonText: 'OK'
+            }).then(() => {
+               
+                navigate(-1);
+            });
+    
+        } catch (error) {
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema al actualizar los datos del paciente',
+                confirmButtonText: 'OK'
+            });
+        }
     };
+
 
     return (
         <div className="admin-data-content" style={{ marginTop: '50px' }}>
@@ -148,6 +172,10 @@ const EditarPaciente = () => {
                                         <div className="widget-content widget-content-area">
                                             
                                             <form method="post" role="form" onSubmit={handleSubmit}>
+                                            {status === 'loading' && <p>Cargando...</p>}
+                                            {status === 'failed' && <p style={{ color: 'red' }}>{error}</p>}
+                                            {status === 'succeeded' && <p style={{ color: 'green' }}>Paciente actualizado correctamente</p>}
+                                            
                                                 <div className="form-row mb-4">
                                                     <div className="form-group col-md-6">
                                                         <p>
@@ -323,6 +351,8 @@ const EditarPaciente = () => {
                                                             placeholder="Nombre de Contacto"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="urgencia"
+                                                            
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -334,6 +364,7 @@ const EditarPaciente = () => {
                                                             placeholder="Parentesco"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="urgencia"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -345,6 +376,7 @@ const EditarPaciente = () => {
                                                             placeholder="Número de Contacto"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="urgencia"
                                                         />
                                                     </div>
                                                 </div>
@@ -359,6 +391,7 @@ const EditarPaciente = () => {
                                                             placeholder="Nombre del Responsable"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="menor"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -370,6 +403,7 @@ const EditarPaciente = () => {
                                                             placeholder="Parentesco"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="menor"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -383,6 +417,7 @@ const EditarPaciente = () => {
                                                             placeholder="Número de Celular del Responsable"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="menor"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -396,6 +431,7 @@ const EditarPaciente = () => {
                                                             placeholder="Remitido"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="menor"
                                                         />
                                                     </div>
                                                 </div>

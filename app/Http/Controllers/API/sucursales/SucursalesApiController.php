@@ -10,25 +10,39 @@ class SucursalesApiController extends Controller
 {
     public function sucursales(Request $request)
     {
-        // Obtener los parámetros
+        
         $page = $request->query('page', 1);
-        $limit = $request->query('limit', 100);
+        $limit = $request->query('limit', 7);
         $sortOrder = $request->query('sortOrder', 'asc');
         $sortColumn = $request->query('sortColumn', 'id_sucursal');
+        $search = $request->input('search', '');  
 
-        // Validar los parámetros
+       
         $request->validate([
             'page' => 'integer|min:1',
             'limit' => 'integer|min:1|max:100',
             'sortOrder' => 'in:asc,desc',
-            'sortColumn' => 'string|in:nombre,ubicacion,fecha_creacion', // Ajusta según los campos que tengas
+            'sortColumn' => 'string|in:id_sucursal,nombre,ubicacion,fecha_creacion',
+            'search' => 'nullable|string|max:255',
         ]);
 
-        // Obtener los datos paginados
-        $sucursales = Sucursales::orderBy($sortColumn, $sortOrder)
-            ->paginate($limit, ['*'], 'page', $page);
+        $query = Sucursales::query();
 
-        // Formatear la respuesta
+        if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('nombre', 'LIKE', '%' . $search . '%')
+              ->orWhere('ubicacion', 'LIKE', '%' . $search . '%');
+        });
+    }
+
+
+        $query->orderBy($sortColumn, $sortOrder);
+
+        
+        $sucursales = $query->paginate($limit, ['*'], 'page', $page);
+
+
+       
         return response()->json([
             'data' => $sucursales->items(),
             'meta' => [
@@ -39,6 +53,75 @@ class SucursalesApiController extends Controller
             'status' => [
                 'code' => 200,
                 'message' => 'Sucursales retrieved successfully',
+            ],
+        ]);
+    }
+
+    public function createSucursal(Request $request)
+    {
+     
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'ubicacion' => 'required|string|max:255',
+            'fecha_creacion' => 'date',
+           
+        ]);
+
+       
+        $sucursal = Sucursales::create([
+            'nombre' => $request->nombre,
+            'ubicacion' => $request->ubicacion,
+            'fecha_creacion' =>  now(),
+        ]);
+
+        return response()->json([
+            'data' => $sucursal,
+            'status' => [
+                'code' => 201,
+                'message' => 'Sucursal created successfully',
+            ],
+        ]);
+    }
+
+
+    public function updateSucursal(Request $request, $id)
+    {
+       
+        $request->validate([
+            'nombre' => 'string|max:255',
+            'ubicacion' => 'string|max:255',
+            'fecha_creacion' => 'date',
+          
+        ]);
+
+       
+        $sucursal = Sucursales::findOrFail($id);
+
+       
+        $sucursal->update($request->all());
+
+        return response()->json([
+            'data' => $sucursal,
+            'status' => [
+                'code' => 200,
+                'message' => 'Sucursal updated successfully',
+            ],
+        ]);
+    }
+
+
+    public function deleteSucursal($id)
+    {
+      
+        $sucursal = Sucursales::findOrFail($id);
+
+       
+        $sucursal->delete();
+
+        return response()->json([
+            'status' => [
+                'code' => 200,
+                'message' => 'Sucursal deleted successfully',
             ],
         ]);
     }

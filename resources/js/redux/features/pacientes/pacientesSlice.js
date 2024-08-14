@@ -13,6 +13,14 @@ export const fetchPacientes = createAsyncThunk(
     }
 );
 
+export const eliminarPaciente = createAsyncThunk(
+    'pacientes/eliminarPaciente',
+    async (id_paciente) => {
+        const response = await axios.delete(`${API}/pacientes/${id_paciente}`);
+        return response.data;
+    }
+);
+
 const pacientesSlice = createSlice({
     name: 'pacientes',
     initialState: {
@@ -34,6 +42,18 @@ const pacientesSlice = createSlice({
                 state.meta = action.payload.meta;
             })
             .addCase(fetchPacientes.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(eliminarPaciente.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(eliminarPaciente.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Elimina el paciente del estado local
+                state.pacientes = state.pacientes.filter(paciente => paciente.id !== action.meta.arg);
+            })
+            .addCase(eliminarPaciente.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

@@ -18,6 +18,8 @@ const Usuarios = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [fotoPreview, setFotoPreview] = useState('');
     const [file, setFile] = useState(null);
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortColumn, setSortColumn] = useState('nombre');
 
     const [formValues, setFormValues] = useState({
         nombre: '',
@@ -75,8 +77,7 @@ const Usuarios = () => {
 
     }, [dispatch, currentPage]);
 
-    const [sortOrder, setSortOrder] = useState('asc');
-    const [sortColumn, setSortColumn] = useState('nombre');
+    
 
     useEffect(() => {
         dispatch(fetchUsuarios({ page: currentPage, limit: 7, sortOrder, sortColumn, search: localSearch }));
@@ -294,7 +295,7 @@ const Usuarios = () => {
                                                                         placeholder="Search..."
                                                                         type="search"
                                                                         value={localSearch}
-                                                                        onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                                                        onChange={handleSearchChange} 
                                                                     />
                                                                 </label>
                                                             </div>
