@@ -43,7 +43,8 @@ import EditarGeneral from './admin/consulta/EditarGeneral.js';
 import SelectReceta from './admin/recetas/SelectReceta.js';
 import EditarReceta from './admin/recetas/EditarReceta.js';
 import TerapiasBajaVision from './admin/terapias/terapiasBajaVision.js';
-import terapiaOptometriaPediatrica from './admin/terapias/terapiasOptometriaPediatrica.js'
+import VerSesionTerapia from './admin/terapias/VerSesionTerapia.js';
+import EditarSesionTerapia from './admin/terapias/EditarSesionTerapia.js';
 
 function AppRouter() {
     return (
@@ -87,6 +88,9 @@ function AppRouter() {
 
                     <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
                     <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
+                    <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
+                    <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
+
                     <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />
                     <Route path="/reportes-sin-atencion" element={<Sidebar component={<SinAtencion />} />} />
                     <Route path="/reportes-ultima-atencion" element={<Sidebar component={<UltimaAtencion />} />} />
@@ -94,11 +98,11 @@ function AppRouter() {
                     <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
 
-                    <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
-                    <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
-                    <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
+                    <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia/>} />} />
+                    <Route path="/editar-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapia/>} />} />
 
-                    <Route path="/terapia-pediatrica/:id_receta" element={<Sidebar component={<terapiaOptometriaPediatrica/>} />} />
+                    <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+                    <Route path="/terapias-bajavision/:id/:id_terapia" element={<Sidebar component={<TerapiasBajaVision/>} />} />
 
                 </Routes>
             </Router>

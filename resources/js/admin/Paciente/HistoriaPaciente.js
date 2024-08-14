@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import { fetchVerPaciente } from '../../redux/features/pacientes/VerPacienteSlice'
 import { fetchMostrarOrtoptica } from '../../redux/features/pacientes/MostrarOrtopticaSlice';
 import { fetchMostrarBajaVision } from '../../redux/features/pacientes/MostrarBajaVisionSlice';
@@ -17,6 +18,7 @@ import { uploadDocumento } from '../../redux/features/documentos/DocumentosPacie
 import { fetchVerDocumentosSlice } from '../../redux/features/documentos/VerDocumentosSlice';
 import { deleteDocumento } from '../../redux/features/documentos/deleteDocumentoSlice';
 import { fetchTerapiasBajaVision, createTerapiasBajaVision } from '../../redux/features/terapias/terapiasBajaVisionSlice';
+import { fetchTerapiasOptometriaNeonatos } from '../../redux/features/terapias/TerapiaOptometriaNeonatosSlice';
 import { useParams, Link } from 'react-router-dom';
 
 const formatToDateDisplay = (dateStr) => {
@@ -51,6 +53,7 @@ const HistoriaPaciente = () => {
     const { uploading } = useSelector((state) => state.subirDocumento);
     const { documentos } = useSelector((state) => state.verDocumento);
     const { terapias } = useSelector((state) => state.terapiasBajaVision);
+    const { data: neonatos = [] } = useSelector((state) => state.terapiaNeonatos);
     const [age, setAge] = useState(null);
 
     let urgencia = {};
@@ -78,8 +81,9 @@ const HistoriaPaciente = () => {
             dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
             dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
             dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchVerDocumentosSlice(id));
+            dispatch(fetchTerapiasOptometriaNeonatos(id));
             dispatch(fetchTerapiasBajaVision(id));
+            dispatch(fetchVerDocumentosSlice(id));
         }
     }, [dispatch, id]);
 
@@ -92,21 +96,41 @@ const HistoriaPaciente = () => {
             fecha_creacion: new Date().toISOString().split('T')[0]
         };
 
-        dispatch(createTerapiasBajaVision(nuevaTerapia))
-            .unwrap()
-            .then((response) => {
-                alert('Terapia Creada con exito')
-            })
-            .catch((error) => {
-                // Maneja el error aquí
-                console.error('Error al crear terapia:', error);
-            });
+        Swal.fire({
+            title: '¿Crear nueva terapia?',
+            text: "¿Estás seguro de que quieres crear una nueva terapia?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, crear',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(createTerapiasBajaVision(nuevaTerapia))
+                    .unwrap()
+                    .then((response) => {
+                        Swal.fire(
+                            '¡Creada!',
+                            'La terapia ha sido creada con éxito.',
+                            'success'
+                        );
+                    })
+                    .catch((error) => {
+                        Swal.fire(
+                            'Error',
+                            'Hubo un problema al crear la terapia.',
+                            'error'
+                        );
+                        console.error('Error al crear terapia:', error);
+                    });
+            }
+        });
     };
 
     const handleFileChange = (e) => {
         setDocumento(e.target.files[0]);
     };
-
     const handleFileUpload = (e) => {
         e.preventDefault();
         if (!documento) {
@@ -124,105 +148,232 @@ const HistoriaPaciente = () => {
                 }
             });
     };
-
-
     const handleDeleteDocument = (id_documento) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar este documento?')) {
-            dispatch(deleteDocumento(id_documento))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Documento eliminado exitosamente');
-                        dispatch(fetchVerDocumentosSlice(id)); // Actualizar la lista de documentos
-                    } else {
-                        alert('Hubo un error al intentar eliminar el documento.');
-                    }
-                });
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(deleteDocumento(id_documento))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Documento eliminado exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchVerDocumentosSlice(id)); // Actualizar la lista de documentos
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar el documento.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
     };
+
     const handleDeleteOptometriaGeneral = (id_consulta) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
-            dispatch(deleteOptometriaGeneral(id_consulta))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Consulta eliminada exitosamente');
-                        dispatch(fetchMostrarGeneral({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-                    } else {
-                        alert('Hubo un error al intentar eliminar la consulta.');
-                    }
-                });
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(deleteOptometriaGeneral(id_consulta))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Consulta eliminada exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchMostrarGeneral({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar la consulta.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
     };
-
     const handleDeleteBajaVision = (id_consulta) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
-            dispatch(DeleteBajaVision(id_consulta))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Consulta eliminada exitosamente');
-                        dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-                    } else {
-                        alert('Hubo un error al intentar eliminar la consulta.');
-                    }
-                });
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(DeleteBajaVision(id_consulta))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Consulta eliminada exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchMostrarBajaVision({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar la consulta.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
     };
-
     const handleDeleteConsultaGenerica = (id_consulta) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
-            dispatch(DeleteConsultaGenerica(id_consulta))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Consulta eliminada exitosamente');
-                        dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-                    } else {
-                        alert('Hubo un error al intentar eliminar la consulta.');
-                    }
-                });
-        }
-    };
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(DeleteConsultaGenerica(id_consulta))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Consulta eliminada exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar la consulta.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
 
+    };
     const handleDeleteNeonatos = (id_consulta) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
-            dispatch(DeleteNeonatos(id_consulta))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Consulta eliminada exitosamente');
-                        dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-                    } else {
-                        alert('Hubo un error al intentar eliminar la consulta.');
-                    }
-                });
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(DeleteNeonatos(id_consulta))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Consulta eliminada exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar la consulta.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
     };
-
     const handleDeleteOrtoptica = (id_consulta) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
-            dispatch(DeleteOrtoptica(id_consulta))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Consulta eliminada exitosamente');
-                        dispatch(fetchMostrarOrtoptica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-                    } else {
-                        alert('Hubo un error al intentar eliminar la consulta.');
-                    }
-                });
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(DeleteOrtoptica(id_consulta))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Consulta eliminada exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchMostrarOrtoptica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar la consulta.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
     };
-
     const handleDeletePediatrica = (id_consulta) => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta consulta?')) {
-            dispatch(DeletePediatrica(id_consulta))
-                .then((result) => {
-                    if (result.meta.requestStatus === 'fulfilled') {
-                        alert('Consulta eliminada exitosamente');
-                        dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-                    } else {
-                        alert('Hubo un error al intentar eliminar la consulta.');
-                    }
-                });
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                dispatch(DeletePediatrica(id_consulta))
+                    .then((result) => {
+                        if (result.meta.requestStatus === 'fulfilled') {
+                            Swal.fire(
+                                'Eliminado',
+                                'Consulta eliminada exitosamente',
+                                'success'
+                            );
+                            dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+                        } else {
+                            Swal.fire(
+                                'Error',
+                                'Hubo un error al intentar eliminar la consulta.',
+                                'error'
+                            );
+                        }
+                    });
+            }
+        });
     };
-
     return (
         <div
             className="admin-data-content"
@@ -1401,28 +1552,43 @@ const HistoriaPaciente = () => {
                                                             </button>
                                                         </form>
                                                     </div>
-
                                                     {age !== null && (
                                                         <>
                                                             {age < 3 && (
                                                                 <div className="col-md-3">
-                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                        Crear Terapia Optometría Neonatos
-                                                                    </button>
+                                                                    <form
+
+                                                                        method="post"
+                                                                        role="form"
+                                                                    >
+                                                                        <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                            Crear Terapia Optometría Neonatos
+                                                                        </button>
+                                                                    </form>
                                                                 </div>
                                                             )}
                                                             {age >= 3 && age <= 18 && (
                                                                 <div className="col-md-3">
-                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                        Crear Terapia Optometría Pediatrica
-                                                                    </button>
+                                                                    <form
+                                                                        method="post"
+                                                                        role="form"
+                                                                    >
+                                                                        <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                            Crear Terapia Optometría Pediatrica
+                                                                        </button>
+                                                                    </form>
                                                                 </div>
                                                             )}
                                                             {age > 18 && (
                                                                 <div className="col-md-3">
-                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                        Crear Terapia Ortoptica Adultos
-                                                                    </button>
+                                                                    <form
+                                                                        method="post"
+                                                                        role="form"
+                                                                    >
+                                                                        <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                            Crear Terapia Ortoptica Adultos
+                                                                        </button>
+                                                                    </form>
                                                                 </div>
                                                             )}
                                                         </>
@@ -1497,6 +1663,71 @@ const HistoriaPaciente = () => {
                                                         </div>
                                                     ))}
                                                 </div>
+                                                <div className="row">
+                                                    {neonatos && neonatos.length > 0 ? (
+                                                        neonatos.map((terapia) => (
+                                                            <div key={terapia.id_terapia} className="col-md-12">
+                                                                <div className="widget-content widget-content-area">
+                                                                    <div
+                                                                        className="card component-card_7"
+                                                                        style={{
+                                                                            background: 'rgb(0 150 136 / 11%)',
+                                                                            width: '100%'
+                                                                        }}
+                                                                    >
+                                                                        <div className="card-body">
+                                                                            <button
+                                                                                className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                                                                id_paciente={terapia.id_paciente}
+                                                                                id_terapia={terapia.id_terapia}
+                                                                                style={{
+                                                                                    marginBottom: '-80px',
+                                                                                    position: 'absolute',
+                                                                                    zIndex: '3',
+                                                                                    marginLeft: '420px',
+                                                                                }}
+                                                                            >
+                                                                                <svg
+                                                                                    className="h-6 w-6"
+                                                                                    fill="none"
+                                                                                    stroke="currentColor"
+                                                                                    viewBox="0 0 24 24"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                >
+                                                                                    <path
+                                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                        strokeLinecap="round"
+                                                                                        strokeLinejoin="round"
+                                                                                        strokeWidth="2"
+                                                                                    />
+                                                                                </svg>
+                                                                            </button>
+                                                                            <h5 className="">
+                                                                                Terapia Optometria Neonatos:
+                                                                            </h5>
+                                                                            <div className="rating-stars">
+                                                                                <p>
+                                                                                    Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
+                                                                                </p>
+                                                                                <p>
+                                                                                    Fecha de creación: <b>{terapia.fecha_creacion}</b>
+                                                                                </p>
+                                                                                <Link to={`/terapias-bajavision/${id}/${terapia.id_terapia}`}>
+                                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                                        VER
+                                                                                    </button>
+                                                                                </Link>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p>No hay terapias disponibles.</p>
+                                                    )}
+                                                </div>
+
                                                 <div className="row mt-3 p-3">
                                                     <h6>SUBIR DOCUMENTOS DEL PACIENTE:</h6>
                                                     <div className="col-lg-12 layout-spacing" id="fuSingleFile">
@@ -1651,5 +1882,4 @@ const HistoriaPaciente = () => {
         </div>
     )
 }
-
 export default HistoriaPaciente

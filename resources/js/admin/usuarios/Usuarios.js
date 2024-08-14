@@ -139,9 +139,6 @@ const Usuarios = () => {
         }
     };
 
-
-
-
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
@@ -259,9 +256,6 @@ const Usuarios = () => {
             }
         });
     };
-
-
-
 
 
     return (

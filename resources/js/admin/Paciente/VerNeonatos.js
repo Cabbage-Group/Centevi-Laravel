@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, Link } from 'react-router-dom';
+import { useParams} from 'react-router-dom';
 import { fetchVerNeonatos } from '../../redux/features/pacientes/VerNeonatosSlice.js';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';

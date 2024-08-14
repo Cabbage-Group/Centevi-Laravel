@@ -254,7 +254,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="direccion">Dirección</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.direccion}
+                                                            value={formData.direccion || ''}
                                                             name="direccion"
                                                             placeholder="Dirección"
                                                             type="text"
@@ -265,7 +265,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="ocupacion">Ocupación</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.ocupacion}
+                                                            value={formData.ocupacion || ''}
                                                             name="ocupacion"
                                                             placeholder="Ocupación"
                                                             type="text"
@@ -276,7 +276,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="telefono">Teléfono</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.telefono}
+                                                            value={formData.telefono || ''}
                                                             name="telefono"
                                                             placeholder="Teléfono"
                                                             type="text"
@@ -300,7 +300,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="medico">Médico</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.medico}
+                                                            value={formData.medico || ''}
                                                             name="medico"
                                                             placeholder="Médico"
                                                             type="text"
@@ -318,7 +318,7 @@ const EditarPaciente = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.urgencia.nombre_ur}
+                                                            value={formData.urgencia.nombre_ur || ''}
                                                             name="nombre_ur"
                                                             placeholder="Nombre de Contacto"
                                                             type="text"
@@ -329,7 +329,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="parentesco_ur">{' '}Parentesco</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.urgencia.parentesco_ur}
+                                                            value={formData.urgencia.parentesco_ur || ''}
                                                             name="parentesco_ur"
                                                             placeholder="Parentesco"
                                                             type="text"
@@ -340,7 +340,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="nro_ur">{' '}Número</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.urgencia.nro_ur}
+                                                            value={formData.urgencia.nro_ur || ''}
                                                             name="nro_ur"
                                                             placeholder="Número de Contacto"
                                                             type="text"
@@ -354,7 +354,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="responsable">{' '}Por favor colocar el nombre del acudiente o responsable</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.menor.responsable}
+                                                            value={formData.menor.responsable || ''}
                                                             name="responsable"
                                                             placeholder="Nombre del Responsable"
                                                             type="text"
@@ -365,7 +365,7 @@ const EditarPaciente = () => {
                                                         <label htmlFor="parentesco">{' '}Parentesco</label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.menor.parentesco}
+                                                            value={formData.menor.parentesco || ''}
                                                             name="parentesco"
                                                             placeholder="Parentesco"
                                                             type="text"
@@ -378,7 +378,7 @@ const EditarPaciente = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.menor.nro_celular_responsable}
+                                                            value={formData.menor.nro_celular_responsable || ''}
                                                             name="nro_celular_responsable"
                                                             placeholder="Número de Celular del Responsable"
                                                             type="text"
@@ -391,7 +391,7 @@ const EditarPaciente = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            value={formData.menor.remitido}
+                                                            value={formData.menor.remitido || ''}
                                                             name="remitido"
                                                             placeholder="Remitido"
                                                             type="text"

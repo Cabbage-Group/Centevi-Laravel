@@ -109,8 +109,8 @@ Route::get('/api/terapias_bajav/{id_paciente}', [Terapias_Bajav_ApiController::c
 Route::post('/api/terapias_bajav', [Terapias_Bajav_ApiController::class, 'crearTerapias_Bajav']);
 Route::put('/api/terapias_bajav/{id}', [Terapias_Bajav_ApiController::class, 'editarTerapias_Bajav']);
 
-
 Route::get('/api/terapias_optometria_neonatos/{id_paciente}', [Terapias_Optometria_Neonatos_ApiController::class, 'verTerapias_optometria_neonatos']);
+Route::post('/api/terapias_optometria_neonatos', [Terapias_Optometria_Neonatos_ApiController::class,'crearTerapias_optometria_neonatos']);
 
 Route::get('/api/terapias_optometria_pediatrica/{id_paciente}', [Terapias_Optometria_Pediatrica_ApiController::class, 'verTerapias_optometria_pediatrica']);
 

@@ -16,7 +16,6 @@ class Terapias_Bajav_ApiController extends Controller
     public function verTerapias_bajav($id_paciente)
     {
         $query = TerapiasBajaV::where('id_paciente', $id_paciente);
-        
         $terapias = $query->get();
         if ($terapias->isEmpty()) {
             return response()->json([

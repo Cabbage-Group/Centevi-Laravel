@@ -12,11 +12,8 @@ class Terapias_Optometria_Neonatos_ApiController extends Controller
 {
     public function verTerapias_optometria_neonatos($id_paciente)
     {
-       
         $query = TerapiasOptometriaNeonatos::where('id_paciente', $id_paciente);
-         
         $terapias = $query->get();
-        
         if ($terapias->isEmpty()) {
             return response()->json([
                 'respuesta' => false,
@@ -24,13 +21,9 @@ class Terapias_Optometria_Neonatos_ApiController extends Controller
                 'mensaje_dev' => "No se encontraron terapias con los parámetros proporcionados.",
             ], 404);
         }
-    
-     
         foreach ($terapias as &$terapia) {
             $terapia->cantidad = TerapiaOptometriaNeonatos::where('id_terapia', $terapia->id_terapia)->count();
         }
-    
-  
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapias encontradas correctamente.',
@@ -70,13 +63,13 @@ class Terapias_Optometria_Neonatos_ApiController extends Controller
         $data = array_merge($defaults, $data);
 
 
-        $terapias_bajav= TerapiasOptometriaNeonatos::create($data);
+        $terapias_neonato = TerapiasOptometriaNeonatos::create($data);
 
 
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapiasbajav registrada correctamente',
-            'data' => [$terapias_bajav],
+            'data' => [$terapias_neonato],
             'mensaje_dev' => null
         ], 201);
     }
