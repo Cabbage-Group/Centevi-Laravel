@@ -26,7 +26,7 @@ class UsuariosApiController extends Controller
             
         ]);
 
-        // Manejar errores de validación
+        
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -35,7 +35,7 @@ class UsuariosApiController extends Controller
             ], 400);
         }
 
-        // Obtener los parámetros validados con valores predeterminados
+     
         $page = $request->input('page', 1);
         $limit = $request->input('limit', 10);
         $sortOrder = $request->input('sortOrder', 'asc');
@@ -46,7 +46,7 @@ class UsuariosApiController extends Controller
         try {
             $query = Usuarios::query();
 
-            // Aplicar filtro de usuarios si se proporciona
+            
             if ($usuarios) {
                 $query->where('usuario', 'LIKE', '%' . $usuarios . '%');
             }
@@ -64,10 +64,10 @@ class UsuariosApiController extends Controller
                 });
             }   
 
-            // Aplicar ordenamiento por columna y orden especificados
+          
             $query->orderBy($sortColumn, $sortOrder);
 
-            // Obtener datos paginados
+           
             $usuarios = $query->paginate($limit, ['*'], 'page', $page);
 
             $meta = [
@@ -95,10 +95,10 @@ class UsuariosApiController extends Controller
 
     public function update(Request $request, $id)
 {
-    // Log the incoming request data for debugging
+   
     Log::info('Incoming request data:', $request->all());
 
-    // Validar los datos de entrada
+  
     $request->validate([
         'usuario' => 'nullable|string|max:255',
         'nombre' => 'nullable|string|max:255',

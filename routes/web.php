@@ -27,7 +27,11 @@ use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
 Route::get('/api/pacientes/{id}', [PacientesApiController::class, 'VerPaciente']);
+
 Route::get('/api/sucursales', [SucursalesApiController::class, 'sucursales']);
+Route::post('/api/sucursales', [SucursalesApiController::class, 'createSucursal']);
+Route::put('/api/sucursales/{id}', [SucursalesApiController::class, 'updateSucursal']);
+Route::delete('/api/sucursales/{id}', [SucursalesApiController::class, 'deleteSucursal']);
 
 Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
@@ -97,6 +101,8 @@ Route::post('/api/recetas', [RecetasApiController::class, 'crearRecetas']);
 Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta']);
 Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
 Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
+
+
 
 Route::post('/api/documentos/subir', [DocumentosPacientesApiController::class, 'uploadDocument']);
 Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::class, 'index']);
