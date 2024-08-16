@@ -58,26 +58,17 @@ const Usuarios = () => {
 
             });
             setFotoPreview(selectedUsuario.foto || '');
-        } else {
-            setFormValues({
-                nombre: '',
-                usuario: '',
-                perfil: '',
-                sucursal: '',
-                password: '',
-                foto: null
-
-            });
-            setFotoPreview('');
         }
     }, [selectedUsuario, isEditMode]);
+
+
 
     useEffect(() => {
         dispatch(fetchSucursales({}));
 
     }, [dispatch, currentPage]);
 
-    
+
 
     useEffect(() => {
         dispatch(fetchUsuarios({ page: currentPage, limit: 7, sortOrder, sortColumn, search: localSearch }));
@@ -118,18 +109,17 @@ const Usuarios = () => {
         setFile(null);
     };
 
-
-
-
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         setFormValues({
             ...formValues,
-            [name]: value,
-
+            [name]: value
         });
 
+    };
+
+    const handleClearSearch = () => {
+        setLocalSearch('');
     };
 
     const handleChangeEstado = async (id_usuario, estado) => {
@@ -277,9 +267,13 @@ const Usuarios = () => {
                                             >
                                                 Agregar usuario
                                             </button>
+                                            
                                             <div className="table-responsive">
+                                             {status === 'loading' && <p>Loading...</p>}
+                                                    {status === 'failed' && <p>Error: {error}</p>}
+                                                    {status === 'succeeded' && (
                                                 <div className="dataTables_wrapper container-fluid dt-bootstrap4" id="zero-config_wrapper">
-                                                    <div className="table-responsive">
+                                                    <div className="table-responsive">                                                                                                
                                                         <div className="col-12 col-sm-6 mt-sm-10 mt-3">
                                                             <div className="dataTables_filter" id="zero-config_filter">
                                                                 <label>
@@ -295,283 +289,298 @@ const Usuarios = () => {
                                                                         placeholder="Search..."
                                                                         type="search"
                                                                         value={localSearch}
-                                                                        onChange={handleSearchChange} 
+                                                                        onChange={handleSearchChange}
+
                                                                     />
+                                                                    {localSearch && (
+                                                                        <button
+                                                                            onClick={handleClearSearch}
+                                                                            style={{
+                                                                                position: 'absolute',
+                                                                                right: '25px',
+                                                                                top: '50%',
+                                                                                transform: 'translateY(-50%)',
+                                                                                background: 'none',
+                                                                                border: 'none',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            &#x2715; { }
+                                                                        </button>
+                                                                    )}
                                                                 </label>
                                                             </div>
                                                         </div>
-                                                        {status === 'loading' && (
-                                                            <div>Loading...</div>
-                                                        )}
-                                                        {status === 'failed' && (
-                                                            <div>Error: {error}</div>
-                                                        )}
-                                                        {status === 'succeeded' && (
-                                                            <table
-                                                                aria-describedby="zero-config_info"
-                                                                className="table dt-table-hover tablas dataTable"
-                                                                id="zero-config"
-                                                                role="grid"
-                                                                style={{
-                                                                    width: '100%'
-                                                                }}
-                                                            >
-                                                                <thead>
-                                                                    <tr role="row">
-                                                                        <th
 
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="#: activate to sort column descending"
-                                                                            aria-sort="ascending"
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '10.5234px'
-                                                                            }}
-                                                                            tabIndex="0"
+                                                        <table
+                                                            aria-describedby="zero-config_info"
+                                                            className="table dt-table-hover tablas dataTable"
+                                                            id="zero-config"
+                                                            role="grid"
+                                                            style={{
+                                                                width: '100%'
+                                                            }}
+                                                        >
+                                                            <thead>
+                                                                <tr role="row">
+                                                                    <th
 
-                                                                        >
-                                                                            #
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Nombre: activate to sort column ascending"
-                                                                            className={`sorting_${sortColumn === 'nombre' ? sortOrder : ''}`}
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '153.82px',
-                                                                                cursor: 'pointer'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                            onClick={() => handleSort('nombre')}
-                                                                        >
-                                                                            Nombre
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Usuario: activate to sort column ascending"
-                                                                            className={`sorting_${sortColumn === 'usuario' ? sortOrder : ''}`}
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '78.1406px',
-                                                                                cursor: 'pointer'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                            onClick={() => handleSort('usuario')}
-                                                                        >
-                                                                            Usuario
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Foto: activate to sort column ascending"
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="#: activate to sort column descending"
+                                                                        aria-sort="ascending"
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '10.5234px'
+                                                                        }}
+                                                                        tabIndex="0"
 
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '34.2891px'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                        >
-                                                                            Foto
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Perfil: activate to sort column ascending"
-                                                                            className={`sorting_${sortColumn === 'perfil' ? sortOrder : ''}`}
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '115.477px',
-                                                                                cursor: 'pointer'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                            onClick={() => handleSort('perfil')}
-                                                                        >
-                                                                            Perfil
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Estado: activate to sort column ascending"
+                                                                    >
+                                                                        #
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Nombre: activate to sort column ascending"
+                                                                        className={`sorting_${sortColumn === 'nombre' ? sortOrder : ''}`}
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '153.82px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                        onClick={() => handleSort('nombre')}
+                                                                    >
+                                                                        Nombre
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Usuario: activate to sort column ascending"
+                                                                        className={`sorting_${sortColumn === 'usuario' ? sortOrder : ''}`}
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '78.1406px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                        onClick={() => handleSort('usuario')}
+                                                                    >
+                                                                        Usuario
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Foto: activate to sort column ascending"
 
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '120px'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                        >
-                                                                            Estado
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Último login: activate to sort column ascending"
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '34.2891px'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                    >
+                                                                        Foto
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Perfil: activate to sort column ascending"
+                                                                        className={`sorting_${sortColumn === 'perfil' ? sortOrder : ''}`}
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '115.477px',
+                                                                            cursor: 'pointer'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                        onClick={() => handleSort('perfil')}
+                                                                    >
+                                                                        Perfil
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Estado: activate to sort column ascending"
 
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '123.68px'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                        >
-                                                                            Último login
-                                                                        </th>
-                                                                        <th
-                                                                            aria-controls="zero-config"
-                                                                            aria-label="Acciones: activate to sort column ascending"
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '120px'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                    >
+                                                                        Estado
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Último login: activate to sort column ascending"
 
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '101.953px'
-                                                                            }}
-                                                                            tabIndex="0"
-                                                                        >
-                                                                            Acciones
-                                                                        </th>
-                                                                    </tr>
-                                                                </thead>
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '123.68px'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                    >
+                                                                        Último login
+                                                                    </th>
+                                                                    <th
+                                                                        aria-controls="zero-config"
+                                                                        aria-label="Acciones: activate to sort column ascending"
 
-                                                                <tbody>
-                                                                    {usuarios.map((usuario, index) => (
-                                                                        <tr key={usuario.id_usuario}>
-                                                                            <td>{index + 1 + (currentPage - 1) * 7}</td>
-                                                                            <td>{usuario.nombre}</td>
-                                                                            <td>{usuario.usuario}</td>
-                                                                            <td>
-                                                                                {usuario.foto && (
-                                                                                    <img
-                                                                                        src={usuario.foto} 
-                                                                                        alt={`${usuario.nombre} - Foto`}
-                                                                                        style={{ width: '50px', height: 'auto', marginTop: '10px' }}
-                                                                                    />
-                                                                                )}
-                                                                            </td>
-                                                                            <td>{usuario.perfil}</td>
-                                                                            <td>
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '101.953px'
+                                                                        }}
+                                                                        tabIndex="0"
+                                                                    >
+                                                                        Acciones
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody>
+                                                                {usuarios.map((usuario, index) => (
+                                                                    <tr key={usuario.id_usuario}>
+                                                                        <td>{index + 1 + (currentPage - 1) * 7}</td>
+                                                                        <td>{usuario.nombre}</td>
+                                                                        <td>{usuario.usuario}</td>
+                                                                        <td>
+                                                                            {usuario.foto && (
+                                                                                <img
+                                                                                    src={usuario.foto}
+                                                                                    alt={`${usuario.nombre} - Foto`}
+                                                                                    style={{ width: '50px', height: 'auto', marginTop: '10px' }}
+                                                                                />
+                                                                            )}
+                                                                        </td>
+                                                                        <td>{usuario.perfil}</td>
+                                                                        <td>
+                                                                            <button
+                                                                                className={`btn btn-${usuario.estado === 1 ? 'success' : 'danger'} btn-xs`}
+                                                                                onClick={() => handleChangeEstado(usuario.id_usuario, usuario.estado === 1 ? 0 : 1)}
+                                                                            >
+                                                                                {usuario.estado === 1 ? 'Activado' : 'Desactivado'}
+                                                                            </button>
+                                                                        </td>
+                                                                        <td>{usuario.ultimo_login}</td>
+                                                                        <td>
+                                                                            <div className="btn-group">
                                                                                 <button
-                                                                                    className={`btn btn-${usuario.estado === 1 ? 'success' : 'danger'} btn-xs`}
-                                                                                    onClick={() => handleChangeEstado(usuario.id_usuario, usuario.estado === 1 ? 0 : 1)}
+                                                                                    onClick={() => handleEditClick(usuario)}
+                                                                                    className="btn btn-warning btnEditarUsuario"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#modalEditarUsuario"
                                                                                 >
-                                                                                    {usuario.estado === 1 ? 'Activado' : 'Desactivado'}
+                                                                                    <svg
+                                                                                        className="h-6 w-6"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                    >
+                                                                                        <path
+                                                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                                                            strokeLinecap="round"
+                                                                                            strokeLinejoin="round"
+                                                                                            strokeWidth="2"
+                                                                                        />
+                                                                                    </svg>
                                                                                 </button>
-                                                                            </td>
-                                                                            <td>{usuario.ultimo_login}</td>
-                                                                            <td>
-                                                                                <div className="btn-group">
-                                                                                    <button
-                                                                                        onClick={() => handleEditClick(usuario)}
-                                                                                        className="btn btn-warning btnEditarUsuario"
-                                                                                        data-toggle="modal"
-                                                                                        data-target="#modalEditarUsuario"
+                                                                                <button
+                                                                                    className="btn btn-danger btnEliminarUsuario"
+                                                                                    onClick={() => handleDeleteClick(usuario)}
+                                                                                >
+                                                                                    <svg
+                                                                                        className="h-6 w-6"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
                                                                                     >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                        >
-                                                                                            <path
-                                                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                    <button
-                                                                                        className="btn btn-danger btnEliminarUsuario"
-                                                                                        onClick={() => handleDeleteClick(usuario)}
-                                                                                    >
-                                                                                        <svg
-                                                                                            className="h-6 w-6"
-                                                                                            fill="none"
-                                                                                            stroke="currentColor"
-                                                                                            viewBox="0 0 24 24"
-                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                        >
-                                                                                            <path
-                                                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                                                strokeLinecap="round"
-                                                                                                strokeLinejoin="round"
-                                                                                                strokeWidth="2"
-                                                                                            />
-                                                                                        </svg>
-                                                                                    </button>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-                                                                </tbody>
-
-                                                                <tfoot>
-                                                                    <tr>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                            style={{
-                                                                                width: '10px'
-                                                                            }}
-                                                                        >
-                                                                            #
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Nombre
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Usuario
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Foto
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Perfil
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Estado
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Último login
-                                                                        </th>
-                                                                        <th
-                                                                            colSpan="1"
-                                                                            rowSpan="1"
-                                                                        >
-                                                                            Acciones
-                                                                        </th>
+                                                                                        <path
+                                                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                            strokeLinecap="round"
+                                                                                            strokeLinejoin="round"
+                                                                                            strokeWidth="2"
+                                                                                        />
+                                                                                    </svg>
+                                                                                </button>
+                                                                            </div>
+                                                                        </td>
                                                                     </tr>
-                                                                </tfoot>
-                                                            </table>
-                                                        )}
+                                                                ))}
+                                                            </tbody>
+
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                        style={{
+                                                                            width: '10px'
+                                                                        }}
+                                                                    >
+                                                                        #
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Nombre
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Usuario
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Foto
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Perfil
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Estado
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Último login
+                                                                    </th>
+                                                                    <th
+                                                                        colSpan="1"
+                                                                        rowSpan="1"
+                                                                    >
+                                                                        Acciones
+                                                                    </th>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                      
                                                     </div>
+                                                
                                                     <PaginationUsuarios
                                                         meta={meta}
                                                         currentPage={currentPage}
                                                         totalPages={totalPages}
                                                         onPageChange={handlePageChange}
                                                     />
+                                                
                                                 </div>
+                                            )}
                                             </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -766,10 +775,7 @@ const Usuarios = () => {
                     className="modal fade show"
                     id="modalEditarUsuario"
                     role="dialog"
-
-
                 >
-
                     <div className="modal-dialog" >
                         <div className="modal-content">
 
@@ -808,8 +814,7 @@ const Usuarios = () => {
                                                 </span>
                                                 <input
                                                     className="form-control input-lg"
-                                                    defaultValue={selectedUsuario?.nombre || ''}
-                                                    id="editarNombre"
+                                                    value={formValues?.nombre || ''}
                                                     name="nombre"
                                                     onChange={handleChange}
                                                     required
@@ -824,8 +829,8 @@ const Usuarios = () => {
                                                 </span>
                                                 <input
                                                     className="form-control input-lg"
-                                                    defaultValue={selectedUsuario?.usuario || ''}
-                                                    id="editarUsuario"
+                                                    value={formValues?.usuario || ''}
+
                                                     name="editarUsuario"
                                                     onChange={handleChange}
                                                     readOnly
@@ -840,7 +845,7 @@ const Usuarios = () => {
                                                 </span>
                                                 <input
                                                     className="form-control input-lg"
-                                                    defaultValue=""
+                                                    value=""
                                                     name="password"
                                                     onChange={handleChange}
                                                     placeholder="Escriba la nueva contraseña"
@@ -860,7 +865,7 @@ const Usuarios = () => {
                                                 </span>
                                                 <select
                                                     className="form-control input-lg"
-                                                    defaultValue={selectedUsuario?.perfil || ''}
+                                                    value={formValues?.perfil || ''}
                                                     name="perfil"
                                                     onChange={handleChange}
                                                 >
@@ -893,7 +898,7 @@ const Usuarios = () => {
                                                 </span>
                                                 <select
                                                     className="form-control input-lg"
-                                                    defaultValue={selectedUsuario?.sucursal || ''}
+                                                    value={formValues?.sucursal || ''}
                                                     id="editarSucursal"
                                                     name="sucursal"
                                                     onChange={handleChange}
@@ -923,7 +928,7 @@ const Usuarios = () => {
                                             <p className="help-block">
                                                 Peso máximo de la foto 2MB
                                             </p>
-                                            {/* Vista previa de la imagen */}
+                                            {''}
                                             {fotoPreview && (
                                                 <img
                                                     src={fotoPreview}

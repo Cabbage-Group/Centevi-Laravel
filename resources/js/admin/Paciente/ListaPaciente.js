@@ -9,12 +9,17 @@ import Swal from 'sweetalert2';
 const ListaPaciente = () => {
 
     const dispatch = useDispatch();
-    const { meta, pacientes, status, error, totalPages } = useSelector((state) => state.pacientes);
+    const { meta, pacientes, status, error, totalPages, search } = useSelector((state) => state.pacientes);
     const [currentPage, setCurrentPage] = useState(1);
+    const [localSearch, setLocalSearch] = useState(search);
 
     useEffect(() => {
-        dispatch(fetchPacientes({ page: currentPage, limit: 6 }));
-    }, [dispatch, currentPage]);
+        dispatch(fetchPacientes({ page: currentPage, limit: 6 ,search: localSearch}));
+    }, [dispatch, currentPage,localSearch]);
+
+    const handleSearchChange = (event) => {
+        setLocalSearch(event.target.value);
+    };
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -53,13 +58,7 @@ const ListaPaciente = () => {
         });
     };
 
-    if (status === 'loading') {
-        return <div>Loading...</div>;
-    }
-
-    if (status === 'failed') {
-        return <div>Error: {error}</div>;
-    }
+   
 
     return (
         <div className="admin-data-content" style={{ marginTop: '50px' }}>
@@ -89,15 +88,21 @@ const ListaPaciente = () => {
                                                     className="form-control txt-buscar-cedula"
                                                     name=""
                                                     placeholder="Buscar por Cedula"
+                                                    
+                                                    value={localSearch}
+                                                    onChange={handleSearchChange}
                                                     style={{
                                                         marginTop: '16px',
                                                         width: '50%'
                                                     }}
-                                                    type="text"
+                                                    type="search"
                                                 />
                                             </div>
                                         </div>
                                         <div className="table-responsive">
+                                        {status === 'loading' && <p>Loading...</p>}
+                                                    {status === 'failed' && <p>Error: {error}</p>}
+                                                    {status === 'succeeded' && (
                                             <table
                                                 className="table dt-table-hover tabla_pacientes"
                                                 id="zero-config"
@@ -227,7 +232,9 @@ const ListaPaciente = () => {
                                                     </tr>
                                                 </tfoot>
                                             </table>
+                                            )}
                                         </div>
+                                        
                                         <PaginationPacientes
                                             meta={meta}
                                             currentPage={currentPage}

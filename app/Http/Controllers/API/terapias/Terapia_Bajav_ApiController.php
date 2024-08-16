@@ -94,12 +94,12 @@ class Terapia_Bajav_ApiController extends Controller
 
     public function editarTerapia_bajav(Request $request, $id_sesion)
     {
-        // Validar los datos de entrada
         $validator = Validator::make($request->all(), [
             "id_terapia" => 'nullable|integer',
             'pagado' => 'nullable|boolean',
             'sucursal' => 'nullable|integer'
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'respuesta' => false,
@@ -108,8 +108,9 @@ class Terapia_Bajav_ApiController extends Controller
                 'mensaje_dev' => "Oops, validation errors occurred."
             ], 400);
         }
-        // Buscar la terapia por ID
+
         $terapia_bajav = TerapiaBajaV::find($id_sesion);
+
         if (!$terapia_bajav) {
             return response()->json([
                 'respuesta' => false,
@@ -117,32 +118,43 @@ class Terapia_Bajav_ApiController extends Controller
                 'mensaje_dev' => "No se encontró ninguna sesioncon el ID proporcionado."
             ], 404);
         }
-        // Convertir el campo sesion de JSON a objeto
+
+
         $sesionData = json_decode($request->input('sesion'), true);
-        // Determinar si el campo completado debe ser 1 o 0
+
         $completado = 1;
+
         if (is_array($sesionData)) {
-            // Verificar los campos `resultado` y `actividad` (exceptuando `actividad_casa`)
+
             foreach ($sesionData as $key => $value) {
                 if (str_contains($key, 'resultado') && empty($value)) {
-                    $completado = 0; // No completado si hay campos `resultado` vacíos
+                    $completado = 0;
                     break;
                 }
                 if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
-                    $completado = 0; // No completado si hay campos `actividad` vacíos (excepto `actividad_casa`)
+                    $completado = 0;
                     break;
                 }
             }
         } else {
-            $completado = 0; // Si `sesion` no es un JSON válido, marcar como no completado
+            $completado = 0;
         }
-        // Actualizar la terapia
-        $terapia_bajav->update([
+
+        $updateData = [
             'sesion' => $request->input('sesion'),
-            'pagado' => $request->input('pagado'),
-            'sucursal' => $request->input('sucursal'),
             'completado' => $completado,
-        ]);
+        ];
+
+        if ($request->has('pagado')) {
+            $updateData['pagado'] = $request->input('pagado');
+        }
+
+        if ($request->has('sucursal')) {
+            $updateData['sucursal'] = $request->input('sucursal');
+        }
+
+        $terapia_bajav->update($updateData);
+
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapia actualizada correctamente',

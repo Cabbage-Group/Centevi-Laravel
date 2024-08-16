@@ -136,10 +136,7 @@ const SelectReceta = () => {
                                                     <Formik                                                  >
 
                                                         <Form  >
-                                                        
-                                                    
-                                                       
-                                                        
+                                                                                                                                                                                                      
                                                           <div className="form-row" style={{ marginBottom: "2rem" }}>
 
                                                                 <div className="col-md-4" >
@@ -1148,9 +1145,7 @@ const SelectReceta = () => {
                                                                 type="hidden"
                                                             />
                                                             
-                                                            {status === 'loading' && <p>Enviando...</p>}
-                                                            {status === 'failed' && <p>Error: {error}</p>}
-                                                            {status === 'succeeded' && <p>Neonato creado con éxito</p>}
+                                                            
 
                                                         </Form>
 

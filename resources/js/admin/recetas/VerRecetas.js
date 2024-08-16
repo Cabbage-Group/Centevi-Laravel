@@ -14,17 +14,16 @@ const VerRecetas = () => {
     const [localSearch, setLocalSearch] = useState(search);
     useEffect(() => {
 
-        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor,search:localSearch }));
-    }, [dispatch,localSearch, currentPage, orden, ordenPor]);
+        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor, search: localSearch }));
+    }, [dispatch, localSearch, currentPage, orden, ordenPor]);
 
     const handleSort = (newOrdenPor) => {
         const newOrder = orden === 'asc' ? 'desc' : 'asc';
         dispatch(setOrden(newOrder));
         dispatch(setOrdenPor(newOrdenPor));
-        dispatch(fecthRecetas({ page: currentPage,limit: 7, orden: newOrder, ordenPor: newOrdenPor }))
+        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden: newOrder, ordenPor: newOrdenPor }))
             .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
     };
-
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -32,6 +31,10 @@ const VerRecetas = () => {
 
     const handleSearchChange = (event) => {
         setLocalSearch(event.target.value);
+    };
+
+    const handleClearSearch = () => {
+        setLocalSearch('');
     };
 
     const handleEliminarReceta = async (id_receta) => {
@@ -46,11 +49,11 @@ const VerRecetas = () => {
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
             });
-    
+
             if (result.isConfirmed) {
                 await dispatch(eliminarRecetas(id_receta));
                 dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
-                
+
                 Swal.fire(
                     'Eliminado!',
                     'La receta ha sido eliminada.',
@@ -65,9 +68,6 @@ const VerRecetas = () => {
             );
         }
     };
-    
-    
-    
 
     return (
 
@@ -149,14 +149,31 @@ const VerRecetas = () => {
                                                                     y2="16.65"
                                                                 />
                                                             </svg>
-                                                                <input
+                                                            <input
                                                                 aria-controls="html5-extension"
                                                                 className="form-control"
                                                                 placeholder="Search..."
                                                                 type="search"
                                                                 value={localSearch}
-                                                                onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                                                onChange={handleSearchChange}
                                                             />
+
+                                                            {localSearch && (
+                                                                <button
+                                                                    onClick={handleClearSearch}
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        right: '25px',
+                                                                        top: '50%',
+                                                                        transform: 'translateY(-50%)',
+                                                                        background: 'none',
+                                                                        border: 'none',
+                                                                        cursor: 'pointer',
+                                                                    }}
+                                                                >
+                                                                    &#x2715; { }
+                                                                </button>
+                                                            )}
                                                         </label>
                                                     </div>
                                                 </div>
@@ -230,7 +247,7 @@ const VerRecetas = () => {
                                                                     width: '314px'
                                                                 }}
                                                                 tabIndex="0"
-                                                                
+
                                                             >
                                                                 Action
                                                             </th>
@@ -244,9 +261,9 @@ const VerRecetas = () => {
                                                                 <td>{receta.FECHA_ATENCION}</td>
                                                                 <td>
                                                                     <div className="btn-group">
-                                                                    <Link to={`/select-receta/${receta.ID_RECETA}`}
+                                                                        <Link to={`/select-receta/${receta.ID_RECETA}`}
                                                                             className="btnVerReceta btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                            
+
                                                                         >
                                                                             <svg
                                                                                 className="h-6 w-6"
@@ -268,7 +285,7 @@ const VerRecetas = () => {
                                                                                     strokeWidth="2"
                                                                                 />
                                                                             </svg>
-                                                                            </Link>
+                                                                        </Link>
                                                                         <Link to={`/editar-receta/${receta.ID_RECETA}`}
                                                                             className="btn btn-warning btnEditarReceta"
                                                                             data-target="#modalEditarSucursal"
@@ -291,7 +308,7 @@ const VerRecetas = () => {
                                                                             </svg>
                                                                         </Link>
                                                                         <button
-                                                                            onClick={() => handleEliminarReceta(receta.ID_RECETA)} 
+                                                                            onClick={() => handleEliminarReceta(receta.ID_RECETA)}
                                                                             borrar_receta="185"
                                                                             className="btn btn-danger btnEliminarReceta"
                                                                         >
@@ -315,8 +332,6 @@ const VerRecetas = () => {
 
                                                             </tr>
                                                         ))}
-
-
 
                                                     </tbody>
                                                     <tfoot>
@@ -348,7 +363,6 @@ const VerRecetas = () => {
                                                     </tfoot>
                                                 </table>
                                             )}
-
                                             <PaginationRecetas
                                                 meta={meta}
                                                 currentPage={currentPage}

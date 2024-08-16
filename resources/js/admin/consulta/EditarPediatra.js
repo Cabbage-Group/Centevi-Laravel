@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchEditarPediatrica } from '../../redux/features/consultas/EditarPediatricaSlice.js';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
 import { fetchVerPediatrica } from '../../redux/features/pacientes/VerPediatricaSlice.js';
+import Swal from 'sweetalert2';
 
 const EditarPediatra = () => {
 
@@ -22,7 +23,7 @@ const EditarPediatra = () => {
         paciente: '',
         edad: '',
         fecha_atencion: '',
-        m_c: '',
+        m_c: "",
         a_o: '',
         a_p: '',
         a_f: '',
@@ -96,12 +97,18 @@ const EditarPediatra = () => {
             ppc_posicion: ""
         },
         refraccion: {
-            estatica_od: "",
-            receta_od: "",
-            av_od: "",
-            estatica_oi: "",
-            receta_oi: "",
-            av_oi: ""
+            esfera_od_f : "",
+            cilindro_od_f: "",
+            eje_od_f: "",
+            p_base_od_:"",
+            add_od_f: "",
+            agz_od_f: "",
+            esfera_oi_f:"",
+            cilindro_oi_f:"",
+            eje_oi_f:"",
+            p_base_oi_f:"",
+            add_oi_f:"",
+            agz_oi_f:"",
         },
         lentes_contacto: {
             poder_od: "",
@@ -111,7 +118,11 @@ const EditarPediatra = () => {
             dia_od: "",
             dia_oi: "",
             lente_marca: "",
-            lente_tipo: ""
+            lente_tipo: "",
+            lente_marca_1: "",
+            lente_pd_1:"",
+            lente_dpn_1: "",
+            lente_altura_1: "",
         },
         pruebas: {
             vl_luces: "",
@@ -119,7 +130,7 @@ const EditarPediatra = () => {
             vl_bg: "",
             vp_bg: ""
         },
-        pruebas_extras: {
+        pruebas_extra: {
             estereosis: "",
             randot: "",
             lang: "",
@@ -296,12 +307,45 @@ const EditarPediatra = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        dispatch(fetchEditarPediatrica({ id, id_consulta, data: formData }));
-        navigate(''); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
+    
+        try {
+            // Mostrar alerta de confirmación
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Confirmarás los cambios en los datos!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, guardar',
+                cancelButtonText: 'Cancelar'
+            });
+    
+            if (result.isConfirmed) {
+                // Despachar la acción
+                await dispatch(fetchEditarPediatrica({ id, id_consulta, data: formData }));
+    
+                // Mostrar alerta de éxito
+                await Swal.fire(
+                    'Guardado!',
+                    'Los datos han sido actualizados.',
+                    'success'
+                );
+    
+                // Redirigir a la página anterior
+                navigate(-1);
+            }
+        } catch (error) {
+            // Mostrar alerta de error en caso de fallo
+            Swal.fire(
+                'Error',
+                'Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.',
+                'error'
+            );
+        }
     };
-
     return (
         <div
             className="admin-data-content"
@@ -390,7 +434,7 @@ const EditarPediatra = () => {
                                                             value={formData.paciente || ''} // Asigna el valor del paciente seleccionado
                                                             onChange={(e) => setFormData({ ...formData, paciente: e.target.value })} // Manejo del cambio
                                                         >
-                                                            <option value="">Seleccione un paciente</option> {/* Opción por defecto */}
+                                                            <option value={formData.medicamentos}>Seleccione un paciente</option> {/* Opción por defecto */}
                                                             {pacientes.filter(paciente => paciente.id_paciente === pediatrica.paciente).map((paciente) => (
                                                                 <option key={paciente.id_paciente} value={paciente.id_paciente}>
                                                                     Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
@@ -410,7 +454,7 @@ const EditarPediatra = () => {
                                                             value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
                                                             onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
                                                         >
-                                                            <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
+                                                            <option value={formData.medicamentos}>Seleccione una sucursal</option> {/* Opción por defecto */}
                                                             {sucursales.filter(sucursal => sucursal.id_sucursal === pediatrica.sucursal).map((sucursal) => (
                                                                 <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                                                     {sucursal.nombre}
@@ -426,8 +470,8 @@ const EditarPediatra = () => {
                                                             className="form-control"
                                                             value={formData.edad}
                                                             name="edad"
-                                                            type="text"
                                                             onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -438,8 +482,8 @@ const EditarPediatra = () => {
                                                             className="form-control"
                                                             value={formData.fecha_atencion}
                                                             name="fecha_atencion"
-                                                            type="text"
                                                             onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                 </div>
@@ -449,12 +493,12 @@ const EditarPediatra = () => {
                                                             M/C:
                                                         </label>
                                                         <textarea
-                                                            className="form-control textarea"
+                                                            className="form-control"
                                                             value={formData.m_c}
                                                             maxLength="225"
                                                             name="m_c"
                                                             placeholder="Esta área tiene un limite de 225 caracteres."
-                                                            rows="2"
+                                                            
                                                             onChange={handleChange}
                                                         />
                                                     </div>
@@ -469,8 +513,8 @@ const EditarPediatra = () => {
                                                             value={formData.a_o}
                                                             name="a_o"
                                                             placeholder="A/O"
-                                                            type="text"
                                                             onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -482,8 +526,8 @@ const EditarPediatra = () => {
                                                             value={formData.a_p}
                                                             name="a_p"
                                                             placeholder="A/P"
-                                                            type="text"
                                                             onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-4">
@@ -495,8 +539,8 @@ const EditarPediatra = () => {
                                                             value={formData.a_f}
                                                             name="a_f"
                                                             placeholder="A/F"
-                                                            type="text"
                                                             onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                 </div>
@@ -510,8 +554,8 @@ const EditarPediatra = () => {
                                                             value={formData.medicamentos}
                                                             name="medicamentos"
                                                             placeholder="Medicamentos"
-                                                            type="text"
                                                             onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                 </div>
@@ -522,10 +566,11 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
-                                                            id="tratamientos"
+                                                            value={formData.tratamientos}
+                                                           
                                                             name="tratamientos"
-                                                            type="text"
+                                                            onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                 </div>
@@ -536,10 +581,11 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
-                                                            id="tratamientos"
-                                                            name="desarrollo_infante"
-                                                            type="text"
+                                                            value={formData.desarrollo}
+                                                            
+                                                            name="desarrollo"
+                                                            onChange={handleChange}
+                                                            
                                                         />
                                                     </div>
                                                 </div>
@@ -550,10 +596,10 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.nacimiento}
                                                             id="nacimiento"
                                                             name="nacimiento"
-                                                            type="text"
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -562,10 +608,10 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.parto}
                                                             id="parto"
                                                             name="parto"
-                                                            type="text"
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -574,10 +620,10 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.incubadora}
                                                             id="incubadora"
                                                             name="incubadora"
-                                                            type="text"
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -586,10 +632,10 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.tiempo}
                                                             id="tiempo"
                                                             name="tiempo"
-                                                            type="text"
+                                                            onChange={handleChange}
                                                         />
                                                     </div>
                                                 </div>
@@ -618,17 +664,19 @@ const EditarPediatra = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/30-"
-                                                                                name="av/sc_od_vl"
-                                                                                type="text"
+                                                                                value={formData.av_sc.av_sc_od_vl}
+                                                                                name="av_sc_od_vl"                                                         
+                                                                                onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/30-"
-                                                                                name="av/sc_oi_vl"
-                                                                                type="text"
+                                                                                value={formData.av_sc.av_sc_oi_vl}
+                                                                                name="av_sc_oi_vl"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -639,17 +687,19 @@ const EditarPediatra = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/30-"
-                                                                                name="av/sc_od_vp"
-                                                                                type="text"
+                                                                                value={formData.av_sc.av_sc_od_vp}
+                                                                                name="av_sc_od_vp"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/30-"
-                                                                                name="av/sc_oi_vp"
-                                                                                type="text"
+                                                                                value={formData.av_sc.av_sc_oi_vp}
+                                                                                name="av_sc_oi_vp"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -660,17 +710,19 @@ const EditarPediatra = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="-----"
-                                                                                name="av/sc_od_ph"
-                                                                                type="text"
+                                                                                value={formData.av_sc.av_sc_od_ph}
+                                                                                name="av_sc_od_ph"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="------"
-                                                                                name="av/sc_oi_ph"
-                                                                                type="text"
+                                                                                value={formData.av_sc.av_sc_oi_ph}
+                                                                                name="av_sc_oi_ph"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -702,17 +754,19 @@ const EditarPediatra = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/20"
-                                                                                name="av/cc_od_vl"
-                                                                                type="text"
+                                                                                value={formData.av_cc.av_cc_od_vl}
+                                                                                name="av_cc_od_vl"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/20"
-                                                                                name="av/cc_oi_vl"
-                                                                                type="text"
+                                                                                value={formData.av_cc.av_cc_oi_vl}
+                                                                                name="av_cc_oi_vl"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -723,17 +777,19 @@ const EditarPediatra = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/20"
-                                                                                name="av/cc_od_vp"
-                                                                                type="text"
+                                                                                value={formData.av_cc.av_cc_od_vp}
+                                                                                name="av_cc_od_vp"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/20"
-                                                                                name="av/cc_oi_vp"
-                                                                                type="text"
+                                                                                value={formData.av_cc.av_cc_oi_vp}
+                                                                                name="av_cc_oi_vp"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -744,17 +800,19 @@ const EditarPediatra = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="-----"
-                                                                                name="av/cc_od_ph"
-                                                                                type="text"
+                                                                                value={formData.av_cc.av_cc_od_ph}
+                                                                                name="av_cc_od_ph"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="-----"
-                                                                                name="av/cc_oi_ph"
-                                                                                type="text"
+                                                                                value={formData.av_cc.av_cc_oi_ph}
+                                                                                name="av_cc_oi_ph"
+                                                                                onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -800,34 +858,45 @@ const EditarPediatra = () => {
                                                                         <input
                                                                             className="form-control"
                                                                             name="esfera_od"
-                                                                            type="text"
+                                                                            value={formData.lensometria.esfera_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
-                                                                            className="form-control"                                                                            name="cilindro_od"
-                                                                            type="text"
+                                                                            className="form-control"
+                                                                            name="cilindro_od"
+                                                                            value={formData.lensometria.cilindro_od}                                                                          
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="eje_od"
-                                                                            type="text"
+                                                                            value={formData.lensometria.eje_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="p_base_od"
-                                                                            type="text"
+                                                                            value={formData.lensometria.p_base_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="add_od"
-                                                                            type="text"
+                                                                            value={formData.lensometria.add_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -839,35 +908,45 @@ const EditarPediatra = () => {
                                                                         <input
                                                                             className="form-control"
                                                                             name="esfera_oi"
-                                                                            type="text"
+                                                                            value={formData.lensometria.esfera_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="cilindro_oi"
-                                                                            type="text"
+                                                                            value={formData.lensometria.cilindro_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="eje_oi"
-                                                                            type="text"
+                                                                            value={formData.lensometria.eje_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="p_base_oi"
-                                                                            type="text"
+                                                                            value={formData.lensometria.p_base_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
                                                                             name="add_oi"
-                                                                            type="text"
+                                                                            value={formData.lensometria.add_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -883,7 +962,9 @@ const EditarPediatra = () => {
                                                         <input
                                                             className="form-control"
                                                             name="len_tipo_lentes"
-                                                            type="text"
+                                                            value={formData.lensometria_extra.len_tipo_lentes}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -893,7 +974,9 @@ const EditarPediatra = () => {
                                                         <input
                                                             className="form-control"
                                                             name="len_filtros"
-                                                            type="text"
+                                                            value={formData.lensometria_extra.len_filtros}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -903,7 +986,9 @@ const EditarPediatra = () => {
                                                         <input
                                                             className="form-control"
                                                             name="len_tiempo"
-                                                            type="text"
+                                                            value={formData.lensometria_extra.len_tiempo}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -912,8 +997,10 @@ const EditarPediatra = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            name="len_tipo_arco"
-                                                            type="text"
+                                                            name="len_tipo_aro"
+                                                            value={formData.lensometria_extra.len_tipo_aro}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                 </div>
@@ -934,15 +1021,18 @@ const EditarPediatra = () => {
                                                         <input
                                                             className="form-control"
                                                             name="sa_od"
-                                                            type="text"
+                                                            value={formData.sa_pp.sa_od}
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OD. Medios transparentes"
+                                                            value={formData.sa_pp.pp_od}
                                                             name="pp_od"
-                                                            type="text"
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                 </div>
@@ -950,17 +1040,19 @@ const EditarPediatra = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OI: Normal"
+                                                            value={formData.sa_pp.sa_oi}
                                                             name="sa_oi"
-                                                            type="text"
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OI: Normal"
+                                                            value={formData.sa_pp.pp_oi}
                                                             name="pp_oi"
-                                                            type="text"
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                 </div>
@@ -976,10 +1068,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Central"
+                                                        value={formData.visuscopia.viscopia_od}
                                                         id="v_od"
                                                         name="viscopia_od"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -988,10 +1081,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Central"
+                                                        value={formData.visuscopia.viscopia_oi}
                                                         id="v_oi"
                                                         name="viscopia_oi"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                             </div>
@@ -1002,10 +1096,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Con Rx y Sin Rx Orthoposicion Centrado"
+                                                        value={formData.visuscopia.hirschberg}
                                                         id="hirschberg"
                                                         name="hirschberg"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1014,10 +1109,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="-----"
+                                                        value={formData.visuscopia.krismsky}
                                                         id="krismsky"
                                                         name="krismsky"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                             </div>
@@ -1027,10 +1123,11 @@ const EditarPediatra = () => {
                                                         VERSIONES:
                                                     </label>
                                                     <textarea
-                                                        className="form-control textarea"
-                                                        id="textarea"
-                                                        maxLength="800"
+                                                        className="form-control"
+                                                        value={formData.plan_versiones}
+                                                        maxLength="800"    
                                                         name="plan_versiones"
+                                                        onChange={handleChange}
                                                         rows="8"
                                                     />
                                                 </div>
@@ -1042,10 +1139,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Ortho"
+                                                        value={formData.visuscopia.ct_vl}
                                                         id="VL"
                                                         name="ct_vl"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-4">
@@ -1054,10 +1152,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Ortho"
+                                                        value={formData.visuscopia.ct_vp}
                                                         id="VP"
                                                         name="ct_vp"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-4">
@@ -1066,10 +1165,12 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="----"
+                                                        value={formData.visuscopia.maddox}
                                                         id="maddox"
                                                         name="maddox"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia"
+
                                                     />
                                                 </div>
                                             </div>
@@ -1080,10 +1181,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="+4 SPEC"
+                                                        value={formData.visuscopia_extra.seguimiento_ao}
                                                         id="ao"
                                                         name="seguimiento_ao"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1092,10 +1194,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="+4 SPEC"
+                                                        value={formData.visuscopia_extra.sacadicos_ao}
                                                         id="ao"
                                                         name="sacadicos_ao"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1106,10 +1209,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="HLN"
+                                                        value={formData.visuscopia_extra.ppc_or}
                                                         id="or"
                                                         name="ppc_or"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1118,10 +1222,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="HLN"
+                                                        value={formData.visuscopia_extra.ppc_l}
                                                         id="L"
                                                         name="ppc_l"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1130,10 +1235,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="HLN"
+                                                        value={formData.visuscopia_extra.ppc_fr}
                                                         id="FR"
                                                         name="ppc_fr"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1142,10 +1248,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Ninguna"
+                                                        value={formData.visuscopia_extra.ppc_posicion}
                                                         id="Posicion"
                                                         name="ppc_posicion"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1172,17 +1279,19 @@ const EditarPediatra = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="Fusion Plana"
+                                                                    value={formData.pruebas.vl_luces}
                                                                     name="vl_luces"
-                                                                    type="text"
+                                                                    onChange={handleChange}
+                                                                    data-group="pruebas"
                                                                 />
                                                             </td>
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="Fusion Plana"
+                                                                    value={formData.pruebas.vp_luces}
                                                                     name="vp_luces"
-                                                                    type="text"
+                                                                    onChange={handleChange}
+                                                                    data-group="pruebas"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1193,17 +1302,19 @@ const EditarPediatra = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.pruebas.vl_bg}
                                                                     name="vl_bg"
-                                                                    type="text"
+                                                                    onChange={handleChange}
+                                                                    data-group="pruebas"
                                                                 />
                                                             </td>
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.pruebas.vp_bg}
                                                                     name="vp_bg"
-                                                                    type="text"
+                                                                    onChange={handleChange}
+                                                                    data-group="pruebas"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1222,10 +1333,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="30 seg arco"
-                                                        id="inputAddress"
+                                                        value={formData.pruebas_extra?.randot || ''}
+                                                       
                                                         name="randot"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1234,10 +1346,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.pruebas_extra?.lang || ''}
+                                                        
                                                         name="lang"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1248,10 +1361,11 @@ const EditarPediatra = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Normal"
+                                                        value={formData.pruebas_extra?.vision_color || ''}
                                                         id="inputAddress"
                                                         name="vision_color"
-                                                        type="text"
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1295,42 +1409,54 @@ const EditarPediatra = () => {
                                                                     <input
                                                                         className="form-control"
                                                                         name="esfera_od_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion?.esfera_od_f || ''}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="cilindro_od_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.cilindro_od_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="eje_od_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.eje_od_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="p_base_od_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.p_base_od_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="add_od_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.add_od_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="agz_od_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.agz_od_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1342,42 +1468,54 @@ const EditarPediatra = () => {
                                                                     <input
                                                                         className="form-control"
                                                                         name="esfera_oi_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.esfera_oi_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="cilindro_oi_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.cilindro_oi_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="eje_oi_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.eje_oi_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="p_base_oi_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.p_base_oi_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="add_oi_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.add_oi_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="agz_oi_f"
-                                                                        type="text"
+                                                                        value={formData.refraccion.agz_oi_f}
+                                                                        onChange={handleChange}
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1394,7 +1532,9 @@ const EditarPediatra = () => {
                                                         className="form-control"
                                                         id="inputAddress"
                                                         name="lente_marca_1"
-                                                        type="text"
+                                                        value={formData.lentes_contacto.lente_marca_1}
+                                                        onChange={handleChange}
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1405,7 +1545,9 @@ const EditarPediatra = () => {
                                                         className="form-control"
                                                         id="inputAddress"
                                                         name="lente_pd_1"
-                                                        type="text"
+                                                        value={formData.lentes_contacto.lente_pd_1}
+                                                        onChange={handleChange}
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1416,7 +1558,9 @@ const EditarPediatra = () => {
                                                         className="form-control"
                                                         id="inputAddress"
                                                         name="lente_dpn_1"
-                                                        type="text"
+                                                        value={formData.lentes_contacto.lente_dpn_1}
+                                                        onChange={handleChange}
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1427,7 +1571,9 @@ const EditarPediatra = () => {
                                                         className="form-control"
                                                         id="inputAddress"
                                                         name="lente_altura_1"
-                                                        type="text"
+                                                        value={formData.lentes_contacto.lente_altura_1}
+                                                        onChange={handleChange}
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                             </div>
@@ -1459,14 +1605,18 @@ const EditarPediatra = () => {
                                                                     <input
                                                                         className="form-control"
                                                                         name="poder_od"
-                                                                        type="text"
+                                                                        value={formData.lentes_contacto.poder_od}
+                                                                        onChange={handleChange}
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="poder_oi"
-                                                                        type="text"
+                                                                        value={formData.lentes_contacto.poder_oi}
+                                                                        onChange={handleChange}
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1478,14 +1628,18 @@ const EditarPediatra = () => {
                                                                     <input
                                                                         className="form-control"
                                                                         name="cb_od"
-                                                                        type="text"
+                                                                        value={formData.lentes_contacto.cb_od}
+                                                                        onChange={handleChange}
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="cb_oi"
-                                                                        type="text"
+                                                                        value={formData.lentes_contacto.cb_oi}
+                                                                        onChange={handleChange}
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1497,14 +1651,18 @@ const EditarPediatra = () => {
                                                                     <input
                                                                         className="form-control"
                                                                         name="dia_od"
-                                                                        type="text"
+                                                                        value={formData.lentes_contacto.dia_od}
+                                                                        onChange={handleChange}
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
                                                                         name="dia_oi"
-                                                                        type="text"
+                                                                        value={formData.lentes_contacto.dia_oi}
+                                                                        onChange={handleChange}
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1521,7 +1679,10 @@ const EditarPediatra = () => {
                                                         className="form-control"
                                                         id="inputAddress"
                                                         name="lente_marca"
-                                                        type="text"
+                                                        value={formData.lentes_contacto.lente_marca}
+                                                        onChange={handleChange}
+                                                        data-group="lentes_contacto"
+                                                        
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1532,7 +1693,9 @@ const EditarPediatra = () => {
                                                         className="form-control"
                                                         id="inputAddress"
                                                         name="lente_tipo"
-                                                        type="text"
+                                                        value={formData.lentes_contacto.lente_tipo}
+                                                        onChange={handleChange}
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                             </div>
@@ -1542,34 +1705,16 @@ const EditarPediatra = () => {
                                                         CONDUCTA A SEGUIR:
                                                     </label>
                                                     <textarea
-                                                        className="form-control textarea"
+                                                        className="form-control"
                                                         id="textarea"
                                                         maxLength="800"
                                                         name="conducta_seguir"
+                                                        value={formData.conducta_seguir}
                                                         rows="8"
+                                                        onChange={handleChange}
                                                     />
                                                 </div>
                                             </div>
-                                            <input
-                                                defaultValue="11"
-                                                name="id_consulta"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="SuperAdmin"
-                                                name="editadoDoctor"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="editar"
-                                                name="editar_optometria_pediatrica"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="exito"
-                                                name="actualizar"
-                                                type="hidden"
-                                            />
                                             <button
                                                 className="btn btn-success mt-3"
                                                 type="submit"
