@@ -179,10 +179,10 @@ class Terapia_Optometria_Neonatos_ApiController extends Controller
         ], 200);
     }
 
-    public function eliminarTerapia_optometria_neonatos($id_terapia)
+    public function eliminarTerapia_optometria_neonatos($id_sesion)
     {
 
-        $terapia_bajav = TerapiaOptometriaNeonatos::find($id_terapia);
+        $terapia_bajav = TerapiaOptometriaNeonatos::find($id_sesion);
 
         if (!$terapia_bajav) {
             return response()->json([

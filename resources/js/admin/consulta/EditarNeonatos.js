@@ -428,8 +428,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  PADRES MIOP"
-                                                            id="inputAddress2"
+                                                            value={formData.a_f}
+                                                            onChange={handleChange}
                                                             name="a_f"
                                                             placeholder="A/F"
                                                             type="text"
@@ -443,8 +443,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  ANTIHISTAMINICOS"
-                                                            id="medicamentos"
+                                                            value={formData.medicamentos}
+                                                            onChange={handleChange}
                                                             name="medicamentos"
                                                             placeholder="Medicamentos"
                                                             type="text"
@@ -458,8 +458,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  Ninguno"
-                                                            id="tratamientos"
+                                                            value={formData.tratamientos}
+                                                            onChange={handleChange}
                                                             name="tratamientos"
                                                             placeholder="Tratamientos"
                                                             type="text"
@@ -473,9 +473,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  RESTRASO GLOBAL DEL DESA"
-                                                            id="tratamientos"
-                                                            name="desarrollo_infante"
+                                                            value={formData.desarrollo}
+                                                            onChange={handleChange}
+                                                            name="desarrollo"
                                                             placeholder="Desarrollo del infante"
                                                             type="text"
                                                         />
@@ -488,8 +488,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  33 SEMANAS"
-                                                            id="tratamientos"
+                                                            value={formData.nacimiento}
+                                                            onChange={handleChange}
                                                             name="nacimiento"
                                                             placeholder="Nacimiento"
                                                             type="text"
@@ -501,8 +501,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  Cesarea"
-                                                            id="tratamientos"
+                                                            value={formData.parto}
+                                                            onChange={handleChange}
                                                             name="parto"
                                                             placeholder="Parto"
                                                             type="text"
@@ -514,8 +514,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
-                                                            id="tratamientos"
+                                                            value={formData.gateo}
+                                                            onChange={handleChange}
                                                             name="gateo"
                                                             placeholder="Gateo"
                                                             type="text"
@@ -527,8 +527,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  NO VERBAL"
-                                                            id="tratamientos"
+                                                            value={formData.lenguaje}
+                                                            onChange={handleChange}
                                                             name="lenguaje"
                                                             placeholder="Lenguaje"
                                                             type="text"
@@ -542,8 +542,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
-                                                            id="tratamientos"
+                                                            value={formData.complicaciones}
+                                                            onChange={handleChange}
                                                             name="complicaciones"
                                                             placeholder="Complicaciones Prenatales"
                                                             type="text"
@@ -555,8 +555,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
-                                                            id="tratamientos"
+                                                            value={formData.perinatales}
+                                                            onChange={handleChange}
                                                             name="perinatales"
                                                             placeholder="Perinatales"
                                                             type="text"
@@ -568,8 +568,8 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
-                                                            id="tratamientos"
+                                                            value={formData.postnatales}
+                                                            onChange={handleChange}
                                                             name="postnatales"
                                                             placeholder="Postnatales"
                                                             type="text"
@@ -586,11 +586,12 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
-                                                            id="tambor"
+                                                            value={formData.agudeza_visual.tambor}
+                                                            onChange={handleChange}
                                                             name="tambor"
                                                             placeholder="Tambor Optocinético"
                                                             type="text"
+                                                            data-group="agudeza_visual"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -599,8 +600,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
-                                                            id="fija"
+                                                            value={formData.agudeza_visual.fija}
+                                                            onChange={handleChange}
+                                                            data-group="agudeza_visual"
                                                             name="fija"
                                                             placeholder="Fija"
                                                             type="text"
@@ -612,8 +614,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
-                                                            id="sigue"
+                                                            value={formData.agudeza_visual.sigue}
+                                                            onChange={handleChange}
+                                                            data-group="agudeza_visual"
                                                             name="sigue"
                                                             placeholder="Sigue"
                                                             type="text"
@@ -625,8 +628,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
-                                                            id="mantiene"
+                                                            value={formData.agudeza_visual.mantiene}
+                                                            onChange={handleChange}
+                                                            data-group="agudeza_visual"
                                                             name="mantiene"
                                                             placeholder="Mantiene"
                                                             type="text"
@@ -640,8 +644,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="------------"
-                                                            id="test"
+                                                            value={formData.agudeza_visual.test}
+                                                            onChange={handleChange}
+                                                            data-group="agudeza_visual"
                                                             name="test"
                                                             placeholder="Test"
                                                             type="text"
@@ -653,8 +658,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="-----------"
-                                                            id="oi"
+                                                            value={formData.agudeza_visual.a_oi}
+                                                            onChange={handleChange}
+                                                            data-group="agudeza_visual"
                                                             name="a_oi"
                                                             placeholder="OI"
                                                             type="text"
@@ -666,8 +672,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="respuesta a todos los patrones"
-                                                            id="ao"
+                                                            value={formData.agudeza_visual.a_ao}
+                                                            onChange={handleChange}
+                                                            data-group="agudeza_visual"
                                                             name="a_ao"
                                                             placeholder="AO"
                                                             type="text"
@@ -710,7 +717,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="-------"
+                                                                            value={formData.lensometria.esfera_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="esfera_od"
                                                                             placeholder="esfera_od"
                                                                             type="text"
@@ -719,7 +728,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.cilindro_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="cilindro_od"
                                                                             placeholder="cilindro_od"
                                                                             type="text"
@@ -728,7 +739,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.eje_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="eje_od"
                                                                             placeholder="eje_od"
                                                                             type="text"
@@ -737,7 +750,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.p_base_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="p_base_od"
                                                                             placeholder="p_base_od"
                                                                             type="text"
@@ -746,7 +761,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.add_od}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="add_od"
                                                                             placeholder="add_od"
                                                                             type="text"
@@ -760,7 +777,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="------"
+                                                                            value={formData.lensometria.esfera_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="esfera_oi"
                                                                             placeholder="esfera_oi"
                                                                             type="text"
@@ -769,7 +788,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.cilindro_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="cilindro_oi"
                                                                             placeholder="cilindro_oi"
                                                                             type="text"
@@ -778,7 +799,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.eje_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="eje_oi"
                                                                             placeholder="eje_oi"
                                                                             type="text"
@@ -787,7 +810,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.p_base_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="p_base_oi"
                                                                             placeholder="p_base_oi"
                                                                             type="text"
@@ -796,7 +821,9 @@ const EditarNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.add_oi}
+                                                                            onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                             name="add_oi"
                                                                             placeholder="add_oi"
                                                                             type="text"
@@ -814,7 +841,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=" NUNCA HA USADO RX"
+                                                            value={formData.lensometria_extra.len_tipo_lentes}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                             name="len_tipo_lentes"
                                                             type="text"
                                                         />
@@ -825,7 +854,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="------"
+                                                            value={formData.lensometria_extra.len_filtros}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                             name="len_filtros"
                                                             type="text"
                                                         />
@@ -836,7 +867,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="--------"
+                                                            value={formData.lensometria_extra.len_tiempo}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                             name="len_tiempo"
                                                             type="text"
                                                         />
@@ -847,7 +880,9 @@ const EditarNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="---------------"
+                                                            value={formData.lensometria_extra.len_tipo_aro}
+                                                            onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                             name="len_tipo_aro"
                                                             type="text"
                                                         />
@@ -869,7 +904,9 @@ const EditarNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OD Normales"
+                                                            value={formData.sa_pp.sa_od}
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                             name="sa_od"
                                                             placeholder="SA_OD"
                                                             type="text"
@@ -878,7 +915,9 @@ const EditarNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OD Medios Transparente"
+                                                            value={formData.sa_pp.pp_od}
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                             name="pp_od"
                                                             placeholder="PP_OD"
                                                             type="text"
@@ -889,7 +928,9 @@ const EditarNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OS Normales"
+                                                            value={formData.sa_pp.sa_oi}
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                             name="sa_oi"
                                                             placeholder="SA_OI"
                                                             type="text"
@@ -898,7 +939,9 @@ const EditarNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OS Medios Transparente"
+                                                            value={formData.sa_pp.pp_oi}
+                                                            onChange={handleChange}
+                                                            data-group="sa_pp"
                                                             name="pp_oi"
                                                             placeholder="PP_OI"
                                                             type="text"
@@ -914,8 +957,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Centrado Orthoposicion "
-                                                        id="D"
+                                                        value={formData.pruebas_extras.hirschberg}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="hirschberg"
                                                         placeholder="Hirschberg"
                                                         type="text"
@@ -927,8 +971,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="--------"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.krismsky}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="krismsky"
                                                         placeholder="Krismsky"
                                                         type="text"
@@ -942,8 +987,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        defaultValue="HIPERFUNCION MUSCULOS RECTOS LATERALES MAYOR DEL OD. "
-                                                        id="textarea"
+                                                        value={formData.pruebas_extras.plan_versiones}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         maxLength="10000"
                                                         name="plan_versiones"
                                                         placeholder="limite de 10000* caracteres."
@@ -958,8 +1004,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="XT ALT INT +OD"
-                                                        id="D"
+                                                        value={formData.pruebas_extras.ct_vp}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="ct_vp"
                                                         placeholder="VP"
                                                         type="text"
@@ -971,8 +1018,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Presente"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.ct_reflejo}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="ct_reflejo"
                                                         placeholder="Reflejo Cocleopalpebral"
                                                         type="text"
@@ -984,8 +1032,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.ducciones_od}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="ducciones_od"
                                                         placeholder="OD"
                                                         type="text"
@@ -997,8 +1046,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.ducciones_oi}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="ducciones_oi"
                                                         placeholder="OI"
                                                         type="text"
@@ -1012,8 +1062,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="I"
+                                                        value={formData.pruebas_extras.posicion_compensatoria}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="posicion_compensatoria"
                                                         placeholder="Posicion Compensatoria"
                                                         type="text"
@@ -1027,8 +1078,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMALES"
-                                                        id="D"
+                                                        value={formData.pruebas_extras.fotomotor_od}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="fotomotor_od"
                                                         placeholder="Fotomotor/OD"
                                                         type="text"
@@ -1040,8 +1092,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.consensual}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="consensual"
                                                         placeholder="Consensual"
                                                         type="text"
@@ -1053,8 +1106,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.fotomotor_oi}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="fotomotor_oi"
                                                         placeholder="Fotomotor OI"
                                                         type="text"
@@ -1066,8 +1120,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
-                                                        id="I"
+                                                        value={formData.pruebas_extras.fotomotor_consensual}
+                                                        onChange={handleChange}
+                                                        data-group="pruebas_extras"
                                                         name="fotomotor_consensual"
                                                         placeholder="Fotomotor Consensual"
                                                         type="text"
@@ -1081,8 +1136,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="BRILLOSO Y LIMPIO"
-                                                        id="inputAddress"
+                                                        value={formData.refraccion.reflejo_r_od}
+                                                        onChange={handleChange}
+                                                        data-group="refraccion"
                                                         name="reflejo_r_od"
                                                         placeholder="Reflejo retinoscopico OD"
                                                         type="text"
@@ -1094,8 +1150,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="BRILLOSO Y LIMPIO"
-                                                        id="inputAddress"
+                                                        value={formData.refraccion.reflejo_r_oi}
+                                                        onChange={handleChange}
+                                                        data-group="refraccion"
                                                         name="reflejo_r_oi"
                                                         placeholder="OI"
                                                         type="text"
@@ -1107,8 +1164,9 @@ const EditarNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.refraccion.reflejo_r_ao}
+                                                        onChange={handleChange}
+                                                        data-group="refraccion"
                                                         name="reflejo_r_ao"
                                                         placeholder="AO"
                                                         type="text"
@@ -1150,7 +1208,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="-1.00SPH"
+                                                                    value={formData.refraccion.esfera_od_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="esfera_od_f"
                                                                     placeholder="esfera_od"
                                                                     type="text"
@@ -1159,7 +1219,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.refraccion.cilindro_od_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="cilindro_od_f"
                                                                     placeholder="cilindro_od"
                                                                     type="text"
@@ -1168,7 +1230,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.refraccion.eje_od_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="eje_od_f"
                                                                     placeholder="eje_od"
                                                                     type="text"
@@ -1177,7 +1241,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="3 B.INT"
+                                                                    value={formData.refraccion.p_base_od_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="p_base_od_f"
                                                                     placeholder="p_base_od"
                                                                     type="text"
@@ -1186,7 +1252,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="OBJETIVA"
+                                                                    value={formData.refraccion.add_od_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="add_od_f"
                                                                     placeholder="add_od"
                                                                     type="text"
@@ -1200,7 +1268,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="-1.00SPH"
+                                                                    value={formData.refraccion.esfera_oi_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="esfera_oi_f"
                                                                     placeholder="esfera_oi"
                                                                     type="text"
@@ -1209,7 +1279,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.refraccion.cilindro_oi_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="cilindro_oi_f"
                                                                     placeholder="cilindro_oi"
                                                                     type="text"
@@ -1218,7 +1290,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.refraccion.eje_oi_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="eje_oi_f"
                                                                     placeholder="eje_oi"
                                                                     type="text"
@@ -1227,7 +1301,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="3 B.INT"
+                                                                    value={formData.refraccion.p_base_oi_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="p_base_oi_f"
                                                                     placeholder="p_base_oi"
                                                                     type="text"
@@ -1236,7 +1312,9 @@ const EditarNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="OBJETIVA"
+                                                                    value={formData.refraccion.add_oi_f}
+                                                                    onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                     name="add_oi_f"
                                                                     placeholder="add_oi"
                                                                     type="text"
@@ -1254,8 +1332,9 @@ const EditarNeonatos = () => {
                                                 </label>
                                                 <input
                                                     className="form-control"
-                                                    defaultValue="MONOFOCALES POLY SENCILLOS. PERMANENTE"
-                                                    id="inputAddress"
+                                                    value={formData.refraccion.refraccion_tipo_lentes}
+                                                    onChange={handleChange}
+                                                    data-group="refraccion"
                                                     name="refraccion_tipo_lentes"
                                                     placeholder="Tipo Lentes"
                                                     type="text"
@@ -1267,8 +1346,9 @@ const EditarNeonatos = () => {
                                                 </label>
                                                 <input
                                                     className="form-control"
-                                                    defaultValue="48/50"
-                                                    id="inputAddress"
+                                                    value={formData.refraccion.refraccion_pd}
+                                                    onChange={handleChange}
+                                                    data-group="refraccion"
                                                     name="refraccion_pd"
                                                     placeholder="PD"
                                                     type="text"
@@ -1280,8 +1360,9 @@ const EditarNeonatos = () => {
                                                 </label>
                                                 <input
                                                     className="form-control"
-                                                    defaultValue="PERMANENTE"
-                                                    id="inputAddress"
+                                                    value={formData.refraccion.refraccion_uso}
+                                                    onChange={handleChange}
+                                                    data-group="refraccion"
                                                     name="refraccion_uso"
                                                     placeholder="USO"
                                                     type="text"
@@ -1295,8 +1376,8 @@ const EditarNeonatos = () => {
                                                 </label>
                                                 <textarea
                                                     className="form-control textarea"
-                                                    defaultValue="EXPLICO QUE PRESENTA EXOTROPIA ALTERNANTE INTERMITENTE Y QUE TIENE MIOPIA BAJA... ESTO ESTA RELACIONADA CON LA DESVIACION OCULAR.... REQUIERE USO DE LENTES PERMANENTE CON PRISMAS. CITA 1 MES DE USO LENTES. HOY PAGA 40 TPC"
-                                                    id="textarea"
+                                                    value={formData.conducta_seguir}
+                                                    onChange={handleChange}
                                                     maxLength="10000"
                                                     name="conducta_seguir"
                                                     placeholder="Esta área tiene un limite de 10000 caracteres."

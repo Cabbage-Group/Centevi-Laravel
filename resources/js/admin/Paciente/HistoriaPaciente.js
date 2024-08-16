@@ -21,7 +21,7 @@ import { fetchTerapiasBajaVision, createTerapiasBajaVision, deleteTerapiasBajaVi
 import { fetchTerapiasOptometriaNeonatos, createTerapiasOptometriaNeonatos, deleteTerapiasOptometriaNeonatos } from '../../redux/features/terapias/TerapiaOptometriaNeonatosSlice';
 import { fetchTerapiasOptometriaPediatrica, createTerapiasOptometriaPediatrica, deleteTerapiasOptometriaPediatrica } from '../../redux/features/terapias/TerapiaOptometriaPediatricaSlice';
 import { fetchTerapiasOrtopticaAdultos, createTerapiasOrtopticaAdultos, deleteTerapiasOrtopticaAdultos } from '../../redux/features/terapias/TerapiaOrtopticaAdultosSlice';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 
 const formatToDateDisplay = (dateStr) => {
     if (!dateStr) return '';
@@ -43,6 +43,7 @@ const calculateAge = (birthDate) => {
 const HistoriaPaciente = () => {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { id } = useParams();
     const { data: verPaciente, } = useSelector((state) => state.verPaciente);
     const { dataOA } = useSelector((state) => state.mostrarOrtoptica);
@@ -78,22 +79,27 @@ const HistoriaPaciente = () => {
     }, [verPaciente]);
 
     useEffect(() => {
-        if (id) {
-            dispatch(fetchVerPaciente(id));
-            dispatch(fetchMostrarOrtoptica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchMostrarBajaVision({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchMostrarGeneral({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
-            dispatch(fetchTerapiasOptometriaNeonatos(id));
-            dispatch(fetchTerapiasOptometriaPediatrica(id));
-            dispatch(fetchTerapiasOrtopticaAdultos(id));
-            dispatch(fetchTerapiasBajaVision(id));
-            dispatch(fetchVerDocumentosSlice(id));
-            setTerapiaModificada(false);
-            
+        if (!id || id === 'undefined') {
+            console.error('ID de paciente no válido:', id);
+            // Redirige a una página de error o a la lista de pacientes
+            navigate('/lista-pacientes');
+            return;
         }
+        dispatch(fetchVerPaciente(id));
+        dispatch(fetchMostrarOrtoptica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+        dispatch(fetchMostrarBajaVision({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+        dispatch(fetchMostrarGeneral({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+        dispatch(fetchMostrarNeonatos({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+        dispatch(fetchMostrarPediatrica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+        dispatch(fetchMostrarConsultaGenerica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
+        dispatch(fetchTerapiasOptometriaNeonatos(id));
+        dispatch(fetchTerapiasOptometriaPediatrica(id));
+        dispatch(fetchTerapiasOrtopticaAdultos(id));
+        dispatch(fetchTerapiasBajaVision(id));
+        dispatch(fetchVerDocumentosSlice(id));
+        setTerapiaModificada(false);
+
+
     }, [dispatch, id, terapiaModificada]);
 
 
@@ -104,7 +110,7 @@ const HistoriaPaciente = () => {
             motivo: '',
             fecha_creacion: new Date().toISOString().split('T')[0]
         };
-    
+
         const terapiaInfo = {
             'bajaVision': {
                 title: 'Baja Visión',
@@ -124,9 +130,9 @@ const HistoriaPaciente = () => {
             },
 
         };
-    
+
         const { title, action } = terapiaInfo[tipo];
-    
+
         Swal.fire({
             title: `¿Crear nueva terapia de ${title}?`,
             text: `¿Estás seguro de que quieres crear una nueva terapia de ${title}?`,
@@ -183,9 +189,9 @@ const HistoriaPaciente = () => {
                 fetchAction: fetchTerapiasOrtopticaAdultos
             },
         };
-    
+
         const { title, action, fetchAction } = terapiaInfo[tipo];
-    
+
         Swal.fire({
             title: '¿Estás seguro?',
             text: "No podrás revertir esta acción",
@@ -1650,7 +1656,7 @@ const HistoriaPaciente = () => {
                                                             {age <= 3 && (
                                                                 <div className="col-md-3">
                                                                     <form onSubmit={(e) => e.preventDefault()}>
-                                                                        <button 
+                                                                        <button
                                                                             className="btn btn-success mb-4 ml-3 mt-4"
                                                                             onClick={() => handleCreateTerapias('optometriaNeonatos')}
                                                                         >
@@ -1662,7 +1668,7 @@ const HistoriaPaciente = () => {
                                                             {age > 3 && age <= 18 && (
                                                                 <div className="col-md-3">
                                                                     <form onSubmit={(e) => e.preventDefault()}>
-                                                                        <button 
+                                                                        <button
                                                                             className="btn btn-success mb-4 ml-3 mt-4"
                                                                             onClick={() => handleCreateTerapias('optometriaPediatrica')}
                                                                         >
@@ -1674,7 +1680,7 @@ const HistoriaPaciente = () => {
                                                             {age > 18 && (
                                                                 <div className="col-md-3">
                                                                     <form onSubmit={(e) => e.preventDefault()}>
-                                                                        <button 
+                                                                        <button
                                                                             className="btn btn-success mb-4 ml-3 mt-4"
                                                                             onClick={() => handleCreateTerapias('ortopticaAdultos')}
                                                                         >
@@ -1686,9 +1692,9 @@ const HistoriaPaciente = () => {
                                                         </>
                                                     )}
                                                 </div>
-                                                
+
                                                 <div className="row">
-                                                    { terapias.map((terapia) => (
+                                                    {terapias.map((terapia) => (
                                                         <div key={terapia.id_terapia} className="col-md-12">
                                                             <div className="widget-content widget-content-area">
                                                                 <div
@@ -1757,184 +1763,184 @@ const HistoriaPaciente = () => {
 
                                                 <div className="row">
                                                     {neonatos.map((terapia) => (
-                                                            <div key={terapia.id_terapia} className="col-md-12">
-                                                                <div className="widget-content widget-content-area">
-                                                                    <div
-                                                                        className="card component-card_7"
-                                                                        style={{
-                                                                            background: 'rgb(0 150 136 / 11%)',
-                                                                            width: '100%'
-                                                                        }}
-                                                                    >
-                                                                        <div className="card-body">
-                                                                            <button
-                                                                                className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                                                                onClick={() => handleDeleteTerapia('optometriaNeonatos', terapia.id_terapia)}
-                                                                                style={{
-                                                                                    marginBottom: '-80px',
-                                                                                    position: 'absolute',
-                                                                                    zIndex: '3',
-                                                                                    marginLeft: '420px',
-                                                                                }}
+                                                        <div key={terapia.id_terapia} className="col-md-12">
+                                                            <div className="widget-content widget-content-area">
+                                                                <div
+                                                                    className="card component-card_7"
+                                                                    style={{
+                                                                        background: 'rgb(0 150 136 / 11%)',
+                                                                        width: '100%'
+                                                                    }}
+                                                                >
+                                                                    <div className="card-body">
+                                                                        <button
+                                                                            className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                                                            onClick={() => handleDeleteTerapia('optometriaNeonatos', terapia.id_terapia)}
+                                                                            style={{
+                                                                                marginBottom: '-80px',
+                                                                                position: 'absolute',
+                                                                                zIndex: '3',
+                                                                                marginLeft: '420px',
+                                                                            }}
+                                                                        >
+                                                                            <svg
+                                                                                className="h-6 w-6"
+                                                                                fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24"
+                                                                                xmlns="http://www.w3.org/2000/svg"
                                                                             >
-                                                                                <svg
-                                                                                    className="h-6 w-6"
-                                                                                    fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    viewBox="0 0 24 24"
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                >
-                                                                                    <path
-                                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                        strokeWidth="2"
-                                                                                    />
-                                                                                </svg>
-                                                                            </button>
-                                                                            <h5 className="">
-                                                                                Terapia Optometria Neonatos:
-                                                                            </h5>
-                                                                            <div className="rating-stars">
-                                                                                <p>
-                                                                                    Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
-                                                                                </p>
-                                                                                <p>
-                                                                                    Fecha de creación: <b>{terapia.fecha_creacion}</b>
-                                                                                </p>
-                                                                                <Link to={`/terapias-neonatos/${id}/${terapia.id_terapia}`}>
-                                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                                        VER
-                                                                                    </button>
-                                                                                </Link>
-                                                                            </div>
+                                                                                <path
+                                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    strokeWidth="2"
+                                                                                />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <h5 className="">
+                                                                            Terapia Optometria Neonatos:
+                                                                        </h5>
+                                                                        <div className="rating-stars">
+                                                                            <p>
+                                                                                Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
+                                                                            </p>
+                                                                            <p>
+                                                                                Fecha de creación: <b>{terapia.fecha_creacion}</b>
+                                                                            </p>
+                                                                            <Link to={`/terapias-neonatos/${id}/${terapia.id_terapia}`}>
+                                                                                <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                                    VER
+                                                                                </button>
+                                                                            </Link>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        ))
+                                                        </div>
+                                                    ))
                                                     }
                                                 </div>
 
                                                 <div className="row">
                                                     {pediatrica.map((terapia) => (
-                                                            <div key={terapia.id_terapia} className="col-md-12">
-                                                                <div className="widget-content widget-content-area">
-                                                                    <div
-                                                                        className="card component-card_7"
-                                                                        style={{
-                                                                            background: 'rgb(0 150 136 / 11%)',
-                                                                            width: '100%'
-                                                                        }}
-                                                                    >
-                                                                        <div className="card-body">
-                                                                            <button
-                                                                                className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                                                                onClick={() => handleDeleteTerapia('optometriaPediatrica', terapia.id_terapia)}
-                                                                                style={{
-                                                                                    marginBottom: '-80px',
-                                                                                    position: 'absolute',
-                                                                                    zIndex: '3',
-                                                                                    marginLeft: '420px',
-                                                                                }}
+                                                        <div key={terapia.id_terapia} className="col-md-12">
+                                                            <div className="widget-content widget-content-area">
+                                                                <div
+                                                                    className="card component-card_7"
+                                                                    style={{
+                                                                        background: 'rgb(0 150 136 / 11%)',
+                                                                        width: '100%'
+                                                                    }}
+                                                                >
+                                                                    <div className="card-body">
+                                                                        <button
+                                                                            className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                                                            onClick={() => handleDeleteTerapia('optometriaPediatrica', terapia.id_terapia)}
+                                                                            style={{
+                                                                                marginBottom: '-80px',
+                                                                                position: 'absolute',
+                                                                                zIndex: '3',
+                                                                                marginLeft: '420px',
+                                                                            }}
+                                                                        >
+                                                                            <svg
+                                                                                className="h-6 w-6"
+                                                                                fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24"
+                                                                                xmlns="http://www.w3.org/2000/svg"
                                                                             >
-                                                                                <svg
-                                                                                    className="h-6 w-6"
-                                                                                    fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    viewBox="0 0 24 24"
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                >
-                                                                                    <path
-                                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                        strokeWidth="2"
-                                                                                    />
-                                                                                </svg>
-                                                                            </button>
-                                                                            <h5 className="">
-                                                                                Terapia Optometria Pediatrica:
-                                                                            </h5>
-                                                                            <div className="rating-stars">
-                                                                                <p>
-                                                                                    Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
-                                                                                </p>
-                                                                                <p>
-                                                                                    Fecha de creación: <b>{terapia.fecha_creacion}</b>
-                                                                                </p>
-                                                                                <Link to={`/terapias-pediatrica/${id}/${terapia.id_terapia}`}>
-                                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                                        VER
-                                                                                    </button>
-                                                                                </Link>
-                                                                            </div>
+                                                                                <path
+                                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    strokeWidth="2"
+                                                                                />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <h5 className="">
+                                                                            Terapia Optometria Pediatrica:
+                                                                        </h5>
+                                                                        <div className="rating-stars">
+                                                                            <p>
+                                                                                Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
+                                                                            </p>
+                                                                            <p>
+                                                                                Fecha de creación: <b>{terapia.fecha_creacion}</b>
+                                                                            </p>
+                                                                            <Link to={`/terapias-pediatrica/${id}/${terapia.id_terapia}`}>
+                                                                                <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                                    VER
+                                                                                </button>
+                                                                            </Link>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        ))
+                                                        </div>
+                                                    ))
                                                     }
                                                 </div>
 
                                                 <div className="row">
                                                     {ortoptica.map((terapia) => (
-                                                            <div key={terapia.id_terapia} className="col-md-12">
-                                                                <div className="widget-content widget-content-area">
-                                                                    <div
-                                                                        className="card component-card_7"
-                                                                        style={{
-                                                                            background: 'rgb(0 150 136 / 11%)',
-                                                                            width: '100%'
-                                                                        }}
-                                                                    >
-                                                                        <div className="card-body">
-                                                                            <button
-                                                                                className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                                                                onClick={() => handleDeleteTerapia('ortopticaAdultos', terapia.id_terapia)}
-                                                                                style={{
-                                                                                    marginBottom: '-80px',
-                                                                                    position: 'absolute',
-                                                                                    zIndex: '3',
-                                                                                    marginLeft: '420px',
-                                                                                }}
+                                                        <div key={terapia.id_terapia} className="col-md-12">
+                                                            <div className="widget-content widget-content-area">
+                                                                <div
+                                                                    className="card component-card_7"
+                                                                    style={{
+                                                                        background: 'rgb(0 150 136 / 11%)',
+                                                                        width: '100%'
+                                                                    }}
+                                                                >
+                                                                    <div className="card-body">
+                                                                        <button
+                                                                            className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                                                            onClick={() => handleDeleteTerapia('ortopticaAdultos', terapia.id_terapia)}
+                                                                            style={{
+                                                                                marginBottom: '-80px',
+                                                                                position: 'absolute',
+                                                                                zIndex: '3',
+                                                                                marginLeft: '420px',
+                                                                            }}
+                                                                        >
+                                                                            <svg
+                                                                                className="h-6 w-6"
+                                                                                fill="none"
+                                                                                stroke="currentColor"
+                                                                                viewBox="0 0 24 24"
+                                                                                xmlns="http://www.w3.org/2000/svg"
                                                                             >
-                                                                                <svg
-                                                                                    className="h-6 w-6"
-                                                                                    fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    viewBox="0 0 24 24"
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                >
-                                                                                    <path
-                                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                        strokeWidth="2"
-                                                                                    />
-                                                                                </svg>
-                                                                            </button>
-                                                                            <h5 className="">
-                                                                                Terapia Ortoptica Adultos:
-                                                                            </h5>
-                                                                            <div className="rating-stars">
-                                                                                <p>
-                                                                                    Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
-                                                                                </p>
-                                                                                <p>
-                                                                                    Fecha de creación: <b>{terapia.fecha_creacion}</b>
-                                                                                </p>
-                                                                                <Link to={`/terapias-ortoptica/${id}/${terapia.id_terapia}`}>
-                                                                                    <button className="btn btn-success mb-4 ml-3 mt-4">
-                                                                                        VER
-                                                                                    </button>
-                                                                                </Link>
-                                                                            </div>
+                                                                                <path
+                                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                    strokeLinecap="round"
+                                                                                    strokeLinejoin="round"
+                                                                                    strokeWidth="2"
+                                                                                />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <h5 className="">
+                                                                            Terapia Ortoptica Adultos:
+                                                                        </h5>
+                                                                        <div className="rating-stars">
+                                                                            <p>
+                                                                                Cantidad de terapias realizadas <b>{terapia.cantidad}</b>
+                                                                            </p>
+                                                                            <p>
+                                                                                Fecha de creación: <b>{terapia.fecha_creacion}</b>
+                                                                            </p>
+                                                                            <Link to={`/terapias-ortoptica/${id}/${terapia.id_terapia}`}>
+                                                                                <button className="btn btn-success mb-4 ml-3 mt-4">
+                                                                                    VER
+                                                                                </button>
+                                                                            </Link>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        ))
+                                                        </div>
+                                                    ))
                                                     }
                                                 </div>
 

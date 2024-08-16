@@ -41,6 +41,19 @@ export const editarSesionTerapiaNeonatos = createAsyncThunk(
     }
 );
 
+// Acción para eliminar una sesión de terapia
+export const eliminarSesionTerapiaNeonatos = createAsyncThunk(
+    'TerapiaNeonatos/eliminarSesionTerapiaNeonatos',
+    async (id_sesion, { rejectWithValue }) => {
+        try {
+            const response = await axios.delete(`${API}/terapia_optometria_neonatos/${id_sesion}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const SesionTerapiaNeonatosSlice = createSlice({
     name: 'sesionTerapiaNeonatos',
     initialState: {
@@ -90,6 +103,22 @@ const SesionTerapiaNeonatosSlice = createSlice({
             .addCase(editarSesionTerapiaNeonatos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+            })
+
+            .addCase(eliminarSesionTerapiaNeonatos.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Filtra la sesión eliminada del estado
+                state.data = state.data.filter(
+                    (sesion) => sesion.id_sesion !== action.meta.arg
+                );
+                // Asegúrate de que no quede ningún residuo si se elimina la última sesión
+                if (state.data.length === 0) {
+                    state.data = [];
+                }
+            })
+            .addCase(eliminarSesionTerapiaNeonatos.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
             });
     },
 });

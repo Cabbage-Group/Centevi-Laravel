@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import Swal from 'sweetalert2';
@@ -9,7 +9,8 @@ import { useParams, Link } from 'react-router-dom';
 import {
     SesionTerapiaPediatrica,
     agregarSesionTerapiaPediatrica,
-    editarSesionTerapiaPediatrica
+    editarSesionTerapiaPediatrica,
+    eliminarSesionTerapiaPediatrica
 } from '../../redux/features/terapias/terapiaSesionPediatricaSlice';
 
 const TerapiasPediatrica = () => {
@@ -18,14 +19,16 @@ const TerapiasPediatrica = () => {
     const { data: verTerapia } = useSelector((state) => state.verTerapiaPediatrica);
     const { data: verPaciente } = useSelector((state) => state.verPaciente);
     const { data = [] } = useSelector((state) => state.sesionTerapiaPediatrica);
+    const [sesionModificada, setSesionModificada] = useState(false);
 
     useEffect(() => {
         if (id && id_terapia) {
             dispatch(fetchVerPaciente(id));
             dispatch(VerUnaTerapiaPediatrica({ id_paciente: id, id_terapia }));
             dispatch(SesionTerapiaPediatrica(id_terapia));
+            setSesionModificada(false);
         }
-    }, [dispatch, id, id_terapia]);
+    }, [dispatch, id, id_terapia, sesionModificada]);
 
 
     const handleAgregarSesion = async (event) => {
@@ -43,7 +46,7 @@ const TerapiasPediatrica = () => {
                 confirmButtonText: 'Ok'
             });
             // Actualiza los datos después de agregar la sesión
-            dispatch(SesionTerapiaPediatrica(id_terapia)); 
+            dispatch(SesionTerapiaPediatrica(id_terapia));
         } catch (err) {
             // Muestra un mensaje de error
             Swal.fire({
@@ -65,6 +68,49 @@ const TerapiasPediatrica = () => {
         }
     };
 
+    const handleEliminarSesion = async (tipo, id_sesion) => {
+        const sesionInfo = {
+            'sesion': {
+                title: 'Sesión',
+                action: eliminarSesionTerapiaPediatrica,
+                fetchAction: SesionTerapiaPediatrica
+            },
+        };
+
+        const { title, action, fetchAction } = sesionInfo[tipo];
+
+        const resultado = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "No podrás revertir esta acción",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (resultado.isConfirmed) {
+            try {
+                await dispatch(action(id_sesion)).unwrap();
+                Swal.fire(
+                    'Eliminado',
+                    `Terapia de ${title} eliminada exitosamente`,
+                    'success'
+                );
+                // Vuelve a cargar las sesiones para asegurarte de que el estado esté actualizado
+                dispatch(fetchAction(id_terapia));
+                setSesionModificada(true);
+            } catch (error) {
+                console.error(`Error al eliminar la terapia de ${title}:`, error);
+                Swal.fire(
+                    'Error',
+                    `Hubo un error al intentar eliminar la terapia de ${title}.`,
+                    'error'
+                );
+            }
+        }
+    };
     return (
         <div className="admin-data-content" style={{ marginTop: '50px' }}>
             <div className="row layout-top-spacing">
@@ -145,7 +191,7 @@ const TerapiasPediatrica = () => {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {data.map((OP, index) => (
+                                                        {data.length > 0 ? (data.map((OP, index) => (
                                                             <tr key={OP.id || index}>
                                                                 <td className="text-center">Sesión {index + 1}</td>
                                                                 <td>
@@ -174,14 +220,17 @@ const TerapiasPediatrica = () => {
                                                                             </svg>
                                                                         </button>
                                                                     </Link>
-                                                                    <button className="btnEliminarTerapia btn btn-danger mb-2 p-1 mr-2 rounded-circle">
+                                                                    <button className="btnEliminarTerapia btn btn-danger mb-2 p-1 mr-2 rounded-circle" onClick={() => handleEliminarSesion('sesion', OP.id)}>
                                                                         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                             <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                                                         </svg>
                                                                     </button>
                                                                 </td>
                                                             </tr>
-                                                        ))}
+                                                        ))) : (
+                                                            <tr>
+                                                                <td colSpan="5" className="text-center">No hay sesiones disponibles</td>
+                                                            </tr>)}
                                                     </tbody>
                                                 </table>
                                             </div>

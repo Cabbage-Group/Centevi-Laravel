@@ -8,7 +8,7 @@ import Login from './components/auth/Login.js';
 import Sidebar from './components/partials/sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
 import BajaVision from './admin/consulta/BajaVision.js';
-import OptometriaGeneral from './admin/consulta/optometriaGeneral.js';
+import OptometriaGeneral from './admin/consulta/OptometriaGeneral.js';
 import OrtopticaVisionBinocular from './admin/consulta/OrtopticaVisionBinocular.js';
 import HistoriaClinica from './admin/consulta/HistoriaClinica.js';
 import OptometriaNeonatos from './admin/consulta/OptometriaNeonatos.js';

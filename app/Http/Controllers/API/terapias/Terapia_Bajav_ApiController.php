@@ -70,11 +70,9 @@ class Terapia_Bajav_ApiController extends Controller
         ], 200);
     }
 
-    public function eliminarTerapia_bajav($id_terapia)
+    public function eliminarTerapia_bajav($id_sesion)
     {
-
-        $terapia_bajav = TerapiaBajaV::find($id_terapia);
-
+        $terapia_bajav = TerapiaBajaV::find($id_sesion);
         if (!$terapia_bajav) {
             return response()->json([
                 'respuesta' => false,
@@ -82,9 +80,7 @@ class Terapia_Bajav_ApiController extends Controller
                 'mensaje_dev' => "No se encontró ninguna terapias_bajav con el ID proporcionado."
             ], 404);
         }
-
         $terapia_bajav->delete();
-
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapia eliminada correctamente',

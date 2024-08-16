@@ -33,7 +33,20 @@ export const editarSesionTerapiaBajaVision = createAsyncThunk(
     'TerapiaBajaVision/editarSesionTerapiaBajaVision',
     async ({ id, pagado }, { rejectWithValue }) => {
         try {
-            const response = await axios.put(`${API}/terapia_bajav/${id}`, {pagado});
+            const response = await axios.put(`${API}/terapia_bajav/${id}`, { pagado });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
+// Acción para eliminar una sesión de terapia
+export const eliminarSesionTerapiaBajaVision = createAsyncThunk(
+    'TerapiaBajaVision/eliminarSesionTerapiaBajaVision',
+    async (id_sesion, { rejectWithValue }) => {
+        try {
+            const response = await axios.delete(`${API}/terapia_bajav/${id_sesion}`);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -90,6 +103,22 @@ const SesionTerapiaBajaVisionSlice = createSlice({
             .addCase(editarSesionTerapiaBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+            })
+
+            .addCase(eliminarSesionTerapiaBajaVision.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Filtra la sesión eliminada del estado
+                state.data = state.data.filter(
+                    (sesion) => sesion.id_sesion !== action.meta.arg
+                );
+                // Asegúrate de que no quede ningún residuo si se elimina la última sesión
+                if (state.data.length === 0) {
+                    state.data = [];
+                }
+            })
+            .addCase(eliminarSesionTerapiaBajaVision.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
             });
     },
 });

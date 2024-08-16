@@ -583,20 +583,22 @@ const EditarOrtoptica = () => {
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_od_vl}
-                                                                                name="av/sc_od_vl"
+                                                                                name="av_sc_od_vl"
                                                                                 placeholder="od_vl"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_oi_vl}
-                                                                                name="av/sc_oi_vl"
+                                                                                name="av_sc_oi_vl"
                                                                                 placeholder="oi_vl"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -608,18 +610,20 @@ const EditarOrtoptica = () => {
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_od_vp}
-                                                                                name="av/sc_od_vp"
+                                                                                name="av_sc_od_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_oi_vp}
-                                                                                name="av/sc_oi_vp"
+                                                                                name="av_sc_oi_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -631,20 +635,22 @@ const EditarOrtoptica = () => {
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_od_ph}
-                                                                                name="av/sc_od_ph"
+                                                                                name="av_sc_od_ph"
                                                                                 placeholder="od_ph"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_sc.av_sc_oi_ph}
-                                                                                name="av/sc_oi_ph"
+                                                                                name="av_sc_oi_ph"
                                                                                 placeholder="oi_ph"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -677,20 +683,22 @@ const EditarOrtoptica = () => {
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_cc.av_cc_od_vl}
-                                                                                name="av/cc_od_vl"
+                                                                                name="av_cc_od_vl"
                                                                                 placeholder="od_vl"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_cc.av_cc_oi_vl}
-                                                                                name="av/cc_oi_vl"
+                                                                                name="av_cc_oi_vl"
                                                                                 placeholder="oi_vl"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -702,20 +710,22 @@ const EditarOrtoptica = () => {
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_cc.av_cc_od_vp}
-                                                                                name="av/cc_od_vp"
+                                                                                name="av_cc_od_vp"
                                                                                 placeholder="od_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_cc.av_cc_oi_vp}
-                                                                                name="av/cc_oi_vp"
+                                                                                name="av_cc_oi_vp"
                                                                                 placeholder="oi_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -727,20 +737,22 @@ const EditarOrtoptica = () => {
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_cc.av_cc_od_ph}
-                                                                                name="av/cc_od_ph"
+                                                                                name="av_cc_od_ph"
                                                                                 placeholder="od_ph"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
                                                                                 value={formData.av_cc.av_cc_oi_ph}
-                                                                                name="av/cc_oi_ph"
+                                                                                name="av_cc_oi_ph"
                                                                                 placeholder="oi_ph"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -765,6 +777,7 @@ const EditarOrtoptica = () => {
                                                                             type="radio"
                                                                             checked={formData.ojo_dominante === 'IZQUIERDO'}
                                                                             onChange={handleChange}
+                                                                            
                                                                         />
                                                                         <span className="new-control-indicator" />
                                                                         IZQUIERDO
@@ -870,6 +883,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="esfera_od"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -880,6 +894,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="cilindro_od"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -890,6 +905,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="eje_od"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -900,6 +916,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="p_base_od"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -910,6 +927,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="add_od"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -925,6 +943,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="esfera_oi"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -935,6 +954,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="cilindro_oi"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -945,6 +965,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="eje_oi"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -955,6 +976,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="p_base_oi"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
@@ -965,6 +987,7 @@ const EditarOrtoptica = () => {
                                                                             placeholder="add_oi"
                                                                             type="text"
                                                                             onChange={handleChange}
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -983,6 +1006,7 @@ const EditarOrtoptica = () => {
                                                             name="len_tipo_lentes"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -995,6 +1019,7 @@ const EditarOrtoptica = () => {
                                                             name="len_filtros"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -1007,6 +1032,7 @@ const EditarOrtoptica = () => {
                                                             name="len_tiempo"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -1019,6 +1045,7 @@ const EditarOrtoptica = () => {
                                                             name="len_tipo_arco"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                 </div>
@@ -1043,6 +1070,7 @@ const EditarOrtoptica = () => {
                                                             placeholder="OD"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -1053,6 +1081,7 @@ const EditarOrtoptica = () => {
                                                             placeholder="OD"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                 </div>
@@ -1065,6 +1094,7 @@ const EditarOrtoptica = () => {
                                                             placeholder="OI"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -1075,6 +1105,7 @@ const EditarOrtoptica = () => {
                                                             placeholder="OI"
                                                             type="text"
                                                             onChange={handleChange}
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                 </div>
@@ -1094,6 +1125,7 @@ const EditarOrtoptica = () => {
                                                         placeholder="OD"
                                                         type="text"
                                                         onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1107,6 +1139,7 @@ const EditarOrtoptica = () => {
                                                         placeholder="OI"
                                                         type="text"
                                                         onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                             </div>
@@ -1122,6 +1155,7 @@ const EditarOrtoptica = () => {
                                                         placeholder="hirschberg"
                                                         type="text"
                                                         onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1135,6 +1169,7 @@ const EditarOrtoptica = () => {
                                                         placeholder="krismsky"
                                                         type="text"
                                                         onChange={handleChange}
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                             </div>
@@ -1165,6 +1200,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="VL"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia"
                                                 />
                                             </div>
                                             <div className="form-group col-md-4">
@@ -1178,6 +1214,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="VP"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia"
                                                 />
                                             </div>
                                             <div className="form-group col-md-4">
@@ -1191,6 +1228,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="maddox"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia"
                                                 />
                                             </div>
                                         </div>
@@ -1206,6 +1244,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="seguimiento"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-6">
@@ -1219,6 +1258,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="sacadicos"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                         </div>
@@ -1234,6 +1274,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="ppc_or"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-2">
@@ -1247,6 +1288,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="ppc_l"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-2">
@@ -1260,6 +1302,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="ppc_fr"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-6">
@@ -1273,6 +1316,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="ppc_posicion"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                         </div>
@@ -1288,6 +1332,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="helshoswky"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-6">
@@ -1301,6 +1346,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="von_graefe"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="visuscopia_extra"
                                                 />
                                             </div>
                                         </div>
@@ -1332,6 +1378,7 @@ const EditarOrtoptica = () => {
                                                                 placeholder="vl_luces"
                                                                 type="text"
                                                                 onChange={handleChange}
+                                                                data-group="pruebas"
                                                             />
                                                         </td>
                                                         <td>
@@ -1342,6 +1389,7 @@ const EditarOrtoptica = () => {
                                                                 placeholder="vp_luces"
                                                                 type="text"
                                                                 onChange={handleChange}
+                                                                data-group="pruebas"
                                                             />
                                                         </td>
                                                     </tr>
@@ -1357,6 +1405,7 @@ const EditarOrtoptica = () => {
                                                                 placeholder="vl_bg"
                                                                 type="text"
                                                                 onChange={handleChange}
+                                                                data-group="pruebas"
                                                             />
                                                         </td>
                                                         <td>
@@ -1368,6 +1417,7 @@ const EditarOrtoptica = () => {
                                                                 placeholder="vp_bg"
                                                                 type="text"
                                                                 onChange={handleChange}
+                                                                data-group="pruebas"
                                                             />
                                                         </td>
                                                     </tr>
@@ -1391,6 +1441,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="randot"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="pruebas_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1404,6 +1455,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="lang"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="pruebas_extra"
                                                 />
                                             </div>
                                         </div>
@@ -1419,6 +1471,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="vision"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="pruebas_extra"
                                                 />
                                             </div>
                                         </div>
@@ -1437,6 +1490,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="aa_od"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1450,6 +1504,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="aa_oi"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1463,6 +1518,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="fan_od"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1476,6 +1532,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="fan_cpm"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                         </div>
@@ -1491,6 +1548,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="aco_oi"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1504,6 +1562,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="aco_cpm"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1517,6 +1576,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="acp_fab"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion"
                                                 />
                                             </div>
                                         </div>
@@ -1532,6 +1592,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="mem_arn"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion_extra"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1545,6 +1606,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="mem_arp"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="acomodacion_extra"
                                                 />
                                             </div>
                                         </div>
@@ -1563,6 +1625,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="v_vt_vl"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="vergencia"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1576,6 +1639,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="v_bt_vp"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="vergencia"
                                                 />
                                             </div>
                                         </div>
@@ -1591,6 +1655,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="v_bn_vl"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="vergencia"
                                                 />
                                             </div>
                                             <div className="form-group col-md-3">
@@ -1604,6 +1669,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="v_bn_vp"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="vergencia"
                                                 />
                                             </div>
                                         </div>
@@ -1650,6 +1716,7 @@ const EditarOrtoptica = () => {
                                                                     name="esfera_od_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1659,6 +1726,7 @@ const EditarOrtoptica = () => {
                                                                     name="cilindro_od_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1668,6 +1736,7 @@ const EditarOrtoptica = () => {
                                                                     name="eje_od_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1677,6 +1746,7 @@ const EditarOrtoptica = () => {
                                                                     name="p_base_od_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1686,6 +1756,7 @@ const EditarOrtoptica = () => {
                                                                     name="add_od_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1695,6 +1766,7 @@ const EditarOrtoptica = () => {
                                                                     name="agz_od_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1709,6 +1781,7 @@ const EditarOrtoptica = () => {
                                                                     name="esfera_oi_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1718,6 +1791,7 @@ const EditarOrtoptica = () => {
                                                                     name="cilindro_oi_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1727,6 +1801,7 @@ const EditarOrtoptica = () => {
                                                                     name="eje_oi_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1736,6 +1811,7 @@ const EditarOrtoptica = () => {
                                                                     name="p_base_oi_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1745,6 +1821,7 @@ const EditarOrtoptica = () => {
                                                                     name="add_oi_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1754,6 +1831,7 @@ const EditarOrtoptica = () => {
                                                                     name="agz_oi_f"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="refraccion"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1773,6 +1851,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="Marca"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="lentes_contacto"
                                                 />
                                             </div>
                                             <div className="form-group col-md-2">
@@ -1786,6 +1865,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="pd"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="lentes_contacto"
                                                 />
                                             </div>
                                             <div className="form-group col-md-2">
@@ -1799,6 +1879,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="dnp"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="lentes_contacto"
                                                 />
                                             </div>
                                             <div className="form-group col-md-2">
@@ -1812,6 +1893,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="altura"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="lentes_contacto"
                                                 />
                                             </div>
                                         </div>
@@ -1847,6 +1929,7 @@ const EditarOrtoptica = () => {
                                                                     placeholder="poder_od"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="lentes_contacto"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1857,6 +1940,7 @@ const EditarOrtoptica = () => {
                                                                     placeholder="poder_oi"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="lentes_contacto"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1872,6 +1956,7 @@ const EditarOrtoptica = () => {
                                                                     placeholder="cb_od"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="lentes_contacto"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1882,6 +1967,7 @@ const EditarOrtoptica = () => {
                                                                     placeholder="cb_oi"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="lentes_contacto"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1897,6 +1983,7 @@ const EditarOrtoptica = () => {
                                                                     placeholder="dia_od"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="lentes_contacto"
                                                                 />
                                                             </td>
                                                             <td>
@@ -1907,6 +1994,7 @@ const EditarOrtoptica = () => {
                                                                     placeholder="dia_oi"
                                                                     type="text"
                                                                     onChange={handleChange}
+                                                                    data-group="lentes_contacto"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1926,6 +2014,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="Marca"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="lentes_contacto"
                                                 />
                                             </div>
                                             <div className="form-group col-md-6">
@@ -1939,6 +2028,7 @@ const EditarOrtoptica = () => {
                                                     placeholder="Tipo"
                                                     type="text"
                                                     onChange={handleChange}
+                                                    data-group="lentes_contacto"
                                                 />
                                             </div>
                                         </div>

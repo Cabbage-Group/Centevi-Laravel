@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchEditarOptometriaGeneral } from '../../redux/features/consultas/EditarGeneralSlice.js';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
 import { fetchVerRefraccionGeneral } from '../../redux/features/pacientes/VerRefraccionGeneralSlice.js';
+import Swal from 'sweetalert2';
 
 
 const EditarGeneral = () => {
@@ -41,9 +42,7 @@ const EditarGeneral = () => {
             av_cc_od_vl: "",
             av_cc_oi_vl: "",
             av_cc_od_vp: "",
-            av_cc_oi_vp: "",
-            av_cc_od_ph: "",
-            av_cc_oi_ph: ""
+            av_cc_oi_vp: ""
         },
         ojo_dominante: '',
         mano_dominante: '',
@@ -78,6 +77,7 @@ const EditarGeneral = () => {
             hirschberg: "",
             ct_vl: "",
             ct_vp: "",
+            plan_versiones: "",
         },
         visuscopia_extra: {
             ppc_or: "",
@@ -331,8 +331,27 @@ const EditarGeneral = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        dispatch(fetchEditarOptometriaGeneral({ id, id_consulta, data: formData }));
-        navigate(''); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
+        dispatch(fetchEditarOptometriaGeneral({ id, id_consulta, data: formData }))
+            .then(() => {
+                Swal.fire({
+                    title: '¡Actualización exitosa!',
+                    text: 'Los datos han sido actualizados correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        navigate(-1); 
+                    }
+                });
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error al actualizar los datos.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            });
     };
 
     return (
@@ -593,6 +612,7 @@ const EditarGeneral = () => {
                                                                                 placeholder="od_vl"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
@@ -603,6 +623,7 @@ const EditarGeneral = () => {
                                                                                 placeholder="oi_vl"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -617,6 +638,7 @@ const EditarGeneral = () => {
                                                                                 name="av/sc_od_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                         <td>
@@ -626,6 +648,7 @@ const EditarGeneral = () => {
                                                                                 name="av/sc_oi_vp"
                                                                                 type="text"
                                                                                 onChange={handleChange}
+                                                                                data-group="av_sc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -657,17 +680,21 @@ const EditarGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_od_vl"
+                                                                                value={formData.av_cc.av_cc_od_vl}
+                                                                                onChange={handleChange}
+                                                                                name="av_cc_od_vl"
                                                                                 type="text"
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_oi_vl"
+                                                                                value={formData.av_cc.av_cc_oi_vl}
+                                                                                onChange={handleChange}
+                                                                                name="av_cc_oi_vl"
                                                                                 type="text"
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -678,17 +705,21 @@ const EditarGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_od_vp"
+                                                                                value={formData.av_cc.av_cc_od_vp}
+                                                                                onChange={handleChange}
+                                                                                name="av_cc_od_vp"
                                                                                 type="text"
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_oi_vp"
+                                                                                value={formData.av_cc.av_cc_oi_vp}
+                                                                                onChange={handleChange}
+                                                                                name="av_cc_oi_vp"
                                                                                 type="text"
+                                                                                data-group="av_cc"
                                                                             />
                                                                         </td>
                                                                     </tr>
@@ -733,41 +764,51 @@ const EditarGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={formData.lensometria.esfera_od}
+                                                                            onChange={handleChange}
                                                                             name="esfera_od"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.cilindro_od}
+                                                                            onChange={handleChange}
                                                                             name="cilindro_od"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.eje_od}
+                                                                            onChange={handleChange}
                                                                             name="eje_od"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.p_base_od}
+                                                                            onChange={handleChange}
                                                                             name="p_base_od"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={formData.lensometria.add_od}
+                                                                            onChange={handleChange}
                                                                             name="add_od"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -778,41 +819,51 @@ const EditarGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={formData.lensometria.esfera_oi}
+                                                                            onChange={handleChange}
                                                                             name="esfera_oi"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.cilindro_oi}
+                                                                            onChange={handleChange}
                                                                             name="cilindro_oi"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.eje_oi}
+                                                                            onChange={handleChange}
                                                                             name="eje_oi"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={formData.lensometria.p_base_oi}
+                                                                            onChange={handleChange}
                                                                             name="p_base_oi"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={formData.lensometria.add_oi}
+                                                                            onChange={handleChange}
                                                                             name="add_oi"
                                                                             type="text"
+                                                                            data-group="lensometria"
                                                                         />
                                                                     </td>
                                                                 </tr>
@@ -827,9 +878,11 @@ const EditarGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="bifocalst"
+                                                            value={formData.lensometria_extra.len_tipo_lentes}
+                                                            onChange={handleChange}
                                                             name="len_tipo_lentes"
                                                             type="text"
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -838,9 +891,11 @@ const EditarGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.lensometria_extra.len_filtros}
+                                                            onChange={handleChange}
                                                             name="len_filtros"
                                                             type="text"
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -849,9 +904,11 @@ const EditarGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.lensometria_extra.len_tiempo}
+                                                            onChange={handleChange}
                                                             name="len_tiempo"
                                                             type="text"
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
@@ -860,9 +917,11 @@ const EditarGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.lensometria_extra.len_tipo_aro}
+                                                            onChange={handleChange}
                                                             name="len_tipo_arco"
                                                             type="text"
+                                                            data-group="lensometria_extra"
                                                         />
                                                     </div>
                                                 </div>
@@ -882,17 +941,21 @@ const EditarGeneral = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="opacidad"
+                                                            value={formData.sa_pp.sa_od}
+                                                            onChange={handleChange}
                                                             name="sa_od"
                                                             type="text"
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.sa_pp.pp_od}
+                                                            onChange={handleChange}
                                                             name="pp_od"
                                                             type="text"
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                 </div>
@@ -900,17 +963,21 @@ const EditarGeneral = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="opacidad"
+                                                            value={formData.sa_pp.sa_oi}
+                                                            onChange={handleChange}
                                                             name="sa_oi"
                                                             type="text"
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={formData.sa_pp.pp_oi}
+                                                            onChange={handleChange}
                                                             name="pp_oi"
                                                             type="text"
+                                                            data-group="sa_pp"
                                                         />
                                                     </div>
                                                 </div>
@@ -922,10 +989,12 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={formData.visuscopia.hirschberg}
+                                                        onChange={handleChange}
                                                         id="hirschberg"
                                                         name="hirschberg"
                                                         type="text"
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -934,10 +1003,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="VL"
+                                                        value={formData.visuscopia.ct_vl}
+                                                        onChange={handleChange}
                                                         name="ct_vl"
                                                         type="text"
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -946,10 +1016,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="VP"
+                                                        value={formData.visuscopia.ct_vp}
+                                                        onChange={handleChange}
                                                         name="ct_vp"
                                                         type="text"
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                             </div>
@@ -960,10 +1031,12 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        id="textarea"
+                                                        value={formData.visuscopia.plan_versiones}
+                                                        onChange={handleChange}
                                                         maxLength="800"
                                                         name="plan_versiones"
                                                         rows="5"
+                                                        data-group="visuscopia"
                                                     />
                                                 </div>
                                             </div>
@@ -974,10 +1047,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="ppc_or"
+                                                        value={formData.visuscopia_extra.ppc_or}
+                                                        onChange={handleChange}
                                                         name="ppc_or"
                                                         type="text"
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -986,10 +1060,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="ppc_l"
+                                                        value={formData.visuscopia_extra.ppc_l}
+                                                        onChange={handleChange}
                                                         name="ppc_l"
                                                         type="text"
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -998,10 +1073,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="ppc_posicion"
+                                                        value={formData.visuscopia_extra.ppc_posicion}
+                                                        onChange={handleChange}
                                                         name="ppc_posicion"
                                                         type="text"
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1012,10 +1088,12 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        id="textarea"
+                                                        value={formData.visuscopia_extra.observaciones}
+                                                        onChange={handleChange}
                                                         maxLength="500"
                                                         name="observaciones"
                                                         rows="3"
+                                                        data-group="visuscopia_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1042,17 +1120,21 @@ const EditarGeneral = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.pruebas.vl_luces}
+                                                                    onChange={handleChange}
                                                                     name="vl_luces"
                                                                     type="text"
+                                                                    data-group="pruebas"
                                                                 />
                                                             </td>
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={formData.pruebas.vp_luces}
+                                                                    onChange={handleChange}
                                                                     name="vp_luces"
                                                                     type="text"
+                                                                    data-group="pruebas"
                                                                 />
                                                             </td>
                                                         </tr>
@@ -1066,10 +1148,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.pruebas_extra.randot}
+                                                        onChange={handleChange}
                                                         name="randot"
                                                         type="text"
+                                                        data-group="pruebas_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1078,10 +1161,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.pruebas_extra.lang}
+                                                        onChange={handleChange}
                                                         name="lang"
                                                         type="text"
+                                                        data-group="pruebas_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1092,10 +1176,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.pruebas_extra.vision_color}
+                                                        onChange={handleChange}
                                                         name="vision_color"
                                                         type="text"
+                                                        data-group="pruebas_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1109,10 +1194,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>510</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.aa_od}
+                                                        onChange={handleChange}
                                                         name="aa_od"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1121,10 +1207,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>514</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.aa_oi}
+                                                        onChange={handleChange}
                                                         name="aa_oi"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1133,10 +1220,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>518</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.fan_od}
+                                                        onChange={handleChange}
                                                         name="fan_od"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1145,10 +1233,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>522</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.fan_cpm}
+                                                        onChange={handleChange}
                                                         name="fan_cpm"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                             </div>
@@ -1159,10 +1248,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>529</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.aco_oi}
+                                                        onChange={handleChange}
                                                         name="aco_oi"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1171,10 +1261,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>533</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.aco_cpm}
+                                                        onChange={handleChange}
                                                         name="aco_cpm"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1183,10 +1274,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>537</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.acp_fab}
+                                                        onChange={handleChange}
                                                         name="acp_fab"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1195,10 +1287,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>541</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion.aco_falla}
+                                                        onChange={handleChange}
                                                         name="aco_falla"
                                                         type="text"
+                                                        data-group="acomodacion"
                                                     />
                                                 </div>
                                             </div>
@@ -1209,10 +1302,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>551</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion_extra.mem_od}
+                                                        onChange={handleChange}
                                                         name="mem_od"
                                                         type="text"
+                                                        data-group="acomodacion_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1221,10 +1315,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>555</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion_extra.mem_oi}
+                                                        onChange={handleChange}
                                                         name="mem_oi"
                                                         type="text"
+                                                        data-group="acomodacion_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1233,10 +1328,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>559</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion_extra.mem_arn}
+                                                        onChange={handleChange}
                                                         name="mem_arn"
                                                         type="text"
+                                                        data-group="acomodacion_extra"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-3">
@@ -1245,10 +1341,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Trying to access array offset on value of type null in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\editar-refraccion-general.php</b> on line <b>563</b><br />"
-                                                        id="inputAddress"
+                                                        value={formData.acomodacion_extra.mem_arp}
+                                                        onChange={handleChange}
                                                         name="mem_arp"
                                                         type="text"
+                                                        data-group="acomodacion_extra"
                                                     />
                                                 </div>
                                             </div>
@@ -1288,41 +1385,51 @@ const EditarGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-0.25"
+                                                                        value={formData.refraccion.esfera_od_f}
+                                                                        onChange={handleChange}
                                                                         name="esfera_od_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-1.00"
+                                                                        value={formData.refraccion.cilindro_od_f}
+                                                                        onChange={handleChange}
                                                                         name="cilindro_od_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="60"
+                                                                        value={formData.refraccion.eje_od_f}
+                                                                        onChange={handleChange}
                                                                         name="eje_od_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.refraccion.p_base_od_f}
+                                                                        onChange={handleChange}
                                                                         name="p_base_od_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.50"
+                                                                        value={formData.refraccion.add_od_f}
+                                                                        onChange={handleChange}
                                                                         name="add_od_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1333,41 +1440,51 @@ const EditarGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="0.00"
+                                                                        value={formData.refraccion.esfera_oi_f}
+                                                                        onChange={handleChange}
                                                                         name="esfera_oi_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-0.75"
+                                                                        value={formData.refraccion.cilindro_oi_f}
+                                                                        onChange={handleChange}
                                                                         name="cilindro_oi_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="120"
+                                                                        value={formData.refraccion.eje_oi_f}
+                                                                        onChange={handleChange}
                                                                         name="eje_oi_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.refraccion.p_base_oi_f}
+                                                                        onChange={handleChange}
                                                                         name="p_base_oi_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.50"
+                                                                        value={formData.refraccion.add_oi_f}
+                                                                        onChange={handleChange}
                                                                         name="add_oi_f"
                                                                         type="text"
+                                                                        data-group="refraccion"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1382,8 +1499,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={formData.tipo_lentes.tipo_l}
+                                                        onChange={handleChange}
                                                         name="tipo_l"
                                                         type="text"
+                                                        data-group="tipo_lentes"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1392,10 +1512,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="pd"
+                                                        value={formData.tipo_lentes.pd}
+                                                        onChange={handleChange}
                                                         name="pd"
                                                         type="text"
+                                                        data-group="tipo_lentes"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1404,10 +1525,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="dnp"
+                                                        value={formData.tipo_lentes.dnp}
+                                                        onChange={handleChange}
                                                         name="dnp"
                                                         type="text"
+                                                        data-group="tipo_lentes"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-2">
@@ -1416,10 +1538,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="alt"
+                                                        value={formData.tipo_lentes.alt}
+                                                        onChange={handleChange}
                                                         name="alt"
                                                         type="text"
+                                                        data-group="tipo_lentes"
                                                     />
                                                 </div>
                                             </div>
@@ -1450,17 +1573,21 @@ const EditarGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.lentes_contacto.poder_od}
+                                                                        onChange={handleChange}
                                                                         name="poder_od"
                                                                         type="text"
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.lentes_contacto.poder_oi}
+                                                                        onChange={handleChange}
                                                                         name="poder_oi"
                                                                         type="text"
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1471,17 +1598,21 @@ const EditarGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.lentes_contacto.cb_od}
+                                                                        onChange={handleChange}
                                                                         name="cb_od"
                                                                         type="text"
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.lentes_contacto.cb_oi}
+                                                                        onChange={handleChange}
                                                                         name="cb_oi"
                                                                         type="text"
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1492,17 +1623,21 @@ const EditarGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.lentes_contacto.cb_oi}
+                                                                        onChange={handleChange}
                                                                         name="dia_od"
                                                                         type="text"
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={formData.lentes_contacto.dia_oi}
+                                                                        onChange={handleChange}
                                                                         name="dia_oi"
                                                                         type="text"
+                                                                        data-group="lentes_contacto"
                                                                     />
                                                                 </td>
                                                             </tr>
@@ -1517,10 +1652,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.lentes_contacto.lente_marca}
+                                                        onChange={handleChange}
                                                         name="lente_marca"
                                                         type="text"
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                                 <div className="form-group col-md-6">
@@ -1529,10 +1665,11 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
-                                                        id="inputAddress"
+                                                        value={formData.lentes_contacto.lente_tipo}
+                                                        onChange={handleChange}
                                                         name="lente_tipo"
                                                         type="text"
+                                                        data-group="lentes_contacto"
                                                     />
                                                 </div>
                                             </div>
@@ -1543,6 +1680,8 @@ const EditarGeneral = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
+                                                        value={formData.conducta_seguir}
+                                                        onChange={handleChange}
                                                         maxLength="800"
                                                         name="conducta_seguir"
                                                         rows="5"

@@ -194,10 +194,10 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
     ], 200);
 }
 
-public function eliminarTerapia_optometria_pediatrica($id_terapia)
+public function eliminarTerapia_optometria_pediatrica($id_sesion)
 {
     
-    $terapia_bajav = TerapiaOptometriaPediatrica::find($id_terapia);
+    $terapia_bajav = TerapiaOptometriaPediatrica::find($id_sesion);
 
     if (!$terapia_bajav) {
         return response()->json([

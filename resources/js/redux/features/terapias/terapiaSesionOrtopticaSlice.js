@@ -41,6 +41,19 @@ export const editarSesionTerapiaOrtoptica = createAsyncThunk(
     }
 );
 
+// Acción para eliminar una sesión de terapia
+export const eliminarSesionTerapiaOrtoptica = createAsyncThunk(
+    'TerapiaOrtoptica/eliminarSesionTerapiaOrtoptica',
+    async (id_sesion, { rejectWithValue }) => {
+        try {
+            const response = await axios.delete(`${API}/terapia_ortoptica_adultos/${id_sesion}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const SesionTerapiaOrtopticaSlice = createSlice({
     name: 'sesionTerapiaOrtoptica',
     initialState: {
@@ -90,6 +103,22 @@ const SesionTerapiaOrtopticaSlice = createSlice({
             .addCase(editarSesionTerapiaOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+            })
+
+            .addCase(eliminarSesionTerapiaOrtoptica.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Filtra la sesión eliminada del estado
+                state.data = state.data.filter(
+                    (sesion) => sesion.id_sesion !== action.meta.arg
+                );
+                // Asegúrate de que no quede ningún residuo si se elimina la última sesión
+                if (state.data.length === 0) {
+                    state.data = [];
+                }
+            })
+            .addCase(eliminarSesionTerapiaOrtoptica.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
             });
     },
 });
