@@ -45,6 +45,15 @@ import EditarReceta from './admin/recetas/EditarReceta.js';
 import TerapiasBajaVision from './admin/terapias/terapiasBajaVision.js';
 import VerSesionTerapia from './admin/terapias/VerSesionTerapia.js';
 import EditarSesionTerapia from './admin/terapias/EditarSesionTerapia.js';
+import TerapiasNeonatos from './admin/terapias/terapiasNeonatos.js';
+import VerSesionTerapiaNeonato from './admin/terapias/VerSesionTerapiaNeonato.js';
+import EditarSesionTerapiaNeonato from './admin/terapias/EditarSesionTerapiaNeonato.js';
+import TerapiasPediatrica from './admin/terapias/terapiasPediatrica.js';
+import VerSesionTerapiaPediatrica from './admin/terapias/VerSesionTerapiaPediatrica.js';
+import EditarSesionTerapiaPediatrica from './admin/terapias/EditarSesionTerapiaPediatrica.js';
+import TerapiasOrtoptica from './admin/terapias/terapiasOrtoptica.js';
+import VerSesionTerapiaOrtoptica from './admin/terapias/VerSesionTerapiaOrtoptica.js';
+import EditarSesionTerapiaOrtoptica from './admin/terapias/EditarSesionTerapiaOrtoptica.js';
 
 function AppRouter() {
     return (
@@ -99,10 +108,22 @@ function AppRouter() {
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
 
                     <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia/>} />} />
+                    <Route path="/ver-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaPediatrica/>} />} />
+                    <Route path="/ver-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaNeonato/>} />} />
+                    <Route path="/ver-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaOrtoptica/>} />} />
+
+
                     <Route path="/editar-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapia/>} />} />
+                    <Route path="/editar-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaPediatrica/>} />} />
+                    <Route path="/editar-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaNeonato/>} />} />
+                    <Route path="/editar-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaOrtoptica/>} />} />
 
                     <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+
                     <Route path="/terapias-bajavision/:id/:id_terapia" element={<Sidebar component={<TerapiasBajaVision/>} />} />
+                    <Route path="/terapias-neonatos/:id/:id_terapia" element={<Sidebar component={<TerapiasNeonatos/>} />} />
+                    <Route path="/terapias-ortoptica/:id/:id_terapia" element={<Sidebar component={<TerapiasOrtoptica/>} />} />
+                    <Route path="/terapias-pediatrica/:id/:id_terapia" element={<Sidebar component={<TerapiasPediatrica/>} />} />
 
                 </Routes>
             </Router>

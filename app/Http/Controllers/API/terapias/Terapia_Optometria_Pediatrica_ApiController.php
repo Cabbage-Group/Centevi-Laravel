@@ -29,9 +29,7 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapias encontradas correctamente.',
-            'data' => [
-                'terapias' => $terapias
-            ],
+            'data' => $terapias,
             'mensaje_dev' => null
         ], 200);
     }
@@ -39,8 +37,10 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
 
     public function verUnaTerapia_optometria_pediatrica($id_paciente, $id_terapia = null, $id_sesion = null)
     {
-        $paciente = Pacientes::find($id_paciente);
-
+        // Buscar el paciente por su ID
+        $paciente = Pacientes::select('id_paciente', 'sucursal', 'nombres', 'apellidos', 'nro_cedula')
+            ->where('id_paciente', $id_paciente)
+            ->first();
         if (!$paciente) {
             return response()->json([
                 'respuesta' => false,
@@ -48,29 +48,24 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
                 'mensaje_dev' => "No se encontró ningún paciente con el ID proporcionado.",
             ], 404);
         }
-
         $query = TerapiaOptometriaPediatrica::where('id_terapia', $id_terapia);
-
         if ($id_sesion) {
             $query->where('id', $id_sesion);
         }
-
-        $terapias = $query->get();
-
-        if ($terapias->isEmpty()) {
+        $terapia = $query->first();
+        if (!$terapia) {
             return response()->json([
                 'respuesta' => false,
                 'mensaje' => 'No se encontraron terapias para el paciente y receta especificados.',
                 'mensaje_dev' => "No se encontraron terapias con los parámetros proporcionados.",
             ], 404);
         }
-
         return response()->json([
             'respuesta' => true,
-            'mensaje' => 'Terapias encontradas correctamente.',
+            'mensaje' => 'Terapia encontrada correctamente.',
             'data' => [
                 'paciente' => $paciente,
-                'terapias' => $terapias
+                'terapia' => $terapia // Cambiamos 'terapias' a 'terapia' y retornamos un único objeto
             ],
             'mensaje_dev' => null
         ], 200);
@@ -161,7 +156,7 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
     $completado = 1;
 
     if (is_array($sesionData)) {
-       
+    
         foreach ($sesionData as $key => $value) {
             if (str_contains($key, 'resultado') && empty($value)) {
                 $completado = 0;

@@ -32,8 +32,8 @@ export const editTerapiasBajaVision = createAsyncThunk(
 // Async thunk for deleting a Terapia Baja Vision
 export const deleteTerapiasBajaVision = createAsyncThunk(
     'terapiasBajaVision/deleteTerapiaBajaVision',
-    async ({ id_paciente, id_terapia }) => {
-        const response = await axios.delete(`${API}/terapias_bajav/${id_paciente}/${id_terapia}`);
+    async ( id_terapia ) => {
+        const response = await axios.delete(`${API}/terapias_bajav/${id_terapia}`);
         return response.data;
     }
 );
@@ -94,21 +94,18 @@ const terapiasBajaVisionSlice = createSlice({
                 state.error = action.error.message;
             })
 
-            // Handling delete
-            .addCase(deleteTerapiasBajaVision.pending, (state) => {
-                state.status = 'loading';
-            })
             .addCase(deleteTerapiasBajaVision.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                // Remove the deleted therapy from the state
-                const { id_terapia } = action.meta.arg;
-                state.terapias = state.terapias.filter(t => t.id_terapia !== id_terapia);
+                // Filtra la terapia eliminada del estado
+                state.terapias = state.terapias.filter(
+                    (terapia) => terapia.id_terapia !== action.meta.arg
+                );
             })
             .addCase(deleteTerapiasBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
-    },
+        },
 });
 
 export default terapiasBajaVisionSlice.reducer;

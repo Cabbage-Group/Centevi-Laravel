@@ -3,27 +3,27 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import Swal from 'sweetalert2';
 import { fetchVerPaciente } from '../../redux/features/pacientes/VerPacienteSlice';
-import { editTerapiasBajaVision } from '../../redux/features/terapias/terapiasBajaVisionSlice';
-import { VerUnaTerapiaBajaVision } from '../../redux/features/terapias/verUnaTerapiaBajaVisionSlice';
+import { editTerapiasOrtopticaAdultos } from '../../redux/features/terapias/TerapiaOrtopticaAdultosSlice'; 
+import { VerUnaTerapiaOrtoptica } from '../../redux/features/terapias/verUnaTerapiaOrtopticaSlice'; 
 import { useParams, Link } from 'react-router-dom';
 import {
-    SesionTerapiaBajaVision,
-    agregarSesionTerapiaBajaVision,
-    editarSesionTerapiaBajaVision
-} from '../../redux/features/terapias/terapiaSesionBajaVisionSlice';
+    SesionTerapiaOrtoptica,
+    agregarSesionTerapiaOrtoptica,
+    editarSesionTerapiaOrtoptica
+} from '../../redux/features/terapias/terapiaSesionOrtopticaSlice';
 
-const TerapiasBajaVision = () => {
+const TerapiasOrtoptica = () => {
     const dispatch = useDispatch();
     const { id, id_terapia } = useParams();
-    const { data: verTerapia } = useSelector((state) => state.verTerapiaBajaVision);
+    const { data: verTerapia } = useSelector((state) => state.verTerapiaOrtoptica);
     const { data: verPaciente } = useSelector((state) => state.verPaciente);
-    const { data = [] } = useSelector((state) => state.sesionTerapiaBajaVision);
+    const { data = [] } = useSelector((state) => state.sesionTerapiaOrtoptica);
 
     useEffect(() => {
         if (id && id_terapia) {
             dispatch(fetchVerPaciente(id));
-            dispatch(VerUnaTerapiaBajaVision({ id_paciente: id, id_terapia }));
-            dispatch(SesionTerapiaBajaVision(id_terapia));
+            dispatch(VerUnaTerapiaOrtoptica({ id_paciente: id, id_terapia }));
+            dispatch(SesionTerapiaOrtoptica(id_terapia));
         }
     }, [dispatch, id, id_terapia]);
 
@@ -34,7 +34,7 @@ const TerapiasBajaVision = () => {
             const nuevaSesion = {
                 id_terapia: id_terapia,
             };
-            await dispatch(agregarSesionTerapiaBajaVision(nuevaSesion)).unwrap();
+            await dispatch(agregarSesionTerapiaOrtoptica(nuevaSesion)).unwrap();
             // Muestra un mensaje de éxito
             Swal.fire({
                 title: 'Éxito!',
@@ -43,7 +43,7 @@ const TerapiasBajaVision = () => {
                 confirmButtonText: 'Ok'
             });
             // Actualiza los datos después de agregar la sesión
-            dispatch(SesionTerapiaBajaVision(id_terapia)); 
+            dispatch(SesionTerapiaOrtoptica(id_terapia)); 
         } catch (err) {
             // Muestra un mensaje de error
             Swal.fire({
@@ -59,7 +59,7 @@ const TerapiasBajaVision = () => {
         try {
             // Alterna el estado de pagado (true/false)
             const nuevoPagado = !pagado;
-            await dispatch(editarSesionTerapiaBajaVision({ id, pagado: nuevoPagado })).unwrap();
+            await dispatch(editarSesionTerapiaOrtoptica({ id, pagado: nuevoPagado })).unwrap();
         } catch (err) {
             console.error('Error al actualizar el estado de pagado:', err);
         }
@@ -88,7 +88,7 @@ const TerapiasBajaVision = () => {
                                                 }}
                                                 onSubmit={async (values, { setSubmitting }) => {
                                                     try {
-                                                        await dispatch(editTerapiasBajaVision({ id_terapia, terapiaData: values })).unwrap();
+                                                        await dispatch(editTerapiasOrtopticaAdultos({ id_terapia, terapiaData: values })).unwrap();
                                                         Swal.fire({
                                                             icon: 'success',
                                                             title: 'Edit Successful',
@@ -159,7 +159,7 @@ const TerapiasBajaVision = () => {
                                                                 <td>{BV.doctor}</td>
                                                                 <td>{new Date(BV.fecha_creacion).toLocaleDateString()}</td>
                                                                 <td>
-                                                                    <Link to={`/ver-sesion-terapia/${id}/${id_terapia}/${BV.id}`}>
+                                                                    <Link to={`/ver-sesion-terapia-ortoptica/${id}/${id_terapia}/${BV.id}`}>
                                                                         <button className="btnVerTerapia btn btn-primary mb-2 p-1 mr-2 rounded-circle">
                                                                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                                 <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -167,7 +167,7 @@ const TerapiasBajaVision = () => {
                                                                             </svg>
                                                                         </button>
                                                                     </Link>
-                                                                    <Link to={`/editar-sesion-terapia/${id}/${id_terapia}/${BV.id}`}>
+                                                                    <Link to={`/editar-sesion-terapia-ortoptica/${id}/${id_terapia}/${BV.id}`}>
                                                                         <button className="btnEditarTerapia btn btn-warning mb-2 p-1 mr-2 rounded-circle">
                                                                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                                 <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -197,4 +197,4 @@ const TerapiasBajaVision = () => {
     );
 };
 
-export default TerapiasBajaVision;
+export default TerapiasOrtoptica;
