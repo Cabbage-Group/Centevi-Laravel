@@ -213,7 +213,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <textarea
                                                             className="form-control textarea"
-                                                            defaultValue="endoforia basica sin corrección , de 10 y 12 prismas. No se habian dado cuenta, refeido del dr Carlos Diaz"
+                                                            value={pediatrica.m_c}
                                                             disabled
                                                             id="textarea"
                                                             maxLength="225"
@@ -230,7 +230,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="toxoplasmosi"
+                                                            value={pediatrica.a_o}
                                                             disabled
                                                             id="lugarNacimiento"
                                                             name="a_o"
@@ -244,7 +244,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={pediatrica.a_p}
                                                             disabled
                                                             id="inputAddress2"
                                                             name="a_p"
@@ -258,7 +258,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="mama con len"
+                                                            value={pediatrica.a_f}
                                                             disabled
                                                             id="inputAddress2"
                                                             name="a_f"
@@ -274,7 +274,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="ninguno"
+                                                            value={pediatrica.medicamentos}
                                                             disabled
                                                             id="medicamentos"
                                                             name="medicamentos"
@@ -290,7 +290,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={pediatrica.tratamientos}
                                                             disabled
                                                             id="tratamientos"
                                                             name="tratamientos"
@@ -306,10 +306,10 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="trillizos, premarturo"
+                                                            value={pediatrica.desarrollo}
                                                             disabled
                                                             id="tratamientos"
-                                                            name="desarrollo_infante"
+                                                            name="desarrollo"
                                                             placeholder="Desarrollo del infante"
                                                             type="text"
                                                         />
@@ -322,7 +322,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="prematuro"
+                                                            value={pediatrica.nacimiento}
                                                             disabled
                                                             id="nacimiento"
                                                             name="nacimiento"
@@ -336,7 +336,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={pediatrica.parto}
                                                             disabled
                                                             id="parto"
                                                             name="parto"
@@ -350,7 +350,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={pediatrica.incubadora}
                                                             disabled
                                                             id="incubadora"
                                                             name="incubadora"
@@ -364,7 +364,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={pediatrica.tiempo}
                                                             disabled
                                                             id="tiempo"
                                                             name="tiempo"
@@ -398,9 +398,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/30"
+                                                                                value={av_sc.av_sc_od_vl}
                                                                                 disabled
-                                                                                name="av/sc_od_vl"
+                                                                                name="av_sc_od_vl"
                                                                                 placeholder="od_vl"
                                                                                 type="text"
                                                                             />
@@ -408,9 +408,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/100"
+                                                                                value={av_sc.av_sc_oi_vl}
                                                                                 disabled
-                                                                                name="av/sc_oi_vl"
+                                                                                name="av_sc_oi_vl"
                                                                                 placeholder="oi_vl"
                                                                                 type="text"
                                                                             />
@@ -423,9 +423,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_sc.av_sc_od_vp}
                                                                                 disabled
-                                                                                name="av/sc_od_vp"
+                                                                                name="av_sc_od_vp"
                                                                                 placeholder="od_vp"
                                                                                 type="text"
                                                                             />
@@ -433,9 +433,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_sc.av_sc_oi_vp}
                                                                                 disabled
-                                                                                name="av/sc_oi_vp"
+                                                                                name="av_sc_oi_vp"
                                                                                 placeholder="oi_vp"
                                                                                 type="text"
                                                                             />
@@ -448,9 +448,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_sc.av_sc_od_ph}
                                                                                 disabled
-                                                                                name="av/sc_od_ph"
+                                                                                name="av_sc_od_ph"
                                                                                 placeholder="od_ph"
                                                                                 type="text"
                                                                             />
@@ -458,9 +458,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_sc.av_sc_oi_ph}
                                                                                 disabled
-                                                                                name="av/sc_oi_ph"
+                                                                                name="av_sc_oi_ph"
                                                                                 placeholder="oi_ph"
                                                                                 type="text"
                                                                             />
@@ -494,9 +494,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/20"
+                                                                                value={av_cc.av_cc_od_vl}
                                                                                 disabled
-                                                                                name="av/cc_od_vl"
+                                                                                name="av_cc_od_vl"
                                                                                 placeholder="od_vl"
                                                                                 type="text"
                                                                             />
@@ -504,9 +504,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/40"
+                                                                                value={av_cc.av_cc_oi_vl}
                                                                                 disabled
-                                                                                name="av/cc_oi_vl"
+                                                                                name="av_cc_oi_vl"
                                                                                 placeholder="oi_vl"
                                                                                 type="text"
                                                                             />
@@ -519,9 +519,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_cc.av_cc_od_vp}
                                                                                 disabled
-                                                                                name="av/cc_od_vp"
+                                                                                name="av_cc_od_vp"
                                                                                 placeholder="od_vp"
                                                                                 type="text"
                                                                             />
@@ -529,9 +529,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_cc.av_cc_oi_vp}
                                                                                 disabled
-                                                                                name="av/cc_oi_vp"
+                                                                                name="av_cc_oi_vp"
                                                                                 placeholder="oi_vp"
                                                                                 type="text"
                                                                             />
@@ -544,9 +544,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_cc.av_cc_od_ph}
                                                                                 disabled
-                                                                                name="av/cc_od_ph"
+                                                                                name="av_cc_od_ph"
                                                                                 placeholder="od_ph"
                                                                                 type="text"
                                                                             />
@@ -554,9 +554,9 @@ const VerPediatrica = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
+                                                                                value={av_cc.av_cc_oi_ph}
                                                                                 disabled
-                                                                                name="av/cc_oi_ph"
+                                                                                name="av_cc_oi_ph"
                                                                                 placeholder="oi_ph"
                                                                                 type="text"
                                                                             />
@@ -603,7 +603,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.esfera_od}
                                                                             disabled
                                                                             name="esfera_od"
                                                                             type="text"
@@ -612,7 +612,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_od}
                                                                             disabled
                                                                             name="cilindro_od"
                                                                             type="text"
@@ -621,7 +621,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.eje_od}
                                                                             disabled
                                                                             name="eje_od"
                                                                             type="text"
@@ -630,7 +630,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_od}
                                                                             disabled
                                                                             name="p_base_od"
                                                                             type="text"
@@ -639,7 +639,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.add_od}
                                                                             disabled
                                                                             name="add_od"
                                                                             type="text"
@@ -653,7 +653,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.esfera_oi}
                                                                             disabled
                                                                             name="esfera_oi"
                                                                             type="text"
@@ -662,7 +662,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_oi}
                                                                             disabled
                                                                             name="cilindro_oi"
                                                                             type="text"
@@ -671,7 +671,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.eje_oi}
                                                                             disabled
                                                                             name="eje_oi"
                                                                             type="text"
@@ -680,7 +680,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_oi}
                                                                             disabled
                                                                             name="p_base_oi"
                                                                             type="text"
@@ -689,7 +689,7 @@ const VerPediatrica = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.add_oi}
                                                                             disabled
                                                                             name="add_oi"
                                                                             type="text"
@@ -707,7 +707,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_tipo_lentes}
                                                             disabled
                                                             name="len_tipo_lentes"
                                                             type="text"
@@ -719,7 +719,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_filtros}
                                                             disabled
                                                             name="len_filtros"
                                                             type="text"
@@ -731,7 +731,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_tiempo}
                                                             disabled
                                                             name="len_tiempo"
                                                             type="text"
@@ -743,7 +743,7 @@ const VerPediatrica = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_tipo_arco}
                                                             disabled
                                                             name="len_tipo_arco"
                                                             type="text"
@@ -766,7 +766,7 @@ const VerPediatrica = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="normal"
+                                                            value={lensometria_extra.sa_od}
                                                             disabled
                                                             name="sa_od"
                                                             placeholder="OD"
@@ -776,7 +776,7 @@ const VerPediatrica = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.pp_od}
                                                             disabled
                                                             name="pp_od"
                                                             placeholder="OD"
@@ -788,7 +788,7 @@ const VerPediatrica = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="normal"
+                                                            value={lensometria_extra.sa_oi}
                                                             disabled
                                                             name="sa_oi"
                                                             placeholder="OI"
@@ -798,7 +798,7 @@ const VerPediatrica = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="normal"
+                                                            value={lensometria_extra.pp_oi}
                                                             disabled
                                                             name="pp_oi"
                                                             placeholder="OI"
@@ -818,7 +818,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Undefined index: viscopia_od in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\ver-optometria-pediatrica.php</b> on line <b>491</b><br />"
+                                                        value={visuscopia.viscopia_od}
                                                         disabled
                                                         id="v_od"
                                                         name="viscopia_od"
@@ -832,7 +832,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="<br /><b>Notice</b>:  Undefined index: viscopia_oi in <b>D:\Trabajos\Cabbage\Centevi\vistas\modulos\ver-optometria-pediatrica.php</b> on line <b>495</b><br />"
+                                                        value={visuscopia.viscopia_oi}
                                                         disabled
                                                         id="v_oi"
                                                         name="viscopia_oi"
@@ -848,7 +848,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="normal"
+                                                        value={visuscopia.hirschberg}
                                                         disabled
                                                         id="hirschberg"
                                                         name="hirschberg"
@@ -862,7 +862,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia.krismsky}
                                                         disabled
                                                         id="krismsky"
                                                         name="krismsky"
@@ -878,7 +878,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        defaultValue="normal"
+                                                        value={pediatrica.plan_versiones}
                                                         disabled
                                                         id="textarea"
                                                         maxLength="225"
@@ -895,7 +895,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="endoforia "
+                                                        value={visuscopia.ct_vl}
                                                         disabled
                                                         id="VL"
                                                         name="ct_vl"
@@ -909,7 +909,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="endoforia igual cerca y lejos"
+                                                        value={visuscopia.ct_vp}
                                                         disabled
                                                         id="VP"
                                                         name="ct_vp"
@@ -923,7 +923,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia.maddox}
                                                         disabled
                                                         id="maddox"
                                                         name="maddox"
@@ -939,7 +939,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="normal"
+                                                        value={visuscopia_extra.seguimiento_ao}
                                                         disabled
                                                         id="ao"
                                                         name="seguimiento_ao"
@@ -953,7 +953,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="normal"
+                                                        value={visuscopia_extra.sacadicos_ao}
                                                         disabled
                                                         id="ao"
                                                         name="sacadicos_ao"
@@ -969,7 +969,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_or}
                                                         disabled
                                                         id="or"
                                                         name="ppc_or"
@@ -983,7 +983,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_l}
                                                         disabled
                                                         id="L"
                                                         name="ppc_l"
@@ -997,7 +997,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_fr}
                                                         disabled
                                                         id="FR"
                                                         name="ppc_fr"
@@ -1011,7 +1011,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_posicion}
                                                         disabled
                                                         id="Posicion"
                                                         name="ppc_posicion"
@@ -1043,7 +1043,7 @@ const VerPediatrica = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="4 luces y a veces suprimia"
+                                                                    value={pruebas.vl_luces}
                                                                     disabled
                                                                     name="vl_luces"
                                                                     placeholder="vl_luces"
@@ -1053,7 +1053,7 @@ const VerPediatrica = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={pruebas.vp_luces}
                                                                     disabled
                                                                     name="vp_luces"
                                                                     placeholder="vp_luces"
@@ -1068,7 +1068,7 @@ const VerPediatrica = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={pruebas.vl_bg}
                                                                     disabled
                                                                     name="vl_bg"
                                                                     placeholder="vl_bg"
@@ -1078,7 +1078,7 @@ const VerPediatrica = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={pruebas.vp_bg}
                                                                     disabled
                                                                     name="vp_bg"
                                                                     placeholder="vp_bg"
@@ -1101,7 +1101,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="--"
+                                                        value={pruebas_extra.randot}
                                                         disabled
                                                         id="inputAddress"
                                                         name="randot"
@@ -1115,7 +1115,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={pruebas_extra.lang}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lang"
@@ -1131,7 +1131,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="normal"
+                                                        value={pruebas_extra.vision_color}
                                                         disabled
                                                         id="inputAddress"
                                                         name="vision_color"
@@ -1179,7 +1179,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+1.25"
+                                                                        value={refraccion.esfera_od_f}
                                                                         disabled
                                                                         name="esfera_od_f"
                                                                         type="text"
@@ -1188,7 +1188,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-1.25"
+                                                                        value={refraccion.cilindro_od_f}
                                                                         disabled
                                                                         name="cilindro_od_f"
                                                                         type="text"
@@ -1197,7 +1197,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="180"
+                                                                        value={refraccion.eje_od_f}
                                                                         disabled
                                                                         name="eje_od_f"
                                                                         type="text"
@@ -1206,7 +1206,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="2 base temporal"
+                                                                        value={refraccion.p_base_od_f}
                                                                         disabled
                                                                         name="p_base_od_f"
                                                                         type="text"
@@ -1215,7 +1215,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={refraccion.add_od_f}
                                                                         disabled
                                                                         name="add_od_f"
                                                                         type="text"
@@ -1224,7 +1224,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={refraccion.agz_od_f}
                                                                         disabled
                                                                         name="agz_od_f"
                                                                         type="text"
@@ -1238,7 +1238,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.50"
+                                                                        value={refraccion.esfera_oi_f}
                                                                         disabled
                                                                         name="esfera_oi_f"
                                                                         type="text"
@@ -1247,7 +1247,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-2.25"
+                                                                        value={refraccion.cilindro_oi_f}
                                                                         disabled
                                                                         name="cilindro_oi_f"
                                                                         type="text"
@@ -1256,7 +1256,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="180"
+                                                                        value={refraccion.eje_oi_f}
                                                                         disabled
                                                                         name="eje_oi_f"
                                                                         type="text"
@@ -1265,7 +1265,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="2base temporal"
+                                                                        value={refraccion.p_base_oi_f}
                                                                         disabled
                                                                         name="p_base_oi_f"
                                                                         type="text"
@@ -1274,7 +1274,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={refraccion.add_oi_f}
                                                                         disabled
                                                                         name="add_oi_f"
                                                                         type="text"
@@ -1283,7 +1283,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={refraccion.agz_oi_f}
                                                                         disabled
                                                                         name="agz_oi_f"
                                                                         type="text"
@@ -1301,7 +1301,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="monofocal con fotocromatico"
+                                                        value={lentes_contacto.lente_marca_1}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lente_marca_1"
@@ -1315,7 +1315,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_pd_1}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lente_pd_1"
@@ -1329,7 +1329,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_dpn_1}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lente_dpn_1"
@@ -1343,7 +1343,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_altura_1}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lente_altura_1"
@@ -1379,7 +1379,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.poder_od}
                                                                         disabled
                                                                         name="poder_od"
                                                                         placeholder="poder_od"
@@ -1389,7 +1389,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.poder_oi}
                                                                         disabled
                                                                         name="poder_oi"
                                                                         placeholder="poder_oi"
@@ -1404,7 +1404,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.cb_od}
                                                                         disabled
                                                                         name="cb_od"
                                                                         placeholder="cb_od"
@@ -1414,7 +1414,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.cb_oi}
                                                                         disabled
                                                                         name="cb_oi"
                                                                         placeholder="cb_oi"
@@ -1429,7 +1429,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.dia_od}
                                                                         disabled
                                                                         name="dia_od"
                                                                         placeholder="dia_od"
@@ -1439,7 +1439,7 @@ const VerPediatrica = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.dia_oi}
                                                                         disabled
                                                                         name="dia_oi"
                                                                         placeholder="dia_oi"
@@ -1458,7 +1458,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_marca}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lente_marca"
@@ -1472,7 +1472,7 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_tipo}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lente_tipo"
@@ -1488,13 +1488,13 @@ const VerPediatrica = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        defaultValue="contorl 1 mes"
+                                                        value={pediatrica.conducta_seguir}
                                                         disabled
                                                         id="textarea"
                                                         maxLength="225"
                                                         name="conducta_seguir"
                                                         placeholder="Esta área tiene un limite de 225 caracteres."
-                                                        rows="2"
+                                                        rows="12"
                                                     />
                                                 </div>
                                             </div>
