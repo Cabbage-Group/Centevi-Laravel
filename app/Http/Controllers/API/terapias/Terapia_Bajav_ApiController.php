@@ -95,6 +95,7 @@ class Terapia_Bajav_ApiController extends Controller
             'pagado' => 'nullable|boolean',
             'sucursal' => 'nullable|integer'
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'respuesta' => false,
@@ -104,6 +105,7 @@ class Terapia_Bajav_ApiController extends Controller
             ], 400);
         }
         $terapia_bajav = TerapiaBajaV::find($id_sesion);
+
         if (!$terapia_bajav) {
             return response()->json([
                 'respuesta' => false,
@@ -112,15 +114,20 @@ class Terapia_Bajav_ApiController extends Controller
             ], 404);
         }
         $sesionData = json_decode($request->input('sesion'), true);
+
+
+        $sesionData = json_decode($request->input('sesion'), true);
+
         $completado = 1;
+
         if (is_array($sesionData)) {
             foreach ($sesionData as $key => $value) {
                 if (str_contains($key, 'resultado') && empty($value)) {
-                    $completado = 0; 
+                    $completado = 0;
                     break;
                 }
                 if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
-                    $completado = 0; 
+                    $completado = 0;
                     break;
                 }
             }

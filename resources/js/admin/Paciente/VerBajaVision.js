@@ -178,6 +178,7 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <select
                                                             className="form-control"
+                                                            value={bajaVision ? bajaVision.a_f : ''}
                                                             name="paciente"
                                                             disabled
                                                         >
@@ -198,6 +199,7 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <select
                                                             className="form-control"
+                                                            value={bajaVision ? bajaVision.a_f : ''}
                                                             id="sucursal"
                                                             name="sucursal"
                                                             readOnly
@@ -230,8 +232,8 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={bajaVision ? bajaVision.fecha_atencion : ''}
                                                             disabled
-                                                            id="inputAddress"
                                                             name="fecha_atencion"
                                                             type="date"
                                                         />
@@ -245,6 +247,7 @@ const VerBajaVision = () => {
                                                         <textarea
                                                             className="form-control textarea"
                                                             disabled
+                                                            value={bajaVision ? bajaVision.m_c : ''}
                                                             maxLength="225"
                                                             name="m_c"
                                                             placeholder="Esta área tiene un limite de 225 caracteres."
@@ -260,7 +263,8 @@ const VerBajaVision = () => {
                                                         <input
                                                             className="form-control"
                                                             disabled
-                                                            id="a_o"
+                                                            value={bajaVision ? bajaVision.a_o : ''}
+                                                            name="a_o"
                                                             type="text"
                                                         />
                                                     </div>
@@ -271,7 +275,8 @@ const VerBajaVision = () => {
                                                         <input
                                                             className="form-control"
                                                             disabled
-                                                            id="a_P"
+                                                            value={bajaVision ? bajaVision.a_p : ''}
+                                                            name="a_p"
                                                             type="text"
                                                         />
                                                     </div>
@@ -282,7 +287,8 @@ const VerBajaVision = () => {
                                                         <input
                                                             className="form-control"
                                                             disabled
-                                                            id="a_f"
+                                                            value={bajaVision ? bajaVision.a_f : ''}
+                                                            name="a_f"
                                                             type="text"
                                                         />
                                                     </div>
@@ -294,8 +300,9 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={bajaVision ? bajaVision.medicamentos : ''}
                                                             disabled
-                                                            id="medicamentos"
+                                                            name="medicamentos"
                                                             type="text"
                                                         />
                                                     </div>
@@ -307,9 +314,9 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-
+                                                            value={bajaVision ? bajaVision.tratamientos : ''}
                                                             disabled
-                                                            id="tratamientos"
+                                                            name="tratamientos"
                                                             type="text"
                                                         />
                                                     </div>
@@ -321,8 +328,9 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={bajaVision ? bajaVision.dx_oft_princ : ''}
                                                             disabled
-                                                            id="dx_oftalmoligico"
+                                                            name="dx_oft_princ"
                                                             type="text"
                                                         />
                                                     </div>
@@ -332,8 +340,9 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={bajaVision ? bajaVision.objetivos : ''}
                                                             disabled
-                                                            id="objetivos"
+                                                            name="objetivos"
                                                             type="text"
                                                         />
                                                     </div>
@@ -363,6 +372,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_sc.av_sc_od_vl}
                                                                                 disabled
                                                                                 name="av/sc_od_vl"
                                                                                 placeholder="od_vl"
@@ -372,6 +382,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_sc.av_sc_oi_vl}
                                                                                 disabled
                                                                                 name="av/sc_oi_vl"
                                                                                 placeholder="oi_vl"
@@ -386,6 +397,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_sc.av_sc_od_vp}
                                                                                 disabled
                                                                                 name="av/sc_od_vp"
                                                                                 placeholder="od_vp"
@@ -395,6 +407,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_sc.av_sc_oi_vp}
                                                                                 disabled
                                                                                 name="av/sc_oi_vp"
                                                                                 placeholder="oi_vp"
@@ -409,6 +422,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_sc.av_sc_od_ph}
                                                                                 disabled
                                                                                 name="av/sc_od_ph"
                                                                                 placeholder="od_ph"
@@ -418,6 +432,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_sc.av_sc_oi_ph}
                                                                                 disabled
                                                                                 name="av/sc_oi_ph"
                                                                                 placeholder="oi_ph"
@@ -453,6 +468,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_cc.av_cc_od_vl}
                                                                                 disabled
                                                                                 name="av/cc_od_vl"
                                                                                 placeholder="od_vl"
@@ -462,6 +478,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_cc.av_cc_oi_vl}
                                                                                 disabled
                                                                                 name="av/cc_oi_vl"
                                                                                 placeholder="oi_vl"
@@ -476,6 +493,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_cc.av_cc_od_vp}
                                                                                 disabled
                                                                                 name="av/cc_od_vp"
                                                                                 placeholder="od_vp"
@@ -485,6 +503,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_cc.av_cc_oi_vp}
                                                                                 disabled
                                                                                 name="av/cc_oi_vp"
                                                                                 placeholder="oi_vp"
@@ -499,6 +518,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_cc.av_cc_od_ph}
                                                                                 disabled
                                                                                 name="av/cc_od_ph"
                                                                                 placeholder="od_ph"
@@ -508,6 +528,7 @@ const VerBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
+                                                                                value={av_cc.av_cc_oi_ph}
                                                                                 disabled
                                                                                 name="av/cc_oi_ph"
                                                                                 placeholder="oi_ph"
@@ -556,6 +577,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.esfera_od}
                                                                             disabled
                                                                             name="esfera_od"
                                                                             placeholder="esfera_od"
@@ -565,6 +587,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.cilindro_od}
                                                                             disabled
                                                                             name="cilindro_od"
                                                                             placeholder="cilindro_od"
@@ -574,6 +597,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.eje_od}
                                                                             disabled
                                                                             name="eje_od"
                                                                             placeholder="eje_od"
@@ -583,6 +607,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.p_base_od}
                                                                             disabled
                                                                             name="p_base_od"
                                                                             placeholder="p_base_od"
@@ -592,7 +617,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-
+                                                                            value={lensometria.add_od}
                                                                             disabled
                                                                             name="add_od"
                                                                             placeholder="add_od"
@@ -607,6 +632,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.esfera_oi}
                                                                             disabled
                                                                             name="esfera_oi"
                                                                             placeholder="esfera_oi"
@@ -616,6 +642,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.cilindro_oi}
                                                                             disabled
                                                                             name="cilindro_oi"
                                                                             placeholder="cilindro_oi"
@@ -625,7 +652,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-
+                                                                            value={lensometria.eje_oi}
                                                                             disabled
                                                                             name="eje_oi"
                                                                             placeholder="eje_oi"
@@ -635,6 +662,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
+                                                                            value={lensometria.p_base_oi}
                                                                             disabled
                                                                             name="p_base_oi"
                                                                             placeholder="p_base_oi"
@@ -644,7 +672,7 @@ const VerBajaVision = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-
+                                                                            value={lensometria.add_oi}
                                                                             disabled
                                                                             name="add_oi"
                                                                             placeholder="add_oi"
@@ -663,6 +691,7 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={lensometria_extra.len_tipo_lentes}
                                                             disabled
                                                             name="len_tipo_lentes"
                                                             type="text"
@@ -674,6 +703,7 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={lensometria_extra.len_filtros}
                                                             disabled
                                                             name="len_filtros"
                                                             type="text"
@@ -685,6 +715,7 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={lensometria_extra.len_tiempo}
                                                             disabled
                                                             name="len_tiempo"
                                                             type="text"
@@ -696,6 +727,7 @@ const VerBajaVision = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={lensometria_extra.len_tipo_aro}
                                                             disabled
                                                             name="len_tipo_aro"
                                                             type="text"
@@ -718,7 +750,7 @@ const VerBajaVision = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-
+                                                            value={cv_so.cv_od}
                                                             disabled
                                                             name="cv_od"
                                                             placeholder="OD"
@@ -728,7 +760,7 @@ const VerBajaVision = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-
+                                                            value={cv_so.so_od}
                                                             disabled
                                                             name="so_od"
                                                             placeholder="OD"
@@ -740,7 +772,7 @@ const VerBajaVision = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-
+                                                            value={cv_so.cv_oi}
                                                             disabled
                                                             name="cv_oi"
                                                             placeholder="OI"
@@ -750,7 +782,7 @@ const VerBajaVision = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-
+                                                            value={cv_so.so_oi}
                                                             disabled
                                                             name="so_oi"
                                                             placeholder="OI"
@@ -769,6 +801,7 @@ const VerBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
+                                                                value={amsler.amsler_od}
                                                                 disabled
                                                                 name="amsler_od"
                                                                 placeholder="OD"
@@ -778,6 +811,7 @@ const VerBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
+                                                                value={amsler.amsler_oi}
                                                                 disabled
                                                                 name="amsler_oi"
                                                                 placeholder="OI"
@@ -794,6 +828,7 @@ const VerBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
+                                                                value={amsler.sensibilidad_od}
                                                                 disabled
                                                                 name="sensibilidad_od"
                                                                 placeholder="OD"
@@ -803,6 +838,7 @@ const VerBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
+                                                                value={amsler.sensibilidad_oi}
                                                                 disabled
                                                                 name="sensibilidad_oi"
                                                                 placeholder="OI"
@@ -820,6 +856,7 @@ const VerBajaVision = () => {
                                                     <textarea
                                                         className="form-control textarea"
                                                         disabled
+                                                        value={amsler.plan_versiones}
                                                         maxLength="225"
                                                         name="plan_versiones"
                                                         placeholder="Esta área tiene un limite de 225 caracteres."
@@ -850,7 +887,7 @@ const VerBajaVision = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-
+                                                                    value={pruebas.vl_luces}
                                                                     disabled
                                                                     name="vl_luces"
                                                                     placeholder="vl_luces"
@@ -860,7 +897,7 @@ const VerBajaVision = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-
+                                                                    value={pruebas.vp_luces}
                                                                     disabled
                                                                     name="vp_luces"
                                                                     placeholder="vp_luces"
@@ -878,9 +915,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-
+                                                        value={pruebas.vision_color}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="vision_color"
                                                         placeholder="Visión de Color"
                                                         type="text"
@@ -894,8 +930,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={pruebas.prueba_od}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="prueba_od"
                                                         placeholder="OD"
                                                         type="text"
@@ -907,8 +943,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={pruebas.prueba_oi}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="prueba_oi"
                                                         placeholder="OI"
                                                         type="text"
@@ -951,6 +987,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.esfera_od_f}
                                                                         disabled
                                                                         name="esfera_od_f"
                                                                         placeholder="esfera_od"
@@ -960,6 +997,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.cilindro_od_f}
                                                                         disabled
                                                                         name="cilindro_od_f"
                                                                         placeholder="cilindro_od"
@@ -969,6 +1007,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.eje_od_f}
                                                                         disabled
                                                                         name="eje_od_f"
                                                                         placeholder="eje_od"
@@ -978,6 +1017,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.p_base_od_f}
                                                                         disabled
                                                                         name="p_base_od_f"
                                                                         placeholder="p_base_od"
@@ -987,6 +1027,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.agz_od_f}
                                                                         disabled
                                                                         name="agz_od_f"
                                                                         placeholder="agz_od"
@@ -1001,6 +1042,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.esfera_oi_f}
                                                                         disabled
                                                                         name="esfera_oi_f"
                                                                         placeholder="esfera_oi"
@@ -1010,6 +1052,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.cilindro_oi_f}
                                                                         disabled
                                                                         name="cilindro_oi_f"
                                                                         placeholder="cilindro_oi"
@@ -1019,6 +1062,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.eje_oi_f}
                                                                         disabled
                                                                         name="eje_oi_f"
                                                                         placeholder="eje_oi"
@@ -1028,6 +1072,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.p_base_oi_f}
                                                                         defaultValue="△"
                                                                         disabled
                                                                         name="p_base_oi_f"
@@ -1038,6 +1083,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.agz_oi_f}
                                                                         disabled
                                                                         name="agz_oi_f"
                                                                         placeholder="agz_oi"
@@ -1056,8 +1102,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_marca_1}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_marca_1"
                                                         placeholder="Marca"
                                                         type="text"
@@ -1069,8 +1115,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_pd_1}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_pd_1"
                                                         placeholder="Tipo"
                                                         type="text"
@@ -1082,8 +1128,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_dpn_1}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_dpn_1"
                                                         placeholder="Tipo"
                                                         type="text"
@@ -1095,8 +1141,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_altura_1}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_altura_1"
                                                         placeholder="Tipo"
                                                         type="text"
@@ -1139,6 +1185,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.esfera_od_fc}
                                                                         disabled
                                                                         name="esfera_od_fc"
                                                                         placeholder="esfera_od"
@@ -1148,6 +1195,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.cilindro_od_fc}
                                                                         disabled
                                                                         name="cilindro_od_fc"
                                                                         placeholder="cilindro_od"
@@ -1157,6 +1205,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.eje_od_fc}
                                                                         disabled
                                                                         name="eje_od_fc"
                                                                         placeholder="eje_od"
@@ -1166,6 +1215,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.p_base_od_fc}
                                                                         disabled
                                                                         name="p_base_od_fc"
                                                                         placeholder="p_base_od"
@@ -1175,6 +1225,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.agz_od_fc}
                                                                         disabled
                                                                         name="agz_od_fc"
                                                                         placeholder="agz_od"
@@ -1189,6 +1240,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.esfera_oi_fc}
                                                                         disabled
                                                                         name="esfera_oi_fc"
                                                                         placeholder="esfera_oi"
@@ -1198,6 +1250,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.cilindro_oi_fc}
                                                                         disabled
                                                                         name="cilindro_oi_fc"
                                                                         placeholder="cilindro_oi"
@@ -1207,6 +1260,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.eje_oi_fc}
                                                                         disabled
                                                                         name="eje_oi_fc"
                                                                         placeholder="eje_oi"
@@ -1216,6 +1270,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.p_base_oi_fc}
                                                                         defaultValue="△"
                                                                         disabled
                                                                         name="p_base_oi_fc"
@@ -1226,6 +1281,7 @@ const VerBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
+                                                                        value={refraccion.agz_oi_fc}
                                                                         disabled
                                                                         name="agz_oi_fc"
                                                                         placeholder="agz_oi"
@@ -1244,6 +1300,7 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_marca_2}
                                                         disabled
                                                         id="inputAddress"
                                                         name="lentes_marca_2"
@@ -1257,8 +1314,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_pd_2}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_pd_2"
                                                         placeholder="PD"
                                                         type="text"
@@ -1270,8 +1327,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_dnp_2}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_dnp_2"
                                                         placeholder="USO"
                                                         type="text"
@@ -1283,8 +1340,8 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
+                                                        value={refraccion.lentes_altura_2}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="lentes_altura_2"
                                                         placeholder="USO"
                                                         type="text"
@@ -1298,6 +1355,7 @@ const VerBajaVision = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
+                                                        value={bajaVision ? bajaVision.ayudas_opticas : ''}
                                                         disabled
                                                         maxLength="225"
                                                         name="ayudas_opticas"
@@ -1314,7 +1372,7 @@ const VerBajaVision = () => {
                                                     <textarea
                                                         className="form-control textarea"
                                                         disabled
-                                                        id="textarea"
+                                                        value={bajaVision ? bajaVision.ayudas_no_opticas : ''}
                                                         maxLength="225"
                                                         name="ayudas_no_opticas"
                                                         placeholder="Esta área tiene un limite de 225 caracteres."
@@ -1330,7 +1388,7 @@ const VerBajaVision = () => {
                                                     <textarea
                                                         className="form-control textarea"
                                                         disabled
-                                                        id="textarea"
+                                                        value={bajaVision ? bajaVision.plan_rehabilitacion : ''}
                                                         maxLength="225"
                                                         name="plan_rehabilitacion"
                                                         placeholder="Esta área tiene un limite de 225 caracteres."

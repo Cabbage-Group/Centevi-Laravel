@@ -243,9 +243,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <textarea
                                                             className="form-control textarea"
-                                                            defaultValue="DESDE SEPT DEL 2021 EMPEZO A DESVIAR LOS OJOS DERECHO HACIA AFUERA.... TIENE POSICION COMPENSATORIA DE CABEZA Y LO HACE INTERMITENTE... TRASTORNO GLOBAL DE DESARROLLO... TIENE CIERTAS BANDERAS DE AUTISMO.... EL ENCEFALOGRAMA SALIO QUE TIENE UNA ONDA MADURATIVA QUE LE FALTA COMPLETAR....ESTA EN TERAPIA FONOAUDIOLOGIA + T. OCUPACIONAL Y DE CONDUCTA..... INTEGRACION SENSORIAL.... A NIVEL COGNITIVO ESTA BIEN, LA CONDUCTA ES EL PROBLEMA.... NO VERBAL. SI HIZO GATEO.... 10 MESES DE EDAD CORREGIDA. NUNCA HA USADO LENTES... 1ERA VEZ EVALUACION DE OJOS... NO HA SIDO REVISADA POR PREMATUIDAD DE RETINA."
+                                                            value={neonatos ? neonatos.m_c : ''}
                                                             disabled
-                                                            id="textarea"
                                                             maxLength="225"
                                                             name="m_c"
                                                             placeholder="Esta área tiene un limite de 225 caracteres."
@@ -260,9 +259,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  Nada"
+                                                            value={neonatos ? neonatos.a_o : ''}
                                                             disabled
-                                                            id="lugarNacimiento"
                                                             name="a_o"
                                                             placeholder="A/O"
                                                             type="text"
@@ -274,9 +272,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  ALERGICO"
+                                                            value={neonatos ? neonatos.a_p : ''}
                                                             disabled
-                                                            id="inputAddress2"
                                                             name="a_p"
                                                             placeholder="A/P"
                                                             type="text"
@@ -304,9 +301,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  ANTIHISTAMINICOS"
+                                                            value={neonatos ? neonatos.medicamentos : ''}
                                                             disabled
-                                                            id="medicamentos"
                                                             name="medicamentos"
                                                             placeholder="Medicamentos"
                                                             type="text"
@@ -320,9 +316,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  Ninguno"
+                                                            value={neonatos ? neonatos.tratamientos : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="tratamientos"
                                                             placeholder="Tratamientos"
                                                             type="text"
@@ -336,9 +331,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  RESTRASO GLOBAL DEL DESA"
+                                                            value={neonatos ? neonatos.desarrollo_infante : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="desarrollo_infante"
                                                             placeholder="Desarrollo del infante"
                                                             type="text"
@@ -352,9 +346,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  33 SEMANAS"
+                                                            value={neonatos ? neonatos.nacimiento : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="nacimiento"
                                                             placeholder="Nacimiento"
                                                             type="text"
@@ -366,9 +359,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  Cesarea"
+                                                            value={neonatos ? neonatos.parto : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="parto"
                                                             placeholder="Parto"
                                                             type="text"
@@ -380,9 +372,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
+                                                            value={neonatos ? neonatos.gateo : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="gateo"
                                                             placeholder="Gateo"
                                                             type="text"
@@ -394,9 +385,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  NO VERBAL"
+                                                            value={neonatos ? neonatos.lenguaje : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="lenguaje"
                                                             placeholder="Lenguaje"
                                                             type="text"
@@ -410,9 +400,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
+                                                            value={neonatos ? neonatos.complicaciones : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="complicaciones"
                                                             placeholder="Complicaciones Prenatales"
                                                             type="text"
@@ -424,9 +413,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
+                                                            value={neonatos ? neonatos.perinatales : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="perinatales"
                                                             placeholder="Perinatales"
                                                             type="text"
@@ -438,9 +426,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
+                                                            value={neonatos ? neonatos.postnatales : ''}
                                                             disabled
-                                                            id="tratamientos"
                                                             name="postnatales"
                                                             placeholder="Postnatales"
                                                             type="text"
@@ -457,9 +444,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  "
+                                                            value={agudeza_visual.tambor}
                                                             disabled
-                                                            id="tambor"
                                                             name="tambor"
                                                             placeholder="Tambor Optocinético"
                                                             type="text"
@@ -471,9 +457,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
+                                                            value={agudeza_visual.fija}
                                                             disabled
-                                                            id="fija"
                                                             name="fija"
                                                             placeholder="Fija"
                                                             type="text"
@@ -485,9 +470,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
+                                                            value={agudeza_visual.sigue}
                                                             disabled
-                                                            id="sigue"
                                                             name="sigue"
                                                             placeholder="Sigue"
                                                             type="text"
@@ -499,9 +483,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="  SI"
+                                                            value={agudeza_visual.mantiene}
                                                             disabled
-                                                            id="mantiene"
                                                             name="mantiene"
                                                             placeholder="Mantiene"
                                                             type="text"
@@ -515,9 +498,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="------------"
+                                                            value={agudeza_visual.test}
                                                             disabled
-                                                            id="test"
                                                             name="test"
                                                             placeholder="Test"
                                                             type="text"
@@ -529,9 +511,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="-----------"
+                                                            value={agudeza_visual.a_oi}
                                                             disabled
-                                                            id="oi"
                                                             name="a_oi"
                                                             placeholder="OI"
                                                             type="text"
@@ -543,9 +524,8 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="respuesta a todos los patrones"
+                                                            value={agudeza_visual.a_ao}
                                                             disabled
-                                                            id="ao"
                                                             name="a_ao"
                                                             placeholder="AO"
                                                             type="text"
@@ -588,7 +568,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="-------"
+                                                                            value={lensometria.esfera_od}
                                                                             disabled
                                                                             name="esfera_od"
                                                                             placeholder="esfera_od"
@@ -598,7 +578,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_od}
                                                                             disabled
                                                                             name="cilindro_od"
                                                                             placeholder="cilindro_od"
@@ -608,7 +588,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.eje_od}
                                                                             disabled
                                                                             name="eje_od"
                                                                             placeholder="eje_od"
@@ -618,7 +598,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_od}
                                                                             disabled
                                                                             name="p_base_od"
                                                                             placeholder="p_base_od"
@@ -628,7 +608,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_od}
                                                                             disabled
                                                                             name="add_od"
                                                                             placeholder="add_od"
@@ -643,7 +623,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="------"
+                                                                            value={lensometria.esfera_oi}
                                                                             disabled
                                                                             name="esfera_oi"
                                                                             placeholder="esfera_oi"
@@ -653,7 +633,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_oi}
                                                                             disabled
                                                                             name="cilindro_oi"
                                                                             placeholder="cilindro_oi"
@@ -663,7 +643,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_oi}
                                                                             disabled
                                                                             name="eje_oi"
                                                                             placeholder="eje_oi"
@@ -673,7 +653,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_oi}
                                                                             disabled
                                                                             name="p_base_oi"
                                                                             placeholder="p_base_oi"
@@ -683,7 +663,7 @@ const VerNeonatos = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.add_oi}
                                                                             disabled
                                                                             name="add_oi"
                                                                             placeholder="add_oi"
@@ -702,7 +682,7 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=" NUNCA HA USADO RX"
+                                                            value={lensometria_extra.len_tipo_lentes}
                                                             disabled
                                                             name="len_tipo_lentes"
                                                             type="text"
@@ -714,7 +694,7 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="------"
+                                                            value={lensometria_extra.len_filtros}
                                                             disabled
                                                             name="len_filtros"
                                                             type="text"
@@ -726,7 +706,7 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="--------"
+                                                            value={lensometria_extra.len_tiempo}
                                                             disabled
                                                             name="len_tiempo"
                                                             type="text"
@@ -738,7 +718,7 @@ const VerNeonatos = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="---------------"
+                                                            value={lensometria_extra.len_tipo_aro}
                                                             disabled
                                                             name="len_tipo_aro"
                                                             type="text"
@@ -761,7 +741,7 @@ const VerNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OD Normales"
+                                                            value={sa_pp.sa_od}
                                                             disabled
                                                             name="sa_od"
                                                             placeholder="SA_OD"
@@ -771,7 +751,7 @@ const VerNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OD Medios Transparente"
+                                                            value={sa_pp.pp_od}
                                                             disabled
                                                             name="pp_od"
                                                             placeholder="PP_OD"
@@ -783,7 +763,7 @@ const VerNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OS Normales"
+                                                            value={sa_pp.sa_oi}
                                                             disabled
                                                             name="sa_oi"
                                                             placeholder="SA_OI"
@@ -793,7 +773,7 @@ const VerNeonatos = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="OS Medios Transparente"
+                                                            value={sa_pp.pp_oi}
                                                             disabled
                                                             name="pp_oi"
                                                             placeholder="PP_OI"
@@ -809,9 +789,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Centrado Orthoposicion "
+                                                        value={pruebas_extras.hirschberg}
                                                         disabled
-                                                        id="D"
                                                         name="hirschberg"
                                                         placeholder="Hirschberg"
                                                         type="text"
@@ -823,9 +802,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="--------"
+                                                        value={pruebas_extras.krismsky}
                                                         disabled
-                                                        id="I"
                                                         name="krismsky"
                                                         placeholder="Krismsky"
                                                         type="text"
@@ -839,9 +817,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        defaultValue="HIPERFUNCION MUSCULOS RECTOS LATERALES MAYOR DEL OD. "
+                                                        value={pruebas_extras.plan_versiones}
                                                         disabled
-                                                        id="textarea"
                                                         maxLength="225"
                                                         name="plan_versiones"
                                                         placeholder="Esta área tiene un limite de 225* caracteres."
@@ -856,9 +833,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="XT ALT INT +OD"
+                                                        value={pruebas_extras.ct_vp}
                                                         disabled
-                                                        id="D"
                                                         name="ct_vp"
                                                         placeholder="VP"
                                                         type="text"
@@ -870,9 +846,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="Presente"
+                                                        value={pruebas_extras.ct_reflejo}
                                                         disabled
-                                                        id="I"
                                                         name="ct_reflejo"
                                                         placeholder="Reflejo Cocleopalpebral"
                                                         type="text"
@@ -884,9 +859,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
+                                                        value={pruebas_extras.ducciones_od}
                                                         disabled
-                                                        id="I"
                                                         name="ducciones_od"
                                                         placeholder="OD"
                                                         type="text"
@@ -898,9 +872,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
+                                                        value={pruebas_extras.ducciones_oi}
                                                         disabled
-                                                        id="I"
                                                         name="ducciones_oi"
                                                         placeholder="OI"
                                                         type="text"
@@ -914,9 +887,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={pruebas_extras.posicion_compensatoria}
                                                         disabled
-                                                        id="I"
                                                         name="posicion_compensatoria"
                                                         placeholder="Posicion Compensatoria"
                                                         type="text"
@@ -933,9 +905,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMALES"
+                                                        value={pruebas_extras.fotomotor_od}
                                                         disabled
-                                                        id="D"
                                                         name="fotomotor_od"
                                                         placeholder="Fotomotor/OD"
                                                         type="text"
@@ -947,9 +918,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
+                                                        value={pruebas_extras.consensual}
                                                         disabled
-                                                        id="I"
                                                         name="consensual"
                                                         placeholder="Consensual"
                                                         type="text"
@@ -961,9 +931,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
+                                                        value={pruebas_extras.fotomotor_oi}
                                                         disabled
-                                                        id="I"
                                                         name="fotomotor_oi"
                                                         placeholder="Fotomotor OI"
                                                         type="text"
@@ -975,9 +944,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="NORMAL"
+                                                        value={pruebas_extras.fotomotor_consensual}
                                                         disabled
-                                                        id="I"
                                                         name="fotomotor_consensual"
                                                         placeholder="Fotomotor Consensual"
                                                         type="text"
@@ -991,9 +959,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="BRILLOSO Y LIMPIO"
+                                                        value={refraccion.reflejo_r_od}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="reflejo_r_od"
                                                         placeholder="Reflejo retinoscopico OD"
                                                         type="text"
@@ -1005,9 +972,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="BRILLOSO Y LIMPIO"
+                                                        value={refraccion.reflejo_r_oi}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="reflejo_r_oi"
                                                         placeholder="OI"
                                                         type="text"
@@ -1019,9 +985,8 @@ const VerNeonatos = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={refraccion.reflejo_r_ao}
                                                         disabled
-                                                        id="inputAddress"
                                                         name="reflejo_r_ao"
                                                         placeholder="AO"
                                                         type="text"
@@ -1063,7 +1028,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="-1.00SPH"
+                                                                    value={refraccion.esfera_od_f}
                                                                     disabled
                                                                     name="esfera_od_f"
                                                                     placeholder="esfera_od"
@@ -1073,7 +1038,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={refraccion.cilindro_od_f}
                                                                     disabled
                                                                     name="cilindro_od_f"
                                                                     placeholder="cilindro_od"
@@ -1083,7 +1048,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={refraccion.eje_od_f}
                                                                     disabled
                                                                     name="eje_od_f"
                                                                     placeholder="eje_od"
@@ -1093,7 +1058,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="3 B.INT"
+                                                                    value={refraccion.p_base_od_f}
                                                                     disabled
                                                                     name="p_base_od_f"
                                                                     placeholder="p_base_od"
@@ -1103,7 +1068,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="OBJETIVA"
+                                                                    value={refraccion.add_od_f}
                                                                     disabled
                                                                     name="add_od_f"
                                                                     placeholder="add_od"
@@ -1118,7 +1083,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="-1.00SPH"
+                                                                    value={refraccion.esfera_oi_f}
                                                                     disabled
                                                                     name="esfera_oi_f"
                                                                     placeholder="esfera_oi"
@@ -1128,7 +1093,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={refraccion.cilindro_oi_f}
                                                                     disabled
                                                                     name="cilindro_oi_f"
                                                                     placeholder="cilindro_oi"
@@ -1138,7 +1103,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={refraccion.eje_oi_f}
                                                                     disabled
                                                                     name="eje_oi_f"
                                                                     placeholder="eje_oi"
@@ -1148,7 +1113,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="3 B.INT"
+                                                                    value={refraccion.p_base_oi_f}
                                                                     disabled
                                                                     name="p_base_oi_f"
                                                                     placeholder="p_base_oi"
@@ -1158,7 +1123,7 @@ const VerNeonatos = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue="OBJETIVA"
+                                                                    value={refraccion.add_oi_f}
                                                                     disabled
                                                                     name="add_oi_f"
                                                                     placeholder="add_oi"
@@ -1177,9 +1142,8 @@ const VerNeonatos = () => {
                                                 </label>
                                                 <input
                                                     className="form-control"
-                                                    defaultValue="MONOFOCALES POLY SENCILLOS. PERMANENTE"
+                                                    value={refraccion.refraccion_tipo_lentes}
                                                     disabled
-                                                    id="inputAddress"
                                                     name="refraccion_tipo_lentes"
                                                     placeholder="Tipo Lentes"
                                                     type="text"
@@ -1191,9 +1155,8 @@ const VerNeonatos = () => {
                                                 </label>
                                                 <input
                                                     className="form-control"
-                                                    defaultValue="48/50"
+                                                    value={refraccion.refraccion_pd}
                                                     disabled
-                                                    id="inputAddress"
                                                     name="refraccion_pd"
                                                     placeholder="PD"
                                                     type="text"
@@ -1205,9 +1168,8 @@ const VerNeonatos = () => {
                                                 </label>
                                                 <input
                                                     className="form-control"
-                                                    defaultValue="PERMANENTE"
+                                                    value={refraccion.refraccion_uso}
                                                     disabled
-                                                    id="inputAddress"
                                                     name="refraccion_uso"
                                                     placeholder="USO"
                                                     type="text"
@@ -1221,9 +1183,8 @@ const VerNeonatos = () => {
                                                 </label>
                                                 <textarea
                                                     className="form-control textarea"
-                                                    defaultValue="EXPLICO QUE PRESENTA EXOTROPIA ALTERNANTE INTERMITENTE Y QUE TIENE MIOPIA BAJA... ESTO ESTA RELACIONADA CON LA DESVIACION OCULAR.... REQUIERE USO DE LENTES PERMANENTE CON PRISMAS. CITA 1 MES DE USO LENTES. HOY PAGA 40 TPC"
+                                                    value={neonatos ? neonatos.conducta_seguir : ''}
                                                     disabled
-                                                    id="textarea"
                                                     maxLength="225"
                                                     name="conducta_seguir"
                                                     placeholder="Esta área tiene un limite de 225 caracteres."

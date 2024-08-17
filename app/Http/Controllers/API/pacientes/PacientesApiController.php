@@ -15,39 +15,67 @@ use Illuminate\Support\Facades\Cache;
 class PacientesApiController extends Controller
 {
     public function pacientes(Request $request)
-    {
-        // Obtener los parámetros
-        $page = $request->query('page', 1);
-        $limit = $request->query('limit', 300);
-        $sortOrder = $request->query('sortOrder', 'asc');
-        $sortColumn = $request->query('sortColumn', 'id_paciente');
+{
+    // Obtener los parámetros
+    $page = $request->query('page', 1);
+    $limit = $request->query('limit', 300);
+    $sortOrder = $request->query('sortOrder', 'asc');
+    $sortColumn = $request->query('sortColumn', 'id_paciente');
+    $search = $request->query('search', '');
 
-        // Validar los parámetros
-        $request->validate([
-            'page' => 'integer|min:1',
-            'limit' => 'integer|min:1|max:10000',
-            'sortOrder' => 'in:asc,desc',
-            'sortColumn' => 'string|in:sucursal,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion', // Ajusta según los campos que tengas
-        ]);
+    // Validar los parámetros
+    $request->validate([
+        'page' => 'integer|min:1',
+        'limit' => 'integer|min:1|max:10000',
+        'sortOrder' => 'in:asc,desc',
+        'sortColumn' => 'string|in:sucursal,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
+        'search' => 'string|nullable|max:255', // Validación para el parámetro de búsqueda
+    ]);
 
-        // Obtener los datos paginados
-        $pacientes = Pacientes::orderBy($sortColumn, $sortOrder)
-            ->paginate($limit, ['*'], 'page', $page);
+    // Construir la consulta base
+    $query = Pacientes::orderBy($sortColumn, $sortOrder);
 
-        // Formatear la respuesta
-        return response()->json([
-            'data' => $pacientes->items(),
-            'meta' => [
-                'page' => $pacientes->currentPage(),
-                'limit' => $pacientes->perPage(),
-                'total' => $pacientes->total(),
-            ],
-            'status' => [
-                'code' => 200,
-                'message' => 'Pacientes retrieved successfully',
-            ],
-        ]);
+    // Aplicar el filtro de búsqueda si existe
+    if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('sucursal', 'like', "%{$search}%")
+              ->orWhere('doctor', 'like', "%{$search}%")
+              ->orWhere('nombres', 'like', "%{$search}%")
+              ->orWhere('apellidos', 'like', "%{$search}%")
+              ->orWhere('nro_cedula', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('nro_seguro', 'like', "%{$search}%")
+              ->orWhere('fecha_nacimiento', 'like', "%{$search}%")
+              ->orWhere('genero', 'like', "%{$search}%")
+              ->orWhere('lugar_nacimiento', 'like', "%{$search}%")
+              ->orWhere('direccion', 'like', "%{$search}%")
+              ->orWhere('ocupacion', 'like', "%{$search}%")
+              ->orWhere('telefono', 'like', "%{$search}%")
+              ->orWhere('celular', 'like', "%{$search}%")
+              ->orWhere('medico', 'like', "%{$search}%")
+              ->orWhere('urgencia', 'like', "%{$search}%")
+              ->orWhere('menor', 'like', "%{$search}%")
+              ->orWhere('fecha_creacion', 'like', "%{$search}%");
+        });
     }
+
+    // Obtener los datos paginados
+    $pacientes = $query->paginate($limit, ['*'], 'page', $page);
+
+    // Formatear la respuesta
+    return response()->json([
+        'data' => $pacientes->items(),
+        'meta' => [
+            'page' => $pacientes->currentPage(),
+            'limit' => $pacientes->perPage(),
+            'total' => $pacientes->total(),
+        ],
+        'status' => [
+            'code' => 200,
+            'message' => 'Pacientes retrieved successfully',
+        ],
+    ]);
+}
 
     public function VerPaciente ($id)
     {

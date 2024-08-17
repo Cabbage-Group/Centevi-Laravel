@@ -66,7 +66,7 @@ const BajaVision = () => {
             len_tipo_lentes: '',
             len_filtros: '',
             len_tiempo: '',
-            len_tipo_aro: ''
+            len_tipo_aro: '',
         },
 
         cv_so: {
@@ -84,16 +84,34 @@ const BajaVision = () => {
             sensibilidad_oi: ""
         },
         refraccion: {
-            receta_lejos_od: "",
-            av_vl_od: "",
-            receta_cerca_od: "",
-            av_vp_od: "",
-            receta_lejos_oi: "",
-            av_vl_oi: "",
-            receta_cerca_oi: "",
-            av_vp_oi: "",
-            tipo_lente_lejos: "",
-            tipo_lente_cerca: ""
+            esfera_od_f:"",
+            cilindro_od_f:"",
+            eje_od_f:"",
+            p_base_od_f:"",
+            agz_od_f:"",
+            esfera_oi_f:"",
+            cilindro_oi_f:"",
+            eje_oi_f:"",
+            p_base_oi_f:"",
+            agz_oi_f:"",
+            esfera_od_fc:"",
+            cilindro_od_fc:"",
+            eje_od_fc:"",
+            p_base_od_fc:"",
+            agz_od_fc:"",
+            esfera_oi_fc:"",
+            cilindro_oi_fc:"",
+            eje_oi_fc:"",
+            p_base_oi_fc:"",
+            agz_oi_fc:"",
+            lentes_marca_1:"",
+            lentes_pd_1:"",
+            lentes_dnp_1:"",
+            lentes_altura_1:"",
+            lentes_marca_2:"",
+            lentes_pd_2:"",
+            lentes_dnp_2:"",
+            lentes_altura_2:""
         },
         pruebas: {
             vl_luces: "",

@@ -1133,13 +1133,7 @@ const CrearReceta = () => {
 
                                                         </Form>
                                                     )}
-                                                </Formik>
-
-                                                {status === 'error' && <div className="alert alert-danger">{error}</div>}
-                                                {status === 'loading' && <p>Enviando...</p>}
-                                                {status === 'failed' && <p>Error: {error}</p>}
-                                                {status === 'succeeded' && <p>Neonato creado con éxito</p>}
-
+                                                </Formik>                                               
                                             </div>
                                         </div>
                                     </div>

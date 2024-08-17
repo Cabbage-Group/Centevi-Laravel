@@ -98,6 +98,9 @@ const Sucursales = () => {
         });
 
     };
+    const handleClearSearch = () => {
+        setLocalSearch('');
+    };
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -161,11 +164,6 @@ const Sucursales = () => {
             });
         }
     }
-
-   
-
-
-
 
     const handleDeleteClick = (sucursal) => {
         Swal.fire({
@@ -255,7 +253,24 @@ const Sucursales = () => {
                                                                 placeholder="Search..." 
                                                                 aria-controls="zero-config" 
                                                                 value={localSearch}
-                                                                onChange={handleSearchChange}/>
+                                                                onChange={handleSearchChange}
+                                                                />
+                                                                {localSearch && (
+                                                                        <button
+                                                                            onClick={handleClearSearch}
+                                                                            style={{
+                                                                                position: 'absolute',
+                                                                                right: '25px',
+                                                                                top: '50%',
+                                                                                transform: 'translateY(-50%)',
+                                                                                background: 'none',
+                                                                                border: 'none',
+                                                                                cursor: 'pointer',
+                                                                            }}
+                                                                        >
+                                                                            &#x2715; { }
+                                                                        </button>
+                                                                    )}
                                                             </label>
                                                         </div>
                                                     </div>
@@ -441,7 +456,7 @@ const Sucursales = () => {
                 </div>
 
             )}
-     {isModalVisible && selectedSucursal && (        
+     {isModalVisible &&(        
                 <div
                     className="modal fade show"
                     id="modalEditarSucursal"
@@ -485,7 +500,7 @@ const Sucursales = () => {
                                                 </span>
                                                 <input
                                                     className="form-control input-lg"
-                                                    defaultValue={selectedSucursal?.nombre || ''}
+                                                    value={formValues?.nombre || ''}
                                                     id="editarNombre"
                                                     name="nombre"
                                                     onChange={handleChange}
@@ -502,7 +517,7 @@ const Sucursales = () => {
                                                 </span>
                                                 <input
                                                     className="form-control input-lg"
-                                                    defaultValue={selectedSucursal?.ubicacion || ''}
+                                                    value={formValues?.ubicacion || ''}
                                                     name="ubicacion"
                                                     onChange={handleChange}
                                                     type="text"

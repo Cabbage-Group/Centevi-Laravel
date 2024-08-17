@@ -141,7 +141,7 @@ const EditarNeonatos = () => {
                 lensometria: neonato.lensometria ? JSON.parse(neonato.lensometria) : {},
                 lensometria_extra: neonato.lensometria_extra ? JSON.parse(neonato.lensometria_extra) : {},
                 sa_pp: neonato.sa_pp ? JSON.parse(neonato.sa_pp) : {},
-                pruebas_extra: neonato.pruebas_extra ? JSON.parse(neonato.pruebas_extra) : {},
+                pruebas_extras: neonato.pruebas_extras ? JSON.parse(neonato.pruebas_extras) : {},
                 refraccion: neonato.refraccion ? JSON.parse(neonato.refraccion) : {},
                 acomodacion_extra: neonato.acomodacion_extra ? JSON.parse(neonato.acomodacion_extra) : {},
                 conducta_seguir: neonato.conducta_seguir || '',
@@ -203,8 +203,8 @@ const EditarNeonatos = () => {
                 case 'pruebas_extra':
                     return {
                         ...prevFormData,
-                        pruebas_extra: {
-                            ...prevFormData.pruebas_extra,
+                        pruebas_extras: {
+                            ...prevFormData.pruebas_extras,
                             [name]: value,
                         },
                     };

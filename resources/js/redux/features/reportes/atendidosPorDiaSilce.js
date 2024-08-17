@@ -55,7 +55,7 @@ const atendidosPorDiaSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { // Agrega el reducer para la búsqueda
+        setSearch(state, action) { 
             state.search = action.payload;
         },
     },

@@ -5,9 +5,9 @@ import API from '../../../config/config.js';
 
 export const fetchPacientes = createAsyncThunk(
     'pacientes/fetchPacientes',
-    async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres' }) => {
+    async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres', search = '' }) => {
         const response = await axios.get(`${API}/pacientes`, {
-            params: { page, limit, sortOrder, sortColumn }
+            params: { page, limit, sortOrder, sortColumn, search }
         });
         return response.data;
     }
@@ -29,6 +29,7 @@ const pacientesSlice = createSlice({
         meta: {},
         status: 'idle',
         error: null,
+        search: ''
     },
     reducers: {},
     extraReducers: (builder) => {
