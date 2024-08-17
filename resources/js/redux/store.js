@@ -44,6 +44,20 @@ import terapiaSesionBajaVisionSlice from './features/terapias/terapiaSesionBajaV
 import VerSesionTerapiaSlice from './features/terapias/VerSesionTerapiaSlice';
 import EditarSesionTerapiaSlice from './features/terapias/EditarSesionTerapiaSlice';
 import TerapiaOptometriaNeonatosSlice from './features/terapias/TerapiaOptometriaNeonatosSlice';
+import TerapiaOptometriaPediatricaSlice from './features/terapias/TerapiaOptometriaPediatricaSlice';
+import TerapiaOrtopticaAdultosSlice from './features/terapias/TerapiaOrtopticaAdultosSlice';
+import verUnaTerapiaNeonatosSlice from './features/terapias/verUnaTerapiaNeonatosSlice';
+import terapiaSesionNeonatosSlice from './features/terapias/terapiaSesionNeonatosSlice';
+import VerSesionTerapiaNeonatoSlice from './features/terapias/VerSesionTerapiaNeonatoSlice';
+import EditarSesionTerapiaNeonatoSlice from './features/terapias/EditarSesionTerapiaNeonatoSlice';
+import verUnaTerapiaPediatricaSlice from './features/terapias/verUnaTerapiaPediatricaSlice';
+import terapiaSesionPediatricaSlice from './features/terapias/terapiaSesionPediatricaSlice';
+import VerSesionTerapiaPediatricaSlice from './features/terapias/VerSesionTerapiaPediatricaSlice';
+import EditarSesionTerapiaPediatricaSlice from './features/terapias/EditarSesionTerapiaPediatricaSlice';
+import verUnaTerapiaOrtopticaSlice from './features/terapias/verUnaTerapiaOrtopticaSlice';
+import terapiaSesionOrtopticaSlice from './features/terapias/terapiaSesionOrtopticaSlice';
+import VerSesionTerapiaOrtopticaSlice from './features/terapias/VerSesionTerapiaOrtopticaSlice';
+import EditarSesionTerapiaOrtopticaSlice from './features/terapias/EditarSesionTerapiaOrtopticaSlice';
 
 
 
@@ -90,10 +104,27 @@ const store = configureStore({
                 verDocumento: VerDocumentosSlice,
                 terapiasBajaVision: terapiasBajaVisionSlice,
                 terapiaNeonatos: TerapiaOptometriaNeonatosSlice,
+                terapiasPediatrica: TerapiaOptometriaPediatricaSlice,
+                terapiasOrtoptica: TerapiaOrtopticaAdultosSlice,
                 verTerapiaBajaVision: verUnaTerapiaBajaVisionSlice,
-                sesionterapiaBajaVision: terapiaSesionBajaVisionSlice,
+                verTerapiaNeonatos: verUnaTerapiaNeonatosSlice,
+                verTerapiaPediatrica: verUnaTerapiaPediatricaSlice,
+                verTerapiaOrtoptica: verUnaTerapiaOrtopticaSlice,
+
+                sesionTerapiaBajaVision: terapiaSesionBajaVisionSlice,
+                sesionTerapiaNeonatos: terapiaSesionNeonatosSlice,
+                sesionTerapiaPediatrica: terapiaSesionPediatricaSlice,
+                sesionTerapiaOrtoptica: terapiaSesionOrtopticaSlice,
+                
                 verSesionTerapia: VerSesionTerapiaSlice,
+                verSesionTerapiaNeonato: VerSesionTerapiaNeonatoSlice,
+                verSesionTerapiaPediatrica: VerSesionTerapiaPediatricaSlice,
+                verSesionTerapiaOrtoptica: VerSesionTerapiaOrtopticaSlice,
+
                 editarSesionTerapia: EditarSesionTerapiaSlice,
+                editarSesionTerapiaNeonato: EditarSesionTerapiaNeonatoSlice,
+                editarSesionTerapiaPediatrica: EditarSesionTerapiaPediatricaSlice,
+                editarSesionTerapiaOrtoptica: EditarSesionTerapiaOrtopticaSlice,
         }
 });
 

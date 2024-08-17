@@ -270,7 +270,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="edad"
                                                                     name="edad"
                                                                     readOnly
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -310,7 +310,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="lugarNacimiento"
                                                                     name="a_o"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -322,7 +322,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress2"
                                                                     name="a_p"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -334,7 +334,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress2"
                                                                     name="a_f"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -348,7 +348,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="medicamentos"
                                                                     name="medicamentos"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -362,7 +362,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="tratamientos"
                                                                     name="tratamientos"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -670,7 +670,7 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     name="len_tipo_lentes"
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -680,7 +680,7 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     name="len_filtros"
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -690,7 +690,7 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     name="len_tiempo"
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -700,7 +700,7 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     name="len_tipo_arco"
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -722,7 +722,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     className="form-control"
                                                                     name="sa_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -730,7 +730,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     className="form-control"
                                                                     name="pp_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -740,7 +740,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     className="form-control"
                                                                     name="sa_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -748,7 +748,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     className="form-control"
                                                                     name="pp_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -765,7 +765,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="v_od"
                                                                     name="viscopia_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -777,7 +777,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="v_oi"
                                                                     name="viscopia_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -791,7 +791,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="hirschberg"
                                                                     name="hirschberg"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -803,7 +803,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="krismsky"
                                                                     name="krismsky"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -830,7 +830,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="VL"
                                                                     name="ct_vl"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -842,7 +842,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="VP"
                                                                     name="ct_vp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -854,7 +854,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="maddox"
                                                                     name="maddox"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -868,7 +868,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="seguimiento"
                                                                     name="seguimiento_ao"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -880,7 +880,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="sacadicos"
                                                                     name="sacadicos_ao"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -894,7 +894,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="ppc_or"
                                                                     name="ppc_or"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -906,7 +906,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="ppc_l"
                                                                     name="ppc_l"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -918,7 +918,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="ppc_fr"
                                                                     name="ppc_fr"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -930,7 +930,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="ppc_posicion"
                                                                     name="ppc_posicion"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -944,7 +944,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="helshoswky"
                                                                     name="helshoswky"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -956,7 +956,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="von_graefe"
                                                                     name="von_graefe"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1036,7 +1036,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="randot"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1048,7 +1048,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lang"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1062,7 +1062,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="vision_color"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1079,7 +1079,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="aa_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1091,7 +1091,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="aa_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1103,7 +1103,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="fan_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1115,7 +1115,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="fan_cpm"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1129,7 +1129,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="aco_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1141,7 +1141,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="aco_cpm"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1153,7 +1153,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="acp_fab"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1167,7 +1167,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="mem_arn"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1179,7 +1179,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="mem_arp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1196,7 +1196,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="v_vt_vl"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1208,7 +1208,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="v_bt_vp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1222,7 +1222,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="v_bn_vl"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1234,7 +1234,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="v_bn_vp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1390,7 +1390,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lente_marca_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -1402,7 +1402,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lente_pd_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -1414,7 +1414,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lente_dnp_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -1426,7 +1426,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lente_altura_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1527,7 +1527,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lente_marca"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -1539,7 +1539,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress"
                                                                     name="lente_tipo"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>

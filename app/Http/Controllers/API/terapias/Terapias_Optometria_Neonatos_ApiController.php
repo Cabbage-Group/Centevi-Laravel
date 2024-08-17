@@ -47,7 +47,7 @@ class Terapias_Optometria_Neonatos_ApiController extends Controller
                 'mensaje_dev' => 'No data found for the given parameters'
             ], 404);
         }
-        
+
         return response()->json([
             'respuesta' => true,
             'data' => $terapia,
@@ -84,7 +84,7 @@ class Terapias_Optometria_Neonatos_ApiController extends Controller
 
 
         $data = array_merge($defaults, $data);
-        $terapias_neonatos= TerapiasOptometriaNeonatos::create($data);
+        $terapias_neonatos = TerapiasOptometriaNeonatos::create($data);
 
 
         return response()->json([

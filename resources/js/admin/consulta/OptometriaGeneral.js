@@ -5,8 +5,11 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { crearGeneral } from '../../redux/features/consultas/OptomotriaGeneralSlice.js';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const OptometriaGeneral = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
@@ -178,18 +181,44 @@ const OptometriaGeneral = () => {
 
     const handlePacienteChange = (e, setFieldValue) => {
         const { value } = e.target;
-        console.log(value);
-        console.log(pacientes);
         setSelectedPaciente(value);
         const paciente = pacientes.find(p => p.id_paciente === value);
-        console.log(paciente);
         if (paciente && paciente.fecha_nacimiento) {
             const edad = calculateAge(paciente.fecha_nacimiento);
-            console.log(paciente.fecha_nacimiento)
-            console.log(edad)
             setFieldValue('edad', edad);
         }
         setFieldValue('paciente', value);
+    };
+
+    const handleSubmit = (values, { setSubmitting }) => {
+        dispatch(crearGeneral(values))
+            .then((response) => {
+                // Asumiendo que la respuesta contiene el ID del paciente
+                const pacienteId = response.payload.paciente || values.paciente;
+                
+                Swal.fire({
+                    title: '¡Creación exitosa!',
+                    text: 'El registro ha sido creado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Usa el ID del paciente para la navegación
+                        navigate(`/historia-paciente/${pacienteId}`);
+                    }
+                });
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error al crear el registro.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
     return (
         <div
@@ -221,11 +250,7 @@ const OptometriaGeneral = () => {
                                             <Formik
                                                 initialValues={initialValues}
                                                 validationSchema={validationSchema}
-                                                onSubmit={(values, { setSubmitting }) => {
-                                                    console.log('Form values:', values);
-                                                    dispatch(crearGeneral(values));
-                                                    setSubmitting(false);
-                                                }}
+                                                onSubmit={handleSubmit}
                                             >
                                                 {({ setFieldValue }) => (
                                                     <Form
@@ -234,8 +259,8 @@ const OptometriaGeneral = () => {
                                                     >
                                                         <div className="form-row mb-4">
                                                             <div className="form-group col-md-12">
-                                                                <label htmlFor="paciente">Pacientes</label>
-                                                                <Field as="select" name="paciente" className="form-control form-small" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
+                                                                <label >Pacientes</label>
+                                                                <Field as="select" name="paciente" className="form-control" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
                                                                     <option value="">Seleccione el paciente</option>
                                                                     {pacientes.map((paciente) => (
                                                                         <option key={paciente.id_paciente} value={paciente.id_paciente}>
@@ -248,7 +273,7 @@ const OptometriaGeneral = () => {
                                                         </div>
                                                         <div className="form-row mb-12">
                                                             <div className="form-group col-md-6">
-                                                                <label htmlFor="inputSucursal">Sucursal</label>
+                                                                <label >Sucursal</label>
                                                                 <Field as="select" name="sucursal" className="form-control" id="sucursal">
                                                                     <option value="">Seleccionar sucursal</option>
                                                                     {sucursales.map((sucursal) => (
@@ -1157,9 +1182,6 @@ const OptometriaGeneral = () => {
                                                         >
                                                             Guardar Consulta
                                                         </button>
-                                                        {status === 'loading' && <p>Enviando...</p>}
-                                                        {status === 'failed' && <p>Error: {error}</p>}
-                                                        {status === 'succeeded' && <p>Creado con éxito</p>}
                                                     </Form>
                                                 )}
                                             </Formik>

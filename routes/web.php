@@ -103,12 +103,9 @@ Route::delete('/api/recetas/{id}', [RecetasApiController::class, 'eliminarReceta
 Route::get('/api/recetas/{id}', [RecetasApiController::class, 'verReceta']);
 Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
 
-
-
 Route::post('/api/documentos/subir', [DocumentosPacientesApiController::class, 'uploadDocument']);
 Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::class, 'index']);
 Route::delete('/api/documentos/{idDocumento}', [DocumentosPacientesApiController::class, 'destroy']);
-
 
 Route::get('/api/terapias_bajav/{id_paciente}/{id_terapia}', [Terapias_Bajav_ApiController::class, 'verUnaTerapias_Bajav']);
 Route::get('/api/terapias_bajav/{id_paciente}', [Terapias_Bajav_ApiController::class, 'verTerapias_Bajav']);
@@ -119,7 +116,7 @@ Route::delete('/api/terapias_bajav/{id}', [Terapias_Bajav_ApiController::class, 
 Route::get('/api/terapias_optometria_neonatos/{id_paciente}/{id_terapia}', [Terapias_Optometria_Neonatos_ApiController::class, 'verUnaTerapias_optometria_neonatos']);
 Route::get('/api/terapias_optometria_neonatos/{id_paciente}', [Terapias_Optometria_Neonatos_ApiController::class, 'verTerapias_optometria_neonatos']);
 Route::post('/api/terapias_optometria_neonatos', [Terapias_Optometria_Neonatos_ApiController::class, 'crearTerapias_optometria_neonatos']);
-Route::put('/api/terapias_optometria_neonatos/{id}', [Terapias_Optometria_Neonatos_ApiController::class, 'editarTerapias_optometria_neonatos']);
+Route::put('/api/terapias_optometria_neonatos/{id_terapia}', [Terapias_Optometria_Neonatos_ApiController::class, 'editarTerapias_optometria_neonatos']);
 Route::delete('/api/terapias_optometria_neonatos/{id_terapia}', [Terapias_Optometria_Neonatos_ApiController::class, 'eliminarTerapias_optometria_neonatos']);
 
 Route::get('/api/terapias_optometria_pediatrica/{id_paciente}/{id_terapia}', [Terapias_Optometria_Pediatrica_ApiController::class, 'verUnaTerapias_optometria_pediatrica']);
@@ -140,24 +137,22 @@ Route::get('/api/terapia_bajav/{id_terapia}', [Terapia_Bajav_ApiController::clas
 Route::put('/api/terapia_bajav/{id_sesion}', [Terapia_Bajav_ApiController::class, 'editarTerapia_bajav']);
 Route::post('/api/terapia_bajav', [Terapia_Bajav_ApiController::class, 'crearTerapia_Bajav']);
 
-
 Route::get('/api/terapia_optometria_neonatos/{id_paciente}/{id_terapia}/{id_sesion}', [Terapia_Optometria_Neonatos_ApiController::class, 'verUnaTerapia_optometria_neonatos']);
 Route::get('/api/terapia_optometria_neonatos/{id_terapia}', [Terapia_Optometria_Neonatos_ApiController::class, 'verTerapia_optometria_neonatos']);
 Route::post('/api/terapia_optometria_neonatos', [Terapia_Optometria_Neonatos_ApiController::class, 'crearTerapia_optometria_neonatos']);
-Route::put('/api/terapia_optometria_neonatos/{id}', [Terapia_Optometria_Neonatos_ApiController::class, 'editarTerapia_optometria_neonatos']);
+Route::put('/api/terapia_optometria_neonatos/{id_sesion}', [Terapia_Optometria_Neonatos_ApiController::class, 'editarTerapia_optometria_neonatos']);
 Route::delete('/api/terapia_optometria_neonatos/{id_sesion}', [Terapia_Optometria_Neonatos_ApiController::class, 'eliminarTerapia_optometria_neonatos']);
-
 
 Route::get('/api/terapia_optometria_pediatrica/{id_paciente}/{id_terapia}/{id_sesion}', [Terapia_Optometria_Pediatrica_ApiController::class, 'verUnaTerapia_optometria_pediatrica']);
 Route::get('/api/terapia_optometria_pediatrica/{id_terapia}', [Terapia_Optometria_Pediatrica_ApiController::class, 'verTerapia_optometria_pediatrica']);
 Route::post('/api/terapia_optometria_pediatrica', [Terapia_Optometria_Pediatrica_ApiController::class, 'crearTerapia_optometria_pediatrica']);
-Route::put('/api/terapia_optometria_pediatrica/{id}', [Terapia_Optometria_Pediatrica_ApiController::class, 'editarTerapia_optometria_pediatrica']);
+Route::put('/api/terapia_optometria_pediatrica/{id_sesion}', [Terapia_Optometria_Pediatrica_ApiController::class, 'editarTerapia_optometria_pediatrica']);
 Route::delete('/api/terapia_optometria_pediatrica/{id_sesion}', [Terapia_Optometria_Pediatrica_ApiController::class, 'eliminarTerapia_optometria_pediatrica']);
 
 Route::get('/api/terapia_ortoptica_adultos/{id_paciente}/{id_terapia}/{id_sesion}', [Terapia_Ortoptica_Adultos_ApiController::class, 'verUnaTerapia_ortoptica_adultos']);
 Route::get('/api/terapia_ortoptica_adultos/{id_terapia}', [Terapia_Ortoptica_Adultos_ApiController::class, 'verTerapia_ortoptica_adultos']);
 Route::post('/api/terapia_ortoptica_adultos', [Terapia_Ortoptica_Adultos_ApiController::class, 'crearTerapia_ortoptica_adultos']);
-Route::put('/api/terapia_ortoptica_adultos/{id}', [Terapia_Ortoptica_Adultos_ApiController::class, 'editarTerapia_ortoptica_adultos']);
+Route::put('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_Adultos_ApiController::class, 'editarTerapia_ortoptica_adultos']);
 Route::delete('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_Adultos_ApiController::class, 'eliminarTerapia_ortoptica_adultos']);
 
 Route::get('/{any}', function () {

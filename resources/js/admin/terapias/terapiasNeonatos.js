@@ -3,29 +3,29 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import Swal from 'sweetalert2';
 import { fetchVerPaciente } from '../../redux/features/pacientes/VerPacienteSlice';
-import { editTerapiasBajaVision } from '../../redux/features/terapias/terapiasBajaVisionSlice';
-import { VerUnaTerapiaBajaVision } from '../../redux/features/terapias/verUnaTerapiaBajaVisionSlice';
+import { editTerapiasOptometriaNeonatos } from '../../redux/features/terapias/TerapiaOptometriaNeonatosSlice';
+import { VerUnaTerapiaNeonatos } from '../../redux/features/terapias/verUnaTerapiaNeonatosSlice';
 import { useParams, Link } from 'react-router-dom';
 import {
-    SesionTerapiaBajaVision,
-    agregarSesionTerapiaBajaVision,
-    editarSesionTerapiaBajaVision,
-    eliminarSesionTerapiaBajaVision
-} from '../../redux/features/terapias/terapiaSesionBajaVisionSlice';
+    SesionTerapiaNeonatos,
+    agregarSesionTerapiaNeonatos,
+    editarSesionTerapiaNeonatos,
+    eliminarSesionTerapiaNeonatos
+} from '../../redux/features/terapias/terapiaSesionNeonatosSlice';
 
-const TerapiasBajaVision = () => {
+const TerapiasNeonatos = () => {
     const dispatch = useDispatch();
     const { id, id_terapia } = useParams();
-    const { data: verTerapia } = useSelector((state) => state.verTerapiaBajaVision);
+    const { data: verTerapia } = useSelector((state) => state.verTerapiaNeonatos);
     const { data: verPaciente } = useSelector((state) => state.verPaciente);
-    const { data = [] } = useSelector((state) => state.sesionTerapiaBajaVision);
+    const { data = [] } = useSelector((state) => state.sesionTerapiaNeonatos);
     const [sesionModificada, setSesionModificada] = useState(false);
 
     useEffect(() => {
         if (id && id_terapia) {
             dispatch(fetchVerPaciente(id));
-            dispatch(VerUnaTerapiaBajaVision({ id_paciente: id, id_terapia }));
-            dispatch(SesionTerapiaBajaVision(id_terapia));
+            dispatch(VerUnaTerapiaNeonatos({ id_paciente: id, id_terapia }));
+            dispatch(SesionTerapiaNeonatos(id_terapia));
             setSesionModificada(false);
         }
     }, [dispatch, id, id_terapia, sesionModificada]);
@@ -37,7 +37,7 @@ const TerapiasBajaVision = () => {
             const nuevaSesion = {
                 id_terapia: id_terapia,
             };
-            await dispatch(agregarSesionTerapiaBajaVision(nuevaSesion)).unwrap();
+            await dispatch(agregarSesionTerapiaNeonatos(nuevaSesion)).unwrap();
             // Muestra un mensaje de éxito
             Swal.fire({
                 title: 'Éxito!',
@@ -46,7 +46,7 @@ const TerapiasBajaVision = () => {
                 confirmButtonText: 'Ok'
             });
             // Actualiza los datos después de agregar la sesión
-            dispatch(SesionTerapiaBajaVision(id_terapia)); 
+            dispatch(SesionTerapiaNeonatos(id_terapia));
         } catch (err) {
             // Muestra un mensaje de error
             Swal.fire({
@@ -62,23 +62,22 @@ const TerapiasBajaVision = () => {
         try {
             // Alterna el estado de pagado (true/false)
             const nuevoPagado = !pagado;
-            await dispatch(editarSesionTerapiaBajaVision({ id, pagado: nuevoPagado })).unwrap();
+            await dispatch(editarSesionTerapiaNeonatos({ id, pagado: nuevoPagado })).unwrap();
         } catch (err) {
             console.error('Error al actualizar el estado de pagado:', err);
         }
     };
-
     const handleEliminarSesion = async (tipo, id_sesion) => {
         const sesionInfo = {
             'sesion': {
                 title: 'Sesión',
-                action: eliminarSesionTerapiaBajaVision,
-                fetchAction: SesionTerapiaBajaVision
+                action: eliminarSesionTerapiaNeonatos,
+                fetchAction: SesionTerapiaNeonatos
             },
         };
-    
+
         const { title, action, fetchAction } = sesionInfo[tipo];
-    
+
         const resultado = await Swal.fire({
             title: '¿Estás seguro?',
             text: "No podrás revertir esta acción",
@@ -89,7 +88,7 @@ const TerapiasBajaVision = () => {
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
         });
-    
+
         if (resultado.isConfirmed) {
             try {
                 await dispatch(action(id_sesion)).unwrap();
@@ -111,7 +110,7 @@ const TerapiasBajaVision = () => {
             }
         }
     };
-    
+
     return (
         <div className="admin-data-content" style={{ marginTop: '50px' }}>
             <div className="row layout-top-spacing">
@@ -135,7 +134,7 @@ const TerapiasBajaVision = () => {
                                                 }}
                                                 onSubmit={async (values, { setSubmitting }) => {
                                                     try {
-                                                        await dispatch(editTerapiasBajaVision({ id_terapia, terapiaData: values })).unwrap();
+                                                        await dispatch(editTerapiasOptometriaNeonatos({ id_terapia, terapiaData: values })).unwrap();
                                                         Swal.fire({
                                                             icon: 'success',
                                                             title: 'Edit Successful',
@@ -192,21 +191,21 @@ const TerapiasBajaVision = () => {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {data.length > 0 ? (data.map((BV, index) => (
-                                                            <tr key={BV.id || index}>
+                                                        {data.length > 0 ? (data.map((ON, index) => (
+                                                            <tr key={ON.id || index}>
                                                                 <td className="text-center">Sesión {index + 1}</td>
                                                                 <td>
                                                                     <button
-                                                                        className={`btn btn-xs ${BV.pagado ? 'btn-success' : 'btn-danger'}`}
-                                                                        onClick={() => handlePagoToggle(BV.id, BV.pagado)}
+                                                                        className={`btn btn-xs ${ON.pagado ? 'btn-success' : 'btn-danger'}`}
+                                                                        onClick={() => handlePagoToggle(ON.id, ON.pagado)}
                                                                     >
-                                                                        {BV.pagado ? 'Pagado' : 'Sin Pago'}
+                                                                        {ON.pagado ? 'Pagado' : 'Sin Pago'}
                                                                     </button>
                                                                 </td>
-                                                                <td>{BV.doctor}</td>
-                                                                <td>{new Date(BV.fecha_creacion).toLocaleDateString()}</td>
+                                                                <td>{ON.doctor}</td>
+                                                                <td>{new Date(ON.fecha_creacion).toLocaleDateString()}</td>
                                                                 <td>
-                                                                    <Link to={`/ver-sesion-terapia/${id}/${id_terapia}/${BV.id}`}>
+                                                                    <Link to={`/ver-sesion-terapia-neonato/${id}/${id_terapia}/${ON.id}`}>
                                                                         <button className="btnVerTerapia btn btn-primary mb-2 p-1 mr-2 rounded-circle">
                                                                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                                 <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
@@ -214,14 +213,14 @@ const TerapiasBajaVision = () => {
                                                                             </svg>
                                                                         </button>
                                                                     </Link>
-                                                                    <Link to={`/editar-sesion-terapia/${id}/${id_terapia}/${BV.id}`}>
+                                                                    <Link to={`/editar-sesion-terapia-neonato/${id}/${id_terapia}/${ON.id}`}>
                                                                         <button className="btnEditarTerapia btn btn-warning mb-2 p-1 mr-2 rounded-circle">
                                                                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                                 <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                                                             </svg>
                                                                         </button>
                                                                     </Link>
-                                                                    <button className="btnEliminarTerapia btn btn-danger mb-2 p-1 mr-2 rounded-circle" onClick={() => handleEliminarSesion('sesion', BV.id)}>
+                                                                    <button className="btnEliminarTerapia btn btn-danger mb-2 p-1 mr-2 rounded-circle" onClick={() => handleEliminarSesion('sesion', ON.id)}>
                                                                         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                             <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                                                                         </svg>
@@ -229,9 +228,9 @@ const TerapiasBajaVision = () => {
                                                                 </td>
                                                             </tr>
                                                         ))) : (
-                                                        <tr>
-                                                            <td colSpan="5" className="text-center">No hay sesiones disponibles</td>
-                                                        </tr>)}
+                                                            <tr>
+                                                                <td colSpan="5" className="text-center">No hay sesiones disponibles</td>
+                                                            </tr>)}
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -247,4 +246,4 @@ const TerapiasBajaVision = () => {
     );
 };
 
-export default TerapiasBajaVision;
+export default TerapiasNeonatos;
