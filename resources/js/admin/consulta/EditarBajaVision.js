@@ -349,7 +349,7 @@ const EditarBajaVision = () => {
                                                 <ol
                                                     className="breadcrumb"
                                                     style={{
-                                                        background: 'rgb(0 150 136 / 11%)!important'
+                                                        background: '#0096881c'
                                                     }}
                                                 >
                                                     <li className="breadcrumb-item">
@@ -631,7 +631,6 @@ const EditarBajaVision = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                               
                                                                                 name="av_sc_od_ph"
                                                                                 placeholder="od_ph"
                                                                                 type="text"
@@ -1077,7 +1076,6 @@ const EditarBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
-                                                                defaultValue="OI Bien Alterado Ondulado"
                                                                 name="amsler_oi"
                                                                 placeholder="OI"
                                                                 type="text"
@@ -1096,7 +1094,6 @@ const EditarBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
-                                                                defaultValue=""
                                                                 name="sensibilidad_od"
                                                                 placeholder="OD"
                                                                 type="text"
@@ -1108,7 +1105,6 @@ const EditarBajaVision = () => {
                                                         <div className="form-group col-md-6">
                                                             <input
                                                                 className="form-control"
-                                                                defaultValue=""
                                                                 name="sensibilidad_oi"
                                                                 placeholder="OI"
                                                                 type="text"
@@ -1127,7 +1123,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        defaultValue="Normales..... Receta lentes de Lejos: 14 mesesOD: -0.50 -2.50 X 90 OI:  Plano -2.00 X 100.   Monofocales Antirreflejos Distancia"
                                                         id="textarea"
                                                         maxLength="225"
                                                         name="plan_versiones"
@@ -1161,7 +1156,6 @@ const EditarBajaVision = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
                                                                     name="vl_luces"
                                                                     placeholder="vl_luces"
                                                                     type="text"
@@ -1173,7 +1167,6 @@ const EditarBajaVision = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
                                                                     name="vp_luces"
                                                                     placeholder="vp_luces"
                                                                     type="text"
@@ -1193,7 +1186,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
                                                         id="inputAddress"
                                                         name="vision_color"
                                                         placeholder="Visión de Color"
@@ -1211,7 +1203,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
                                                         id="inputAddress"
                                                         name="prueba_od"
                                                         placeholder="OD"
@@ -1227,7 +1218,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
                                                         id="inputAddress"
                                                         name="prueba_oi"
                                                         placeholder="OI"
@@ -1274,7 +1264,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-1.00"
                                                                         name="esfera_od_f"
                                                                         placeholder="esfera_od"
                                                                         type="text"
@@ -1286,7 +1275,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-3.00"
                                                                         name="cilindro_od_f"
                                                                         placeholder="cilindro_od"
                                                                         type="text"
@@ -1298,7 +1286,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="90"
                                                                         name="eje_od_f"
                                                                         placeholder="eje_od"
                                                                         type="text"
@@ -1310,7 +1297,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="△"
                                                                         name="p_base_od_f"
                                                                         placeholder="p_base_od"
                                                                         type="text"
@@ -1322,7 +1308,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="20/63"
                                                                         name="agz_od_f"
                                                                         placeholder="agz_od"
                                                                         type="text"
@@ -1339,7 +1324,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="Plano"
                                                                         name="esfera_oi_f"
                                                                         placeholder="esfera_oi"
                                                                         type="text"
@@ -1351,7 +1335,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-2.00"
                                                                         name="cilindro_oi_f"
                                                                         placeholder="cilindro_oi"
                                                                         type="text"
@@ -1363,7 +1346,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="100"
                                                                         name="eje_oi_f"
                                                                         placeholder="eje_oi"
                                                                         type="text"
@@ -1375,7 +1357,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="△"
                                                                         name="p_base_oi_f"
                                                                         placeholder="p_base_oi"
                                                                         type="text"
@@ -1387,7 +1368,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="20/200"
                                                                         name="agz_oi_f"
                                                                         placeholder="agz_oi"
                                                                         type="text"
@@ -1408,7 +1388,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
                                                         id="inputAddress"
                                                         name="lentes_marca_1"
                                                         placeholder="Tipo Lentes"
@@ -1424,8 +1403,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        
-                                                        id="inputAddress"
                                                         name="lentes_pd_1"
                                                         placeholder="PD"
                                                         type="text"
@@ -1440,7 +1417,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
                                                         id="inputAddress"
                                                         name="lentes_dnp_1"
                                                         placeholder="USO"
@@ -1456,7 +1432,6 @@ const EditarBajaVision = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
                                                         id="inputAddress"
                                                         name="lentes_altura_1"
                                                         placeholder="USO"
@@ -1503,7 +1478,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.50"
                                                                         name="esfera_od_fc"
                                                                         placeholder="esfera_od"
                                                                         type="text"
@@ -1515,7 +1489,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-3.00"
                                                                         name="cilindro_od_fc"
                                                                         placeholder="cilindro_od"
                                                                         type="text"
@@ -1527,7 +1500,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="80"
                                                                         name="eje_od_fc"
                                                                         placeholder="eje_od"
                                                                         type="text"
@@ -1539,7 +1511,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="△"
                                                                         name="p_base_od_fc"
                                                                         placeholder="p_base_od"
                                                                         type="text"
@@ -1551,7 +1522,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="20/63"
                                                                         name="agz_od_fc"
                                                                         placeholder="agz_od"
                                                                         type="text"
@@ -1568,7 +1538,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.00"
                                                                         name="esfera_oi_fc"
                                                                         placeholder="esfera_oi"
                                                                         type="text"
@@ -1580,7 +1549,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-2.00"
                                                                         name="cilindro_oi_fc"
                                                                         placeholder="cilindro_oi"
                                                                         type="text"
@@ -1592,7 +1560,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="100"
                                                                         name="eje_oi_fc"
                                                                         placeholder="eje_oi"
                                                                         type="text"
@@ -1604,7 +1571,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="△"
                                                                         name="p_base_oi_fc"
                                                                         placeholder="p_base_oi"
                                                                         type="text"
@@ -1616,7 +1582,6 @@ const EditarBajaVision = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="20/200"
                                                                         name="agz_oi_fc"
                                                                         placeholder="agz_oi"
                                                                         type="text"

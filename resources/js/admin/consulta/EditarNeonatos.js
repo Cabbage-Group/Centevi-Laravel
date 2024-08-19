@@ -160,12 +160,8 @@ const EditarNeonatos = () => {
         }
     }, [dispatch, id, id_consulta]);
 
-
     const handleChange = (e) => {
         const { name, value, dataset } = e.target;
-
-        console.log('Handling change for:', name, value, dataset.group);
-
         setFormData((prevFormData) => {
             switch (dataset.group) {
                 case 'agudeza_visual':
@@ -224,7 +220,6 @@ const EditarNeonatos = () => {
                             [name]: value,
                         },
                     };
-
                 case 'editado':
                     return {
                         ...prevFormData,
@@ -241,7 +236,6 @@ const EditarNeonatos = () => {
             }
         });
     };
-
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -295,7 +289,7 @@ const EditarNeonatos = () => {
                                                 <ol
                                                     className="breadcrumb"
                                                     style={{
-                                                        background: 'rgb(0 150 136 / 11%)!important'
+                                                        background: '#0096881c'
                                                     }}
                                                 >
                                                     <li className="breadcrumb-item">

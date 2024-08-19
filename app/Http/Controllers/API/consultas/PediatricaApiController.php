@@ -11,8 +11,8 @@ class PediatricaApiController extends Controller
 {
     public function crearPediatrica(Request $request)
     {
+        // Validaciones necesarias
         $validator = Validator::make($request->all(), [
-            // Aquí puedes agregar las reglas de validación para los campos
             'sucursal' => 'required|integer',
             'doctor' => 'required|string',
             'paciente' => 'required|integer',
@@ -21,7 +21,7 @@ class PediatricaApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Agrega las reglas para los demás campos...
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -29,15 +29,18 @@ class PediatricaApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-    
+
         try {
-            // Preparar los datos para la creación
-            $datos = $request->all();
+            // Convertir campos nulos en vacíos
+            $datos = array_map(function ($value) {
+                return $value === null ? '' : $value;
+            }, $request->all());
+
             $datos['fecha_creacion'] = now(); // Establecer la fecha actual
-    
+
             // Crear el registro
             $optometriaPediatrica = OptometriaPediatrica::create($datos);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registro creado exitosamente',
@@ -51,17 +54,22 @@ class PediatricaApiController extends Controller
             ], 500);
         }
     }
-    
 
     public function editarPediatrica(Request $request, $pacienteId, $consultaId)
     {
-
         $optometriaPediatrica = OptometriaPediatrica::where('paciente', $pacienteId)
-        ->where('id_consulta', $consultaId)
-        ->first();
+            ->where('id_consulta', $consultaId)
+            ->first();
 
-        $request->validate([
-            // Aquí puedes agregar las reglas de validación para los campos
+        if (!$optometriaPediatrica) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registro no encontrado',
+            ], 404);
+        }
+
+        // Validar los datos de entrada
+        $validator = Validator::make($request->all(), [
             'sucursal' => 'required|integer',
             'doctor' => 'required|string',
             'paciente' => 'required|integer',
@@ -71,21 +79,40 @@ class PediatricaApiController extends Controller
             // Agrega las reglas para los demás campos...
         ]);
 
-    
-        if (!$optometriaPediatrica) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registro no encontrado',
-            ], 404);
+                'message' => 'Error de validación',
+                'errors' => $validator->errors(),
+            ], 400);
         }
 
-        $optometriaPediatrica->update($request->all());
+        try {
+            // Obtener todos los datos de la solicitud
+            $datos = $request->all();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registro actualizado exitosamente',
-            'data' => $optometriaPediatrica,
-        ], 200);
+            // Rellenar campos no enviados con un valor vacío o mantener el valor actual
+            foreach ($optometriaPediatrica->getFillable() as $field) {
+                if (!isset($datos[$field])) {
+                    $datos[$field] = $optometriaPediatrica->$field;  // Mantén el valor actual si no está en la solicitud
+                }
+            }
+
+            // Actualizar los campos
+            $optometriaPediatrica->update($datos);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registro actualizado exitosamente',
+                'data' => $optometriaPediatrica,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el registro',
+                'errors' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function eliminarPediatrica($id)
@@ -136,7 +163,7 @@ class PediatricaApiController extends Controller
         $ortoptica = OptometriaPediatrica::where('paciente', $id)
             ->where('id_consulta', $id_consulta)
             ->first();
-    
+
         // Verificar si el registro existe
         if (!$ortoptica) {
             return response()->json([
@@ -146,7 +173,7 @@ class PediatricaApiController extends Controller
                 ],
             ], 404);
         }
-    
+
         // Formatear la respuesta
         return response()->json([
             'data' => $ortoptica,
@@ -155,5 +182,11 @@ class PediatricaApiController extends Controller
                 'message' => 'Registro retrieved successfully',
             ],
         ]);
+    }
+
+    // Obtener los campos que pueden ser asignados en masa
+    protected function getFillable()
+    {
+        return (new OptometriaPediatrica())->getFillable();
     }
 }

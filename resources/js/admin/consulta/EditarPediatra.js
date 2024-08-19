@@ -404,7 +404,7 @@ const EditarPediatra = () => {
                                                 <ol
                                                     className="breadcrumb"
                                                     style={{
-                                                        background: 'rgb(0 150 136 / 11%)!important'
+                                                        background: '#0096881c'
                                                     }}
                                                 >
                                                     <li className="breadcrumb-item">

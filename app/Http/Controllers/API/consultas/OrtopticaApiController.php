@@ -9,7 +9,6 @@ use App\Models\OrtopticaAdultos;
 
 class OrtopticaApiController extends Controller
 {
-    // Crear OrtopticaAdultos
     public function CrearOrtoptica(Request $request)
     {
         // Validaciones necesarias
@@ -22,7 +21,7 @@ class OrtopticaApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Otras validaciones aquí...
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -30,68 +29,38 @@ class OrtopticaApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-    
-        // Preparar los datos para la creación
-        $datos = $request->all();
-        $datos['fecha_creacion'] = now(); // Establecer la fecha actual
-    
-        // Crear el registro
-        $ortoptica = OrtopticaAdultos::create($datos);
-    
-        return response()->json([
-            'success' => true,
-            'message' => 'Registro creado exitosamente',
-            'data' => $ortoptica,
-        ], 201);
-    }
-    
 
-// Editar OrtopticaAdultos
-public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
-{
-    // Buscar el registro de OrtopticaAdultos por el campo paciente y id_consulta
-    $ortoptica = OrtopticaAdultos::where('paciente', $pacienteId)
-                                ->where('id_consulta', $consultaId)
-                                ->first();
+        try {
+            // Convertir campos nulos en vacíos
+            $datos = array_map(function ($value) {
+                return $value === null ? '' : $value;
+            }, $request->all());
 
-    if (!$ortoptica) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Registro no encontrado',
-        ], 404);
+            $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+
+            // Crear el registro
+            $ortoptica = OrtopticaAdultos::create($datos);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registro creado exitosamente',
+                'data' => $ortoptica,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el registro',
+                'errors' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    $validator = Validator::make($request->all(), [
-        // Validaciones necesarias
-        'sucursal' => 'required|integer',
-        'doctor' => 'required|string',
-        'paciente' => 'required|integer',
-        'id_terapia' => 'required|integer',
-        'edad' => 'required|integer',
-        'fecha_atencion' => 'required|date',
-        // Otras validaciones aquí...
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error de validación',
-            'errors' => $validator->errors(),
-        ], 400);
-    }
-
-    $ortoptica->update($request->all());
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Registro actualizado exitosamente',
-        'data' => $ortoptica,
-    ], 200);
-}
-    // Eliminar OrtopticaAdultos
-    public function DeleteOrtoptica($id)
+    public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
     {
-        $ortoptica = OrtopticaAdultos::find($id);
+        // Buscar el registro de OrtopticaAdultos por el campo paciente y id_consulta
+        $ortoptica = OrtopticaAdultos::where('paciente', $pacienteId)
+            ->where('id_consulta', $consultaId)
+            ->first();
 
         if (!$ortoptica) {
             return response()->json([
@@ -100,13 +69,53 @@ public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
             ], 404);
         }
 
-        $ortoptica->delete();
+        // Validar los datos de entrada
+        $validator = Validator::make($request->all(), [
+            'sucursal' => 'required|integer',
+            'doctor' => 'required|string',
+            'paciente' => 'required|integer',
+            'id_terapia' => 'required|integer',
+            'edad' => 'required|integer',
+            'fecha_atencion' => 'required|date',
+            // Otras validaciones aquí...
+        ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registro eliminado exitosamente',
-        ], 200);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        try {
+            // Obtener todos los datos de la solicitud
+            $datos = $request->all();
+
+            // Rellenar campos no enviados con un valor vacío o mantener el valor actual
+            foreach ($ortoptica->getFillable() as $field) {
+                if (!isset($datos[$field])) {
+                    $datos[$field] = $ortoptica->$field;  // Mantén el valor actual si no está en la solicitud
+                }
+            }
+
+            // Actualizar los campos
+            $ortoptica->update($datos);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registro actualizado exitosamente',
+                'data' => $ortoptica,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el registro',
+                'errors' => $e->getMessage(),
+            ], 500);
+        }
     }
+
 
     public function mostrarOrtopticaAdultos(Request $request)
     {
@@ -138,7 +147,7 @@ public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
         $ortoptica = OrtopticaAdultos::where('paciente', $id)
             ->where('id_consulta', $id_consulta)
             ->first();
-    
+
         // Verificar si el registro existe
         if (!$ortoptica) {
             return response()->json([
@@ -148,7 +157,7 @@ public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
                 ],
             ], 404);
         }
-    
+
         // Formatear la respuesta
         return response()->json([
             'data' => $ortoptica,
@@ -158,5 +167,11 @@ public function EditarOrtoptica(Request $request, $pacienteId, $consultaId)
             ],
         ]);
     }
-    
+
+        // Obtener los campos que pueden ser asignados en masa
+        protected function getFillable()
+        {
+            return (new OrtopticaAdultos())->getFillable();
+        }
+
 }

@@ -34,83 +34,84 @@ const OptometriaNeonatos = () => {
         complicaciones: '',
         perinatales: '',
         postnatales: '',
-        agudeza_visual: 
-            {
-                tambor: '',
-                fija: '',
-                sigue: '',
-                mantiene: '',
-                test: '',
-                a_oi: '',
-                a_ao: ''
-            },
-        lensometria: 
-            {
-                esfera_od: '',
-                cilindro_od: '',
-                eje_od: '',
-                p_base_od: '',
-                add_od: '',
-                esfera_oi: '',
-                cilindro_oi: '',
-                eje_oi: '',
-                p_base_oi: '',
-                add_oi: ''
-            },
+        agudeza_visual:
+        {
+            tambor: '',
+            fija: '',
+            sigue: '',
+            mantiene: '',
+            test: '',
+            a_oi: '',
+            a_ao: ''
+        },
+        lensometria:
+        {
+            esfera_od: '',
+            cilindro_od: '',
+            eje_od: '',
+            p_base_od: '',
+            add_od: '',
+            esfera_oi: '',
+            cilindro_oi: '',
+            eje_oi: '',
+            p_base_oi: '',
+            add_oi: ''
+        },
 
-        lensometria_extra: 
-            {
-                len_tipo_lentes: '',
-                len_filtros: '',
-                len_tiempo: '',
-                len_tipo_aro: ''
-            },
-        sa_pp: 
-            {
-                sa_od: '',
-                pp_od: '',
-                sa_oi: '',
-                pp_oi: ''
-            },
-        
-        pruebas_extras: 
-            {
-                hirschberg: '',
-                krismsky: '',
-                plan_versiones: '',
-                ct_vp: '',
-                ct_reflejo: '',
-                ducciones_od: '',
-                ducciones_oi: '',
-                posicion_compensatoria: '',
-                fotomotor_od: '',
-                consensual: '',
-                fotomotor_oi: '',
-                fotomotor_consensual: ''
-            },
-        refraccion: 
-            {
-                refraccion_tipo_lentes: '',
-                refraccion_pd: '',
-                refraccion_uso: '',
-                reflejo_r_od: '',
-                reflejo_r_oi: '',
-                reflejo_r_ao: '',
-                esfera_od_f: '',
-                cilindro_od_f: '',
-                eje_od_f: '',
-                p_base_od_f: '',
-                add_od_f: '',
-                esfera_oi_f: '',
-                cilindro_oi_f: '',
-                eje_oi_f: '',
-                p_base_oi_f: '',
-                add_oi_f: ''
-            },
+        lensometria_extra:
+        {
+            len_tipo_lentes: '',
+            len_filtros: '',
+            len_tiempo: '',
+            len_tipo_aro: ''
+        },
+        sa_pp:
+        {
+            sa_od: '',
+            pp_od: '',
+            sa_oi: '',
+            pp_oi: ''
+        },
+
+        pruebas_extras:
+        {
+            hirschberg: '',
+            krismsky: '',
+            plan_versiones: '',
+            ct_vp: '',
+            ct_reflejo: '',
+            ducciones_od: '',
+            ducciones_oi: '',
+            posicion_compensatoria: '',
+            fotomotor_od: '',
+            consensual: '',
+            fotomotor_oi: '',
+            fotomotor_consensual: ''
+        },
+        refraccion:
+        {
+            refraccion_tipo_lentes: '',
+            refraccion_pd: '',
+            refraccion_uso: '',
+            reflejo_r_od: '',
+            reflejo_r_oi: '',
+            reflejo_r_ao: '',
+            esfera_od_f: '',
+            cilindro_od_f: '',
+            eje_od_f: '',
+            p_base_od_f: '',
+            add_od_f: '',
+            esfera_oi_f: '',
+            cilindro_oi_f: '',
+            eje_oi_f: '',
+            p_base_oi_f: '',
+            add_oi_f: ''
+        },
         conducta_seguir: '',
         plan_versiones: '',
         fecha_creacion: '',
         editado: '',
+        fecha_proxima_consulta: '',
     };
 
     useEffect(() => {
@@ -192,7 +193,7 @@ const OptometriaNeonatos = () => {
                                                     <div className="form-row mb-12">
                                                         <div className="form-group col-md-12">
                                                             <label htmlFor="paciente">Pacientes</label>
-                                                            <Field as="select" name="paciente" className="form-control form-small" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
+                                                            <Field as="select" name="paciente" className="form-control" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
                                                                 <option value="">Seleccione el paciente</option>
                                                                 {pacientes.map((paciente) => (
                                                                     <option key={paciente.id_paciente} value={paciente.id_paciente}>
@@ -227,13 +228,11 @@ const OptometriaNeonatos = () => {
                                                             <ErrorMessage name="edad" component="div" className="text-danger" />
                                                         </div>
                                                         <div className="form-group col-md-3">
-                                                            <label htmlFor="fecha_atencion">Fecha de atención</label>
+                                                            <label>Fecha de atención</label>
                                                             <Field
                                                                 type="date"
                                                                 name="fecha_atencion"
                                                                 className="form-control"
-                                                                id="fecha_atencion"
-                                                                max="2024-07-04"
                                                             />
                                                             <ErrorMessage name="fecha_atencion" component="div" className="text-danger" />
                                                         </div>
@@ -245,7 +244,6 @@ const OptometriaNeonatos = () => {
                                                                 as="textarea"
                                                                 name="m_c"
                                                                 className="form-control textarea"
-                                                                id="m_c"
                                                                 maxLength="10000"
                                                                 rows="15"
                                                             />
@@ -418,8 +416,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="tambor"
-                                                                name="tambor"
+                                                                name="agudeza_visual.tambor"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -429,8 +426,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="fija"
-                                                                name="fija"
+                                                                name="agudeza_visual.fija"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -440,8 +436,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="sigue"
-                                                                name="sigue"
+                                                                name="agudeza_visual.sigue"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -451,8 +446,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="mantiene"
-                                                                name="mantiene"
+                                                                name="agudeza_visual.mantiene"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -464,8 +458,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="test"
-                                                                name="test"
+                                                                name="agudeza_visual.test"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -475,8 +468,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="oi"
-                                                                name="a_oi"
+                                                                name="agudeza_visual.a_oi"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -486,8 +478,7 @@ const OptometriaNeonatos = () => {
                                                             </label>
                                                             <Field
                                                                 className="form-control"
-                                                                id="ao"
-                                                                name="a_ao"
+                                                                name="agudeza_visual.a_ao"
                                                                 as="input"
                                                             />
                                                         </div>
@@ -521,6 +512,10 @@ const OptometriaNeonatos = () => {
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
+
+
+
+                                                                    
                                                                     <tr>
                                                                         <td className="text-center">
                                                                             Ojo Derecho
@@ -1032,10 +1027,22 @@ const OptometriaNeonatos = () => {
                                                             <Field
                                                                 as="textarea"
                                                                 className="form-control textarea"
-                                                                id="textarea"
                                                                 maxLength="10000"
                                                                 name="conducta_seguir"
                                                                 rows="15"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-row mb-12">
+                                                        <div className="form-group col-md-4">
+                                                            <label>
+                                                                Fecha de proxima cita
+                                                            </label>
+                                                            <Field
+                                                                className="form-control"
+                                                                name="fecha_proxima_consulta"
+                                                                required
+                                                                type="date"
                                                             />
                                                         </div>
                                                     </div>

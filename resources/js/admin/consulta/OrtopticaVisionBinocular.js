@@ -1555,6 +1555,20 @@ const OrtopticaVisionBinocular = () => {
                                                                 />
                                                             </div>
                                                         </div>
+                                                        <div className="form-row mb-12">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="inputFehaProxCita">
+                                                                    Fecha de proxima cita
+                                                                </label>
+                                                                <input
+                                                                    className="form-control"
+                                                                    id="inputFehaProxCita"
+                                                                    name="fecha_proxima_consulta"
+                                                                    required
+                                                                    type="date"
+                                                                />
+                                                            </div>
+                                                        </div>
                                                         <button
                                                             className="btn btn-success mt-3"
                                                             type="submit"

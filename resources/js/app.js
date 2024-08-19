@@ -112,7 +112,6 @@ function AppRouter() {
                     <Route path="/ver-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaNeonato/>} />} />
                     <Route path="/ver-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaOrtoptica/>} />} />
 
-
                     <Route path="/editar-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapia/>} />} />
                     <Route path="/editar-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaPediatrica/>} />} />
                     <Route path="/editar-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaNeonato/>} />} />

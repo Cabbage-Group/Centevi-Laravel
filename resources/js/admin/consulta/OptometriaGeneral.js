@@ -46,34 +46,34 @@ const OptometriaGeneral = () => {
         },
         ojo_dominante: '',
         mano_dominante: '',
-        lensometria: 
-            {
-                esfera_od: '',
-                cilindro_od: '',
-                eje_od: '',
-                p_base_od: '',
-                add_od: '',
-                esfera_oi: '',
-                cilindro_oi: '',
-                eje_oi: '',
-                p_base_oi: '',
-                add_oi: ''
-            },
-        lensometria_extra: 
-            {
-                len_tipo_lentes: '',
-                len_filtros: '',
-                len_tiempo: '',
-                len_tipo_aro: ''
-            },
+        lensometria:
+        {
+            esfera_od: '',
+            cilindro_od: '',
+            eje_od: '',
+            p_base_od: '',
+            add_od: '',
+            esfera_oi: '',
+            cilindro_oi: '',
+            eje_oi: '',
+            p_base_oi: '',
+            add_oi: ''
+        },
+        lensometria_extra:
+        {
+            len_tipo_lentes: '',
+            len_filtros: '',
+            len_tiempo: '',
+            len_tipo_aro: ''
+        },
 
-        sa_pp: 
-            {
-                sa_od: '',
-                pp_od: '',
-                sa_oi: '',
-                pp_oi: ''
-            },
+        sa_pp:
+        {
+            sa_od: '',
+            pp_od: '',
+            sa_oi: '',
+            pp_oi: ''
+        },
         visuscopia: {
             hirschberg: "",
             ct_vl: "",
@@ -97,11 +97,11 @@ const OptometriaGeneral = () => {
             p_base_oi_f: "",
             add_oi_f: "",
         },
-        tipo_lentes:{
-            tipo_l:"",
-            pd:"",
-            dnp:"",
-            alt:""
+        tipo_lentes: {
+            tipo_l: "",
+            pd: "",
+            dnp: "",
+            alt: ""
         },
         lentes_contacto: {
             poder_od: "",
@@ -195,7 +195,7 @@ const OptometriaGeneral = () => {
             .then((response) => {
                 // Asumiendo que la respuesta contiene el ID del paciente
                 const pacienteId = response.payload.paciente || values.paciente;
-                
+
                 Swal.fire({
                     title: '¡Creación exitosa!',
                     text: 'El registro ha sido creado correctamente.',
@@ -1173,6 +1173,20 @@ const OptometriaGeneral = () => {
                                                                     maxLength="800"
                                                                     name="conducta_seguir"
                                                                     rows="5"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-12">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="inputFehaProxCita">
+                                                                    Fecha de proxima cita
+                                                                </label>
+                                                                <input
+                                                                    className="form-control"
+                                                                    id="inputFehaProxCita"
+                                                                    name="fecha_proxima_consulta"
+                                                                    required
+                                                                    type="date"
                                                                 />
                                                             </div>
                                                         </div>

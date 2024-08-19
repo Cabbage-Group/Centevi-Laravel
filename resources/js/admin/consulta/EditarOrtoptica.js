@@ -387,7 +387,7 @@ const EditarOrtoptica = () => {
                                                     <ol
                                                         className="breadcrumb"
                                                         style={{
-                                                            background: 'rgb(0 150 136 / 11%)'
+                                                            background: '#0096881c'
                                                         }}
                                                     >
                                                         <li className="breadcrumb-item">

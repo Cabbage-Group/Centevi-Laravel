@@ -10,102 +10,6 @@ use Illuminate\Validation\Rule;
 
 class NeonatosApiController extends Controller
 {
-    public function ObtenerNeonatos(Request $request)
-    {
-        // Validar los parámetros de entrada
-        $validator = Validator::make($request->all(), [
-            'page' => 'integer|min:1',
-            'limit' => 'integer|min:1|max:100',
-            'sortOrder' => Rule::in(['asc', 'desc']),
-            'sortColumn' => Rule::in([
-                'sucursal',
-                'doctor',
-                'paciente',
-                'id_terapia',
-                'edad',
-                'fecha_atencion',
-                'm_c',
-                'a_o',
-                'a_p',
-                'a_f',
-                'medicamentos',
-                'tratamientos',
-                'desarrollo',
-                'nacimiento',
-                'parto',
-                'gateo',
-                'lenguaje',
-                'complicaciones',
-                'perinatales',
-                'postnatales',
-                'agudeza_visual',
-                'lensometria',
-                'lensometria_extra',
-                'sa_pp',
-                'pruebas_extras',
-                'refraccion',
-                'conducta_seguir',
-                'plan_versiones',
-                'fecha_creacion',
-                'editado'
-            ]),
-            'filter' => 'string|max:255',
-        ]);
-
-        // Manejar errores de validación
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-            ], 400);
-        }
-
-        // Obtener los parámetros validados con valores predeterminados
-        $page = $request->input('page', 1);
-        $limit = $request->input('limit', 10);
-        $sortOrder = $request->input('sortOrder', 'asc');
-        $sortColumn = $request->input('sortColumn', 'id_consulta');
-        $filter = $request->input('filter');
-
-        try {
-            $query = OptometriaNeonatos::query();
-
-            // Aplicar filtro si se proporciona
-            if ($filter) {
-                $query->where('paciente', 'LIKE', '%' . $filter . '%');
-            }
-
-            // Aplicar ordenamiento por columna y orden especificados
-            $query->orderBy($sortColumn, $sortOrder);
-
-            // Obtener datos paginados
-            $neonatos = $query->paginate($limit, ['*'], 'page', $page);
-
-            $meta = [
-                'page' => $neonatos->currentPage(),
-                'limit' => $neonatos->perPage(),
-                'total' => $neonatos->total(),
-                'sortOrder' => $sortOrder,
-                'sortColumn' => $sortColumn,
-            ];
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Operación exitosa',
-                'data' => $neonatos->items(),
-                'meta' => $meta,
-            ]);
-        } catch (\Exception $e) {
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener los registros',
-                'errors' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
     public function CrearNeonatos(Request $request)
     {
         // Validaciones necesarias
@@ -120,8 +24,11 @@ class NeonatosApiController extends Controller
         ]);
 
         try {
-            // Preparar los datos para la creación
-            $datos = $request->all();
+            // Convertir campos nulos en vacíos
+            $datos = array_map(function ($value) {
+                return $value === null ? '' : $value;
+            }, $request->all());
+
             $datos['fecha_creacion'] = now(); // Establecer la fecha actual
 
             // Crear el registro
@@ -135,16 +42,16 @@ class NeonatosApiController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener los registros',
+                'message' => 'Error al crear el registro',
                 'errors' => $e->getMessage(),
             ], 500);
         }
     }
 
+
     public function EditarNeonatos(Request $request, $pacienteId, $consultaId)
     {
-
-        // Buscar el registro de OrtopticaAdultos por el campo paciente y id_consulta
+        // Buscar el registro de OptometriaNeonatos por el campo paciente y id_consulta
         $neonato = OptometriaNeonatos::where('paciente', $pacienteId)
             ->where('id_consulta', $consultaId)
             ->first();
@@ -155,6 +62,7 @@ class NeonatosApiController extends Controller
                 'message' => 'Registro no encontrado',
             ], 404);
         }
+
         // Validar los datos de entrada
         $request->validate([
             'sucursal' => 'required|integer',
@@ -163,12 +71,21 @@ class NeonatosApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
-
-        // Añadir validaciones para los demás campos necesarios
+            // Añadir validaciones para los demás campos necesarios
         ]);
 
+        // Obtener todos los datos de la solicitud
+        $datos = $request->all();
+
+        // Rellenar campos no enviados con un valor vacío o mantener el valor actual
+        foreach ($neonato->getFillable() as $field) {
+            if (!isset($datos[$field])) {
+                $datos[$field] = $neonato->$field;  // Mantén el valor actual si no está en la solicitud
+            }
+        }
+
         // Actualizar los campos
-        $neonato->update($request->all());
+        $neonato->update($datos);
 
         return response()->json([
             'success' => true,
@@ -176,6 +93,7 @@ class NeonatosApiController extends Controller
             'data' => $neonato,
         ], 200);
     }
+
 
     public function DeleteNeonatos($id)
     {
@@ -224,13 +142,13 @@ class NeonatosApiController extends Controller
 
     public function VerOptometriaNeonatos($id, $id_consulta)
     {
-        // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
-        $ortoptica = OptometriaNeonatos::where('paciente', $id)
+        // Buscar el registro en la tabla neonato por id_paciente y id_consulta
+        $neonato = OptometriaNeonatos::where('paciente', $id)
             ->where('id_consulta', $id_consulta)
             ->first();
 
         // Verificar si el registro existe
-        if (!$ortoptica) {
+        if (!$neonato) {
             return response()->json([
                 'status' => [
                     'code' => 404,
@@ -241,12 +159,18 @@ class NeonatosApiController extends Controller
 
         // Formatear la respuesta
         return response()->json([
-            'data' => $ortoptica,
+            'data' => $neonato,
             'status' => [
                 'code' => 200,
                 'message' => 'Registro retrieved successfully',
             ],
         ]);
+    }
+
+    // Obtener los campos que pueden ser asignados en masa
+    protected function getFillable()
+    {
+        return (new OptometriaNeonatos())->getFillable();
     }
 
 }

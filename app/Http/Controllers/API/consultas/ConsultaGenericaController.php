@@ -31,8 +31,11 @@ class ConsultaGenericaController extends Controller
             ], 400);
         }
 
-        // Preparar los datos para la creación
-        $datos = $request->all();
+        // Convertir campos nulos en vacíos
+        $datos = array_map(function ($value) {
+            return $value === null ? '' : $value;
+        }, $request->all());
+
         $datos['fecha_creacion'] = now(); // Establecer la fecha actual
 
         // Crear el registro
@@ -46,10 +49,11 @@ class ConsultaGenericaController extends Controller
     }
 
 
+
     // Editar ConsultaGenerica
     public function EditarConsultaGenerica(Request $request, $pacienteId, $consultaId)
     {
-        // Buscar el registro de consultaGenerica por el campo paciente y id_consulta
+        // Buscar el registro de ConsultaGenerica por el campo paciente y id_consulta
         $consultaGenerica = ConsultaGenerica::where('paciente', $pacienteId)
             ->where('id_consulta', $consultaId)
             ->first();
@@ -80,7 +84,18 @@ class ConsultaGenericaController extends Controller
             ], 400);
         }
 
-        $consultaGenerica->update($request->all());
+        // Obtener todos los datos de la solicitud
+        $datos = $request->all();
+
+        // Rellenar campos no enviados con un valor vacío o mantener el valor actual
+        foreach ($consultaGenerica->getFillable() as $field) {
+            if (!isset($datos[$field])) {
+                $datos[$field] = $consultaGenerica->$field;  // Si no está en la solicitud, mantén el valor actual
+            }
+        }
+
+        // Actualizar el registro con los datos procesados
+        $consultaGenerica->update($datos);
 
         return response()->json([
             'success' => true,
@@ -88,6 +103,7 @@ class ConsultaGenericaController extends Controller
             'data' => $consultaGenerica,
         ], 200);
     }
+
 
     // Eliminar consultaGenerica
     public function DeleteConsultaGenerica($id)
@@ -156,6 +172,12 @@ class ConsultaGenericaController extends Controller
                 'message' => 'Registro retrieved successfully',
             ],
         ]);
+    }
+
+    // Obtener los campos que pueden ser asignados en masa
+    protected function getFillable()
+    {
+        return (new ConsultaGenerica())->getFillable();
     }
 
 }

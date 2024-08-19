@@ -11,8 +11,8 @@ class OptometriaGeneralApiController extends Controller
 {
     public function CrearRefraccionGeneral(Request $request)
     {
+        // Validaciones necesarias
         $validator = Validator::make($request->all(), [
-            // Validaciones necesarias
             'sucursal' => 'required|integer|max:255',
             'doctor' => 'required|string|max:255',
             'paciente' => 'required|integer|max:10000',
@@ -21,7 +21,7 @@ class OptometriaGeneralApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Otras validaciones aquí...
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -29,15 +29,18 @@ class OptometriaGeneralApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-    
+
         try {
-            // Preparar los datos para la creación
-            $datos = $request->all();
+            // Convertir campos nulos en vacíos
+            $datos = array_map(function ($value) {
+                return $value === null ? '' : $value;
+            }, $request->all());
+
             $datos['fecha_creacion'] = now(); // Establecer la fecha actual
-    
+
             // Crear el registro
             $refraccionGeneral = RefraccionGeneral::create($datos);
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registro creado exitosamente',
@@ -51,14 +54,12 @@ class OptometriaGeneralApiController extends Controller
             ], 500);
         }
     }
-    
 
-    // Editar RefraccionGeneral
     public function EditarRefraccionGeneral(Request $request, $pacienteId, $consultaId)
     {
         $refraccionGeneral = RefraccionGeneral::where('paciente', $pacienteId)
-                                ->where('id_consulta', $consultaId)
-                                ->first();
+            ->where('id_consulta', $consultaId)
+            ->first();
 
         if (!$refraccionGeneral) {
             return response()->json([
@@ -67,8 +68,8 @@ class OptometriaGeneralApiController extends Controller
             ], 404);
         }
 
+        // Validar los datos de entrada
         $validator = Validator::make($request->all(), [
-            // Validaciones necesarias
             'sucursal' => 'required|integer',
             'doctor' => 'required|string',
             'paciente' => 'required|integer',
@@ -86,7 +87,18 @@ class OptometriaGeneralApiController extends Controller
             ], 400);
         }
 
-        $refraccionGeneral->update($request->all());
+        // Obtener todos los datos de la solicitud
+        $datos = $request->all();
+
+        // Rellenar campos no enviados con un valor vacío o mantener el valor actual
+        foreach ($refraccionGeneral->getFillable() as $field) {
+            if (!isset($datos[$field])) {
+                $datos[$field] = $refraccionGeneral->$field;  // Mantén el valor actual si no está en la solicitud
+            }
+        }
+
+        // Actualizar los campos
+        $refraccionGeneral->update($datos);
 
         return response()->json([
             'success' => true,
@@ -94,6 +106,7 @@ class OptometriaGeneralApiController extends Controller
             'data' => $refraccionGeneral,
         ], 200);
     }
+
 
     // Eliminar RefraccionGeneral
     public function DeleteRefraccionGeneral($id)
@@ -137,13 +150,13 @@ class OptometriaGeneralApiController extends Controller
         ], 200);
     }
 
-    public function VerRefraccionGeneral ($id, $id_consulta)
+    public function VerRefraccionGeneral($id, $id_consulta)
     {
         // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
         $ortoptica = RefraccionGeneral::where('paciente', $id)
             ->where('id_consulta', $id_consulta)
             ->first();
-    
+
         // Verificar si el registro existe
         if (!$ortoptica) {
             return response()->json([
@@ -153,7 +166,7 @@ class OptometriaGeneralApiController extends Controller
                 ],
             ], 404);
         }
-    
+
         // Formatear la respuesta
         return response()->json([
             'data' => $ortoptica,
@@ -164,4 +177,9 @@ class OptometriaGeneralApiController extends Controller
         ]);
     }
 
+    // Obtener los campos que pueden ser asignados en masa
+    protected function getFillable()
+    {
+        return (new RefraccionGeneral())->getFillable();
+    }
 }

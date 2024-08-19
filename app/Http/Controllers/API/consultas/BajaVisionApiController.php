@@ -21,7 +21,7 @@ class BajaVisionApiController extends Controller
             'fecha_atencion' => 'required|date',
             // Otras validaciones aquí...
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -29,48 +29,59 @@ class BajaVisionApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-
-        // Preparar los datos para la creación
+    
+        // Obtener todos los campos de la solicitud
         $datos = $request->all();
+    
+        // Rellenar campos no enviados con un valor adecuado
+        foreach ($this->getFillable() as $field) {
+            if (!isset($datos[$field])) {
+                if (in_array($field, ['sucursal', 'paciente', 'id_terapia', 'edad'])) {
+                    $datos[$field] = null; // Usa null para campos enteros
+                } else {
+                    $datos[$field] = ''; // Usa string vacío para otros campos
+                }
+            }
+        }
+    
         $datos['fecha_creacion'] = now(); // Establecer la fecha actual
-
+    
         // Crear el registro
         $bajaVision = BajaVision::create($datos);
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Registro creado exitosamente',
             'data' => $bajaVision,
         ], 201);
     }
+    
 
-
-    // Editar BajaVision
     public function EditarBajaVision(Request $request, $pacienteId, $consultaId)
     {
-        // Buscar el registro de OrtopticaAdultos por el campo paciente y id_consulta
+        // Buscar el registro de BajaVision por el campo paciente y id_consulta
         $bajaVision = BajaVision::where('paciente', $pacienteId)
             ->where('id_consulta', $consultaId)
             ->first();
-
+    
         if (!$bajaVision) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registro no encontrado',
             ], 404);
         }
-
+    
+        // Validaciones necesarias
         $validator = Validator::make($request->all(), [
-            // Validaciones necesarias
-            'sucursal' => 'required|integer',
-            'doctor' => 'required|string',
-            'paciente' => 'required|integer',
+            'sucursal' => 'required|integer|max:255',
+            'doctor' => 'required|string|max:255',
+            'paciente' => 'required|integer|max:10000',
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
             // Otras validaciones aquí...
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -78,15 +89,30 @@ class BajaVisionApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-
-        $bajaVision->update($request->all());
-
+    
+        // Obtener todos los datos de la solicitud
+        $datos = $request->all();
+    
+        // Rellenar campos no enviados con un valor adecuado
+        foreach ($bajaVision->getFillable() as $field) {
+            if (!isset($datos[$field])) {
+                if (in_array($field, ['editado', 'fecha_proxima_consulta', 'fecha_creacion'])) {
+                    $datos[$field] = $bajaVision->$field; // Mantén el valor actual si no está en la solicitud
+                } else {
+                    $datos[$field] = $bajaVision->$field;
+                }
+            }
+        }
+    
+        // Actualizar el registro con los datos procesados
+        $bajaVision->update($datos);
+    
         return response()->json([
             'success' => true,
             'message' => 'Registro actualizado exitosamente',
             'data' => $bajaVision,
         ], 200);
-    }
+    }    
 
     // Eliminar BajaVision
     public function DeleteBajaVision($id)
@@ -160,4 +186,12 @@ class BajaVisionApiController extends Controller
         ]);
     }
 
+    // Obtener los campos que pueden ser asignados en masa
+    protected function getFillable()
+    {
+        return (new BajaVision())->getFillable();
+    }
+
 }
+
+
