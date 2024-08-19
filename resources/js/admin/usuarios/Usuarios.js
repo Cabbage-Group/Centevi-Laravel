@@ -770,7 +770,7 @@ const Usuarios = () => {
                     </div>
                 </div>
             )}
-            {isModalVisible && selectedUsuario && (
+            {isModalVisible && (
                 <div
                     className="modal fade show"
                     id="modalEditarUsuario"
@@ -845,7 +845,6 @@ const Usuarios = () => {
                                                 </span>
                                                 <input
                                                     className="form-control input-lg"
-                                                    value=""
                                                     name="password"
                                                     onChange={handleChange}
                                                     placeholder="Escriba la nueva contraseña"

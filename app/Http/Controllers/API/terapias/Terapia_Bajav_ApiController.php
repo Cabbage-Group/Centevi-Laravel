@@ -104,6 +104,7 @@ class Terapia_Bajav_ApiController extends Controller
                 'mensaje_dev' => "Oops, validation errors occurred."
             ], 400);
         }
+
         $terapia_bajav = TerapiaBajaV::find($id_sesion);
 
         if (!$terapia_bajav) {
@@ -113,17 +114,17 @@ class Terapia_Bajav_ApiController extends Controller
                 'mensaje_dev' => "No se encontró ninguna sesioncon el ID proporcionado."
             ], 404);
         }
+
+        // Convertir el campo sesion de JSON a objeto
         $sesionData = json_decode($request->input('sesion'), true);
-
-
-        $sesionData = json_decode($request->input('sesion'), true);
-
+        // Determinar si el campo completado debe ser 1 o 0
         $completado = 1;
 
         if (is_array($sesionData)) {
+            // Verificar los campos `resultado` y `actividad` (exceptuando `actividad_casa`)
             foreach ($sesionData as $key => $value) {
                 if (str_contains($key, 'resultado') && empty($value)) {
-                    $completado = 0;
+                    $completado = 0; // No completado si hay campos `resultado` vacíos
                     break;
                 }
                 if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
@@ -145,6 +146,7 @@ class Terapia_Bajav_ApiController extends Controller
             $updateData['sucursal'] = $request->input('sucursal');
         }
         $terapia_bajav->update($updateData);
+
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapia actualizada correctamente',

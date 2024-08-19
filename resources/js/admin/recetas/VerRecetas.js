@@ -259,7 +259,7 @@ const VerRecetas = () => {
                                                                 <td>{`${receta.PACIENTE_NOMBRE.trim()} ${receta.PACIENTE_APELLIDO.trim()}`}</td>
                                                                 <td>{receta.DOCTOR}</td>
                                                                 <td>{receta.FECHA_ATENCION}</td>
-                                                                <td>
+                                                                <td >
                                                                     <div className="btn-group">
                                                                         <Link to={`/select-receta/${receta.ID_RECETA}`}
                                                                             className="btnVerReceta btn btn-primary mb-2 p-1 mr-2 rounded-circle"

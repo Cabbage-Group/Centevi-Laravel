@@ -49,3 +49,17 @@ export const transformDataForAtendidosPorDia = (data) => {
     }));
 };
 
+export const transformDataForProximasCitas = (data) => {
+    return data.map(proximaCita => ({
+        Fecha_Proxima_Cita: proximaCita.PROXIMA_FECHA.trim(),
+        Nombre: proximaCita.PACIENTE_NOMBRE.trim(),
+        Email: proximaCita.PACIENTE_EMAIL,
+        Celular: proximaCita.PACIENTE_CELULAR,
+        Sucursal: proximaCita.SUCURSAL,
+        Doctor: proximaCita.DOCTOR,
+        Se_Contacto: proximaCita.CONTACTO === 1 ? 'Sí' : 'No',
+        Se_Agendo: proximaCita.SE_AGENDO === 1 ? 'Sí' : 'No',
+    }));
+};
+
+

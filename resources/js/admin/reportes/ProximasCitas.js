@@ -1,35 +1,39 @@
-import React, { useEffect, useState } from 'react'
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchUltimaAtencion, setOrden, setFechaRange, setOrdenPor, setSearch } from '../../redux/features/reportes/ultimaAtencionSlice';
-import PaginationUltimaAtencion from './PaginationUltimaAtencion';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProximasCitas, actualizarContacto, setOrden, setOrdenPor, setFechaRange , updateCitaContacto, updateCitaAgendada, actualizarAgendo } from '../../redux/features/reportes/proximasCitasSlice';
+import PaginationProximasCitas from './PaginationProximasCitas';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
-import { transformDataForUltimaAtencion } from '../../../utils/dataTransform';
+import { transformDataForProximasCitas } from '../../../utils/dataTransform';
+
+import Swal from 'sweetalert2';
 
 
 
-const UltimaAtencion = () => {
-
+const ProximasCitas = () => {
     const dispatch = useDispatch();
-    const metaPacientes = useSelector((state) => state.pacientes.meta);
-    const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages, search, dataexport } = useSelector((state) => state.ultimaAtencion);
 
-    const [localStartDate, setLocalStartDate] = useState(startDate);
+    const metaPacientes = useSelector((state) => state.pacientes.meta);
+    const { proximasCitas, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.proximasCitas);
+
+    const [currentPage, setCurrentPage] = useState(1);
     const [localSearch, setLocalSearch] = useState(search);
     const [localEndDate, setLocalEndDate] = useState(endDate);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [localStartDate, setLocalStartDate] = useState(startDate);
 
     useEffect(() => {
         dispatch(fetchPacientes({}));
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchUltimaAtencion({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
+
+        dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
     }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
+
     const handleSearchChange = (event) => {
-        setLocalSearch(event.target.value); // Actualiza el estado local
+        setLocalSearch(event.target.value);
     };
 
     const handlePageChange = (page) => {
@@ -38,19 +42,96 @@ const UltimaAtencion = () => {
 
     const handleDateChange = () => {
         dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-        dispatch(fetchUltimaAtencion({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
-            .catch(err => console.error('Error fetching terapias diarias on date change:', err));
+        dispatch(fetchProximasCitas({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
+
+
+    };
+
+    const handleClearSearch = () => {
+        setLocalSearch('');
     };
 
     const handleSort = (newOrdenPor) => {
         const newOrder = orden === 'asc' ? 'desc' : 'asc';
         dispatch(setOrden(newOrder));
         dispatch(setOrdenPor(newOrdenPor));
-        dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
+        dispatch(fetchProximasCitas({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor }))
+            .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
     };
 
-    const handleClearSearch = () => {
-        setLocalSearch('');
+    const handleContactoClick = (proximaCita) => {
+
+        console.log('Datos de la cita:', proximaCita); 
+        Swal.fire({
+            title: '¿Contactaste con este paciente?',
+            text: '¡Acepta solo si tuviste la oportunidad de comunicarte con este paciente!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, lo contacté',
+            cancelButtonText: 'No',
+        }).then((result) => {
+            if (result.isConfirmed) {
+   
+                dispatch(actualizarContacto({
+                    tabla: proximaCita.NOMBRE_TABLA, 
+                    id_consulta: proximaCita.ID_CONSULTA,
+                    hubo_contacto: 1
+                }))
+                .then(() => {
+                    console.log('Contacto actualizado exitosamente');
+                    dispatch(updateCitaContacto({ id_consulta: proximaCita.ID_CONSULTA, hubo_contacto: 1 }));
+                    Swal.fire('Contacto confirmado', '', 'success');
+                    dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch })); // Actualiza los datos
+                })
+                .catch(() => {
+                    Swal.fire('Error al confirmar contacto', '', 'error');
+                });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                Swal.fire('Contacto no confirmado', '', 'error');
+            }
+        });
+    };
+
+    const handleAgendadoClick = (proximaCita) => {
+        if (proximaCita.CONTACTO === 1) {
+            Swal.fire({
+                title: '¿Agendaste la cita con este paciente?',
+                text: '¡Acepta solo si has agendado la cita!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, la agendé',
+                cancelButtonText: 'No',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log('Confirmado por el usuario');
+
+                    const datosActualizar = {
+                        tabla: proximaCita.NOMBRE_TABLA, 
+                        id_consulta: proximaCita.ID_CONSULTA,
+                        se_agendo: 1 
+                    };
+
+                    console.log('Datos para actualizar agendado:', datosActualizar);
+
+                    dispatch(actualizarAgendo(datosActualizar))
+                            .then(() => {
+                                console.log('Cita agendada exitosamente');
+                                dispatch(updateCitaAgendada({ id_consulta: proximaCita.ID_CONSULTA, se_agendo: 1 }));
+                                Swal.fire('Cita agendada', '', 'success');
+                                dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch })); 
+                            })
+                        .catch((error) => {
+                            console.error('Error al agendar cita:', error.message);
+                            Swal.fire('Error al agendar cita', '', 'error');
+                        });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    console.log('Cancelado por el usuario');
+                    Swal.fire('Cita no agendada', '', 'error');
+                }
+            });
+        } else {
+            Swal.fire('Acción bloqueada', 'Lo sentimos, primero tienes que marcar que se contactó al paciente', 'error');
+        }
     };
 
     return (
@@ -63,7 +144,7 @@ const UltimaAtencion = () => {
                                 <div className="widget widget-one">
                                     <div className="widget-heading">
                                         <h6 className="">
-                                            Reporte de pacientes última atención
+                                            Reporte de Pacientes | Terapias Diarias
                                         </h6>
                                     </div>
                                     <div className="w-chart">
@@ -123,11 +204,41 @@ const UltimaAtencion = () => {
                                 <div className="widget-four">
                                     <div className="widget-heading">
                                         <h5 className="">
-                                            ULTIMOS PACIENTES
+                                            ULTIMOS PACIENTES ATENDIDOS POR DIA
                                         </h5>
                                     </div>
-                                    // Primer table
-
+                                    <div className="table-responsive">
+                                        <table
+                                            className="table dt-table-hover tabla_pacientes"
+                                            style={{
+                                                width: '100%'
+                                            }}
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        Nombres de Paciente
+                                                    </th>
+                                                    <th>
+                                                        Cedula
+                                                    </th>
+                                                    <th>
+                                                        Sucursal
+                                                    </th>
+                                                    <th>
+                                                        Celular
+                                                    </th>
+                                                    <th>
+                                                        Fecha de atención
+                                                    </th>
+                                                    <th>
+                                                        Doctor
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody />
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -145,6 +256,7 @@ const UltimaAtencion = () => {
                                     }}
                                     onApply={handleDateChange}
                                 />
+
                             </div>
                             <div className="table-responsive">
                                 <div
@@ -157,8 +269,8 @@ const UltimaAtencion = () => {
                                                 <div className="dt-buttons">
                                                     <ExportButton
                                                         dataexport={dataexport}
-                                                        transformData={transformDataForUltimaAtencion}
-                                                        fileName="ultimaAtencion_diarias.xlsx"
+                                                        transformData={transformDataForProximasCitas}
+                                                        fileName="proximas_citas.xlsx"
                                                     />
                                                 </div>
                                             </div>
@@ -216,13 +328,11 @@ const UltimaAtencion = () => {
                                                                 &#x2715; { }
                                                             </button>
                                                         )}
-
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                     <div className="table-responsive">
                                         {status === 'loading' && <p>Loading...</p>}
                                         {status === 'failed' && <p>Error: {error}</p>}
@@ -231,6 +341,21 @@ const UltimaAtencion = () => {
                                                 <thead>
                                                     <tr role="row">
                                                         <th
+
+                                                        aria-controls="zero-config"
+                                                        aria-label={`Fecha_Proxima_Cita: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                        className={`sorting ${orden}`}
+                                                        colSpan="1"
+                                                        rowSpan="1"
+                                                        style={{ width: '153.82px' }}
+                                                        tabIndex="0"
+                                                        onClick={() => handleSort('PROXIMA_FECHA')}
+
+                                                        >
+                                                        Fecha Proxima Cita
+                                                        </th>
+                                                        <th
+
                                                             aria-controls="zero-config"
                                                             aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                             className={`sorting ${orden}`}
@@ -238,23 +363,13 @@ const UltimaAtencion = () => {
                                                             rowSpan="1"
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
-                                                            onClick={() => handleSort('nombres')}
+                                                            onClick={() => handleSort('PACIENTE_NOMBRE')}
+
                                                         >
                                                             Nombre
                                                         </th>
                                                         <th
-                                                            aria-controls="zero-config"
-                                                            aria-label={`Cedula: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                                            className={`sorting ${orden}`}
-                                                            colSpan="1"
-                                                            rowSpan="1"
-                                                            style={{ width: '153.82px' }}
-                                                            tabIndex="0"
-                                                            onClick={() => handleSort('nro_cedula')}
-                                                        >
-                                                            Cedula
-                                                        </th>
-                                                        <th
+
                                                             aria-controls="zero-config"
                                                             aria-label={`Email: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                             className={`sorting ${orden}`}
@@ -262,63 +377,103 @@ const UltimaAtencion = () => {
                                                             rowSpan="1"
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
-                                                            onClick={() => handleSort('email')}
+                                                            onClick={() => handleSort('PACIENTE_EMAIL')}
+
                                                         >
                                                             Email
                                                         </th>
                                                         <th
+
                                                             aria-controls="zero-config"
-                                                            aria-label={`Direccion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                             className={`sorting ${orden}`}
                                                             colSpan="1"
                                                             rowSpan="1"
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
-                                                            onClick={() => handleSort('direccion')}
+                                                            onClick={() => handleSort('PACIENTE_CELULAR')}
+
                                                         >
-                                                            Direccion
+                                                            Celular
+                                                        </th>
+                                                        <th
+
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Sucursal: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('SUCURSAL')}
+
+                                                        >
+                                                            Sucursal
                                                         </th>
                                                         <th
                                                             aria-controls="zero-config"
-                                                            aria-label={`Ultima atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                             className={`sorting ${orden}`}
                                                             colSpan="1"
                                                             rowSpan="1"
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
-                                                            onClick={() => handleSort('ultima_atencion')}
+                                                            onClick={() => handleSort('DOCTOR')}
+
                                                         >
-                                                            Ultima atencion
+                                                            Doctor
                                                         </th>
                                                         <th
-                                                            aria-controls="zero-config"
-                                                            aria-label={`Doctores: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                                            className={`sorting ${orden}`}
+
+                                                            aria-controls="zero-config"                                                         
                                                             colSpan="1"
                                                             rowSpan="1"
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
-                                                            onClick={() => handleSort('doctores')}
+                                                            
                                                         >
-                                                            Doctores
+                                                            Se Contacto
                                                         </th>
+                                                        <th
+                                                            aria-controls="zero-config"                                                          
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"                                                          
+                                                        >
+                                                            Se Agendo
+                                                        </th>
+                                                      
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {ultimaAtencion.map((ultAten) => (
-                                                        <tr key={ultAten.id_paciente}>
-                                                            <td>{ultAten.nombres.trim()}</td>
-                                                            <td>{ultAten.nro_cedula}</td>
-                                                            <td>{ultAten.email}</td>
-                                                            <td>{ultAten.direccion}</td>
-                                                            <td>{ultAten.ultima_atencion}</td>
-                                                            <td>{ultAten.doctores}</td>
-                                                        </tr>
-                                                    ))}
+                                                    {proximasCitas.map((proximaCita) => (
+                                                        <tr key={proximaCita.ID_PACIENTE}>
+                                                            <td>{proximaCita.PROXIMA_FECHA}</td> 
+                                                            <td>{proximaCita.PACIENTE_NOMBRE.trim()}</td>
+                                                            <td>{proximaCita.PACIENTE_EMAIL}</td>
+                                                            <td>{proximaCita.PACIENTE_CELULAR}</td>
+                                                            <td>{proximaCita.SUCURSAL}</td>
+                                                            <td>{proximaCita.DOCTOR}</td>
+                                                            <td
+                                                                    onClick={() => handleContactoClick(proximaCita)}
+                                                                    style={{ cursor: 'pointer' }} 
+                                                                >
+                                                                    {proximaCita.CONTACTO === 1 ? 'Sí' : 'No'}
+                                                            </td>
+                                                            <td
+                                                                    onClick={() => handleAgendadoClick(proximaCita)}
+                                                                    style={{ cursor: 'pointer' }}
+                                                                >
+                                                                    {proximaCita.SE_AGENDO === 1 ? 'Sí' : 'No'}
+                                                                </td>                                                                                                                                                                                                                                                                                                      
+                                                                </tr>
+                                                            ))}
                                                 </tbody>
                                             </table>
                                         )}
-                                        <PaginationUltimaAtencion
+
+                                        <PaginationProximasCitas
                                             meta={meta}
                                             currentPage={currentPage}
                                             totalPages={totalPages}
@@ -332,9 +487,7 @@ const UltimaAtencion = () => {
                 </div>
             </div>
         </div>
+    )
+}
 
-    );
-};
-
-
-export default UltimaAtencion
+export default ProximasCitas

@@ -1543,4 +1543,318 @@ class PacientesApiController extends Controller
         ]);
     }
 
+    public function MostrarProximasCitas(Request $request)
+{
+
+    $limit = (int) $request->input('limit', 10); 
+    $fecha = $request->input('fecha');
+    $page = (int) $request->input('page', 1);
+    $orden = $request->input('orden', 'asc'); 
+    $ordenPor = $request->input('ordenPor', 'PACIENTE_NOMBRE'); 
+    $search = $request->input('search', ''); 
+
+    $orden = in_array($orden, ['asc', 'desc']) ? $orden : 'asc';
+    $ordenPor = in_array($ordenPor, [
+        'ID_PACIENTE', 'PACIENTE_NOMBRE','PACIENTE_EMAIL','PROXIMA_FECHA', 'PACIENTE_APELLIDO', 'PACIENTE_CEDULA',
+        'PACIENTE_CELULAR', 'FECHA_ATENCION', 'DOCTOR', 'SUCURSAL'
+    ]) ? $ordenPor : 'FECHA_ATENCION';
+
+ 
+    $query = DB::table('pacientes')
+        ->select(
+            'optometria_neonatos.id_consulta as ID_CONSULTA',
+            'pacientes.id_paciente as ID_PACIENTE',
+            'pacientes.nombres as PACIENTE_NOMBRE',
+            'pacientes.email as PACIENTE_EMAIL',
+            'pacientes.apellidos as PACIENTE_APELLIDO',
+            'pacientes.nro_cedula as PACIENTE_CEDULA',
+            'pacientes.celular as PACIENTE_CELULAR',
+            'optometria_neonatos.fecha_atencion as FECHA_ATENCION',
+            'optometria_neonatos.doctor as DOCTOR',
+            'sucursales.nombre as SUCURSAL',
+            'hubo_contacto as CONTACTO',
+            DB::raw("DATE_FORMAT(optometria_neonatos.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
+            DB::raw("'optometria_neonatos' as NOMBRE_TABLA"),
+            'se_agendo as SE_AGENDO'
+        )
+        ->join('optometria_neonatos', 'pacientes.id_paciente', '=', 'optometria_neonatos.paciente')
+        ->leftJoin('sucursales', 'optometria_neonatos.sucursal', '=', 'sucursales.id_sucursal')
+        ->where(function ($query) use ($fecha, $search) {
+            if ($fecha !== null) {
+                if (strpos($fecha, ' - ') !== false) {
+                    list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
+                    $query->whereBetween('optometria_neonatos.fecha_proxima_consulta', [$fechaInicio, $fechaFin]);
+                } else {
+                    $query->where('optometria_neonatos.fecha_proxima_consulta', $fecha);
+                }
+            }
+            if ($search !== '') {
+                $search = '%' . trim($search) . '%';
+                $query->where(function ($query) use ($search) {
+                    $query->where('pacientes.id_paciente', 'like', "%{$search}%")
+                        ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+                        ->orWhere('pacientes.email', 'like', "%{$search}%")
+                        ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
+                        ->orWhere('pacientes.nro_cedula', 'like', "%{$search}%")
+                        ->orWhere('pacientes.celular', 'like', "%{$search}%")
+                        ->orWhere('optometria_neonatos.fecha_atencion', 'like', "%{$search}%")
+                        ->orWhere('optometria_neonatos.doctor', 'like', "%{$search}%")
+                        ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+                        ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%")
+                        ->orWhere(DB::raw("'optometria_neonatos'"), 'like', "%{$search}%");
+                });
+            }
+        });
+    
+        $query->unionAll(
+            DB::table('pacientes')
+                ->select(
+                    'optometria_pediatrica.id_consulta as ID_CONSULTA',
+                    'pacientes.id_paciente as ID_PACIENTE',
+                    'pacientes.nombres as PACIENTE_NOMBRE',
+                    'pacientes.email as PACIENTE_EMAIL',
+                    'pacientes.apellidos as PACIENTE_APELLIDO',
+                    'pacientes.nro_cedula as PACIENTE_CEDULA',
+                    'pacientes.celular as PACIENTE_CELULAR',
+                    'optometria_pediatrica.fecha_atencion as FECHA_ATENCION',
+                    'optometria_pediatrica.doctor as DOCTOR',
+                    'sucursales.nombre as SUCURSAL',
+                    'optometria_pediatrica.hubo_contacto as CONTACTO',
+                    DB::raw("DATE_FORMAT(optometria_pediatrica.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
+                    DB::raw("'optometria_pediatrica' as NOMBRE_TABLA"),
+                    'optometria_pediatrica.se_agendo as SE_AGENDO'
+                )
+                ->join('optometria_pediatrica', 'pacientes.id_paciente', '=', 'optometria_pediatrica.paciente')
+                ->leftJoin('sucursales', 'optometria_pediatrica.sucursal', '=', 'sucursales.id_sucursal')
+                ->where(function ($query) use ($fecha, $search) {
+                    if ($fecha !== null) {
+                        if (strpos($fecha, ' - ') !== false) {
+                            list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
+                            $query->whereBetween('optometria_pediatrica.fecha_proxima_consulta', [$fechaInicio, $fechaFin]);
+                        } else {
+                            $query->where('optometria_pediatrica.fecha_proxima_consulta', $fecha);
+                        }
+                    }
+                    if ($search !== '') {
+                        $search = '%' . trim($search) . '%';
+                        $query->where(function ($query) use ($search) {
+                            $query->where('pacientes.id_paciente', 'like', "%{$search}%")
+                                ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+                                ->orWhere('pacientes.email', 'like', "%{$search}%")
+                                ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
+                                ->orWhere('pacientes.nro_cedula', 'like', "%{$search}%")
+                                ->orWhere('pacientes.celular', 'like', "%{$search}%")
+                                ->orWhere('optometria_pediatrica.fecha_atencion', 'like', "%{$search}%")
+                                ->orWhere('optometria_pediatrica.doctor', 'like', "%{$search}%")
+                                ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+                                ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
+                        });
+                    }
+                })
+    );
+
+    $query->unionAll(
+        DB::table('pacientes')
+            ->select(
+                'ortoptica_adultos.id_consulta as ID_CONSULTA',
+                'pacientes.id_paciente as ID_PACIENTE',
+                'pacientes.nombres as PACIENTE_NOMBRE',
+                'pacientes.email as PACIENTE_EMAIL',
+                'pacientes.apellidos as PACIENTE_APELLIDO',
+                'pacientes.nro_cedula as PACIENTE_CEDULA',
+                'pacientes.celular as PACIENTE_CELULAR',
+                'ortoptica_adultos.fecha_atencion as FECHA_ATENCION',
+                'ortoptica_adultos.doctor as DOCTOR',
+                'sucursales.nombre as SUCURSAL',
+                'ortoptica_adultos.hubo_contacto as CONTACTO',
+                DB::raw("DATE_FORMAT(ortoptica_adultos.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
+                DB::raw("'ortoptica_adultos' as NOMBRE_TABLA"),
+                'ortoptica_adultos.se_agendo as SE_AGENDO'
+            )
+            ->join('ortoptica_adultos', 'pacientes.id_paciente', '=', 'ortoptica_adultos.paciente')
+            ->leftJoin('sucursales', 'ortoptica_adultos.sucursal', '=', 'sucursales.id_sucursal')
+            ->where(function ($query) use ($fecha, $search) {
+                if ($fecha !== null) {
+                    if (strpos($fecha, ' - ') !== false) {
+                        list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
+                        $query->whereBetween('ortoptica_adultos.fecha_proxima_consulta', [$fechaInicio, $fechaFin]);
+                    } else {
+                        $query->where('ortoptica_adultos.fecha_proxima_consulta', $fecha);
+                    }
+                }
+                if ($search !== '') {
+                    $search = '%' . trim($search) . '%';
+                    $query->where(function ($query) use ($search) {
+                        $query->where('pacientes.id_paciente', 'like', "%{$search}%")
+                            ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+                            ->orWhere('pacientes.email', 'like', "%{$search}%")
+                            ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
+                            ->orWhere('pacientes.nro_cedula', 'like', "%{$search}%")
+                            ->orWhere('pacientes.celular', 'like', "%{$search}%")
+                            ->orWhere('ortoptica_adultos.fecha_atencion', 'like', "%{$search}%")
+                            ->orWhere('ortoptica_adultos.doctor', 'like', "%{$search}%")
+                            ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+                            ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
+                    });
+                }
+            })
+    );
+
+    $query->unionAll(
+        DB::table('pacientes')
+            ->select(
+                'consultagenerica.id_consulta as ID_CONSULTA',
+                'pacientes.id_paciente as ID_PACIENTE',
+                'pacientes.nombres as PACIENTE_NOMBRE',
+                'pacientes.email as PACIENTE_EMAIL',
+                'pacientes.apellidos as PACIENTE_APELLIDO',
+                'pacientes.nro_cedula as PACIENTE_CEDULA',
+                'pacientes.celular as PACIENTE_CELULAR',
+                'consultagenerica.fecha_atencion as FECHA_ATENCION',
+                'consultagenerica.doctor as DOCTOR',
+                'sucursales.nombre as SUCURSAL',
+                'consultagenerica.hubo_contacto as CONTACTO',
+                DB::raw("DATE_FORMAT(consultagenerica.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
+                DB::raw("'consultagenerica' as NOMBRE_TABLA"),
+                'consultagenerica.se_agendo as SE_AGENDO'
+            )
+            ->join('consultagenerica', 'pacientes.id_paciente', '=', 'consultagenerica.paciente')
+            ->leftJoin('sucursales', 'consultagenerica.sucursal', '=', 'sucursales.id_sucursal')
+            ->where(function ($query) use ($fecha, $search) {
+                if ($fecha !== null) {
+                    if (strpos($fecha, ' - ') !== false) {
+                        list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
+                        $query->whereBetween('consultagenerica.fecha_proxima_consulta', [$fechaInicio, $fechaFin]);
+                    } else {
+                        $query->where('consultagenerica.fecha_proxima_consulta', $fecha);
+                    }
+                }
+                if ($search !== '') {
+                    $search = '%' . trim($search) . '%';
+                    $query->where(function ($query) use ($search) {
+                        $query->where('pacientes.id_paciente', 'like', "%{$search}%")
+                            ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+                            ->orWhere('pacientes.email', 'like', "%{$search}%")
+                            ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
+                            ->orWhere('pacientes.nro_cedula', 'like', "%{$search}%")
+                            ->orWhere('pacientes.celular', 'like', "%{$search}%")
+                            ->orWhere('consultagenerica.fecha_atencion', 'like', "%{$search}%")
+                            ->orWhere('consultagenerica.doctor', 'like', "%{$search}%")
+                            ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+                            ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
+                    });
+                }
+            })
+    );
+
+    $query->unionAll(
+        DB::table('pacientes')
+            ->select(
+                'refracciongeneral.id_consulta as ID_CONSULTA',
+                'pacientes.id_paciente as ID_PACIENTE',
+                'pacientes.nombres as PACIENTE_NOMBRE',
+                'pacientes.email as PACIENTE_EMAIL',
+                'pacientes.apellidos as PACIENTE_APELLIDO',
+                'pacientes.nro_cedula as PACIENTE_CEDULA',
+                'pacientes.celular as PACIENTE_CELULAR',
+                'refracciongeneral.fecha_atencion as FECHA_ATENCION',
+                'refracciongeneral.doctor as DOCTOR',
+                'sucursales.nombre as SUCURSAL',
+                'refracciongeneral.hubo_contacto as CONTACTO',
+                DB::raw("DATE_FORMAT(refracciongeneral.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
+                DB::raw("'refracciongeneral' as NOMBRE_TABLA"),
+                'refracciongeneral.se_agendo as SE_AGENDO'
+            )
+            ->join('refracciongeneral', 'pacientes.id_paciente', '=', 'refracciongeneral.paciente')
+            ->leftJoin('sucursales', 'refracciongeneral.sucursal', '=', 'sucursales.id_sucursal')
+            ->where(function ($query) use ($fecha, $search) {
+                if ($fecha !== null) {
+                    if (strpos($fecha, ' - ') !== false) {
+                        list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
+                        $query->whereBetween('refracciongeneral.fecha_proxima_consulta', [$fechaInicio, $fechaFin]);
+                    } else {
+                        $query->where('refracciongeneral.fecha_proxima_consulta', $fecha);
+                    }
+                }
+                if ($search !== '') {
+                    $search = '%' . trim($search) . '%';
+                    $query->where(function ($query) use ($search) {
+                        $query->where('pacientes.id_paciente', 'like', "%{$search}%")
+                            ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+                            ->orWhere('pacientes.email', 'like', "%{$search}%")
+                            ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
+                            ->orWhere('pacientes.nro_cedula', 'like', "%{$search}%")
+                            ->orWhere('pacientes.celular', 'like', "%{$search}%")
+                            ->orWhere('refracciongeneral.fecha_atencion', 'like', "%{$search}%")
+                            ->orWhere('refracciongeneral.doctor', 'like', "%{$search}%")
+                            ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+                            ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
+                    });
+                }
+            })
+    );
+
+    $result = DB::table(DB::raw("({$query->toSql()}) as sub"))
+            ->mergeBindings($query)
+            ->orderBy($ordenPor, $orden)
+            ->paginate($limit, ['*'], 'page', $page);
+            
+    $exportResult =  DB::table(DB::raw("({$query->toSql()}) as sub"))
+            ->mergeBindings($query)
+            ->orderBy($ordenPor, $orden);
+
+    return response()->json([
+                'data' => $result->items(),
+                'meta' => [
+                    'page' => $result->currentPage(),
+                    'total' => $result->total(),
+                    'limit' => $limit
+    
+            ],
+            'export' => [
+                'dataexport' => $exportResult->get(),
+            ],
+                'status' => [
+                    'code' => 200,
+                    'message' => 'Pacientes retrieved successfully',
+                ],
+    
+        ]);
+}
+
+public function actualizarContacto(Request $request)
+    {
+        $tabla = $request->input('tabla');
+        $id_consulta = $request->input('id_consulta');
+        $hubo_contacto = (int)$request->input('hubo_contacto');
+
+        try {
+            DB::table($tabla)
+                ->where('id_consulta', $id_consulta)
+                ->update(['hubo_contacto' => $hubo_contacto]);
+
+            return response()->json(['message' => 'Contacto actualizado exitosamente'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+
+public function actualizarAgendo(Request $request)
+    {
+        $tabla = $request->input('tabla');
+        $id_consulta = $request->input('id_consulta');
+        $se_agendo = (int)$request->input('se_agendo');
+
+        try {
+            DB::table($tabla)
+                ->where('id_consulta', $id_consulta)
+                ->update(['se_agendo' => $se_agendo]);
+
+            return response()->json(['message' => 'Contacto actualizado exitosamente'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
+        }
+    }
+
 }

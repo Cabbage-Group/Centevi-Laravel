@@ -29,6 +29,7 @@ const VerRefraccionGeneral = () => {
     let sa_pp = {};
     let refraccion = {};
     let lentes_contacto = {};
+    let tipo_lentes = {};
     let visuscopia = {};
     let visuscopia_extra = {};
     let pruebas = {};
@@ -44,6 +45,7 @@ const VerRefraccionGeneral = () => {
         visuscopia_extra = RefraccionGeneral && RefraccionGeneral.visuscopia_extra ? JSON.parse(RefraccionGeneral.visuscopia_extra) : {};
         refraccion = RefraccionGeneral && RefraccionGeneral.refraccion ? JSON.parse(RefraccionGeneral.refraccion) : {};
         lentes_contacto = RefraccionGeneral && RefraccionGeneral.lentes_contacto ? JSON.parse(RefraccionGeneral.lentes_contacto) : {};
+        tipo_lentes = RefraccionGeneral && RefraccionGeneral.tipo_lentes ? JSON.parse(RefraccionGeneral.tipo_lentes) : {};
         pruebas = RefraccionGeneral && RefraccionGeneral.pruebas ? JSON.parse(RefraccionGeneral.pruebas) : {};
         pruebas_extra = RefraccionGeneral && RefraccionGeneral.pruebas_extra ? JSON.parse(RefraccionGeneral.pruebas_extra) : {};
         editado = RefraccionGeneral && RefraccionGeneral.editado ? JSON.parse(RefraccionGeneral.editado) : {};
@@ -205,6 +207,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <textarea
                                                             className="form-control textarea"
+                                                            value={RefraccionGeneral ? RefraccionGeneral.m_c : ''}
                                                             maxLength="800"
                                                             name="m_c"
                                                             placeholder="Esta área tiene un limite de 800 caracteres."
@@ -220,6 +223,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
+                                                            value={RefraccionGeneral ? RefraccionGeneral.a_o : ''}
                                                             name="a_o"
                                                             placeholder="A/O"
                                                             readOnly
@@ -232,7 +236,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="diabetico e hipertenso, tiroides"
+                                                            value={RefraccionGeneral ? RefraccionGeneral.a_p : ''}
                                                             id="inputAddress2"
                                                             name="a_p"
                                                             placeholder="A/P"
@@ -246,7 +250,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={RefraccionGeneral ? RefraccionGeneral.a_f : ''}
                                                             id="inputAddress2"
                                                             name="a_f"
                                                             placeholder="A/F"
@@ -262,7 +266,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="metfomina , sibastatina, perindopril, eutirox"
+                                                            value={RefraccionGeneral ? RefraccionGeneral.medicamentos : ''}
                                                             id="medicamentos"
                                                             name="medicamentos"
                                                             placeholder="Medicamentos"
@@ -278,7 +282,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={RefraccionGeneral ? RefraccionGeneral.tratamientos : ''}
                                                             id="tratamientos"
                                                             name="tratamientos"
                                                             placeholder="Tratamientos"
@@ -312,8 +316,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/200"
-                                                                                name="av/sc_od_vl"
+                                                                                value={av_sc.av_sc_od_vl}
+                                                                                name="av_sc_od_vl"
                                                                                 placeholder="od_vl"
                                                                                 readOnly
                                                                                 type="text"
@@ -322,8 +326,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/sc_oi_vl"
+                                                                                value={av_sc.av_sc_oi_vl}
+                                                                                name="av_sc_oi_vl"
                                                                                 placeholder="oi_vl"
                                                                                 readOnly
                                                                                 type="text"
@@ -337,8 +341,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue="20/200"
-                                                                                name="av/sc_od_vp"
+                                                                                value={av_sc.av_sc_od_vp}
+                                                                                name="av_sc_od_vp"
                                                                                 placeholder="od_vp"
                                                                                 readOnly
                                                                                 type="text"
@@ -347,8 +351,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/sc_oi_vp"
+                                                                                value={av_sc.av_sc_oi_vp}
+                                                                                name="av_sc_oi_vp"
                                                                                 placeholder="oi_vp"
                                                                                 readOnly
                                                                                 type="text"
@@ -383,8 +387,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_od_vl"
+                                                                                value={av_sc.od_vl}
+                                                                                name="av_cc_od_vl"
                                                                                 placeholder="od_vl"
                                                                                 readOnly
                                                                                 type="text"
@@ -393,8 +397,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_oi_vl"
+                                                                                value={av_sc.av_cc_oi_vl}
+                                                                                name="av_cc_oi_vl"
                                                                                 placeholder="oi_vl"
                                                                                 readOnly
                                                                                 type="text"
@@ -408,8 +412,8 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_od_vp"
+                                                                                value={av_sc.av_cc_od_vp}
+                                                                                name="av_cc_od_vp"
                                                                                 placeholder="od_vp"
                                                                                 readOnly
                                                                                 type="text"
@@ -418,9 +422,9 @@ const VerRefraccionGeneral = () => {
                                                                         <td>
                                                                             <input
                                                                                 className="form-control"
-                                                                                defaultValue=""
-                                                                                name="av/cc_oi_vp"
-                                                                                placeholder="oi_vp"
+                                                                                value={av_sc.av_cc_oi_vp}
+                                                                                name="av_cc_oi_vp"
+                                                                                placeholder="dsadap"
                                                                                 readOnly
                                                                                 type="text"
                                                                             />
@@ -467,7 +471,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={lensometria.esfera_od}
                                                                             name="esfera_od"
                                                                             placeholder="esfera_od"
                                                                             readOnly
@@ -477,7 +481,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_od}
                                                                             name="cilindro_od"
                                                                             placeholder="cilindro_od"
                                                                             readOnly
@@ -487,7 +491,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.eje_od}
                                                                             name="eje_od"
                                                                             placeholder="eje_od"
                                                                             readOnly
@@ -497,7 +501,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_od}
                                                                             name="p_base_od"
                                                                             placeholder="△"
                                                                             readOnly
@@ -507,7 +511,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={lensometria.add_od}
                                                                             name="add_od"
                                                                             placeholder="add_od"
                                                                             readOnly
@@ -522,7 +526,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={lensometria.esfera_oi}
                                                                             name="esfera_oi"
                                                                             placeholder="esfera_oi"
                                                                             readOnly
@@ -532,7 +536,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.cilindro_oi}
                                                                             name="cilindro_oi"
                                                                             placeholder="cilindro_oi"
                                                                             readOnly
@@ -542,7 +546,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.eje_oi}
                                                                             name="eje_oi"
                                                                             placeholder="eje_oi"
                                                                             readOnly
@@ -552,7 +556,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue=""
+                                                                            value={lensometria.p_base_oi}
                                                                             name="p_base_oi"
                                                                             placeholder="△"
                                                                             readOnly
@@ -562,7 +566,7 @@ const VerRefraccionGeneral = () => {
                                                                     <td>
                                                                         <input
                                                                             className="form-control"
-                                                                            defaultValue="+2.50"
+                                                                            value={lensometria.add_oi}
                                                                             name="add_oi"
                                                                             placeholder="add_oi"
                                                                             readOnly
@@ -581,7 +585,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="bifocalst"
+                                                            value={lensometria_extra.len_tipo_lentes}
                                                             name="len_tipo_lentes"
                                                             readOnly
                                                             type="text"
@@ -593,7 +597,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_filtros}
                                                             name="len_filtros"
                                                             readOnly
                                                             type="text"
@@ -605,7 +609,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_tiempo}
                                                             name="len_tiempo"
                                                             readOnly
                                                             type="text"
@@ -617,7 +621,7 @@ const VerRefraccionGeneral = () => {
                                                         </label>
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={lensometria_extra.len_tipo_arco}
                                                             name="len_tipo_arco"
                                                             readOnly
                                                             type="text"
@@ -640,7 +644,7 @@ const VerRefraccionGeneral = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="opacidad"
+                                                            value={sa_pp.sa_od}
                                                             name="sa_od"
                                                             placeholder="Ojo Derecho"
                                                             readOnly
@@ -650,7 +654,7 @@ const VerRefraccionGeneral = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={sa_pp.pp_od}
                                                             name="pp_od"
                                                             placeholder="Ojo Derecho"
                                                             readOnly
@@ -662,7 +666,7 @@ const VerRefraccionGeneral = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue="opacidad"
+                                                            value={sa_pp.sa_oi}
                                                             name="sa_oi"
                                                             placeholder="Ojo Izquierdo"
                                                             readOnly
@@ -672,7 +676,7 @@ const VerRefraccionGeneral = () => {
                                                     <div className="form-group col-md-3">
                                                         <input
                                                             className="form-control"
-                                                            defaultValue=""
+                                                            value={sa_pp.pp_oi}
                                                             name="pp_oi"
                                                             placeholder="Ojo Izquierdo"
                                                             readOnly
@@ -688,7 +692,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia.hirschberg}
                                                         id="hirschberg"
                                                         name="hirschberg"
                                                         placeholder="hirschberg"
@@ -702,7 +706,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia.ct_vl}
                                                         id="VL"
                                                         name="ct_vl"
                                                         placeholder="VL"
@@ -716,7 +720,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia.ct_vp}
                                                         id="VP"
                                                         name="ct_vp"
                                                         placeholder="VP"
@@ -734,6 +738,7 @@ const VerRefraccionGeneral = () => {
                                                         className="form-control textarea"
                                                         id="textarea"
                                                         maxLength="800"
+                                                        value={RefraccionGeneral.plan_versiones}
                                                         name="plan_versiones"
                                                         placeholder="Esta área tiene un limite de 800 caracteres."
                                                         readOnly
@@ -748,7 +753,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_or}
                                                         id="ppc_or"
                                                         name="ppc_or"
                                                         placeholder="ppc_or"
@@ -762,7 +767,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_l}
                                                         id="ppc_l"
                                                         name="ppc_l"
                                                         placeholder="ppc_l"
@@ -776,7 +781,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={visuscopia_extra.ppc_posicion}
                                                         id="ppc_posicion"
                                                         name="ppc_posicion"
                                                         placeholder="ppc_posicion"
@@ -794,6 +799,7 @@ const VerRefraccionGeneral = () => {
                                                         className="form-control textarea"
                                                         id="textarea"
                                                         maxLength="500"
+                                                        value={RefraccionGeneral.observaciones}
                                                         name="observaciones"
                                                         placeholder="Esta área tiene un limite de 500 caracteres."
                                                         readOnly
@@ -824,7 +830,7 @@ const VerRefraccionGeneral = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={pruebas.vl_luces}
                                                                     name="vl_luces"
                                                                     placeholder="vl_luces"
                                                                     readOnly
@@ -834,7 +840,7 @@ const VerRefraccionGeneral = () => {
                                                             <td>
                                                                 <input
                                                                     className="form-control"
-                                                                    defaultValue=""
+                                                                    value={pruebas.vp_luces}
                                                                     name="vp_luces"
                                                                     placeholder="vp_luces"
                                                                     readOnly
@@ -857,7 +863,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={pruebas_extra.randot}
                                                         id="inputAddress"
                                                         name="randot"
                                                         placeholder="randot"
@@ -871,7 +877,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={pruebas_extra.lang}
                                                         id="inputAddress"
                                                         name="lang"
                                                         placeholder="lang"
@@ -887,7 +893,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={pruebas_extra.vision_color}
                                                         id="inputAddress"
                                                         name="vision_color"
                                                         placeholder="vision"
@@ -932,7 +938,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-0.25"
+                                                                        value={refraccion.esfera_od_f}
                                                                         name="esfera_od_f"
                                                                         readOnly
                                                                         type="text"
@@ -941,7 +947,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-1.00"
+                                                                        value={refraccion.cilindro_od_f}
                                                                         name="cilindro_od_f"
                                                                         readOnly
                                                                         type="text"
@@ -950,7 +956,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="60"
+                                                                        value={refraccion.eje_od_f}
                                                                         name="eje_od_f"
                                                                         readOnly
                                                                         type="text"
@@ -959,7 +965,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={refraccion.p_base_od_f}
                                                                         name="p_base_od_f"
                                                                         readOnly
                                                                         type="text"
@@ -968,7 +974,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.50"
+                                                                        value={refraccion.add_od_f}
                                                                         name="add_od_f"
                                                                         readOnly
                                                                         type="text"
@@ -982,7 +988,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="0.00"
+                                                                        value={refraccion.esfera_oi_f}
                                                                         name="esfera_oi_f"
                                                                         readOnly
                                                                         type="text"
@@ -991,7 +997,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="-0.75"
+                                                                        value={refraccion.cilindro_oi_f}
                                                                         name="cilindro_oi_f"
                                                                         readOnly
                                                                         type="text"
@@ -1000,7 +1006,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="120"
+                                                                        value={refraccion.eje_oi_f}
                                                                         name="eje_oi_f"
                                                                         readOnly
                                                                         type="text"
@@ -1009,7 +1015,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={refraccion.p_base_oi_f}
                                                                         name="p_base_oi_f"
                                                                         readOnly
                                                                         type="text"
@@ -1018,7 +1024,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue="+2.50"
+                                                                        value={refraccion.add_oi_f}
                                                                         name="add_oi_f"
                                                                         readOnly
                                                                         type="text"
@@ -1036,7 +1042,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue="bifocal st"
+                                                        value={tipo_lentes.tipo_l}
                                                         id="tipo_l"
                                                         name="tipo_l"
                                                         placeholder="tipo_l"
@@ -1050,7 +1056,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={tipo_lentes.pd}
                                                         id="pd"
                                                         name="pd"
                                                         placeholder="pd"
@@ -1064,7 +1070,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={tipo_lentes.dnp}
                                                         id="dnp"
                                                         name="dnp"
                                                         placeholder="dnp"
@@ -1078,7 +1084,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={tipo_lentes.alt}
                                                         id="alt"
                                                         name="alt"
                                                         placeholder="alt"
@@ -1114,7 +1120,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.poder_od}
                                                                         name="poder_od"
                                                                         placeholder="poder_od"
                                                                         readOnly
@@ -1124,7 +1130,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.poder_oi}
                                                                         name="poder_oi"
                                                                         placeholder="poder_oi"
                                                                         readOnly
@@ -1139,7 +1145,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.cb_od}
                                                                         name="cb_od"
                                                                         placeholder="cb_od"
                                                                         readOnly
@@ -1149,7 +1155,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.cb_oi}
                                                                         name="cb_oi"
                                                                         placeholder="cb_oi"
                                                                         readOnly
@@ -1164,7 +1170,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.dia_od}
                                                                         name="dia_od"
                                                                         placeholder="dia_od"
                                                                         readOnly
@@ -1174,7 +1180,7 @@ const VerRefraccionGeneral = () => {
                                                                 <td>
                                                                     <input
                                                                         className="form-control"
-                                                                        defaultValue=""
+                                                                        value={lentes_contacto.dia_oi}
                                                                         name="dia_oi"
                                                                         placeholder="dia_oi"
                                                                         readOnly
@@ -1193,7 +1199,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_marca}
                                                         id="inputAddress"
                                                         name="lente_marca"
                                                         placeholder="Marca"
@@ -1207,7 +1213,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <input
                                                         className="form-control"
-                                                        defaultValue=""
+                                                        value={lentes_contacto.lente_tipo}
                                                         id="inputAddress"
                                                         name="lente_tipo"
                                                         placeholder="Tipo"
@@ -1223,7 +1229,7 @@ const VerRefraccionGeneral = () => {
                                                     </label>
                                                     <textarea
                                                         className="form-control textarea"
-                                                        defaultValue="bifocal st fotocromatico"
+                                                        value={RefraccionGeneral.conducta_seguir}
                                                         id="textarea"
                                                         maxLength="800"
                                                         name="conducta_seguir"
@@ -1233,26 +1239,7 @@ const VerRefraccionGeneral = () => {
                                                     />
                                                 </div>
                                             </div>
-                                            <input
-                                                defaultValue="crear"
-                                                name="crear_refraccion_general"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="0"
-                                                name="sucursal"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="SuperAdmin"
-                                                name="doctor"
-                                                type="hidden"
-                                            />
-                                            <input
-                                                defaultValue="0"
-                                                name="id_terapia"
-                                                type="hidden"
-                                            />
+                                            
                                         </div>
                                     </div>
                                 </div>

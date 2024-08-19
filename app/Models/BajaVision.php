@@ -59,5 +59,6 @@ class BajaVision extends Model
         'fecha_atencion' => 'date',
         'fecha_creacion' => 'datetime',
         'fecha_proxima_consulta' => 'datetime',
+
     ];
 }

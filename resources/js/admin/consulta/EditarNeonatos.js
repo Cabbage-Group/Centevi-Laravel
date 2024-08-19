@@ -196,7 +196,7 @@ const EditarNeonatos = () => {
                             [name]: value,
                         },
                     };
-                case 'pruebas_extra':
+                case 'pruebas_extras':
                     return {
                         ...prevFormData,
                         pruebas_extras: {
