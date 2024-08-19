@@ -58,6 +58,7 @@ import verUnaTerapiaOrtopticaSlice from './features/terapias/verUnaTerapiaOrtopt
 import terapiaSesionOrtopticaSlice from './features/terapias/terapiaSesionOrtopticaSlice';
 import VerSesionTerapiaOrtopticaSlice from './features/terapias/VerSesionTerapiaOrtopticaSlice';
 import EditarSesionTerapiaOrtopticaSlice from './features/terapias/EditarSesionTerapiaOrtopticaSlice';
+import proximasCitasSlice from './features/reportes/proximasCitasSlice';
 
 
 
@@ -76,6 +77,7 @@ const store = configureStore({
                 terapiasDiarias: terapiasDiariasSlice,
                 pacientesSinAtencion: pacientesSinAtencionSlice,
                 atendidosPorDia: atendidosPorDiaSilce,
+                proximasCitas: proximasCitasSlice,
                 verPaciente: VerPacienteSlice,
                 editarPaciente: EditarPacienteSlice,
                 mostrarOrtoptica: MostrarOrtopticaSlice,
@@ -110,6 +112,7 @@ const store = configureStore({
                 verTerapiaNeonatos: verUnaTerapiaNeonatosSlice,
                 verTerapiaPediatrica: verUnaTerapiaPediatricaSlice,
                 verTerapiaOrtoptica: verUnaTerapiaOrtopticaSlice,
+
 
                 sesionTerapiaBajaVision: terapiaSesionBajaVisionSlice,
                 sesionTerapiaNeonatos: terapiaSesionNeonatosSlice,

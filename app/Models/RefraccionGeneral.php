@@ -51,6 +51,9 @@ class RefraccionGeneral extends Model
         'plan_versiones',
         'fecha_creacion',
         'editado',
+        'fecha_proxima_consulta',
+        'hubo_contacto',
+        'se_agendo'
     ];
 
     // Atributos que deben ser convertidos a tipos nativos

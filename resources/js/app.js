@@ -54,6 +54,7 @@ import EditarSesionTerapiaPediatrica from './admin/terapias/EditarSesionTerapiaP
 import TerapiasOrtoptica from './admin/terapias/terapiasOrtoptica.js';
 import VerSesionTerapiaOrtoptica from './admin/terapias/VerSesionTerapiaOrtoptica.js';
 import EditarSesionTerapiaOrtoptica from './admin/terapias/EditarSesionTerapiaOrtoptica.js';
+import ProximasCitas from './admin/reportes/ProximasCitas.js';
 
 function AppRouter() {
     return (
@@ -106,6 +107,7 @@ function AppRouter() {
                     <Route path="/paciente-atendido-dia" element={<Sidebar component={<PacienteAtendidoDia />} />} />
                     <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
                     <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
+                    <Route path="/proximas-citas" element={<Sidebar component={<ProximasCitas />} />} />
 
                     <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia/>} />} />
                     <Route path="/ver-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaPediatrica/>} />} />

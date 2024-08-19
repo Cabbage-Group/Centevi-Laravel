@@ -147,7 +147,7 @@ class RecetasApiController extends Controller
             'aro_propio' => '',
             'observacion' => '',
             'medidas' => '',
-            'sucursal' => null,
+            'sucursal' => '',
             'doctor' => '',
             'fecha_creacion' => now()->format('Y-m-d'), // Asegúrate de usar el formato correcto
         ];

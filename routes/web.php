@@ -95,6 +95,10 @@ Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'Pac
 Route::get('/api/pacientesSinAtender', [PacientesApiController::class, 'mostrarCantidadPacientesSinAtender']);
 Route::get('/api/pacientesAtendidosPorDiaV2', [PacientesApiController::class, 'MostrarPacientesAtendidosPorDiaV2']);
 Route::get('/api/todosLospacientesSinAtender', [PacientesApiController::class, 'mostrarTodosLosPacientesSinAtender']);
+Route::get('/api/proximascitas', [PacientesApiController::class, 'MostrarProximasCitas']);
+Route::put('/api/actualizarcontacto', [PacientesApiController::class, 'actualizarContacto']);
+Route::put('/api/actualizaragendo', [PacientesApiController::class, 'actualizarAgendo']);
+
 Route::post('/api/verificar-cedula', [PacientesApiController::class, 'verificarCedula']);
 
 Route::get('/api/recetas', [RecetasApiController::class, 'recetas']);
