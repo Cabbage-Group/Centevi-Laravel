@@ -48,6 +48,9 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
                 onChange={handleChange}
                 format="YYYY-MM-DD"
                 allowClear={false}
+                style={{ 
+                    width: 328,
+                    height: 40 }}
             />
             <button
                 className="btn btn-success mt-3"
