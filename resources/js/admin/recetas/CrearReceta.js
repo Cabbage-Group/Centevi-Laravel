@@ -6,7 +6,7 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-
+import * as Yup from 'yup';
 
 const CrearReceta = () => {
 
@@ -81,8 +81,8 @@ const CrearReceta = () => {
 
 
     useEffect(() => {
-        dispatch(fetchSucursales());
-        dispatch(fetchPacientes());
+        dispatch(fetchSucursales({ page: 1, limit: 100 }));
+        dispatch(fetchPacientes({ page: 1, limit: 10000 }));
     }, [dispatch]);
 
     const handleSubmit = async (values) => {

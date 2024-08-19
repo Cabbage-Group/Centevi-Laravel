@@ -132,7 +132,6 @@ class RecetasApiController extends Controller
             ], 400);
         }
 
-        // Obtener los datos de la solicitud y rellenar los valores faltantes
         $data = $request->all();
         $defaults = [
             "id_paciente" => null,
@@ -149,16 +148,17 @@ class RecetasApiController extends Controller
             'medidas' => '',
             'sucursal' => '',
             'doctor' => '',
-            'fecha_creacion' => now()->format('Y-m-d'), // Asegúrate de usar el formato correcto
+            'fecha_creacion' => now()->format('Y-m-d'), 
         ];
+        
+        $data = array_map(function ($value) {
+            return $value === null ? '' : $value;
+        }, $request->all());
 
-        // Rellenar datos faltantes con valores predeterminados
         $data = array_merge($defaults, $data);
 
-        // Crear una nueva receta
         $receta = Receta::create($data);
 
-        // Retornar respuesta exitosa
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Receta registrada correctamente',
