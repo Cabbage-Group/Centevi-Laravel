@@ -6,7 +6,7 @@ export const crearHistoriaClinica = createAsyncThunk(
     'historiaClinica/crearHistoriaClinica',
     async (data, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${API}/historiaclinica`, data);
+            const response = await axios.post(`${API}/consultagenerica`, data);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -16,9 +16,9 @@ export const crearHistoriaClinica = createAsyncThunk(
 
 
 const HistoriaClinicaSlice = createSlice({
-    name: 'HistoriaClinica',
+    name: 'consultagenerica',
     initialState: {
-        HistoriaClinica: null,
+        consultagenerica: null,
         status: 'idle',
         error: null,
     },
@@ -30,7 +30,7 @@ const HistoriaClinicaSlice = createSlice({
             })
             .addCase(crearHistoriaClinica.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.crearHistoriaClinica = action.payload;
+                state.consultagenerica = action.payload;
             })
             .addCase(crearHistoriaClinica.rejected, (state, action) => {
                 state.status = 'failed';

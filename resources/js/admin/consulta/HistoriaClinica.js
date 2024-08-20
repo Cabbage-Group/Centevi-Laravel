@@ -10,7 +10,7 @@ const HistoriaClinica = () => {
     const dispatch = useDispatch();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
-    const { status, error } = useSelector((state) => state.optometriaGeneral);
+    const { status, error } = useSelector((state) => state.consultagenerica);
     const [selectedPaciente, setSelectedPaciente] = useState(null);
     const initialValues = {
         sucursal: '',
@@ -20,6 +20,11 @@ const HistoriaClinica = () => {
         edad: '35',
         fecha_atencion: '',
         m_c: '',
+        fecha_creacion: '',
+        editado: '',
+        fecha_proxima_consulta: '',
+        hubo_contacto:'',
+        se_agendo:'',
     };
 
     useEffect(() => {

@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import sucursalesReducer from './features/sucursales/sucursalesSlice';
 import usuariosSlice from './features/usuarios/usuariosSlice';
 import pacientesSlice from './features/pacientes/pacientesSlice';
+import HistoriaClinicaSlice from './features/consultas/HistoriaClinicaSlice';
 import optometriaNeonatosReducer from './features/consultas/OptometriaNeonatosSlice';
 import ultimaAtencionSlice from './features/reportes/ultimaAtencionSlice';
 import OptometriaPediatricaSlice from './features/consultas/OptometriaPediatricaSlice';
@@ -68,6 +69,7 @@ const store = configureStore({
                 usuarios: usuariosSlice,
                 pacientes: pacientesSlice,
                 recetas: recetasSlice,
+                consultagenerica: HistoriaClinicaSlice,
                 optometriaNeonatos: optometriaNeonatosReducer,
                 optometriaPediatrica: OptometriaPediatricaSlice,
                 ortoptica: OrtopticaV_BSlice,
@@ -113,7 +115,6 @@ const store = configureStore({
                 verTerapiaPediatrica: verUnaTerapiaPediatricaSlice,
                 verTerapiaOrtoptica: verUnaTerapiaOrtopticaSlice,
 
-
                 sesionTerapiaBajaVision: terapiaSesionBajaVisionSlice,
                 sesionTerapiaNeonatos: terapiaSesionNeonatosSlice,
                 sesionTerapiaPediatrica: terapiaSesionPediatricaSlice,
@@ -128,6 +129,7 @@ const store = configureStore({
                 editarSesionTerapiaNeonato: EditarSesionTerapiaNeonatoSlice,
                 editarSesionTerapiaPediatrica: EditarSesionTerapiaPediatricaSlice,
                 editarSesionTerapiaOrtoptica: EditarSesionTerapiaOrtopticaSlice,
+
         }
 });
 
