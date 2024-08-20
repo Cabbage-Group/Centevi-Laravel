@@ -162,6 +162,7 @@ const OrtopticaVisionBinocular = () => {
             doctor: '',
             fecha_edicion: ''
         },
+        fecha_proxima_consulta:'',
     };
 
     useEffect(() => {
@@ -270,7 +271,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="edad"
                                                                     name="edad"
                                                                     readOnly
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -310,7 +311,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="lugarNacimiento"
                                                                     name="a_o"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -322,7 +323,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress2"
                                                                     name="a_p"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -334,7 +335,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="inputAddress2"
                                                                     name="a_f"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -348,7 +349,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="medicamentos"
                                                                     name="medicamentos"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -362,7 +363,7 @@ const OrtopticaVisionBinocular = () => {
                                                                     id="tratamientos"
                                                                     name="tratamientos"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -394,16 +395,14 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_od_vl"
-                                                                                        placeholder=""
+                                                                                        name="av_sc.av_sc_od_vl"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_oi_vl"
-                                                                                        placeholder=""
+                                                                                        name="av_sc.av_sc_oi_vl"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -415,16 +414,14 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_od_vp"
-                                                                                        placeholder=""
+                                                                                        name="av_sc.av_sc_od_vp"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_oi_vp"
-                                                                                        placeholder=""
+                                                                                        name="av_sc.av_sc_oi_vp"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -436,16 +433,14 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_od_ph"
-                                                                                        placeholder=""
+                                                                                        name="av_sc.av_sc_od_ph"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_oi_ph"
-                                                                                        placeholder=""
+                                                                                        name="av_sc.av_sc_oi_ph"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -478,7 +473,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_od_vl"
+                                                                                        name="av_cc.av_cc_od_vl"
                                                                                         placeholder=""
                                                                                         as="input"
                                                                                     />
@@ -486,7 +481,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_oi_vl"
+                                                                                        name="av_cc.av_cc_oi_vl"
                                                                                         placeholder=""
                                                                                         as="input"
                                                                                     />
@@ -499,7 +494,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_od_vp"
+                                                                                        name="av_cc.av_cc_od_vp"
                                                                                         placeholder=""
                                                                                         as="input"
                                                                                     />
@@ -507,7 +502,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_oi_vp"
+                                                                                        name="av_cc.av_cc_oi_vp"
                                                                                         placeholder=""
                                                                                         as="input"
                                                                                     />
@@ -520,7 +515,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_od_ph"
+                                                                                        name="av_cc.av_cc_od_ph"
                                                                                         placeholder=""
                                                                                         as="input"
                                                                                     />
@@ -528,7 +523,7 @@ const OrtopticaVisionBinocular = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_oi_ph"
+                                                                                        name="av_cc.av_cc_oi_ph"
                                                                                         placeholder=""
                                                                                         as="input"
                                                                                     />
@@ -575,7 +570,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="esfera_od"
+                                                                                    name="lensometria.esfera_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -583,7 +578,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cilindro_od"
+                                                                                    name="lensometria.cilindro_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -591,7 +586,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="eje_od"
+                                                                                    name="lensometria.eje_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -599,7 +594,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="p_base_od"
+                                                                                    name="lensometria.p_base_od"
                                                                                     placeholder="△"
                                                                                     as="input"
                                                                                 />
@@ -607,7 +602,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="add_od"
+                                                                                    name="lensometria.add_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -620,7 +615,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="esfera_oi"
+                                                                                    name="lensometria.esfera_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -628,7 +623,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cilindro_oi"
+                                                                                    name="lensometria.cilindro_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -636,7 +631,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="eje_oi"
+                                                                                    name="lensometria.eje_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -644,7 +639,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="p_base_oi"
+                                                                                    name="lensometria.p_base_oi"
                                                                                     placeholder="△"
                                                                                     as="input"
                                                                                 />
@@ -652,7 +647,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="add_oi"
+                                                                                    name="lensometria.add_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -669,8 +664,8 @@ const OrtopticaVisionBinocular = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_tipo_lentes"
-                                                                    as="i"
+                                                                    name="lensometria_extra.len_tipo_lentes"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -679,8 +674,8 @@ const OrtopticaVisionBinocular = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_filtros"
-                                                                    as="i"
+                                                                    name="lensometria_extra.len_filtros"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -689,8 +684,8 @@ const OrtopticaVisionBinocular = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_tiempo"
-                                                                    as="i"
+                                                                    name="lensometria_extra.len_tiempo"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -699,8 +694,8 @@ const OrtopticaVisionBinocular = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_tipo_arco"
-                                                                    as="i"
+                                                                    name="lensometria_extra.len_tipo_arco"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -720,17 +715,17 @@ const OrtopticaVisionBinocular = () => {
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="sa_od"
+                                                                    name="sa_pp.sa_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="pp_od"
+                                                                    name="sa_pp.pp_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -738,17 +733,17 @@ const OrtopticaVisionBinocular = () => {
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="sa_oi"
+                                                                    name="sa_pp.sa_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="pp_oi"
+                                                                    name="sa_pp.pp_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -763,9 +758,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="v_od"
-                                                                    name="viscopia_od"
+                                                                    name="visuscopia.viscopia_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -775,9 +770,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="v_oi"
-                                                                    name="viscopia_oi"
+                                                                    name="visuscopia.viscopia_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -789,9 +784,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="hirschberg"
-                                                                    name="hirschberg"
+                                                                    name="visuscopia.hirschberg"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -801,9 +796,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="krismsky"
-                                                                    name="krismsky"
+                                                                    name="visuscopia.krismsky"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -828,9 +823,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="VL"
-                                                                    name="ct_vl"
+                                                                    name="visuscopia.ct_vl"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -840,9 +835,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="VP"
-                                                                    name="ct_vp"
+                                                                    name="visuscopia.ct_vp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-4">
@@ -852,9 +847,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="maddox"
-                                                                    name="maddox"
+                                                                    name="visuscopia.maddox"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -866,9 +861,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="seguimiento"
-                                                                    name="seguimiento_ao"
+                                                                    name="visuscopia_extra.seguimiento_ao"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -878,9 +873,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="sacadicos"
-                                                                    name="sacadicos_ao"
+                                                                    name="visuscopia_extra.sacadicos_ao"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -892,9 +887,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_or"
-                                                                    name="ppc_or"
+                                                                    name="visuscopia_extra.ppc_or"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -904,9 +899,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_l"
-                                                                    name="ppc_l"
+                                                                    name="visuscopia_extra.ppc_l"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -916,9 +911,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_fr"
-                                                                    name="ppc_fr"
+                                                                    name="visuscopia_extra.ppc_fr"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -928,9 +923,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_posicion"
-                                                                    name="ppc_posicion"
+                                                                    name="visuscopia_extra.ppc_posicion"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -942,9 +937,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="helshoswky"
-                                                                    name="helshoswky"
+                                                                    name="visuscopia_extra.helshoswky"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -954,9 +949,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="von_graefe"
-                                                                    name="von_graefe"
+                                                                    name="visuscopia_extra.von_graefe"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -983,7 +978,7 @@ const OrtopticaVisionBinocular = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="vl_luces"
+                                                                                name="pruebas.vl_luces"
                                                                                 placeholder=""
                                                                                 as="input"
                                                                             />
@@ -991,7 +986,7 @@ const OrtopticaVisionBinocular = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="vp_luces"
+                                                                                name="pruebas.vp_luces"
                                                                                 placeholder=""
                                                                                 as="input"
                                                                             />
@@ -1004,7 +999,7 @@ const OrtopticaVisionBinocular = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="vl_bg"
+                                                                                name="pruebas.vl_bg"
                                                                                 placeholder=""
                                                                                 as="input"
                                                                             />
@@ -1012,7 +1007,7 @@ const OrtopticaVisionBinocular = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="vp_bg"
+                                                                                name="pruebas.vp_bg"
                                                                                 placeholder=""
                                                                                 as="input"
                                                                             />
@@ -1034,9 +1029,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="randot"
+                                                                    name="pruebas_extra.randot"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1046,9 +1041,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lang"
+                                                                    name="pruebas_extra.lang"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1060,9 +1055,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="vision_color"
+                                                                    name="pruebas_extra.vision_color"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1077,9 +1072,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="aa_od"
+                                                                    name="acomodacion.aa_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1089,9 +1084,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="aa_oi"
+                                                                    name="acomodacion.aa_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1101,9 +1096,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="fan_od"
+                                                                    name="acomodacion.fan_od"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1113,9 +1108,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="fan_cpm"
+                                                                    name="acomodacion.fan_cpm"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1127,9 +1122,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="aco_oi"
+                                                                    name="acomodacion.aco_oi"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1139,9 +1134,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="aco_cpm"
+                                                                    name="acomodacion.aco_cpm"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1151,9 +1146,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="acp_fab"
+                                                                    name="acomodacion.acp_fab"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1165,9 +1160,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="mem_arn"
+                                                                    name="acomodacion_extra.mem_arn"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1177,9 +1172,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="mem_arp"
+                                                                    name="acomodacion_extra.mem_arp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1194,9 +1189,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="v_vt_vl"
+                                                                    name="vergencia.v_vt_vl"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1206,9 +1201,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="v_bt_vp"
+                                                                    name="vergencia.v_bt_vp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1220,9 +1215,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="v_bn_vl"
+                                                                    name="vergencia.v_bn_vl"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
@@ -1232,9 +1227,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="v_bn_vp"
+                                                                    name="vergencia.v_bn_vp"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1277,7 +1272,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="esfera_od_f"
+                                                                                    name="refraccion.esfera_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1285,7 +1280,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cilindro_od_f"
+                                                                                    name="refraccion.cilindro_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1293,7 +1288,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="eje_od_f"
+                                                                                    name="refraccion.eje_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1301,7 +1296,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="p_base_od_f"
+                                                                                    name="refraccion.p_base_od_f"
                                                                                     placeholder="△"
                                                                                     as="input"
                                                                                 />
@@ -1309,7 +1304,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="add_od_f"
+                                                                                    name="refraccion.add_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1317,7 +1312,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="agz_od_f"
+                                                                                    name="refraccion.agz_od_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1330,7 +1325,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="esfera_oi_f"
+                                                                                    name="refraccion.esfera_oi_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1338,7 +1333,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cilindro_oi_f"
+                                                                                    name="refraccion.cilindro_oi_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1346,7 +1341,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="eje_oi_f"
+                                                                                    name="refraccion.eje_oi_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1354,7 +1349,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="p_base_oi_f"
+                                                                                    name="refraccion.p_base_oi_f"
                                                                                     placeholder="△"
                                                                                     as="input"
                                                                                 />
@@ -1362,7 +1357,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="add_oi_f"
+                                                                                    name="refraccion.add_oi_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1370,7 +1365,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="agz_oi_f"
+                                                                                    name="refraccion.agz_oi_f"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1388,9 +1383,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_marca_1"
+                                                                    name="lentes_contacto.lente_marca_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -1400,9 +1395,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_pd_1"
+                                                                    name="lentes_contacto.lente_pd_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -1412,9 +1407,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_dnp_1"
+                                                                    name="lentes_contacto.lente_dnp_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-2">
@@ -1424,9 +1419,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_altura_1"
+                                                                    name="lentes_contacto.lente_altura_1"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1457,7 +1452,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="poder_od"
+                                                                                    name="lentes_contacto.poder_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1465,7 +1460,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="poder_oi"
+                                                                                    name="lentes_contacto.poder_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1478,7 +1473,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cb_od"
+                                                                                    name="lentes_contacto.cb_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1486,7 +1481,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cb_oi"
+                                                                                    name="lentes_contacto.cb_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1499,7 +1494,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="dia_od"
+                                                                                    name="lentes_contacto.dia_od"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1507,7 +1502,7 @@ const OrtopticaVisionBinocular = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="dia_oi"
+                                                                                    name="lentes_contacto.dia_oi"
                                                                                     placeholder=""
                                                                                     as="input"
                                                                                 />
@@ -1525,9 +1520,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_marca"
+                                                                    name="lentes_contacto.lente_marca"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-6">
@@ -1537,9 +1532,9 @@ const OrtopticaVisionBinocular = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_tipo"
+                                                                    name="lentes_contacto.lente_tipo"
                                                                     placeholder=""
-                                                                    as="i"
+                                                                    as="input"
                                                                 />
                                                             </div>
                                                         </div>
@@ -1552,6 +1547,20 @@ const OrtopticaVisionBinocular = () => {
                                                                     className="form-control textarea"
                                                                     name="conducta_seguir"
                                                                     as="textarea"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div className="form-row mb-12">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="inputFehaProxCita">
+                                                                    Fecha de proxima cita
+                                                                </label>
+                                                                <input
+                                                                    className="form-control"
+                                                                    id="inputFehaProxCita"
+                                                                    name="fecha_proxima_consulta"
+                                                                    required
+                                                                    type="date"
                                                                 />
                                                             </div>
                                                         </div>

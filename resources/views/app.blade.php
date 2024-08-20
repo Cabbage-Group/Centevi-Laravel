@@ -26,15 +26,14 @@
     <link href="{{ asset('assets/css/historiaclinica/historiaclinica.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css')}}">
     <link href="{{ asset('assets/css/consultas/optometriaGeneral.css') }}" rel="stylesheet" type="text/css" class="structure" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/consultas/ortopticaVisionBinocul.css') }}">
+    <link href="{{ asset('assets/css/consultas/optometriaGeneral.css') }}" rel="stylesheet" type="text/css" class="structure" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/components/cards/card.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/select2/select2.min.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/tables/table-basic.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/widgets/modules-widgets.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/forms/theme-checkbox-radio.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_html5.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_miscellaneous.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_custom.css')}}">
+
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/contacts.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-add.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/apps/invoice-edit.css') }}">
@@ -60,11 +59,12 @@
     <link href="{{ asset('assets/css/dashboard/dash_1.css') }}" rel="stylesheet" type="text/css" class="dashboard-analytics">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_html5.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/dt-global_style.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_miscellaneous.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_custom.css')}}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/datatables.css')}}">
     <link href="{{ asset('plugins/sweetalerts/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('plugins/sweetalerts/sweetalert.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_miscellaneous.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/table/datatable/custom_dt_custom.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/file-upload/file-upload-with-preview.min.css')}}">
     <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
 </head>
 

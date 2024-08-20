@@ -48,12 +48,17 @@ class BajaVision extends Model
         'plan_rehabilitacion',
         'plan_versiones',
         'fecha_creacion',
-        'editado'
+        'editado',
+        'fecha_proxima_consulta',
+        'hubo_contacto',
+        'se_agendo'
     ];
 
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'fecha_atencion' => 'date',
         'fecha_creacion' => 'datetime',
+        'fecha_proxima_consulta' => 'datetime',
+
     ];
 }

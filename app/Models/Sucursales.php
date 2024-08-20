@@ -15,6 +15,7 @@ class Sucursales extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id_sucursal';
 
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'nombre',

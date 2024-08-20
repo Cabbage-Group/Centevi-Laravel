@@ -14,8 +14,6 @@ const CrearReceta = () => {
     const navigate = useNavigate();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
-    const { status, error } = useSelector((state) => state.recetas);
-    const [selectedPaciente, setSelectedPaciente] = useState(null);
     const initialValues = {
         id_paciente: "",
         nro_receta: "",
@@ -81,9 +79,6 @@ const CrearReceta = () => {
 
     };
 
-    useEffect(() => {
-        console.log('Pacientes:', pacientes);
-    }, [pacientes]);
 
     useEffect(() => {
         dispatch(fetchSucursales({ page: 1, limit: 100 }));
@@ -1133,13 +1128,7 @@ const CrearReceta = () => {
 
                                                         </Form>
                                                     )}
-                                                </Formik>
-
-                                                {status === 'error' && <div className="alert alert-danger">{error}</div>}
-                                                {status === 'loading' && <p>Enviando...</p>}
-                                                {status === 'failed' && <p>Error: {error}</p>}
-                                                {status === 'succeeded' && <p>Neonato creado con éxito</p>}
-
+                                                </Formik>                                               
                                             </div>
                                         </div>
                                     </div>

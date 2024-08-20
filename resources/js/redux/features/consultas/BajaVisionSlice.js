@@ -18,7 +18,7 @@ export const crearBajaVision = createAsyncThunk(
             data['refraccion'] = JSON.stringify(data.refraccion);
             data['pruebas'] = JSON.stringify(data.pruebas);
 
-            const response = await axios.post(`${API}/ObtometriaGeneral`, data);
+            const response = await axios.post(`${API}/bajavision`, data);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);

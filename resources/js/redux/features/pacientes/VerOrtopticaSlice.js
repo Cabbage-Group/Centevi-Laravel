@@ -7,7 +7,6 @@ export const fetchVerOrtoptica = createAsyncThunk(
     'Ortoptica/fetchVerOrtoptica',
     async ({ id, id_consulta } ) => {
         const response = await axios.get(`${API}/ver-ortoptica/${id}/${id_consulta}`);
-        console.log(response.data)
         return response.data;
     }
 );
@@ -28,7 +27,6 @@ const VerOrtopticaSlice = createSlice({
             .addCase(fetchVerOrtoptica.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.data = action.payload.data;
-                console.log('datos obtenidos:',state.data)
             })
             .addCase(fetchVerOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';

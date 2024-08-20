@@ -15,13 +15,18 @@ class TerapiaOrtopticaAdultos extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id';
 
+    public $timestamps = false;
+
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'id_terapia',
-        'id_paciente',
-        'evaluacion',
-        'motivo',
+        'sesion',
+        'completado',
+        'pagado',
+        'doctor',
         'fecha_creacion',
+        'sucursal',
     ];
 
     // Atributos que deben ser convertidos a tipos nativos
