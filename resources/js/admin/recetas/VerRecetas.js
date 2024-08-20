@@ -1,22 +1,72 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { fecthRecetas } from '../../redux/features/recetas/recetasSlice';
-import PaginationRecetas from '../reportes/PaginationRecetas';
+import { fecthRecetas, setOrden, setOrdenPor } from '../../redux/features/recetas/recetasSlice';
+import PaginationRecetas from './PaginationRecetas';
+import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
+import Swal from 'sweetalert2';
 
 const VerRecetas = () => {
     const dispatch = useDispatch();
-    const { recetas, status, error, meta, totalPages, orden, ordenPor } = useSelector((state) => state.recetas);
+    const { recetas, status, error, meta, totalPages, orden, ordenPor, search } = useSelector((state) => state.recetas);
 
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [localSearch, setLocalSearch] = useState(search);
     useEffect(() => {
 
-        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
-    }, [dispatch, currentPage, orden, ordenPor]);
+        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor, search: localSearch }));
+    }, [dispatch, localSearch, currentPage, orden, ordenPor]);
+
+    const handleSort = (newOrdenPor) => {
+        const newOrder = orden === 'asc' ? 'desc' : 'asc';
+        dispatch(setOrden(newOrder));
+        dispatch(setOrdenPor(newOrdenPor));
+        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden: newOrder, ordenPor: newOrdenPor }))
+            .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
+    };
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
+    };
+
+    const handleSearchChange = (event) => {
+        setLocalSearch(event.target.value);
+    };
+
+    const handleClearSearch = () => {
+        setLocalSearch('');
+    };
+
+    const handleEliminarReceta = async (id_receta) => {
+        try {
+            const result = await Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡No podrás recuperar esta receta después de eliminarla!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.isConfirmed) {
+                await dispatch(eliminarRecetas(id_receta));
+                dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
+
+                Swal.fire(
+                    'Eliminado!',
+                    'La receta ha sido eliminada.',
+                    'success'
+                );
+            }
+        } catch (error) {
+            Swal.fire(
+                'Error',
+                'Hubo un problema al eliminar la receta.',
+                'error'
+            );
+        }
     };
 
     return (
@@ -100,11 +150,30 @@ const VerRecetas = () => {
                                                                 />
                                                             </svg>
                                                             <input
-                                                                aria-controls="zero-config"
+                                                                aria-controls="html5-extension"
                                                                 className="form-control"
                                                                 placeholder="Search..."
                                                                 type="search"
+                                                                value={localSearch}
+                                                                onChange={handleSearchChange}
                                                             />
+
+                                                            {localSearch && (
+                                                                <button
+                                                                    onClick={handleClearSearch}
+                                                                    style={{
+                                                                        position: 'absolute',
+                                                                        right: '25px',
+                                                                        top: '50%',
+                                                                        transform: 'translateY(-50%)',
+                                                                        background: 'none',
+                                                                        border: 'none',
+                                                                        cursor: 'pointer',
+                                                                    }}
+                                                                >
+                                                                    &#x2715; { }
+                                                                </button>
+                                                            )}
                                                         </label>
                                                     </div>
                                                 </div>
@@ -127,7 +196,7 @@ const VerRecetas = () => {
                                                         <tr role="row">
                                                             <th
                                                                 aria-controls="zero-config"
-                                                                aria-label="Nombres Paciente: activate to sort column ascending"
+                                                                aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                                 aria-sort="descending"
                                                                 className="sorting_desc"
                                                                 colSpan="1"
@@ -136,12 +205,13 @@ const VerRecetas = () => {
                                                                     width: '527px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                onClick={() => handleSort('PACIENTE_NOMBRE')}
                                                             >
                                                                 Nombres Paciente
                                                             </th>
                                                             <th
                                                                 aria-controls="zero-config"
-                                                                aria-label="Doctor: activate to sort column ascending"
+                                                                aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                                 className="sorting"
                                                                 colSpan="1"
                                                                 rowSpan="1"
@@ -149,12 +219,13 @@ const VerRecetas = () => {
                                                                     width: '266px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                onClick={() => handleSort('DOCTOR')}
                                                             >
                                                                 Doctor
                                                             </th>
                                                             <th
                                                                 aria-controls="zero-config"
-                                                                aria-label="Fecha de creacion: activate to sort column ascending"
+                                                                aria-label={`Fecha_atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                                                 className="sorting"
                                                                 colSpan="1"
                                                                 rowSpan="1"
@@ -162,6 +233,7 @@ const VerRecetas = () => {
                                                                     width: '299px'
                                                                 }}
                                                                 tabIndex="0"
+                                                                onClick={() => handleSort('fecha_creacion')}
                                                             >
                                                                 Fecha de creacion
                                                             </th>
@@ -175,6 +247,7 @@ const VerRecetas = () => {
                                                                     width: '314px'
                                                                 }}
                                                                 tabIndex="0"
+
                                                             >
                                                                 Action
                                                             </th>
@@ -186,11 +259,11 @@ const VerRecetas = () => {
                                                                 <td>{`${receta.PACIENTE_NOMBRE.trim()} ${receta.PACIENTE_APELLIDO.trim()}`}</td>
                                                                 <td>{receta.DOCTOR}</td>
                                                                 <td>{receta.FECHA_ATENCION}</td>
-                                                                <td>
+                                                                <td >
                                                                     <div className="btn-group">
-                                                                        <button
+                                                                        <Link to={`/select-receta/${receta.ID_RECETA}`}
                                                                             className="btnVerReceta btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-                                                                            id_receta="185"
+
                                                                         >
                                                                             <svg
                                                                                 className="h-6 w-6"
@@ -212,8 +285,8 @@ const VerRecetas = () => {
                                                                                     strokeWidth="2"
                                                                                 />
                                                                             </svg>
-                                                                        </button>
-                                                                        <button
+                                                                        </Link>
+                                                                        <Link to={`/editar-receta/${receta.ID_RECETA}`}
                                                                             className="btn btn-warning btnEditarReceta"
                                                                             data-target="#modalEditarSucursal"
                                                                             data-toggle="modal"
@@ -233,8 +306,9 @@ const VerRecetas = () => {
                                                                                     strokeWidth="2"
                                                                                 />
                                                                             </svg>
-                                                                        </button>
+                                                                        </Link>
                                                                         <button
+                                                                            onClick={() => handleEliminarReceta(receta.ID_RECETA)}
                                                                             borrar_receta="185"
                                                                             className="btn btn-danger btnEliminarReceta"
                                                                         >
@@ -258,8 +332,6 @@ const VerRecetas = () => {
 
                                                             </tr>
                                                         ))}
-
-
 
                                                     </tbody>
                                                     <tfoot>
@@ -291,7 +363,6 @@ const VerRecetas = () => {
                                                     </tfoot>
                                                 </table>
                                             )}
-
                                             <PaginationRecetas
                                                 meta={meta}
                                                 currentPage={currentPage}

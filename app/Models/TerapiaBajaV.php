@@ -15,6 +15,9 @@ class TerapiaBajaV extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id';
 
+    public $timestamps = false;
+
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'id_terapia',
@@ -32,4 +35,6 @@ class TerapiaBajaV extends Model
         'completado' => 'boolean',
         'pagado' => 'boolean',
     ];
+
+    
 }

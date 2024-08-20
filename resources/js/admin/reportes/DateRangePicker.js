@@ -13,6 +13,8 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
         startDate ? moment(startDate, 'YYYY-MM-DD') : null,
         endDate ? moment(endDate, 'YYYY-MM-DD') : null,
     ]);
+    console.log('fecha:', startDate)
+    console.log('fechaEnd:', endDate)
 
     useEffect(() => {
         if (startDate === currentDate && endDate === currentDate) {
@@ -24,12 +26,13 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
         setDates([null, null]);
     }, [location.pathname]);
 
+    
     const handleChange = (dates) => {
         if (dates && dates.length === 2) {
             setDates(dates); 
             onChange(dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD'));
         } else {
-            setDates([null, null]); 
+            
             onChange('', '');
         }
     };
@@ -45,6 +48,9 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply }) => {
                 onChange={handleChange}
                 format="YYYY-MM-DD"
                 allowClear={false}
+                style={{ 
+                    width: 328,
+                    height: 40 }}
             />
             <button
                 className="btn btn-success mt-3"

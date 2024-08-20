@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config.js';
 
-// Thunk para actualizar un paciente por ID
 export const fetchEditarPaciente = createAsyncThunk(
     'pacientes/fetchEditarPaciente',
     async ({ id, data }) => {
