@@ -126,6 +126,7 @@ const BajaVision = () => {
         plan_versiones: '',
         fecha_creacion: '',
         editado: '',
+        fecha_proxima_consulta:'',
     };
 
     useEffect(() => {
