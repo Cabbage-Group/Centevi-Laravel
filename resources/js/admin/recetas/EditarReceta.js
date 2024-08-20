@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation,useNavigate  } from 'react-router-dom';
 import { fetchVerUnaReceta } from '../../redux/features/recetas/verUnaRecetaSlice';
 import { editarReceta } from '../../redux/features/recetas/editarRecetasSlice';
-
-
-
-
+import Swal from 'sweetalert2';
 
 const EditarReceta = () => {
 
     const { id_receta } = useParams();
     const { sucursales } = useSelector((state) => state.sucursales);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const location = useLocation();
     const { data, status, error } = useSelector((state) => state.verUnaReceta);
     const editarStatus = useSelector((state) => state.editarReceta.status);
@@ -83,8 +80,6 @@ const EditarReceta = () => {
     });
 
     useEffect(() => {
-
-    
         if (id_receta) {
             dispatch(fetchVerUnaReceta(id_receta));
         }
@@ -102,7 +97,7 @@ const EditarReceta = () => {
                 paciente_nombre: data.PACIENTE_NOMBRE,
                 sucursal: data.SUCURSAL,
                 direccion: data.DIRECCION,
-                tratamientos: data.TRATAMIENTOS ? JSON.parse(data.TRATAMIENTOS) : initialValues.tratamientos,
+                tratamientos: data.TRATAMIENTOS ? JSON.parse(data.TRATAMIENTOS) : initialValues.tratamientos ,
                 rx: data.RX ? JSON.parse(data.RX) : initialValues.rx,
                 material: data.MATERIAL ? JSON.parse(data.MATERIAL) : initialValues.material,
                 aro_propio: data.ARO_PROPIO ? JSON.parse(data.ARO_PROPIO) : initialValues.aro_propio,
@@ -121,30 +116,45 @@ const EditarReceta = () => {
     }, [editarStatus]);
 
 
-     const handleSubmit = (values) => {
-        const updatedData = {
-            id: id_receta,
-            data: {
-                ...values,
-                rx: JSON.stringify(values.rx),
-                tratamientos: JSON.stringify(values.tratamientos),
-                material: JSON.stringify(values.material),
-                aro_propio: JSON.stringify(values.aro_propio),
-                medidas: JSON.stringify(values.medidas)
+    const handleSubmit = (values) => {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡Confirmarás los cambios en la receta!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const updatedData = {
+                    id: id_receta,
+                    data: {
+                        ...values,
+                        rx: JSON.stringify(values.rx),
+                        tratamientos: JSON.stringify(values.tratamientos),
+                        material: JSON.stringify(values.material),
+                        aro_propio: JSON.stringify(values.aro_propio),
+                        medidas: JSON.stringify(values.medidas)
+                    }
+                };
+                dispatch(editarReceta(updatedData));
+    
+                // Opcional: Puedes mostrar una alerta de éxito después de que se complete la actualización
+                Swal.fire(
+                    'Guardado!',
+                    'La receta ha sido actualizada.',
+                    'success'
+                ).then(() => {
+                    navigate(-1);
+                });
             }
-        };
-        dispatch(editarReceta(updatedData));
-        window.location.reload();  
+        });
     };
+    
 
-
-
-    if (status === 'loading') return <div>Loading...</div>;
-    if (status === 'failed') return <div>Error: {error}</div>;
     return (
-
-
-
         <div className="printable" data-select2-id="15">
 
             <div className="row layout-top-spacing">
@@ -171,9 +181,6 @@ const EditarReceta = () => {
 
 
                                                             <Form  >
-
-
-
 
                                                                 <div className="form-row" style={{ marginBottom: "2rem" }}>
 
@@ -206,11 +213,8 @@ const EditarReceta = () => {
                                                                             name="nro_receta"
                                                                             value={values.nro_receta}
                                                                             onChange={handleChange}
-
                                                                         />
                                                                     </div>
-
-
                                                                     <div className="form-group col-md-4" >
                                                                         <label htmlFor="pacientes">Pacientes</label>
                                                                         <input
@@ -218,18 +222,10 @@ const EditarReceta = () => {
                                                                             name="id_paciente"
                                                                             className="form-control"
                                                                             value={values.paciente_nombre}
-
-                                                                          
                                                                             
-
                                                                         >
-
                                                                         </input>
-
-
                                                                     </div>
-
-
                                                                     <div className="form-group col-md-4" >
                                                                         <label htmlFor="inputSucursal">Sucursal</label>
                                                                         <Field
@@ -242,9 +238,8 @@ const EditarReceta = () => {
                                                                                 setFieldValue('sucursal', e.target.value);
                                                                                 setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
                                                                             }}
-
                                                                         >
-                                                                             <option value={''}></option>
+                                                                            <option value={''}></option>
                                                                             {sucursales.map((sucursal) => (
                                                                             <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
                                                                         ))}
@@ -261,7 +256,7 @@ const EditarReceta = () => {
                                                                             name="cedula"
                                                                             value={values.cedula}
                                                                             onChange={handleChange}
-                                                                           
+                                                                        
 
                                                                         />
                                                                     </div>
@@ -1198,13 +1193,11 @@ const EditarReceta = () => {
                                                                     type="hidden"
                                                                 />
 
-                                                                <button type="submit" className="btn btn-primary">
-                                                                    {editarStatus === 'loading' ? 'Guardando...' : 'Guardar Cambios'}
+                                                                <button type="submit" className="btn btn-success mt-3">
+                                                                Editar Receta                                                     
                                                                 </button>
 
-                                                                {status === 'loading' && <p>Enviando...</p>}
-                                                                {status === 'failed' && <p>Error: {error}</p>}
-                                                                {status === 'succeeded' && <p>Neonato creado con éxito</p>}
+                                                            
 
                                                             </Form>
                                                         )}

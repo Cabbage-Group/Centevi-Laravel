@@ -10,16 +10,21 @@ const HistoriaClinica = () => {
     const dispatch = useDispatch();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
-    const { status, error } = useSelector((state) => state.optometriaGeneral);
+    const { status, error } = useSelector((state) => state.consultagenerica);
     const [selectedPaciente, setSelectedPaciente] = useState(null);
     const initialValues = {
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
         m_c: '',
+        fecha_creacion: '',
+        editado: '',
+        fecha_proxima_consulta: '',
+        hubo_contacto:'',
+        se_agendo:'',
     };
 
     useEffect(() => {
@@ -164,6 +169,20 @@ const HistoriaClinica = () => {
                                                                 placeholder=""
                                                                 rows="25"
                                                                 as="textarea"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-row mb-12">
+                                                        <div className="form-group col-md-4">
+                                                            <label htmlFor="inputFehaProxCita">
+                                                                Fecha de proxima cita
+                                                            </label>
+                                                            <input
+                                                                className="form-control"
+                                                                id="inputFehaProxCita"
+                                                                name="fecha_proxima_consulta"
+                                                                required
+                                                                type="date"
                                                             />
                                                         </div>
                                                     </div>

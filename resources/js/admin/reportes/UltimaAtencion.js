@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUltimaAtencion, setOrden, setFechaRange,setOrdenPor, setSearch  } from '../../redux/features/reportes/ultimaAtencionSlice';
+import { fetchUltimaAtencion, setOrden, setFechaRange, setOrdenPor, setSearch } from '../../redux/features/reportes/ultimaAtencionSlice';
 import PaginationUltimaAtencion from './PaginationUltimaAtencion';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
@@ -13,7 +13,7 @@ const UltimaAtencion = () => {
 
     const dispatch = useDispatch();
     const metaPacientes = useSelector((state) => state.pacientes.meta);
-    const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages , search, dataexport} = useSelector((state) => state.ultimaAtencion);
+    const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages, search, dataexport } = useSelector((state) => state.ultimaAtencion);
 
     const [localStartDate, setLocalStartDate] = useState(startDate);
     const [localSearch, setLocalSearch] = useState(search);
@@ -25,8 +25,8 @@ const UltimaAtencion = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        dispatch(fetchUltimaAtencion({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate,search: localSearch  }));
-    }, [dispatch,localSearch, currentPage, startDate, endDate, orden, ordenPor]);
+        dispatch(fetchUltimaAtencion({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
+    }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
     const handleSearchChange = (event) => {
         setLocalSearch(event.target.value); // Actualiza el estado local
@@ -38,7 +38,7 @@ const UltimaAtencion = () => {
 
     const handleDateChange = () => {
         dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-        dispatch(fetchTerapiasDiarias({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
+        dispatch(fetchUltimaAtencion({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
             .catch(err => console.error('Error fetching terapias diarias on date change:', err));
     };
 
@@ -49,7 +49,9 @@ const UltimaAtencion = () => {
         dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
     };
 
-
+    const handleClearSearch = () => {
+        setLocalSearch('');
+    };
 
     return (
         <div className="row layout-top-spacing">
@@ -153,7 +155,7 @@ const UltimaAtencion = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                    <ExportButton 
+                                                    <ExportButton
                                                         dataexport={dataexport}
                                                         transformData={transformDataForUltimaAtencion}
                                                         fileName="ultimaAtencion_diarias.xlsx"
@@ -190,15 +192,31 @@ const UltimaAtencion = () => {
                                                                 y2="16.65"
                                                             />
                                                         </svg>
-                                                                                                    <input
+                                                        <input
                                                             aria-controls="html5-extension"
                                                             className="form-control"
                                                             placeholder="Search..."
                                                             type="search"
                                                             value={localSearch}
-                                                            onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                                            onChange={handleSearchChange}
                                                         />
-                                                        {/* Renderiza los datos de ultimaAtencion */}
+                                                        {localSearch && (
+                                                            <button
+                                                                onClick={handleClearSearch}
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    right: '25px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)',
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                &#x2715; { }
+                                                            </button>
+                                                        )}
+
                                                     </label>
                                                 </div>
                                             </div>

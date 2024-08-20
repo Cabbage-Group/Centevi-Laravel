@@ -1,22 +1,17 @@
-import React, {useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
-import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSlice';
+import { fetchAtendidosPorDia, setOrden, setOrdenPor, setFechaRange } from '../../redux/features/reportes/atendidosPorDiaSilce';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 
-
-
-
 const PacienteAtendidoDia = () => {
 
     const dispatch = useDispatch();
     const metaPacientes = useSelector((state) => state.pacientes.meta);
-    const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor,search, dataexport} = useSelector((state) => state.atendidosPorDia);
-    
-
+    const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.atendidosPorDia);
     const [currentPage, setCurrentPage] = useState(1);
     const [localSearch, setLocalSearch] = useState(search);
     const [localEndDate, setLocalEndDate] = useState(endDate);
@@ -25,13 +20,13 @@ const PacienteAtendidoDia = () => {
     useEffect(() => {
         dispatch(fetchPacientes({}));
     }, [dispatch]);
-   
+
     useEffect(() => {
-        dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20 , orden, ordenPor,startDate, endDate, search: localSearch}));
-    }, [dispatch,localSearch,  currentPage, startDate, endDate,orden, ordenPor]);
+        dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
+    }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
     const handleSearchChange = (event) => {
-        setLocalSearch(event.target.value); 
+        setLocalSearch(event.target.value);
     };
 
     const handlePageChange = (page) => {
@@ -47,12 +42,12 @@ const PacienteAtendidoDia = () => {
         const newOrder = orden === 'asc' ? 'desc' : 'asc';
         dispatch(setOrden(newOrder));
         dispatch(setOrdenPor(newOrdenPor));
-        dispatch(fetchAtendidosPorDia({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor}));
+        dispatch(fetchAtendidosPorDia({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor }));
     };
 
-
-
-
+    const handleClearSearch = () => {
+        setLocalSearch('');
+    };
 
     return (
         <div className="row layout-top-spacing">
@@ -186,11 +181,11 @@ const PacienteAtendidoDia = () => {
                                         <div className="row">
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                                                 <div className="dt-buttons">
-                                                <ExportButton 
-                                                dataexport={dataexport}
-                                                transformData={transformDataForAtendidosPorDia}
-                                                fileName="Atendidos_Por_Dia.xlsx"
-                                                />
+                                                    <ExportButton
+                                                        dataexport={dataexport}
+                                                        transformData={transformDataForAtendidosPorDia}
+                                                        fileName="Atendidos_Por_Dia.xlsx"
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
@@ -231,6 +226,22 @@ const PacienteAtendidoDia = () => {
                                                             value={localSearch}
                                                             onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
                                                         />
+                                                        {localSearch && (
+                                                            <button
+                                                                onClick={handleClearSearch}
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    right: '25px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)',
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                &#x2715; { }
+                                                            </button>
+                                                        )}
                                                     </label>
                                                 </div>
                                             </div>
@@ -240,7 +251,6 @@ const PacienteAtendidoDia = () => {
                                         {status === 'loading' && <p>Loading...</p>}
                                         {status === 'failed' && <p>Error: {error}</p>}
                                         {status === 'succeeded' && (
-                                        
                                             <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
                                                 <thead>
                                                     <tr role="row">
@@ -254,7 +264,7 @@ const PacienteAtendidoDia = () => {
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
                                                             onClick={() => handleSort('PACIENTE_NOMBRE')}
-                                                            
+
                                                         >
                                                             Nombre del Paciente
                                                         </th>
@@ -268,7 +278,7 @@ const PacienteAtendidoDia = () => {
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
                                                             onClick={() => handleSort('PACIENTE_CEDULA')}
-                                                           
+
                                                         >
                                                             Cedula
                                                         </th>
@@ -282,67 +292,67 @@ const PacienteAtendidoDia = () => {
                                                             style={{ width: '153.82px' }}
                                                             tabIndex="0"
                                                             onClick={() => handleSort('SUCURSAL')}
-                                                            
+
                                                         >
                                                             Sucursal
                                                         </th>
                                                         <th
-                                                        aria-controls="zero-config"
-                                                        aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                                        className={`sorting ${orden}`}
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{ width: '153.82px' }}
-                                                        tabIndex="0"
-                                                        onClick={() => handleSort('PACIENTE_CELULAR')}
-                                                          
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('PACIENTE_CELULAR')}
+
                                                         >
                                                             Celular
                                                         </th>
                                                         <th
 
-                                                        aria-controls="zero-config"
-                                                        aria-label={`Tipo: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                                        className={`sorting ${orden}`}
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{ width: '153.82px' }}
-                                                        tabIndex="0"
-                                                        onClick={() => handleSort('TIPO')}
-                                                                                                                    
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Tipo: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('TIPO')}
+
                                                         >
                                                             Tipo de Consulta
                                                         </th>
                                                         <th
-                                                        aria-controls="zero-config"
-                                                        aria-label={`Fecha atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                                        className={`sorting ${orden}`}
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{ width: '153.82px' }}
-                                                        tabIndex="0"
-                                                        onClick={() => handleSort('FECHA_ATENCION')}
-                                                            
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Fecha atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('FECHA_ATENCION')}
+
                                                         >
                                                             Fecha de atención
                                                         </th>
                                                         <th
-                                                        aria-controls="zero-config"
-                                                        aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                                        className={`sorting ${orden}`}
-                                                        colSpan="1"
-                                                        rowSpan="1"
-                                                        style={{ width: '153.82px' }}
-                                                        tabIndex="0"
-                                                        onClick={() => handleSort('DOCTOR')}
-                                                            
+                                                            aria-controls="zero-config"
+                                                            aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                                            className={`sorting ${orden}`}
+                                                            colSpan="1"
+                                                            rowSpan="1"
+                                                            style={{ width: '153.82px' }}
+                                                            tabIndex="0"
+                                                            onClick={() => handleSort('DOCTOR')}
+
                                                         >
                                                             Doctor
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                {atendidosPorDia.map((atendidoPorDia) => (
+                                                    {atendidosPorDia.map((atendidoPorDia) => (
                                                         <tr key={atendidoPorDia.ID_PACIENTE}>
                                                             <td>{atendidoPorDia.PACIENTE_NOMBRE.trim()}</td>
                                                             <td>{atendidoPorDia.PACIENTE_CEDULA}</td>
@@ -356,18 +366,18 @@ const PacienteAtendidoDia = () => {
                                                 </tbody>
                                             </table>
                                         )}
-                                        
+
                                         <PaginationAtendidosPorDia
                                             meta={meta}
                                             currentPage={currentPage}
                                             totalPages={totalPages}
                                             onPageChange={handlePageChange}
-                                        />  
-                                        
+                                        />
 
-                                                                          
+
+
                                     </div>
-                            
+
                                 </div>
                             </div>
                         </div>

@@ -5,8 +5,11 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { crearGeneral } from '../../redux/features/consultas/OptomotriaGeneralSlice.js';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const OptometriaGeneral = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
@@ -15,7 +18,7 @@ const OptometriaGeneral = () => {
     const initialValues = {
         sucursal: '',
         doctor: 'Dr. Diego',
-        id_terapia: '2',
+        id_terapia: '0',
         paciente: '',
         edad: '35',
         fecha_atencion: '',
@@ -43,36 +46,34 @@ const OptometriaGeneral = () => {
         },
         ojo_dominante: '',
         mano_dominante: '',
-        lensometria: [
-            {
-                esfera_od: '',
-                cilindro_od: '',
-                eje_od: '',
-                p_base_od: '',
-                add_od: '',
-                esfera_oi: '',
-                cilindro_oi: '',
-                eje_oi: '',
-                p_base_oi: '',
-                add_oi: ''
-            },
-        ],
-        lensometria_extra: [
-            {
-                len_tipo_lentes: '',
-                len_filtros: '',
-                len_tiempo: '',
-                len_tipo_aro: ''
-            },
-        ],
-        sa_pp: [
-            {
-                sa_od: '',
-                pp_od: '',
-                sa_oi: '',
-                pp_oi: ''
-            },
-        ],
+        lensometria:
+        {
+            esfera_od: '',
+            cilindro_od: '',
+            eje_od: '',
+            p_base_od: '',
+            add_od: '',
+            esfera_oi: '',
+            cilindro_oi: '',
+            eje_oi: '',
+            p_base_oi: '',
+            add_oi: ''
+        },
+        lensometria_extra:
+        {
+            len_tipo_lentes: '',
+            len_filtros: '',
+            len_tiempo: '',
+            len_tipo_aro: ''
+        },
+
+        sa_pp:
+        {
+            sa_od: '',
+            pp_od: '',
+            sa_oi: '',
+            pp_oi: ''
+        },
         visuscopia: {
             hirschberg: "",
             ct_vl: "",
@@ -90,17 +91,19 @@ const OptometriaGeneral = () => {
             eje_od_f: "",
             p_base_od_f: "",
             add_od_f: "",
+            agz_od_f:"",
             esfera_oi_f: "",
             cilindro_oi_f: "",
             eje_oi_f: "",
             p_base_oi_f: "",
             add_oi_f: "",
+            agz_oi_f:""
         },
-        tipo_lentes:{
-            tipo_l:"",
-            pd:"",
-            dnp:"",
-            alt:""
+        tipo_lentes: {
+            tipo_l: "",
+            pd: "",
+            dnp: "",
+            alt: ""
         },
         lentes_contacto: {
             poder_od: "",
@@ -141,6 +144,7 @@ const OptometriaGeneral = () => {
         plan_versiones: '',
         fecha_creacion: '',
         editado: '',
+        fecha_proxima_consulta:'',
     };
 
     useEffect(() => {
@@ -180,18 +184,44 @@ const OptometriaGeneral = () => {
 
     const handlePacienteChange = (e, setFieldValue) => {
         const { value } = e.target;
-        console.log(value);
-        console.log(pacientes);
         setSelectedPaciente(value);
         const paciente = pacientes.find(p => p.id_paciente === value);
-        console.log(paciente);
         if (paciente && paciente.fecha_nacimiento) {
             const edad = calculateAge(paciente.fecha_nacimiento);
-            console.log(paciente.fecha_nacimiento)
-            console.log(edad)
             setFieldValue('edad', edad);
         }
         setFieldValue('paciente', value);
+    };
+
+    const handleSubmit = (values, { setSubmitting }) => {
+        dispatch(crearGeneral(values))
+            .then((response) => {
+                // Asumiendo que la respuesta contiene el ID del paciente
+                const pacienteId = response.payload.paciente || values.paciente;
+
+                Swal.fire({
+                    title: '¡Creación exitosa!',
+                    text: 'El registro ha sido creado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Usa el ID del paciente para la navegación
+                        navigate(`/historia-paciente/${pacienteId}`);
+                    }
+                });
+            })
+            .catch((error) => {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Ocurrió un error al crear el registro.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            })
+            .finally(() => {
+                setSubmitting(false);
+            });
     };
     return (
         <div
@@ -223,11 +253,7 @@ const OptometriaGeneral = () => {
                                             <Formik
                                                 initialValues={initialValues}
                                                 validationSchema={validationSchema}
-                                                onSubmit={(values, { setSubmitting }) => {
-                                                    console.log('Form values:', values);
-                                                    dispatch(crearGeneral(values));
-                                                    setSubmitting(false);
-                                                }}
+                                                onSubmit={handleSubmit}
                                             >
                                                 {({ setFieldValue }) => (
                                                     <Form
@@ -236,8 +262,8 @@ const OptometriaGeneral = () => {
                                                     >
                                                         <div className="form-row mb-4">
                                                             <div className="form-group col-md-12">
-                                                                <label htmlFor="paciente">Pacientes</label>
-                                                                <Field as="select" name="paciente" className="form-control form-small" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
+                                                                <label >Pacientes</label>
+                                                                <Field as="select" name="paciente" className="form-control" onChange={(e) => handlePacienteChange(e, setFieldValue)}>
                                                                     <option value="">Seleccione el paciente</option>
                                                                     {pacientes.map((paciente) => (
                                                                         <option key={paciente.id_paciente} value={paciente.id_paciente}>
@@ -250,7 +276,7 @@ const OptometriaGeneral = () => {
                                                         </div>
                                                         <div className="form-row mb-12">
                                                             <div className="form-group col-md-6">
-                                                                <label htmlFor="inputSucursal">Sucursal</label>
+                                                                <label >Sucursal</label>
                                                                 <Field as="select" name="sucursal" className="form-control" id="sucursal">
                                                                     <option value="">Seleccionar sucursal</option>
                                                                     {sucursales.map((sucursal) => (
@@ -388,14 +414,14 @@ const OptometriaGeneral = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_od_vl"
+                                                                                        name="av_sc.av_sc_od_vl"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_oi_vl"
+                                                                                        name="av_sc.av_sc_oi_vl"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -407,14 +433,14 @@ const OptometriaGeneral = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_od_vp"
+                                                                                        name="av_sc.av_sc_od_vp"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/sc_oi_vp"
+                                                                                        name="av_sc.av_sc_oi_vp"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -447,14 +473,14 @@ const OptometriaGeneral = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_od_vl"
+                                                                                        name="av_cc.av_cc_od_vl"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_oi_vl"
+                                                                                        name="av_cc.av_cc_oi_vl"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -466,14 +492,14 @@ const OptometriaGeneral = () => {
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_od_vp"
+                                                                                        name="av_cc.av_cc_od_vp"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
                                                                                 <td>
                                                                                     <Field
                                                                                         className="form-control"
-                                                                                        name="av/cc_oi_vp"
+                                                                                        name="av_cc.av_cc_oi_vp"
                                                                                         as="input"
                                                                                     />
                                                                                 </td>
@@ -519,35 +545,35 @@ const OptometriaGeneral = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="esfera_od"
+                                                                                    name="lensometria.esfera_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cilindro_od"
+                                                                                    name="lensometria.cilindro_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="eje_od"
+                                                                                    name="lensometria.eje_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="p_base_od"
+                                                                                    name="lensometria.p_base_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="add_od"
+                                                                                    name="lensometria.add_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
@@ -559,35 +585,35 @@ const OptometriaGeneral = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="esfera_oi"
+                                                                                    name="lensometria.esfera_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cilindro_oi"
+                                                                                    name="lensometria.cilindro_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="eje_oi"
+                                                                                    name="lensometria.eje_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="p_base_oi"
+                                                                                    name="lensometria.p_base_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="add_oi"
+                                                                                    name="lensometria.add_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
@@ -603,7 +629,7 @@ const OptometriaGeneral = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_tipo_lentes"
+                                                                    name="lensometria_extra.len_tipo_lentes"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -613,7 +639,7 @@ const OptometriaGeneral = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_filtros"
+                                                                    name="lensometria_extra.len_filtros"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -623,7 +649,7 @@ const OptometriaGeneral = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_tiempo"
+                                                                    name="lensometria_extra.len_tiempo"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -633,7 +659,7 @@ const OptometriaGeneral = () => {
                                                                 </label>
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="len_tipo_aro"
+                                                                    name="lensometria_extra.len_tipo_aro"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -654,14 +680,14 @@ const OptometriaGeneral = () => {
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="sa_od"
+                                                                    name="sa_pp.sa_od"
                                                                     as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="pp_od"
+                                                                    name="sa_pp.pp_od"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -670,14 +696,14 @@ const OptometriaGeneral = () => {
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="sa_oi"
+                                                                    name="sa_pp.sa_oi"
                                                                     as="input"
                                                                 />
                                                             </div>
                                                             <div className="form-group col-md-3">
                                                                 <Field
                                                                     className="form-control"
-                                                                    name="pp_oi"
+                                                                    name="sa_pp.pp_oi"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -690,7 +716,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="hirschberg"
-                                                                    name="hirschberg"
+                                                                    name="visuscopia.hirschberg"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -701,7 +727,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="VL"
-                                                                    name="ct_vl"
+                                                                    name="visuscopia.ct_vl"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -712,7 +738,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="VP"
-                                                                    name="ct_vp"
+                                                                    name="visuscopia.ct_vp"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -739,7 +765,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_or"
-                                                                    name="ppc_or"
+                                                                    name="visuscopia_extra.ppc_or"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -750,7 +776,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_l"
-                                                                    name="ppc_l"
+                                                                    name="visuscopia_extra.ppc_l"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -761,7 +787,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="ppc_posicion"
-                                                                    name="ppc_posicion"
+                                                                    name="visuscopia_extra.ppc_posicion"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -775,7 +801,7 @@ const OptometriaGeneral = () => {
                                                                     className="form-control textarea"
                                                                     as="textarea"
                                                                     maxLength="500"
-                                                                    name="observaciones"
+                                                                    name="visuscopia_extra.observaciones"
                                                                     rows="3"
                                                                 />
                                                             </div>
@@ -803,14 +829,14 @@ const OptometriaGeneral = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="vl_luces"
+                                                                                name="pruebas.vl_luces"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="vp_luces"
+                                                                                name="pruebas.vp_luces"
                                                                                 as="input"
                                                                             />
                                                                         </td>
@@ -831,7 +857,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="randot"
+                                                                    name="pruebas_extra.randot"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -842,7 +868,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lang"
+                                                                    name="pruebas_extra.lang"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -855,7 +881,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="vision_color"
+                                                                    name="pruebas_extra.vision_color"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -898,42 +924,42 @@ const OptometriaGeneral = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="esfera_od_f"
+                                                                                name="refraccion.esfera_od_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="cilindro_od_f"
+                                                                                name="refraccion.cilindro_od_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="eje_od_f"
+                                                                                name="refraccion.eje_od_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="p_base_od_f"
+                                                                                name="refraccion.p_base_od_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="add_od_f"
+                                                                                name="refraccion.add_od_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="agz_od_f"
+                                                                                name="refraccion.agz_od_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
@@ -945,42 +971,42 @@ const OptometriaGeneral = () => {
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="esfera_oi_f"
+                                                                                name="refraccion.esfera_oi_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="cilindro_oi_f"
+                                                                                name="refraccion.cilindro_oi_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="eje_oi_f"
+                                                                                name="refraccion.eje_oi_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="p_base_oi_f"
+                                                                                name="refraccion.p_base_oi_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="add_oi_f"
+                                                                                name="refraccion.add_oi_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
                                                                         <td>
                                                                             <Field
                                                                                 className="form-control"
-                                                                                name="agz_oi_f"
+                                                                                name="refraccion.agz_oi_f"
                                                                                 as="input"
                                                                             />
                                                                         </td>
@@ -996,7 +1022,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="tipo_l"
-                                                                    name="tipo_l"
+                                                                    name="tipo_lentes.tipo_l"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -1007,7 +1033,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="pd"
-                                                                    name="pd"
+                                                                    name="tipo_lentes.pd"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -1018,7 +1044,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="dnp"
-                                                                    name="dnp"
+                                                                    name="tipo_lentes.dnp"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -1029,7 +1055,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="alt"
-                                                                    name="alt"
+                                                                    name="tipo_lentes.alt"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -1061,14 +1087,14 @@ const OptometriaGeneral = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="poder_od"
+                                                                                    name="lentes_contacto.poder_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="poder_oi"
+                                                                                    name="lentes_contacto.poder_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
@@ -1080,14 +1106,14 @@ const OptometriaGeneral = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cb_od"
+                                                                                    name="lentes_contacto.cb_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="cb_oi"
+                                                                                    name="lentes_contacto.cb_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
@@ -1099,14 +1125,14 @@ const OptometriaGeneral = () => {
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="dia_od"
+                                                                                    name="lentes_contacto.dia_od"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
                                                                             <td>
                                                                                 <Field
                                                                                     className="form-control"
-                                                                                    name="dia_oi"
+                                                                                    name="lentes_contacto.dia_oi"
                                                                                     as="input"
                                                                                 />
                                                                             </td>
@@ -1123,7 +1149,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_marca"
+                                                                    name="lentes_contacto.lente_marca"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -1134,7 +1160,7 @@ const OptometriaGeneral = () => {
                                                                 <Field
                                                                     className="form-control"
                                                                     id="inputAddress"
-                                                                    name="lente_tipo"
+                                                                    name="lentes_contacto.lente_tipo"
                                                                     as="input"
                                                                 />
                                                             </div>
@@ -1153,15 +1179,26 @@ const OptometriaGeneral = () => {
                                                                 />
                                                             </div>
                                                         </div>
+                                                        <div className="form-row mb-12">
+                                                            <div className="form-group col-md-4">
+                                                                <label htmlFor="inputFehaProxCita">
+                                                                    Fecha de proxima cita
+                                                                </label>
+                                                                <input
+                                                                    className="form-control"
+                                                                    id="inputFehaProxCita"
+                                                                    name="fecha_proxima_consulta"
+                                                                    required
+                                                                    type="date"
+                                                                />
+                                                            </div>
+                                                        </div>
                                                         <button
                                                             className="btn btn-success mt-3"
                                                             type="submit"
                                                         >
                                                             Guardar Consulta
                                                         </button>
-                                                        {status === 'loading' && <p>Enviando...</p>}
-                                                        {status === 'failed' && <p>Error: {error}</p>}
-                                                        {status === 'succeeded' && <p>Creado con éxito</p>}
                                                     </Form>
                                                 )}
                                             </Formik>

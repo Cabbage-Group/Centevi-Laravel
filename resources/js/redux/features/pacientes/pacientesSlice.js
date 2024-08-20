@@ -5,10 +5,18 @@ import API from '../../../config/config.js';
 
 export const fetchPacientes = createAsyncThunk(
     'pacientes/fetchPacientes',
-    async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres' }) => {
+    async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres', search = '' }) => {
         const response = await axios.get(`${API}/pacientes`, {
-            params: { page, limit, sortOrder, sortColumn }
+            params: { page, limit, sortOrder, sortColumn, search }
         });
+        return response.data;
+    }
+);
+
+export const eliminarPaciente = createAsyncThunk(
+    'pacientes/eliminarPaciente',
+    async (id_paciente) => {
+        const response = await axios.delete(`${API}/pacientes/${id_paciente}`);
         return response.data;
     }
 );
@@ -21,6 +29,7 @@ const pacientesSlice = createSlice({
         meta: {},
         status: 'idle',
         error: null,
+        search: ''
     },
     reducers: {},
     extraReducers: (builder) => {
@@ -34,6 +43,18 @@ const pacientesSlice = createSlice({
                 state.meta = action.payload.meta;
             })
             .addCase(fetchPacientes.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(eliminarPaciente.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(eliminarPaciente.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                // Elimina el paciente del estado local
+                state.pacientes = state.pacientes.filter(paciente => paciente.id !== action.meta.arg);
+            })
+            .addCase(eliminarPaciente.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

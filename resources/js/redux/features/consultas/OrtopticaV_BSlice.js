@@ -21,6 +21,8 @@ export const crearOrtoptica = createAsyncThunk(
             data['vergencia'] = JSON.stringify(data.vergencia);
             data['acomodacion_extra'] = JSON.stringify(data.acomodacion_extra);
             data['acomodacion'] = JSON.stringify(data.acomodacion);
+            data['editado'] = JSON.stringify(data.editado);
+
 
             const response = await axios.post(`${API}/ortoptica`, data);
             return response.data;

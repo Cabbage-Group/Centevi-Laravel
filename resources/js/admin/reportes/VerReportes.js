@@ -1,13 +1,11 @@
 import React, {useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PaginationAtendidosPorDia from './PaginationAtendidosPorDia';
-import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSlice';
+import { fetchAtendidosPorDia, setOrden, setOrdenPor,setFechaRange} from '../../redux/features/reportes/atendidosPorDiaSilce';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
-
-
 
 
 const ReportePaciente = () => {
@@ -50,9 +48,9 @@ const ReportePaciente = () => {
         dispatch(fetchAtendidosPorDia({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor}));
     };
 
-
-
-
+    const handleClearSearch = () => {
+        setLocalSearch('');
+    };
 
     return (
         <div className="row layout-top-spacing">
@@ -229,8 +227,24 @@ const ReportePaciente = () => {
                                                             placeholder="Search..."
                                                             type="search"
                                                             value={localSearch}
-                                                            onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                                            onChange={handleSearchChange} 
                                                         />
+                                                        {localSearch && (
+                                                            <button
+                                                                onClick={handleClearSearch}
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    right: '25px',
+                                                                    top: '50%',
+                                                                    transform: 'translateY(-50%)',
+                                                                    background: 'none',
+                                                                    border: 'none',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            >
+                                                                &#x2715; { }
+                                                            </button>
+                                                        )}
                                                     </label>
                                                 </div>
                                             </div>

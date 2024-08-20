@@ -55,7 +55,7 @@ const atendidosPorDiaSlice = createSlice({
         setOrdenPor(state, action) {
             state.ordenPor = action.payload;
         },
-        setSearch(state, action) { // Agrega el reducer para la búsqueda
+        setSearch(state, action) { 
             state.search = action.payload;
         },
     },
@@ -69,7 +69,7 @@ const atendidosPorDiaSlice = createSlice({
                 state.atendidosPorDia = action.payload.data;
                 state.meta = action.payload.meta;
                 state.dataexport = action.payload.export.dataexport;
-               
+            
             })
             .addCase(fetchAtendidosPorDia.rejected, (state, action) => {
                 state.status = 'failed';
