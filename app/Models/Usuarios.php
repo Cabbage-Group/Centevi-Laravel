@@ -33,6 +33,7 @@ class Usuarios extends Model
         'estado',
         'ultimo_login',
         'editado',
+        'token'
     ];
 
     /**

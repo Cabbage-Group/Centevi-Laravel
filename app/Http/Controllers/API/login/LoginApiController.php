@@ -11,83 +11,108 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginApiController extends Controller
 {
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'usuario' => 'required|string|max:255|unique:usuarios',
-            'nombre' => 'required|string|max:255',
-            'password' => 'required|string|min:6|confirmed',
-            'perfil' => 'required|string|max:255',
-            'sucursal' => 'required|integer',
-            'foto' => 'nullable|string|max:255',
-            'estado' => 'required|integer',
-        ]);
+  public function register(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'usuario' => 'required|string|max:255|unique:usuarios',
+      'nombre' => 'required|string|max:255',
+      'password' => 'required|string|min:6|confirmed',
+      'perfil' => 'required|string|max:255',
+      'sucursal' => 'required|integer',
+      'foto' => 'nullable|string|max:255',
+      'estado' => 'required|integer',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Validation errors',
-                'data' => [],
-                'mensaje_dev' => $validator->errors()
-            ], 400);
-        }
-
-        $usuario = Usuarios::create([
-            'usuario' => $request->usuario,
-            'nombre' => $request->nombre,
-            'password' => Hash::make($request->password),
-            'perfil' => $request->perfil,
-            'sucursal' => $request->sucursal,
-            'foto' => $request->foto,
-            'estado' => $request->estado,
-        ]);
-
-        return response()->json([
-            'respuesta' => true,
-            'mensaje' => 'Usuario registrado correctamente',
-            'data' => [$usuario],
-            'mensaje_dev' => null
-        ], 201);
+    if ($validator->fails()) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Validation errors',
+        'data' => [],
+        'mensaje_dev' => $validator->errors()
+      ], 400);
     }
 
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'usuario' => 'required|string',
-            'password' => 'required|string',
-        ]);
+    $usuario = Usuarios::create([
+      'usuario' => $request->usuario,
+      'nombre' => $request->nombre,
+      'password' => Hash::make($request->password),
+      'perfil' => $request->perfil,
+      'sucursal' => $request->sucursal,
+      'foto' => $request->foto,
+      'estado' => $request->estado,
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Validation errors',
-                'data' => [],
-                'mensaje_dev' => $validator->errors()
-            ], 400);
-        }
+    return response()->json([
+      'respuesta' => true,
+      'mensaje' => 'Usuario registrado correctamente',
+      'data' => [$usuario],
+      'mensaje_dev' => null
+    ], 201);
+  }
 
-        $usuario = Usuarios::where('usuario', $request->usuario)->first();
+  public function login(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'usuario' => 'required|string',
+      'password' => 'required|string',
+    ]);
 
-        if (!$usuario || !Hash::check($request->password, $usuario->password)) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Invalid credentials',
-                'data' => [],
-                'mensaje_dev' => 'Usuario o contraseña incorrectos'
-            ], 401);
-        }
-
-        // Generar token con Laravel Sanctum
-        $token = $usuario->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'respuesta' => true,
-            'mensaje' => 'Login successful',
-            'data' => [
-                'token' => $token,
-                'usuario' => $usuario
-            ],
-            'mensaje_dev' => null
-        ], 200);
+    if ($validator->fails()) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Validation errors',
+        'data' => [],
+        'mensaje_dev' => $validator->errors()
+      ], 400);
     }
+
+    $usuario = Usuarios::where('usuario', $request->usuario)->first();
+
+    if (!$usuario || !Hash::check($request->password, $usuario->password)) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Invalid credentials',
+        'data' => [],
+        'mensaje_dev' => 'Usuario o contraseña incorrectos'
+      ], 401);
+    }
+
+    // // Generar token con Laravel Sanctum
+    // $token = $usuario->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+      'respuesta' => true,
+      'mensaje' => 'Login successful',
+      'data' => [
+        'token' => $usuario->token,
+        'usuario' => $usuario
+      ],
+      'mensaje_dev' => null
+    ], 200);
+  }
+  private function generarCodigoAleatorio($longitud = 60) {
+    $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $codigoAleatorio = '';
+    $max = strlen($caracteres) - 1;
+
+    for ($i = 0; $i < $longitud; $i++) {
+        $codigoAleatorio .= $caracteres[random_int(0, $max)];
+    }
+
+    return $codigoAleatorio;
+  }
+  public function asignarTokens()
+  {
+    $usuarios = usuarios::all();
+
+    foreach($usuarios as $usuario){
+      $usuarioe = usuarios::find($usuario->id_usuario);
+      $usuarioe->token = $this->generarCodigoAleatorio();
+      $usuarioe->update();
+    }
+
+    return "Tokens generados";
+  }
+
+  
 }

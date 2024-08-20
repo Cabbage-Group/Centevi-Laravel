@@ -25,6 +25,7 @@ Route::get('/api/sucursales', [SucursalesApiController::class, 'sucursales']);
 
 Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
+Route::get('/api/asignar-tokens', [LoginApiController::class, 'asignarTokens']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 
