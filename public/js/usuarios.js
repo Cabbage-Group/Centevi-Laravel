@@ -1,6 +1,6 @@
-/*=============================================
-SUBIENDO LA FOTO DEL USUARIO
-=============================================*/
+// /*=============================================
+// SUBIENDO LA FOTO DEL USUARIO
+// =============================================*/
 // $(".nuevaFoto").change(function () {
 
 // 	var imagen = this.files[0];
@@ -47,9 +47,9 @@ SUBIENDO LA FOTO DEL USUARIO
 // 	}
 // })
 
-/*=============================================
-EDITAR USUARIO
-=============================================*/
+// /*=============================================
+// EDITAR USUARIO
+// =============================================*/
 // $(".tablas").on("click", ".btnEditarUsuario", function () {
 
 // 	var idUsuario = $(this).attr("idUsuario");
@@ -94,9 +94,9 @@ EDITAR USUARIO
 
 // })
 
-/*=============================================
-ACTIVAR USUARIO
-=============================================*/
+// /*=============================================
+// ACTIVAR USUARIO
+// =============================================*/
 // $(".tablas").on("click", ".btnActivar", function () {
 
 // 	var idUsuario = $(this).attr("idUsuario");
@@ -156,9 +156,9 @@ ACTIVAR USUARIO
 
 // })
 
-/*=============================================
-REVISAR SI EL USUARIO YA ESTÁ REGISTRADO
-=============================================*/
+// /*=============================================
+// REVISAR SI EL USUARIO YA ESTÁ REGISTRADO
+// =============================================*/
 
 // $("#nuevoUsuario").change(function () {
 
@@ -192,9 +192,9 @@ REVISAR SI EL USUARIO YA ESTÁ REGISTRADO
 // 	})
 // })
 
-/*=============================================
-ELIMINAR USUARIO
-=============================================*/
+// /*=============================================
+// ELIMINAR USUARIO
+// =============================================*/
 // $(".tablas").on("click", ".btnEliminarUsuario", function () {
 
 // 	var idUsuario = $(this).attr("idUsuario");

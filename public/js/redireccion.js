@@ -1,8 +1,8 @@
 
 
-/*=============================================
-BOTON IR A HISTORIA
-=============================================*/
+// /*=============================================
+// BOTON IR A HISTORIA
+// =============================================*/
 
 // $(".tabla_pacientes").on("click", ".btnVerHistoria", function () {
 
@@ -15,9 +15,9 @@ BOTON IR A HISTORIA
 // });
 
 
-/*=============================================
-BOTON EDITAR PACIENTE
-=============================================*/
+// /*=============================================
+// BOTON EDITAR PACIENTE
+// =============================================*/
 
 // $(".tabla_pacientes").on("click", ".btnEditarPaciente", function () {
 
@@ -30,9 +30,9 @@ BOTON EDITAR PACIENTE
 // });
 
 
-/*=============================================
-ELIMINAR PACIENTE
-=============================================*/
+// /*=============================================
+// ELIMINAR PACIENTE
+// =============================================*/
 // $(".tabla_pacientes").on("click", ".btnEliminarPaciente", function () {
 
 // 	var borrar_paciente = $(this).attr("borrar_paciente");
@@ -59,9 +59,9 @@ ELIMINAR PACIENTE
 
 
 
-/*=============================================
-ELIMINAR PACIENTE
-=============================================*/
+// /*=============================================
+// ELIMINAR PACIENTE
+// =============================================*/
 // $(".eliminarDocumentoPaciente").on("click", function () {
 
 // 	var borrar_documento = $(this).attr("borrar_documento");
@@ -91,9 +91,9 @@ ELIMINAR PACIENTE
 
 
 
-/*=============================================
-BOTON EDITAR PACIENTE MENORES
-=============================================*/
+// /*=============================================
+// BOTON EDITAR PACIENTE MENORES
+// =============================================*/
 
 // $(".tabla_pacientesMenores").on("click", ".btnEditarPaciente", function () {
 
@@ -106,9 +106,9 @@ BOTON EDITAR PACIENTE MENORES
 // });
 
 
-/*=============================================
-ELIMINAR PACIENTE MENOR
-=============================================*/
+// /*=============================================
+// ELIMINAR PACIENTE MENOR
+// =============================================*/
 // $(".tabla_pacientesMenores").on("click", ".btnEliminarPacienteM", function () {
 
 // 	var borrar_paciente = $(this).attr("borrar_paciente");
