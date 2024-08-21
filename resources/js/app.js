@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import store from './redux/store';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './components/auth/Login.js';
-import Sidebar from './components/partials/sidebar.js';
+import Sidebar from './components/partials/Sidebar.js';
 import Sucursales from './admin/sucursales/Sucursales.js';
 import BajaVision from './admin/consulta/BajaVision.js';
 import OptometriaGeneral from './admin/consulta/OptometriaGeneral.js';
