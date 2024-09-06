@@ -377,9 +377,9 @@ body.swal2-iosfix {
     text-align: center;
     box-shadow: 0px 3px 25px 0px rgba(113, 106, 202, 0.2); }
   .swal2-icon:not(.swal2-animate-error-icon):not(.swal2-animate-success-icon) {
-    width: 2em !important;
+    width: 5em !important;
     line-height: 119px !important;
-    height: 2em !important;
+    height: 5em !important;
     margin: 0.25em auto 0.875em !important; }
 
 .swal2-popup .swal2-styled:focus {

@@ -14,7 +14,7 @@ const BajaVision = () => {
     const [selectedPaciente, setSelectedPaciente] = useState(null);
     const initialValues = {
         sucursal: '',
-        doctor: 'Dr. Diego',
+        doctor: localStorage.getItem('nombre'),
         id_terapia: '0',
         paciente: '',
         edad: '35',

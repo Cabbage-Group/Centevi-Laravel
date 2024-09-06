@@ -26,6 +26,7 @@ const pacientesSlice = createSlice({
     initialState: {
         data: [],
         pacientes: [],
+        pacientes_options_selecteds: [],
         meta: {},
         status: 'idle',
         error: null,
@@ -41,6 +42,16 @@ const pacientesSlice = createSlice({
                 state.status = 'succeeded';
                 state.pacientes = action.payload.data;
                 state.meta = action.payload.meta;
+
+                state.pacientes_options_selecteds = action.payload.data.map(({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
+                    id_paciente && nombres && apellidos && nro_cedula ?
+                        {
+                            value: id_paciente,
+                            label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
+                            ...rest
+                        } :
+                        { ...rest }
+                );
             })
             .addCase(fetchPacientes.rejected, (state, action) => {
                 state.status = 'failed';

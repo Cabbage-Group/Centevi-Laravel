@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
-
-
 class PacientesApiController extends Controller
 {
   public function pacientes(Request $request)
@@ -38,24 +36,27 @@ class PacientesApiController extends Controller
     // Aplicar el filtro de búsqueda si existe
     if (!empty($search)) {
       $query->where(function ($q) use ($search) {
-        $q->where('sucursal', 'like', "%{$search}%")
+        $q
+        // ->where('sucursal', 'like', "%{$search}%")
           // ->orWhere('doctor', 'like', "%{$search}%")
-          ->orWhere('nombres', 'like', "%{$search}%")
-          ->orWhere('apellidos', 'like', "%{$search}%")
+          ->orwhereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$search}%"])
+          // ->orWhere('nombres', 'like', "%{$search}%")
+          // ->orWhere('apellidos', 'like', "%{$search}%")
           ->orWhere('nro_cedula', 'like', "%{$search}%")
-          ->orWhere('email', 'like', "%{$search}%")
-          ->orWhere('nro_seguro', 'like', "%{$search}%")
-          ->orWhere('fecha_nacimiento', 'like', "%{$search}%")
-          ->orWhere('genero', 'like', "%{$search}%")
-          ->orWhere('lugar_nacimiento', 'like', "%{$search}%")
+          // ->orWhere('email', 'like', "%{$search}%")
+          // ->orWhere('nro_seguro', 'like', "%{$search}%")
+          // ->orWhere('fecha_nacimiento', 'like', "%{$search}%")
+          // ->orWhere('genero', 'like', "%{$search}%")
+          // ->orWhere('lugar_nacimiento', 'like', "%{$search}%")
           ->orWhere('direccion', 'like', "%{$search}%")
-          ->orWhere('ocupacion', 'like', "%{$search}%")
-          ->orWhere('telefono', 'like', "%{$search}%")
-          ->orWhere('celular', 'like', "%{$search}%")
+          // ->orWhere('ocupacion', 'like', "%{$search}%")
+          // ->orWhere('telefono', 'like', "%{$search}%")
+          // ->orWhere('celular', 'like', "%{$search}%")
           // ->orWhere('medico', 'like', "%{$search}%")
           // ->orWhere('urgencia', 'like', "%{$search}%")
           // ->orWhere('menor', 'like', "%{$search}%")
-          ->orWhere('fecha_creacion', 'like', "%{$search}%");
+          // ->orWhere('fecha_creacion', 'like', "%{$search}%")
+          ;
       });
     }
 
@@ -74,6 +75,7 @@ class PacientesApiController extends Controller
         'code' => 200,
         'message' => 'Pacientes retrieved successfully',
       ],
+      'otros' => "asd"
     ]);
   }
 
@@ -173,8 +175,6 @@ class PacientesApiController extends Controller
       'mensaje_dev' => null
     ], 201);
   }
-
-
 
   public function verificarCedula(Request $request)
   {
@@ -279,8 +279,6 @@ class PacientesApiController extends Controller
     ], 200);
   }
 
-
-
   public function eliminarpaciente($id)
   {
 
@@ -306,7 +304,6 @@ class PacientesApiController extends Controller
     ], 200);
   }
 
-
   public function obtenerHistoriaClinica($paciente_id)
   {
 
@@ -331,8 +328,6 @@ class PacientesApiController extends Controller
       'mensaje_dev' => null
     ], 200);
   }
-
-
 
   public function mostrarUltimaAtencionPacientes(Request $request)
   {
@@ -759,9 +754,6 @@ class PacientesApiController extends Controller
 
     ]);
   }
-
-
-
 
   public function PacientesTerapiasDiarias(Request $request)
   {
@@ -1875,7 +1867,6 @@ class PacientesApiController extends Controller
       return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
     }
   }
-
 
   public function actualizarAgendo(Request $request)
   {

@@ -9,7 +9,7 @@ const CrearPaciente = () => {
 
   const initialValues = {
     sucursal: "",
-    doctor: "",
+    doctor: localStorage.getItem('nombre'),
     nombres: "",
     apellidos: "",
     nro_cedula: "",

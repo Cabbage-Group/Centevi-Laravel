@@ -893,7 +893,9 @@ const HistoriaPaciente = () => {
                                         <td className="text-center">{index + 1}</td>
                                         <td>Consulta Ortoptica Adultos</td>
                                         <td>{OA.doctor}</td>
-                                        <td>{OA.fecha_creacion}</td>
+                                        <td>
+                                          {moment(OA.fecha_creacion).format('DD-MM-YYYY HH:mm')}
+                                        </td>
                                         <td>
                                           <Link to={`/ver-ortoptica/${OA.paciente}/${OA.id_consulta}`}>
                                             <button
@@ -1020,7 +1022,7 @@ const HistoriaPaciente = () => {
                                         <td className="text-center">{index + 1}</td>
                                         <td>Consulta Optometría Baja Vision</td>
                                         <td>{BV.doctor}</td>
-                                        <td>{BV.fecha_creacion}</td>
+                                        <td>{moment(BV.fecha_creacion).format('DD-MM-YYYY HH:mm')}</td>
                                         <td>
                                           <Link to={`/ver-bajaVision/${id}/${BV.id_consulta}`}>
                                             <button
@@ -1149,7 +1151,9 @@ const HistoriaPaciente = () => {
                                         <td className="text-center">{index + 1}</td>
                                         <td>Consulta Optometría General</td>
                                         <td>{RG.doctor}</td>
-                                        <td>{RG.fecha_creacion}</td>
+                                        <td>
+                                          {moment(RG.fecha_creacion).format('DD-MM-YYYY HH:mm')}
+                                        </td>
                                         <td>
                                           <Link to={`/ver-refraccion/${id}/${RG.id_consulta}`}>
                                             <button
@@ -1277,7 +1281,9 @@ const HistoriaPaciente = () => {
                                         <td className="text-center">{index + 1}</td>
                                         <td>Consulta Optometría Neonatos</td>
                                         <td>{ON.doctor}</td>
-                                        <td>{ON.fecha_creacion}</td>
+                                        <td>
+                                          {moment(ON.fecha_creacion).format('DD-MM-YYYY HH:mm')}
+                                        </td>
                                         <td>
                                           <Link to={`/ver-neonatos/${id}/${ON.id_consulta}`}>
                                             <button
@@ -1404,7 +1410,9 @@ const HistoriaPaciente = () => {
                                         <td className="text-center">{index + 1}</td>
                                         <td>Consulta Optometría Pediatrica</td>
                                         <td>{OP.doctor}</td>
-                                        <td>{OP.fecha_creacion}</td>
+                                        <td>
+                                          {moment(OP.fecha_creacion).format('DD-MM-YYYY HH:mm')}
+                                        </td>
                                         <td>
                                           <Link to={`/ver-pediatrica/${id}/${OP.id_consulta}`}>
                                             <button
@@ -1531,7 +1539,9 @@ const HistoriaPaciente = () => {
                                         <td className="text-center">{index + 1}</td>
                                         <td>Consulta Consulta Generica</td>
                                         <td>{CG.doctor}</td>
-                                        <td>{CG.fecha_creacion}</td>
+                                        <td>
+                                          {moment(CG.fecha_creacion).format('DD-MM-YYYY HH:mm')}
+                                        </td>
                                         <td>
                                           <Link to={`/ver-consultagenericas/${id}/${CG.id_consulta}`}>
                                             <button

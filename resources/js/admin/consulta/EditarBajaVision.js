@@ -17,7 +17,7 @@ const EditarBajaVision = () => {
 
     const [formData, setFormData] = useState({
         sucursal: '',
-        doctor: 'Dr. Diego',
+        doctor: localStorage.getItem('nombre'),
         paciente: '',
         edad: '',
         fecha_atencion: '',

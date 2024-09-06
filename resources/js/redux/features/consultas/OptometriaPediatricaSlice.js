@@ -17,7 +17,8 @@ export const crearPediatrica = createAsyncThunk(
             data['refraccion'] = JSON.stringify(data.refraccion);
             data['lentes_contacto'] = JSON.stringify(data.lentes_contacto);
             data['pruebas'] = JSON.stringify(data.pruebas);
-            data['pruebas_extra'] = JSON.stringify(data.pruebas_extra);
+            data['pruebas_extra'] = JSON.stringify(data.pruebas_extras);
+            data['pruebas_extras'] = JSON.stringify(data.pruebas_extras);
 
             const response = await axios.post(`${API}/pediatrica`, data);
             return response.data;
