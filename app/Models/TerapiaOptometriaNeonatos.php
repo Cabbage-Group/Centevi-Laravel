@@ -30,6 +30,7 @@ class TerapiaOptometriaNeonatos extends Model
 
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
+        'sucursal' => 'integer',
         'fecha_creacion' => 'datetime',
         'completado' => 'boolean',
         'pagado' => 'boolean',

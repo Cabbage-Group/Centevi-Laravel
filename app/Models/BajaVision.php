@@ -56,6 +56,8 @@ class BajaVision extends Model
 
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
+        'sucursal' => 'integer',
+        'paciente' => 'integer',
         'fecha_atencion' => 'date',
         'fecha_creacion' => 'datetime',
         'fecha_proxima_consulta' => 'datetime',

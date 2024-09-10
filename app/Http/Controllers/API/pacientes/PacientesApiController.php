@@ -30,16 +30,29 @@ class PacientesApiController extends Controller
       'search' => 'string|nullable|max:255', // Validación para el parámetro de búsqueda
     ]);
 
+    // Dividimos la cadena de búsqueda por espacios
+    $searchTerms = explode(' ', $search);
+
     // Construir la consulta base
-    $query = Pacientes::orderBy($sortColumn, $sortOrder);
+    // $query = Pacientes::orderBy($sortColumn, $sortOrder);
+    $query = Pacientes::orderBy($sortColumn, 'DESC');
 
     // Aplicar el filtro de búsqueda si existe
     if (!empty($search)) {
-      $query->where(function ($q) use ($search) {
+      $query->where(function ($q) use ($search, $searchTerms) {
         $q
-        // ->where('sucursal', 'like', "%{$search}%")
+          // ->where('sucursal', 'like', "%{$search}%")
           // ->orWhere('doctor', 'like', "%{$search}%")
-          ->orwhereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$search}%"])
+          // ->orwhereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$search}%"])
+          // ->orwhere(DB::raw("CONCAT(nombres, ' ', apellidos)"), 'LIKE', "%{$search}%")
+          ->orwhere(function ($query) use ($searchTerms) {
+            foreach ($searchTerms as $term) {
+              // Buscamos en ambas columnas first_name y last_name
+              $query->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$term}%"]);
+              // $query->whereRaw("CONCAT(nombres) LIKE ?", ["{$term}%"]);
+              // $query->whereRaw("CONCAT(apellidos) LIKE ?", ["%{$term}%"]);
+            }
+          })
           // ->orWhere('nombres', 'like', "%{$search}%")
           // ->orWhere('apellidos', 'like', "%{$search}%")
           ->orWhere('nro_cedula', 'like', "%{$search}%")
@@ -56,7 +69,7 @@ class PacientesApiController extends Controller
           // ->orWhere('urgencia', 'like', "%{$search}%")
           // ->orWhere('menor', 'like', "%{$search}%")
           // ->orWhere('fecha_creacion', 'like', "%{$search}%")
-          ;
+        ;
       });
     }
 
@@ -74,8 +87,7 @@ class PacientesApiController extends Controller
       'status' => [
         'code' => 200,
         'message' => 'Pacientes retrieved successfully',
-      ],
-      'otros' => "asd"
+      ]
     ]);
   }
 

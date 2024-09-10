@@ -39,6 +39,8 @@ class Receta extends Model
 
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
+        'sucursal' => 'integer',
+        'id_paciente' => 'integer',
         'fecha_creacion' => 'datetime',
     ];
 
