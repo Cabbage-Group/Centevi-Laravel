@@ -291,6 +291,7 @@ const VerRefraccionGeneral = () => {
                             />
                           </div>
                         </div>
+
                         <div className="form-row mb-4">
                           <div className="form-group col-md-6">
                             <div className="table-responsive">
@@ -615,14 +616,19 @@ const VerRefraccionGeneral = () => {
                               type="text"
                             />
                           </div>
-                          <div className="form-group col-md-3">
+                          <div
+                            className="form-group col-md-3"
+                            onClick={() => {
+                              console.log(lensometria_extra);
+                            }}
+                          >
                             <label htmlFor="objetivos">
                               Tipo de Aro
                             </label>
                             <input
                               className="form-control"
-                              value={lensometria_extra.len_tipo_arco}
-                              name="len_tipo_arco"
+                              value={lensometria_extra.len_tipo_aro}
+                              name="len_tipo_aro"
                               readOnly
                               type="text"
                             />
@@ -799,7 +805,7 @@ const VerRefraccionGeneral = () => {
                             className="form-control textarea"
                             id="textarea"
                             maxLength="500"
-                            value={RefraccionGeneral.observaciones}
+                            value={visuscopia_extra.observaciones}
                             name="observaciones"
                             placeholder="Esta área tiene un limite de 500 caracteres."
                             readOnly
@@ -903,7 +909,13 @@ const VerRefraccionGeneral = () => {
                         </div>
                       </div>
                       <div className="form-group">
-                        <h5>
+                        <h5
+                          onClick={() => {
+                            console.log(av_cc);
+                            console.log(refraccion);
+                            
+                          }}
+                        >
                           RECETA FINAL
                         </h5>
                         <div className="table-responsive">
@@ -927,6 +939,9 @@ const VerRefraccionGeneral = () => {
                                 </th>
                                 <th>
                                   ADD
+                                </th>
+                                <th>
+                                  AGUDEZA VISUAL
                                 </th>
                               </tr>
                             </thead>
@@ -980,6 +995,15 @@ const VerRefraccionGeneral = () => {
                                     type="text"
                                   />
                                 </td>
+                                <td>
+                                  <input
+                                    className="form-control"
+                                    value={refraccion.agz_od_f}
+                                    name="add_od_f"
+                                    readOnly
+                                    type="text"
+                                  />
+                                </td>
                               </tr>
                               <tr>
                                 <td className="text-center">
@@ -1025,6 +1049,15 @@ const VerRefraccionGeneral = () => {
                                   <input
                                     className="form-control"
                                     value={refraccion.add_oi_f}
+                                    name="add_oi_f"
+                                    readOnly
+                                    type="text"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    className="form-control"
+                                    value={refraccion.agz_oi_f}
                                     name="add_oi_f"
                                     readOnly
                                     type="text"

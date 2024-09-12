@@ -15,7 +15,7 @@ const ListaPaciente = () => {
 
   useEffect(() => {
     dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
-  }, [dispatch, currentPage, localSearch]);
+  }, [currentPage, localSearch]);
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
@@ -135,93 +135,97 @@ const ListaPaciente = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {pacientes.map((paciente) => (
-                              <tr key={paciente.id_paciente}>
-                                <td>{`${paciente.nombres} ${paciente.apellidos}`}</td>
-                                <td>{paciente.nro_cedula}</td>
-                                <td>{`${paciente.direccion}, ${paciente.lugar_nacimiento}`}</td>
-                                <td>
-                                  {
-                                    moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
-                                  }
-                                </td>
-                                <td>
-                                  <div className="btn-group">
+                            {
+                              pacientes.length <= 10
+                                ? pacientes.map((paciente) => (
+                                  <tr key={paciente.id_paciente}>
+                                    <td>{`${paciente.nombres} ${paciente.apellidos}`}</td>
+                                    <td>{paciente.nro_cedula}</td>
+                                    <td>{`${paciente.direccion}, ${paciente.lugar_nacimiento}`}</td>
+                                    <td>
+                                      {
+                                        moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
+                                      }
+                                    </td>
+                                    <td>
+                                      <div className="btn-group">
 
-                                    <Link to={`/historia-paciente/${paciente.id_paciente}`}>
-                                      <button
-                                        className="btn btn-primary btnVerHistoria"
-                                        data-target="hitoriapaciente"
-                                        data-toggle="modal"
+                                        <Link to={`/historia-paciente/${paciente.id_paciente}`}>
+                                          <button
+                                            className="btn btn-primary btnVerHistoria"
+                                            data-target="hitoriapaciente"
+                                            data-toggle="modal"
 
-                                      >
+                                          >
 
-                                        <svg
-                                          className="h-6 w-6"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                          xmlns="http://www.w3.org/2000/svg"
+                                            <svg
+                                              className="h-6 w-6"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                              />
+                                            </svg>
+
+                                          </button>
+                                        </Link>
+                                        <Link to={`/editar-paciente/${paciente.id_paciente}`}>
+                                          <button
+                                            className="btn btn-warning btnEditarPaciente"
+                                            data-target="#modalEditarUsuario"
+                                            data-toggle="modal"
+                                            id_paciente="1"
+                                          >
+
+                                            <svg
+                                              className="h-6 w-6"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                              />
+                                            </svg>
+
+                                          </button>
+                                        </Link>
+                                        <button
+                                          borrar_paciente="1"
+                                          className="btn btn-danger btnEliminarPaciente"
+                                          onClick={() => handleEliminarPaciente(paciente.id_paciente)}
                                         >
-                                          <path
-                                            d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                          />
-                                        </svg>
-
-                                      </button>
-                                    </Link>
-                                    <Link to={`/editar-paciente/${paciente.id_paciente}`}>
-                                      <button
-                                        className="btn btn-warning btnEditarPaciente"
-                                        data-target="#modalEditarUsuario"
-                                        data-toggle="modal"
-                                        id_paciente="1"
-                                      >
-
-                                        <svg
-                                          className="h-6 w-6"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                          <path
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                          />
-                                        </svg>
-
-                                      </button>
-                                    </Link>
-                                    <button
-                                      borrar_paciente="1"
-                                      className="btn btn-danger btnEliminarPaciente"
-                                      onClick={() => handleEliminarPaciente(paciente.id_paciente)}
-                                    >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
+                                          <svg
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                            />
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))
+                                : null
+                            }
                           </tbody>
                           <tfoot>
                             <tr>

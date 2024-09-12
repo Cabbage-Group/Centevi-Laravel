@@ -567,6 +567,94 @@ const OrtopticaVisionBinocular = () => {
                                 </div>
                               </div>
                             </div>
+
+                            <div className="row">
+                              <div className="col-md-6">
+                                <h6>
+                                  OJO DOMINANTE
+                                </h6>
+                                <div className="form-row mb-4">
+                                  <div className="form-group col-md-3">
+                                    <div className="n-chk">
+                                      <label className="new-control new-radio radio-classic-success">
+                                        {/* <input
+                                          className="new-control-input"
+                                          value="IZQUIERDO"
+                                          name="ojo_dominante"
+                                          readOnly
+                                          type="radio"
+                                          checked={ortoptica ? ortoptica.ojo_dominante === 'IZQUIERDO' : false}
+                                        /> */}
+                                        <Field
+                                          className="new-control-input"
+                                          name="ojo_dominante"
+                                          placeholder=""
+                                          as="radio"
+                                        />
+                                        <span className="new-control-indicator" />
+                                        IZQUIERDO asd
+                                      </label>
+                                    </div>
+                                  </div>
+                                  <div className="form-group col-md-3">
+                                    <div className="n-chk">
+                                      <label className="new-control new-radio radio-classic-success">
+                                        {/* <input
+                                          className="new-control-input"
+                                          value="DERECHO"
+                                          name="ojo_dominante"
+                                          readOnly
+                                          type="radio"
+                                          checked={ortoptica ? ortoptica.ojo_dominante === 'DERECHO' : false}
+                                        /> */}
+                                        <span className="new-control-indicator" />
+                                        DERECHO
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <h6>
+                                  MANO DOMINANTE
+                                </h6>
+                                <div className="form-row mb-4">
+                                  <div className="form-group col-md-3">
+                                    <div className="n-chk">
+                                      <label className="new-control new-radio radio-classic-success">
+                                        {/* <input
+                                          className="new-control-input"
+                                          value="IZQUIERDA"
+                                          disabled
+                                          name="mano_dominante"
+                                          type="radio"
+                                          checked={ortoptica ? ortoptica.mano_dominante === 'IZQUIERDA' : false}
+                                        /> */}
+                                        <span className="new-control-indicator" />
+                                        IZQUIEDA
+                                      </label>
+                                    </div>
+                                  </div>
+                                  <div className="form-group col-md-3">
+                                    <div className="n-chk">
+                                      <label className="new-control new-radio radio-classic-success">
+                                        {/* <input
+                                          className="new-control-input"
+                                          value="DERECHO"
+                                          disabled
+                                          name="mano_dominante"
+                                          type="radio"
+                                          checked={ortoptica ? ortoptica.mano_dominante === 'DERECHO' : false}
+                                        /> */}
+                                        <span className="new-control-indicator" />
+                                        DERECHA
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
                             <div className="form-group">
                               <h5>
                                 LENSOMETRIA

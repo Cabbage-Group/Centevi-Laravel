@@ -1122,7 +1122,7 @@ const HistoriaPaciente = () => {
                           {dataRG.length > 0 && (
                             <div className="card component-card_7 mb-4" style={{ background: 'rgb(0 150 136 / 11%)', width: '96%', left: '2%' }}>
                               <h6 className="p-3">
-                                CONSULTAS OBTOMETRIA GENERAL:
+                                CONSULTAS OPTOMETRÍA GENERAL:
                               </h6>
                               <div className="table-responsive-md">
                                 <table className="table dt-table-hover" id="zero-config" style={{ width: '100%', }}>
@@ -1252,7 +1252,7 @@ const HistoriaPaciente = () => {
                           {dataON.length > 0 && (
                             <div className="card component-card_7 mb-4" style={{ background: 'rgb(0 150 136 / 11%)', width: '96%', left: '2%' }}>
                               <h6 className="p-3">
-                                CONSULTAS OBTOMETRIA NEONATOS:
+                                CONSULTAS OPTOMETRÍA NEONATOS:
                               </h6>
                               <div className="table-responsive-md">
                                 <table className="table dt-table-hover" id="zero-config" style={{ width: '100%', }}>
@@ -1381,7 +1381,7 @@ const HistoriaPaciente = () => {
                           {dataOP.length > 0 && (
                             <div className="card component-card_7 mb-4" style={{ background: 'rgb(0 150 136 / 11%)', width: '96%', left: '2%' }}>
                               <h6 className="p-3">
-                                CONSULTAS OBTOMETRIA PEDIATRICA:
+                                CONSULTAS OPTOMETRÍA PEDIATRICA:
                               </h6>
                               <div className="table-responsive-md">
                                 <table className="table dt-table-hover" id="zero-config" style={{ width: '100%', }}>

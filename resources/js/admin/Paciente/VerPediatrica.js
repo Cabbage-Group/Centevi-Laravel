@@ -568,7 +568,11 @@ const VerPediatrica = () => {
                           </div>
                         </div>
                         <div className="form-group">
-                          <h5>
+                          <h5
+                            onClick={() => {
+
+                            }}
+                          >
                             LENSOMETRIA
                           </h5>
                           <div className="table-responsive">
@@ -766,7 +770,7 @@ const VerPediatrica = () => {
                           <div className="form-group col-md-3">
                             <input
                               className="form-control"
-                              value={lensometria_extra.sa_od}
+                              value={sa_pp.sa_od}
                               disabled
                               name="sa_od"
                               placeholder="OD"
@@ -776,7 +780,7 @@ const VerPediatrica = () => {
                           <div className="form-group col-md-3">
                             <input
                               className="form-control"
-                              value={lensometria_extra.pp_od}
+                              value={sa_pp.pp_od}
                               disabled
                               name="pp_od"
                               placeholder="OD"
@@ -788,7 +792,7 @@ const VerPediatrica = () => {
                           <div className="form-group col-md-3">
                             <input
                               className="form-control"
-                              value={lensometria_extra.sa_oi}
+                              value={sa_pp.sa_oi}
                               disabled
                               name="sa_oi"
                               placeholder="OI"
@@ -798,7 +802,7 @@ const VerPediatrica = () => {
                           <div className="form-group col-md-3">
                             <input
                               className="form-control"
-                              value={lensometria_extra.pp_oi}
+                              value={sa_pp.pp_oi}
                               disabled
                               name="pp_oi"
                               placeholder="OI"
@@ -841,6 +845,7 @@ const VerPediatrica = () => {
                           />
                         </div>
                       </div>
+                      
                       <div className="form-row mb-4">
                         <div className="form-group col-md-6">
                           <label htmlFor="tratamientos">

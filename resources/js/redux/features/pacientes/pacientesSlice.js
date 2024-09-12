@@ -37,6 +37,8 @@ const pacientesSlice = createSlice({
         builder
             .addCase(fetchPacientes.pending, (state) => {
                 state.status = 'loading';
+                state.pacientes = [];
+                state.meta = {};
             })
             .addCase(fetchPacientes.fulfilled, (state, action) => {
                 state.status = 'succeeded';

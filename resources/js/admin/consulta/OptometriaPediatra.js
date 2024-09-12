@@ -52,20 +52,21 @@ const OptometriaPediatra = () => {
     },
     ojo_dominante: '',
     mano_dominante: '',
-    lensometria: [
-      {
-        esfera_od: '',
-        cilindro_od: '',
-        eje_od: '',
-        p_base_od: '',
-        add_od: '',
-        esfera_oi: '',
-        cilindro_oi: '',
-        eje_oi: '',
-        p_base_oi: '',
-        add_oi: ''
-      },
-    ],
+    lensometria:
+    // [
+    {
+      esfera_od: '',
+      cilindro_od: '',
+      eje_od: '',
+      p_base_od: '',
+      add_od: '',
+      esfera_oi: '',
+      cilindro_oi: '',
+      eje_oi: '',
+      p_base_oi: '',
+      add_oi: ''
+    },
+    // ],
     lensometria_extra: [
       {
         len_tipo_lentes: '',
@@ -74,14 +75,15 @@ const OptometriaPediatra = () => {
         len_tipo_aro: ''
       },
     ],
-    sa_pp: [
-      {
-        sa_od: '',
-        pp_od: '',
-        sa_oi: '',
-        pp_oi: ''
-      },
-    ],
+    sa_pp:
+    // [
+    {
+      sa_od: '',
+      pp_od: '',
+      sa_oi: '',
+      pp_oi: ''
+    },
+    // ],
     visuscopia: {
       viscopia_od: "",
       viscopia_oi: "",
@@ -210,7 +212,7 @@ const OptometriaPediatra = () => {
                     <Formik
                       initialValues={initialValues}
                       validationSchema={validationSchema}
-                      onSubmit={ async (values, { setSubmitting }) => {
+                      onSubmit={async (values, { setSubmitting }) => {
 
                         setSubmitting(true);
                         console.log('Form values:', values);
@@ -792,6 +794,34 @@ const OptometriaPediatra = () => {
                               <Field
                                 className="form-control"
                                 name="sa_pp.pp_oi"
+                                as="input"
+                              />
+                            </div>
+                          </div>
+
+                          <h6>
+                            VISUSCOPIA:
+                          </h6>
+                          <div className="form-row mb-4">
+                            <div className="form-group col-md-6">
+                              <label htmlFor="v_od">
+                                OD
+                              </label>
+                              <Field
+                                className="form-control"
+                                id="v_od"
+                                name="visuscopia.viscopia_od"
+                                as="input"
+                              />
+                            </div>
+                            <div className="form-group col-md-6">
+                              <label htmlFor="v_oi">
+                                OI
+                              </label>
+                              <Field
+                                className="form-control"
+                                id="v_oi"
+                                name="visuscopia.viscopia_oi"
                                 as="input"
                               />
                             </div>

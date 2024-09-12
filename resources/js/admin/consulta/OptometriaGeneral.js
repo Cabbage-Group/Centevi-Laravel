@@ -395,6 +395,7 @@ const OptometriaGeneral = () => {
                                 />
                               </div>
                             </div>
+
                             <h3>
                               AGUDEZA VISUAL
                             </h3>
@@ -518,6 +519,7 @@ const OptometriaGeneral = () => {
                                 </div>
                               </div>
                             </div>
+
                             <div className="form-group">
                               <h5>
                                 LENSOMETRIA
@@ -631,6 +633,7 @@ const OptometriaGeneral = () => {
                                 </table>
                               </div>
                             </div>
+                            
                             <div className="form-row mb-4">
                               <div className="form-group col-md-3">
                                 <label htmlFor="objetivos">

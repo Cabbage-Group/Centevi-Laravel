@@ -334,6 +334,9 @@ const VerOrtoptica = () => {
                               />
                             </div>
                           </div>
+                          <h5>
+                            AGUDEZA VISUAL
+                          </h5>
                           <div className="form-row mb-4">
                             <div className="form-group col-md-6">
                               <div className="table-responsive">

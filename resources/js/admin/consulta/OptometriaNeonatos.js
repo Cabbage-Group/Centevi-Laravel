@@ -122,7 +122,7 @@ const OptometriaNeonatos = () => {
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-  }, [dispatch]);
+  }, []);
 
   const calculateAge = (birthDate) => {
     const today = new Date();
