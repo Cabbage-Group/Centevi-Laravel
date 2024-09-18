@@ -54,6 +54,7 @@ const HistoriaPaciente = () => {
   const { dataOP } = useSelector((state) => state.mostrarPediatrica);
   const { dataCG } = useSelector((state) => state.mostrarConsultaGenerica);
   const [documento, setDocumento] = useState(null);
+  const [nombreArchivo, setNombreArchivo] = useState("Subir archivo...");
   const { uploading } = useSelector((state) => state.subirDocumento);
   const { documentos } = useSelector((state) => state.verDocumento);
   const { terapias } = useSelector((state) => state.terapiasBajaVision);
@@ -101,7 +102,7 @@ const HistoriaPaciente = () => {
     setTerapiaModificada(false);
 
 
-  }, [dispatch, id, terapiaModificada]);
+  }, [id, terapiaModificada]);
 
 
   const handleCreateTerapias = (tipo) => {
@@ -229,14 +230,22 @@ const HistoriaPaciente = () => {
   };
 
   const handleFileChange = (e) => {
-    setDocumento(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      const archivoSeleccionado = e.target.files[0];
+      setDocumento(archivoSeleccionado);
+      setNombreArchivo(archivoSeleccionado.name);
+    }
   };
+
   const handleFileUpload = (e) => {
+    console.log("Enviar...");
     e.preventDefault();
+
     if (!documento) {
       alert('Selecciona un archivo primero');
       return;
     }
+
     dispatch(uploadDocumento({ documento, id_paciente: id }))
       .then((result) => {
         if (result.meta.requestStatus === 'fulfilled') {
@@ -248,6 +257,7 @@ const HistoriaPaciente = () => {
         }
       });
   };
+
   const handleDeleteDocument = (id_documento) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -280,6 +290,7 @@ const HistoriaPaciente = () => {
       }
     });
   };
+
   const handleDeleteOptometriaGeneral = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -312,6 +323,7 @@ const HistoriaPaciente = () => {
       }
     });
   };
+
   const handleDeleteBajaVision = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -344,6 +356,7 @@ const HistoriaPaciente = () => {
       }
     });
   };
+
   const handleDeleteConsultaGenerica = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -375,8 +388,8 @@ const HistoriaPaciente = () => {
           });
       }
     });
-
   };
+
   const handleDeleteNeonatos = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -409,6 +422,7 @@ const HistoriaPaciente = () => {
       }
     });
   };
+
   const handleDeleteOrtoptica = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -441,6 +455,7 @@ const HistoriaPaciente = () => {
       }
     });
   };
+
   const handleDeletePediatrica = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -1984,7 +1999,7 @@ const HistoriaPaciente = () => {
                                         required
                                       />
                                       <span className="custom-file-container__custom-file__custom-file-control">
-                                        Subir archivo...
+                                        {nombreArchivo}
                                         <span className="custom-file-container__custom-file__custom-file-control__button">Buscar</span>
                                       </span>
                                     </label>
@@ -2032,6 +2047,8 @@ const HistoriaPaciente = () => {
                                   strokeWidth="2"
                                 />
                               </svg>
+                              
+                              {/* Visualizar */}
                               <a
                                 className="btn btn-info"
                                 href={doc.url}
@@ -2059,10 +2076,12 @@ const HistoriaPaciente = () => {
                                   />
                                 </svg>
                               </a>
+
+                              {/* Descargar */}
                               <a
                                 className="btn btn-primary"
                                 download={doc.nombre}
-                                href={`/storage/app/public/documentos_pacientes/${doc.id_documento}`}
+                                href={`${doc.url}`}
                                 title="Descargar Archivo"
                               >
                                 <svg
@@ -2080,6 +2099,8 @@ const HistoriaPaciente = () => {
                                   />
                                 </svg>
                               </a>
+
+                              {/* Eliminar */}
                               <button
                                 borrar_documento="32"
                                 className="btn btn-danger eliminarDocumentoPaciente"
