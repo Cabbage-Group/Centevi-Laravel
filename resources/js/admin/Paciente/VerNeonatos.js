@@ -129,7 +129,7 @@ const VerNeonatos = () => {
                           </li>
                         </ol>
                       </nav>
-                      <nav
+                      {/* <nav
                         aria-label="breadcrumb"
                         className="breadcrumb-one"
                         id="editado"
@@ -162,7 +162,7 @@ const VerNeonatos = () => {
                             </b>
                           </li>
                         </ol>
-                      </nav>
+                      </nav> */}
                       <div className="widget-content widget-content-area">
 
                         <div className="form-row mb-4">
@@ -207,12 +207,12 @@ const VerNeonatos = () => {
                             </select>
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="edad">
+                            <label onClick={() => console.log(neonatos)} htmlFor="edad">
                               Edad
                             </label>
                             <input
                               className="form-control"
-                              defaultValue="4"
+                              defaultValue={neonatos.edad}
                               id="edad"
                               name="edad"
                               readOnly
@@ -816,7 +816,7 @@ const VerNeonatos = () => {
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-12">
-                          <label 
+                          <label
                             htmlFor="inputAddress"
                             onClick={() => {
                               console.log(neonatos);
@@ -1198,6 +1198,22 @@ const VerNeonatos = () => {
                           name="conducta_seguir"
                           placeholder="Esta área tiene un limite de 225 caracteres."
                           rows="2"
+                        />
+                      </div>
+                      <div className="form-group col-md-4">
+                        <label onClick={() => console.log(neonatos)} htmlFor="inputAddress">
+                          Fecha de proxima cita
+                        </label>
+                        <input
+                          className="form-control"
+                          value={
+                            neonatos
+                              ? formatToDateDisplay(neonatos.fecha_proxima_consulta)
+                              : ''
+                          }
+                          disabled
+                          name="fecha_proxima_consulta"
+                          type="text"
                         />
                       </div>
                     </div>

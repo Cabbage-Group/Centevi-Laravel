@@ -22,7 +22,7 @@ const OptometriaGeneral = () => {
     id_terapia: '0',
     paciente: '',
     edad: '0',
-    fecha_atencion: '',
+    fecha_atencion: new Date().toISOString().split('T')[0],
     m_c: '',
     a_o: '',
     a_p: '',
@@ -258,9 +258,12 @@ const OptometriaGeneral = () => {
                                 <Select
                                   showSearch
                                   placeholder="Seleccione el paciente"
-                                  filterOption={(input, option) =>
-                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                  }
+                                  filterOption={(input, option) => {
+                                    const searchTerms = input.toLowerCase().split(' ');
+                                    return searchTerms.every(term =>
+                                      (option?.label ?? '').toLowerCase().includes(term)
+                                    );
+                                  }}
                                   options={pacientes_options_selecteds}
                                   style={{
                                     width: "100%",
@@ -313,7 +316,7 @@ const OptometriaGeneral = () => {
                                 <Field
                                   className="form-control"
                                   id="inputAddress"
-                                  max="2024-07-04"
+                                  // max="2024-07-04"
                                   name="fecha_atencion"
                                   required
                                   type="date"

@@ -148,7 +148,7 @@ const VerOrtoptica = () => {
                               </li>
                             </ol>
                           </nav>
-                          <nav
+                          {/* <nav
                             aria-label="breadcrumb"
                             className="breadcrumb-one"
                             id="editado"
@@ -181,7 +181,7 @@ const VerOrtoptica = () => {
                                 </b>
                               </li>
                             </ol>
-                          </nav>
+                          </nav> */}
                           <div className="form-row mb-4">
                             <div className="form-group col-md-12">
                               <label htmlFor="paciente">

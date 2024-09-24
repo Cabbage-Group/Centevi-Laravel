@@ -747,9 +747,9 @@ const VerPediatrica = () => {
                             </label>
                             <input
                               className="form-control"
-                              value={lensometria_extra.len_tipo_arco}
+                              value={lensometria_extra.len_tipo_aro}
                               disabled
-                              name="len_tipo_arco"
+                              name="len_tipo_aro"
                               type="text"
                             />
                           </div>

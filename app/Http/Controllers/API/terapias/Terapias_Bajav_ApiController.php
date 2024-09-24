@@ -83,18 +83,21 @@ class Terapias_Bajav_ApiController extends Controller
         }
         $data = $request->all();
         $defaults = [
-            "id_paciente" => null,
+            "id_paciente" => $data['id_paciente'],
             "evaluacion" => null,
             'motivo' => null,
-            'fecha_creacion' => now()->format('Y-m-d'),
+            'fecha_creacion' => now(),
         ];
-        $data = array_merge($defaults, $data);
-        $terapias_bajav= TerapiasBajaV::create($data);
+        // $data = array_merge($defaults, $data);
+        // $terapias_bajav= TerapiasBajaV::create($data);
+        $terapias_bajav= TerapiasBajaV::create($defaults);
         return response()->json([
             'respuesta' => true,
             'mensaje' => 'Terapiasbajav registrada correctamente',
             'data' => [$terapias_bajav],
-            'mensaje_dev' => null
+            'mensaje_dev' => null,
+            'defaults' => $defaults,
+            'datas' => $data,
         ], 201);
     }
 

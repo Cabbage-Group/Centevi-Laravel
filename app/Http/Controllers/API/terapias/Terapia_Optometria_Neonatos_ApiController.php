@@ -96,7 +96,7 @@ class Terapia_Optometria_Neonatos_ApiController extends Controller
             "id_terapia" => null,
             "sesion" => null,
             'completado' => null,
-            'doctor' => 'Administrador',
+            // 'doctor' => 'Administrador',
             'fecha_creacion' => now()->format('Y-m-d'),
             'sucursal' => null,
         ];

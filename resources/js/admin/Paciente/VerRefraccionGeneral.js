@@ -388,7 +388,7 @@ const VerRefraccionGeneral = () => {
                                     <td>
                                       <input
                                         className="form-control"
-                                        value={av_sc.od_vl}
+                                        value={av_cc.av_cc_od_vl}
                                         name="av_cc_od_vl"
                                         placeholder="od_vl"
                                         readOnly
@@ -398,7 +398,7 @@ const VerRefraccionGeneral = () => {
                                     <td>
                                       <input
                                         className="form-control"
-                                        value={av_sc.av_cc_oi_vl}
+                                        value={av_cc.av_cc_oi_vl}
                                         name="av_cc_oi_vl"
                                         placeholder="oi_vl"
                                         readOnly
@@ -413,7 +413,7 @@ const VerRefraccionGeneral = () => {
                                     <td>
                                       <input
                                         className="form-control"
-                                        value={av_sc.av_cc_od_vp}
+                                        value={av_cc.av_cc_od_vp}
                                         name="av_cc_od_vp"
                                         placeholder="od_vp"
                                         readOnly
@@ -423,7 +423,7 @@ const VerRefraccionGeneral = () => {
                                     <td>
                                       <input
                                         className="form-control"
-                                        value={av_sc.av_cc_oi_vp}
+                                        value={av_cc.av_cc_oi_vp}
                                         name="av_cc_oi_vp"
                                         placeholder="dsadap"
                                         readOnly
@@ -913,7 +913,7 @@ const VerRefraccionGeneral = () => {
                           onClick={() => {
                             console.log(av_cc);
                             console.log(refraccion);
-                            
+
                           }}
                         >
                           RECETA FINAL

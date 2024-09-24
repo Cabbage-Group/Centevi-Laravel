@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 const OptometriaNeonatos = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { status, error } = useSelector((state) => state.optometriaNeonatos);
@@ -24,7 +24,7 @@ const OptometriaNeonatos = () => {
     id_terapia: '0',
     paciente: '',
     edad: '0',
-    fecha_atencion: '',
+    fecha_atencion: new Date().toISOString().split('T')[0],
     m_c: '',
     a_o: '',
     a_p: '',
@@ -211,9 +211,12 @@ const OptometriaNeonatos = () => {
                               <Select
                                 showSearch
                                 placeholder="Seleccione el paciente"
-                                filterOption={(input, option) =>
-                                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
+                                filterOption={(input, option) => {
+                                  const searchTerms = input.toLowerCase().split(' ');
+                                  return searchTerms.every(term =>
+                                    (option?.label ?? '').toLowerCase().includes(term)
+                                  );
+                                }}
                                 options={pacientes_options_selecteds}
                                 style={{
                                   width: "100%",

@@ -103,7 +103,7 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
             "sesion" => null,
             'completado' => null,
             'pagado' => null,
-            'doctor' => 'Administrador',
+            // 'doctor' => 'Administrador',
             'fecha_creacion' => now()->format('Y-m-d'),
             'sucursal' => null,
         ];

@@ -22,7 +22,7 @@ const OptometriaPediatra = () => {
     id_terapia: '0',
     paciente: '',
     edad: '0',
-    fecha_atencion: '',
+    fecha_atencion: new Date().toISOString().split('T')[0],
     m_c: '',
     a_o: '',
     a_p: '',
@@ -67,14 +67,15 @@ const OptometriaPediatra = () => {
       add_oi: ''
     },
     // ],
-    lensometria_extra: [
+    lensometria_extra: 
+    // [
       {
         len_tipo_lentes: '',
         len_filtros: '',
         len_tiempo: '',
         len_tipo_aro: ''
       },
-    ],
+    // ],
     sa_pp:
     // [
     {
@@ -244,9 +245,12 @@ const OptometriaPediatra = () => {
                               <Select
                                 showSearch
                                 placeholder="Seleccione el paciente"
-                                filterOption={(input, option) =>
-                                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
+                                filterOption={(input, option) => {
+                                  const searchTerms = input.toLowerCase().split(' ');
+                                  return searchTerms.every(term =>
+                                    (option?.label ?? '').toLowerCase().includes(term)
+                                  );
+                                }}
                                 options={pacientes_options_selecteds}
                                 style={{
                                   width: "100%",
@@ -298,7 +302,7 @@ const OptometriaPediatra = () => {
                                 name="fecha_atencion"
                                 className="form-control"
                                 id="fecha_atencion"
-                                max="2024-07-04"
+                                // max="2024-07-04"
                               />
                               <ErrorMessage name="fecha_atencion" component="div" className="text-danger" />
                             </div>
@@ -541,14 +545,14 @@ const OptometriaPediatra = () => {
                                       <td>
                                         <Field
                                           className="form-control"
-                                          name="av/cc_od_vl"
+                                          name="av_cc.av_cc_od_vl"
                                           as="input"
                                         />
                                       </td>
                                       <td>
                                         <Field
                                           className="form-control"
-                                          name="av_cc.av_cc_od_vl"
+                                          name="av_cc.av_cc_oi_vl"
                                           as="input"
                                         />
                                       </td>
@@ -560,14 +564,14 @@ const OptometriaPediatra = () => {
                                       <td>
                                         <Field
                                           className="form-control"
-                                          name="av_cc.av_cc_oi_vl"
+                                          name="av_cc.av_cc_od_vp"
                                           as="input"
                                         />
                                       </td>
                                       <td>
                                         <Field
                                           className="form-control"
-                                          name="av_cc.av_cc_od_vp"
+                                          name="av_cc.av_cc_oi_vp"
                                           as="input"
                                         />
                                       </td>
@@ -579,14 +583,14 @@ const OptometriaPediatra = () => {
                                       <td>
                                         <Field
                                           className="form-control"
-                                          name="av_cc.av_cc_oi_vp"
+                                          name="av_cc.av_cc_od_ph"
                                           as="input"
                                         />
                                       </td>
                                       <td>
                                         <Field
                                           className="form-control"
-                                          name="av_cc.av_cc_od_ph"
+                                          name="av_cc.av_cc_oi_ph"
                                           as="input"
                                         />
                                       </td>

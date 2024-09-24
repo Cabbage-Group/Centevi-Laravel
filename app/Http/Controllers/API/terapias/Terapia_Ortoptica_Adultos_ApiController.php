@@ -104,8 +104,8 @@ class Terapia_Ortoptica_Adultos_ApiController extends Controller
             "sesion" => null,
             'completado' => null,
             'pagado' => null,
-            'doctor' => 'Administrador',
-            'fecha_creacion' => now()->format('Y-m-d'),
+            // 'doctor' => 'Administrador',
+            'fecha_creacion' => now(),
             'sucursal' => null,
         ];
 

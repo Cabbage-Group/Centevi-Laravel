@@ -83,17 +83,17 @@ class Terapias_Ortoptica_Adultos_ApiController extends Controller
 
         $data = $request->all();
         $defaults = [
-            "id_paciente" => null,
+            "id_paciente" => $data['id_paciente'],
             "evaluacion" => null,
             'motivo' => null,
-            'fecha_creacion' => now()->format('Y-m-d'),
+            'fecha_creacion' => now(),
         ];
 
 
         $data = array_merge($defaults, $data);
 
 
-        $terapias_ot_adultos= TerapiasOrtopticaAdultos::create($data);
+        $terapias_ot_adultos= TerapiasOrtopticaAdultos::create($defaults);
 
 
         return response()->json([

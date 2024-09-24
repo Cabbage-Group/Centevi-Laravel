@@ -1720,71 +1720,74 @@ const HistoriaPaciente = () => {
                         </div>
 
                         <div className="row">
-                          {terapias.map((terapia) => (
-                            <div key={terapia.id_terapia} className="col-md-12">
-                              <div className="widget-content widget-content-area">
-                                <div
-                                  className="card component-card_7"
-                                  style={{
-                                    background: 'rgb(0 150 136 / 11%)',
-                                    width: '100%'
-                                  }}
-                                >
-                                  <div className="card-body">
-                                    <button
-                                      className="btn btn-danger"
-                                      onClick={() => handleDeleteTerapia('bajaVision', terapia.id_terapia)}
+                          {
+                            terapias ?
+                              terapias.length > 0 ? terapias?.map((terapia) => (
+                                <div key={terapia.id_terapia} className="col-md-12">
+                                  <div className="widget-content widget-content-area">
+                                    <div
+                                      className="card component-card_7"
                                       style={{
-                                        marginBottom: '-80px',
-                                        position: 'absolute',
-                                        zIndex: '3',
-                                        marginLeft: 420,
+                                        background: 'rgb(0 150 136 / 11%)',
+                                        width: '100%'
                                       }}
                                     >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </button>
-                                    <h5 className="">
-                                      Terapia Baja Vision:
-                                    </h5>
-                                    <div className="rating-stars">
-                                      <p>
-                                        Cantidad de terapias realizadas{' '}
-                                        <b>
-                                          {terapia.cantidad}
-                                        </b>
-                                      </p>
-                                      <p>
-                                        Fecha de creación:{' '}
-                                        <b>
-                                          {moment(terapia?.fecha_creacion).format('YYYY-MM-DD HH:mm:ss')}
-                                        </b>
-                                      </p>
-                                      <Link to={`/terapias-bajavision/${id}/${terapia.id_terapia}`}>
-                                        <a
-                                          className="btn btn-success mb-4 ml-3 mt-4"
+                                      <div className="card-body">
+                                        <button
+                                          className="btn btn-danger"
+                                          onClick={() => handleDeleteTerapia('bajaVision', terapia.id_terapia)}
+                                          style={{
+                                            marginBottom: '-80px',
+                                            position: 'absolute',
+                                            zIndex: '3',
+                                            marginLeft: 420,
+                                          }}
                                         >
-                                          VER
-                                        </a>
-                                      </Link>
+                                          <svg
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                            />
+                                          </svg>
+                                        </button>
+                                        <h5 className="">
+                                          Terapia Baja Vision:
+                                        </h5>
+                                        <div className="rating-stars">
+                                          <p>
+                                            Cantidad de terapias realizadas{' '}
+                                            <b>
+                                              {terapia.cantidad}
+                                            </b>
+                                          </p>
+                                          <p>
+                                            Fecha de creación:{' '}
+                                            <b>
+                                              {moment(terapia?.fecha_creacion).format('YYYY-MM-DD HH:mm:ss')}
+                                            </b>
+                                          </p>
+                                          <Link to={`/terapias-bajavision/${id}/${terapia.id_terapia}`}>
+                                            <a
+                                              className="btn btn-success mb-4 ml-3 mt-4"
+                                            >
+                                              VER
+                                            </a>
+                                          </Link>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </div>
-                          ))}
+                              )) : <div></div> : <div></div>
+                          }
                         </div>
 
                         <div className="row">
@@ -2047,7 +2050,7 @@ const HistoriaPaciente = () => {
                                   strokeWidth="2"
                                 />
                               </svg>
-                              
+
                               {/* Visualizar */}
                               <a
                                 className="btn btn-info"

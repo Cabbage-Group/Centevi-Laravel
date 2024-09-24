@@ -23,7 +23,7 @@ const OrtopticaVisionBinocular = () => {
     id_terapia: '0',
     paciente: '',
     edad: '0',
-    fecha_atencion: '',
+    fecha_atencion: new Date().toISOString().split('T')[0],
     m_c: '',
     a_o: '',
     a_p: '',
@@ -259,9 +259,12 @@ const OrtopticaVisionBinocular = () => {
                                 <Select
                                   showSearch
                                   placeholder="Seleccione el paciente"
-                                  filterOption={(input, option) =>
-                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                  }
+                                  filterOption={(input, option) => {
+                                    const searchTerms = input.toLowerCase().split(' ');
+                                    return searchTerms.every(term =>
+                                      (option?.label ?? '').toLowerCase().includes(term)
+                                    );
+                                  }}
                                   options={pacientes_options_selecteds}
                                   style={{
                                     width: "100%",
@@ -314,7 +317,7 @@ const OrtopticaVisionBinocular = () => {
                                 <Field
                                   className="form-control"
                                   id="inputAddress"
-                                  max="2024-07-05"
+                                  // max="2024-07-05"
                                   name="fecha_atencion"
                                   required
                                   type="date"
@@ -577,36 +580,42 @@ const OrtopticaVisionBinocular = () => {
                                   <div className="form-group col-md-3">
                                     <div className="n-chk">
                                       <label className="new-control new-radio radio-classic-success">
-                                        {/* <input
+                                        <input
                                           className="new-control-input"
-                                          value="IZQUIERDO"
+                                          // value="IZQUIERDO"
                                           name="ojo_dominante"
                                           readOnly
                                           type="radio"
-                                          checked={ortoptica ? ortoptica.ojo_dominante === 'IZQUIERDO' : false}
-                                        /> */}
-                                        <Field
+                                          onChange={() => {
+                                            setFieldValue('ojo_dominante', 'IZQUIERDO');
+                                          }}
+                                        // checked={ortoptica ? ortoptica.ojo_dominante === 'IZQUIERDO' : false}
+                                        />
+                                        {/* <Field
                                           className="new-control-input"
                                           name="ojo_dominante"
                                           placeholder=""
                                           as="radio"
-                                        />
+                                        /> */}
                                         <span className="new-control-indicator" />
-                                        IZQUIERDO asd
+                                        IZQUIERDO
                                       </label>
                                     </div>
                                   </div>
                                   <div className="form-group col-md-3">
                                     <div className="n-chk">
                                       <label className="new-control new-radio radio-classic-success">
-                                        {/* <input
+                                        <input
                                           className="new-control-input"
-                                          value="DERECHO"
+                                          // value="DERECHO"
                                           name="ojo_dominante"
                                           readOnly
                                           type="radio"
-                                          checked={ortoptica ? ortoptica.ojo_dominante === 'DERECHO' : false}
-                                        /> */}
+                                          onChange={() => {
+                                            setFieldValue('ojo_dominante', 'DERECHO');
+                                          }}
+                                        // checked={ortoptica ? ortoptica.ojo_dominante === 'DERECHO' : false}
+                                        />
                                         <span className="new-control-indicator" />
                                         DERECHO
                                       </label>
@@ -622,14 +631,17 @@ const OrtopticaVisionBinocular = () => {
                                   <div className="form-group col-md-3">
                                     <div className="n-chk">
                                       <label className="new-control new-radio radio-classic-success">
-                                        {/* <input
+                                        <input
                                           className="new-control-input"
-                                          value="IZQUIERDA"
-                                          disabled
+                                          // value="IZQUIERDA"
+                                          // disabled
                                           name="mano_dominante"
                                           type="radio"
-                                          checked={ortoptica ? ortoptica.mano_dominante === 'IZQUIERDA' : false}
-                                        /> */}
+                                          onChange={() => {
+                                            setFieldValue('mano_dominante', 'IZQUIERDA');
+                                          }}
+                                        // checked={ortoptica ? ortoptica.mano_dominante === 'IZQUIERDA' : false}
+                                        />
                                         <span className="new-control-indicator" />
                                         IZQUIEDA
                                       </label>
@@ -638,14 +650,17 @@ const OrtopticaVisionBinocular = () => {
                                   <div className="form-group col-md-3">
                                     <div className="n-chk">
                                       <label className="new-control new-radio radio-classic-success">
-                                        {/* <input
+                                        <input
                                           className="new-control-input"
-                                          value="DERECHO"
-                                          disabled
+                                          // value="DERECHO"
+                                          // disabled
                                           name="mano_dominante"
                                           type="radio"
-                                          checked={ortoptica ? ortoptica.mano_dominante === 'DERECHO' : false}
-                                        /> */}
+                                          onChange={() => {
+                                            setFieldValue('mano_dominante', 'DERECHO');
+                                          }}
+                                        // checked={ortoptica ? ortoptica.mano_dominante === 'DERECHO' : false}
+                                        />
                                         <span className="new-control-indicator" />
                                         DERECHA
                                       </label>

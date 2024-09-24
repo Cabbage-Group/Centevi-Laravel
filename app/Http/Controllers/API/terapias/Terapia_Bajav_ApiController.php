@@ -182,8 +182,8 @@ class Terapia_Bajav_ApiController extends Controller
             "sesion" => null,
             'completado' => null,
             'pagado' => null,
-            'doctor' => 'Administrador',
-            'fecha_creacion' => now()->format('Y-m-d'),
+            // 'doctor' => 'Administrador',
+            'fecha_creacion' => now(),
             'sucursal' => null,
         ];
         $data = array_merge($defaults, $data);

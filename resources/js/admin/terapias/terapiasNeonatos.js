@@ -36,6 +36,7 @@ const TerapiasNeonatos = () => {
     try {
       const nuevaSesion = {
         id_terapia: id_terapia,
+        doctor: localStorage.getItem('nombre')
       };
       await dispatch(agregarSesionTerapiaNeonatos(nuevaSesion)).unwrap();
       // Muestra un mensaje de éxito
