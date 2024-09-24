@@ -456,8 +456,8 @@ const Usuarios = () => {
                                       <td>{usuario.perfil}</td>
                                       <td>
                                         <button
-                                          className={`btn btn-${usuario.estado === 1 ? 'success' : 'danger'} btn-xs`}
-                                          onClick={() => handleChangeEstado(usuario.id_usuario, usuario.estado === 1 ? 0 : 1)}
+                                          className={`btn btn-${parseInt(usuario.estado.toString()) === 1 ? 'success' : 'danger'} btn-xs`}
+                                          onClick={() => handleChangeEstado(usuario.id_usuario, parseInt(usuario.estado.toString()) === 1 ? 0 : 1)}
                                         >
                                           {parseInt(usuario.estado.toString()) === 1 ? 'Activado' : 'Desactivado'}
                                         </button>
