@@ -59,6 +59,7 @@ const terapiasBajaVisionSlice = createSlice({
             .addCase(fetchTerapiasBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.terapias = [];
             })
 
             // Handling create
@@ -73,6 +74,7 @@ const terapiasBajaVisionSlice = createSlice({
             .addCase(createTerapiasBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.terapias = [];
             })
 
             // Handling edit
@@ -92,6 +94,7 @@ const terapiasBajaVisionSlice = createSlice({
             .addCase(editTerapiasBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.terapias = [];
             })
 
             .addCase(deleteTerapiasBajaVision.fulfilled, (state, action) => {
@@ -104,6 +107,7 @@ const terapiasBajaVisionSlice = createSlice({
             .addCase(deleteTerapiasBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.terapias = [];
             });
         },
 });

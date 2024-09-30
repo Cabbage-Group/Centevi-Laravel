@@ -60,6 +60,7 @@ const TerapiaOrtopticaAdultosSlice = createSlice({
             .addCase(fetchTerapiasOrtopticaAdultos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.ortoptica = []
             })
 
             // Handling create
@@ -74,6 +75,7 @@ const TerapiaOrtopticaAdultosSlice = createSlice({
             .addCase(createTerapiasOrtopticaAdultos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.ortoptica = []
             })
 
             // Handling edit
@@ -100,6 +102,7 @@ const TerapiaOrtopticaAdultosSlice = createSlice({
         builder.addCase(deleteTerapiasOrtopticaAdultos.rejected, (state, action) => {
             state.status = 'failed';
             state.error = action.payload;
+            state.ortoptica = []
         });
     },
 });

@@ -12,9 +12,11 @@ import {
   editarSesionTerapiaBajaVision,
   eliminarSesionTerapiaBajaVision
 } from '../../redux/features/terapias/terapiaSesionBajaVisionSlice';
+import moment from 'moment';
 
 const TerapiasBajaVision = () => {
   const formikRef = useRef(null);
+  const formikRefEvaluacion = useRef(null);
 
   const dispatch = useDispatch();
   const { id, id_terapia } = useParams();
@@ -36,6 +38,10 @@ const TerapiasBajaVision = () => {
     const data = await dispatch(VerUnaTerapiaBajaVision({ id_paciente: id, id_terapia }));
     if (formikRef.current) {
       formikRef.current.setFieldValue('motivo', data.payload.data.motivo);
+      formikRef.current.setFieldValue('evaluacion', data.payload.data.evaluacion);
+
+      formikRefEvaluacion.current.setFieldValue('motivo', data.payload.data.motivo);
+      formikRefEvaluacion.current.setFieldValue('evaluacion', data.payload.data.evaluacion);
     }
   }
 
@@ -233,7 +239,10 @@ const TerapiasBajaVision = () => {
                                   </button>
                                 </td>
                                 <td>{BV.doctor}</td>
-                                <td>{new Date(BV.fecha_creacion).toLocaleDateString()}</td>
+                                <td>
+                                  {/* {new Date(BV.fecha_creacion).toLocaleDateString()} */}
+                                  {moment.utc(BV.fecha_creacion).format('DD-MM-YYYY')}
+                                </td>
                                 <td>
                                   <Link to={`/ver-sesion-terapia/${id}/${id_terapia}/${BV.id}`}>
                                     <button className="btnVerTerapia btn btn-primary mb-2 p-1 mr-2 rounded-circle">
@@ -265,6 +274,57 @@ const TerapiasBajaVision = () => {
                         </table>
                       </div>
                     </div>
+
+                    <div>
+                      <h5 className="p-3">Evaluación:</h5>
+                      <Formik
+                        innerRef={formikRefEvaluacion}
+                        initialValues={{
+                          motivo: verTerapia?.motivo || '',
+                          evaluacion: verTerapia?.evaluacion || '',
+                        }}
+                        onSubmit={async (values, { setSubmitting }) => {
+                          try {
+                            await dispatch(editTerapiasBajaVision({ id_terapia, terapiaData: values })).unwrap();
+                            Swal.fire({
+                              icon: 'success',
+                              title: 'Edit Successful',
+                              text: 'Terapia Baja Vision has been successfully updated!',
+                            });
+                          } catch (error) {
+                            Swal.fire({
+                              icon: 'error',
+                              title: 'Edit Failed',
+                              text: `There was an error updating the Terapia Baja Vision: ${error.message}`,
+                            });
+                          } finally {
+                            setSubmitting(false);
+                          }
+                        }}
+                      >
+                        {({ isSubmitting }) => (
+                          <Form>
+                            <div className="form-group">
+                              <Field
+                                as="textarea"
+                                className="form-control textarea"
+                                name="evaluacion"
+                                rows="15"
+                              />
+                              <ErrorMessage name="evaluacion" component="div" className="text-danger" />
+                            </div>
+                            <button
+                              className="btn btn-success mt-3"
+                              type="submit"
+                              disabled={isSubmitting}
+                            >
+                              Actualizar Campos
+                            </button>
+                          </Form>
+                        )}
+                      </Formik>
+                    </div>
+
                   </div>
                 </div>
               </div>

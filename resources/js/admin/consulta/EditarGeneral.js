@@ -9,6 +9,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
+import moment from 'moment';
+import { formatDate } from '../../utils/DateUtils.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -154,6 +156,7 @@ const EditarGeneral = () => {
       doctor: '',
       fecha_edicion: ''
     },
+    fecha_proxima_consulta: ''
   });
 
   useEffect(() => {
@@ -191,6 +194,7 @@ const EditarGeneral = () => {
         plan_versiones: RefraccionGeneral.plan_versiones || '',
         fecha_creacion: RefraccionGeneral.fecha_creacion || '',
         editado: RefraccionGeneral.editado ? JSON.parse(RefraccionGeneral.editado) : {},
+        fecha_proxima_consulta: moment.utc(RefraccionGeneral.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
     }
   }, [RefraccionGeneral]);
@@ -329,6 +333,14 @@ const EditarGeneral = () => {
               [name]: value,
             },
           };
+        case 'fecha_proxima_consulta':
+          return {
+            ...prevFormData,
+            fecha_proxima_consulta: {
+              ...prevFormData.fecha_proxima_consulta,
+              [name]: formatDate(value),
+            },
+          };
         default:
           return {
             ...prevFormData,
@@ -338,29 +350,52 @@ const EditarGeneral = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(fetchEditarOptometriaGeneral({ id, id_consulta, data: formData }))
-      .then(() => {
-        Swal.fire({
-          title: '¡Actualización exitosa!',
-          text: 'Los datos han sido actualizados correctamente.',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate(-1);
-          }
-        });
-      })
-      .catch((error) => {
-        Swal.fire({
-          title: 'Error',
-          text: 'Ocurrió un error al actualizar los datos.',
-          icon: 'error',
-          confirmButtonText: 'OK'
-        });
+
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡Confirmarás los cambios en los datos!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: 'white',
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
       });
+
+      if (result.isConfirmed) {
+        // Despachar la acción
+        await dispatch(fetchEditarOptometriaGeneral({ id, id_consulta, data: formData }))
+          .then(() => {
+            Swal.fire({
+              title: '¡Actualización exitosa!',
+              text: 'Los datos han sido actualizados correctamente.',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigate(-1);
+              }
+            });
+          })
+          .catch((error) => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Ocurrió un error al actualizar los datos.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
+    } catch (error) {
+      Swal.fire(
+        'Error',
+        'Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.',
+        'error'
+      );
+    }
   };
 
   const calculateAge = (birthDate) => {
@@ -543,11 +578,11 @@ const EditarGeneral = () => {
                               className="form-control"
                               value={
                                 formData
-                                  ? formatToDateDisplay(formData.fecha_atencion)
+                                  ? moment.utc(formData.fecha_atencion).format('YYYY-MM-DD')
                                   : ''
                               }
                               name="fecha_atencion"
-                              type="text"
+                              type="date"
                               onChange={handleChange}
                             />
                           </div>
@@ -1753,11 +1788,12 @@ const EditarGeneral = () => {
                           className="form-control"
                           value={
                             RefraccionGeneral
-                              ? formatToDateDisplay(RefraccionGeneral.fecha_proxima_consulta)
+                              ? moment.utc(formData.fecha_proxima_consulta).format('YYYY-MM-DD')
                               : ''
                           }
                           name="fecha_proxima_consulta"
-                          type="text"
+                          type="date"
+                          onChange={handleChange}
                         />
                       </div>
                       <button

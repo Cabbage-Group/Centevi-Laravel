@@ -6,6 +6,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { crearBajaVision } from '../../redux/features/consultas/BajaVisionSlice.js';
 import * as Yup from 'yup';
 import { Select, Button } from 'antd';
+import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 
 const BajaVision = () => {
   const dispatch = useDispatch();
@@ -19,7 +20,7 @@ const BajaVision = () => {
     id_terapia: '0',
     paciente: '',
     edad: '35',
-    fecha_atencion: new Date().toISOString().split('T')[0],
+    fecha_atencion: getCurrentMMYYYYDate(),
     m_c: '',
     a_o: '',
     a_p: '',

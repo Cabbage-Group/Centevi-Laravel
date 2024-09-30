@@ -9,6 +9,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
+import { formatDate, getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
+import moment from 'moment';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -83,8 +85,7 @@ const EditarNeonatos = () => {
       sa_oi: '',
       pp_oi: ''
     },
-    pruebas_extras:
-    {
+    pruebas_extras: {
       hirschberg: '',
       krismsky: '',
       plan_versiones: '',
@@ -124,6 +125,7 @@ const EditarNeonatos = () => {
       doctor: '',
       fecha_edicion: ''
     },
+    fecha_proxima_consulta: ''
   });
 
   useEffect(() => {
@@ -160,6 +162,9 @@ const EditarNeonatos = () => {
         plan_versiones: neonato.plan_versiones || '',
         fecha_creacion: neonato.fecha_creacion || '',
         editado: neonato.editado ? JSON.parse(neonato.editado) : {},
+
+
+        fecha_proxima_consulta: moment.utc(neonato.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
     }
   }, [neonato]);
@@ -174,6 +179,8 @@ const EditarNeonatos = () => {
 
   const handleChange = (e) => {
     const { name, value, dataset } = e.target;
+    console.log(value);
+
     setFormData((prevFormData) => {
       switch (dataset.group) {
         case 'agudeza_visual':
@@ -240,6 +247,15 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
+        case 'fecha_proxima_consulta':
+          return {
+            ...prevFormData,
+            fecha_proxima_consulta: {
+              ...prevFormData.fecha_proxima_consulta,
+              [name]: formatDate(value),
+            },
+          };
+
         default:
           return {
             ...prevFormData,
@@ -249,11 +265,42 @@ const EditarNeonatos = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Submitting form with data:', formData); // Agrega esta línea para depuración
-    dispatch(fetchEditarNeonato({ id, id_consulta, data: formData }));
-    navigate(''); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
+
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡Confirmarás los cambios en los datos!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: 'white',
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (result.isConfirmed) {
+        // Despachar la acción
+        dispatch(fetchEditarNeonato({ id, id_consulta, data: formData }));
+
+        // Mostrar alerta de éxito
+        await Swal.fire(
+          'Guardado!',
+          'Los datos han sido actualizados.',
+          'success'
+        );
+
+        // Redirigir a la página anterior
+        navigate(-1);
+      }
+    } catch (error) {
+      Swal.fire(
+        'Error',
+        'Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.',
+        'error'
+      );
+    }
   };
 
   const calculateAge = (birthDate) => {
@@ -417,19 +464,18 @@ const EditarNeonatos = () => {
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="inputAddress">
+                            <label htmlFor="inputAddress" onClick={() => console.log(neonato.fecha_atencion)}>
                               Fecha de atencion
                             </label>
-                            
                             <input
                               className="form-control"
                               value={
                                 neonato
-                                  ? formatToDateDisplay(neonato.fecha_atencion)
+                                  ? moment.utc(neonato.fecha_atencion).format('YYYY-MM-DD') || ''
                                   : ''
                               }
                               name="fecha_atencion"
-                              type="text"
+                              type="date"
                               onChange={handleChange}
                             />
                           </div>
@@ -1441,18 +1487,24 @@ const EditarNeonatos = () => {
                       </div>
 
                       <div className="form-group col-md-4">
-                        <label htmlFor="inputAddress">
+                        <label htmlFor="inputAddress" onClick={() => console.log(formData.fecha_proxima_consulta)}>
                           Fecha de proxima cita
                         </label>
                         <input
                           className="form-control"
                           value={
                             neonato
-                              ? formatToDateDisplay(neonato.fecha_proxima_consulta)
+                              ? formData.fecha_proxima_consulta
                               : ''
                           }
+                          // defaultValue={
+                          //   neonato
+                          //     ? formatDate(formData.fecha_proxima_consulta)
+                          //     : ''
+                          // }
                           name="fecha_proxima_consulta"
-                          type="text"
+                          type="date"
+                          onChange={handleChange}
                         />
                       </div>
                     </div>

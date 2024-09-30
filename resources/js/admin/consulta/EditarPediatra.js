@@ -9,6 +9,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
+import moment from 'moment';
+import { formatDate } from '../../utils/DateUtils.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -153,6 +155,7 @@ const EditarPediatra = () => {
       doctor: '',
       fecha_edicion: ''
     },
+    fecha_proxima_consulta: ''
   });
 
   useEffect(() => {
@@ -192,6 +195,7 @@ const EditarPediatra = () => {
         plan_versiones: pediatrica.plan_versiones || '',
         fecha_creacion: pediatrica.fecha_creacion || '',
         editado: pediatrica.editado ? JSON.parse(pediatrica.editado) : {},
+        fecha_proxima_consulta: moment.utc(pediatrica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
     }
   }, [pediatrica]);
@@ -304,6 +308,14 @@ const EditarPediatra = () => {
             editado: {
               ...prevFormData.editado,
               [name]: value,
+            },
+          };
+        case 'fecha_proxima_consulta':
+          return {
+            ...prevFormData,
+            fecha_proxima_consulta: {
+              ...prevFormData.fecha_proxima_consulta,
+              [name]: formatDate(value),
             },
           };
 
@@ -524,12 +536,12 @@ const EditarPediatra = () => {
                               className="form-control"
                               value={
                                 formData
-                                  ? formatToDateDisplay(formData.fecha_atencion)
+                                  ? moment.utc(formData.fecha_atencion).format('YYYY-MM-DD') || ''
                                   : ''
                               }
                               name="fecha_atencion"
                               onChange={handleChange}
-
+                              type='date'
                             />
                           </div>
                         </div>
@@ -1768,11 +1780,12 @@ const EditarPediatra = () => {
                             className="form-control"
                             value={
                               pediatrica
-                                ? formatToDateDisplay(pediatrica.fecha_proxima_consulta)
+                                ? formData.fecha_proxima_consulta
                                 : ''
                             }
                             name="fecha_proxima_consulta"
-                            type="text"
+                            type="date"
+                            onChange={handleChange}
                           />
                         </div>
                       </div>

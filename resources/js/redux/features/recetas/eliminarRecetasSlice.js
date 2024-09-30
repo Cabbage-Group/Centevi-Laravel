@@ -38,6 +38,7 @@ const eliminarRecetasSlice = createSlice({
             })
             .addCase(eliminarRecetas.rejected, (state, action) => {
                 state.status = 'failed';
+                state.recetas = [];
                 state.error = action.payload;
             });
     },

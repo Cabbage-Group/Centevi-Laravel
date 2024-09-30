@@ -74,6 +74,7 @@ const SesionTerapiaOrtopticaSlice = createSlice({
             .addCase(SesionTerapiaOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             // Manejo de la solicitud POST para agregar una nueva sesión
@@ -87,6 +88,7 @@ const SesionTerapiaOrtopticaSlice = createSlice({
             .addCase(agregarSesionTerapiaOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             // Manejo de la solicitud PUT para editar una sesión
@@ -103,6 +105,7 @@ const SesionTerapiaOrtopticaSlice = createSlice({
             .addCase(editarSesionTerapiaOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             .addCase(eliminarSesionTerapiaOrtoptica.fulfilled, (state, action) => {
@@ -119,6 +122,7 @@ const SesionTerapiaOrtopticaSlice = createSlice({
             .addCase(eliminarSesionTerapiaOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.data = [];
             });
     },
 });

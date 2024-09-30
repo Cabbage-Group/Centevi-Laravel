@@ -74,6 +74,7 @@ const SesionTerapiaBajaVisionSlice = createSlice({
             .addCase(SesionTerapiaBajaVision.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = []
             })
 
             // Manejo de la solicitud POST para agregar una nueva sesión

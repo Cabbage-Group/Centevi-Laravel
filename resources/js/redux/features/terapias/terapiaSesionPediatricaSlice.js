@@ -74,6 +74,7 @@ const SesionTerapiaPediatricaSlice = createSlice({
             .addCase(SesionTerapiaPediatrica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             // Manejo de la solicitud POST para agregar una nueva sesión
@@ -87,6 +88,7 @@ const SesionTerapiaPediatricaSlice = createSlice({
             .addCase(agregarSesionTerapiaPediatrica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             // Manejo de la solicitud PUT para editar una sesión
@@ -103,6 +105,7 @@ const SesionTerapiaPediatricaSlice = createSlice({
             .addCase(editarSesionTerapiaPediatrica.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             .addCase(eliminarSesionTerapiaPediatrica.fulfilled, (state, action) => {

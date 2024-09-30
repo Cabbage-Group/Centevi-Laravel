@@ -8,6 +8,7 @@ import * as Yup from 'yup';
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 
 const OptometriaGeneral = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const OptometriaGeneral = () => {
     id_terapia: '0',
     paciente: '',
     edad: '0',
-    fecha_atencion: new Date().toISOString().split('T')[0],
+    fecha_atencion: getCurrentMMYYYYDate(),
     m_c: '',
     a_o: '',
     a_p: '',

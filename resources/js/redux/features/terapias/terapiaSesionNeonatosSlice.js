@@ -74,6 +74,7 @@ const SesionTerapiaNeonatosSlice = createSlice({
             .addCase(SesionTerapiaNeonatos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             // Manejo de la solicitud POST para agregar una nueva sesión
@@ -87,6 +88,7 @@ const SesionTerapiaNeonatosSlice = createSlice({
             .addCase(agregarSesionTerapiaNeonatos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             // Manejo de la solicitud PUT para editar una sesión
@@ -103,6 +105,7 @@ const SesionTerapiaNeonatosSlice = createSlice({
             .addCase(editarSesionTerapiaNeonatos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload ? action.payload.error : action.error.message;
+                state.data = [];
             })
 
             .addCase(eliminarSesionTerapiaNeonatos.fulfilled, (state, action) => {
@@ -119,6 +122,7 @@ const SesionTerapiaNeonatosSlice = createSlice({
             .addCase(eliminarSesionTerapiaNeonatos.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+                state.data = [];
             });
     },
 });

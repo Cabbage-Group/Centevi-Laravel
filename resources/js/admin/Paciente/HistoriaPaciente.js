@@ -360,7 +360,7 @@ const HistoriaPaciente = () => {
   const handleDeleteConsultaGenerica = (id_consulta) => {
     Swal.fire({
       title: '¿Estás seguro?',
-      text: "No podrás revertir esta acción",
+      text: "No podrás revertir esta acción a",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -368,7 +368,11 @@ const HistoriaPaciente = () => {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
+      console.log("result: ");
+      console.log(result);
       if (result.isConfirmed) {
+        console.log("elimando");
+        
         dispatch(DeleteConsultaGenerica(id_consulta))
           .then((result) => {
             if (result.meta.requestStatus === 'fulfilled') {

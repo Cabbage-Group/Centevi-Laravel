@@ -9,6 +9,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
+import moment from 'moment';
+import { formatDate } from '../../utils/DateUtils.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -39,6 +41,7 @@ const EditarConsultaGenerica = () => {
       doctor: localStorage.getItem('nombre'),
       fecha_edicion: ''
     },
+    fecha_proxima_consulta: ''
   });
 
   useEffect(() => {
@@ -53,6 +56,7 @@ const EditarConsultaGenerica = () => {
         m_c: consultagenerica.m_c || '',
         fecha_creacion: consultagenerica.fecha_creacion || '',
         editado: consultagenerica.editado ? JSON.parse(consultagenerica.editado) : {},
+        fecha_proxima_consulta: moment.utc(consultagenerica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
     }
   }, [consultagenerica]);
@@ -65,6 +69,22 @@ const EditarConsultaGenerica = () => {
     }
   }, [dispatch, id, id_consulta]);
 
+  useEffect(() => {
+    if (pacientes && pacientes.length > 0 && formData.paciente !== '' && consultagenerica) {
+      console.log('Ejecutando ------------');
+      const paciente = pacientes.find(p => p.id_paciente == formData.paciente);
+
+      if (paciente && paciente.fecha_nacimiento) {
+        const edad = calculateAge(paciente.fecha_nacimiento);
+        setFormData((prevFormData) => {
+          return {
+            ...prevFormData,
+            edad: edad
+          };
+        });
+      }
+    }
+  }, [pacientes, consultagenerica])
 
   const handleChange = (e) => {
     const { name, value, dataset } = e.target;
@@ -79,6 +99,15 @@ const EditarConsultaGenerica = () => {
               [name]: value,
             },
           };
+        case 'fecha_proxima_consulta':
+          return {
+            ...prevFormData,
+            fecha_proxima_consulta: {
+              ...prevFormData.fecha_proxima_consulta,
+              [name]: formatDate(value),
+            },
+          };
+
         default:
           return {
             ...prevFormData,
@@ -88,10 +117,42 @@ const EditarConsultaGenerica = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(fetchEditarConsultaGenerica({ id, id_consulta, data: formData }));
-    navigate(-1); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
+
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡Confirmarás los cambios en los datos!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: 'white',
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (result.isConfirmed) {
+        // Despachar la acción
+        dispatch(fetchEditarConsultaGenerica({ id, id_consulta, data: formData }));
+
+        // Mostrar alerta de éxito
+        await Swal.fire(
+          'Guardado!',
+          'Los datos han sido actualizados.',
+          'success'
+        );
+
+        // Redirigir a la página anterior
+        navigate(-1);
+      }
+    } catch (erro) {
+      Swal.fire(
+        'Error',
+        'Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.',
+        'error'
+      );
+    }
   };
 
   const calculateAge = (birthDate) => {
@@ -220,7 +281,6 @@ const EditarConsultaGenerica = () => {
                               }}
                               value={consultagenerica.paciente}
                             />
-                            
                           </div>
                         </div>
                         <div className="form-row mb-12">
@@ -243,7 +303,7 @@ const EditarConsultaGenerica = () => {
                             </select>
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="edad">
+                            <label htmlFor="edad" onClick={() => console.log(formData)}>
                               Edad
                             </label>
                             <input
@@ -255,19 +315,18 @@ const EditarConsultaGenerica = () => {
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="inputAddress">
+                            <label htmlFor="inputAddress" onClick={() => console.log(formData.fecha_atencion)}>
                               Fecha de atencion
                             </label>
-                            
                             <input
                               className="form-control"
                               value={
                                 formData
-                                  ? formatToDateDisplay(formData.fecha_atencion)
+                                  ? moment.utc(formData.fecha_atencion).format('YYYY-MM-DD')
                                   : ''
                               }
                               name="fecha_atencion"
-                              type="text"
+                              type="date"
                               onChange={handleChange}
                             />
                           </div>
@@ -295,11 +354,12 @@ const EditarConsultaGenerica = () => {
                               className="form-control"
                               value={
                                 consultagenerica
-                                  ? formatToDateDisplay(consultagenerica.fecha_proxima_consulta)
+                                  ? formData.fecha_proxima_consulta
                                   : ''
                               }
                               name="fecha_proxima_consulta"
-                              type="text"
+                              type="date"
+                              onChange={handleChange}
                             />
                           </div>
                         </div>

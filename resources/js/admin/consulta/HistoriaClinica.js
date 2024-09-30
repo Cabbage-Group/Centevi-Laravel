@@ -8,6 +8,7 @@ import { crearHistoriaClinica } from '../../redux/features/consultas/HistoriaCli
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 
 const HistoriaClinica = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const HistoriaClinica = () => {
     id_terapia: '0',
     paciente: '',
     edad: '0',
-    fecha_atencion: new Date().toISOString().split('T')[0],
+    fecha_atencion: getCurrentMMYYYYDate(),
     m_c: '',
     fecha_creacion: '',
     editado: '',

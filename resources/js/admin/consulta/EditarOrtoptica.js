@@ -9,6 +9,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
+import moment from 'moment';
+import { formatDate } from '../../utils/DateUtils.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -172,6 +174,7 @@ const EditarOrtoptica = () => {
       doctor: '',
       fecha_edicion: ''
     },
+    fecha_proxima_consulta: ''
   });
 
   useEffect(() => {
@@ -201,7 +204,7 @@ const EditarOrtoptica = () => {
         refraccion: ortoptica.refraccion ? JSON.parse(ortoptica.refraccion) : {},
         lentes_contacto: ortoptica.lentes_contacto ? JSON.parse(ortoptica.lentes_contacto) : {},
         pruebas: ortoptica.pruebas ? JSON.parse(ortoptica.pruebas) : {},
-        pruebas_extra: ortoptica.pruebas_extra ? JSON.parse(ortoptica.pruebas_extra) : {},
+        pruebas_extra: ortoptica.pruebas_extra ? JSON.parse(ortoptica.pruebas_extra).replace(/\\\\/g, '\\') : {},
         acomodacion: ortoptica.acomodacion ? JSON.parse(ortoptica.acomodacion) : {},
         acomodacion_extra: ortoptica.acomodacion_extra ? JSON.parse(ortoptica.acomodacion_extra) : {},
         vergencia: ortoptica.vergencia ? JSON.parse(ortoptica.vergencia) : {},
@@ -209,6 +212,8 @@ const EditarOrtoptica = () => {
         plan_versiones: ortoptica.plan_versiones || '',
         fecha_creacion: ortoptica.fecha_creacion || '',
         editado: ortoptica.editado ? JSON.parse(ortoptica.editado) : {},
+
+        fecha_proxima_consulta: moment.utc(ortoptica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
     }
   }, [ortoptica]);
@@ -344,6 +349,15 @@ const EditarOrtoptica = () => {
             ...prevFormData,
             id_terapia: value,
           };
+
+        case 'fecha_proxima_consulta':
+          return {
+            ...prevFormData,
+            fecha_proxima_consulta: {
+              ...prevFormData.fecha_proxima_consulta,
+              [name]: formatDate(value),
+            },
+          };
         default:
           return {
             ...prevFormData,
@@ -353,10 +367,41 @@ const EditarOrtoptica = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
-    navigate(''); // Reemplaza con la ruta a la que quieres redirigir después de actualizar
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡Confirmarás los cambios en los datos!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: 'white',
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+      });
+      formData.pruebas_extra = formData.pruebas_extra.replace(/\\\\/g, '\\')
+      if (result.isConfirmed) {
+        // Despachar la acción
+        dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
+
+        // Mostrar alerta de éxito
+        await Swal.fire(
+          'Guardado!',
+          'Los datos han sido actualizados.',
+          'success'
+        );
+
+        // Redirigir a la página anterior
+        navigate(-1);
+      }
+    } catch (error) {
+      Swal.fire(
+        'Error',
+        'Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.',
+        'error'
+      );
+    }
   };
 
   const calculateAge = (birthDate) => {
@@ -411,7 +456,7 @@ const EditarOrtoptica = () => {
                         <div className="row">
                           <div className="col-xl-12 col-md-12 col-sm-12 col-12">
                             <h4>
-                              ORTOPTICA
+                              EDITAR ORTOPTICA
                             </h4>
                           </div>
                         </div>
@@ -520,11 +565,11 @@ const EditarOrtoptica = () => {
                               className="form-control"
                               value={
                                 ortoptica
-                                  ? formatToDateDisplay(formData.fecha_atencion)
+                                  ? moment.utc(formData.fecha_atencion).format('YYYY-MM-DD') || ''
                                   : ''
                               }
                               name="fecha_atencion"
-                              type="text"
+                              type="date"
                               onChange={handleChange}
                             />
                           </div>
@@ -2114,11 +2159,12 @@ const EditarOrtoptica = () => {
                           className="form-control"
                           value={
                             ortoptica
-                              ? formatToDateDisplay(ortoptica.fecha_proxima_consulta)
+                              ? formData.fecha_proxima_consulta
                               : ''
                           }
                           name="fecha_proxima_consulta"
-                          type="text"
+                          type="date"
+                          onChange={handleChange}
                         />
                       </div>
                     </div>

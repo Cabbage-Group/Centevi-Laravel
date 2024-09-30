@@ -66,8 +66,8 @@ class Terapias_Optometria_Pediatrica_ApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "id_paciente" => 'nullable|integer',
-            "evaluacion" => 'nullable|string|max:255',
-            'motivo' => 'nullable|string|max:255',
+            "evaluacion" => 'nullable|string',
+            'motivo' => 'nullable|string',
             'fecha_creacion' => 'nullable|date',
         ]);
 
@@ -110,8 +110,8 @@ class Terapias_Optometria_Pediatrica_ApiController extends Controller
         // Validar los datos de entrada para recetas
         $validator = Validator::make($request->all(), [
             "id_paciente" => 'nullable|integer',
-            "evaluacion" => 'nullable|string|max:255',
-            'motivo' => 'nullable|string|max:255',
+            "evaluacion" => 'nullable|string',
+            'motivo' => 'nullable|string',
             'fecha_creacion' => 'nullable|date',
         ]);
 

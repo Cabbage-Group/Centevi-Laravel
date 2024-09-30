@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import Swal from 'sweetalert2';
@@ -12,8 +12,12 @@ import {
   editarSesionTerapiaNeonatos,
   eliminarSesionTerapiaNeonatos
 } from '../../redux/features/terapias/terapiaSesionNeonatosSlice';
+import moment from 'moment';
 
 const TerapiasNeonatos = () => {
+  const formikRef = useRef(null);
+  const formikRefEvaluacion = useRef(null);
+
   const dispatch = useDispatch();
   const { id, id_terapia } = useParams();
   const { data: verTerapia } = useSelector((state) => state.verTerapiaNeonatos);
@@ -24,12 +28,22 @@ const TerapiasNeonatos = () => {
   useEffect(() => {
     if (id && id_terapia) {
       dispatch(fetchVerPaciente(id));
-      dispatch(VerUnaTerapiaNeonatos({ id_paciente: id, id_terapia }));
+      getDataTerapia();
       dispatch(SesionTerapiaNeonatos(id_terapia));
       setSesionModificada(false);
     }
   }, [dispatch, id, id_terapia, sesionModificada]);
 
+  const getDataTerapia = async () => {
+    const data = await dispatch(VerUnaTerapiaNeonatos({ id_paciente: id, id_terapia }));
+    if (formikRef.current) {
+      formikRef.current.setFieldValue('motivo', data.payload.data.motivo);
+      formikRef.current.setFieldValue('evaluacion', data.payload.data.evaluacion);
+
+      formikRefEvaluacion.current.setFieldValue('motivo', data.payload.data.motivo);
+      formikRefEvaluacion.current.setFieldValue('evaluacion', data.payload.data.evaluacion);
+    }
+  }
 
   const handleAgregarSesion = async (event) => {
     event.preventDefault();
@@ -129,6 +143,7 @@ const TerapiasNeonatos = () => {
                         <b>Cedula:</b> {verPaciente?.nro_cedula}
                       </p>
                       <Formik
+                        innerRef={formikRef}
                         initialValues={{
                           motivo: verTerapia?.motivo || '',
                           evaluacion: verTerapia?.evaluacion || ''
@@ -204,7 +219,10 @@ const TerapiasNeonatos = () => {
                                   </button>
                                 </td>
                                 <td>{ON.doctor}</td>
-                                <td>{new Date(ON.fecha_creacion).toLocaleDateString()}</td>
+                                <td>
+                                  {/* {new Date(ON.fecha_creacion).toLocaleDateString()} */}
+                                  {moment.utc(ON.fecha_creacion).format('DD-MM-YYYY')}
+                                </td>
                                 <td>
                                   <Link to={`/ver-sesion-terapia-neonato/${id}/${id_terapia}/${ON.id}`}>
                                     <button className="btnVerTerapia btn btn-primary mb-2 p-1 mr-2 rounded-circle">
@@ -235,6 +253,57 @@ const TerapiasNeonatos = () => {
                           </tbody>
                         </table>
                       </div>
+                    </div>
+
+                    <div>
+                      <h5 className="p-3">Evaluación:</h5>
+
+                      <Formik
+                        innerRef={formikRefEvaluacion}
+                        initialValues={{
+                          motivo: verTerapia?.motivo || '',
+                          evaluacion: verTerapia?.evaluacion || '',
+                        }}
+                        onSubmit={async (values, { setSubmitting }) => {
+                          try {
+                            await dispatch(editTerapiasOptometriaNeonatos({ id_terapia, terapiaData: values })).unwrap();
+                            Swal.fire({
+                              icon: 'success',
+                              title: 'Edit Successful',
+                              text: 'Terapia Baja Vision has been successfully updated!',
+                            });
+                          } catch (error) {
+                            Swal.fire({
+                              icon: 'error',
+                              title: 'Edit Failed',
+                              text: `There was an error updating the Terapia Baja Vision: ${error.message}`,
+                            });
+                          } finally {
+                            setSubmitting(false);
+                          }
+                        }}
+                      >
+                        {({ isSubmitting }) => (
+                          <Form>
+                            <div className="form-group">
+                              <Field
+                                as="textarea"
+                                className="form-control textarea"
+                                name="evaluacion"
+                                rows="15"
+                              />
+                              <ErrorMessage name="evaluacion" component="div" className="text-danger" />
+                            </div>
+                            <button
+                              className="btn btn-success mt-3"
+                              type="submit"
+                              disabled={isSubmitting}
+                            >
+                              Actualizar Campos
+                            </button>
+                          </Form>
+                        )}
+                      </Formik>
                     </div>
                   </div>
                 </div>
