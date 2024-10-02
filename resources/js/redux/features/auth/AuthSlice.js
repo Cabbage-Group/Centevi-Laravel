@@ -13,6 +13,22 @@ export const fetchLogin = createAsyncThunk(
   }
 );
 
+export const fetchValidarToken = createAsyncThunk(
+  'auth/validar-user',
+  async (data) => {
+    const response = await axios.post(`${API}/validar-user`, { usuario: data });
+    console.log("response: --");
+    console.log(response);
+    const rpta = response.data
+    if (rpta) {
+      // console.log("rpta.data.usuario.perfil ---");
+      // console.log(rpta.data.usuario.perfil);
+      // localStorage.setItem('perfil', rpta.data.usuario.perfil)
+    }
+    return rpta;
+  }
+);
+
 // await fetch(config.api_public+'login',
 //   {
 //       mode:'cors',
@@ -46,9 +62,26 @@ const AuthSlice = createSlice({
         localStorage.setItem('token_user', action.payload.data.token)
         localStorage.setItem('usuario', action.payload.data.usuario.usuario)
         localStorage.setItem('nombre', action.payload.data.usuario.nombre)
-        
+
       })
       .addCase(fetchLogin.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+
+
+      .addCase(fetchValidarToken.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchValidarToken.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.usuario = action.payload.data;
+
+        console.log("VALIDAR !");
+        
+
+      })
+      .addCase(fetchValidarToken.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

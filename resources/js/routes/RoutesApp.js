@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ListaPaciente from '../admin/Paciente/ListaPaciente.js';
 import VerRecetas from '../admin/recetas/VerRecetas.js';
 import CrearReceta from '../admin/recetas/CrearReceta.js';
@@ -56,15 +56,26 @@ import {
   Routes,
   Navigate
 } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchValidarToken } from '../redux/features/auth/AuthSlice.js';
 
 const RoutesApp = () => {
-
+  const dispatch = useDispatch();
   const { status, usuario } = useSelector((state) => state.auth);
   const isLogin = () => {
     const token = localStorage.getItem('token_user');
     if (token || status == 'succeeded') return true
     return false
+  }
+
+  useEffect(() => {
+    if (isLogin()) {
+      validarUser();
+    }
+  }, [])
+
+  const validarUser = async () => {
+    await dispatch(fetchValidarToken(localStorage.getItem('usuario')));
   }
 
   return (
@@ -73,7 +84,7 @@ const RoutesApp = () => {
         <Route path="/sidebar" element={<Sidebar />} />
         <Route path="/navbar" element={<Navbar />} />
         {
-          isLogin() ? (
+          isLogin() && usuario ? (
             <>
               <Route path="*" element={<Sidebar component={<Home />} />} />
               <Route path="/home" element={<Sidebar component={<Home />} />} />

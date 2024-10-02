@@ -90,13 +90,14 @@ class LoginApiController extends Controller
       'mensaje_dev' => null
     ], 200);
   }
-  private function generarCodigoAleatorio($longitud = 60) {
+  private function generarCodigoAleatorio($longitud = 60)
+  {
     $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $codigoAleatorio = '';
     $max = strlen($caracteres) - 1;
 
     for ($i = 0; $i < $longitud; $i++) {
-        $codigoAleatorio .= $caracteres[random_int(0, $max)];
+      $codigoAleatorio .= $caracteres[random_int(0, $max)];
     }
 
     return $codigoAleatorio;
@@ -105,7 +106,7 @@ class LoginApiController extends Controller
   {
     $usuarios = usuarios::all();
 
-    foreach($usuarios as $usuario){
+    foreach ($usuarios as $usuario) {
       $usuarioe = usuarios::find($usuario->id_usuario);
       $usuarioe->token = $this->generarCodigoAleatorio();
       $usuarioe->update();
@@ -114,5 +115,28 @@ class LoginApiController extends Controller
     return "Tokens generados";
   }
 
-  
+  public function validarUser(Request $request)
+  {
+    $usuario = Usuarios::where('usuario', $request->usuario)->first();
+
+    if ($usuario) {
+      return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Login successful',
+        'data' => [
+          'token' => $usuario->token,
+          'usuario' => $usuario
+        ],
+        'mensaje_dev' => null
+      ], 200);
+    } else {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Invalid credentials',
+        'data' => [],
+        'mensaje_dev' => 'Usuario o contraseña incorrectos'
+      ], 401);
+    }
+  }
+
 }

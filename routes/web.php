@@ -36,6 +36,7 @@ Route::delete('/api/sucursales/{id}', [SucursalesApiController::class, 'deleteSu
 
 Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
+Route::post('/api/validar-user', [LoginApiController::class,'validarUser']);
 Route::get('/api/asignar-tokens', [LoginApiController::class, 'asignarTokens']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
@@ -44,7 +45,42 @@ Route::post('/api/usuarios', [UsuariosApiController::class, 'add']);
 
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
+
+// php artisan optimize
+// 
+
+
+
+
+
+
+
+
+
+
+
+
+
 Route::delete('/api/pacientes/{id}', [PacientesApiController::class, 'eliminarpaciente']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Route::get('/api/obtenerconsultagenerica/{paciente_id}', [PacientesApiController::class, 'obtenerconsultagenerica']);
 
@@ -110,7 +146,32 @@ Route::put('/api/recetas/{id}', [RecetasApiController::class, 'editarReceta']);
 
 Route::post('/api/documentos/subir', [DocumentosPacientesApiController::class, 'uploadDocument']);
 Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::class, 'index']);
+
+
+
+
+
+
+
+
 Route::delete('/api/documentos/{idDocumento}', [DocumentosPacientesApiController::class, 'destroy']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Route::get('/api/terapias_bajav/{id_paciente}/{id_terapia}', [Terapias_Bajav_ApiController::class, 'verUnaTerapias_Bajav']);
 Route::get('/api/terapias_bajav/{id_paciente}', [Terapias_Bajav_ApiController::class, 'verTerapias_Bajav']);

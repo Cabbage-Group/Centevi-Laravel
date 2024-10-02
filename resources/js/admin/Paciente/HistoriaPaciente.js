@@ -47,6 +47,7 @@ const HistoriaPaciente = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data: verPaciente, } = useSelector((state) => state.verPaciente);
+  const { usuario } = useSelector((state) => state.auth);
   const { dataOA } = useSelector((state) => state.mostrarOrtoptica);
   const { dataBV } = useSelector((state) => state.mostrarBajaVision);
   const { dataRG } = useSelector((state) => state.mostrarGeneral);
@@ -372,7 +373,7 @@ const HistoriaPaciente = () => {
       console.log(result);
       if (result.isConfirmed) {
         console.log("elimando");
-        
+
         dispatch(DeleteConsultaGenerica(id_consulta))
           .then((result) => {
             if (result.meta.requestStatus === 'fulfilled') {
@@ -872,7 +873,9 @@ const HistoriaPaciente = () => {
                       <div className="widget-header">
                         <div className="row">
                           <div className="col-xl-12 col-md-12 col-sm-12 col-12">
-                            <h4>
+                            <h4
+                              onClick={() => console.log(usuario)}
+                            >
                               LISTA DE CONSULTAS
                             </h4>
                           </div>
@@ -964,26 +967,31 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
-                                          <button
-                                            key={OA.id_consulta}
-                                            onClick={() => handleDeleteOrtoptica(OA.id_consulta)}
-                                            className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
+
+                                          {
+                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                              <button
+                                                key={OA.id_consulta}
+                                                onClick={() => handleDeleteOrtoptica(OA.id_consulta)}
+                                                className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                              >
+                                                <svg
+                                                  className="h-6 w-6"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                  />
+                                                </svg>
+                                              </button>
+                                            ) : null
+                                          }
                                         </td>
                                       </tr>
                                     ))}
@@ -1091,28 +1099,32 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
-                                          <button
-                                            key={BV.id_consulta}
-                                            onClick={() => handleDeleteBajaVision(BV.id_consulta)}
-                                            borrar_consulta="56"
-                                            className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                            id_paciente="22"
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
+                                          {
+                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                              <button
+                                                key={BV.id_consulta}
+                                                onClick={() => handleDeleteBajaVision(BV.id_consulta)}
+                                                borrar_consulta="56"
+                                                className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                                id_paciente="22"
+                                              >
+                                                <svg
+                                                  className="h-6 w-6"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                  />
+                                                </svg>
+                                              </button>
+                                            ) : null
+                                          }
                                         </td>
                                       </tr>
                                     ))}
@@ -1222,27 +1234,32 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
-                                          <button
-                                            key={RG.id_consulta}
-                                            onClick={() => handleDeleteOptometriaGeneral(RG.id_consulta)}
-                                            className="btnEliminarConsultaRG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                            id_paciente="22"
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
+                                          {
+                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                              <button
+                                                key={RG.id_consulta}
+                                                onClick={() => handleDeleteOptometriaGeneral(RG.id_consulta)}
+                                                className="btnEliminarConsultaRG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                                id_paciente="22"
+                                              >
+                                                <svg
+                                                  className="h-6 w-6"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                  />
+                                                </svg>
+                                              </button>
+                                            ) : null
+                                          }
+
                                         </td>
                                       </tr>
                                     ))}
@@ -1352,26 +1369,32 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
-                                          <button
-                                            key={ON.id_consulta}
-                                            onClick={() => handleDeleteNeonatos(ON.id_consulta)}
-                                            className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
+
+                                          {
+                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                              <button
+                                                key={ON.id_consulta}
+                                                onClick={() => handleDeleteNeonatos(ON.id_consulta)}
+                                                className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                              >
+                                                <svg
+                                                  className="h-6 w-6"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                  />
+                                                </svg>
+                                              </button>
+                                            ) : null
+                                          }
+
                                         </td>
                                       </tr>
                                     ))}
@@ -1481,26 +1504,32 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
-                                          <button
-                                            key={OP.id_consulta}
-                                            onClick={() => handleDeletePediatrica(OP.id_consulta)}
-                                            className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
+
+                                          {
+                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                              <button
+                                                key={OP.id_consulta}
+                                                onClick={() => handleDeletePediatrica(OP.id_consulta)}
+                                                className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                              >
+                                                <svg
+                                                  className="h-6 w-6"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                  />
+                                                </svg>
+                                              </button>
+                                            ) : null
+                                          }
+
                                         </td>
                                       </tr>
                                     ))}
@@ -1610,26 +1639,31 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
-                                          <button
-                                            key={CG.id_consulta}
-                                            onClick={() => handleDeleteConsultaGenerica(CG.id_consulta)}
-                                            className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
+                                          {
+                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                              <button
+                                                key={CG.id_consulta}
+                                                onClick={() => handleDeleteConsultaGenerica(CG.id_consulta)}
+                                                className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                              >
+                                                <svg
+                                                  className="h-6 w-6"
+                                                  fill="none"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  <path
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                  />
+                                                </svg>
+                                              </button>
+                                            ) : null
+                                          }
+
                                         </td>
                                       </tr>
                                     ))}
@@ -1737,31 +1771,36 @@ const HistoriaPaciente = () => {
                                       }}
                                     >
                                       <div className="card-body">
-                                        <button
-                                          className="btn btn-danger"
-                                          onClick={() => handleDeleteTerapia('bajaVision', terapia.id_terapia)}
-                                          style={{
-                                            marginBottom: '-80px',
-                                            position: 'absolute',
-                                            zIndex: '3',
-                                            marginLeft: 420,
-                                          }}
-                                        >
-                                          <svg
-                                            className="h-6 w-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                          >
-                                            <path
-                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              strokeWidth="2"
-                                            />
-                                          </svg>
-                                        </button>
+                                        {
+                                          usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            <button
+                                              className="btn btn-danger"
+                                              onClick={() => handleDeleteTerapia('bajaVision', terapia.id_terapia)}
+                                              style={{
+                                                marginBottom: '-80px',
+                                                position: 'absolute',
+                                                zIndex: '3',
+                                                marginLeft: 420,
+                                              }}
+                                            >
+                                              <svg
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                              >
+                                                <path
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth="2"
+                                                />
+                                              </svg>
+                                            </button>
+                                          ) : null
+                                        }
+
                                         <h5 className="">
                                           Terapia Baja Vision:
                                         </h5>
@@ -1806,31 +1845,36 @@ const HistoriaPaciente = () => {
                                   }}
                                 >
                                   <div className="card-body">
-                                    <button
-                                      className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                      onClick={() => handleDeleteTerapia('optometriaNeonatos', terapia.id_terapia)}
-                                      style={{
-                                        marginBottom: '-80px',
-                                        position: 'absolute',
-                                        zIndex: '3',
-                                        marginLeft: '420px',
-                                      }}
-                                    >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </button>
+                                    {
+                                      usuario?.usuario?.perfil == 'superadministrador' ? (
+                                        <button
+                                          className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                          onClick={() => handleDeleteTerapia('optometriaNeonatos', terapia.id_terapia)}
+                                          style={{
+                                            marginBottom: '-80px',
+                                            position: 'absolute',
+                                            zIndex: '3',
+                                            marginLeft: '420px',
+                                          }}
+                                        >
+                                          <svg
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                            />
+                                          </svg>
+                                        </button>
+                                      ) : null
+                                    }
+
                                     <h5 className="">
                                       Terapia Optometria Neonatos:
                                     </h5>
@@ -1870,31 +1914,36 @@ const HistoriaPaciente = () => {
                                   }}
                                 >
                                   <div className="card-body">
-                                    <button
-                                      className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                      onClick={() => handleDeleteTerapia('optometriaPediatrica', terapia.id_terapia)}
-                                      style={{
-                                        marginBottom: '-80px',
-                                        position: 'absolute',
-                                        zIndex: '3',
-                                        marginLeft: '420px',
-                                      }}
-                                    >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </button>
+                                    {
+                                      usuario?.usuario?.perfil == 'superadministrador' ? (
+                                        <button
+                                          className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                          onClick={() => handleDeleteTerapia('optometriaPediatrica', terapia.id_terapia)}
+                                          style={{
+                                            marginBottom: '-80px',
+                                            position: 'absolute',
+                                            zIndex: '3',
+                                            marginLeft: '420px',
+                                          }}
+                                        >
+                                          <svg
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                            />
+                                          </svg>
+                                        </button>
+                                      ) : null
+                                    }
+
                                     <h5 className="">
                                       Terapia Optometria Pediatrica:
                                     </h5>
@@ -1934,31 +1983,36 @@ const HistoriaPaciente = () => {
                                   }}
                                 >
                                   <div className="card-body">
-                                    <button
-                                      className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
-                                      onClick={() => handleDeleteTerapia('ortopticaAdultos', terapia.id_terapia)}
-                                      style={{
-                                        marginBottom: '-80px',
-                                        position: 'absolute',
-                                        zIndex: '3',
-                                        marginLeft: '420px',
-                                      }}
-                                    >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </button>
+                                    {
+                                      usuario?.usuario?.perfil == 'superadministrador' ? (
+                                        <button
+                                          className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
+                                          onClick={() => handleDeleteTerapia('ortopticaAdultos', terapia.id_terapia)}
+                                          style={{
+                                            marginBottom: '-80px',
+                                            position: 'absolute',
+                                            zIndex: '3',
+                                            marginLeft: '420px',
+                                          }}
+                                        >
+                                          <svg
+                                            className="h-6 w-6"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <path
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth="2"
+                                            />
+                                          </svg>
+                                        </button>
+                                      ) : null
+                                    }
+
                                     <h5 className="">
                                       Terapia Ortoptica Adultos:
                                     </h5>
@@ -2108,26 +2162,31 @@ const HistoriaPaciente = () => {
                               </a>
 
                               {/* Eliminar */}
-                              <button
-                                borrar_documento="32"
-                                className="btn btn-danger eliminarDocumentoPaciente"
-                                onClick={() => handleDeleteDocument(doc.id_documento)}
-                              >
-                                <svg
-                                  className="h-6 w-6"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                  />
-                                </svg>
-                              </button>
+                              {
+                                usuario?.usuario?.perfil == 'superadministrador' ? (
+                                  <button
+                                    borrar_documento="32"
+                                    className="btn btn-danger eliminarDocumentoPaciente"
+                                    onClick={() => handleDeleteDocument(doc.id_documento)}
+                                  >
+                                    <svg
+                                      className="h-6 w-6"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                      />
+                                    </svg>
+                                  </button>
+                                ) : null
+                              }
+
                               <p className="mt-3">
                                 Nombre:{doc.nombre}
                               </p>

@@ -204,7 +204,7 @@ const EditarOrtoptica = () => {
         refraccion: ortoptica.refraccion ? JSON.parse(ortoptica.refraccion) : {},
         lentes_contacto: ortoptica.lentes_contacto ? JSON.parse(ortoptica.lentes_contacto) : {},
         pruebas: ortoptica.pruebas ? JSON.parse(ortoptica.pruebas) : {},
-        pruebas_extra: ortoptica.pruebas_extra ? JSON.parse(ortoptica.pruebas_extra).replace(/\\\\/g, '\\') : {},
+        pruebas_extra: ortoptica.pruebas_extra ? JSON.parse(ortoptica.pruebas_extra) : {},
         acomodacion: ortoptica.acomodacion ? JSON.parse(ortoptica.acomodacion) : {},
         acomodacion_extra: ortoptica.acomodacion_extra ? JSON.parse(ortoptica.acomodacion_extra) : {},
         vergencia: ortoptica.vergencia ? JSON.parse(ortoptica.vergencia) : {},
@@ -380,8 +380,10 @@ const EditarOrtoptica = () => {
         confirmButtonText: 'Sí, guardar',
         cancelButtonText: 'Cancelar'
       });
-      formData.pruebas_extra = formData.pruebas_extra.replace(/\\\\/g, '\\')
       if (result.isConfirmed) {
+        if(formData && formData.pruebas_extra){
+          // formData.pruebas_extra = formData.pruebas_extra.replace(/\\\\/g, '\\')
+        }
         // Despachar la acción
         dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
 
