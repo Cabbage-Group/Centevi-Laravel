@@ -31,11 +31,16 @@ class Usuarios extends Model
         'sucursal',
         'foto',
         'estado',
+        'tipo_usuario_id',
         'ultimo_login',
         'editado',
         'token'
     ];
 
+    public function tipoUsuario()
+    {
+        return $this->belongsTo(TiposUsuario::class);
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

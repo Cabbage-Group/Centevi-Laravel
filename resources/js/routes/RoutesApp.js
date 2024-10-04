@@ -58,6 +58,8 @@ import {
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchValidarToken } from '../redux/features/auth/AuthSlice.js';
+import TiposUsuarios from '../admin/tipos-usuarios/VerTiposUsuarios.js';
+import Permisos from '../admin/permisos/Permisos.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -147,6 +149,11 @@ const RoutesApp = () => {
               <Route path="/terapias-neonatos/:id/:id_terapia" element={<Sidebar component={<TerapiasNeonatos />} />} />
               <Route path="/terapias-ortoptica/:id/:id_terapia" element={<Sidebar component={<TerapiasOrtoptica />} />} />
               <Route path="/terapias-pediatrica/:id/:id_terapia" element={<Sidebar component={<TerapiasPediatrica />} />} />
+
+              <Route path="/tipos-usuarios" element={<Sidebar component={<TiposUsuarios />} />} />
+
+              <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
+
             </>
           ) : (
             <>

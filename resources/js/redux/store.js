@@ -61,6 +61,9 @@ import VerSesionTerapiaOrtopticaSlice from './features/terapias/VerSesionTerapia
 import EditarSesionTerapiaOrtopticaSlice from './features/terapias/EditarSesionTerapiaOrtopticaSlice';
 import proximasCitasSlice from './features/reportes/proximasCitasSlice';
 import AuthSlice from './features/auth/AuthSlice';
+import verTiposUsuariosSlice from './features/tipos-usuarios/verTiposUsuariosSlice';
+import PermisosSlice from './features/permisos/PermisosSlice';
+import TiposPermisosSlice from './features/tipos-permisos/TiposPermisosSlice';
 
 const store = configureStore({
   reducer: {
@@ -129,6 +132,10 @@ const store = configureStore({
     editarSesionTerapiaNeonato: EditarSesionTerapiaNeonatoSlice,
     editarSesionTerapiaPediatrica: EditarSesionTerapiaPediatricaSlice,
     editarSesionTerapiaOrtoptica: EditarSesionTerapiaOrtopticaSlice,
+
+    tiposUsuarios: verTiposUsuariosSlice,
+    permisos : PermisosSlice,
+    tiposPermisos : TiposPermisosSlice
 
   }
 });

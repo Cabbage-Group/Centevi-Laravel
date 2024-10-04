@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\API\Documentos\DocumentosPacientesApiController;
+use App\Http\Controllers\API\tipos_permisos\TiposPermisosController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\usuarios\UsuariosApiController;
 use App\Http\Controllers\API\sucursales\SucursalesApiController;
@@ -13,7 +14,9 @@ use App\Http\Controllers\API\consultas\OrtopticaApiController;
 use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
-use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController; 
+use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
+use App\Http\Controllers\API\permisos\PermisosController;
+use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
 use App\Http\Controllers\API\terapias\Terapia_Bajav_ApiController;
 use App\Http\Controllers\API\terapias\Terapia_Optometria_Neonatos_ApiController;
@@ -23,6 +26,7 @@ use App\Http\Controllers\API\terapias\Terapias_Bajav_ApiController;
 use App\Http\Controllers\API\terapias\Terapias_Optometria_Neonatos_ApiController;
 use App\Http\Controllers\API\terapias\Terapias_Optometria_Pediatrica_ApiController;
 use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
+use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -48,8 +52,24 @@ Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpacient
 
 // php artisan optimize
 // 
+Route::get('/api/tipos-usuarios', [TiposUsuariosController::class, 'index']);
+
+Route::post('/api/tipos-usuarios', [TiposUsuariosController::class, 'create']);
 
 
+Route::get('/api/tipos-permisos', [TiposPermisosController::class, 'index']);
+
+Route::post('/api/tipos-permisos', [TiposPermisosController::class, 'create']);
+
+Route::get('/api/permisos', [PermisosController::class, 'index']);
+
+Route::post('/api/permisos', [PermisosController::class, 'create']);
+
+Route::get('/api/permisos/findAllUsuarioPermisos/{id}', [PermisosController::class, 'findAllUsuarioPermisos']);
+
+Route::post('/api/permisos/createOrUpdatePermisosUsuario', [PermisosController::class, 'createOrUpdatePermisosUsuario']);
+
+Route::get('/api/permisos-tipos-usuarios', [PermisosTiposUsuariosController::class, 'index']);
 
 
 
