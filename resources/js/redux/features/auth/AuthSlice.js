@@ -59,6 +59,7 @@ const AuthSlice = createSlice({
         state.usuario = action.payload.data;
         // console.log("action.payload.data: ---");
         // console.log(action.payload.data);
+        localStorage.setItem('id_usuario', action.payload.data.usuario.id_usuario)
         localStorage.setItem('token_user', action.payload.data.token)
         localStorage.setItem('usuario', action.payload.data.usuario.usuario)
         localStorage.setItem('nombre', action.payload.data.usuario.nombre)
@@ -76,7 +77,10 @@ const AuthSlice = createSlice({
       .addCase(fetchValidarToken.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.usuario = action.payload.data;
-
+        localStorage.setItem('id_usuario', action.payload.data.usuario.id_usuario)
+        localStorage.setItem('token_user', action.payload.data.token)
+        localStorage.setItem('usuario', action.payload.data.usuario.usuario)
+        localStorage.setItem('nombre', action.payload.data.usuario.nombre)
         console.log("VALIDAR !");
         
 

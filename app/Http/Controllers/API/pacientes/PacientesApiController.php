@@ -1614,12 +1614,16 @@ class PacientesApiController extends Controller
         'optometria_neonatos.doctor as DOCTOR',
         'sucursales.nombre as SUCURSAL',
         'hubo_contacto as CONTACTO',
+        'usuarios.nombre as USUARIO_NOMBRE',
+        'optometria_neonatos.nota_contacto as NOTA_CONTACTO',
+        'optometria_neonatos.fecha_contacto as FECHA_CONTACTO',
         DB::raw("DATE_FORMAT(optometria_neonatos.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
         DB::raw("'optometria_neonatos' as NOMBRE_TABLA"),
         'se_agendo as SE_AGENDO'
       )
       ->join('optometria_neonatos', 'pacientes.id_paciente', '=', 'optometria_neonatos.paciente')
       ->leftJoin('sucursales', 'optometria_neonatos.sucursal', '=', 'sucursales.id_sucursal')
+      ->leftJoin('usuarios', 'optometria_neonatos.id_usuario_contacto', '=', 'usuarios.id_usuario')
       ->where(function ($query) use ($fecha, $search) {
         if ($fecha !== null) {
           if (strpos($fecha, ' - ') !== false) {
@@ -1661,12 +1665,16 @@ class PacientesApiController extends Controller
           'optometria_pediatrica.doctor as DOCTOR',
           'sucursales.nombre as SUCURSAL',
           'optometria_pediatrica.hubo_contacto as CONTACTO',
+          'usuarios.nombre as USUARIO_NOMBRE',
+          'optometria_pediatrica.nota_contacto as NOTA_CONTACTO',
+          'optometria_pediatrica.fecha_contacto as FECHA_CONTACTO',
           DB::raw("DATE_FORMAT(optometria_pediatrica.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
           DB::raw("'optometria_pediatrica' as NOMBRE_TABLA"),
           'optometria_pediatrica.se_agendo as SE_AGENDO'
         )
         ->join('optometria_pediatrica', 'pacientes.id_paciente', '=', 'optometria_pediatrica.paciente')
         ->leftJoin('sucursales', 'optometria_pediatrica.sucursal', '=', 'sucursales.id_sucursal')
+        ->leftJoin('usuarios', 'optometria_pediatrica.id_usuario_contacto', '=', 'usuarios.id_usuario')
         ->where(function ($query) use ($fecha, $search) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
@@ -1708,12 +1716,16 @@ class PacientesApiController extends Controller
           'ortoptica_adultos.doctor as DOCTOR',
           'sucursales.nombre as SUCURSAL',
           'ortoptica_adultos.hubo_contacto as CONTACTO',
+          'usuarios.nombre as USUARIO_NOMBRE',
+          'ortoptica_adultos.nota_contacto as NOTA_CONTACTO',
+          'ortoptica_adultos.fecha_contacto as FECHA_CONTACTO',
           DB::raw("DATE_FORMAT(ortoptica_adultos.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
           DB::raw("'ortoptica_adultos' as NOMBRE_TABLA"),
           'ortoptica_adultos.se_agendo as SE_AGENDO'
         )
         ->join('ortoptica_adultos', 'pacientes.id_paciente', '=', 'ortoptica_adultos.paciente')
         ->leftJoin('sucursales', 'ortoptica_adultos.sucursal', '=', 'sucursales.id_sucursal')
+        ->leftJoin('usuarios', 'ortoptica_adultos.id_usuario_contacto', '=', 'usuarios.id_usuario')
         ->where(function ($query) use ($fecha, $search) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
@@ -1755,12 +1767,16 @@ class PacientesApiController extends Controller
           'consultagenerica.doctor as DOCTOR',
           'sucursales.nombre as SUCURSAL',
           'consultagenerica.hubo_contacto as CONTACTO',
+          'usuarios.nombre as USUARIO_NOMBRE',
+          'consultagenerica.nota_contacto as NOTA_CONTACTO',
+          'consultagenerica.fecha_contacto as FECHA_CONTACTO',
           DB::raw("DATE_FORMAT(consultagenerica.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
           DB::raw("'consultagenerica' as NOMBRE_TABLA"),
           'consultagenerica.se_agendo as SE_AGENDO'
         )
         ->join('consultagenerica', 'pacientes.id_paciente', '=', 'consultagenerica.paciente')
         ->leftJoin('sucursales', 'consultagenerica.sucursal', '=', 'sucursales.id_sucursal')
+        ->leftJoin('usuarios', 'consultagenerica.id_usuario_contacto', '=', 'usuarios.id_usuario')
         ->where(function ($query) use ($fecha, $search) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
@@ -1802,12 +1818,16 @@ class PacientesApiController extends Controller
           'refracciongeneral.doctor as DOCTOR',
           'sucursales.nombre as SUCURSAL',
           'refracciongeneral.hubo_contacto as CONTACTO',
+          'usuarios.nombre as USUARIO_NOMBRE',
+          'refracciongeneral.nota_contacto as NOTA_CONTACTO',
+          'refracciongeneral.fecha_contacto as FECHA_CONTACTO',
           DB::raw("DATE_FORMAT(refracciongeneral.fecha_proxima_consulta, '%Y-%m-%d') as PROXIMA_FECHA"),
           DB::raw("'refracciongeneral' as NOMBRE_TABLA"),
           'refracciongeneral.se_agendo as SE_AGENDO'
         )
         ->join('refracciongeneral', 'pacientes.id_paciente', '=', 'refracciongeneral.paciente')
         ->leftJoin('sucursales', 'refracciongeneral.sucursal', '=', 'sucursales.id_sucursal')
+        ->leftJoin('usuarios', 'refracciongeneral.id_usuario_contacto', '=', 'usuarios.id_usuario')
         ->where(function ($query) use ($fecha, $search) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
@@ -1865,16 +1885,27 @@ class PacientesApiController extends Controller
 
   public function actualizarContacto(Request $request)
   {
+    date_default_timezone_set('America/Lima');
+
     $tabla = $request->input('tabla');
     $id_consulta = $request->input('id_consulta');
     $hubo_contacto = (int) $request->input('hubo_contacto');
+    $id_usuario = (int) $request->input('id_usuario');
 
     try {
-      DB::table($tabla)
+      $data = DB::table($tabla)
         ->where('id_consulta', $id_consulta)
-        ->update(['hubo_contacto' => $hubo_contacto]);
+        ->update([
+          'hubo_contacto' => $hubo_contacto,
+          'id_usuario_contacto' => $id_usuario,
+          'fecha_contacto' => date('Y-m-d H:i:s')
+        ]);
 
-      return response()->json(['message' => 'Contacto actualizado exitosamente'], 200);
+      return response()->json([
+        'message' => 'Contacto actualizado exitosamente',
+        'id_usuario' => $id_usuario,
+        'data' => $data,
+      ], 200);
     } catch (\Exception $e) {
       return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
     }
@@ -1895,6 +1926,30 @@ class PacientesApiController extends Controller
     } catch (\Exception $e) {
       return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
     }
+  }
+
+  public function actualizarNota(Request $request)
+  {
+    $tabla = $request->input('tabla');
+    $id_consulta = $request->input('id_consulta');
+    $nota_contacto = $request->input('nota_contacto');
+
+    try {
+      $data = DB::table($tabla)
+        ->where('id_consulta', $id_consulta)
+        ->update([
+          'nota_contacto' => $nota_contacto
+        ]);
+
+      return response()->json([
+        'message' => 'Contacto actualizado exitosamente',
+        'nota_contacto' => $nota_contacto,
+        'data' => $data,
+      ], 200);
+    } catch (\Exception $e) {
+      return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
+    }
+
   }
 
 }

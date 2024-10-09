@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProximasCitas, actualizarContacto, setOrden, setOrdenPor, setFechaRange, updateCitaContacto, updateCitaAgendada, actualizarAgendo } from '../../redux/features/reportes/proximasCitasSlice';
+import { fetchProximasCitas, actualizarContacto, setOrden, setOrdenPor, setFechaRange, updateCitaContacto, updateCitaAgendada, actualizarAgendo, actualizarNotaContacto } from '../../redux/features/reportes/proximasCitasSlice';
 import PaginationProximasCitas from './PaginationProximasCitas';
 import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForProximasCitas } from '../../../utils/dataTransform';
-
+import { BookTwoTone } from '@ant-design/icons';
 import Swal from 'sweetalert2';
-
-
+import { Button, Col, Divider, Input, Modal, Row } from 'antd';
+import moment from 'moment';
 
 const ProximasCitas = () => {
   const dispatch = useDispatch();
@@ -29,10 +29,13 @@ const ProximasCitas = () => {
     dataexport
   } = useSelector((state) => state.proximasCitas);
 
+  const [showNotaContacto, setShowNotaContacto] = useState(false);
+  const [filaSeleccionada, setfilaSeleccionada] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [txtNotas, setTxtNotas] = useState("");
 
   useEffect(() => {
     dispatch(fetchPacientes({}));
@@ -380,7 +383,7 @@ const ProximasCitas = () => {
                             >
                               Nombre
                             </th>
-                            <th
+                            {/* <th
 
                               aria-controls="zero-config"
                               aria-label={`Email: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
@@ -393,7 +396,7 @@ const ProximasCitas = () => {
 
                             >
                               Email
-                            </th>
+                            </th> */}
                             <th
 
                               aria-controls="zero-config"
@@ -440,7 +443,7 @@ const ProximasCitas = () => {
                               aria-controls="zero-config"
                               colSpan="1"
                               rowSpan="1"
-                              style={{ width: '153.82px' }}
+                              style={{ width: '130px' }}
                               tabIndex="0"
 
                             >
@@ -450,24 +453,46 @@ const ProximasCitas = () => {
                               aria-controls="zero-config"
                               colSpan="1"
                               rowSpan="1"
+                              style={{ width: '130px' }}
+                              tabIndex="0"
+                            >
+                              El que contacto
+                            </th>
+                            <th
+                              aria-controls="zero-config"
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '100px' }}
+                              tabIndex="0"
+                            >
+                              Nota Contacto
+                            </th>
+                            {/* <th
+                              aria-controls="zero-config"
+                              colSpan="1"
+                              rowSpan="1"
                               style={{ width: '153.82px' }}
                               tabIndex="0"
                             >
                               Se Agendo
-                            </th>
+                            </th> */}
 
                           </tr>
                         </thead>
                         <tbody>
                           {proximasCitas.map((proximaCita) => (
                             <tr key={proximaCita.ID_PACIENTE}>
-                              <td>{proximaCita.PROXIMA_FECHA}</td>
+                              <td>
+                                {
+                                  moment.utc(proximaCita.PROXIMA_FECHA).format('DD-MM-YYYY')
+                                }
+                              </td>
                               <td>
                                 {
                                   proximaCita.PACIENTE_NOMBRE.trim() + " " + proximaCita.PACIENTE_APELLIDO.trim()
                                 }
                               </td>
-                              <td>{proximaCita.PACIENTE_EMAIL}</td>
+                              {/* <td>{proximaCita.PACIENTE_EMAIL}</td> */}
                               <td>{proximaCita.PACIENTE_CELULAR}</td>
                               <td>{proximaCita.SUCURSAL}</td>
                               <td>{proximaCita.DOCTOR}</td>
@@ -475,14 +500,31 @@ const ProximasCitas = () => {
                                 onClick={() => handleContactoClick(proximaCita)}
                                 style={{ cursor: 'pointer' }}
                               >
-                                {proximaCita.CONTACTO === 1 ? 'Sí' : 'No'}
+                                {parseFloat(proximaCita.CONTACTO.toString()) === 1 ? 'Sí' : 'No'}
+                              </td>
+                              <td>
+                                {proximaCita.USUARIO_NOMBRE}
                               </td>
                               <td
+                                style={{
+                                  textAlign: "center",
+                                  fontSize: "20px",
+                                  cursor: 'pointer'
+                                }}
+                                onClick={() => {
+                                  setTxtNotas(proximaCita.NOTA_CONTACTO)
+                                  setfilaSeleccionada(proximaCita)
+                                  setShowNotaContacto(!showNotaContacto)
+                                }}
+                              >
+                                <BookTwoTone />
+                              </td>
+                              {/* <td
                                 onClick={() => handleAgendadoClick(proximaCita)}
                                 style={{ cursor: 'pointer' }}
                               >
-                                {proximaCita.SE_AGENDO === 1 ? 'Sí' : 'No'}
-                              </td>
+                                {parseFloat(proximaCita.SE_AGENDO.toString()) === 1 ? 'Sí' : 'No'}
+                              </td> */}
                             </tr>
                           ))}
                         </tbody>
@@ -502,6 +544,92 @@ const ProximasCitas = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Agregar Nota del Conctacto"
+        open={showNotaContacto}
+        onOk={() => {
+          if (filaSeleccionada) {
+            dispatch(actualizarNotaContacto({
+              tabla: filaSeleccionada.NOMBRE_TABLA,
+              id_consulta: filaSeleccionada.ID_CONSULTA,
+              nota_contacto: txtNotas
+            }))
+              .then(() => {
+                Swal.fire('Contacto confirmado', '', 'success');
+                dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch })); // Actualiza los datos
+              })
+              .catch(() => {
+                Swal.fire('Error al confirmar contacto', '', 'error');
+              });
+          }
+
+          setShowNotaContacto(!showNotaContacto)
+        }}
+        onCancel={() => setShowNotaContacto(!showNotaContacto)}
+      >
+        <Row>
+          <Col xxl={12} xl={12}>
+            <div style={{ height: '50px' }}>
+              <div><b>Fecha Proxima Cita</b></div>
+              <div> {filaSeleccionada?.PROXIMA_FECHA} </div>
+            </div>
+            <Divider />
+            <div style={{ height: '30px' }}>
+              <div><b>Nombre</b> </div>
+              <div> {filaSeleccionada?.PACIENTE_NOMBRE + " " + filaSeleccionada?.PACIENTE_APELLIDO} </div>
+            </div>
+            <Divider />
+            <div style={{ height: '30px' }}>
+              <div><b>Celular</b> </div>
+              <div> {filaSeleccionada?.PACIENTE_CELULAR} </div>
+            </div>
+            <Divider />
+            <div style={{ height: '50px' }}>
+              <div><b>El que contacto</b> </div>
+              <div> {filaSeleccionada?.USUARIO_NOMBRE} </div>
+            </div>
+          </Col>
+          <Col xxl={12} xl={12}>
+            <div style={{ height: '50px' }}>
+              <div><b>Sucursal</b> </div>
+              <div> {filaSeleccionada?.SUCURSAL} </div>
+            </div>
+            <Divider />
+            <div style={{ height: '30px' }}>
+              <div><b>Doctor</b> </div>
+              <div> {filaSeleccionada?.DOCTOR} </div>
+            </div>
+            <Divider />
+            <div style={{ height: '30px' }}>
+              <div><b>Se Contacto</b> </div>
+              <div> {parseFloat(filaSeleccionada?.CONTACTO?.toString()) === 1 ? 'Sí' : 'No'} </div>
+            </div>
+            <Divider />
+            <div style={{ height: '30px' }}>
+              <div><b>Fecha de Contacto</b> </div>
+              <div> {
+                filaSeleccionada && filaSeleccionada.FECHA_CONTACTO
+                  ? moment.utc(filaSeleccionada?.FECHA_CONTACTO).format('DD-MM-YYYY HH:mm')
+                  : ""
+              } </div>
+            </div>
+          </Col>
+          <Col xxl={24} xl={24}>
+            <div>
+              <b>Escribe la nota:</b>
+              <Input.TextArea
+                value={txtNotas}
+                onChange={(e) => setTxtNotas(e.target.value)}
+              />
+            </div>
+          </Col>
+        </Row>
+        {/* <Button
+          onClick={() => {
+            console.log(filaSeleccionada);
+          }}
+        >click</Button> */}
+      </Modal>
     </div>
   )
 }

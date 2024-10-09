@@ -1363,14 +1363,14 @@ const OptometriaPediatra = () => {
                           <div className="form-row mb-4">
                             <div className="form-group col-md-12">
                               <label htmlFor="inputAddress">
-                                CONDUCTA A SEGUIR:
+                                CONDUCTA A SEGUIR: asdasda
                               </label>
                               <Field
                                 className="form-control textarea"
                                 id="textarea"
-                                maxLength="800"
+                                // maxLength="800"
                                 name="conducta_seguir"
-                                rows="5"
+                                rows="8"
                                 as="textarea"
                               />
                             </div>
