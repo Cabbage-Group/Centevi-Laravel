@@ -243,7 +243,7 @@ body {
 
 .form-image .l-image {
   background-position-y: center;
-  background-image: url(https://centevi.digital/vistas/img/bg-centevi.jpg);
+  background-image: url(/assets/img/bannerlogin.jpg);
   position: absolute;
   top: 0;
   left: 0;
