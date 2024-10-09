@@ -67,7 +67,7 @@ const PacienteAtendidoDia = () => {
                 </div>
               </div>
             </div>
-            <div className="all-card">
+            {/* <div className="all-card">
               <div className="row">
                 <div className="col-lg-3 col-md-6">
                   <div className="widget widget-one_hybrid widget-referral">
@@ -113,51 +113,9 @@ const PacienteAtendidoDia = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="row">
-              <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-                <div className="widget-four">
-                  <div className="widget-heading">
-                    <h5 className="">
-                      ULTIMOS PACIENTES ATENDIDOS POR DIA
-                    </h5>
-                  </div>
-                  <div className="table-responsive">
-                    <table
-                      className="table dt-table-hover tabla_pacientes"
-                      style={{
-                        width: '100%'
-                      }}
-                    >
-                      <thead>
-                        <tr>
-                          <th>
-                            Nombres de Paciente
-                          </th>
-                          <th>
-                            Cedula
-                          </th>
-                          <th>
-                            Sucursal
-                          </th>
-                          <th>
-                            Celular
-                          </th>
-                          <th>
-                            Fecha de atención
-                          </th>
-                          <th>
-                            Doctor
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody />
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-12">
+            </div> */}
+            
+            <div className="col-md-12" style={{marginTop: '-60px'}}>
               <div className="form-group col-md-4 mt-4">
                 <label>
                   Buscar por Fecha:

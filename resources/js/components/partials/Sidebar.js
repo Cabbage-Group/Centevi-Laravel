@@ -117,6 +117,7 @@ const Sidebar = (props) => {
                 </div>
               </a>
             </li>
+
             <li className="menu">
               <a href="#reportes" data-active="false" className="menu-toggle">
                 <div className="base-menu">
@@ -135,6 +136,7 @@ const Sidebar = (props) => {
                 </div>
               </a>
             </li>
+
             {
               usuario?.usuario?.perfil == 'superadministrador' ? (
                 <li className="menu">
@@ -435,7 +437,7 @@ const Sidebar = (props) => {
             </ul>
           </div>
           <div className="submenu" id="configuracion">
-            <ul className="submenu-list" data-parent-element="#uiKit">
+            <ul className="submenu-list" data-parent-element="#configuracion">
               <li>
                 <Link to={"/usuarios"}>
                   <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"

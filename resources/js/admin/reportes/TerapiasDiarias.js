@@ -74,7 +74,9 @@ const TerapiasDiarias = () => {
                 </div>
               </div>
             </div>
-            <div className="all-card">
+
+
+            {/* <div className="all-card">
               <div className="row">
                 <div className="col-lg-3 col-md-6">
                   <div className="widget widget-one_hybrid widget-referral">
@@ -163,8 +165,12 @@ const TerapiasDiarias = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="col-md-12">
+            </div> */}
+
+
+
+
+            <div className="col-md-12" style={{ marginTop: '-60px' }}>
               <div className="form-group col-md-4 mt-4">
                 <label>
                   Buscar por Fecha:
