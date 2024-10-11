@@ -9,6 +9,7 @@ use App\Models\HistoriaClinica;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class PacientesApiController extends Controller
 {
@@ -35,7 +36,7 @@ class PacientesApiController extends Controller
 
     // Construir la consulta base
     // $query = Pacientes::orderBy($sortColumn, $sortOrder);
-    $query = Pacientes::orderBy($sortColumn, 'DESC');
+    $query = Pacientes::orderBy($sortColumn,  $sortOrder);
 
     // Aplicar el filtro de búsqueda si existe
     if (!empty($search)) {
@@ -68,7 +69,7 @@ class PacientesApiController extends Controller
           // ->orWhere('medico', 'like', "%{$search}%")
           // ->orWhere('urgencia', 'like', "%{$search}%")
           // ->orWhere('menor', 'like', "%{$search}%")
-          // ->orWhere('fecha_creacion', 'like', "%{$search}%")
+          ->orWhere('fecha_creacion', 'like', "%{$search}%")
         ;
       });
     }
@@ -90,6 +91,54 @@ class PacientesApiController extends Controller
       ]
     ]);
   }
+
+  public function PacientesMenores()
+  {
+    try {
+      // Obtener la fecha actual
+      $today = Carbon::now();
+
+      // Obtener el total de pacientes menores de 18 años
+      $totalPacientesMenores = Pacientes::whereRaw('TIMESTAMPDIFF(YEAR, fecha_nacimiento, ?) < 18', [$today])
+        ->count();
+
+      // Respuesta exitosa con el total de pacientes menores
+      return response()->json([
+        'success' => true,
+        'total' => $totalPacientesMenores,
+        'message' => 'Total de pacientes menores de 18 años obtenido con éxito',
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Error al obtener el total de pacientes menores de 18 años',
+        'errors' => $e->getMessage(),
+      ], 500);
+    }
+  }
+
+  public function pacientesAdultos()
+  {
+    try {
+      $today = Carbon::now();
+
+      $pacientesAdultos = Pacientes::whereRaw('TIMESTAMPDIFF(YEAR, fecha_nacimiento, ?) >= 18', [$today])
+        ->count();
+
+      return response()->json([
+        'success' => true,
+        'total' => $pacientesAdultos,
+        'message' => 'Total de pacientes adultos ',
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Error al obtener el total de pacientes adultos',
+        'errors' => $e->getMessage(),
+      ], 500);
+    }
+  }
+
 
   public function VerPaciente($id)
   {
@@ -1896,5 +1945,4 @@ class PacientesApiController extends Controller
       return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
     }
   }
-
 }

@@ -101,5 +101,11 @@ class VerifyCsrfToken extends Middleware
 
                 'http://127.0.0.1:8000/api/permisos-tipos-usuarios',
 
+                'http://127.0.0.1:8000/api/pacientes-menores',  
+
+                'http://127.0.0.1:8000/api/pacientes-adultos',
+
+                'http://127.0.0.1:8000/api/usuarios-doctor',
+
         ];
 }

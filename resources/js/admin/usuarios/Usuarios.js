@@ -4,12 +4,14 @@ import { fetchUsuarios, updateUsuario, deleteUsuario, updateEstadoUsuario, creat
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import PaginationUsuarios from './PaginationUsuarios.js';
 import Swal from 'sweetalert2';
+import { fetchTiposUsuarios } from '../../redux/features/tipos-usuarios/verTiposUsuariosSlice.js';
 
 
 const Usuarios = () => {
 
   const dispatch = useDispatch();
   const { meta, usuarios, status, error, totalPages, search } = useSelector((state) => state.usuarios);
+  const { tiposUsuarios } = useSelector((state) => state.tiposUsuarios);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState(null);
@@ -21,12 +23,17 @@ const Usuarios = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [sortColumn, setSortColumn] = useState('nombre');
 
+  console.log('tiposUsuarios:', tiposUsuarios)
+  console.log('usuarios:', usuarios)
+
+
   const [formValues, setFormValues] = useState({
     nombre: '',
     usuario: '',
     perfil: '',
     sucursal: '',
     password: '',
+    tipo_usuario_id: '',
     foto: null
   });
 
@@ -53,6 +60,7 @@ const Usuarios = () => {
         usuario: selectedUsuario.usuario || '',
         perfil: selectedUsuario.perfil || '',
         sucursal: selectedUsuario.sucursal || '',
+        tipo_usuario_id: selectedUsuario.tipo_usuario_id || '',
         password: '',
         foto: null
 
@@ -65,6 +73,7 @@ const Usuarios = () => {
 
   useEffect(() => {
     dispatch(fetchSucursales({}));
+    dispatch(fetchTiposUsuarios({}))
 
   }, [dispatch, currentPage]);
 
@@ -139,6 +148,7 @@ const Usuarios = () => {
     formData.append('password', formValues.password);
     formData.append('perfil', formValues.perfil);
     formData.append('sucursal', formValues.sucursal);
+    formData.append('tipo_usuario_id', formValues.tipo_usuario_id);
 
 
     if (formValues.foto) {
@@ -355,6 +365,21 @@ const Usuarios = () => {
                                     </th>
                                     <th
                                       aria-controls="zero-config"
+                                      aria-label="Tipo_usuario: activate to sort column ascending"
+                                      className={`sorting_${sortColumn === 'nombre' ? sortOrder : ''}`}
+                                      colSpan="1"
+                                      rowSpan="1"
+                                      style={{
+                                        width: '153.82px',
+                                        cursor: 'pointer'
+                                      }}
+                                      tabIndex="0"
+                                      onClick={() => handleSort('nombre')}
+                                    >
+                                      Tipo de Usuario
+                                    </th>
+                                    <th
+                                      aria-controls="zero-config"
                                       aria-label="Usuario: activate to sort column ascending"
                                       className={`sorting_${sortColumn === 'usuario' ? sortOrder : ''}`}
                                       colSpan="1"
@@ -439,76 +464,82 @@ const Usuarios = () => {
                                 </thead>
 
                                 <tbody>
-                                  {usuarios.map((usuario, index) => (
-                                    <tr key={usuario.id_usuario}>
-                                      <td>{index + 1 + (currentPage - 1) * 7}</td>
-                                      <td>{usuario.nombre}</td>
-                                      <td>{usuario.usuario}</td>
-                                      <td>
-                                        {usuario.foto && (
-                                          <img
-                                            src={usuario.foto}
-                                            alt={`${usuario.nombre} - Foto`}
-                                            style={{ width: '50px', height: 'auto', marginTop: '10px' }}
-                                          />
-                                        )}
-                                      </td>
-                                      <td>{usuario.perfil}</td>
-                                      <td>
-                                        <button
-                                          className={`btn btn-${parseInt(usuario.estado.toString()) === 1 ? 'success' : 'danger'} btn-xs`}
-                                          onClick={() => handleChangeEstado(usuario.id_usuario, parseInt(usuario.estado.toString()) === 1 ? 0 : 1)}
-                                        >
-                                          {parseInt(usuario.estado.toString()) === 1 ? 'Activado' : 'Desactivado'}
-                                        </button>
-                                      </td>
-                                      <td>{usuario.ultimo_login}</td>
-                                      <td>
-                                        <div className="btn-group">
+                                  {usuarios.map((usuario, index) => {
+                                    const tipoUsuario = tiposUsuarios.find((tipo) => tipo.id === usuario.tipo_usuario_id);
+                                    return (
+                                      <tr key={usuario.id_usuario}>
+                                        <td>{index + 1 + (currentPage - 1) * 7}</td>
+                                        <td>{usuario.nombre}</td>
+                                        <td>
+                                          {tipoUsuario ? tipoUsuario.tipo_usuario: 'N/A'}
+                                        </td>
+                                        <td>{usuario.usuario}</td>
+                                        <td>
+                                          {usuario.foto && (
+                                            <img
+                                              src={usuario.foto}
+                                              alt={`${usuario.nombre} - Foto`}
+                                              style={{ width: '50px', height: 'auto', marginTop: '10px' }}
+                                            />
+                                          )}
+                                        </td>
+                                        <td>{usuario.perfil}</td>
+                                        <td>
                                           <button
-                                            onClick={() => handleEditClick(usuario)}
-                                            className="btn btn-warning btnEditarUsuario"
-                                            data-toggle="modal"
-                                            data-target="#modalEditarUsuario"
+                                            className={`btn btn-${parseInt(usuario.estado.toString()) === 1 ? 'success' : 'danger'} btn-xs`}
+                                            onClick={() => handleChangeEstado(usuario.id_usuario, parseInt(usuario.estado.toString()) === 1 ? 0 : 1)}
                                           >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
+                                            {parseInt(usuario.estado.toString()) === 1 ? 'Activado' : 'Desactivado'}
                                           </button>
-                                          <button
-                                            className="btn btn-danger btnEliminarUsuario"
-                                            onClick={() => handleDeleteClick(usuario)}
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
+                                        </td>
+                                        <td>{usuario.ultimo_login}</td>
+                                        <td>
+                                          <div className="btn-group">
+                                            <button
+                                              onClick={() => handleEditClick(usuario)}
+                                              className="btn btn-warning btnEditarUsuario"
+                                              data-toggle="modal"
+                                              data-target="#modalEditarUsuario"
                                             >
-                                              <path
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-                                          </button>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  ))}
+                                              <svg
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                              >
+                                                <path
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth="2"
+                                                />
+                                              </svg>
+                                            </button>
+                                            <button
+                                              className="btn btn-danger btnEliminarUsuario"
+                                              onClick={() => handleDeleteClick(usuario)}
+                                            >
+                                              <svg
+                                                className="h-6 w-6"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                              >
+                                                <path
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth="2"
+                                                />
+                                              </svg>
+                                            </button>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
                                 </tbody>
 
                                 <tfoot>
@@ -646,6 +677,25 @@ const Usuarios = () => {
                     <div className="form-group">
                       <div className="input-group">
                         <span className="input-group-addon">
+                          <i className="fa fa-users" />
+                        </span>
+                        <select
+                          className="form-control input-lg"
+                          name="tipo_usuario_id"
+                          onChange={handleChange}
+                          required                                            >
+                          <option value={""}>Selecionar Tipo de Usuario</option>
+                          {tiposUsuarios.map((tiposUsuarios) => (
+                            <option key={tiposUsuarios.id} value={tiposUsuarios.id}>
+                              {tiposUsuarios.tipo_usuario}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <div className="input-group">
+                        <span className="input-group-addon">
                           <i className="fa fa-key" />
                         </span>
                         <input
@@ -658,6 +708,7 @@ const Usuarios = () => {
                           onChange={handleChange}
                         />
                       </div>
+                    
                     </div>
                     <div className="form-group">
                       <div className="input-group">
@@ -825,6 +876,25 @@ const Usuarios = () => {
                     <div className="form-group">
                       <div className="input-group">
                         <span className="input-group-addon">
+                          <i className="fa fa-users" />
+                        </span>
+                        <select
+                          className="form-control input-lg"
+                          name="tipo_usuario_id"
+                          onChange={handleChange}
+                          required                                            >
+                          <option value={""}>Selecionar Tipo de Usuario</option>
+                          {tiposUsuarios.map((tiposUsuarios) => (
+                            <option key={tiposUsuarios.id} value={tiposUsuarios.id}>
+                              {tiposUsuarios.tipo_usuario}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <div className="input-group">
+                        <span className="input-group-addon">
                           <i className="fa fa-key" />
                         </span>
                         <input
@@ -838,6 +908,7 @@ const Usuarios = () => {
                         />
                       </div>
                     </div>
+                    
                     <div className="form-group">
                       <div className="input-group">
                         <span className="input-group-addon">

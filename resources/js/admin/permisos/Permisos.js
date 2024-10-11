@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 import { fetchPermisos, createOrUpdatePermisosUsuario, createPermisos } from '../../redux/features/permisos/PermisosSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createTiposPermisos, fetchTiposPermisos } from '../../redux/features/tipos-permisos/TiposPermisosSlice';
@@ -57,9 +58,7 @@ const Permisos = () => {
 
     const handleSubmitNewPermiso = async () => {
         try {
-
             await dispatch(createPermisos(newPermiso)).unwrap();
-
             dispatch(fetchPermisos(id));
     
             setNewPermiso({
@@ -69,11 +68,23 @@ const Permisos = () => {
                 descripcion: ''
             });
             setShowModal(false);
+            
+            Swal.fire({
+                title: 'Permiso guardado',
+                text: 'El permiso se ha creado correctamente.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
         } catch (error) {
             console.error('Error al crear el permiso:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al crear el permiso.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
     };
-
     const handleSubmit = () => {
         const permisoIds = Object.keys(selectedPermisos)
             .filter(permisoId => selectedPermisos[permisoId])
@@ -84,25 +95,49 @@ const Permisos = () => {
             tipo_usuario_id: id,
         };
 
-        dispatch(createOrUpdatePermisosUsuario(data));    
+        dispatch(createOrUpdatePermisosUsuario(data)).then(() => {
+            Swal.fire({
+                title: 'Permisos guardados',
+                text: 'Los permisos se han guardado correctamente.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        }).catch((error) => {
+            console.error('Error al guardar permisos:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al guardar los permisos.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
     };
 
     const handleSubmitNewTipoPermiso = async () => {
         try {
-
             await dispatch(createTiposPermisos(newTipoPermiso)).unwrap();
-
             dispatch(fetchTiposPermisos());
-
             dispatch(fetchPermisos(id));
-    
+
             setNewTipoPermiso({ tipo: '' });
             setShowTipoPermisoModal(false);
+
+            Swal.fire({
+                title: 'Tipo de permiso guardado',
+                text: 'El tipo de permiso se ha creado correctamente.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
         } catch (error) {
             console.error('Error al crear tipo de permiso:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al crear el tipo de permiso.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
     };
-
     const goBack = () => {
         navigate(-1);
     };

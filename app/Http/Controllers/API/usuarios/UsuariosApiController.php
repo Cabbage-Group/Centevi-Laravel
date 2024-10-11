@@ -93,6 +93,28 @@ class UsuariosApiController extends Controller
         }
     }
 
+    public function usuariosDoctor()
+{
+    try {
+        // Obtener el total de usuarios cuyo perfil es "doctor"
+        $totalUsuariosDoctor = Usuarios::where('perfil', 'doctor')->count();
+
+        // Respuesta exitosa con el total
+        return response()->json([
+            'success' => true,
+            'message' => 'Operación exitosa',
+            'total' => $totalUsuariosDoctor,
+        ]);
+    } catch (\Exception $e) {
+        // Manejar cualquier error
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener el total de usuarios con perfil de doctor',
+            'errors' => $e->getMessage(),
+        ], 500);
+    }
+}
+
     public function update(Request $request, $id)
 {
    
@@ -109,6 +131,7 @@ class UsuariosApiController extends Controller
         'estado' => 'nullable|integer',
         'ultimo_login' => 'nullable|date',
         'editado' => 'nullable|date',
+        'tipo_usuario_id' => 'nullable|integer'
     ]);
 
     // Buscar el usuario por id
@@ -151,10 +174,11 @@ class UsuariosApiController extends Controller
             $usuario->password = $usuario->password; // Mantener la contraseña actual si no se proporciona una nueva
         }
         $usuario->perfil = $request->input('perfil', $usuario->perfil);
-        $usuario->sucursal = $request->input('sucursal', $usuario->sucursal);
+        $usuario->sucursal = intval($request->input('sucursal', $usuario->sucursal));
         $usuario->estado = $request->input('estado', $usuario->estado);
         $usuario->editado = now();
         $usuario->foto = $fotoPath; // Actualizar la ruta de la imagen si existe
+        $usuario->tipo_usuario_id = intval($request->input('tipo_usuario_id', $usuario->tipo_usuario_id));
 
         // Guardar los cambios
         $usuario->save();
@@ -231,6 +255,7 @@ public function add(Request $request)
         'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación de imagen
         'ultimo_login' => 'nullable|date',
         'editado' => 'nullable|date',
+        'tipo_usuario_id' => 'nullable|integer',
     ]);
 
     // Manejar errores de validación
@@ -266,6 +291,7 @@ public function add(Request $request)
             'estado' => $request->input('estado', 0), 
             'ultimo_login' => $request->input('ultimo_login'),
             'editado' => $request->input('editado'),
+            'tipo_usuario_id' => $request->input('tipo_usuario_id'),
         ];
 
         // Insertar el nuevo usuario y obtener el ID

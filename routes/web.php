@@ -30,6 +30,7 @@ use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
+Route::get('/api/usuarios-doctor', [UsuariosApiController::class, 'usuariosDoctor']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
 Route::get('/api/pacientes/{id}', [PacientesApiController::class, 'VerPaciente']);
 
@@ -50,6 +51,10 @@ Route::post('/api/usuarios', [UsuariosApiController::class, 'add']);
 Route::post('/api/pacientes', [PacientesApiController::class, 'crearpaciente']);
 Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpaciente']);
 
+
+Route::get('/api/pacientes-menores', [PacientesApiController::class, 'pacientesMenores']);
+
+Route::get('/api/pacientes-adultos', [PacientesApiController::class, 'pacientesAdultos']);
 // php artisan optimize
 // 
 Route::get('/api/tipos-usuarios', [TiposUsuariosController::class, 'index']);

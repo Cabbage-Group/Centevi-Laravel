@@ -4,7 +4,7 @@ import API from '../../../config/config.js';
 
 export const fetchTiposUsuarios = createAsyncThunk(
   'tipoUsuarios/fecthTipoUsuarios',
-  async ({ page = 1, limit = 7}) => {
+  async ({ page = 1, limit = ''}) => {
     const response = await axios.get(`${API}/tipos-usuarios`, {
       params: { page, limit }
     });

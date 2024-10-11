@@ -64,6 +64,9 @@ import AuthSlice from './features/auth/AuthSlice';
 import verTiposUsuariosSlice from './features/tipos-usuarios/verTiposUsuariosSlice';
 import PermisosSlice from './features/permisos/PermisosSlice';
 import TiposPermisosSlice from './features/tipos-permisos/TiposPermisosSlice';
+import pacientesMenoresReducer from './features/pacientes/pacientesMenoresSlice';
+import pacientesAdultosReducer from './features/pacientes/pacientesAdultosSlice';
+import usuariosDoctorReducer from './features/usuarios/usuariosDoctorSlice';
 
 const store = configureStore({
   reducer: {
@@ -135,7 +138,12 @@ const store = configureStore({
 
     tiposUsuarios: verTiposUsuariosSlice,
     permisos : PermisosSlice,
-    tiposPermisos : TiposPermisosSlice
+    tiposPermisos : TiposPermisosSlice,
+    pacientesMenores: pacientesMenoresReducer,
+    pacientesAdultos: pacientesAdultosReducer,
+    usuariosDoctor: usuariosDoctorReducer
+
+  
 
   }
 });

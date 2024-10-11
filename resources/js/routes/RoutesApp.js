@@ -154,6 +154,8 @@ const RoutesApp = () => {
 
               <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
 
+              
+
             </>
           ) : (
             <>
