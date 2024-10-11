@@ -263,7 +263,7 @@ const VerTiposUsuarios = () => {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {tiposUsuarios.map((tiposusuarios) => (
+                                                        {tiposUsuarios?.map((tiposusuarios) => (
                                                             <tr key={tiposusuarios.id}>
                                                                 <td>{`${tiposusuarios.tipo_usuario.trim()}`}</td>
                                                                 <td>{tiposusuarios.created_at ? new Date(tiposusuarios.created_at).toLocaleString() : 'N/A'}</td>
