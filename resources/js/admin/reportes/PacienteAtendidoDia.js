@@ -6,24 +6,42 @@ import DateRangePicker from './DateRangePicker';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 const PacienteAtendidoDia = () => {
 
   const dispatch = useDispatch();
   const metaPacientes = useSelector((state) => state.pacientes.meta);
+  const nombreUsuario = localStorage.getItem('nombre');
   const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.atendidosPorDia);
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
+  const { usuarios} = useSelector((state) => state.usuarios);
+  const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
+
+  console.log('usuarios:', usuarios);
 
   useEffect(() => {
     dispatch(fetchPacientes({}));
+    dispatch(fetchUsuarios({}))
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchAtendidosPorDia({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
-  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
+    const fetchParams = {
+      page: currentPage,
+      limit: 20,
+      orden,
+      ordenPor,
+      startDate,
+      endDate,
+      search: localSearch,
+      doctor: selectedDoctor
+    };
+    
+    dispatch(fetchAtendidosPorDia(fetchParams));
+  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
@@ -47,6 +65,11 @@ const PacienteAtendidoDia = () => {
 
   const handleClearSearch = () => {
     setLocalSearch('');
+  };
+
+  const handleDoctorChange = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
   };
 
   return (
@@ -204,6 +227,22 @@ const PacienteAtendidoDia = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+                   {/* Nuevo select para buscar por doctor */}
+                  <div className="form-group col-md-4 mt-4">
+                    <label>Buscar por Doctor:</label>
+                    <select 
+                      className="form-control"
+                      value={selectedDoctor}
+                      onChange={handleDoctorChange}
+                    >
+                      <option value="todos">Todos los doctores</option>
+                      {usuarios.map((usuario) => (
+                        <option key={usuario.id} value={usuario.nombre}>
+                          {usuario.nombre}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}

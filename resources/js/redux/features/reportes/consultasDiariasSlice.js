@@ -3,21 +3,20 @@ import axios from 'axios';
 import API from '../../../config/config';
 import moment from 'moment';
 
-const getCurrentDate = () => moment().format('YYYY-MM-DD');
-
-
 export const fetchConsultasDiarias = createAsyncThunk(
     'consultasDiarias/fetchconsultasDiarias',
-    async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
+    async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate = '', endDate = '', search = '', doctor = null }) => {
         try {
 
             const fecha = startDate && endDate ? `${startDate} - ${endDate}`: '';
+ 
+            const params = { page, limit, orden, ordenPor, fecha, search };
 
-            const response = await axios.get(`${API}/pacientesConsultasDiarias`, {
-                params: { page, limit, orden, ordenPor, fecha, search},
-            });
-
-            console.log('mensaje:', response.data);
+            if (doctor) {
+                params.doctor = doctor;
+              }
+              
+            const response = await axios.get(`${API}/pacientesConsultasDiarias`, { params });
 
             return response.data;
         } catch (error) {
@@ -36,9 +35,10 @@ const consultasDiariasSlice = createSlice({
         error: null,
         orden: 'asc',
         ordenPor: 'PACIENTE_NOMBRE',
-        startDate: getCurrentDate(),
-        endDate: getCurrentDate(),
+        startDate: '',
+        endDate: '',
         search: '',
+        doctor: '',
         dataexport: []
     },
     reducers: {

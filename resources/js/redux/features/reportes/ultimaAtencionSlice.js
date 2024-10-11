@@ -1,22 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config';
-import moment from 'moment';
-
-const getCurrentDate = () => moment().format('YYYY-MM-DD');
-
 
 export const fetchUltimaAtencion = createAsyncThunk(
     'ultimaAtencion/fetchUltimaAtencion',
-    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
+    async ({ page = 1, limit = 20, orden = 'asc', ordenPor = 'nombres', startDate = '', endDate = '', search = '', doctor = null }) => {
         try {
             const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-            const response = await axios.get(`${API}/ultimaAtencion`, {
-                params: { page, limit, orden, ordenPor, fecha, search },
-            });
+            const params = { page, limit, orden, ordenPor, fecha, search };
 
-            console.log('mensaje:', response.data);         
+            if (doctor) {
+                params.doctor = doctor;
+              }
+
+            const response = await axios.get(`${API}/ultimaAtencion`, { params });
 
             return response.data;
         } catch (error) {
@@ -37,9 +35,10 @@ const ultimaAtencionSlice = createSlice({
         error: null,
         orden: 'asc',
         ordenPor: 'nombres',
-        startDate: getCurrentDate(),
-        endDate: getCurrentDate(),
+        startDate: '',
+        endDate: '',
         search: '',
+        doctor: '',
         dataexport: []
     },
     reducers: {

@@ -4,7 +4,7 @@ import API from '../../../config/config';
 
 export const fetchUsuarios = createAsyncThunk(
     'usuarios/fetchUsuarios',
-    async ({ page = 1, limit = 7, sortOrder = 'asc', sortColumn = 'nombre', search = '' }) => {
+    async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombre', search = '' }) => {
         try {
             const response = await axios.get(`${API}/usuarios`, {
                 params: { page, limit, sortOrder, sortColumn, search }

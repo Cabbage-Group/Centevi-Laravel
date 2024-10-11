@@ -8,16 +8,21 @@ const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 export const fetchAtendidosPorDia = createAsyncThunk(
   'atendidosPorDia/fetchAtendidosPorDia',
-  async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate = getCurrentDate(), endDate = getCurrentDate(), search = '' }) => {
+  async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate = '', endDate = '', search = '', doctor = null }) => {
     try {
       const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
-
-      const response = await axios.get(`${API}/pacientesAtendidosPorDiaV2`, {
-        params: { page, limit, orden, ordenPor, fecha, search },
-      });
+      
+      // Crear un objeto de parámetros base
+      const params = { page, limit, orden, ordenPor, fecha, search };
+      
+      // Solo añadir el parámetro doctor si se proporciona explícitamente
+      if (doctor) {
+        params.doctor = doctor;
+      }
+      
+      const response = await axios.get(`${API}/pacientesAtendidosPorDiaV2`, { params });
 
       console.log('meta:', response.data.meta);
-
       console.log('mensaje:', response.data);
 
       return response.data;
@@ -39,9 +44,10 @@ const atendidosPorDiaSlice = createSlice({
     error: null,
     orden: 'asc',
     ordenPor: 'PACIENTE_NOMBRE',
-    startDate: getCurrentDate(),
-    endDate: getCurrentDate(),
+    startDate: '',
+    endDate: '',
     search: '',
+    doctor: '',
     dataexport: []
   },
   reducers: {

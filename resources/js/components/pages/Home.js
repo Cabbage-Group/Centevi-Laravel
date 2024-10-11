@@ -6,6 +6,7 @@ import { fetchTotalPacientesMenores } from '../../redux/features/pacientes/pacie
 import { fetchTotalPacientesAdultos } from '../../redux/features/pacientes/pacientesAdultosSlice';
 import { fetchTotalUsuariosDoctor } from '../../redux/features/usuarios/usuariosDoctorSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 const Home = () => {
 
@@ -16,14 +17,31 @@ const Home = () => {
   const { metaSucursales } = useSelector((state) => state.sucursales);
   const { meta, pacientes, status, error } = useSelector((state) => state.pacientes);
   const [currentPage, setCurrentPage] = useState(1);
+  const nombreUsuario = localStorage.getItem('nombre');
+  const { usuarios} = useSelector((state) => state.usuarios);
+  const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: currentPage, limit: 10, sortOrder: 'desc', sortColumn: 'fecha_creacion' }));
+    const fetchParams = {
+      page: currentPage,
+      limit: 10,
+      sortOrder: 'desc',
+      sortColumn: 'fecha_creacion',
+      doctor: selectedDoctor
+    };
+    // dispatch(fetchPacientes({ page: currentPage, limit: 10, sortOrder: 'desc', sortColumn: 'fecha_creacion' }));
+    dispatch(fetchPacientes(fetchParams))
     dispatch(fetchTotalPacientesMenores());
     dispatch(fetchTotalPacientesAdultos());
     dispatch(fetchTotalUsuariosDoctor());
     dispatch(fetchSucursales({}));
-  }, [dispatch, currentPage]);
+    dispatch(fetchUsuarios({}))
+  }, [dispatch, currentPage,selectedDoctor]);
+
+  const handleDoctorChange = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
+  };
 
   return (
     <div className="admin-data-content" style={{ marginTop: 50 }}>
@@ -172,6 +190,22 @@ const Home = () => {
                     <div className="widget-heading">
                       <h5 className="">ÚLTIMOS PACIENTES</h5>
                     </div>
+                    {/* Nuevo select para buscar por doctor */}
+                  <div className="form-group col-md-4 mt-4">
+                    <label>Buscar por Doctor:</label>
+                    <select 
+                      className="form-control"
+                      value={selectedDoctor}
+                      onChange={handleDoctorChange}
+                    >
+                      <option value="todos">Todos los doctores</option>
+                      {usuarios.map((usuario) => (
+                        <option key={usuario.id} value={usuario.nombre}>
+                          {usuario.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}
                       {status === 'failed' && <p>Error: {error}</p>}
@@ -198,6 +232,9 @@ const Home = () => {
                                 Email
                               </th>
                               <th>
+                                Doctor
+                              </th>
+                              <th>
                                 Direccion
                               </th>
                               <th>
@@ -214,6 +251,7 @@ const Home = () => {
                                     <td>{paciente.nro_cedula}</td>
                                     <td>{paciente.telefono}</td>
                                     <td>{paciente.email}</td>
+                                    <td>{paciente.doctor}</td>
                                     <td>{`${paciente.direccion}, ${paciente.lugar_nacimiento}`}</td>
                                     <td>
                                       {
@@ -237,7 +275,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="all-card">
+      {/* <div className="all-card">
         <div className="row">
           <div className="col-lg-2 col-md-6">
             <div className="widget widget-one_hybrid widget-referral">
@@ -361,8 +399,8 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
-      <div className="row">
+      </div> */}
+      {/* <div className="row">
         <div className="col-xl-7 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
           <div className="widget-four">
             <div className="widget-heading">
@@ -427,7 +465,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div >
   );
 }
