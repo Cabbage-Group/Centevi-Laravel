@@ -37,7 +37,7 @@ const Usuarios = () => {
     foto: null
   });
 
-
+  console.log('formValues:',formValues)
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -683,8 +683,11 @@ const Usuarios = () => {
                           className="form-control input-lg"
                           name="tipo_usuario_id"
                           onChange={handleChange}
+                          value={formValues?.tipo_usuario_id || ''}
                           required                                            >
-                          <option value={""}>Selecionar Tipo de Usuario</option>
+                          <option value={""}>
+                            Selecionar Tipo de Usuario
+                          </option>
                           {tiposUsuarios.map((tiposUsuarios) => (
                             <option key={tiposUsuarios.id} value={tiposUsuarios.id}>
                               {tiposUsuarios.tipo_usuario}
@@ -882,6 +885,7 @@ const Usuarios = () => {
                           className="form-control input-lg"
                           name="tipo_usuario_id"
                           onChange={handleChange}
+                          value={formValues?.tipo_usuario_id || ''}
                           required                                            >
                           <option value={""}>Selecionar Tipo de Usuario</option>
                           {tiposUsuarios.map((tiposUsuarios) => (

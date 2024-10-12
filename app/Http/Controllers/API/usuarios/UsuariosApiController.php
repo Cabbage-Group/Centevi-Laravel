@@ -115,12 +115,9 @@ class UsuariosApiController extends Controller
     }
 }
 
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
 {
-   
-    Log::info('Incoming request data:', $request->all());
-
-  
+    
     $request->validate([
         'usuario' => 'nullable|string|max:255',
         'nombre' => 'nullable|string|max:255',
@@ -165,14 +162,14 @@ class UsuariosApiController extends Controller
 
         $usuario->usuario = $request->input('usuario', $usuario->usuario);
         $usuario->nombre = $request->input('nombre', $usuario->nombre);
+
+        // Cambiar la contraseña solo si se proporciona una nueva
         $password = $request->input('password');
         if ($password) {
-            // Hash de la contraseña usando crypt con un formato específico
-            $encryptionKey = '$2a$07$asxx54ahjppf45sd87a5a4dDDGsystemdev$';
-            $usuario->password = crypt($password, $encryptionKey);
-        } else {
-            $usuario->password = $usuario->password; // Mantener la contraseña actual si no se proporciona una nueva
+            // Hash de la contraseña usando password_hash
+            $usuario->password = password_hash($password, PASSWORD_BCRYPT);
         }
+
         $usuario->perfil = $request->input('perfil', $usuario->perfil);
         $usuario->sucursal = intval($request->input('sucursal', $usuario->sucursal));
         $usuario->estado = $request->input('estado', $usuario->estado);
