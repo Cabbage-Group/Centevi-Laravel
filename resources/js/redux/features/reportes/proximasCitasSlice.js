@@ -9,14 +9,16 @@ const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 export const fetchProximasCitas = createAsyncThunk(
   'proximasCitas/fetchProximasCitas',
-  async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate = '', endDate = '', search = '' }) => {
+  async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PROXIMA_FECHA', startDate = '', endDate = '', search = '',doctor = null }) => {
     try {
       const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
-      console.log('fecha1: ', startDate)
-      console.log('fecha2: ', endDate)
-      const response = await axios.get(`${API}/proximascitas`, {
-        params: { page, limit, orden, ordenPor, fecha, search },
-      })
+
+      const params = { page, limit, orden, ordenPor, fecha, search };
+      if (doctor) {
+        params.doctor = doctor;
+      }
+
+      const response = await axios.get(`${API}/proximascitas`,  { params })
       return response.data
     } catch (error) {
       console.error('Error fetching pacientesProximasCitas:', error.response?.data || error.message);
@@ -88,10 +90,11 @@ const proximasCitasSlice = createSlice({
     status: 'idle',
     error: null,
     orden: 'asc',
-    ordenPor: 'PACIENTE_NOMBRE',
+    ordenPor: 'PROXIMA_FECHA',
     startDate: getCurrentDate(),
     endDate: moment().add(6, 'days').format('YYYY-MM-DD'),
     search: '',
+    doctor: '',
     dataexport: [],
     updateStatus: 'idle',
     updateError: null

@@ -29,6 +29,7 @@ const ProximasCitas = () => {
     dataexport
   } = useSelector((state) => state.proximasCitas);
 
+  const nombreUsuario = localStorage.getItem('nombre');
   const [showNotaContacto, setShowNotaContacto] = useState(false);
   const [filaSeleccionada, setfilaSeleccionada] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,15 +37,26 @@ const ProximasCitas = () => {
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [txtNotas, setTxtNotas] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
+  console.log('proximasCitas:',proximasCitas)
   useEffect(() => {
     dispatch(fetchPacientes({}));
   }, [dispatch]);
 
   useEffect(() => {
-
-    dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
-  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
+    const fetchParams = {
+      page: currentPage,
+      limit: 20,
+      orden,
+      ordenPor,
+      startDate,
+      endDate,
+      search: localSearch,
+      doctor: selectedDoctor
+    };
+    dispatch(fetchProximasCitas(fetchParams));
+  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor,selectedDoctor]);
 
 
   const handleSearchChange = (event) => {
