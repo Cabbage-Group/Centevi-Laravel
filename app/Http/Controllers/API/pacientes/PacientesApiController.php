@@ -77,9 +77,9 @@ class PacientesApiController extends Controller
 
     // Aplicar el filtro de doctor si existe
     if (!empty($doctor)) {
-      $query->where('doctor', 'like', "%{$doctor}%");
+      // Cambiado de "like" a "=" para búsqueda exacta
+      $query->where('doctor', '=', $doctor);
   }
-
     // Obtener los datos paginados
     $pacientes = $query->paginate($limit, ['*'], 'page', $page);
 
