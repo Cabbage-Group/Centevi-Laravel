@@ -23,10 +23,6 @@ const Usuarios = () => {
   const [sortOrder, setSortOrder] = useState('asc');
   const [sortColumn, setSortColumn] = useState('nombre');
 
-  console.log('tiposUsuarios:', tiposUsuarios)
-  console.log('usuarios:', usuarios)
-
-
   const [formValues, setFormValues] = useState({
     nombre: '',
     usuario: '',
@@ -36,8 +32,6 @@ const Usuarios = () => {
     tipo_usuario_id: '',
     foto: null
   });
-
-
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -69,15 +63,11 @@ const Usuarios = () => {
     }
   }, [selectedUsuario, isEditMode]);
 
-
-
   useEffect(() => {
     dispatch(fetchSucursales({}));
     dispatch(fetchTiposUsuarios({}))
 
   }, [dispatch, currentPage]);
-
-
 
   useEffect(() => {
     dispatch(fetchUsuarios({ page: currentPage, limit: 7, sortOrder, sortColumn, search: localSearch }));
@@ -258,7 +248,6 @@ const Usuarios = () => {
     });
   };
 
-
   return (
     <div>
       <div className="admin-data-content">
@@ -279,48 +268,49 @@ const Usuarios = () => {
                       </button>
 
                       <div className="table-responsive">
+                        <div className="col-12 col-sm-6 mt-sm-10 mt-3">
+                          <div className="dataTables_filter" id="zero-config_filter">
+                            <label>
+                              {/* <svg className="feather feather-search" fill="none" height="24" stroke="currentColor" strokeLinecap="round"
+                                strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" x2="16.65" y1="21" y2="16.65" />
+                              </svg> */}
+                              <input
+                                aria-controls="html5-extension"
+                                className="form-control"
+                                placeholder="Search..."
+                                type="search"
+                                value={localSearch}
+                                onChange={handleSearchChange}
+
+                              />
+                              {localSearch && (
+                                <button
+                                  onClick={handleClearSearch}
+                                  style={{
+                                    position: 'absolute',
+                                    right: '25px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  &#x2715; { }
+                                </button>
+                              )}
+                            </label>
+                          </div>
+                        </div>
                         {status === 'loading' && <p>Loading...</p>}
                         {status === 'failed' && <p>Error: {error}</p>}
                         {status === 'succeeded' && (
                           <div className="dataTables_wrapper container-fluid dt-bootstrap4" id="zero-config_wrapper">
                             <div className="table-responsive">
-                              <div className="col-12 col-sm-6 mt-sm-10 mt-3">
-                                <div className="dataTables_filter" id="zero-config_filter">
-                                  <label>
-                                    <svg className="feather feather-search" fill="none" height="24" stroke="currentColor" strokeLinecap="round"
-                                      strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                      <circle cx="11" cy="11" r="8" />
-                                      <line x1="21" x2="16.65" y1="21" y2="16.65" />
-                                    </svg>
-                                    <input
-                                      aria-controls="html5-extension"
-                                      className="form-control"
-                                      placeholder="Search..."
-                                      type="search"
-                                      value={localSearch}
-                                      onChange={handleSearchChange}
 
-                                    />
-                                    {localSearch && (
-                                      <button
-                                        onClick={handleClearSearch}
-                                        style={{
-                                          position: 'absolute',
-                                          right: '25px',
-                                          top: '50%',
-                                          transform: 'translateY(-50%)',
-                                          background: 'none',
-                                          border: 'none',
-                                          cursor: 'pointer',
-                                        }}
-                                      >
-                                        &#x2715; { }
-                                      </button>
-                                    )}
-                                  </label>
-                                </div>
-                              </div>
 
                               <table
                                 aria-describedby="zero-config_info"
@@ -471,7 +461,7 @@ const Usuarios = () => {
                                         <td>{index + 1 + (currentPage - 1) * 7}</td>
                                         <td>{usuario.nombre}</td>
                                         <td>
-                                          {tipoUsuario ? tipoUsuario.tipo_usuario: 'N/A'}
+                                          {tipoUsuario ? tipoUsuario.tipo_usuario : 'N/A'}
                                         </td>
                                         <td>{usuario.usuario}</td>
                                         <td>
@@ -708,7 +698,7 @@ const Usuarios = () => {
                           onChange={handleChange}
                         />
                       </div>
-                    
+
                     </div>
                     <div className="form-group">
                       <div className="input-group">
@@ -722,6 +712,7 @@ const Usuarios = () => {
                           required
                           type="password"
                           onChange={handleChange}
+                          autoComplete="Off"
                         />
                       </div>
                     </div>
@@ -908,7 +899,7 @@ const Usuarios = () => {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="form-group">
                       <div className="input-group">
                         <span className="input-group-addon">
@@ -920,6 +911,7 @@ const Usuarios = () => {
                           onChange={handleChange}
                           placeholder="Escriba la nueva contraseña"
                           type="password"
+                          autoComplete="new-password"
                         />
                         <input
                           id="passwordActual"
