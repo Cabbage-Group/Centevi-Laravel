@@ -11,6 +11,7 @@ import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import { formatDate } from '../../utils/DateUtils.js';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -23,6 +24,7 @@ const EditarOrtoptica = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: ortoptica } = useSelector((state) => state.verOrtoptica)
@@ -381,7 +383,7 @@ const EditarOrtoptica = () => {
         cancelButtonText: 'Cancelar'
       });
       if (result.isConfirmed) {
-        if(formData && formData.pruebas_extra){
+        if (formData && formData.pruebas_extra) {
           // formData.pruebas_extra = formData.pruebas_extra.replace(/\\\\/g, '\\')
         }
         // Despachar la acción
@@ -511,6 +513,12 @@ const EditarOrtoptica = () => {
                                 handlePacienteChange(e, setFieldValue)
                               }}
                               value={ortoptica.paciente}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                             {/* <select
                               className="form-control"
@@ -535,8 +543,14 @@ const EditarOrtoptica = () => {
                             <select
                               className="form-control"
                               name="sucursal"
-                              value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
-                              onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
+                              value={formData.sucursal || ''}
+                              onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
                               {sucursales.filter(sucursal => sucursal.id_sucursal === ortoptica.sucursal).map((sucursal) => (
@@ -557,6 +571,12 @@ const EditarOrtoptica = () => {
                               name="edad"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -573,6 +593,12 @@ const EditarOrtoptica = () => {
                               name="fecha_atencion"
                               type="date"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -589,6 +615,12 @@ const EditarOrtoptica = () => {
                               placeholder="Esta área tiene un limite de 225 caracteres."
                               rows="2"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -604,6 +636,12 @@ const EditarOrtoptica = () => {
                               placeholder="A/O"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -617,6 +655,12 @@ const EditarOrtoptica = () => {
                               placeholder="A/P"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -630,6 +674,12 @@ const EditarOrtoptica = () => {
                               placeholder="A/F"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -645,6 +695,12 @@ const EditarOrtoptica = () => {
                               placeholder="Medicamentos"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -660,6 +716,12 @@ const EditarOrtoptica = () => {
                               placeholder="Tratamientos"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -694,6 +756,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -705,6 +773,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -720,6 +794,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -730,6 +810,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -746,6 +832,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -757,6 +849,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -794,6 +892,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -805,6 +909,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -821,6 +931,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -832,6 +948,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -848,6 +970,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -859,6 +987,12 @@ const EditarOrtoptica = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -883,6 +1017,12 @@ const EditarOrtoptica = () => {
                                       type="radio"
                                       checked={formData.ojo_dominante === 'IZQUIERDO'}
                                       onChange={handleChange}
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
 
                                     />
                                     <span className="new-control-indicator" />
@@ -900,6 +1040,12 @@ const EditarOrtoptica = () => {
                                       type="radio"
                                       checked={formData.ojo_dominante === 'DERECHO'}
                                       onChange={handleChange}
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                     <span className="new-control-indicator" />
                                     DERECHO
@@ -923,6 +1069,12 @@ const EditarOrtoptica = () => {
                                       type="radio"
                                       checked={formData.mano_dominante === 'IZQUIERDA'}
                                       onChange={handleChange}
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                     <span className="new-control-indicator" />
                                     IZQUIEDA
@@ -939,6 +1091,12 @@ const EditarOrtoptica = () => {
                                       type="radio"
                                       checked={formData.mano_dominante === 'DERECHO'}
                                       onChange={handleChange}
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                     <span className="new-control-indicator" />
                                     DERECHA
@@ -990,6 +1148,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1001,6 +1165,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1012,6 +1182,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1023,6 +1199,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1034,6 +1216,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -1050,6 +1238,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1061,6 +1255,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1072,6 +1272,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1083,6 +1289,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1094,6 +1306,12 @@ const EditarOrtoptica = () => {
                                       type="text"
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -1113,6 +1331,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1126,6 +1350,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1139,6 +1369,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1152,6 +1388,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1177,6 +1419,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1188,6 +1436,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1201,6 +1455,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1212,6 +1472,12 @@ const EditarOrtoptica = () => {
                               type="text"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1232,6 +1498,12 @@ const EditarOrtoptica = () => {
                             type="text"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1246,6 +1518,12 @@ const EditarOrtoptica = () => {
                             type="text"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1262,6 +1540,12 @@ const EditarOrtoptica = () => {
                             type="text"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1276,6 +1560,12 @@ const EditarOrtoptica = () => {
                             type="text"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1290,6 +1580,12 @@ const EditarOrtoptica = () => {
                           name="plan_versiones"
                           placeholder="Esta área tiene un limite de 225 caracteres."
                           rows="2"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1307,6 +1603,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-4">
@@ -1321,6 +1623,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-4">
@@ -1335,6 +1643,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1351,6 +1665,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-6">
@@ -1365,6 +1685,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1381,6 +1707,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-2">
@@ -1395,6 +1727,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-2">
@@ -1409,6 +1747,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-6">
@@ -1423,6 +1767,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1439,6 +1789,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-6">
@@ -1453,6 +1809,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="visuscopia_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1485,6 +1847,12 @@ const EditarOrtoptica = () => {
                                 type="text"
                                 onChange={handleChange}
                                 data-group="pruebas"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </td>
                             <td>
@@ -1496,6 +1864,12 @@ const EditarOrtoptica = () => {
                                 type="text"
                                 onChange={handleChange}
                                 data-group="pruebas"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </td>
                           </tr>
@@ -1512,6 +1886,12 @@ const EditarOrtoptica = () => {
                                 type="text"
                                 onChange={handleChange}
                                 data-group="pruebas"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </td>
                             <td>
@@ -1524,6 +1904,12 @@ const EditarOrtoptica = () => {
                                 type="text"
                                 onChange={handleChange}
                                 data-group="pruebas"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </td>
                           </tr>
@@ -1548,6 +1934,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="pruebas_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1562,6 +1954,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="pruebas_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1578,6 +1976,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="pruebas_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1597,6 +2001,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1611,6 +2021,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1625,6 +2041,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1639,6 +2061,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1655,6 +2083,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1669,6 +2103,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1683,6 +2123,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1699,6 +2145,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1713,6 +2165,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="acomodacion_extra"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1732,6 +2190,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="vergencia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1746,6 +2210,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="vergencia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1762,6 +2232,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="vergencia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1776,6 +2252,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="vergencia"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1823,6 +2305,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1833,6 +2321,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1843,6 +2337,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1853,6 +2353,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1863,6 +2369,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1873,6 +2385,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1888,6 +2406,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1898,6 +2422,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1908,6 +2438,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1918,6 +2454,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1928,6 +2470,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1938,6 +2486,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="refraccion"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1958,6 +2512,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="lentes_contacto"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-2">
@@ -1972,6 +2532,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="lentes_contacto"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-2">
@@ -1986,6 +2552,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="lentes_contacto"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-2">
@@ -2000,6 +2572,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="lentes_contacto"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -2036,6 +2614,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="lentes_contacto"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -2047,6 +2631,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="lentes_contacto"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -2063,6 +2653,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="lentes_contacto"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -2074,6 +2670,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="lentes_contacto"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -2090,6 +2692,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="lentes_contacto"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -2101,6 +2709,12 @@ const EditarOrtoptica = () => {
                                   type="text"
                                   onChange={handleChange}
                                   data-group="lentes_contacto"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -2121,6 +2735,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="lentes_contacto"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-6">
@@ -2135,6 +2755,12 @@ const EditarOrtoptica = () => {
                           type="text"
                           onChange={handleChange}
                           data-group="lentes_contacto"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -2146,11 +2772,17 @@ const EditarOrtoptica = () => {
                         <textarea
                           className="form-control textarea"
                           value={formData.conducta_seguir}
-                          maxLength="225"
+                          // maxLength="10"
                           name="conducta_seguir"
-                          placeholder="Esta área tiene un limite de 225 caracteres."
-                          rows="2"
+                          // placeholder="Esta área tiene un limite de 225 caracteres."
+                          rows="4"
                           onChange={handleChange}
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-4">
@@ -2167,6 +2799,12 @@ const EditarOrtoptica = () => {
                           name="fecha_proxima_consulta"
                           type="date"
                           onChange={handleChange}
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editarfechaproximaconsulta"
+                            )
+                          }
                         />
                       </div>
                     </div>

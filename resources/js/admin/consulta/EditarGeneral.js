@@ -11,6 +11,7 @@ import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import { formatDate } from '../../utils/DateUtils.js';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -23,6 +24,7 @@ const EditarGeneral = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: RefraccionGeneral } = useSelector((state) => state.verRefraccionGeneral)
@@ -523,6 +525,12 @@ const EditarGeneral = () => {
                                 handlePacienteChange(e, setFieldValue)
                               }}
                               value={formData.paciente}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                             {/* <select
                               className="form-control"
@@ -549,6 +557,12 @@ const EditarGeneral = () => {
                               name="sucursal"
                               value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
                               onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
                               {sucursales.filter(sucursal => sucursal.id_sucursal === RefraccionGeneral.sucursal).map((sucursal) => (
@@ -568,6 +582,12 @@ const EditarGeneral = () => {
                               name="edad"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -584,6 +604,12 @@ const EditarGeneral = () => {
                               name="fecha_atencion"
                               type="date"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -600,6 +626,12 @@ const EditarGeneral = () => {
                               placeholder="Esta área tiene un limite de 225 caracteres."
                               rows="2"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -615,6 +647,12 @@ const EditarGeneral = () => {
                               placeholder="A/O"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -628,6 +666,12 @@ const EditarGeneral = () => {
                               placeholder="A/P"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -641,6 +685,12 @@ const EditarGeneral = () => {
                               placeholder="A/F"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -656,6 +706,12 @@ const EditarGeneral = () => {
                               placeholder="Medicamentos"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -671,6 +727,12 @@ const EditarGeneral = () => {
                               placeholder="Tratamientos"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -705,6 +767,12 @@ const EditarGeneral = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -716,6 +784,12 @@ const EditarGeneral = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -731,6 +805,12 @@ const EditarGeneral = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -741,6 +821,12 @@ const EditarGeneral = () => {
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -777,6 +863,12 @@ const EditarGeneral = () => {
                                         name="av_cc_od_vl"
                                         type="text"
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -787,6 +879,12 @@ const EditarGeneral = () => {
                                         name="av_cc_oi_vl"
                                         type="text"
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -802,6 +900,12 @@ const EditarGeneral = () => {
                                         name="av_cc_od_vp"
                                         type="text"
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -812,6 +916,12 @@ const EditarGeneral = () => {
                                         name="av_cc_oi_vp"
                                         type="text"
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -861,6 +971,12 @@ const EditarGeneral = () => {
                                       name="esfera_od"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -871,6 +987,12 @@ const EditarGeneral = () => {
                                       name="cilindro_od"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -881,6 +1003,12 @@ const EditarGeneral = () => {
                                       name="eje_od"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -891,6 +1019,12 @@ const EditarGeneral = () => {
                                       name="p_base_od"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -901,6 +1035,12 @@ const EditarGeneral = () => {
                                       name="add_od"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -916,6 +1056,12 @@ const EditarGeneral = () => {
                                       name="esfera_oi"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -926,6 +1072,12 @@ const EditarGeneral = () => {
                                       name="cilindro_oi"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -936,6 +1088,12 @@ const EditarGeneral = () => {
                                       name="eje_oi"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -946,6 +1104,12 @@ const EditarGeneral = () => {
                                       name="p_base_oi"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -956,6 +1120,12 @@ const EditarGeneral = () => {
                                       name="add_oi"
                                       type="text"
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -975,6 +1145,12 @@ const EditarGeneral = () => {
                               name="len_tipo_lentes"
                               type="text"
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -988,6 +1164,12 @@ const EditarGeneral = () => {
                               name="len_filtros"
                               type="text"
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1001,6 +1183,12 @@ const EditarGeneral = () => {
                               name="len_tiempo"
                               type="text"
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1014,6 +1202,12 @@ const EditarGeneral = () => {
                               name="len_tipo_arco"
                               type="text"
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1038,6 +1232,12 @@ const EditarGeneral = () => {
                               name="sa_od"
                               type="text"
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1048,6 +1248,12 @@ const EditarGeneral = () => {
                               name="pp_od"
                               type="text"
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1060,6 +1266,12 @@ const EditarGeneral = () => {
                               name="sa_oi"
                               type="text"
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1070,6 +1282,12 @@ const EditarGeneral = () => {
                               name="pp_oi"
                               type="text"
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1087,6 +1305,12 @@ const EditarGeneral = () => {
                             name="hirschberg"
                             type="text"
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1100,6 +1324,12 @@ const EditarGeneral = () => {
                             name="ct_vl"
                             type="text"
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1113,6 +1343,12 @@ const EditarGeneral = () => {
                             name="ct_vp"
                             type="text"
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1129,6 +1365,12 @@ const EditarGeneral = () => {
                             name="plan_versiones"
                             rows="5"
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1144,6 +1386,12 @@ const EditarGeneral = () => {
                             name="ppc_or"
                             type="text"
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1157,6 +1405,12 @@ const EditarGeneral = () => {
                             name="ppc_l"
                             type="text"
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1170,6 +1424,12 @@ const EditarGeneral = () => {
                             name="ppc_posicion"
                             type="text"
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1186,6 +1446,12 @@ const EditarGeneral = () => {
                             name="observaciones"
                             rows="3"
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1217,6 +1483,12 @@ const EditarGeneral = () => {
                                   name="vl_luces"
                                   type="text"
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1227,6 +1499,12 @@ const EditarGeneral = () => {
                                   name="vp_luces"
                                   type="text"
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1245,6 +1523,12 @@ const EditarGeneral = () => {
                             name="randot"
                             type="text"
                             data-group="pruebas_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1258,6 +1542,12 @@ const EditarGeneral = () => {
                             name="lang"
                             type="text"
                             data-group="pruebas_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1273,6 +1563,12 @@ const EditarGeneral = () => {
                             name="vision_color"
                             type="text"
                             data-group="pruebas_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1291,6 +1587,12 @@ const EditarGeneral = () => {
                             name="aa_od"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1304,6 +1606,12 @@ const EditarGeneral = () => {
                             name="aa_oi"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1317,6 +1625,12 @@ const EditarGeneral = () => {
                             name="fan_od"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1330,6 +1644,12 @@ const EditarGeneral = () => {
                             name="fan_cpm"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1345,6 +1665,12 @@ const EditarGeneral = () => {
                             name="aco_oi"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1358,6 +1684,12 @@ const EditarGeneral = () => {
                             name="aco_cpm"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1371,6 +1703,12 @@ const EditarGeneral = () => {
                             name="acp_fab"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1384,6 +1722,12 @@ const EditarGeneral = () => {
                             name="aco_falla"
                             type="text"
                             data-group="acomodacion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1399,6 +1743,12 @@ const EditarGeneral = () => {
                             name="mem_od"
                             type="text"
                             data-group="acomodacion_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1412,6 +1762,12 @@ const EditarGeneral = () => {
                             name="mem_oi"
                             type="text"
                             data-group="acomodacion_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1425,6 +1781,12 @@ const EditarGeneral = () => {
                             name="mem_arn"
                             type="text"
                             data-group="acomodacion_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1438,6 +1800,12 @@ const EditarGeneral = () => {
                             name="mem_arp"
                             type="text"
                             data-group="acomodacion_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1482,6 +1850,12 @@ const EditarGeneral = () => {
                                     name="esfera_od_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1492,6 +1866,12 @@ const EditarGeneral = () => {
                                     name="cilindro_od_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1502,6 +1882,12 @@ const EditarGeneral = () => {
                                     name="eje_od_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1512,6 +1898,12 @@ const EditarGeneral = () => {
                                     name="p_base_od_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1522,6 +1914,12 @@ const EditarGeneral = () => {
                                     name="add_od_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1537,6 +1935,12 @@ const EditarGeneral = () => {
                                     name="esfera_oi_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1547,6 +1951,12 @@ const EditarGeneral = () => {
                                     name="cilindro_oi_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1557,6 +1967,12 @@ const EditarGeneral = () => {
                                     name="eje_oi_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1567,6 +1983,12 @@ const EditarGeneral = () => {
                                     name="p_base_oi_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1577,6 +1999,12 @@ const EditarGeneral = () => {
                                     name="add_oi_f"
                                     type="text"
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1596,6 +2024,12 @@ const EditarGeneral = () => {
                             name="tipo_l"
                             type="text"
                             data-group="tipo_lentes"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1609,6 +2043,12 @@ const EditarGeneral = () => {
                             name="pd"
                             type="text"
                             data-group="tipo_lentes"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1622,6 +2062,12 @@ const EditarGeneral = () => {
                             name="dnp"
                             type="text"
                             data-group="tipo_lentes"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1635,6 +2081,12 @@ const EditarGeneral = () => {
                             name="alt"
                             type="text"
                             data-group="tipo_lentes"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1670,6 +2122,12 @@ const EditarGeneral = () => {
                                     name="poder_od"
                                     type="text"
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1680,6 +2138,12 @@ const EditarGeneral = () => {
                                     name="poder_oi"
                                     type="text"
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1695,6 +2159,12 @@ const EditarGeneral = () => {
                                     name="cb_od"
                                     type="text"
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1705,6 +2175,12 @@ const EditarGeneral = () => {
                                     name="cb_oi"
                                     type="text"
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1720,6 +2196,12 @@ const EditarGeneral = () => {
                                     name="dia_od"
                                     type="text"
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1730,6 +2212,12 @@ const EditarGeneral = () => {
                                     name="dia_oi"
                                     type="text"
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1749,6 +2237,12 @@ const EditarGeneral = () => {
                             name="lente_marca"
                             type="text"
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1762,6 +2256,12 @@ const EditarGeneral = () => {
                             name="lente_tipo"
                             type="text"
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1774,9 +2274,15 @@ const EditarGeneral = () => {
                             className="form-control textarea"
                             value={formData.conducta_seguir}
                             onChange={handleChange}
-                            maxLength="800"
+                            // maxLength="800"
                             name="conducta_seguir"
-                            rows="5"
+                            rows="6"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1794,6 +2300,12 @@ const EditarGeneral = () => {
                           name="fecha_proxima_consulta"
                           type="date"
                           onChange={handleChange}
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editarfechaproximaconsulta"
+                            )
+                          }
                         />
                       </div>
                       <button

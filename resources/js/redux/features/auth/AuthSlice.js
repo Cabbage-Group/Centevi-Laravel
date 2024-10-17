@@ -17,8 +17,7 @@ export const fetchValidarToken = createAsyncThunk(
   'auth/validar-user',
   async (data) => {
     const response = await axios.post(`${API}/validar-user`, { usuario: data });
-    console.log("response: --");
-    console.log(response);
+
     const rpta = response.data
     if (rpta) {
       // console.log("rpta.data.usuario.perfil ---");
@@ -26,6 +25,13 @@ export const fetchValidarToken = createAsyncThunk(
       // localStorage.setItem('perfil', rpta.data.usuario.perfil)
     }
     return rpta;
+  }
+);
+
+export const validateUserAuth = createAsyncThunk(
+  'auth-validate-auth',
+  async (data) => {
+    return true;
   }
 );
 
@@ -44,21 +50,24 @@ export const fetchValidarToken = createAsyncThunk(
 const AuthSlice = createSlice({
   name: 'auth',
   initialState: {
-    usuario: {},
+    usuario: null,
     status: 'idle',
     error: null,
+    permisos: [],
+    fetchUsuario: false
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchLogin.pending, (state) => {
         state.status = 'loading';
+        state.fetchUsuario = true;
       })
       .addCase(fetchLogin.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        state.fetchUsuario = true;
         state.usuario = action.payload.data;
-        // console.log("action.payload.data: ---");
-        // console.log(action.payload.data);
+        state.permisos = action.payload.data.permisos;
         localStorage.setItem('id_usuario', action.payload.data.usuario.id_usuario)
         localStorage.setItem('token_user', action.payload.data.token)
         localStorage.setItem('usuario', action.payload.data.usuario.usuario)
@@ -67,28 +76,36 @@ const AuthSlice = createSlice({
       })
       .addCase(fetchLogin.rejected, (state, action) => {
         state.status = 'failed';
+        state.fetchUsuario = true;
         state.error = action.error.message;
       })
 
 
       .addCase(fetchValidarToken.pending, (state) => {
         state.status = 'loading';
+        state.fetchUsuario = true;
       })
       .addCase(fetchValidarToken.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.usuario = action.payload.data;
+        state.permisos = action.payload.data.permisos;
+        state.fetchUsuario = true;
         localStorage.setItem('id_usuario', action.payload.data.usuario.id_usuario)
         localStorage.setItem('token_user', action.payload.data.token)
         localStorage.setItem('usuario', action.payload.data.usuario.usuario)
         localStorage.setItem('nombre', action.payload.data.usuario.nombre)
         console.log("VALIDAR !");
-        
-
       })
+
       .addCase(fetchValidarToken.rejected, (state, action) => {
         state.status = 'failed';
+        state.fetchUsuario = true;
         state.error = action.error.message;
-      });
+      })
+
+      .addCase(validateUserAuth.fulfilled, (state, action) => {
+        state.fetchUsuario = true;
+      })
   },
 });
 

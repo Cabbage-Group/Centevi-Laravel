@@ -5,6 +5,7 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import PaginationUsuarios from './PaginationUsuarios.js';
 import Swal from 'sweetalert2';
 import { fetchTiposUsuarios } from '../../redux/features/tipos-usuarios/verTiposUsuariosSlice.js';
+import moment from 'moment';
 
 
 const Usuarios = () => {
@@ -260,14 +261,32 @@ const Usuarios = () => {
                 <div className="row layout-top-spacing" id="cancel-row">
                   <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                     <div className="widget-content widget-content-area br-6">
-                      <button
-                        className="btn btn-success mt-3 ml-4"
-                        data-target="#modalAgregarUsuario"
-                        data-toggle="modal"
-                        onClick={handleCreateClick}
+                      <div
+                        style={{
+                          display: 'flex'
+                        }}
                       >
-                        Agregar usuario
-                      </button>
+                        <button
+                          className="btn btn-success mt-3 ml-10"
+                          data-target="#modalAgregarUsuario"
+                          data-toggle="modal"
+                          onClick={handleCreateClick}
+                          style={{
+                            width: '200px'
+                          }}
+                        >
+                          Agregar usuario
+                        </button>
+                        <input
+                          aria-controls="html5-extension"
+                          className="form-control"
+                          placeholder="Search..."
+                          type="search"
+                          value={localSearch}
+                          onChange={handleSearchChange}
+
+                        />
+                      </div>
 
                       <div className="table-responsive">
                         <div className="col-12 col-sm-6 mt-sm-10 mt-3">
@@ -279,15 +298,7 @@ const Usuarios = () => {
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" x2="16.65" y1="21" y2="16.65" />
                               </svg> */}
-                              <input
-                                aria-controls="html5-extension"
-                                className="form-control"
-                                placeholder="Search..."
-                                type="search"
-                                value={localSearch}
-                                onChange={handleSearchChange}
 
-                              />
                               {localSearch && (
                                 <button
                                   onClick={handleClearSearch}
@@ -457,7 +468,7 @@ const Usuarios = () => {
 
                                 <tbody>
                                   {usuarios.map((usuario, index) => {
-                                    const tipoUsuario = tiposUsuarios.find((tipo) => tipo.id === usuario.tipo_usuario_id);
+                                    const tipoUsuario = tiposUsuarios.find((tipo) => tipo.id === parseFloat(usuario.tipo_usuario_id));
                                     return (
                                       <tr key={usuario.id_usuario}>
                                         <td>{index + 1 + (currentPage - 1) * 7}</td>
@@ -484,7 +495,9 @@ const Usuarios = () => {
                                             {parseInt(usuario.estado.toString()) === 1 ? 'Activado' : 'Desactivado'}
                                           </button>
                                         </td>
-                                        <td>{usuario.ultimo_login}</td>
+                                        <td>
+                                          {moment.utc(usuario.ultimo_login).format('DD-MM-YYYY HH:mm')}
+                                        </td>
                                         <td>
                                           <div className="btn-group">
                                             <button

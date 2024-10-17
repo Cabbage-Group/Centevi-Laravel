@@ -7,18 +7,20 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js
 import ExportButton from './exportButton';
 import { transformDataForConsultasDiarias } from '../../../utils/dataTransform';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice.js';
+import { funPermisosObtenidos } from '../../utils/ValidarPermisos.js';
 
 const ConsultasDiarias = () => {
 
   const dispatch = useDispatch();
   const metaPacientes = useSelector((state) => state.pacientes.meta);
+  const { permisos } = useSelector((state) => state.auth);
   const { consultasDiarias, status, error, meta, totalPages, orden, startDate, endDate, ordenPor, search, dataexport } = useSelector((state) => state.consultasDiarias);
   const nombreUsuario = localStorage.getItem('nombre');
   const [currentPage, setCurrentPage] = useState(1);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
-  const { usuarios} = useSelector((state) => state.usuarios);
+  const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
   useEffect(() => {
@@ -277,21 +279,28 @@ const ConsultasDiarias = () => {
                     </div>
                   </div>
                   {/* Nuevo select para buscar por doctor */}
-                  <div className="form-group col-md-4 mt-4">
-                    <label>Buscar por Doctor:</label>
-                    <select 
-                      className="form-control"
-                      value={selectedDoctor}
-                      onChange={handleDoctorChange}
-                    >
-                      <option value="todos">Todos los doctores</option>
-                      {usuarios.map((usuario) => (
-                        <option key={usuario.id} value={usuario.nombre}>
-                          {usuario.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {
+                    funPermisosObtenidos(
+                      permisos,
+                      "reportes.atendidospordia.buscarpordoctor",
+                      <div className="form-group col-md-4 mt-4">
+                        <label>Buscar por Doctor:</label>
+                        <select
+                          className="form-control"
+                          value={selectedDoctor}
+                          onChange={handleDoctorChange}
+                        >
+                          <option value="todos">Todos los doctores</option>
+                          {usuarios.map((usuario) => (
+                            <option key={usuario.id} value={usuario.nombre}>
+                              {usuario.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  }
+
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}
                     {status === 'failed' && <p>Error: {error}</p>}

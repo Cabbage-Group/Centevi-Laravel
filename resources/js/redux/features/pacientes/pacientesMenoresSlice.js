@@ -6,9 +6,9 @@ import API from '../../../config/config';
 export const fetchTotalPacientesMenores = createAsyncThunk(
   'pacientesMenores/fetchTotal',
   async () => {
-      const response = await axios.get(`${API}/pacientes-menores`); // Reemplaza con la URL de tu API
-      return response.data.total;
-    }
+    const response = await axios.get(`${API}/pacientes-menores`); // Reemplaza con la URL de tu API
+    return response.data.total;
+  }
 );
 
 const pacientesMenoresSlice = createSlice({

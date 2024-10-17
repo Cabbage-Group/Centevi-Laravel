@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import ListaPaciente from '../admin/Paciente/ListaPaciente.js';
 import VerRecetas from '../admin/recetas/VerRecetas.js';
 import CrearReceta from '../admin/recetas/CrearReceta.js';
@@ -60,24 +60,56 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchValidarToken } from '../redux/features/auth/AuthSlice.js';
 import TiposUsuarios from '../admin/tipos-usuarios/VerTiposUsuarios.js';
 import Permisos from '../admin/permisos/Permisos.js';
+import ProtectedRoute from './ProtectedRoute.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
-  const { status, usuario } = useSelector((state) => state.auth);
-  const isLogin = () => {
+  const [loadingRoutes, setLoadingRoutes] = useState(false);
+  const { status, usuario, fetchUsuario } = useSelector((state) => state.auth);
+
+  const isLogin = async () => {
     const token = localStorage.getItem('token_user');
-    if (token || status == 'succeeded') return true
+    if (token && usuario) {
+      console.log("Retorno true");
+      return true
+    }
+
+    if (fetchUsuario == false) {
+      await validarUser();
+      if (token && usuario) {
+        console.log("Retorno true");
+        return true
+      }
+    } else {
+      if (token || usuario) {
+        console.log("Retorno true");
+        return true
+      }
+    }
+
+    console.log("Retorno false");
+
     return false
   }
 
   useEffect(() => {
-    if (isLogin()) {
-      validarUser();
-    }
-  }, [])
+    const timer = setTimeout(() => {
+      setLoadingRoutes(true);
+    }, 3000); // 3 segundos
+
+    // Limpieza: limpiar el timeout cuando el componente se desmonte
+    return () => clearTimeout(timer);
+  }, []);
+
+  // useEffect(() => {
+  //   if (isLogin()) {
+  //     validarUser();
+  //   }
+  // }, [])
 
   const validarUser = async () => {
     await dispatch(fetchValidarToken(localStorage.getItem('usuario')));
+    return true
   }
 
   return (
@@ -85,87 +117,82 @@ const RoutesApp = () => {
       <Routes>
         <Route path="/sidebar" element={<Sidebar />} />
         <Route path="/navbar" element={<Navbar />} />
-        {
-          isLogin() && usuario ? (
-            <>
-              <Route path="*" element={<Sidebar component={<Home />} />} />
-              <Route path="/home" element={<Sidebar component={<Home />} />} />
-              <Route path="/sucursales" element={<Sidebar component={<Sucursales />} />} />
-              <Route path="/editar-bajaVision/:id/:id_consulta" element={<Sidebar component={<EditarBajaVision />} />} />
-              <Route path="/ver-bajaVision/:id/:id_consulta" element={<Sidebar component={<VerBajaVision />} />} />
-              <Route path="/baja-vision" element={<Sidebar component={<BajaVision />} />} />
 
-              <Route path="/ver-refraccion/:id/:id_consulta" element={<Sidebar component={<VerRefraccionGeneral />} />} />
-              <Route path="/editar-OptometriaGeneral/:id/:id_consulta" element={<Sidebar component={<EditarGeneral />} />} />
-              <Route path="/optometria-general" element={<Sidebar component={<OptometriaGeneral />} />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="*" element={<Sidebar component={<Home />} />} />
+          <Route path="/home" element={<Sidebar component={<Home />} />} />
+          <Route path="/sucursales" element={<Sidebar component={<Sucursales />} />} />
+          <Route path="/editar-bajaVision/:id/:id_consulta" element={<Sidebar component={<EditarBajaVision />} />} />
+          <Route path="/ver-bajaVision/:id/:id_consulta" element={<Sidebar component={<VerBajaVision />} />} />
+          <Route path="/baja-vision" element={<Sidebar component={<BajaVision />} />} />
 
-              <Route path="/historia-clinica" element={<Sidebar component={<HistoriaClinica />} />} />
-              <Route path="/editar-ConsultaGenerica/:id/:id_consulta" element={<Sidebar component={<EditarConsultaGenerica />} />} />
+          <Route path="/ver-refraccion/:id/:id_consulta" element={<Sidebar component={<VerRefraccionGeneral />} />} />
+          <Route path="/editar-OptometriaGeneral/:id/:id_consulta" element={<Sidebar component={<EditarGeneral />} />} />
+          <Route path="/optometria-general" element={<Sidebar component={<OptometriaGeneral />} />} />
 
-              <Route path="/editar-neonato/:id/:id_consulta" element={<Sidebar component={<EditarNeonatos />} />} />
-              <Route path="/ver-neonatos/:id/:id_consulta" element={<Sidebar component={<VerNeonatos />} />} />
-              <Route path="/optometria-neonatos" element={<Sidebar component={<OptometriaNeonatos />} />} />
+          <Route path="/historia-clinica" element={<Sidebar component={<HistoriaClinica />} />} />
+          <Route path="/editar-ConsultaGenerica/:id/:id_consulta" element={<Sidebar component={<EditarConsultaGenerica />} />} />
 
-              <Route path="/ver-pediatrica/:id/:id_consulta" element={<Sidebar component={<VerPediatrica />} />} />
-              <Route path="/editar-pediatrica/:id/:id_consulta" element={<Sidebar component={<EditarPediatra />} />} />
-              <Route path="/optometria-pediatra" element={<Sidebar component={<OptometriaPediatra />} />} />
+          <Route path="/editar-neonato/:id/:id_consulta" element={<Sidebar component={<EditarNeonatos />} />} />
+          <Route path="/ver-neonatos/:id/:id_consulta" element={<Sidebar component={<VerNeonatos />} />} />
+          <Route path="/optometria-neonatos" element={<Sidebar component={<OptometriaNeonatos />} />} />
 
-              <Route path="/crear-paciente" element={<Sidebar component={<CrearPaciente />} />} />
-              <Route path="/usuarios" element={<Sidebar component={<Usuarios />} />} />
-              <Route path="/lista-pacientes" element={<Sidebar component={<ListaPaciente />} />} />
-              <Route path="/historia-paciente/:id" element={<Sidebar component={<HistoriaPaciente />} />} />
-              <Route path="/editar-paciente/:id" element={<Sidebar component={<EditarPaciente />} />} />
+          <Route path="/ver-pediatrica/:id/:id_consulta" element={<Sidebar component={<VerPediatrica />} />} />
+          <Route path="/editar-pediatrica/:id/:id_consulta" element={<Sidebar component={<EditarPediatra />} />} />
+          <Route path="/optometria-pediatra" element={<Sidebar component={<OptometriaPediatra />} />} />
 
-              <Route path="/ver-ortoptica/:id/:id_consulta" element={<Sidebar component={<VerOrtoptica />} />} />
-              <Route path="/editar-ortoptica/:id/:id_consulta" element={<Sidebar component={<EditarOrtoptica />} />} />
-              <Route path="/vision-binocular" element={<Sidebar component={<OrtopticaVisionBinocular />} />} />
+          <Route path="/crear-paciente" element={<Sidebar component={<CrearPaciente />} />} />
+          <Route path="/usuarios" element={<Sidebar component={<Usuarios />} />} />
+          <Route path="/lista-pacientes" element={<Sidebar component={<ListaPaciente />} />} />
+          <Route path="/historia-paciente/:id" element={<Sidebar component={<HistoriaPaciente />} />} />
+          <Route path="/editar-paciente/:id" element={<Sidebar component={<EditarPaciente />} />} />
 
-              <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
-              <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
-              <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
-              <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
+          <Route path="/ver-ortoptica/:id/:id_consulta" element={<Sidebar component={<VerOrtoptica />} />} />
+          <Route path="/editar-ortoptica/:id/:id_consulta" element={<Sidebar component={<EditarOrtoptica />} />} />
+          <Route path="/vision-binocular" element={<Sidebar component={<OrtopticaVisionBinocular />} />} />
 
-              <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />
-              <Route path="/reportes-sin-atencion" element={<Sidebar component={<SinAtencion />} />} />
-              <Route path="/reportes-ultima-atencion" element={<Sidebar component={<UltimaAtencion />} />} />
-              <Route path="/paciente-atendido-dia" element={<Sidebar component={<PacienteAtendidoDia />} />} />
-              <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
-              <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
-              <Route path="/proximas-citas" element={<Sidebar component={<ProximasCitas />} />} />
+          <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
+          <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
+          <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
+          <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
-              <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia />} />} />
-              <Route path="/ver-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaPediatrica />} />} />
-              <Route path="/ver-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaNeonato />} />} />
-              <Route path="/ver-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaOrtoptica />} />} />
+          <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />
+          <Route path="/reportes-sin-atencion" element={<Sidebar component={<SinAtencion />} />} />
+          <Route path="/reportes-ultima-atencion" element={<Sidebar component={<UltimaAtencion />} />} />
+          <Route path="/paciente-atendido-dia" element={<Sidebar component={<PacienteAtendidoDia />} />} />
+          <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
+          <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
+          <Route path="/proximas-citas" element={<Sidebar component={<ProximasCitas />} />} />
 
-              <Route path="/editar-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapia />} />} />
-              <Route path="/editar-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaPediatrica />} />} />
-              <Route path="/editar-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaNeonato />} />} />
-              <Route path="/editar-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaOrtoptica />} />} />
+          <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia />} />} />
+          <Route path="/ver-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaPediatrica />} />} />
+          <Route path="/ver-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaNeonato />} />} />
+          <Route path="/ver-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaOrtoptica />} />} />
 
-              <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
+          <Route path="/editar-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapia />} />} />
+          <Route path="/editar-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaPediatrica />} />} />
+          <Route path="/editar-sesion-terapia-neonato/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaNeonato />} />} />
+          <Route path="/editar-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<EditarSesionTerapiaOrtoptica />} />} />
 
-              <Route path="/terapias-bajavision/:id/:id_terapia" element={<Sidebar component={<TerapiasBajaVision />} />} />
-              <Route path="/terapias-neonatos/:id/:id_terapia" element={<Sidebar component={<TerapiasNeonatos />} />} />
-              <Route path="/terapias-ortoptica/:id/:id_terapia" element={<Sidebar component={<TerapiasOrtoptica />} />} />
-              <Route path="/terapias-pediatrica/:id/:id_terapia" element={<Sidebar component={<TerapiasPediatrica />} />} />
+          <Route path="/ver-consultagenericas/:id/:id_consulta" element={<Sidebar component={<VerConsultaGenerica />} />} />
 
-              <Route path="/tipos-usuarios" element={<Sidebar component={<TiposUsuarios />} />} />
+          <Route path="/terapias-bajavision/:id/:id_terapia" element={<Sidebar component={<TerapiasBajaVision />} />} />
+          <Route path="/terapias-neonatos/:id/:id_terapia" element={<Sidebar component={<TerapiasNeonatos />} />} />
+          <Route path="/terapias-ortoptica/:id/:id_terapia" element={<Sidebar component={<TerapiasOrtoptica />} />} />
+          <Route path="/terapias-pediatrica/:id/:id_terapia" element={<Sidebar component={<TerapiasPediatrica />} />} />
 
-              <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
+          <Route path="/tipos-usuarios" element={<Sidebar component={<TiposUsuarios />} />} />
 
-              
+          <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
 
-            </>
-          ) : (
-            <>
-              <Route path="/login" element={<Login />} />
-              <Route path="*" element={<Login />} />
-            </>
-          )
-        }
+        </Route>
+
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Login />} />
+
+
       </Routes>
-    </Router>
+    </Router >
   )
 }
 

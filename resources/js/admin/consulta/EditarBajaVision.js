@@ -6,12 +6,14 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
 import { fetchVerBajaVision } from '../../redux/features/pacientes/VerBajaVisionSlice.js';
 import moment from 'moment';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const EditarBajaVision = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { pacientes } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: bajavision } = useSelector((state) => state.verBajaVision)
@@ -384,6 +386,12 @@ const EditarBajaVision = () => {
                               name="paciente"
                               value={formData.paciente || ''}
                               onChange={(e) => setFormData({ ...formData, paciente: e.target.value })}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value="">Seleccione un paciente</option> { }
                               {pacientes.filter(paciente => paciente.id_paciente === bajavision.paciente).map((paciente) => (
@@ -404,6 +412,12 @@ const EditarBajaVision = () => {
                               name="sucursal"
                               value={formData.sucursal || ''}
                               onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value="">Seleccione una sucursal</option> { }
                               {sucursales.filter(sucursal => sucursal.id_sucursal === bajavision.sucursal).map((sucursal) => (
@@ -423,6 +437,12 @@ const EditarBajaVision = () => {
                               name="edad"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -436,6 +456,12 @@ const EditarBajaVision = () => {
                               required
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
 
                             />
                           </div>
@@ -452,6 +478,12 @@ const EditarBajaVision = () => {
                               name="m_c"
                               rows="15"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -466,6 +498,12 @@ const EditarBajaVision = () => {
                               name="a_o"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -478,6 +516,12 @@ const EditarBajaVision = () => {
                               type="text"
                               value={formData.a_p}
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -490,6 +534,12 @@ const EditarBajaVision = () => {
                               type="text"
                               value={formData.a_f}
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -504,6 +554,12 @@ const EditarBajaVision = () => {
                               type="text"
                               value={formData.medicamentos}
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -519,6 +575,12 @@ const EditarBajaVision = () => {
                               type="text"
                               value={formData.tratamientos}
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -534,6 +596,12 @@ const EditarBajaVision = () => {
                               type="text"
                               value={formData.dx_oft_princ}
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-6">
@@ -548,6 +616,12 @@ const EditarBajaVision = () => {
                               type="text"
                               value={formData.objetivos}
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -583,6 +657,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_sc.av_sc_od_vl}
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -595,6 +675,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_sc.av_sc_oi_vl}
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -612,6 +698,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_sc.av_sc_od_vp}
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -624,6 +716,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_sc.av_sc_oi_vp}
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -640,6 +738,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_sc.av_sc_od_ph}
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
 
                                       />
                                     </td>
@@ -653,6 +757,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_sc.av_sc_oi_ph}
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -691,6 +801,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_cc.av_cc_od_vl}
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -703,6 +819,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_cc.av_cc_oi_vl}
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -720,6 +842,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_cc.av_cc_od_vp}
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -732,6 +860,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_cc.av_cc_oi_vp}
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -749,6 +883,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_cc.av_cc_od_ph}
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -761,6 +901,12 @@ const EditarBajaVision = () => {
                                         value={formData.av_cc.av_cc_oi_ph}
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -812,6 +958,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.esfera_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -824,6 +976,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.cilindro_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -836,6 +994,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.eje_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -848,6 +1012,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.p_base_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -860,6 +1030,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.add_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -877,6 +1053,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.esfera_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -889,6 +1071,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.cilindro_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -901,6 +1089,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.eje_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -913,6 +1107,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.p_base_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -925,6 +1125,12 @@ const EditarBajaVision = () => {
                                       value={formData.lensometria.add_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -945,6 +1151,12 @@ const EditarBajaVision = () => {
                               value={formData.lensometria_extra.len_tipo_lentes}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -959,6 +1171,12 @@ const EditarBajaVision = () => {
                               value={formData.lensometria_extra.len_filtros}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -973,6 +1191,12 @@ const EditarBajaVision = () => {
                               value={formData.lensometria_extra.len_tiempo}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -987,6 +1211,12 @@ const EditarBajaVision = () => {
                               value={formData.lensometria_extra.len_tipo_aro}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1013,6 +1243,12 @@ const EditarBajaVision = () => {
                               value={formData.cv_so.cv_od}
                               onChange={handleChange}
                               data-group="cv_so"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
 
                             />
                           </div>
@@ -1026,6 +1262,12 @@ const EditarBajaVision = () => {
                               value={formData.cv_so.so_od}
                               onChange={handleChange}
                               data-group="cv_so"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
 
                             />
                           </div>
@@ -1041,6 +1283,12 @@ const EditarBajaVision = () => {
                               value={formData.cv_so.cv_oi}
                               onChange={handleChange}
                               data-group="cv_so"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1053,6 +1301,12 @@ const EditarBajaVision = () => {
                               value={formData.cv_so.so_oi}
                               onChange={handleChange}
                               data-group="cv_so"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1074,6 +1328,12 @@ const EditarBajaVision = () => {
                                 value={formData.amsler.amsler_od}
                                 onChange={handleChange}
                                 data-group="amsler"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </div>
                             <div className="form-group col-md-6">
@@ -1085,6 +1345,12 @@ const EditarBajaVision = () => {
                                 value={formData.amsler.amsler_oi}
                                 onChange={handleChange}
                                 data-group="amsler"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </div>
                           </div>
@@ -1103,6 +1369,12 @@ const EditarBajaVision = () => {
                                 value={formData.sensibilidad_c.sensibilidad_od}
                                 onChange={handleChange}
                                 data-group="sensibilidad_c"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </div>
                             <div className="form-group col-md-6">
@@ -1114,6 +1386,12 @@ const EditarBajaVision = () => {
                                 value={formData.sensibilidad_c.sensibilidad_oi}
                                 onChange={handleChange}
                                 data-group="sensibilidad_c"
+                                disabled={
+                                  !funPermisosObtenidosBoolean(
+                                    permisos,
+                                    "consultas.editartodo"
+                                  )
+                                }
                               />
                             </div>
                           </div>
@@ -1133,6 +1411,12 @@ const EditarBajaVision = () => {
                             rows="2"
                             value={formData.plan_versiones}
                             onChange={handleChange}
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1165,6 +1449,12 @@ const EditarBajaVision = () => {
                                   value={formData.pruebas.vl_luces}
                                   onChange={handleChange}
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1176,6 +1466,12 @@ const EditarBajaVision = () => {
                                   value={formData.pruebas.vp_luces}
                                   onChange={handleChange}
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1196,6 +1492,12 @@ const EditarBajaVision = () => {
                             value={formData.pruebas.vision_color}
                             onChange={handleChange}
                             data-group="pruebas"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1213,6 +1515,12 @@ const EditarBajaVision = () => {
                             value={formData.pruebas.prueba_od}
                             onChange={handleChange}
                             data-group="pruebas"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="prueba_od-group col-md-6">
@@ -1228,6 +1536,12 @@ const EditarBajaVision = () => {
                             value={formData.pruebas.prueba_oi}
                             onChange={handleChange}
                             data-group="pruebas"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1273,6 +1587,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.esfera_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1284,6 +1604,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.cilindro_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1295,6 +1621,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.eje_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1306,6 +1638,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.p_base_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1317,6 +1655,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.agz_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1333,6 +1677,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.esfera_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1344,6 +1694,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.cilindro_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1355,6 +1711,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.eje_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1366,6 +1728,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.p_base_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1377,6 +1745,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.agz_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1398,6 +1772,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_marca_1}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1412,6 +1792,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_pd_1}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1427,6 +1813,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_dnp_1}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1442,6 +1834,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_altura_1}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1487,6 +1885,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.esfera_od_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1498,6 +1902,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.cilindro_od_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1509,6 +1919,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.eje_od_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1520,6 +1936,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.p_base_od_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1531,6 +1953,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.agz_od_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1547,6 +1975,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.esfera_oi_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1558,6 +1992,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.cilindro_oi_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1569,6 +2009,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.eje_oi_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1580,6 +2026,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.p_base_oi_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1591,6 +2043,12 @@ const EditarBajaVision = () => {
                                     value={formData.refraccion.agz_oi_fc}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1613,6 +2071,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_marca_2}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1629,6 +2093,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_pd_2}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1645,6 +2115,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_dnp_2}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1661,6 +2137,12 @@ const EditarBajaVision = () => {
                             value={formData.refraccion.lentes_altura_2}
                             onChange={handleChange}
                             data-group="refraccion"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1679,6 +2161,12 @@ const EditarBajaVision = () => {
                             rows="2"
                             value={formData.ayudas_opticas}
                             onChange={handleChange}
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1696,6 +2184,12 @@ const EditarBajaVision = () => {
                             rows="2"
                             value={formData.ayudas_no_opticas}
                             onChange={handleChange}
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1714,6 +2208,12 @@ const EditarBajaVision = () => {
                             rows="2"
                             value={formData.plan_rehabilitacion}
                             onChange={handleChange}
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>

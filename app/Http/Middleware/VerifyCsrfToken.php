@@ -11,6 +11,13 @@ class VerifyCsrfToken extends Middleware
    *
    * @var array<int, string>
    */
+
+
+
+
+
+
+
   protected $except = [
     'http://127.0.0.1:8000/api/register',
     'http://127.0.0.1:8000/api/login',
@@ -59,11 +66,6 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/sucursales',
     'http://127.0.0.1:8000/api/sucursales/*',
 
-
-    'http://127.0.0.1:8000/api/terapias_bajav',
-    'http://127.0.0.1:8000/api/terapias_bajav/*/*',
-    'http://127.0.0.1:8000/api/terapias_bajav/*',
-
     'http://127.0.0.1:8000/api/terapias_optometria_neonatos/*',
     'http://127.0.0.1:8000/api/terapias_optometria_neonatos/*/*',
     'http://127.0.0.1:8000/api/terapias_optometria_neonatos',
@@ -89,24 +91,14 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/terapia_ortoptica_adultos',
 
     'http://127.0.0.1:8000/api/documentos/subir',
-
-                'http://127.0.0.1:8000/api/tipos-usuarios',
-
-                'http://127.0.0.1:8000/api/tipos-permisos',
-
-                'http://127.0.0.1:8000/api/permisos',
-
-                'http://127.0.0.1:8000/api/permisos/findAllUsuarioPermisos/*',
-
-                'http://127.0.0.1:8000/api/permisos/createOrUpdatePermisosUsuario',
-
-                'http://127.0.0.1:8000/api/permisos-tipos-usuarios',
-
-                'http://127.0.0.1:8000/api/pacientes-menores',  
-
-                'http://127.0.0.1:8000/api/pacientes-adultos',
-
-                'http://127.0.0.1:8000/api/usuarios-doctor',
-
+    'http://127.0.0.1:8000/api/tipos-usuarios',
+    'http://127.0.0.1:8000/api/tipos-permisos',
+    'http://127.0.0.1:8000/api/permisos',
+    'http://127.0.0.1:8000/api/permisos/findAllUsuarioPermisos/*',
+    'http://127.0.0.1:8000/api/permisos/createOrUpdatePermisosUsuario',
+    'http://127.0.0.1:8000/api/permisos-tipos-usuarios',
+    'http://127.0.0.1:8000/api/pacientes-menores',
+    'http://127.0.0.1:8000/api/pacientes-adultos',
+    'http://127.0.0.1:8000/api/usuarios-doctor'
   ];
 }

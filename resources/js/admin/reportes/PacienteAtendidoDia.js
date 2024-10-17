@@ -7,18 +7,20 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 
 const PacienteAtendidoDia = () => {
 
   const dispatch = useDispatch();
   const metaPacientes = useSelector((state) => state.pacientes.meta);
+  const { permisos } = useSelector((state) => state.auth);
   const nombreUsuario = localStorage.getItem('nombre');
   const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.atendidosPorDia);
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
-  const { usuarios} = useSelector((state) => state.usuarios);
+  const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
   console.log('usuarios:', usuarios);
@@ -39,7 +41,7 @@ const PacienteAtendidoDia = () => {
       search: localSearch,
       doctor: selectedDoctor
     };
-    
+
     dispatch(fetchAtendidosPorDia(fetchParams));
   }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
 
@@ -137,8 +139,8 @@ const PacienteAtendidoDia = () => {
                 </div>
               </div>
             </div> */}
-            
-            <div className="col-md-12" style={{marginTop: '-60px'}}>
+
+            <div className="col-md-12" style={{ marginTop: '-60px' }}>
               <div className="form-group col-md-4 mt-4">
                 <label>
                   Buscar por Fecha:
@@ -228,22 +230,29 @@ const PacienteAtendidoDia = () => {
                       </div>
                     </div>
                   </div>
-                   {/* Nuevo select para buscar por doctor */}
-                  <div className="form-group col-md-4 mt-4">
-                    <label>Buscar por Doctor:</label>
-                    <select 
-                      className="form-control"
-                      value={selectedDoctor}
-                      onChange={handleDoctorChange}
-                    >
-                      <option value="todos">Todos los doctores</option>
-                      {usuarios.map((usuario) => (
-                        <option key={usuario.id} value={usuario.nombre}>
-                          {usuario.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Nuevo select para buscar por doctor */}
+                  {
+                    funPermisosObtenidos(
+                      permisos,
+                      "reportes.atendidospordia.buscarpordoctor",
+                      <div className="form-group col-md-4 mt-4">
+                        <label>Buscar por Doctor:</label>
+                        <select
+                          className="form-control"
+                          value={selectedDoctor}
+                          onChange={handleDoctorChange}
+                        >
+                          <option value="todos">Todos los doctores</option>
+                          {usuarios.map((usuario) => (
+                            <option key={usuario.id} value={usuario.nombre}>
+                              {usuario.nombre}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  }
+
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}
                     {status === 'failed' && <p>Error: {error}</p>}

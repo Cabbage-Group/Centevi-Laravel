@@ -7,18 +7,20 @@ import { fetchTotalPacientesAdultos } from '../../redux/features/pacientes/pacie
 import { fetchTotalUsuariosDoctor } from '../../redux/features/usuarios/usuariosDoctorSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 
 const Home = () => {
 
   const dispatch = useDispatch();
   const { total, } = useSelector((state) => state.pacientesMenores);
+  const { permisos } = useSelector((state) => state.auth);
   const { totalAdultos } = useSelector((state) => state.pacientesAdultos);
   const { totalDoctor } = useSelector((state) => state.usuariosDoctor);
   const { metaSucursales } = useSelector((state) => state.sucursales);
   const { meta, pacientes, status, error } = useSelector((state) => state.pacientes);
   const [currentPage, setCurrentPage] = useState(1);
   const nombreUsuario = localStorage.getItem('nombre');
-  const { usuarios} = useSelector((state) => state.usuarios);
+  const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const Home = () => {
     dispatch(fetchTotalUsuariosDoctor());
     dispatch(fetchSucursales({}));
     dispatch(fetchUsuarios({}))
-  }, [dispatch, currentPage,selectedDoctor]);
+  }, [dispatch, currentPage, selectedDoctor]);
 
   const handleDoctorChange = (event) => {
     const selectedValue = event.target.value;
@@ -191,21 +193,28 @@ const Home = () => {
                       <h5 className="">ÚLTIMOS PACIENTES</h5>
                     </div>
                     {/* Nuevo select para buscar por doctor */}
-                  <div className="form-group col-md-4 mt-4">
-                    <label>Buscar por Doctor:</label>
-                    <select 
-                      className="form-control"
-                      value={selectedDoctor}
-                      onChange={handleDoctorChange}
-                    >
-                      <option value="todos">Todos los doctores</option>
-                      {usuarios.map((usuario) => (
-                        <option key={usuario.id} value={usuario.nombre}>
-                          {usuario.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                    {
+                      funPermisosObtenidos(
+                        permisos,
+                        "home.buscarpordoctor",
+                        <div className="form-group col-md-4 mt-4">
+                          <label>Buscar por Doctor:</label>
+                          <select
+                            className="form-control"
+                            value={selectedDoctor}
+                            onChange={handleDoctorChange}
+                          >
+                            <option value="todos">Todos los doctores</option>
+                            {usuarios.map((usuario) => (
+                              <option key={usuario.id} value={usuario.nombre}>
+                                {usuario.nombre}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )
+                    }
+
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}
                       {status === 'failed' && <p>Error: {error}</p>}

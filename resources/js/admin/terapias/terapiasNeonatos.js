@@ -13,6 +13,7 @@ import {
   eliminarSesionTerapiaNeonatos
 } from '../../redux/features/terapias/terapiaSesionNeonatosSlice';
 import moment from 'moment';
+import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 
 const TerapiasNeonatos = () => {
   const formikRef = useRef(null);
@@ -20,6 +21,7 @@ const TerapiasNeonatos = () => {
 
   const dispatch = useDispatch();
   const { id, id_terapia } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { data: verTerapia } = useSelector((state) => state.verTerapiaNeonatos);
   const { data: verPaciente } = useSelector((state) => state.verPaciente);
   const { data = [] } = useSelector((state) => state.sesionTerapiaNeonatos);
@@ -179,20 +181,34 @@ const TerapiasNeonatos = () => {
                               />
                               <ErrorMessage name="motivo" component="div" className="text-danger" />
                             </div>
-                            <button
-                              className="btn btn-success mt-3"
-                              type="submit"
-                              disabled={isSubmitting}
-                            >
-                              Actualizar Motivo
-                            </button>
+                            {
+                              funPermisosObtenidos(
+                                permisos,
+                                "terapias.actualizarmotivo",
+                                <button
+                                  className="btn btn-success mt-3"
+                                  type="submit"
+                                  disabled={isSubmitting}
+                                >
+                                  Actualizar Motivo
+                                </button>
+                              )
+                            }
+
                           </Form>
                         )}
                       </Formik>
                     </div>
-                    <form method="post" role="form" onSubmit={handleAgregarSesion}>
-                      <button className="btn btn-success mb-4 ml-3 mt-4">Agregar Sesión</button>
-                    </form>
+                    {
+                      funPermisosObtenidos(
+                        permisos,
+                        "terapias.agregarsesion",
+                        <form method="post" role="form" onSubmit={handleAgregarSesion}>
+                          <button className="btn btn-success mb-4 ml-3 mt-4">Agregar Sesión</button>
+                        </form>
+                      )
+                    }
+
                     <h5 className="p-3">Sesiones:</h5>
                     <div className="card component-card_7" style={{ background: 'rgb(0 150 136 / 11%)', width: '100%' }}>
                       <div className="table-responsive-md">
@@ -294,13 +310,20 @@ const TerapiasNeonatos = () => {
                               />
                               <ErrorMessage name="evaluacion" component="div" className="text-danger" />
                             </div>
-                            <button
-                              className="btn btn-success mt-3"
-                              type="submit"
-                              disabled={isSubmitting}
-                            >
-                              Actualizar Campos
-                            </button>
+                            {
+                              funPermisosObtenidos(
+                                permisos,
+                                "terapias.actualizarevaluacion",
+                                <button
+                                  className="btn btn-success mt-3"
+                                  type="submit"
+                                  disabled={isSubmitting}
+                                >
+                                  Actualizar Evaluación
+                                </button>
+                              )
+                            }
+
                           </Form>
                         )}
                       </Formik>

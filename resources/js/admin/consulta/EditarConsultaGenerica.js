@@ -11,6 +11,7 @@ import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import { formatDate } from '../../utils/DateUtils.js';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -23,6 +24,7 @@ const EditarConsultaGenerica = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: consultagenerica } = useSelector((state) => state.verConsultaGenerica)
@@ -280,6 +282,12 @@ const EditarConsultaGenerica = () => {
                                 handlePacienteChange(e, setFieldValue)
                               }}
                               value={consultagenerica.paciente}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -293,6 +301,12 @@ const EditarConsultaGenerica = () => {
                               name="sucursal"
                               value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
                               onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
                               {sucursales.filter(sucursal => sucursal.id_sucursal === consultagenerica.sucursal).map((sucursal) => (
@@ -312,6 +326,12 @@ const EditarConsultaGenerica = () => {
                               name="edad"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -328,6 +348,12 @@ const EditarConsultaGenerica = () => {
                               name="fecha_atencion"
                               type="date"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -344,6 +370,12 @@ const EditarConsultaGenerica = () => {
                               placeholder="Esta área tiene un limite de 800 caracteres."
                               rows="25"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -360,6 +392,12 @@ const EditarConsultaGenerica = () => {
                               name="fecha_proxima_consulta"
                               type="date"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editarfechaproximaconsulta"
+                                )
+                              }
                             />
                           </div>
                         </div>

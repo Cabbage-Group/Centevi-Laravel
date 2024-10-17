@@ -14,10 +14,10 @@ const Login = () => {
   const initialValues = {};
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    resetForm();
     console.log(values);
     setSubmitting(true)
     const rpta = await dispatch(fetchLogin(values));
+    // resetForm();
 
   };
 

@@ -23,6 +23,7 @@ import { fetchTerapiasOptometriaPediatrica, createTerapiasOptometriaPediatrica, 
 import { fetchTerapiasOrtopticaAdultos, createTerapiasOrtopticaAdultos, deleteTerapiasOrtopticaAdultos } from '../../redux/features/terapias/TerapiaOrtopticaAdultosSlice';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -47,7 +48,7 @@ const HistoriaPaciente = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data: verPaciente, } = useSelector((state) => state.verPaciente);
-  const { usuario } = useSelector((state) => state.auth);
+  const { usuario, permisos } = useSelector((state) => state.auth);
   const { dataOA } = useSelector((state) => state.mostrarOrtoptica);
   const { dataBV } = useSelector((state) => state.mostrarBajaVision);
   const { dataRG } = useSelector((state) => state.mostrarGeneral);
@@ -969,7 +970,9 @@ const HistoriaPaciente = () => {
                                           </Link>
 
                                           {
-                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            funPermisosObtenidos(
+                                              permisos,
+                                              "historiapaciente.eliminarconsultaortoptica",
                                               <button
                                                 key={OA.id_consulta}
                                                 onClick={() => handleDeleteOrtoptica(OA.id_consulta)}
@@ -990,8 +993,10 @@ const HistoriaPaciente = () => {
                                                   />
                                                 </svg>
                                               </button>
-                                            ) : null
+                                            )
                                           }
+
+
                                         </td>
                                       </tr>
                                     ))}
@@ -1100,7 +1105,9 @@ const HistoriaPaciente = () => {
                                             </button>
                                           </Link>
                                           {
-                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            funPermisosObtenidos(
+                                              permisos,
+                                              "historiapaciente.eliminarconsultaabajavision",
                                               <button
                                                 key={BV.id_consulta}
                                                 onClick={() => handleDeleteBajaVision(BV.id_consulta)}
@@ -1123,7 +1130,7 @@ const HistoriaPaciente = () => {
                                                   />
                                                 </svg>
                                               </button>
-                                            ) : null
+                                            )
                                           }
                                         </td>
                                       </tr>
@@ -1235,7 +1242,9 @@ const HistoriaPaciente = () => {
                                             </button>
                                           </Link>
                                           {
-                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            funPermisosObtenidos(
+                                              permisos,
+                                              "historiapaciente.eliminarconsultaoptometriageneral",
                                               <button
                                                 key={RG.id_consulta}
                                                 onClick={() => handleDeleteOptometriaGeneral(RG.id_consulta)}
@@ -1257,7 +1266,7 @@ const HistoriaPaciente = () => {
                                                   />
                                                 </svg>
                                               </button>
-                                            ) : null
+                                            )
                                           }
 
                                         </td>
@@ -1371,7 +1380,9 @@ const HistoriaPaciente = () => {
                                           </Link>
 
                                           {
-                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            funPermisosObtenidos(
+                                              permisos,
+                                              "historiapaciente.eliminarconsultaoptometrianeonatos",
                                               <button
                                                 key={ON.id_consulta}
                                                 onClick={() => handleDeleteNeonatos(ON.id_consulta)}
@@ -1392,8 +1403,10 @@ const HistoriaPaciente = () => {
                                                   />
                                                 </svg>
                                               </button>
-                                            ) : null
+                                            )
                                           }
+
+
 
                                         </td>
                                       </tr>
@@ -1506,7 +1519,9 @@ const HistoriaPaciente = () => {
                                           </Link>
 
                                           {
-                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            funPermisosObtenidos(
+                                              permisos,
+                                              "historiapaciente.eliminarconsultaoptometriapediatrica",
                                               <button
                                                 key={OP.id_consulta}
                                                 onClick={() => handleDeletePediatrica(OP.id_consulta)}
@@ -1527,8 +1542,9 @@ const HistoriaPaciente = () => {
                                                   />
                                                 </svg>
                                               </button>
-                                            ) : null
+                                            )
                                           }
+
 
                                         </td>
                                       </tr>
@@ -1639,8 +1655,11 @@ const HistoriaPaciente = () => {
                                               </svg>
                                             </button>
                                           </Link>
+
                                           {
-                                            usuario?.usuario?.perfil == 'superadministrador' ? (
+                                            funPermisosObtenidos(
+                                              permisos,
+                                              "historiapaciente.eliminarconsultagenerica",
                                               <button
                                                 key={CG.id_consulta}
                                                 onClick={() => handleDeleteConsultaGenerica(CG.id_consulta)}
@@ -1661,8 +1680,9 @@ const HistoriaPaciente = () => {
                                                   />
                                                 </svg>
                                               </button>
-                                            ) : null
+                                            )
                                           }
+
 
                                         </td>
                                       </tr>
@@ -1705,53 +1725,85 @@ const HistoriaPaciente = () => {
                           </div>
                         </div>
                         <div className="row mt-4">
-                          <div className="col-md-3">
-                            <form onSubmit={(e) => e.preventDefault()}>
-                              <button
-                                className="btn btn-success mb-4 ml-3 mt-4"
-                                onClick={() => handleCreateTerapias('bajaVision')}
-                              >
-                                Crear Terapia Baja Vision
-                              </button>
-                            </form>
-                          </div>
+                          {
+                            funPermisosObtenidos(
+                              permisos,
+                              "historiapaciente.crearterapiabajavision",
+                              <div className="col-md-3">
+                                <form onSubmit={(e) => e.preventDefault()}>
+                                  <button
+                                    className="btn btn-success mb-4 ml-3 mt-4"
+                                    onClick={() => handleCreateTerapias('bajaVision')}
+                                  >
+                                    Crear Terapia Baja Vision
+                                  </button>
+                                </form>
+                              </div>
+                            )
+                          }
+
                           {age !== null && (
                             <>
                               {age <= 3 && (
-                                <div className="col-md-3">
-                                  <form onSubmit={(e) => e.preventDefault()}>
-                                    <button
-                                      className="btn btn-success mb-4 ml-3 mt-4"
-                                      onClick={() => handleCreateTerapias('optometriaNeonatos')}
-                                    >
-                                      Crear Terapia Optometría Neonatos
-                                    </button>
-                                  </form>
-                                </div>
+                                <>
+                                  {
+                                    funPermisosObtenidos(
+                                      permisos,
+                                      "historiapaciente.crearterapiaoptometrianeonatos",
+                                      <div className="col-md-3">
+                                        <form onSubmit={(e) => e.preventDefault()}>
+                                          <button
+                                            className="btn btn-success mb-4 ml-3 mt-4"
+                                            onClick={() => handleCreateTerapias('optometriaNeonatos')}
+                                          >
+                                            Crear Terapia Optometría Neonatos
+                                          </button>
+                                        </form>
+                                      </div>
+                                    )
+                                  }
+                                </>
+
                               )}
                               {age > 3 && age <= 18 && (
-                                <div className="col-md-3">
-                                  <form onSubmit={(e) => e.preventDefault()}>
-                                    <button
-                                      className="btn btn-success mb-4 ml-3 mt-4"
-                                      onClick={() => handleCreateTerapias('optometriaPediatrica')}
-                                    >
-                                      Crear Terapia Optometría Pediatrica
-                                    </button>
-                                  </form>
-                                </div>
+                                <>
+                                  {
+                                    funPermisosObtenidos(
+                                      permisos,
+                                      "historiapaciente.crearterapiaoptometriapediatrica",
+                                      <div className="col-md-3">
+                                        <form onSubmit={(e) => e.preventDefault()}>
+                                          <button
+                                            className="btn btn-success mb-4 ml-3 mt-4"
+                                            onClick={() => handleCreateTerapias('optometriaPediatrica')}
+                                          >
+                                            Crear Terapia Optometría Pediatrica
+                                          </button>
+                                        </form>
+                                      </div>
+                                    )
+                                  }
+                                </>
                               )}
                               {age > 18 && (
-                                <div className="col-md-3">
-                                  <form onSubmit={(e) => e.preventDefault()}>
-                                    <button
-                                      className="btn btn-success mb-4 ml-3 mt-4"
-                                      onClick={() => handleCreateTerapias('ortopticaAdultos')}
-                                    >
-                                      Crear Terapia Ortoptica Adultos
-                                    </button>
-                                  </form>
-                                </div>
+                                <>
+                                  {
+                                    funPermisosObtenidos(
+                                      permisos,
+                                      "historiapaciente.crearterapiaoptometriaadultos",
+                                      <div className="col-md-3">
+                                        <form onSubmit={(e) => e.preventDefault()}>
+                                          <button
+                                            className="btn btn-success mb-4 ml-3 mt-4"
+                                            onClick={() => handleCreateTerapias('ortopticaAdultos')}
+                                          >
+                                            Crear Terapia Ortoptica Adultos
+                                          </button>
+                                        </form>
+                                      </div>
+                                    )
+                                  }
+                                </>
                               )}
                             </>
                           )}
@@ -1771,8 +1823,11 @@ const HistoriaPaciente = () => {
                                       }}
                                     >
                                       <div className="card-body">
+
                                         {
-                                          usuario?.usuario?.perfil == 'superadministrador' ? (
+                                          funPermisosObtenidos(
+                                            permisos,
+                                            "historiapaciente.eliminarterapia",
                                             <button
                                               className="btn btn-danger"
                                               onClick={() => handleDeleteTerapia('bajaVision', terapia.id_terapia)}
@@ -1798,8 +1853,9 @@ const HistoriaPaciente = () => {
                                                 />
                                               </svg>
                                             </button>
-                                          ) : null
+                                          )
                                         }
+
 
                                         <h5 className="">
                                           Terapia Baja Vision:
@@ -1845,8 +1901,11 @@ const HistoriaPaciente = () => {
                                   }}
                                 >
                                   <div className="card-body">
+
                                     {
-                                      usuario?.usuario?.perfil == 'superadministrador' ? (
+                                      funPermisosObtenidos(
+                                        permisos,
+                                        "historiapaciente.eliminarterapianeonatos",
                                         <button
                                           className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
                                           onClick={() => handleDeleteTerapia('optometriaNeonatos', terapia.id_terapia)}
@@ -1872,8 +1931,9 @@ const HistoriaPaciente = () => {
                                             />
                                           </svg>
                                         </button>
-                                      ) : null
+                                      )
                                     }
+
 
                                     <h5 className="">
                                       Terapia Optometria Neonatos:
@@ -1915,7 +1975,9 @@ const HistoriaPaciente = () => {
                                 >
                                   <div className="card-body">
                                     {
-                                      usuario?.usuario?.perfil == 'superadministrador' ? (
+                                      funPermisosObtenidos(
+                                        permisos,
+                                        "historiapaciente.eliminaroptometriapediatrica",
                                         <button
                                           className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
                                           onClick={() => handleDeleteTerapia('optometriaPediatrica', terapia.id_terapia)}
@@ -1941,7 +2003,7 @@ const HistoriaPaciente = () => {
                                             />
                                           </svg>
                                         </button>
-                                      ) : null
+                                      )
                                     }
 
                                     <h5 className="">
@@ -1984,7 +2046,9 @@ const HistoriaPaciente = () => {
                                 >
                                   <div className="card-body">
                                     {
-                                      usuario?.usuario?.perfil == 'superadministrador' ? (
+                                      funPermisosObtenidos(
+                                        permisos,
+                                        "historiapaciente.eliminarterapiaortopticaadultos",
                                         <button
                                           className="btn btn-danger btn_eliminar_terapia btn_eliminar_terapiagopp"
                                           onClick={() => handleDeleteTerapia('ortopticaAdultos', terapia.id_terapia)}
@@ -2010,7 +2074,7 @@ const HistoriaPaciente = () => {
                                             />
                                           </svg>
                                         </button>
-                                      ) : null
+                                      )
                                     }
 
                                     <h5 className="">
@@ -2163,7 +2227,9 @@ const HistoriaPaciente = () => {
 
                               {/* Eliminar */}
                               {
-                                usuario?.usuario?.perfil == 'superadministrador' ? (
+                                funPermisosObtenidos(
+                                  permisos,
+                                  "historiapaciente.eliminardocumentopaciente",
                                   <button
                                     borrar_documento="32"
                                     className="btn btn-danger eliminarDocumentoPaciente"
@@ -2184,8 +2250,9 @@ const HistoriaPaciente = () => {
                                       />
                                     </svg>
                                   </button>
-                                ) : null
+                                )
                               }
+
 
                               <p className="mt-3">
                                 Nombre:{doc.nombre}

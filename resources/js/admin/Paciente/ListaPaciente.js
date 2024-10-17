@@ -5,12 +5,13 @@ import { Link } from 'react-router-dom';
 import PaginationPacientes from './PaginationPacientes.js';
 import Swal from 'sweetalert2';
 import moment from 'moment';
+import { funPermisosObtenidos } from '../../utils/ValidarPermisos.js';
 
 const ListaPaciente = () => {
 
   const dispatch = useDispatch();
   const { meta, pacientes, status, error, totalPages, search } = useSelector((state) => state.pacientes);
-  const { usuario } = useSelector((state) => state.auth);
+  const { usuario, permisos } = useSelector((state) => state.auth);
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
 
@@ -201,8 +202,11 @@ const ListaPaciente = () => {
 
                                           </button>
                                         </Link>
+
                                         {
-                                          usuario?.usuario?.perfil == 'superadministrador' ? (
+                                          funPermisosObtenidos(
+                                            permisos,
+                                            "pacientes.eliminarpaciente",
                                             <button
                                               borrar_paciente="1"
                                               className="btn btn-danger btnEliminarPaciente"
@@ -223,7 +227,7 @@ const ListaPaciente = () => {
                                                 />
                                               </svg>
                                             </button>
-                                          ) : null
+                                          )
                                         }
 
                                       </div>

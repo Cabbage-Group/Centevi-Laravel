@@ -11,6 +11,7 @@ import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import { formatDate } from '../../utils/DateUtils.js';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -23,6 +24,7 @@ const EditarPediatra = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: pediatrica } = useSelector((state) => state.verPediatrica)
@@ -493,6 +495,12 @@ const EditarPediatra = () => {
                                 handlePacienteChange(e, setFieldValue)
                               }}
                               value={pediatrica.paciente}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
 
                           </div>
@@ -507,6 +515,12 @@ const EditarPediatra = () => {
                               name="sucursal"
                               value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
                               onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value={formData.medicamentos}>Seleccione una sucursal</option> {/* Opción por defecto */}
                               {sucursales.filter(sucursal => sucursal.id_sucursal === pediatrica.sucursal).map((sucursal) => (
@@ -525,6 +539,12 @@ const EditarPediatra = () => {
                               value={formData.edad}
                               name="edad"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
 
                             />
                           </div>
@@ -542,6 +562,12 @@ const EditarPediatra = () => {
                               name="fecha_atencion"
                               onChange={handleChange}
                               type='date'
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -553,11 +579,17 @@ const EditarPediatra = () => {
                             <textarea
                               className="form-control"
                               value={formData.m_c}
-                              maxLength="225"
+                              // maxLength="225"
+                              rows="8"
                               name="m_c"
                               placeholder="Esta área tiene un limite de 225 caracteres."
-
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -572,7 +604,12 @@ const EditarPediatra = () => {
                               name="a_o"
                               placeholder="A/O"
                               onChange={handleChange}
-
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -585,7 +622,12 @@ const EditarPediatra = () => {
                               name="a_p"
                               placeholder="A/P"
                               onChange={handleChange}
-
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -598,7 +640,12 @@ const EditarPediatra = () => {
                               name="a_f"
                               placeholder="A/F"
                               onChange={handleChange}
-
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -613,7 +660,12 @@ const EditarPediatra = () => {
                               name="medicamentos"
                               placeholder="Medicamentos"
                               onChange={handleChange}
-
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -628,7 +680,12 @@ const EditarPediatra = () => {
 
                               name="tratamientos"
                               onChange={handleChange}
-
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -643,7 +700,12 @@ const EditarPediatra = () => {
 
                               name="desarrollo"
                               onChange={handleChange}
-
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -658,6 +720,12 @@ const EditarPediatra = () => {
                               id="nacimiento"
                               name="nacimiento"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -670,6 +738,12 @@ const EditarPediatra = () => {
                               id="parto"
                               name="parto"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -682,6 +756,12 @@ const EditarPediatra = () => {
                               id="incubadora"
                               name="incubadora"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -694,6 +774,12 @@ const EditarPediatra = () => {
                               id="tiempo"
                               name="tiempo"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -726,6 +812,12 @@ const EditarPediatra = () => {
                                         name="av_sc_od_vl"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -735,6 +827,12 @@ const EditarPediatra = () => {
                                         name="av_sc_oi_vl"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -749,6 +847,12 @@ const EditarPediatra = () => {
                                         name="av_sc_od_vp"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -758,6 +862,12 @@ const EditarPediatra = () => {
                                         name="av_sc_oi_vp"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -772,6 +882,12 @@ const EditarPediatra = () => {
                                         name="av_sc_od_ph"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -781,6 +897,12 @@ const EditarPediatra = () => {
                                         name="av_sc_oi_ph"
                                         onChange={handleChange}
                                         data-group="av_sc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -816,6 +938,12 @@ const EditarPediatra = () => {
                                         name="av_cc_od_vl"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -825,6 +953,12 @@ const EditarPediatra = () => {
                                         name="av_cc_oi_vl"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -839,6 +973,12 @@ const EditarPediatra = () => {
                                         name="av_cc_od_vp"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -848,6 +988,12 @@ const EditarPediatra = () => {
                                         name="av_cc_oi_vp"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -862,6 +1008,12 @@ const EditarPediatra = () => {
                                         name="av_cc_od_ph"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                     <td>
@@ -871,6 +1023,12 @@ const EditarPediatra = () => {
                                         name="av_cc_oi_ph"
                                         onChange={handleChange}
                                         data-group="av_cc"
+                                        disabled={
+                                          !funPermisosObtenidosBoolean(
+                                            permisos,
+                                            "consultas.editartodo"
+                                          )
+                                        }
                                       />
                                     </td>
                                   </tr>
@@ -919,6 +1077,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.esfera_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -928,6 +1092,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.cilindro_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -937,6 +1107,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.eje_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -946,6 +1122,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.p_base_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -955,6 +1137,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.add_od}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -969,6 +1157,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.esfera_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -978,6 +1172,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.cilindro_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -987,6 +1187,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.eje_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -996,6 +1202,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.p_base_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -1005,6 +1217,12 @@ const EditarPediatra = () => {
                                       value={formData.lensometria.add_oi}
                                       onChange={handleChange}
                                       data-group="lensometria"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -1023,6 +1241,12 @@ const EditarPediatra = () => {
                               value={formData.lensometria_extra.len_tipo_lentes}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1035,6 +1259,12 @@ const EditarPediatra = () => {
                               value={formData.lensometria_extra.len_filtros}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1047,6 +1277,12 @@ const EditarPediatra = () => {
                               value={formData.lensometria_extra.len_tiempo}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1059,6 +1295,12 @@ const EditarPediatra = () => {
                               value={formData.lensometria_extra.len_tipo_aro}
                               onChange={handleChange}
                               data-group="lensometria_extra"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1082,6 +1324,12 @@ const EditarPediatra = () => {
                               value={formData.sa_pp.sa_od}
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1091,6 +1339,12 @@ const EditarPediatra = () => {
                               name="pp_od"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1102,6 +1356,12 @@ const EditarPediatra = () => {
                               name="sa_oi"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1111,6 +1371,12 @@ const EditarPediatra = () => {
                               name="pp_oi"
                               onChange={handleChange}
                               data-group="sa_pp"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1131,6 +1397,12 @@ const EditarPediatra = () => {
                             name="viscopia_od"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1144,6 +1416,12 @@ const EditarPediatra = () => {
                             name="viscopia_oi"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1159,6 +1437,12 @@ const EditarPediatra = () => {
                             name="hirschberg"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1172,6 +1456,12 @@ const EditarPediatra = () => {
                             name="krismsky"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1187,6 +1477,12 @@ const EditarPediatra = () => {
                             name="plan_versiones"
                             onChange={handleChange}
                             rows="8"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1202,6 +1498,12 @@ const EditarPediatra = () => {
                             name="ct_vl"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-4">
@@ -1215,6 +1517,12 @@ const EditarPediatra = () => {
                             name="ct_vp"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-4">
@@ -1228,6 +1536,12 @@ const EditarPediatra = () => {
                             name="maddox"
                             onChange={handleChange}
                             data-group="visuscopia"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
 
                           />
                         </div>
@@ -1244,6 +1558,12 @@ const EditarPediatra = () => {
                             name="seguimiento_ao"
                             onChange={handleChange}
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1257,6 +1577,12 @@ const EditarPediatra = () => {
                             name="sacadicos_ao"
                             onChange={handleChange}
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1272,6 +1598,12 @@ const EditarPediatra = () => {
                             name="ppc_or"
                             onChange={handleChange}
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1285,6 +1617,12 @@ const EditarPediatra = () => {
                             name="ppc_l"
                             onChange={handleChange}
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1298,6 +1636,12 @@ const EditarPediatra = () => {
                             name="ppc_fr"
                             onChange={handleChange}
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1311,6 +1655,12 @@ const EditarPediatra = () => {
                             name="ppc_posicion"
                             onChange={handleChange}
                             data-group="visuscopia_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1341,6 +1691,12 @@ const EditarPediatra = () => {
                                   name="vl_luces"
                                   onChange={handleChange}
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1350,6 +1706,12 @@ const EditarPediatra = () => {
                                   name="vp_luces"
                                   onChange={handleChange}
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1364,6 +1726,12 @@ const EditarPediatra = () => {
                                   name="vl_bg"
                                   onChange={handleChange}
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1373,6 +1741,12 @@ const EditarPediatra = () => {
                                   name="vp_bg"
                                   onChange={handleChange}
                                   data-group="pruebas"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1396,6 +1770,12 @@ const EditarPediatra = () => {
                             name="randot"
                             onChange={handleChange}
                             data-group="pruebas_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1409,6 +1789,12 @@ const EditarPediatra = () => {
                             name="lang"
                             onChange={handleChange}
                             data-group="pruebas_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1424,6 +1810,12 @@ const EditarPediatra = () => {
                             name="vision_color"
                             onChange={handleChange}
                             data-group="pruebas_extra"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1470,6 +1862,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion?.esfera_od_f || ''}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1479,6 +1877,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.cilindro_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1488,6 +1892,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.eje_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1497,6 +1907,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.p_base_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1506,6 +1922,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.add_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1515,6 +1937,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.agz_od_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1529,6 +1957,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.esfera_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1538,6 +1972,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.cilindro_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1547,6 +1987,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.eje_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1556,6 +2002,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.p_base_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1565,6 +2017,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.add_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1574,6 +2032,12 @@ const EditarPediatra = () => {
                                     value={formData.refraccion.agz_oi_f}
                                     onChange={handleChange}
                                     data-group="refraccion"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1593,6 +2057,12 @@ const EditarPediatra = () => {
                             value={formData.lentes_contacto.lente_marca_1}
                             onChange={handleChange}
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1606,6 +2076,12 @@ const EditarPediatra = () => {
                             value={formData.lentes_contacto.lente_pd_1}
                             onChange={handleChange}
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1619,6 +2095,12 @@ const EditarPediatra = () => {
                             value={formData.lentes_contacto.lente_dpn_1}
                             onChange={handleChange}
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-2">
@@ -1632,6 +2114,12 @@ const EditarPediatra = () => {
                             value={formData.lentes_contacto.lente_altura_1}
                             onChange={handleChange}
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1666,6 +2154,12 @@ const EditarPediatra = () => {
                                     value={formData.lentes_contacto.poder_od}
                                     onChange={handleChange}
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1675,6 +2169,12 @@ const EditarPediatra = () => {
                                     value={formData.lentes_contacto.poder_oi}
                                     onChange={handleChange}
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1689,6 +2189,12 @@ const EditarPediatra = () => {
                                     value={formData.lentes_contacto.cb_od}
                                     onChange={handleChange}
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1698,6 +2204,12 @@ const EditarPediatra = () => {
                                     value={formData.lentes_contacto.cb_oi}
                                     onChange={handleChange}
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1712,6 +2224,12 @@ const EditarPediatra = () => {
                                     value={formData.lentes_contacto.dia_od}
                                     onChange={handleChange}
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                                 <td>
@@ -1721,6 +2239,12 @@ const EditarPediatra = () => {
                                     value={formData.lentes_contacto.dia_oi}
                                     onChange={handleChange}
                                     data-group="lentes_contacto"
+                                    disabled={
+                                      !funPermisosObtenidosBoolean(
+                                        permisos,
+                                        "consultas.editartodo"
+                                      )
+                                    }
                                   />
                                 </td>
                               </tr>
@@ -1740,6 +2264,12 @@ const EditarPediatra = () => {
                             value={formData.lentes_contacto.lente_marca}
                             onChange={handleChange}
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
 
                           />
                         </div>
@@ -1754,6 +2284,12 @@ const EditarPediatra = () => {
                             value={formData.lentes_contacto.lente_tipo}
                             onChange={handleChange}
                             data-group="lentes_contacto"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1765,11 +2301,17 @@ const EditarPediatra = () => {
                           <textarea
                             className="form-control"
                             id="textarea"
-                            maxLength="800"
+                            // maxLength="800"
                             name="conducta_seguir"
                             value={formData.conducta_seguir}
                             rows="8"
                             onChange={handleChange}
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-4">
@@ -1786,6 +2328,12 @@ const EditarPediatra = () => {
                             name="fecha_proxima_consulta"
                             type="date"
                             onChange={handleChange}
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editarfechaproximaconsulta"
+                              )
+                            }
                           />
                         </div>
                       </div>

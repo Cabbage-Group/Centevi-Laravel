@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\login;
 
 use App\Http\Controllers\Controller;
+use App\Models\PermisosTiposUsuarios;
 use Illuminate\Http\Request;
 use App\Models\Usuarios;
 use Illuminate\Support\Facades\Hash;
@@ -118,14 +119,20 @@ class LoginApiController extends Controller
   public function validarUser(Request $request)
   {
     $usuario = Usuarios::where('usuario', $request->usuario)->first();
-
+    
     if ($usuario) {
+
+      $permisos = PermisosTiposUsuarios::join('permisos', 'permiso_id', 'permisos.id')
+                                      ->where('tipo_usuario_id', $usuario->tipo_usuario_id)
+                                      ->get();
+
       return response()->json([
         'respuesta' => true,
         'mensaje' => 'Login successful',
         'data' => [
           'token' => $usuario->token,
-          'usuario' => $usuario
+          'usuario' => $usuario,
+          'permisos' => $permisos
         ],
         'mensaje_dev' => null
       ], 200);

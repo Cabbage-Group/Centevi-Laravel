@@ -11,6 +11,7 @@ import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import { formatDate, getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 import moment from 'moment';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -23,6 +24,7 @@ const EditarNeonatos = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
+  const { permisos } = useSelector((state) => state.auth);
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: neonato } = useSelector((state) => state.verNeonatos)
@@ -416,6 +418,12 @@ const EditarNeonatos = () => {
                                 handlePacienteChange(e, setFieldValue)
                               }}
                               value={neonato.paciente}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                             {/* <select
                               className="form-control"
@@ -442,6 +450,12 @@ const EditarNeonatos = () => {
                               name="sucursal"
                               value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
                               onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             >
                               <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
                               {sucursales.filter(sucursal => sucursal.id_sucursal === neonato.sucursal).map((sucursal) => (
@@ -461,6 +475,12 @@ const EditarNeonatos = () => {
                               name="edad"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -477,6 +497,12 @@ const EditarNeonatos = () => {
                               name="fecha_atencion"
                               type="date"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -493,6 +519,12 @@ const EditarNeonatos = () => {
                               placeholder="Esta área tiene un limite de 10000 caracteres."
                               rows="15"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -508,6 +540,12 @@ const EditarNeonatos = () => {
                               placeholder="A/O"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -521,6 +559,12 @@ const EditarNeonatos = () => {
                               placeholder="A/P"
                               type="text"
                               onChange={handleChange}
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -534,6 +578,12 @@ const EditarNeonatos = () => {
                               name="a_f"
                               placeholder="A/F"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -549,6 +599,12 @@ const EditarNeonatos = () => {
                               name="medicamentos"
                               placeholder="Medicamentos"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -564,6 +620,12 @@ const EditarNeonatos = () => {
                               name="tratamientos"
                               placeholder="Tratamientos"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -579,6 +641,12 @@ const EditarNeonatos = () => {
                               name="desarrollo"
                               placeholder="Desarrollo del infante"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -594,6 +662,12 @@ const EditarNeonatos = () => {
                               name="nacimiento"
                               placeholder="Nacimiento"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -607,6 +681,12 @@ const EditarNeonatos = () => {
                               name="parto"
                               placeholder="Parto"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -620,6 +700,12 @@ const EditarNeonatos = () => {
                               name="gateo"
                               placeholder="Gateo"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -633,6 +719,12 @@ const EditarNeonatos = () => {
                               name="lenguaje"
                               placeholder="Lenguaje"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -648,6 +740,12 @@ const EditarNeonatos = () => {
                               name="complicaciones"
                               placeholder="Complicaciones Prenatales"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -661,6 +759,12 @@ const EditarNeonatos = () => {
                               name="perinatales"
                               placeholder="Perinatales"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -674,6 +778,12 @@ const EditarNeonatos = () => {
                               name="postnatales"
                               placeholder="Postnatales"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -693,6 +803,12 @@ const EditarNeonatos = () => {
                               placeholder="Tambor Optocinético"
                               type="text"
                               data-group="agudeza_visual"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -707,6 +823,12 @@ const EditarNeonatos = () => {
                               name="fija"
                               placeholder="Fija"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -721,6 +843,12 @@ const EditarNeonatos = () => {
                               name="sigue"
                               placeholder="Sigue"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -735,6 +863,12 @@ const EditarNeonatos = () => {
                               name="mantiene"
                               placeholder="Mantiene"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -751,6 +885,12 @@ const EditarNeonatos = () => {
                               name="test"
                               placeholder="Test"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -765,6 +905,12 @@ const EditarNeonatos = () => {
                               name="a_oi"
                               placeholder="OI"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-4">
@@ -779,6 +925,12 @@ const EditarNeonatos = () => {
                               name="a_ao"
                               placeholder="AO"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -824,6 +976,12 @@ const EditarNeonatos = () => {
                                       name="esfera_od"
                                       placeholder="esfera_od"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -835,6 +993,12 @@ const EditarNeonatos = () => {
                                       name="cilindro_od"
                                       placeholder="cilindro_od"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -846,6 +1010,12 @@ const EditarNeonatos = () => {
                                       name="eje_od"
                                       placeholder="eje_od"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -857,6 +1027,12 @@ const EditarNeonatos = () => {
                                       name="p_base_od"
                                       placeholder="p_base_od"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -868,6 +1044,12 @@ const EditarNeonatos = () => {
                                       name="add_od"
                                       placeholder="add_od"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -884,6 +1066,12 @@ const EditarNeonatos = () => {
                                       name="esfera_oi"
                                       placeholder="esfera_oi"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -895,6 +1083,12 @@ const EditarNeonatos = () => {
                                       name="cilindro_oi"
                                       placeholder="cilindro_oi"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -906,6 +1100,12 @@ const EditarNeonatos = () => {
                                       name="eje_oi"
                                       placeholder="eje_oi"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -917,6 +1117,12 @@ const EditarNeonatos = () => {
                                       name="p_base_oi"
                                       placeholder="p_base_oi"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                   <td>
@@ -928,6 +1134,12 @@ const EditarNeonatos = () => {
                                       name="add_oi"
                                       placeholder="add_oi"
                                       type="text"
+                                      disabled={
+                                        !funPermisosObtenidosBoolean(
+                                          permisos,
+                                          "consultas.editartodo"
+                                        )
+                                      }
                                     />
                                   </td>
                                 </tr>
@@ -947,6 +1159,12 @@ const EditarNeonatos = () => {
                               data-group="lensometria_extra"
                               name="len_tipo_lentes"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -960,6 +1178,12 @@ const EditarNeonatos = () => {
                               data-group="lensometria_extra"
                               name="len_filtros"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -973,6 +1197,12 @@ const EditarNeonatos = () => {
                               data-group="lensometria_extra"
                               name="len_tiempo"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -986,6 +1216,12 @@ const EditarNeonatos = () => {
                               data-group="lensometria_extra"
                               name="len_tipo_aro"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1011,6 +1247,12 @@ const EditarNeonatos = () => {
                               name="sa_od"
                               placeholder="SA_OD"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1022,6 +1264,12 @@ const EditarNeonatos = () => {
                               name="pp_od"
                               placeholder="PP_OD"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1035,6 +1283,12 @@ const EditarNeonatos = () => {
                               name="sa_oi"
                               placeholder="SA_OI"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                           <div className="form-group col-md-3">
@@ -1046,6 +1300,12 @@ const EditarNeonatos = () => {
                               name="pp_oi"
                               placeholder="PP_OI"
                               type="text"
+                              disabled={
+                                !funPermisosObtenidosBoolean(
+                                  permisos,
+                                  "consultas.editartodo"
+                                )
+                              }
                             />
                           </div>
                         </div>
@@ -1064,6 +1324,12 @@ const EditarNeonatos = () => {
                             name="hirschberg"
                             placeholder="Hirschberg"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-6">
@@ -1078,6 +1344,12 @@ const EditarNeonatos = () => {
                             name="krismsky"
                             placeholder="Krismsky"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1095,6 +1367,12 @@ const EditarNeonatos = () => {
                             name="plan_versiones"
                             placeholder="limite de 10000* caracteres."
                             rows="15"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1111,6 +1389,12 @@ const EditarNeonatos = () => {
                             name="ct_vp"
                             placeholder="VP"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1125,6 +1409,12 @@ const EditarNeonatos = () => {
                             name="ct_reflejo"
                             placeholder="Reflejo Cocleopalpebral"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1139,6 +1429,12 @@ const EditarNeonatos = () => {
                             name="ducciones_od"
                             placeholder="OD"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1153,6 +1449,12 @@ const EditarNeonatos = () => {
                             name="ducciones_oi"
                             placeholder="OI"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1169,6 +1471,12 @@ const EditarNeonatos = () => {
                             name="posicion_compensatoria"
                             placeholder="Posicion Compensatoria"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1185,6 +1493,12 @@ const EditarNeonatos = () => {
                             name="fotomotor_od"
                             placeholder="Fotomotor/OD"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1199,6 +1513,12 @@ const EditarNeonatos = () => {
                             name="consensual"
                             placeholder="Consensual"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1213,6 +1533,12 @@ const EditarNeonatos = () => {
                             name="fotomotor_oi"
                             placeholder="Fotomotor OI"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1227,6 +1553,12 @@ const EditarNeonatos = () => {
                             name="fotomotor_consensual"
                             placeholder="Fotomotor Consensual"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1243,6 +1575,12 @@ const EditarNeonatos = () => {
                             name="reflejo_r_od"
                             placeholder="Reflejo retinoscopico OD"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1257,6 +1595,12 @@ const EditarNeonatos = () => {
                             name="reflejo_r_oi"
                             placeholder="OI"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                         <div className="form-group col-md-3">
@@ -1271,6 +1615,12 @@ const EditarNeonatos = () => {
                             name="reflejo_r_ao"
                             placeholder="AO"
                             type="text"
+                            disabled={
+                              !funPermisosObtenidosBoolean(
+                                permisos,
+                                "consultas.editartodo"
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -1315,6 +1665,12 @@ const EditarNeonatos = () => {
                                   name="esfera_od_f"
                                   placeholder="esfera_od"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1326,6 +1682,12 @@ const EditarNeonatos = () => {
                                   name="cilindro_od_f"
                                   placeholder="cilindro_od"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1337,6 +1699,12 @@ const EditarNeonatos = () => {
                                   name="eje_od_f"
                                   placeholder="eje_od"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1348,6 +1716,12 @@ const EditarNeonatos = () => {
                                   name="p_base_od_f"
                                   placeholder="p_base_od"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1359,6 +1733,12 @@ const EditarNeonatos = () => {
                                   name="add_od_f"
                                   placeholder="add_od"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1375,6 +1755,12 @@ const EditarNeonatos = () => {
                                   name="esfera_oi_f"
                                   placeholder="esfera_oi"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1386,6 +1772,12 @@ const EditarNeonatos = () => {
                                   name="cilindro_oi_f"
                                   placeholder="cilindro_oi"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1397,6 +1789,12 @@ const EditarNeonatos = () => {
                                   name="eje_oi_f"
                                   placeholder="eje_oi"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1408,6 +1806,12 @@ const EditarNeonatos = () => {
                                   name="p_base_oi_f"
                                   placeholder="p_base_oi"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                               <td>
@@ -1419,6 +1823,12 @@ const EditarNeonatos = () => {
                                   name="add_oi_f"
                                   placeholder="add_oi"
                                   type="text"
+                                  disabled={
+                                    !funPermisosObtenidosBoolean(
+                                      permisos,
+                                      "consultas.editartodo"
+                                    )
+                                  }
                                 />
                               </td>
                             </tr>
@@ -1439,6 +1849,12 @@ const EditarNeonatos = () => {
                           name="refraccion_tipo_lentes"
                           placeholder="Tipo Lentes"
                           type="text"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1453,6 +1869,12 @@ const EditarNeonatos = () => {
                           name="refraccion_pd"
                           placeholder="PD"
                           type="text"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                       <div className="form-group col-md-3">
@@ -1467,6 +1889,12 @@ const EditarNeonatos = () => {
                           name="refraccion_uso"
                           placeholder="USO"
                           type="text"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
                     </div>
@@ -1483,6 +1911,12 @@ const EditarNeonatos = () => {
                           name="conducta_seguir"
                           placeholder="Esta área tiene un limite de 10000 caracteres."
                           rows="15"
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editartodo"
+                            )
+                          }
                         />
                       </div>
 
@@ -1505,6 +1939,12 @@ const EditarNeonatos = () => {
                           name="fecha_proxima_consulta"
                           type="date"
                           onChange={handleChange}
+                          disabled={
+                            !funPermisosObtenidosBoolean(
+                              permisos,
+                              "consultas.editarfechaproximaconsulta"
+                            )
+                          }
                         />
                       </div>
                     </div>

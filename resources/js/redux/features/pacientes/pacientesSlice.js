@@ -5,15 +5,18 @@ import API from '../../../config/config.js';
 
 export const fetchPacientes = createAsyncThunk(
   'pacientes/fetchPacientes',
-  async ({ page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres', search = '', doctor = null }) => {
+  async ({
+    page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres',
+    search = '', doctor = null
+  }) => {
 
-    const params = { page, limit, sortOrder, sortColumn };
+    const params = { page, limit, sortOrder, sortColumn, search };
 
     if (doctor) {
       params.doctor = doctor;
     }
 
-    const response = await axios.get(`${API}/pacientes`, {params});
+    const response = await axios.get(`${API}/pacientes`, { params });
     return response.data;
   }
 );

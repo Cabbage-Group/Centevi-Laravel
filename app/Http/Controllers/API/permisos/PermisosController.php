@@ -99,9 +99,9 @@ class PermisosController extends Controller
         // Validar la solicitud
         $validator = Validator::make($request->all(), [
             'tipo_permiso_id' => 'required|exists:tipos_permisos,id',
-            'slug' => 'required|string|max:45|unique:permisos,slug',
+            'slug' => 'required|string|max:250|unique:permisos,slug',
             'ruta' => 'required|string|max:150',
-            'descripcion' => 'nullable|string|max:45',
+            'descripcion' => 'nullable|string|max:250',
         ]);
 
         if ($validator->fails()) {
