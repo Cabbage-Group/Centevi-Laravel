@@ -14,7 +14,18 @@ const UltimaAtencion = () => {
 
   const dispatch = useDispatch();
   const metaPacientes = useSelector((state) => state.pacientes.meta);
-  const { ultimaAtencion, meta, status, error, startDate, endDate, orden, ordenPor, totalPages, search, dataexport } = useSelector((state) => state.ultimaAtencion);
+  const { 
+    ultimaAtencion, 
+    meta, 
+    status, 
+    error, 
+    startDate, 
+    endDate, 
+    orden, 
+    ordenPor, 
+    totalPages, 
+    search, 
+    dataexport } = useSelector((state) => state.ultimaAtencion);
   const nombreUsuario = localStorage.getItem('nombre');
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
@@ -61,7 +72,6 @@ const UltimaAtencion = () => {
     const newOrder = orden === 'asc' ? 'desc' : 'asc';
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
-    dispatch(fetchUltimaAtencion({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
   };
 
   const handleClearSearch = () => {

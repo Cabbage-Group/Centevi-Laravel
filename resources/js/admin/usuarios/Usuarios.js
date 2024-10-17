@@ -897,10 +897,9 @@ const Usuarios = () => {
                         <input
                           className="form-control input-lg"
                           value={formValues?.usuario || ''}
-
-                          name="editarUsuario"
+                          name="usuario"
+                          required
                           onChange={handleChange}
-                          readOnly
                           type="text"
                         />
                       </div>
