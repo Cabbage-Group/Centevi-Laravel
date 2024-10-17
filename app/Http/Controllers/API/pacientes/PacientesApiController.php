@@ -1696,6 +1696,7 @@ class PacientesApiController extends Controller
     $orden = $request->input('orden', 'asc');
     $ordenPor = $request->input('ordenPor', 'PACIENTE_NOMBRE');
     $search = $request->input('search', '');
+    $doctor = $request->input('doctor');
 
     $orden = in_array($orden, ['asc', 'desc']) ? $orden : 'asc';
     $ordenPor = in_array($ordenPor, [
@@ -1735,7 +1736,7 @@ class PacientesApiController extends Controller
       ->join('optometria_neonatos', 'pacientes.id_paciente', '=', 'optometria_neonatos.paciente')
       ->leftJoin('sucursales', 'optometria_neonatos.sucursal', '=', 'sucursales.id_sucursal')
       ->leftJoin('usuarios', 'optometria_neonatos.id_usuario_contacto', '=', 'usuarios.id_usuario')
-      ->where(function ($query) use ($fecha, $search) {
+      ->where(function ($query) use ($fecha, $search, $doctor) {
         if ($fecha !== null) {
           if (strpos($fecha, ' - ') !== false) {
             list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -1759,7 +1760,10 @@ class PacientesApiController extends Controller
               ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%")
               ->orWhere(DB::raw("'optometria_neonatos'"), 'like', "%{$search}%");
           });
-        }
+        };
+        if ($doctor !== null) {
+          $query->where('optometria_neonatos.doctor', $doctor);
+      }
       });
 
     $query->unionAll(
@@ -1786,7 +1790,7 @@ class PacientesApiController extends Controller
         ->join('optometria_pediatrica', 'pacientes.id_paciente', '=', 'optometria_pediatrica.paciente')
         ->leftJoin('sucursales', 'optometria_pediatrica.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('usuarios', 'optometria_pediatrica.id_usuario_contacto', '=', 'usuarios.id_usuario')
-        ->where(function ($query) use ($fecha, $search) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -1809,7 +1813,10 @@ class PacientesApiController extends Controller
                 ->orWhere('sucursales.nombre', 'like', "%{$search}%")
                 ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
             });
-          }
+          };
+          if ($doctor !== null) {
+            $query->where('optometria_pediatrica.doctor', $doctor);
+        }
         })
     );
 
@@ -1837,7 +1844,7 @@ class PacientesApiController extends Controller
         ->join('ortoptica_adultos', 'pacientes.id_paciente', '=', 'ortoptica_adultos.paciente')
         ->leftJoin('sucursales', 'ortoptica_adultos.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('usuarios', 'ortoptica_adultos.id_usuario_contacto', '=', 'usuarios.id_usuario')
-        ->where(function ($query) use ($fecha, $search) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -1860,7 +1867,10 @@ class PacientesApiController extends Controller
                 ->orWhere('sucursales.nombre', 'like', "%{$search}%")
                 ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
             });
-          }
+          };
+          if ($doctor !== null) {
+            $query->where('ortoptica_adultos.doctor', $doctor);
+        }
         })
     );
 
@@ -1888,7 +1898,7 @@ class PacientesApiController extends Controller
         ->join('consultagenerica', 'pacientes.id_paciente', '=', 'consultagenerica.paciente')
         ->leftJoin('sucursales', 'consultagenerica.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('usuarios', 'consultagenerica.id_usuario_contacto', '=', 'usuarios.id_usuario')
-        ->where(function ($query) use ($fecha, $search) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -1911,7 +1921,10 @@ class PacientesApiController extends Controller
                 ->orWhere('sucursales.nombre', 'like', "%{$search}%")
                 ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
             });
-          }
+          };
+          if ($doctor !== null) {
+            $query->where('consultagenerica.doctor', $doctor);
+        }
         })
     );
 
@@ -1939,7 +1952,7 @@ class PacientesApiController extends Controller
         ->join('refracciongeneral', 'pacientes.id_paciente', '=', 'refracciongeneral.paciente')
         ->leftJoin('sucursales', 'refracciongeneral.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('usuarios', 'refracciongeneral.id_usuario_contacto', '=', 'usuarios.id_usuario')
-        ->where(function ($query) use ($fecha, $search) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -1962,7 +1975,10 @@ class PacientesApiController extends Controller
                 ->orWhere('sucursales.nombre', 'like', "%{$search}%")
                 ->orWhere('fecha_proxima_consulta', 'like', "%{$search}%");
             });
-          }
+          };
+          if ($doctor !== null) {
+            $query->where('refracciongeneral.doctor', $doctor);
+        }
         })
     );
 

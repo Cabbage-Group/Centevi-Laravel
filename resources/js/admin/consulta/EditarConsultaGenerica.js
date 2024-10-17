@@ -29,6 +29,7 @@ const EditarConsultaGenerica = () => {
   const { sucursales } = useSelector((state) => state.sucursales);
   const { data: consultagenerica } = useSelector((state) => state.verConsultaGenerica)
   const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [doctorActual, setDoctorActual] = useState('');
 
   const [formData, setFormData] = useState({
     sucursal: '',
@@ -64,6 +65,8 @@ const EditarConsultaGenerica = () => {
   }, [consultagenerica]);
 
   useEffect(() => {
+    const nombreUsuarioActual = localStorage.getItem('nombre');
+    setDoctorActual(nombreUsuarioActual);
     if (id && id_consulta) {
       dispatch(fetchVerConsultaGenerica({ id, id_consulta }));
       dispatch(fetchSucursales({ page: 1, limit: 100 }));
@@ -234,6 +237,17 @@ const EditarConsultaGenerica = () => {
                           </div>
                         </div>
                       </div>
+                      <nav aria-label="breadcrumb" className="breadcrumb-one">
+                        <ol className="breadcrumb" style={{ background: '#0096881c' }}>
+                          <li className="breadcrumb-item">
+                            <a href="javascript:void(0);">Doctor actual:</a>
+                          </li>
+                          <li aria-current="page" className="breadcrumb-item active">
+                            <b>{  }</b>
+                            {doctorActual === consultagenerica.doctor ? " (mismo doctor)" : " (doctor diferente)"}
+                          </li>
+                        </ol>
+                      </nav>
                       <nav
                         aria-label="breadcrumb"
                         className="breadcrumb-one"
@@ -259,6 +273,7 @@ const EditarConsultaGenerica = () => {
                           </li>
                         </ol>
                       </nav>
+                    
                       <div className="widget-content widget-content-area">
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">

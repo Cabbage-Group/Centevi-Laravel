@@ -20,8 +20,9 @@ const Home = () => {
   const { meta, pacientes, status, error } = useSelector((state) => state.pacientes);
   const [currentPage, setCurrentPage] = useState(1);
   const nombreUsuario = localStorage.getItem('nombre');
-  const { usuarios } = useSelector((state) => state.usuarios);
-  const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
+  const { usuarios} = useSelector((state) => state.usuarios);
+  // const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
+  const [selectedDoctor, setSelectedDoctor] = useState('todos');
 
   useEffect(() => {
     const fetchParams = {
@@ -29,7 +30,7 @@ const Home = () => {
       limit: 10,
       sortOrder: 'desc',
       sortColumn: 'fecha_creacion',
-      doctor: selectedDoctor
+      doctor: selectedDoctor === 'todos' ? '' : selectedDoctor,
     };
     // dispatch(fetchPacientes({ page: currentPage, limit: 10, sortOrder: 'desc', sortColumn: 'fecha_creacion' }));
     dispatch(fetchPacientes(fetchParams))
@@ -42,7 +43,7 @@ const Home = () => {
 
   const handleDoctorChange = (event) => {
     const selectedValue = event.target.value;
-    setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
+    setSelectedDoctor(selectedValue);
   };
 
   return (

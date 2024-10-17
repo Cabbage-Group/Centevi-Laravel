@@ -61,7 +61,7 @@ const ConsultasDiarias = () => {
     const newOrder = orden === 'asc' ? 'desc' : 'asc';
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
-    dispatch(fetchConsultasDiarias({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrderPor }));
+    
   };
 
   const handleClearSearch = () => {

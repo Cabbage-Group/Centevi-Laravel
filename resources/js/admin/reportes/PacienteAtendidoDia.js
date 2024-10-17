@@ -23,7 +23,7 @@ const PacienteAtendidoDia = () => {
   const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
-  console.log('usuarios:', usuarios);
+  console.log('ordenPor:', ordenPor);
 
   useEffect(() => {
     dispatch(fetchPacientes({}));
@@ -62,7 +62,6 @@ const PacienteAtendidoDia = () => {
     const newOrder = orden === 'asc' ? 'desc' : 'asc';
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
-    dispatch(fetchAtendidosPorDia({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor }));
   };
 
   const handleClearSearch = () => {
