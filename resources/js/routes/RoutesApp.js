@@ -115,10 +115,10 @@ const RoutesApp = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/sidebar" element={<Sidebar />} />
-        <Route path="/navbar" element={<Navbar />} />
-
-        <Route element={<ProtectedRoute />}>
+        {/* <Route path="/sidebar" element={<Sidebar />} /> */}
+        {/* <Route path="/navbar" element={<Navbar />} /> */}
+        {/* <Route element={<ProtectedRoute />}> */}
+        <Route >
           <Route path="*" element={<Sidebar component={<Home />} />} />
           <Route path="/home" element={<Sidebar component={<Home />} />} />
           <Route path="/sucursales" element={<Sidebar component={<Sucursales />} />} />
@@ -186,6 +186,7 @@ const RoutesApp = () => {
           <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
 
         </Route>
+
 
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<Login />} />

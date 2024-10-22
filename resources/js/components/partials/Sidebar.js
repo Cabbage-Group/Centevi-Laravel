@@ -35,7 +35,7 @@ const Sidebar = (props) => {
         navigate('/home');
       }
     }
-  })
+  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -672,8 +672,12 @@ const Sidebar = (props) => {
                 <Contenido component={component} />
               ) : null
             } */}
-
-            {component}
+            {
+              fetchUsuario ? (
+                component
+              ) : null
+            }
+            {/* {component} */}
           </div>
         </div>
         {/*  */}

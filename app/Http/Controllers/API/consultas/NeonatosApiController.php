@@ -16,7 +16,7 @@ class NeonatosApiController extends Controller
     $request->validate([
       'sucursal' => 'required|integer|max:1000',
       'doctor' => 'required|string|max:1000',
-      'paciente' => 'required|integer|max:10000',
+      'paciente' => 'required|integer',
       'id_terapia' => 'required|integer',
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',

@@ -9,8 +9,8 @@ import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 
-const PacienteAtendidoDia = () => {
-
+const PacienteAtendidoDia = ({ showFilters = true }) => {
+  // const { showFilters } = props;
   const dispatch = useDispatch();
   const metaPacientes = useSelector((state) => state.pacientes.meta);
   const { permisos } = useSelector((state) => state.auth);
@@ -23,12 +23,12 @@ const PacienteAtendidoDia = () => {
   const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
-  console.log('ordenPor:', ordenPor);
+  // console.log('ordenPor:', ordenPor);
 
   useEffect(() => {
-    dispatch(fetchPacientes({}));
+    // dispatch(fetchPacientes({}));
     dispatch(fetchUsuarios({}))
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     const fetchParams = {
@@ -43,7 +43,7 @@ const PacienteAtendidoDia = () => {
     };
 
     dispatch(fetchAtendidosPorDia(fetchParams));
-  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
+  }, [localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
@@ -74,24 +74,25 @@ const PacienteAtendidoDia = () => {
   };
 
   return (
-    <div className="row layout-top-spacing">
-      <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-        <div className="widget-content-area br-4">
-          <div className="widget-one">
-            <div className="row">
-              <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
-                <div className="widget widget-one">
-                  <div className="widget-heading">
-                    <h6 className="">
-                      Reporte de pacientes atendidos por día
-                    </h6>
-                  </div>
-                  <div className="w-chart">
+    <>
+      <div className="row layout-top-spacing">
+        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
+          <div className="widget-content-area br-4">
+            <div className="widget-one">
+              <div className="row">
+                <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
+                  <div className="widget widget-one">
+                    <div className="widget-heading">
+                      <h6 className="">
+                        Reporte de pacientes atendidos por día
+                      </h6>
+                    </div>
+                    <div className="w-chart">
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* <div className="all-card">
+              {/* <div className="all-card">
               <div className="row">
                 <div className="col-lg-3 col-md-6">
                   <div className="widget widget-one_hybrid widget-referral">
@@ -139,261 +140,281 @@ const PacienteAtendidoDia = () => {
               </div>
             </div> */}
 
-            <div className="col-md-12" style={{ marginTop: '-60px' }}>
-              <div className="form-group col-md-4 mt-4">
-                <label>
-                  Buscar por Fecha:
-                </label>
-                <DateRangePicker
-                  startDate={localStartDate}
-                  endDate={localEndDate}
-                  onChange={(start, end) => {
-                    setLocalStartDate(start);
-                    setLocalEndDate(end);
-                  }}
-                  onApply={handleDateChange}
-                />
-              </div>
-              <div className="table-responsive">
-                <div
-                  className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
-                  id="html5-extension_wrapper"
-                >
-                  <div className="dt--top-section">
-                    <div className="row">
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                        <div className="dt-buttons">
-                          <ExportButton
-                            dataexport={dataexport}
-                            transformData={transformDataForAtendidosPorDia}
-                            fileName="Atendidos_Por_Dia.xlsx"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                        <div
-                          className="dataTables_filter"
-                          id="html5-extension_filter"
-                        >
-                          <label>
-                            <svg
-                              className="feather feather-search"
-                              fill="none"
-                              height="24"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                              width="24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="11"
-                                cy="11"
-                                r="8"
-                              />
-                              <line
-                                x1="21"
-                                x2="16.65"
-                                y1="21"
-                                y2="16.65"
-                              />
-                            </svg>
-                            <input
-                              aria-controls="html5-extension"
-                              className="form-control"
-                              placeholder="Search..."
-                              type="search"
-                              value={localSearch}
-                              onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
-                            />
-                            {localSearch && (
-                              <button
-                                onClick={handleClearSearch}
-                                style={{
-                                  position: 'absolute',
-                                  right: '25px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                &#x2715; { }
-                              </button>
-                            )}
-                          </label>
-                        </div>
-                      </div>
+              <div className="col-md-12" style={{ marginTop: '-60px' }}>
+                {
+                  showFilters ? (
+                    <div className="form-group col-md-4 mt-4">
+                      <label>
+                        Buscar por Fecha:
+                      </label>
+                      <DateRangePicker
+                        startDate={localStartDate}
+                        endDate={localEndDate}
+                        onChange={(start, end) => {
+                          setLocalStartDate(start);
+                          setLocalEndDate(end);
+                        }}
+                        onApply={handleDateChange}
+                      />
                     </div>
-                  </div>
-                  {/* Nuevo select para buscar por doctor */}
-                  {
-                    funPermisosObtenidos(
-                      permisos,
-                      "reportes.atendidospordia.buscarpordoctor",
-                      <div className="form-group col-md-4 mt-4">
-                        <label>Buscar por Doctor:</label>
-                        <select
-                          className="form-control"
-                          value={selectedDoctor}
-                          onChange={handleDoctorChange}
-                        >
-                          <option value="todos">Todos los doctores</option>
-                          {usuarios.map((usuario) => (
-                            <option key={usuario.id} value={usuario.nombre}>
-                              {usuario.nombre}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )
-                  }
+                  ) : null
+                }
 
-                  <div className="table-responsive">
-                    {status === 'loading' && <p>Loading...</p>}
-                    {status === 'failed' && <p>Error: {error}</p>}
-                    {status === 'succeeded' && (
-                      <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
-                        <thead>
-                          <tr role="row">
-                            <th
+                <div className="table-responsive">
+                  <div
+                    className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
+                    id="html5-extension_wrapper"
+                  >
 
-                              aria-controls="zero-config"
-                              aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('PACIENTE_NOMBRE')}
+                    {
+                      showFilters ? (
+                        <div className="dt--top-section">
+                          <div className="row">
+                            <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
+                              <div className="dt-buttons">
+                                <ExportButton
+                                  dataexport={dataexport}
+                                  transformData={transformDataForAtendidosPorDia}
+                                  fileName="Atendidos_Por_Dia.xlsx"
+                                />
+                              </div>
+                            </div>
+                            <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                              <div
+                                className="dataTables_filter"
+                                id="html5-extension_filter"
+                              >
+                                <label>
+                                  <svg
+                                    className="feather feather-search"
+                                    fill="none"
+                                    height="24"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <circle
+                                      cx="11"
+                                      cy="11"
+                                      r="8"
+                                    />
+                                    <line
+                                      x1="21"
+                                      x2="16.65"
+                                      y1="21"
+                                      y2="16.65"
+                                    />
+                                  </svg>
+                                  <input
+                                    aria-controls="html5-extension"
+                                    className="form-control"
+                                    placeholder="Search..."
+                                    type="search"
+                                    value={localSearch}
+                                    onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
+                                  />
+                                  {localSearch && (
+                                    <button
+                                      onClick={handleClearSearch}
+                                      style={{
+                                        position: 'absolute',
+                                        right: '25px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      &#x2715; { }
+                                    </button>
+                                  )}
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null
+                    }
 
+                    {
+                      showFilters ? (
+                        funPermisosObtenidos(
+                          permisos,
+                          "reportes.atendidospordia.buscarpordoctor",
+                          <div className="form-group col-md-4 mt-4">
+                            <label>Buscar por Doctor:</label>
+                            <select
+                              className="form-control"
+                              value={selectedDoctor}
+                              onChange={handleDoctorChange}
                             >
-                              Nombre del Paciente
-                            </th>
-                            <th
+                              <option value="todos">Todos los doctores</option>
+                              {usuarios.map((usuario) => (
+                                <option key={usuario.id} value={usuario.nombre}>
+                                  {usuario.nombre}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )
+                      ) : null
+                    }
+                    {/* Nuevo select para buscar por doctor */}
 
-                              aria-controls="zero-config"
-                              aria-label={`Cedula: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('PACIENTE_CEDULA')}
 
-                            >
-                              Cedula
-                            </th>
-                            <th
+                    <div className="table-responsive">
+                      {status === 'loading' && <p>Loading...</p>}
+                      {status === 'failed' && <p>Error: {error}</p>}
+                      {status === 'succeeded' && (
+                        <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
+                          <thead>
+                            <tr role="row">
+                              <th
 
-                              aria-controls="zero-config"
-                              aria-label={`Sucursal: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('SUCURSAL')}
+                                aria-controls="zero-config"
+                                aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('PACIENTE_NOMBRE')}
 
-                            >
-                              Sucursal
-                            </th>
-                            <th
-                              aria-controls="zero-config"
-                              aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('PACIENTE_CELULAR')}
+                              >
+                                Nombre del Paciente
+                              </th>
+                              <th
 
-                            >
-                              Celular
-                            </th>
-                            <th
+                                aria-controls="zero-config"
+                                aria-label={`Cedula: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('PACIENTE_CEDULA')}
 
-                              aria-controls="zero-config"
-                              aria-label={`Tipo: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('TIPO')}
+                              >
+                                Cedula
+                              </th>
+                              <th
 
-                            >
-                              Tipo de Consulta
-                            </th>
-                            <th
-                              aria-controls="zero-config"
-                              aria-label={`Fecha atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('FECHA_ATENCION')}
+                                aria-controls="zero-config"
+                                aria-label={`Sucursal: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('SUCURSAL')}
 
-                            >
-                              Fecha de atención
-                            </th>
-                            <th
-                              aria-controls="zero-config"
-                              aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                              className={`sorting ${orden}`}
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '153.82px' }}
-                              tabIndex="0"
-                              onClick={() => handleSort('DOCTOR')}
+                              >
+                                Sucursal
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('PACIENTE_CELULAR')}
 
-                            >
-                              Doctor
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {atendidosPorDia.map((atendidoPorDia) => (
-                            <tr key={atendidoPorDia.ID_PACIENTE}>
-                              <td>
-                                {
-                                  atendidoPorDia.PACIENTE_NOMBRE.trim() + " " + atendidoPorDia.PACIENTE_APELLIDO.trim()
-                                }
-                              </td>
-                              <td>{atendidoPorDia.PACIENTE_CEDULA}</td>
-                              <td>{atendidoPorDia.SUCURSAL}</td>
-                              <td>{atendidoPorDia.PACIENTE_CELULAR}</td>
-                              <td>{atendidoPorDia.TIPO}</td>
-                              <td>{atendidoPorDia.FECHA_ATENCION}</td>
-                              <td>{atendidoPorDia.DOCTOR}</td>
+                              >
+                                Celular
+                              </th>
+                              <th
+
+                                aria-controls="zero-config"
+                                aria-label={`Tipo: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('TIPO')}
+
+                              >
+                                Tipo de Consulta
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Fecha atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('FECHA_ATENCION')}
+
+                              >
+                                Fecha de atención
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                className={`sorting ${orden}`}
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '153.82px' }}
+                                tabIndex="0"
+                                onClick={() => handleSort('DOCTOR')}
+
+                              >
+                                Doctor
+                              </th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    )}
+                          </thead>
+                          <tbody>
+                            {atendidosPorDia.map((atendidoPorDia) => (
+                              <tr key={atendidoPorDia.ID_PACIENTE}>
+                                <td>
+                                  {
+                                    atendidoPorDia.PACIENTE_NOMBRE.trim() + " " + atendidoPorDia.PACIENTE_APELLIDO.trim()
+                                  }
+                                </td>
+                                <td>{atendidoPorDia.PACIENTE_CEDULA}</td>
+                                <td>{atendidoPorDia.SUCURSAL}</td>
+                                <td>{atendidoPorDia.PACIENTE_CELULAR}</td>
+                                <td>{atendidoPorDia.TIPO}</td>
+                                <td>{atendidoPorDia.FECHA_ATENCION}</td>
+                                <td>{atendidoPorDia.DOCTOR}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
 
-                    <PaginationAtendidosPorDia
-                      meta={meta}
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                    />
+                      <PaginationAtendidosPorDia
+                        meta={meta}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                      />
 
 
+
+                    </div>
 
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      {/*  */}
+
+
+
+
+    </>
   )
 }
 
