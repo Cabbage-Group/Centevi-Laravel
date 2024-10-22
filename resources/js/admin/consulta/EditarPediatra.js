@@ -537,7 +537,7 @@ const EditarPediatra = () => {
                               }
                             >
                               <option value={formData.medicamentos}>Seleccione una sucursal</option> {/* Opción por defecto */}
-                              {sucursales.filter(sucursal => sucursal.id_sucursal === pediatrica.sucursal).map((sucursal) => (
+                              {sucursales.filter(sucursal => sucursal.id_sucursal).map((sucursal) => (
                                 <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                   {sucursal.nombre}
                                 </option>

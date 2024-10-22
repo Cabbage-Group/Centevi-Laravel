@@ -579,7 +579,7 @@ const EditarGeneral = () => {
                               }
                             >
                               <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
-                              {sucursales.filter(sucursal => sucursal.id_sucursal === RefraccionGeneral.sucursal).map((sucursal) => (
+                              {sucursales.filter(sucursal => sucursal.id_sucursal).map((sucursal) => (
                                 <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                   {sucursal.nombre}
                                 </option>

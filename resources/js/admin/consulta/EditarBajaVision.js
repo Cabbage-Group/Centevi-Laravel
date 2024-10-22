@@ -420,7 +420,7 @@ const EditarBajaVision = () => {
                               }
                             >
                               <option value="">Seleccione una sucursal</option> { }
-                              {sucursales.filter(sucursal => sucursal.id_sucursal === bajavision.sucursal).map((sucursal) => (
+                              {sucursales.filter(sucursal => sucursal.id_sucursal).map((sucursal) => (
                                 <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                   {sucursal.nombre}
                                 </option>

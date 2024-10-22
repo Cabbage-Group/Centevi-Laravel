@@ -31,6 +31,8 @@ const EditarNeonatos = () => {
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [doctorActual, setDoctorActual] = useState('');
 
+
+  console.log('sucursales:',sucursales)
   const [formData, setFormData] = useState({
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -472,7 +474,7 @@ const EditarNeonatos = () => {
                               }
                             >
                               <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
-                              {sucursales.filter(sucursal => sucursal.id_sucursal === neonato.sucursal).map((sucursal) => (
+                              {sucursales.filter(sucursal => sucursal.id_sucursal).map((sucursal) => (
                                 <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                   {sucursal.nombre}
                                 </option>
