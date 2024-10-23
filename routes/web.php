@@ -43,6 +43,7 @@ Route::post('/api/register', [LoginApiController::class, 'register']);
 Route::post('/api/login', [LoginApiController::class,'login']);
 Route::post('/api/validar-user', [LoginApiController::class,'validarUser']);
 Route::get('/api/asignar-tokens', [LoginApiController::class, 'asignarTokens']);
+Route::get('/api/delete-tokens', [LoginApiController::class, 'deleteTokens']);
 
 Route::put('/api/usuarios/{id}', [UsuariosApiController::class, 'update']);
 Route::delete('/api/usuarios/{id}', [UsuariosApiController::class, 'delete']);

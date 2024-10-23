@@ -18,7 +18,7 @@ export const fetchValidarToken = createAsyncThunk(
   async (data) => {
     const response = await axios.post(`${API}/validar-user`, { usuario: data });
 
-    const rpta = response.data
+    const rpta = response
     if (rpta) {
       // console.log("rpta.data.usuario.perfil ---");
       // console.log(rpta.data.usuario.perfil);
@@ -86,21 +86,35 @@ const AuthSlice = createSlice({
         state.fetchUsuario = true;
       })
       .addCase(fetchValidarToken.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.usuario = action.payload.data;
-        state.permisos = action.payload.data.permisos;
-        state.fetchUsuario = true;
-        localStorage.setItem('id_usuario', action.payload.data.usuario.id_usuario)
-        localStorage.setItem('token_user', action.payload.data.token)
-        localStorage.setItem('usuario', action.payload.data.usuario.usuario)
-        localStorage.setItem('nombre', action.payload.data.usuario.nombre)
-        console.log("VALIDAR !");
+        const rpta = action.payload.data;
+        const data = rpta.data;
+        console.log("rpta:--------------------------");
+        console.log(rpta);
+        console.log(data);
+        console.log("rpta:--------------------------");
+        
+        if (rpta.respuesta) {
+          state.status = 'succeeded';
+          state.usuario = data;
+          state.permisos = data.permisos;
+          state.fetchUsuario = true;
+          localStorage.setItem('id_usuario', data.usuario.id_usuario)
+          localStorage.setItem('token_user', data.token)
+          localStorage.setItem('usuario', data.usuario.usuario)
+          localStorage.setItem('nombre', data.usuario.nombre)
+          console.log("VALIDAR !");
+        } else {
+          localStorage.clear()
+        }
+
       })
 
       .addCase(fetchValidarToken.rejected, (state, action) => {
         state.status = 'failed';
         state.fetchUsuario = true;
         state.error = action.error.message;
+        localStorage.clear()
+        window.location.reload();
       })
 
       .addCase(validateUserAuth.fulfilled, (state, action) => {

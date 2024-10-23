@@ -80,6 +80,8 @@ class LoginApiController extends Controller
 
     // // Generar token con Laravel Sanctum
     // $token = $usuario->createToken('auth_token')->plainTextToken;
+    $usuario->token = $this->generarCodigoAleatorio();
+    $usuario->update();
 
     return response()->json([
       'respuesta' => true,
@@ -116,15 +118,28 @@ class LoginApiController extends Controller
     return "Tokens generados";
   }
 
+  public function deleteTokens()
+  {
+    $usuarios = usuarios::all();
+
+    foreach ($usuarios as $usuario) {
+      $usuarioe = usuarios::find($usuario->id_usuario);
+      $usuarioe->token = null;
+      $usuarioe->update();
+    }
+
+    return "Tokens eliminados";
+  }
+
   public function validarUser(Request $request)
   {
     $usuario = Usuarios::where('usuario', $request->usuario)->first();
-    
-    if ($usuario) {
+
+    if ($usuario && $usuario->token) {
 
       $permisos = PermisosTiposUsuarios::join('permisos', 'permiso_id', 'permisos.id')
-                                      ->where('tipo_usuario_id', $usuario->tipo_usuario_id)
-                                      ->get();
+        ->where('tipo_usuario_id', $usuario->tipo_usuario_id)
+        ->get();
 
       return response()->json([
         'respuesta' => true,
