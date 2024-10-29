@@ -89,42 +89,42 @@ class Terapia_Bajav_ApiController extends Controller
     }
 
     public function editarTerapia_bajav(Request $request, $id_sesion)
-    {
-        $validator = Validator::make($request->all(), [
-            "id_terapia" => 'nullable|integer',
-            'pagado' => 'nullable|boolean',
-            'sucursal' => 'nullable|integer'
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        "id_terapia" => 'nullable|integer',
+        'pagado' => 'nullable|boolean',
+        'sucursal' => 'nullable|integer'
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Validation errors',
-                'data' => $validator->errors(),
-                'mensaje_dev' => "Oops, validation errors occurred."
-            ], 400);
-        }
+    if ($validator->fails()) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Validation errors',
+            'data' => $validator->errors(),
+            'mensaje_dev' => "Oops, validation errors occurred."
+        ], 400);
+    }
 
-        $terapia_bajav = TerapiaBajaV::find($id_sesion);
+    $terapia_bajav = TerapiaBajaV::find($id_sesion);
 
-        if (!$terapia_bajav) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Terapia no encontrada',
-                'mensaje_dev' => "No se encontró ninguna sesioncon el ID proporcionado."
-            ], 404);
-        }
+    if (!$terapia_bajav) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Terapia no encontrada',
+            'mensaje_dev' => "No se encontró ninguna sesión con el ID proporcionado."
+        ], 404);
+    }
 
-        // Convertir el campo sesion de JSON a objeto
+    $updateData = [];
+
+    if ($request->has('sesion')) {
         $sesionData = json_decode($request->input('sesion'), true);
-        // Determinar si el campo completado debe ser 1 o 0
         $completado = 1;
 
         if (is_array($sesionData)) {
-            // Verificar los campos `resultado` y `actividad` (exceptuando `actividad_casa`)
             foreach ($sesionData as $key => $value) {
                 if (str_contains($key, 'resultado') && empty($value)) {
-                    $completado = 0; // No completado si hay campos `resultado` vacíos
+                    $completado = 0;
                     break;
                 }
                 if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
@@ -133,27 +133,30 @@ class Terapia_Bajav_ApiController extends Controller
                 }
             }
         } else {
-            $completado = 0; 
+            $completado = 0;
         }
-        $updateData = [
-            'sesion' => $request->input('sesion'),
-            'completado' => $completado,
-        ];
-        if ($request->has('pagado')) {
-            $updateData['pagado'] = $request->input('pagado');
-        }
-        if ($request->has('sucursal')) {
-            $updateData['sucursal'] = $request->input('sucursal');
-        }
-        $terapia_bajav->update($updateData);
 
-        return response()->json([
-            'respuesta' => true,
-            'mensaje' => 'Terapia actualizada correctamente',
-            'data' => $terapia_bajav,
-            'mensaje_dev' => null
-        ], 200);
+        $updateData['sesion'] = $request->input('sesion');
+        $updateData['completado'] = $completado;
     }
+
+    if ($request->has('pagado')) {
+        $updateData['pagado'] = $request->input('pagado');
+    }
+
+    if ($request->has('sucursal')) {
+        $updateData['sucursal'] = $request->input('sucursal');
+    }
+
+    $terapia_bajav->update($updateData);
+
+    return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Terapia actualizada correctamente',
+        'data' => $terapia_bajav,
+        'mensaje_dev' => null
+    ], 200);
+}
 
     public function crearTerapia_Bajav(Request $request)
     {

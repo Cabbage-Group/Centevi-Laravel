@@ -147,34 +147,34 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
         return response()->json([
             'respuesta' => false,
             'mensaje' => 'Terapia no encontrada',
-            'mensaje_dev' => "No se encontró ninguna sesioncon el ID proporcionado."
+            'mensaje_dev' => "No se encontró ninguna sesión con el ID proporcionado."
         ], 404);
     }
 
-    $sesionData = json_decode($request->input('sesion'), true);
+    $updateData = [];
 
-    $completado = 1;
+    if ($request->has('sesion')) {
+        $sesionData = json_decode($request->input('sesion'), true);
+        $completado = 1;
 
-    if (is_array($sesionData)) {
-    
-        foreach ($sesionData as $key => $value) {
-            if (str_contains($key, 'resultado') && empty($value)) {
-                $completado = 0;
-                break;
+        if (is_array($sesionData)) {
+            foreach ($sesionData as $key => $value) {
+                if (str_contains($key, 'resultado') && empty($value)) {
+                    $completado = 0;
+                    break;
+                }
+                if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
+                    $completado = 0;
+                    break;
+                }
             }
-            if (str_contains($key, 'actividad') && $key !== 'actividad_casa' && empty($value)) {
-                $completado = 0;
-                break;
-            }
+        } else {
+            $completado = 0;
         }
-    } else {
-        $completado = 0; 
-    }
 
-    $updateData = [
-        'sesion' => $request->input('sesion'),
-        'completado' => $completado,
-    ];
+        $updateData['sesion'] = $request->input('sesion');
+        $updateData['completado'] = $completado;
+    }
 
     if ($request->has('pagado')) {
         $updateData['pagado'] = $request->input('pagado');
@@ -193,6 +193,7 @@ class Terapia_Optometria_Pediatrica_ApiController extends Controller
         'mensaje_dev' => null
     ], 200);
 }
+
 
 public function eliminarTerapia_optometria_pediatrica($id_sesion)
 {

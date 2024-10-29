@@ -117,34 +117,39 @@ class Terapia_Optometria_Neonatos_ApiController extends Controller
     }
 
     public function editarTerapia_optometria_neonatos(Request $request, $id_sesion)
-    {
+{
+    $validator = Validator::make($request->all(), [
+        "id_terapia" => 'nullable|integer',
+        'pagado' => 'nullable|boolean',
+        'sucursal' => 'nullable|integer'
+    ]);
 
-        $validator = Validator::make($request->all(), [
-            "id_terapia" => 'nullable|integer',
-            'pagado' => 'nullable|boolean',
-            'sucursal' => 'nullable|integer'
-        ]);
+    if ($validator->fails()) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Validation errors',
+            'data' => $validator->errors(),
+            'mensaje_dev' => "Oops, validation errors occurred."
+        ], 400);
+    }
 
-        if ($validator->fails()) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Validation errors',
-                'data' => $validator->errors(),
-                'mensaje_dev' => "Oops, validation errors occurred."
-            ], 400);
-        }
-        $terapia_neonatos = TerapiaOptometriaNeonatos::find($id_sesion);
-        if (!$terapia_neonatos) {
-            return response()->json([
-                'respuesta' => false,
-                'mensaje' => 'Terapia no encontrada',
-                'mensaje_dev' => "No se encontró ninguna sesioncon el ID proporcionado."
-            ], 404);
-        }
+    $terapia_neonatos = TerapiaOptometriaNeonatos::find($id_sesion);
+
+    if (!$terapia_neonatos) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Terapia no encontrada',
+            'mensaje_dev' => "No se encontró ninguna sesión con el ID proporcionado."
+        ], 404);
+    }
+
+    $updateData = [];
+
+    if ($request->has('sesion')) {
         $sesionData = json_decode($request->input('sesion'), true);
         $completado = 1;
-        if (is_array($sesionData)) {
 
+        if (is_array($sesionData)) {
             foreach ($sesionData as $key => $value) {
                 if (str_contains($key, 'resultado') && empty($value)) {
                     $completado = 0;
@@ -158,26 +163,28 @@ class Terapia_Optometria_Neonatos_ApiController extends Controller
         } else {
             $completado = 0;
         }
-        $updateData = [
-            'sesion' => $request->input('sesion'),
-            'completado' => $completado,
-        ];
-        if ($request->has('pagado')) {
-            $updateData['pagado'] = $request->input('pagado');
-        }
-        if ($request->has('sucursal')) {
-            $updateData['sucursal'] = $request->input('sucursal');
-        }
 
-        $terapia_neonatos->update($updateData);
-
-        return response()->json([
-            'respuesta' => true,
-            'mensaje' => 'Terapia actualizada correctamente',
-            'data' => $terapia_neonatos,
-            'mensaje_dev' => null
-        ], 200);
+        $updateData['sesion'] = $request->input('sesion');
+        $updateData['completado'] = $completado;
     }
+
+    if ($request->has('pagado')) {
+        $updateData['pagado'] = $request->input('pagado');
+    }
+
+    if ($request->has('sucursal')) {
+        $updateData['sucursal'] = $request->input('sucursal');
+    }
+
+    $terapia_neonatos->update($updateData);
+
+    return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Terapia actualizada correctamente',
+        'data' => $terapia_neonatos,
+        'mensaje_dev' => null
+    ], 200);
+}
 
     public function eliminarTerapia_optometria_neonatos($id_sesion)
     {
