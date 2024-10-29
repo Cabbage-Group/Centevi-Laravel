@@ -31,7 +31,7 @@ const Home = () => {
       page: currentPage,
       limit: 10,
       sortOrder: 'desc',
-      sortColumn: 'fecha_creacion',
+      sortColumn: 'id_paciente',
       doctor: selectedDoctor === 'todos' ? '' : selectedDoctor,
     };
     // dispatch(fetchPacientes({ page: currentPage, limit: 10, sortOrder: 'desc', sortColumn: 'fecha_creacion' }));
@@ -193,11 +193,11 @@ const Home = () => {
                 <div className="row" style={{ marginTop: '-70px' }}>
                   <div className="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
                     <div className="widget-four">
-                      <div className="widget-heading" style={{ marginBottom: '-15px' }}>
+                      <div className="widget-heading" style={{ marginBottom: '25px' }}>
                         <h5 className="">ÚLTIMOS PACIENTES</h5>
                       </div>
                       {/* Nuevo select para buscar por doctor */}
-                      {
+                      {/* {
                         funPermisosObtenidos(
                           permisos,
                           "home.buscarpordoctor",
@@ -224,9 +224,9 @@ const Home = () => {
                             </select>
                           </div>
                         )
-                      }
+                      } */}
 
-                      <div className="table-responsive">
+                      <div className="table-responsive" >
                         {status === 'loading' && <p>Loading...</p>}
                         {status === 'failed' && <p>Error: {error}</p>}
                         {status === 'succeeded' && (
@@ -246,7 +246,7 @@ const Home = () => {
                                   Cedula
                                 </th>
                                 <th>
-                                  Telefono
+                                  Celular
                                 </th>
                                 <th>
                                   Email
@@ -257,9 +257,9 @@ const Home = () => {
                                 <th>
                                   Direccion
                                 </th>
-                                <th>
+                                {/* <th>
                                   Fecha de creacion
-                                </th>
+                                </th> */}
                               </tr>
                             </thead>
                             <tbody>
@@ -269,15 +269,15 @@ const Home = () => {
                                     <tr key={paciente.id_paciente}>
                                       <td>{`${paciente.nombres} ${paciente.apellidos}`}</td>
                                       <td>{paciente.nro_cedula}</td>
-                                      <td>{paciente.telefono}</td>
+                                      <td>{paciente.celular}</td>
                                       <td>{paciente.email}</td>
                                       <td>{paciente.doctor}</td>
                                       <td>{`${paciente.direccion}, ${paciente.lugar_nacimiento}`}</td>
-                                      <td>
+                                      {/* <td>
                                         {
                                           moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
                                         }
-                                      </td>
+                                      </td> */}
                                       <td>
                                       </td>
                                     </tr>
@@ -292,8 +292,18 @@ const Home = () => {
                   </div>
                 </div>
               </div>
+              {/*  */}
+
+              <PacienteAtendidoDia
+                showFilters={false}
+                limit={10}
+                paginate={false}
+                column_celular={false}
+              />
             </div>
+
           </div>
+
         </div>
         {/* <div className="all-card">
         <div className="row">
@@ -489,11 +499,7 @@ const Home = () => {
 
       </div >
 
-      {/*  */}
 
-      <PacienteAtendidoDia 
-        showFilters={false}
-      />
 
     </>
   );
