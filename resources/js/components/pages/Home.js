@@ -248,11 +248,11 @@ const Home = () => {
                                 <th>
                                   Celular
                                 </th>
-                                <th>
+                                {/* <th>
                                   Email
-                                </th>
+                                </th> */}
                                 <th>
-                                  Doctor
+                                  Ingresado por
                                 </th>
                                 <th>
                                   Direccion
@@ -270,7 +270,7 @@ const Home = () => {
                                       <td>{`${paciente.nombres} ${paciente.apellidos}`}</td>
                                       <td>{paciente.nro_cedula}</td>
                                       <td>{paciente.celular}</td>
-                                      <td>{paciente.email}</td>
+                                      {/* <td>{paciente.email}</td> */}
                                       <td>{paciente.doctor}</td>
                                       <td>{`${paciente.direccion}, ${paciente.lugar_nacimiento}`}</td>
                                       {/* <td>
