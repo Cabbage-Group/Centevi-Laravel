@@ -39,8 +39,8 @@ const PacienteAtendidoDia = ({
   const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
-  // console.log('ordenPor:', ordenPor);
-
+  console.log('dataexport:', dataexport);
+  console.log('permisos:', dataexport);
   useEffect(() => {
     // dispatch(fetchPacientes({}));
     dispatch(fetchUsuarios({}))
@@ -88,6 +88,8 @@ const PacienteAtendidoDia = ({
     const selectedValue = event.target.value;
     setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
   };
+
+  console.log('showFilters',showFilters)
 
   return (
     <>
@@ -156,7 +158,7 @@ const PacienteAtendidoDia = ({
               </div>
             </div> */}
 
-              <div className="col-md-12" style={{ marginTop: '-60px' }}>
+              <div className="col-md-12">
                 {
                   showFilters ? (
                     <div className="form-group col-md-4 mt-4">
@@ -262,7 +264,7 @@ const PacienteAtendidoDia = ({
                         funPermisosObtenidos(
                           permisos,
                           "reportes.atendidospordia.buscarpordoctor",
-                          <div className="form-group col-md-4 mt-4">
+                          <div className="dt--top-section">
                             <label>Buscar por Doctor:</label>
                             <select
                               className="form-control"
@@ -280,8 +282,6 @@ const PacienteAtendidoDia = ({
                         )
                       ) : null
                     }
-                    {/* Nuevo select para buscar por doctor */}
-
 
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}

@@ -283,7 +283,7 @@ const ConsultasDiarias = () => {
                     funPermisosObtenidos(
                       permisos,
                       "reportes.atendidospordia.buscarpordoctor",
-                      <div className="form-group col-md-4 mt-4">
+                      <div className="dt--top-section">
                         <label>Buscar por Doctor:</label>
                         <select
                           className="form-control"

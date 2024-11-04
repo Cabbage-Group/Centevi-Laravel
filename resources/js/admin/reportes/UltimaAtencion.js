@@ -253,7 +253,7 @@ const UltimaAtencion = () => {
                     </div>
                   </div>
                   {/* Nuevo select para buscar por doctor */}
-                  <div className="form-group col-md-4 mt-4">
+                  <div className="dt--top-section">
                     <label>Buscar por Doctor:</label>
                     <select 
                       className="form-control"
