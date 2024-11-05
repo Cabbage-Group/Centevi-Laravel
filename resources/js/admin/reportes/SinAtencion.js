@@ -1,20 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPacientesSinAtencion } from '../../redux/features/reportes/pacientesSinAtencionSlice';
+import { fetchPacientesSinAtencion, setOrden, setOrdenPor } from '../../redux/features/reportes/pacientesSinAtencionSlice';
 import PaginationSinAtencion from './PaginationSinAtencion';
+import { transformDataForSinAtencion } from '../../../utils/dataTransform';
+import ExportButton from './exportButton';
 
 const SinAtencion = () => {
 
   const dispatch = useDispatch();
-  const { pacientesSinAtencion, status, error, meta, totalPages } = useSelector((state) => state.pacientesSinAtencion);
+  const { 
+    pacientesSinAtencion, 
+    status, 
+    error, 
+    meta, 
+    totalPages,
+    orden,
+    ordenPor,
+    search,
+    dataexport } = useSelector((state) => state.pacientesSinAtencion);
   const [currentPage, setCurrentPage] = useState(1);
+  const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
-    dispatch(fetchPacientesSinAtencion({ page: currentPage, limit: 20 }));
-  }, [dispatch, currentPage]);
+    dispatch(fetchPacientesSinAtencion({ 
+      page: currentPage, 
+      limit: 20, 
+      orden, 
+      ordenPor,
+      search: localSearch
+    }));
+  }, [dispatch,localSearch, currentPage, orden, ordenPor]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+  };
+
+  const handleSearchChange = (event) => {
+    setLocalSearch(event.target.value);
+  };
+
+  const handleSort = (newOrdenPor) => {
+    const newOrder = orden === 'asc' ? 'desc' : 'asc';
+    dispatch(setOrden(newOrder));
+    dispatch(setOrdenPor(newOrdenPor));
+  };
+
+  const handleClearSearch = () => {
+    setLocalSearch('');
   };
 
 
@@ -263,46 +295,11 @@ const SinAtencion = () => {
                     <div className="row">
                       <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
                         <div className="dt-buttons">
-                          <button
-                            aria-controls="html5-extension"
-                            className="dt-button buttons-copy buttons-html5 btn btn-sm"
-                            tabIndex="0"
-                          >
-                            <span>
-                              Copy
-                            </span>
-                          </button>
-                          {' '}
-                          <button
-                            aria-controls="html5-extension"
-                            className="dt-button buttons-csv buttons-html5 btn btn-sm"
-                            tabIndex="0"
-                          >
-                            <span>
-                              CSV
-                            </span>
-                          </button>
-                          {' '}
-                          <button
-                            aria-controls="html5-extension"
-                            className="dt-button buttons-excel buttons-html5 btn btn-sm"
-                            tabIndex="0"
-                          >
-                            <span>
-                              Excel
-                            </span>
-                          </button>
-                          {' '}
-                          <button
-                            aria-controls="html5-extension"
-                            className="dt-button buttons-print btn btn-sm"
-                            tabIndex="0"
-                          >
-                            <span>
-                              Print
-                            </span>
-                          </button>
-                          {' '}
+                        <ExportButton
+                          dataexport={dataexport}
+                          transformData={transformDataForSinAtencion}
+                          fileName="Pacientes_Sin_Atención.xlsx"
+                        />
                         </div>
                       </div>
                       <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
@@ -340,7 +337,25 @@ const SinAtencion = () => {
                               className="form-control"
                               placeholder="Search..."
                               type="search"
+                              value={localSearch}
+                              onChange={handleSearchChange}
                             />
+                            {localSearch && (
+                              <button
+                              onClick={handleClearSearch}
+                              style={{
+                                position: 'absolute',
+                                right: '25px',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              &#x2715; { }
+                            </button>
+                               )}
                           </label>
                         </div>
                       </div>
@@ -354,22 +369,51 @@ const SinAtencion = () => {
                         <thead>
                           <tr role="row">
                             <th
-
+                               aria-controls="zero-config"
+                               aria-label={`nombres: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                               className={`sorting ${orden}`}
+                               colSpan="1"
+                               rowSpan="1"
+                               style={{ width: '153.82px' }}
+                               tabIndex="0"
+                               onClick={() => handleSort('nombres')}
                             >
                               Nombre del Paciente
                             </th>
                             <th
+                               aria-controls="zero-config"
+                               aria-label={`Cedula: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                               className={`sorting ${orden}`}
+                               colSpan="1"
+                               rowSpan="1"
+                               style={{ width: '153.82px' }}
+                               tabIndex="0"
+                               onClick={() => handleSort('nro_cedula')}
 
                             >
                               Cedula
                             </th>
                             <th
-
+                              aria-controls="zero-config"
+                              aria-label={`Sucursal: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${orden}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('email')}
                             >
                               Email
                             </th>
                             <th
-
+                              aria-controls="zero-config"
+                              aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${orden}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('celular')} 
                             >
                               Celular
                             </th>

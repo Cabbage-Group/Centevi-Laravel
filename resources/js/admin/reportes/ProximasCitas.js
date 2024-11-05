@@ -14,7 +14,6 @@ import moment from 'moment';
 const ProximasCitas = () => {
   const dispatch = useDispatch();
 
-  const metaPacientes = useSelector((state) => state.pacientes.meta);
   const {
     proximasCitas,
     status,
@@ -42,7 +41,7 @@ const ProximasCitas = () => {
   console.log('proximasCitas:',proximasCitas)
   useEffect(() => {
     dispatch(fetchPacientes({}));
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     const fetchParams = {
@@ -53,10 +52,10 @@ const ProximasCitas = () => {
       startDate,
       endDate,
       search: localSearch,
-      doctor: selectedDoctor
+      
     };
     dispatch(fetchProximasCitas(fetchParams));
-  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor,selectedDoctor]);
+  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
 
   const handleSearchChange = (event) => {
@@ -69,9 +68,6 @@ const ProximasCitas = () => {
 
   const handleDateChange = () => {
     dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-    dispatch(fetchProximasCitas({ startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }))
-
-
   };
 
   const handleClearSearch = () => {
@@ -82,8 +78,6 @@ const ProximasCitas = () => {
     const newOrder = orden === 'asc' ? 'desc' : 'asc';
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
-    dispatch(fetchProximasCitas({ page: currentPage, startDate, endDate, limit: 20, orden: newOrder, ordenPor: newOrdenPor }))
-      .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
   };
 
   const handleContactoClick = (proximaCita) => {

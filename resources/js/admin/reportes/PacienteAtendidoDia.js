@@ -12,7 +12,6 @@ import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 const PacienteAtendidoDia = ({ showFilters = true }) => {
   // const { showFilters } = props;
   const dispatch = useDispatch();
-  const metaPacientes = useSelector((state) => state.pacientes.meta);
   const { permisos } = useSelector((state) => state.auth);
   const nombreUsuario = localStorage.getItem('nombre');
   const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.atendidosPorDia);
@@ -23,8 +22,6 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
   const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
-  console.log('dataexport:', dataexport);
-  console.log('permisos:', dataexport);
   useEffect(() => {
     // dispatch(fetchPacientes({}));
     dispatch(fetchUsuarios({}))
@@ -72,8 +69,6 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
     const selectedValue = event.target.value;
     setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
   };
-
-  console.log('showFilters',showFilters)
 
   return (
     <>

@@ -1110,6 +1110,12 @@ class PacientesApiController extends Controller
       });
     }
 
+    $dataexportQuery = clone $query;
+    $dataexport = $dataexportQuery
+        ->orderByRaw('TRIM(' . $ordenPor . ') ' . $orden)
+        ->get();
+
+
     // Contar los registros
     $cantidadPacientes = $query->count();
 
@@ -1120,6 +1126,7 @@ class PacientesApiController extends Controller
       ->offset(($page - 1) * $limit)
       ->get();
 
+   
     return response()->json([
       'data' => $pacientesSinAtender,
       'meta' => [
@@ -1127,6 +1134,9 @@ class PacientesApiController extends Controller
         'limit' => $limit,
         'last_page' => ceil($cantidadPacientes / $limit),
         'total' => $cantidadPacientes,
+      ],
+      'export' => [
+        'dataexport' => $dataexport,
       ],
       'status' => [
         'code' => 200,
@@ -1191,6 +1201,10 @@ class PacientesApiController extends Controller
       return $query->count();
     });
 
+    $dataexport = $query
+      ->orderByRaw('TRIM(' . $ordenPor . ') ' . $orden)
+      ->get();
+
     return response()->json([
       'data' => $pacientesSinAtender,
       'meta' => [
@@ -1199,9 +1213,12 @@ class PacientesApiController extends Controller
         'last_page' => ceil($cantidadPacientes / $limit),
         'total' => $cantidadPacientes,
       ],
+      'export' => [
+        'dataexport' => $dataexport,
+      ],
       'status' => [
         'code' => 200,
-        'message' => 'Pacientes retrieved successfully',
+        'message' => 'Pacientes retrieved2 successfully',
       ],
     ]);
   }

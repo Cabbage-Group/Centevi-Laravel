@@ -37,6 +37,7 @@ const pacientesSinAtencionSlice = createSlice({
         startDate: '',
         endDate: '',
         search: '',  // Agrega el estado de búsqueda
+        dataexport: []
     },
     reducers: {
         setOrden(state, action) {
@@ -62,6 +63,7 @@ const pacientesSinAtencionSlice = createSlice({
                 state.status = 'succeeded';
                 state.pacientesSinAtencion = action.payload.data;
                 state.meta = action.payload.meta;
+                state.dataexport = action.payload.export.dataexport;
             })
             .addCase(fetchPacientesSinAtencion.rejected, (state, action) => {
                 state.status = 'failed';

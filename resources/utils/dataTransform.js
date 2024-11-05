@@ -62,4 +62,13 @@ export const transformDataForProximasCitas = (data) => {
     }));
 };
 
+export const transformDataForSinAtencion = (data) => {
+    return data.map(pacienteSinAtencion => ({
+        Fecha_Proxima_Cita: pacienteSinAtencion.nombres.trim(),
+        Nombre: pacienteSinAtencion.nro_cedula.trim(),
+        Email: pacienteSinAtencion.email,
+        Celular: pacienteSinAtencion.celular,
+    }));
+};
+
 
