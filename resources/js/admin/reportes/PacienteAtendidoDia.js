@@ -89,7 +89,7 @@ const PacienteAtendidoDia = ({
     setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
   };
 
-  console.log('showFilters',showFilters)
+  console.log('showFilters', showFilters)
 
   return (
     <>

@@ -14,24 +14,24 @@ const UltimaAtencion = () => {
 
   const dispatch = useDispatch();
   const metaPacientes = useSelector((state) => state.pacientes.meta);
-  const { 
-    ultimaAtencion, 
-    meta, 
-    status, 
-    error, 
-    startDate, 
-    endDate, 
-    orden, 
-    ordenPor, 
-    totalPages, 
-    search, 
+  const {
+    ultimaAtencion,
+    meta,
+    status,
+    error,
+    startDate,
+    endDate,
+    orden,
+    ordenPor,
+    totalPages,
+    search,
     dataexport } = useSelector((state) => state.ultimaAtencion);
   const nombreUsuario = localStorage.getItem('nombre');
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [currentPage, setCurrentPage] = useState(1);
-  const { usuarios} = useSelector((state) => state.usuarios);
+  const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
 
@@ -255,7 +255,7 @@ const UltimaAtencion = () => {
                   {/* Nuevo select para buscar por doctor */}
                   <div className="dt--top-section">
                     <label>Buscar por Doctor:</label>
-                    <select 
+                    <select
                       className="form-control"
                       value={selectedDoctor}
                       onChange={handleDoctorChange}
@@ -267,7 +267,7 @@ const UltimaAtencion = () => {
                         </option>
                       ))}
                     </select>
-                  </div>            
+                  </div>
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}
                     {status === 'failed' && <p>Error: {error}</p>}
