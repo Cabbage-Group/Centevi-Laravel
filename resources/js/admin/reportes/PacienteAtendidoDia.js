@@ -17,7 +17,6 @@ const PacienteAtendidoDia = ({
 }) => {
   // const { showFilters } = props;
   const dispatch = useDispatch();
-  const metaPacientes = useSelector((state) => state.pacientes.meta);
   const { permisos } = useSelector((state) => state.auth);
   const nombreUsuario = localStorage.getItem('nombre');
   const {
@@ -39,8 +38,6 @@ const PacienteAtendidoDia = ({
   const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
-  console.log('dataexport:', dataexport);
-  console.log('permisos:', dataexport);
   useEffect(() => {
     // dispatch(fetchPacientes({}));
     dispatch(fetchUsuarios({}))
