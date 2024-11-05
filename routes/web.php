@@ -27,6 +27,7 @@ use App\Http\Controllers\API\terapias\Terapias_Optometria_Neonatos_ApiController
 use App\Http\Controllers\API\terapias\Terapias_Optometria_Pediatrica_ApiController;
 use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
+use App\Http\Controllers\API\servicios\ServiciosApiController;
 
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -248,6 +249,8 @@ Route::get('/api/terapia_ortoptica_adultos/{id_terapia}', [Terapia_Ortoptica_Adu
 Route::post('/api/terapia_ortoptica_adultos', [Terapia_Ortoptica_Adultos_ApiController::class, 'crearTerapia_ortoptica_adultos']);
 Route::put('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_Adultos_ApiController::class, 'editarTerapia_ortoptica_adultos']);
 Route::delete('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_Adultos_ApiController::class, 'eliminarTerapia_ortoptica_adultos']);
+
+Route::get('/api/servicios', [ServiciosApiController::class, 'index']);
 
 Route::get('/{any}', function () {
     return view('app');

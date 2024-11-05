@@ -33,6 +33,16 @@ class ConsultaGenerica extends Model
         'se_agendo'
     ];
 
+    public function serviciosRealizados()
+    {
+        return $this->hasMany(ServiciosRealizadosHistoriasClinicas::class, 'historiaclinica_id');
+    }
+
+    public function serviciosProximos()
+    {
+        return $this->hasMany(ServiciosProximosHistoriasClinicas::class, 'historiaclinica_id');
+    }
+
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'sucursal' => 'integer',
