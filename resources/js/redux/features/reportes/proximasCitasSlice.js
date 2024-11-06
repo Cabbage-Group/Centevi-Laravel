@@ -9,14 +9,23 @@ const getCurrentDate = () => moment().format('YYYY-MM-DD');
 
 export const fetchProximasCitas = createAsyncThunk(
   'proximasCitas/fetchProximasCitas',
-  async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PROXIMA_FECHA', startDate = '', endDate = '', search = '',doctor = null }) => {
+  async ({ 
+    page = 1, 
+    limit = 10, 
+    orden = 'asc', 
+    ordenPor = 'PROXIMA_FECHA', 
+    startDate = '', 
+    endDate = '', 
+    search = '',
+    // doctor = null 
+  }) => {
     try {
       const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
       const params = { page, limit, orden, ordenPor, fecha, search };
-      if (doctor) {
-        params.doctor = doctor;
-      }
+      // if (doctor) {
+      //   params.doctor = doctor;
+      // }
 
       const response = await axios.get(`${API}/proximascitas`,  { params })
       return response.data

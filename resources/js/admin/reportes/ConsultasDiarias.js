@@ -61,7 +61,7 @@ const ConsultasDiarias = () => {
     const newOrder = orden === 'asc' ? 'desc' : 'asc';
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
-    
+
   };
 
   const handleClearSearch = () => {

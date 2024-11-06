@@ -9,12 +9,28 @@ import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
 
-const PacienteAtendidoDia = ({ showFilters = true }) => {
+const PacienteAtendidoDia = ({
+  showFilters = true,
+  paginate = true,
+  limit = 20,
+  column_celular = true
+}) => {
   // const { showFilters } = props;
   const dispatch = useDispatch();
   const { permisos } = useSelector((state) => state.auth);
   const nombreUsuario = localStorage.getItem('nombre');
-  const { atendidosPorDia, status, startDate, endDate, error, meta, totalPages, orden, ordenPor, search, dataexport } = useSelector((state) => state.atendidosPorDia);
+  const {
+    atendidosPorDia,
+    status,
+    startDate,
+    endDate, error, meta,
+    totalPages,
+    orden,
+    ordenPor,
+    search,
+    dataexport
+  } = useSelector((state) => state.atendidosPorDia);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
@@ -30,7 +46,7 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
   useEffect(() => {
     const fetchParams = {
       page: currentPage,
-      limit: 20,
+      limit: limit,
       orden,
       ordenPor,
       startDate,
@@ -52,7 +68,7 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
 
   const handleDateChange = () => {
     dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
-    dispatch(fetchAtendidosPorDia({ page: currentPage, startDate: localStartDate, endDate: localEndDate, limit: 20, orden, ordenPor }));
+    dispatch(fetchAtendidosPorDia({ page: currentPage, startDate: localStartDate, endDate: localEndDate, limit: limit, orden, ordenPor }));
   };
 
   const handleSort = (newOrdenPor) => {
@@ -69,6 +85,8 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
     const selectedValue = event.target.value;
     setSelectedDoctor(selectedValue === 'todos' ? '' : selectedValue);
   };
+
+  console.log('showFilters', showFilters)
 
   return (
     <>
@@ -311,19 +329,24 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
                               >
                                 Sucursal
                               </th>
-                              <th
-                                aria-controls="zero-config"
-                                aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                className={`sorting ${orden}`}
-                                colSpan="1"
-                                rowSpan="1"
-                                style={{ width: '153.82px' }}
-                                tabIndex="0"
-                                onClick={() => handleSort('PACIENTE_CELULAR')}
+                              {
+                                column_celular && (
+                                  <th
+                                    aria-controls="zero-config"
+                                    aria-label={`Celular: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                    className={`sorting ${orden}`}
+                                    colSpan="1"
+                                    rowSpan="1"
+                                    style={{ width: '153.82px' }}
+                                    tabIndex="0"
+                                    onClick={() => handleSort('PACIENTE_CELULAR')}
 
-                              >
-                                Celular
-                              </th>
+                                  >
+                                    Celular
+                                  </th>
+                                )
+                              }
+
                               <th
 
                                 aria-controls="zero-config"
@@ -376,7 +399,11 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
                                 </td>
                                 <td>{atendidoPorDia.PACIENTE_CEDULA}</td>
                                 <td>{atendidoPorDia.SUCURSAL}</td>
-                                <td>{atendidoPorDia.PACIENTE_CELULAR}</td>
+                                {
+                                  column_celular && (
+                                    <td>{atendidoPorDia.PACIENTE_CELULAR}</td>
+                                  )
+                                }
                                 <td>{atendidoPorDia.TIPO}</td>
                                 <td>{atendidoPorDia.FECHA_ATENCION}</td>
                                 <td>{atendidoPorDia.DOCTOR}</td>
@@ -385,15 +412,16 @@ const PacienteAtendidoDia = ({ showFilters = true }) => {
                           </tbody>
                         </table>
                       )}
-
-                      <PaginationAtendidosPorDia
-                        meta={meta}
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                      />
-
-
+                      {
+                        paginate && (
+                          <PaginationAtendidosPorDia
+                            meta={meta}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                          />
+                        )
+                      }
 
                     </div>
 

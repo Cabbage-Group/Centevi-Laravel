@@ -61,6 +61,7 @@ import { fetchValidarToken } from '../redux/features/auth/AuthSlice.js';
 import TiposUsuarios from '../admin/tipos-usuarios/VerTiposUsuarios.js';
 import Permisos from '../admin/permisos/Permisos.js';
 import ProtectedRoute from './ProtectedRoute.js';
+import CreateReceta from '../admin/recetas/CreateReceta.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -153,6 +154,7 @@ const RoutesApp = () => {
 
           <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
           <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
+          <Route path="/create-receta" element={<Sidebar component={<CreateReceta />} />} />
           <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
           <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 
