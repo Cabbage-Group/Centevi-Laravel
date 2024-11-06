@@ -54,6 +54,16 @@ class OptometriaNeonatos extends Model
         'se_agendo'
     ];
 
+    public function serviciosRealizados()
+    {
+        return $this->hasMany(ServiciosRealizadosOptometriaNeonatos::class, 'optometriaNeonatos_id');
+    }
+
+    public function serviciosProximos()
+    {
+        return $this->hasMany(ServiciosProximosOptometriaNeonatos::class, 'optometriaNeonatos_id');
+    }
+
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'sucursal' => 'integer',
