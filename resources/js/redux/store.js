@@ -138,14 +138,14 @@ const store = configureStore({
     editarSesionTerapiaOrtoptica: EditarSesionTerapiaOrtopticaSlice,
 
     tiposUsuarios: verTiposUsuariosSlice,
-    permisos : PermisosSlice,
-    tiposPermisos : TiposPermisosSlice,
+    permisos: PermisosSlice,
+    tiposPermisos: TiposPermisosSlice,
     pacientesMenores: pacientesMenoresReducer,
     pacientesAdultos: pacientesAdultosReducer,
     usuariosDoctor: usuariosDoctorReducer,
 
     servicios: serviciosReducer
-  
+
 
   }
 });

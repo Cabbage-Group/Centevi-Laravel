@@ -5,12 +5,12 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { crearHistoriaClinica } from '../../redux/features/consultas/HistoriaClinicaSlice.js';
-import { Select, Button } from 'antd';
+import { Select, Button, Row, Col } from 'antd';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
-
+import { CloseCircleTwoTone } from '@ant-design/icons';
 
 const tagOptions = [
   { value: 'tag1', label: 'Tag 1' },
@@ -18,7 +18,6 @@ const tagOptions = [
   { value: 'tag3', label: 'Tag 3' },
   { value: 'tag4', label: 'Tag 4' },
 ]
-
 
 const HistoriaClinica = () => {
   const navigate = useNavigate();
@@ -29,6 +28,8 @@ const HistoriaClinica = () => {
   const { status, error } = useSelector((state) => state.consultagenerica);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [tags, setTags] = useState([]);
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [proximosServicios, setProximosServicios] = useState([]);
 
   for (let i = 10; i < 36; i++) {
     tags.push({
@@ -64,7 +65,7 @@ const HistoriaClinica = () => {
     dispatch(fetchServicios())
   }, [dispatch]);
 
-  console.log('servicios:',servicios)
+  console.log('servicios:', servicios)
 
   const calculateAge = (birthDate) => {
     const today = new Date();
@@ -153,7 +154,7 @@ const HistoriaClinica = () => {
                           });
                       }}
                     >
-                      {({ setFieldValue, isSubmitting }) => (
+                      {({ setFieldValue, isSubmitting, values }) => (
                         <Form
                           method="post"
                           role="form"
@@ -258,22 +259,159 @@ const HistoriaClinica = () => {
                               />
                             </div>
                           </div>
-                           {/* Selector de Tags */}
-                           <div className="form-row mb-4">
-                            <div className="form-group col-md-12">
-                              <label htmlFor="tags">Tags</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                onChange={(value) => setFieldValue('servicios_realizados_historias_clinicas', value)} 
-                                options={servicios.map(servicio => ({
-                                  value: servicio.id,
-                                  label: servicio.servicio 
-                                }))}
-                              >                     
-                              </Select>
-                            </div>
-                          </div>
+                          {/* Selector de Tags */}
+
+                          <Row gutter={[16, 16]} >
+                            <Col xxl={12} xl={12} md={12}>
+                              <div className="form-row mb-4">
+                                <div className="form-group col-md-12">
+                                  <label htmlFor="tags">Servicios Realizados</label>
+                                  <Select
+                                    showSearch
+                                    value={null}
+                                    style={{
+                                      width: '100%', color: 'transparent',
+                                      background: 'white !important'
+                                    }}
+                                    onChange={(value, val) => {
+                                      setFieldValue('servicios_realizados_historias_clinicas', value);
+
+                                      if (!serviciosRealizados.find(servicio => servicio.value == value)) {
+                                        serviciosRealizados.push(val)
+                                        setServiciosRealizados([...serviciosRealizados])
+                                      }
+                                    }}
+                                    options={servicios.map(servicio => ({
+                                      value: servicio.id,
+                                      label: servicio.codigo + " | " + servicio.servicio
+                                    }))}
+                                  >
+                                  </Select>
+                                  <div
+                                    style={{
+                                      display: 'ruby',
+                                      marginTop: '10px',
+                                      marginBottom: '10px'
+                                    }}
+                                    onClick={() => {
+                                    }}
+                                  >
+                                    {
+                                      serviciosRealizados.map((servicio) => {
+                                        return (
+                                          <div
+                                            style={{
+                                              color: 'black',
+                                              background: 'white',
+                                              border: '1px solid gray',
+                                              paddingTop: '5px',
+                                              paddingBottom: '5px',
+                                              paddingLeft: '10px',
+                                              paddingRight: '10px',
+                                              borderRadius: '20px',
+                                              display: 'flex',
+                                              marginRight: '5px',
+                                              marginTop: '5px'
+                                            }}
+                                          >
+                                            {servicio.label}
+                                            <div
+                                              style={{
+                                                marginLeft: '5px',
+                                                cursor: 'pointer'
+                                              }}
+                                              onClick={() => {
+                                                setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                              }}
+                                            >
+                                              <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                            </div>
+                                          </div>
+                                        )
+                                      })
+                                    }
+
+                                  </div>
+                                </div>
+                              </div>
+                            </Col>
+
+                            <Col xxl={12} xl={12} md={12}>
+                              <div className="form-row mb-4">
+                                <div className="form-group col-md-12">
+                                  <label htmlFor="tags">Proximos Servicios</label>
+                                  <Select
+                                    showSearch
+                                    value={null}
+                                    style={{
+                                      width: '100%', color: 'transparent',
+                                      background: 'white !important'
+                                    }}
+                                    onChange={(value, val) => {
+                                      setFieldValue('servicios_realizados_historias_clinicas', value);
+
+                                      if (!proximosServicios.find(servicio => servicio.value == value)) {
+                                        proximosServicios.push(val)
+                                        setProximosServicios([...proximosServicios])
+                                      }
+                                    }}
+                                    options={servicios.map(servicio => ({
+                                      value: servicio.id,
+                                      label: servicio.codigo + " | " + servicio.servicio
+                                    }))}
+                                  >
+                                  </Select>
+                                  <div
+                                    style={{
+                                      display: 'ruby',
+                                      marginTop: '10px',
+                                      marginBottom: '10px'
+                                    }}
+                                    onClick={() => {
+                                    }}
+                                  >
+                                    {
+                                      proximosServicios.map((servicio) => {
+                                        return (
+                                          <div
+                                            style={{
+                                              color: 'black',
+                                              background: 'white',
+                                              border: '1px solid gray',
+                                              paddingTop: '5px',
+                                              paddingBottom: '5px',
+                                              paddingLeft: '10px',
+                                              paddingRight: '10px',
+                                              borderRadius: '20px',
+                                              display: 'flex',
+                                              marginRight: '5px',
+                                              marginTop: '5px'
+                                            }}
+                                          >
+                                            {servicio.label}
+                                            <div
+                                              style={{
+                                                marginLeft: '5px',
+                                                cursor: 'pointer'
+                                              }}
+                                              onClick={() => {
+                                                setProximosServicios([...proximosServicios.filter(serv => serv.value !== servicio.value)])
+                                              }}
+                                            >
+                                              <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                            </div>
+                                          </div>
+                                        )
+                                      })
+                                    }
+
+                                  </div>
+                                </div>
+                              </div>
+                            </Col>
+                          </Row>
+
+
                           <Button
                             className="btn btn-success mt-3"
                             htmlType="submit"

@@ -41,8 +41,8 @@ Route::put('/api/sucursales/{id}', [SucursalesApiController::class, 'updateSucur
 Route::delete('/api/sucursales/{id}', [SucursalesApiController::class, 'deleteSucursal']);
 
 Route::post('/api/register', [LoginApiController::class, 'register']);
-Route::post('/api/login', [LoginApiController::class,'login']);
-Route::post('/api/validar-user', [LoginApiController::class,'validarUser']);
+Route::post('/api/login', [LoginApiController::class, 'login']);
+Route::post('/api/validar-user', [LoginApiController::class, 'validarUser']);
 Route::get('/api/asignar-tokens', [LoginApiController::class, 'asignarTokens']);
 Route::get('/api/delete-tokens', [LoginApiController::class, 'deleteTokens']);
 
