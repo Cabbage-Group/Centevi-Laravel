@@ -131,20 +131,22 @@ const BajaVision = () => {
     fecha_proxima_consulta: '',
   };
 
+  console.log('initialValues:',initialValues.fecha_proxima_consulta)
+
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (selectedPaciente) {
-      const paciente = pacientes.find(p => p.id_paciente === selectedPaciente);
-      if (paciente && paciente.fecha_nacimiento) {
-        const edad = calculateAge(paciente.fecha_nacimiento);
-        setFieldValue('edad', edad);
-      }
-    }
-  }, [selectedPaciente, pacientes]);
+  // useEffect(() => {
+  //   if (selectedPaciente) {
+  //     const paciente = pacientes.find(p => p.id_paciente === selectedPaciente);
+  //     if (paciente && paciente.fecha_nacimiento) {
+  //       const edad = calculateAge(paciente.fecha_nacimiento);
+  //       setFieldValue('edad', edad);
+  //     }
+  //   }
+  // }, [selectedPaciente, pacientes]);
 
   const calculateAge = (birthDate) => {
     const today = new Date();
@@ -4420,21 +4422,23 @@ const BajaVision = () => {
                               <label htmlFor="inputFehaProxCita">
                                 Fecha de proxima cita
                               </label>
-                              <input
+                              <Field
                                 className="form-control"
-                                id="inputFehaProxCita"
                                 name="fecha_proxima_consulta"
                                 required
                                 type="date"
                               />
                             </div>
                           </div>
-                          <button
+                          <Button
                             className="btn btn-success mt-3"
-                            type="submit"
+                            htmlType="submit"
+                            style={{
+                              display: 'flex'
+                            }}
                           >
                             Guardar Consulta
-                          </button>
+                          </Button>
                           {status === 'loading' && <p>Enviando...</p>}
                           {status === 'failed' && <p>Error: {error}</p>}
                           {status === 'succeeded' && <p>Creado con éxito</p>}

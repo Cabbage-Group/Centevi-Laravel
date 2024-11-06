@@ -12,13 +12,6 @@ import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 
-const tagOptions = [
-  { value: 'tag1', label: 'Tag 1' },
-  { value: 'tag2', label: 'Tag 2' },
-  { value: 'tag3', label: 'Tag 3' },
-  { value: 'tag4', label: 'Tag 4' },
-]
-
 const HistoriaClinica = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,21 +20,8 @@ const HistoriaClinica = () => {
   const { sucursales } = useSelector((state) => state.sucursales);
   const { status, error } = useSelector((state) => state.consultagenerica);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
-  const [tags, setTags] = useState([]);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [proximosServicios, setProximosServicios] = useState([]);
-
-  for (let i = 10; i < 36; i++) {
-    tags.push({
-      value: i,
-      label: i.toString(36) + i,
-    });
-  }
-
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
 
   const initialValues = {
     sucursal: '',
@@ -86,8 +66,6 @@ const HistoriaClinica = () => {
   });
 
   const handlePacienteChange = (e, setFieldValue) => {
-    console.log(e);
-    // const { value } = e.target;
     const value = e;
     setSelectedPaciente(value);
     setFieldValue('paciente', value);

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\RefraccionGeneral;
+use App\Models\ServiciosProximosOptometriaGeneral;
+use App\Models\ServiciosRealizadosOptometriaGeneral;
 use Illuminate\Support\Facades\Validator;
 
 class OptometriaGeneralApiController extends Controller
@@ -19,6 +21,8 @@ class OptometriaGeneralApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_optometria_general' => 'array',
+            'servicios_proximos_optometria_general' => 'array'
             // Otras validaciones aquí...
         ]);
 
@@ -40,6 +44,24 @@ class OptometriaGeneralApiController extends Controller
 
             // Crear el registro
             $refraccionGeneral = RefraccionGeneral::create($datos);
+
+            if (isset($request->servicios_realizados_optometria_general)) {
+                foreach ($request->servicios_realizados_optometria_general as $servicioId) {
+                    ServiciosRealizadosOptometriaGeneral::create([
+                        'optometriageneral_id' => $refraccionGeneral->id_consulta, 
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
+        
+            if (isset($request->servicios_proximos_optometria_general)) {
+                foreach ($request->servicios_proximos_optometria_general as $servicioId) {
+                    ServiciosProximosOptometriaGeneral::create([
+                        'optometriageneral_id' => $refraccionGeneral->id_consulta, 
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,
