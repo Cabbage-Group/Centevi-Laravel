@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BajaVision;
+use App\Models\ServiciosRealizadosBajaVision;
+use App\Models\ServiciosProximosBajaVision;
 use Illuminate\Support\Facades\Validator;
 
 class BajaVisionApiController extends Controller
@@ -19,6 +21,8 @@ class BajaVisionApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_baja_vision' => 'array',
+            'servicios_proximos_baja_vision' => 'array'
             // Otras validaciones aquí...
         ]);
     
@@ -38,6 +42,25 @@ class BajaVisionApiController extends Controller
             $datos['fecha_creacion'] = now();
 
             $bajaVision = BajaVision::create($datos);
+
+            if (isset($request->servicios_realizados_baja_vision)) {
+                foreach ($request->servicios_realizados_baja_vision as $servicioId) {
+                    ServiciosRealizadosBajaVision::create([
+                        'bajavision_id' => $bajaVision->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
+        
+            if (isset($request->servicios_proximos_baja_vision)) {
+                foreach ($request->servicios_proximos_baja_vision as $servicioId) {
+                    ServiciosProximosBajaVision::create([
+                        'bajavision_id' => $bajaVision->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
+        
 
             return response()->json([
                 'success' => true,
