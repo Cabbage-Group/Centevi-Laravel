@@ -9,14 +9,39 @@ import { Select, Button } from 'antd';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
+import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
+
+
+const tagOptions = [
+  { value: 'tag1', label: 'Tag 1' },
+  { value: 'tag2', label: 'Tag 2' },
+  { value: 'tag3', label: 'Tag 3' },
+  { value: 'tag4', label: 'Tag 4' },
+]
+
 
 const HistoriaClinica = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const { servicios } = useSelector((state) => state.servicios);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { status, error } = useSelector((state) => state.consultagenerica);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [tags, setTags] = useState([]);
+
+  for (let i = 10; i < 36; i++) {
+    tags.push({
+      value: i,
+      label: i.toString(36) + i,
+    });
+  }
+
+  const handleChange = (value) => {
+    console.log(`selected ${value}`);
+  };
+
+
   const initialValues = {
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -30,12 +55,16 @@ const HistoriaClinica = () => {
     fecha_proxima_consulta: '',
     hubo_contacto: false,
     se_agendo: false,
+    servicios_realizados_historias_clinicas: []
   };
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchServicios())
   }, [dispatch]);
+
+  console.log('servicios:',servicios)
 
   const calculateAge = (birthDate) => {
     const today = new Date();
@@ -67,6 +96,10 @@ const HistoriaClinica = () => {
       setFieldValue('edad', edad);
     }
   };
+
+
+
+
   return (
     <div className="row layout-top-spacing">
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
@@ -100,7 +133,10 @@ const HistoriaClinica = () => {
 
                         setSubmitting(true);
                         console.log('Form values:', values);
-                        const rpta = await dispatch(crearHistoriaClinica(values));
+                        const historiaClinicaData = {
+                          ...values
+                        };
+                        const rpta = await dispatch(crearHistoriaClinica(historiaClinicaData));
                         setSubmitting(false);
 
                         Swal.fire({
@@ -220,6 +256,22 @@ const HistoriaClinica = () => {
                                 required
                                 type="date"
                               />
+                            </div>
+                          </div>
+                           {/* Selector de Tags */}
+                           <div className="form-row mb-4">
+                            <div className="form-group col-md-12">
+                              <label htmlFor="tags">Tags</label>
+                              <Select
+                                mode="multiple"
+                                style={{ width: '100%' }}
+                                onChange={(value) => setFieldValue('servicios_realizados_historias_clinicas', value)} 
+                                options={servicios.map(servicio => ({
+                                  value: servicio.id,
+                                  label: servicio.servicio 
+                                }))}
+                              >                     
+                              </Select>
                             </div>
                           </div>
                           <Button

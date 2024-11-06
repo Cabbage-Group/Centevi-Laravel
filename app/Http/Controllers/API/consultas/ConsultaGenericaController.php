@@ -5,48 +5,75 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ConsultaGenerica;
+use App\Models\ServiciosRealizadosHistoriasClinicas;
+use App\Models\ServiciosProximosHistoriasClinicas;
 use Illuminate\Support\Facades\Validator;
+
 
 class ConsultaGenericaController extends Controller
 {
     public function CrearConsultaGenerica(Request $request)
-    {
-        // Validaciones necesarias
-        $validator = Validator::make($request->all(), [
-            'sucursal' => 'required|integer|max:255',
-            'doctor' => 'required|string|max:255',
-            'paciente' => 'required|integer',
-            'id_terapia' => 'required|integer',
-            'edad' => 'required|integer',
-            'fecha_atencion' => 'required|date',
-            'm_c' => 'required|string',
-            // Otras validaciones aquí...
-        ]);
+{
+    // Validaciones necesarias
+    $validator = Validator::make($request->all(), [
+        'sucursal' => 'required|integer|max:255',
+        'doctor' => 'required|string|max:255',
+        'paciente' => 'required|integer',
+        'id_terapia' => 'required|integer',
+        'edad' => 'required|integer',
+        'fecha_atencion' => 'required|date',
+        'm_c' => 'required|string',
+        'servicios_realizados_historias_clinicas' => 'array',
+        'servicios_proximos_historias_clinicas' => 'array'
+        // Otras validaciones aquí...
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error de validación',
-                'errors' => $validator->errors(),
-            ], 400);
-        }
-
-        // Convertir campos nulos en vacíos
-        $datos = array_map(function ($value) {
-            return $value === null ? '' : $value;
-        }, $request->all());
-
-        $datos['fecha_creacion'] = now(); // Establecer la fecha actual
-
-        // Crear el registro
-        $consultaGenerica = ConsultaGenerica::create($datos);
-
+    if ($validator->fails()) {
         return response()->json([
-            'success' => true,
-            'message' => 'Registro creado exitosamente',
-            'data' => $consultaGenerica,
-        ], 201);
+            'success' => false,
+            'message' => 'Error de validación',
+            'errors' => $validator->errors(),
+        ], 400);
     }
+
+    // Convertir campos nulos en vacíos
+    $datos = array_map(function ($value) {
+        return $value === null ? '' : $value;
+    }, $request->all());
+
+    // Establecer la fecha de creación
+    $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+
+    // Crear el registro de la consulta
+    $consultaGenerica = ConsultaGenerica::create($datos);
+
+    // Verificar si servicios_realizados_historias_clinicas existe y tiene elementos
+    if (isset($request->servicios_realizados_historias_clinicas)) {
+        foreach ($request->servicios_realizados_historias_clinicas as $servicioId) {
+            ServiciosRealizadosHistoriasClinicas::create([
+                'historiaclinica_id' => $consultaGenerica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                'servicios_id' => $servicioId,
+            ]);
+        }
+    }
+
+    if (isset($request->servicios_proximos_historias_clinicas)) {
+        foreach ($request->servicios_proximos_historias_clinicas as $servicioId) {
+            ServiciosProximosHistoriasClinicas::create([
+                'historiaclinica_id' => $consultaGenerica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                'servicios_id' => $servicioId,
+            ]);
+        }
+    }
+
+    // Retornar la respuesta
+    return response()->json([
+        'success' => true,
+        'message' => 'Registro creado exitosamente',
+        'data' => $consultaGenerica,
+    ], 201);
+}
+
 
 
 
