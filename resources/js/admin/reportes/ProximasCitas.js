@@ -8,8 +8,9 @@ import ExportButton from './exportButton';
 import { transformDataForProximasCitas } from '../../../utils/dataTransform';
 import { BookTwoTone } from '@ant-design/icons';
 import Swal from 'sweetalert2';
-import { Button, Col, Divider, Input, Modal, Row } from 'antd';
+import { Button, Col, Divider, Input, Modal, Row, List } from 'antd';
 import moment from 'moment';
+import { fetchServicios } from '../../redux/features/servicios/serviciosSlice';
 
 const ProximasCitas = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ const ProximasCitas = () => {
 
   const nombreUsuario = localStorage.getItem('nombre');
   const [showNotaContacto, setShowNotaContacto] = useState(false);
+  const [showServicios, setShowServicios] = useState(false);
+  const { servicios } = useSelector((state) => state.servicios);
   const [filaSeleccionada, setfilaSeleccionada] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
@@ -38,7 +41,6 @@ const ProximasCitas = () => {
   const [txtNotas, setTxtNotas] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
-  console.log('proximasCitas:',proximasCitas)
   useEffect(() => {
     dispatch(fetchPacientes({}));
   }, []);
@@ -52,12 +54,14 @@ const ProximasCitas = () => {
       startDate,
       endDate,
       search: localSearch,
-      
+
     };
     dispatch(fetchProximasCitas(fetchParams));
+    dispatch(fetchServicios());
   }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
 
-
+  console.log('fetchServicios:', servicios)
+  console.log('proximasCitas:', proximasCitas)
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
   };
@@ -79,6 +83,25 @@ const ProximasCitas = () => {
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
   };
+
+  const serviciosMap = servicios.reduce((acc, servicio) => {
+    acc[servicio.id] = servicio.servicio;
+    return acc;
+  }, {});
+
+  const proximosServicios = filaSeleccionada?.PROXIMOS_SERVICIOS_ID
+    ? filaSeleccionada.PROXIMOS_SERVICIOS_ID
+      .split(',') // Separa los IDs por coma
+      .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
+      .filter(Boolean) // Filtra valores undefined o null
+    : [];
+
+  const realizadosServicios = filaSeleccionada?.REALIZADOS_SERVICIOS_ID
+    ? filaSeleccionada.REALIZADOS_SERVICIOS_ID
+      .split(',') // Separa los IDs por coma
+      .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
+      .filter(Boolean) // Filtra valores undefined o null
+    : [];
 
   const handleContactoClick = (proximaCita) => {
 
@@ -482,6 +505,15 @@ const ProximasCitas = () => {
                             >
                               Nota Contacto
                             </th>
+                            <th
+                              aria-controls="zero-config"
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '100px' }}
+                              tabIndex="0"
+                            >
+                              Servicios
+                            </th>
                             {/* <th
                               aria-controls="zero-config"
                               colSpan="1"
@@ -534,6 +566,20 @@ const ProximasCitas = () => {
                               >
                                 <BookTwoTone />
                               </td>
+                              <td
+                                style={{
+                                  textAlign: "center",
+                                  fontSize: "20px",
+                                  cursor: 'pointer'
+                                }}
+                                onClick={() => {
+                                  setTxtNotas('Servicios')
+                                  setfilaSeleccionada(proximaCita)
+                                  setShowServicios(!showServicios)
+                                }}
+                              >
+                                <BookTwoTone />
+                              </td>
                               {/* <td
                                 onClick={() => handleAgendadoClick(proximaCita)}
                                 style={{ cursor: 'pointer' }}
@@ -559,6 +605,43 @@ const ProximasCitas = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Servicios"
+        open={showServicios}
+        onOk={() => setShowServicios(!showServicios)}
+        onCancel={() => setShowServicios(!showServicios)}
+      >
+        <Row gutter={[16, 16]}>
+          <Col span={12}>
+            <div style={{ marginBottom: '20px' }}>
+              <div><b>Próximos Servicios</b></div>
+              <List
+                size="small"
+                bordered
+                dataSource={proximosServicios}
+                renderItem={(item) => <List.Item>{item}</List.Item>}
+                locale={{
+                  emptyText: 'No hay servicios',
+                }}
+              />
+            </div>
+          </Col>
+          <Col span={12}> 
+            <div>
+              <div><b>Servicios Realizados</b></div>
+              <List
+                size="small"
+                bordered
+                dataSource={realizadosServicios}
+                renderItem={(item) => <List.Item>{item}</List.Item>}
+                locale={{
+                  emptyText: 'No hay servicios',
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
+      </Modal>
       <Modal
         title="Agregar Nota del Conctacto"
         open={showNotaContacto}
