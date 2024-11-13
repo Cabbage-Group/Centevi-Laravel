@@ -5,18 +5,24 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { crearGeneral } from '../../redux/features/consultas/OptomotriaGeneralSlice.js';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Select, Button } from 'antd';
+import { Select, Button, Row, Col } from 'antd';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
+import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
+import { CloseCircleTwoTone } from '@ant-design/icons';
+
 
 const OptometriaGeneral = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const { servicios } = useSelector((state) => state.servicios);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { status, error } = useSelector((state) => state.optometriaGeneral);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [proximosServicios, setProximosServicios] = useState([]);
   const initialValues = {
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -152,6 +158,7 @@ const OptometriaGeneral = () => {
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchServicios())
   }, [dispatch]);
 
   const calculateAge = (birthDate) => {
@@ -637,7 +644,7 @@ const OptometriaGeneral = () => {
                                 </table>
                               </div>
                             </div>
-                            
+
                             <div className="form-row mb-4">
                               <div className="form-group col-md-3">
                                 <label htmlFor="objetivos">
@@ -1208,10 +1215,165 @@ const OptometriaGeneral = () => {
                                 />
                               </div>
                             </div>
+
+                            {/* Selector de Tags */}
+
+                            <Row gutter={[16, 16]} >
+                              <Col xxl={12} xl={12} md={12}>
+                                <div className="form-row mb-4">
+                                  <div className="form-group col-md-12">
+                                    <label htmlFor="tags">Servicios Realizados</label>
+                                    <Select
+                                      showSearch
+                                      value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        if (!serviciosRealizados.find(servicio => servicio.value === value)) {
+                                          const newServicios = [...serviciosRealizados, val];
+                                          setServiciosRealizados(newServicios);
+                                          setFieldValue('servicios_realizados_optometria_general', newServicios.map(s => s.value));
+                                        }
+                                      }}
+                                      options={servicios.map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo + " | " + servicio.servicio
+                                      }))}
+                                    >
+                                    </Select>
+                                    <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        serviciosRealizados.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  const newServicios = serviciosRealizados.filter(serv => serv.value !== servicio.value);
+                                                  setServiciosRealizados(newServicios);
+                                                  setFieldValue('servicios_realizados_optometria_general', newServicios.map(s => s.value));
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </Col>
+
+                              <Col xxl={12} xl={12} md={12}>
+                                <div className="form-row mb-4">
+                                  <div className="form-group col-md-12">
+                                    <label htmlFor="tags">Proximos Servicios</label>
+                                    <Select
+                                      showSearch
+                                      value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        if (!proximosServicios.find(servicio => servicio.value == value)) {
+                                          const newServicios = [...proximosServicios, val];
+                                          setProximosServicios(newServicios)
+                                          setFieldValue('servicios_proximos_optometria_general', newServicios.map(s => s.value));
+                                        }
+                                      }}
+                                      options={servicios.map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo + " | " + servicio.servicio
+                                      }))}
+                                    >
+                                    </Select>
+                                    <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        proximosServicios.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
+                                                  setProximosServicios(newServicios)
+                                                  setFieldValue('servicios_proximos_optometria_general', newServicios.map(s => s.value));
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </Col>
+                            </Row>
+
+
                             <Button
                               className="btn btn-success mt-3"
                               htmlType="submit"
-
                               loading={isSubmitting}
                               disabled={isSubmitting}
                               style={{

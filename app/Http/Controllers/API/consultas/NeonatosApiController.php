@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\OptometriaNeonatos;
+use App\Models\ServiciosRealizadosOptometriaNeonatos;
+use App\Models\ServiciosProximosOptometriaNeonatos;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -20,6 +22,8 @@ class NeonatosApiController extends Controller
       'id_terapia' => 'required|integer',
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
+      'servicios_realizados_optometria_neonatos' => 'array',
+      'servicios_proximos_optometria_neonatos' => 'array' 
       // Añadir validaciones para los demás campos necesarios
     ]);
 
@@ -33,6 +37,24 @@ class NeonatosApiController extends Controller
 
       // Crear el registro
       $neonato = OptometriaNeonatos::create($datos);
+
+      if (isset($request->servicios_realizados_optometria_neonatos)) {
+        foreach ($request->servicios_realizados_optometria_neonatos as $servicioId) {
+            ServiciosRealizadosOptometriaNeonatos::create([
+                'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                'servicios_id' => $servicioId,
+            ]);
+        }
+    }
+
+    if (isset($request->servicios_proximos_optometria_neonatos)) {
+        foreach ($request->servicios_proximos_optometria_neonatos as $servicioId) {
+            ServiciosProximosOptometriaNeonatos::create([
+                'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                'servicios_id' => $servicioId,
+            ]);
+        }
+    }
 
       return response()->json([
         'success' => true,

@@ -7,7 +7,10 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import ExportButton from './exportButton';
 import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import { BookTwoTone } from '@ant-design/icons';
 import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
+import { Button, Col, Divider, Input, Modal, Row ,List} from 'antd';
+import { fetchServicios } from '../../redux/features/servicios/serviciosSlice';
 
 const PacienteAtendidoDia = ({
   showFilters = true,
@@ -19,6 +22,8 @@ const PacienteAtendidoDia = ({
   const dispatch = useDispatch();
   const { permisos } = useSelector((state) => state.auth);
   const nombreUsuario = localStorage.getItem('nombre');
+  const [filaSeleccionada, setfilaSeleccionada] = useState({});
+  const [txtNotas, setTxtNotas] = useState("");
   const {
     atendidosPorDia,
     status,
@@ -37,11 +42,16 @@ const PacienteAtendidoDia = ({
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const { usuarios } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
+  const [showServicios, setShowServicios] = useState(false);
+  const { servicios } = useSelector((state) => state.servicios);
+  
 
   useEffect(() => {
     // dispatch(fetchPacientes({}));
     dispatch(fetchUsuarios({}))
   }, []);
+
+
 
   useEffect(() => {
     const fetchParams = {
@@ -56,7 +66,10 @@ const PacienteAtendidoDia = ({
     };
 
     dispatch(fetchAtendidosPorDia(fetchParams));
+    dispatch(fetchServicios());
   }, [localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
+
+  console.log('atendidosPorDia:',atendidosPorDia)
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
@@ -87,6 +100,27 @@ const PacienteAtendidoDia = ({
   };
 
   console.log('showFilters', showFilters)
+
+  const serviciosMap = servicios.reduce((acc, servicio) => {
+    acc[servicio.id] = servicio.servicio;
+    return acc;
+  }, {});
+
+  
+  const proximosServicios = filaSeleccionada?.PROXIMOS_SERVICIOS_ID
+    ? filaSeleccionada.PROXIMOS_SERVICIOS_ID
+        .split(',') // Separa los IDs por coma
+        .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
+        .filter(Boolean) // Filtra valores undefined o null
+    : [];
+
+  const realizadosServicios = filaSeleccionada?.REALIZADOS_SERVICIOS_ID
+    ? filaSeleccionada.REALIZADOS_SERVICIOS_ID
+        .split(',') // Separa los IDs por coma
+        .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
+        .filter(Boolean) // Filtra valores undefined o null
+    : [];
+
 
   return (
     <>
@@ -299,7 +333,7 @@ const PacienteAtendidoDia = ({
                                 onClick={() => handleSort('PACIENTE_NOMBRE')}
 
                               >
-                                Nombre del Paciente
+                                Nombre del Paciente2
                               </th>
                               <th
 
@@ -387,6 +421,15 @@ const PacienteAtendidoDia = ({
                               >
                                 Doctor
                               </th>
+                              <th
+                              aria-controls="zero-config"
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '100px' }}
+                              tabIndex="0"
+                            >
+                              Servicios
+                            </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -407,6 +450,20 @@ const PacienteAtendidoDia = ({
                                 <td>{atendidoPorDia.TIPO}</td>
                                 <td>{atendidoPorDia.FECHA_ATENCION}</td>
                                 <td>{atendidoPorDia.DOCTOR}</td>
+                                <td
+                                style={{
+                                  textAlign: "center",
+                                  fontSize: "20px",
+                                  cursor: 'pointer'
+                                }}
+                                onClick={() => {
+                                  setTxtNotas('Servicios')
+                                  setfilaSeleccionada(atendidoPorDia)
+                                  setShowServicios(!showServicios)
+                                }}
+                              >
+                                <BookTwoTone />
+                              </td>
                               </tr>
                             ))}
                           </tbody>
@@ -432,6 +489,44 @@ const PacienteAtendidoDia = ({
           </div>
         </div>
       </div>
+      <Modal
+      title="Servicios"
+      open={showServicios}
+      onOk={() => setShowServicios(!showServicios)}
+      onCancel={() => setShowServicios(!showServicios)}
+    >
+      <Row gutter={[16, 16]} justify="start">
+        <Col span={12}> 
+          <div style={{ marginBottom: '20px' }}>
+            <div><b>Proximos Servicios</b></div>
+            <List
+              size="small"
+              bordered
+              dataSource={proximosServicios}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+              locale={{
+                emptyText: 'No hay servicios', 
+              }}
+            />
+          </div>
+        </Col>
+        <Col span={12}>
+          <div>
+            <div><b>Servicios Realizados</b></div>
+            <List
+              size="small"
+              bordered
+              dataSource={realizadosServicios}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+              locale={{
+                emptyText: 'No hay servicios', 
+              }}
+            />
+          </div>
+        </Col>
+      </Row>
+    </Modal>
+
       {/*  */}
 
 

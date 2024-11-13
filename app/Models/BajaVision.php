@@ -54,6 +54,16 @@ class BajaVision extends Model
         'se_agendo'
     ];
 
+    public function serviciosRealizados()
+    {
+        return $this->hasMany(ServiciosRealizadosBajaVision::class, 'bajavision_id');
+    }
+
+    public function serviciosProximos()
+    {
+        return $this->hasMany(ServiciosProximosBajaVision::class, 'bajavision_id');
+    }
+
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'sucursal' => 'integer',

@@ -5,15 +5,20 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { crearBajaVision } from '../../redux/features/consultas/BajaVisionSlice.js';
 import * as Yup from 'yup';
-import { Select, Button } from 'antd';
+import { Select, Button, Row, Col } from 'antd';
 import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
+import { CloseCircleTwoTone } from '@ant-design/icons';
+import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
 
 const BajaVision = () => {
   const dispatch = useDispatch();
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const { servicios } = useSelector((state) => state.servicios);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { status, error } = useSelector((state) => state.optometriaGeneral);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [proximosServicios, setProximosServicios] = useState([]);
   const initialValues = {
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -134,17 +139,18 @@ const BajaVision = () => {
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchServicios());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (selectedPaciente) {
-      const paciente = pacientes.find(p => p.id_paciente === selectedPaciente);
-      if (paciente && paciente.fecha_nacimiento) {
-        const edad = calculateAge(paciente.fecha_nacimiento);
-        setFieldValue('edad', edad);
-      }
-    }
-  }, [selectedPaciente, pacientes]);
+  // useEffect(() => {
+  //   if (selectedPaciente) {
+  //     const paciente = pacientes.find(p => p.id_paciente === selectedPaciente);
+  //     if (paciente && paciente.fecha_nacimiento) {
+  //       const edad = calculateAge(paciente.fecha_nacimiento);
+  //       setFieldValue('edad', edad);
+  //     }
+  //   }
+  // }, [selectedPaciente, pacientes]);
 
   const calculateAge = (birthDate) => {
     const today = new Date();
@@ -4420,21 +4426,178 @@ const BajaVision = () => {
                               <label htmlFor="inputFehaProxCita">
                                 Fecha de proxima cita
                               </label>
-                              <input
+                              <Field
                                 className="form-control"
-                                id="inputFehaProxCita"
                                 name="fecha_proxima_consulta"
                                 required
                                 type="date"
                               />
                             </div>
                           </div>
-                          <button
+
+                          {/* Selector de Tags */}
+
+                          <Row gutter={[16, 16]} >
+                              <Col xxl={12} xl={12} md={12}>
+                                <div className="form-row mb-4">
+                                  <div className="form-group col-md-12">
+                                    <label htmlFor="tags">Servicios Realizados</label>
+                                    <Select
+                                      showSearch
+                                      value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        if (!serviciosRealizados.find(servicio => servicio.value === value)) {
+                                          const newServicios = [...serviciosRealizados, val];
+                                          setServiciosRealizados(newServicios);
+                                          setFieldValue('servicios_realizados_baja_vision', newServicios.map(s => s.value));
+                                        }
+                                      }}
+                                      options={servicios.map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo + " | " + servicio.servicio
+                                      }))}
+                                    >
+                                    </Select>
+                                    <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        serviciosRealizados.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  const newServicios = serviciosRealizados.filter(serv => serv.value !== servicio.value);
+                                                  setServiciosRealizados(newServicios);
+                                                  setFieldValue('servicios_realizados_baja_vision', newServicios.map(s => s.value));
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </Col>
+
+                              <Col xxl={12} xl={12} md={12}>
+                                <div className="form-row mb-4">
+                                  <div className="form-group col-md-12">
+                                    <label htmlFor="tags">Proximos Servicios</label>
+                                    <Select
+                                      showSearch
+                                      value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        if (!proximosServicios.find(servicio => servicio.value == value)) {
+                                          const newServicios = [...proximosServicios, val];
+                                          setProximosServicios(newServicios)
+                                          setFieldValue('servicios_proximos_baja_vision', newServicios.map(s => s.value));
+                                        }
+                                      }}
+                                      options={servicios.map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo + " | " + servicio.servicio
+                                      }))}
+                                    >
+                                    </Select>
+                                    <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        proximosServicios.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
+                                                  setProximosServicios(newServicios)
+                                                  setFieldValue('servicios_proximos_baja_vision', newServicios.map(s => s.value));
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div>
+                                  </div>
+                                </div>
+                              </Col>
+                            </Row>
+
+                          <Button
                             className="btn btn-success mt-3"
-                            type="submit"
+                            htmlType="submit"
+                            style={{
+                              display: 'flex'
+                            }}
                           >
                             Guardar Consulta
-                          </button>
+                          </Button>
                           {status === 'loading' && <p>Enviando...</p>}
                           {status === 'failed' && <p>Error: {error}</p>}
                           {status === 'succeeded' && <p>Creado con éxito</p>}

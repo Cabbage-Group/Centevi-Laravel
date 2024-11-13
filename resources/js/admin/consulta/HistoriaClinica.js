@@ -12,13 +12,6 @@ import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 
-const tagOptions = [
-  { value: 'tag1', label: 'Tag 1' },
-  { value: 'tag2', label: 'Tag 2' },
-  { value: 'tag3', label: 'Tag 3' },
-  { value: 'tag4', label: 'Tag 4' },
-]
-
 const HistoriaClinica = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,21 +20,8 @@ const HistoriaClinica = () => {
   const { sucursales } = useSelector((state) => state.sucursales);
   const { status, error } = useSelector((state) => state.consultagenerica);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
-  const [tags, setTags] = useState([]);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [proximosServicios, setProximosServicios] = useState([]);
-
-  for (let i = 10; i < 36; i++) {
-    tags.push({
-      value: i,
-      label: i.toString(36) + i,
-    });
-  }
-
-  const handleChange = (value) => {
-    console.log(`selected ${value}`);
-  };
-
 
   const initialValues = {
     sucursal: '',
@@ -56,7 +36,8 @@ const HistoriaClinica = () => {
     fecha_proxima_consulta: '',
     hubo_contacto: false,
     se_agendo: false,
-    servicios_realizados_historias_clinicas: []
+    servicios_realizados_historias_clinicas: [],
+    servicios_proximos_historias_clinicas: []
   };
 
   useEffect(() => {
@@ -85,8 +66,6 @@ const HistoriaClinica = () => {
   });
 
   const handlePacienteChange = (e, setFieldValue) => {
-    console.log(e);
-    // const { value } = e.target;
     const value = e;
     setSelectedPaciente(value);
     setFieldValue('paciente', value);
@@ -274,11 +253,10 @@ const HistoriaClinica = () => {
                                       background: 'white !important'
                                     }}
                                     onChange={(value, val) => {
-                                      setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                      if (!serviciosRealizados.find(servicio => servicio.value == value)) {
-                                        serviciosRealizados.push(val)
-                                        setServiciosRealizados([...serviciosRealizados])
+                                      if (!serviciosRealizados.find(servicio => servicio.value === value)) {
+                                        const newServicios = [...serviciosRealizados, val];
+                                        setServiciosRealizados(newServicios);
+                                        setFieldValue('servicios_realizados_historias_clinicas', newServicios.map(s => s.value));
                                       }
                                     }}
                                     options={servicios.map(servicio => ({
@@ -321,7 +299,9 @@ const HistoriaClinica = () => {
                                                 cursor: 'pointer'
                                               }}
                                               onClick={() => {
-                                                setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                                const newServicios = serviciosRealizados.filter(serv => serv.value !== servicio.value);
+                                                setServiciosRealizados(newServicios);
+                                                setFieldValue('servicios_realizados_historias_clinicas', newServicios.map(s => s.value));
                                               }}
                                             >
                                               <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -340,7 +320,7 @@ const HistoriaClinica = () => {
                               <div className="form-row mb-4">
                                 <div className="form-group col-md-12">
                                   <label htmlFor="tags">Proximos Servicios</label>
-                                  <Select
+                                  <Select                               
                                     showSearch
                                     value={null}
                                     style={{
@@ -348,11 +328,10 @@ const HistoriaClinica = () => {
                                       background: 'white !important'
                                     }}
                                     onChange={(value, val) => {
-                                      setFieldValue('servicios_realizados_historias_clinicas', value);
-
                                       if (!proximosServicios.find(servicio => servicio.value == value)) {
-                                        proximosServicios.push(val)
-                                        setProximosServicios([...proximosServicios])
+                                        const newServicios = [...proximosServicios, val];
+                                        setProximosServicios(newServicios)
+                                        setFieldValue('servicios_proximos_historias_clinicas', newServicios.map(s => s.value));
                                       }
                                     }}
                                     options={servicios.map(servicio => ({
@@ -395,7 +374,9 @@ const HistoriaClinica = () => {
                                                 cursor: 'pointer'
                                               }}
                                               onClick={() => {
-                                                setProximosServicios([...proximosServicios.filter(serv => serv.value !== servicio.value)])
+                                                const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
+                                                setProximosServicios(newServicios)
+                                                setFieldValue('servicios_proximos_historias_clinicas', newServicios.map(s => s.value));
                                               }}
                                             >
                                               <CloseCircleTwoTone twoToneColor="#eb2f96" />

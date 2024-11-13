@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\OptometriaPediatrica;
+use App\Models\ServiciosRealizadosOptometriaPediatrica;
+use App\Models\ServiciosProximosOptometriaPediatrica;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+
 class PediatricaApiController extends Controller
 {
     public function crearPediatrica(Request $request)
@@ -19,6 +21,8 @@ class PediatricaApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_optometria_pediatrica' => 'array',
+            'servicios_proximos_optometria_pediatrica' => 'array'
             // Agrega las reglas para los demás campos...
         ]);
 
@@ -40,6 +44,25 @@ class PediatricaApiController extends Controller
 
             // Crear el registro
             $optometriaPediatrica = OptometriaPediatrica::create($datos);
+
+            
+            if (isset($request->servicios_realizados_optometria_pediatrica)) {
+                foreach ($request->servicios_realizados_optometria_pediatrica as $servicioId) {
+                    ServiciosRealizadosOptometriaPediatrica::create([
+                        'optometriaPediatrica_id' => $optometriaPediatrica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
+        
+            if (isset($request->servicios_proximos_optometria_pediatrica)) {
+                foreach ($request->servicios_proximos_optometria_pediatrica as $servicioId) {
+                    ServiciosProximosOptometriaPediatrica::create([
+                        'optometriaPediatrica_id' => $optometriaPediatrica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,

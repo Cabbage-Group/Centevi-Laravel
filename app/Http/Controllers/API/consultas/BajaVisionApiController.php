@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BajaVision;
+use App\Models\ServiciosRealizadosBajaVision;
+use App\Models\ServiciosProximosBajaVision;
 use Illuminate\Support\Facades\Validator;
 
 class BajaVisionApiController extends Controller
@@ -19,6 +21,8 @@ class BajaVisionApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_baja_vision' => 'array',
+            'servicios_proximos_baja_vision' => 'array'
             // Otras validaciones aquí...
         ]);
     
@@ -29,31 +33,71 @@ class BajaVisionApiController extends Controller
                 'errors' => $validator->errors(),
             ], 400);
         }
-    
-        // Obtener todos los campos de la solicitud
-        $datos = $request->all();
-    
-        // Rellenar campos no enviados con un valor adecuado
-        foreach ($this->getFillable() as $field) {
-            if (!isset($datos[$field])) {
-                if (in_array($field, ['sucursal', 'paciente', 'id_terapia', 'edad'])) {
-                    $datos[$field] = null; // Usa null para campos enteros
-                } else {
-                    $datos[$field] = ''; // Usa string vacío para otros campos
+
+        try {
+            $datos = array_map(function ($value) {
+                return $value === null ? '' : $value;
+            }, $request->all());
+
+            $datos['fecha_creacion'] = now();
+
+            $bajaVision = BajaVision::create($datos);
+
+            if (isset($request->servicios_realizados_baja_vision)) {
+                foreach ($request->servicios_realizados_baja_vision as $servicioId) {
+                    ServiciosRealizadosBajaVision::create([
+                        'bajavision_id' => $bajaVision->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                        'servicios_id' => $servicioId,
+                    ]);
                 }
             }
+        
+            if (isset($request->servicios_proximos_baja_vision)) {
+                foreach ($request->servicios_proximos_baja_vision as $servicioId) {
+                    ServiciosProximosBajaVision::create([
+                        'bajavision_id' => $bajaVision->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
+        
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registro creado exitosamente',
+                'data' => $bajaVision,
+            ], 201);
+
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear el registro',
+                'errors' => $e->getMessage(),
+            ], 500);
         }
     
-        $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+        // Obtener todos los campos de la solicitud
+        // $datos = $request->all();
+
+
     
-        // Crear el registro
-        $bajaVision = BajaVision::create($datos);
+        // // Rellenar campos no enviados con un valor adecuado
+        // foreach ($this->getFillable() as $field) {
+        //     if (!isset($datos[$field])) {
+        //         if (in_array($field, ['sucursal', 'paciente', 'id_terapia', 'edad'])) {
+        //             $datos[$field] = null; // Usa null para campos enteros
+        //         } else {
+        //             $datos[$field] = ''; // Usa string vacío para otros campos
+        //         }
+        //     }
+        // }
     
-        return response()->json([
-            'success' => true,
-            'message' => 'Registro creado exitosamente',
-            'data' => $bajaVision,
-        ], 201);
+        // $datos['fecha_creacion'] = now(); // Establecer la fecha actual
+    
+        // // Crear el registro
+        // $bajaVision = BajaVision::create($datos);
+    
     }
     
 

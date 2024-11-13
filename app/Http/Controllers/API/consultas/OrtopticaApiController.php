@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\ServiciosRealizadosOrtopticaAdultos;
+use App\Models\ServiciosProximosOrtopticaAdultos;
 use App\Models\OrtopticaAdultos;
 
 class OrtopticaApiController extends Controller
@@ -19,6 +21,8 @@ class OrtopticaApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_ortoptica_adultos' => 'array',
+            'servicios_proximos_ortoptica_adultos' => 'array'
             // Otras validaciones aquí...
         ]);
 
@@ -40,6 +44,24 @@ class OrtopticaApiController extends Controller
 
             // Crear el registro
             $ortoptica = OrtopticaAdultos::create($datos);
+
+            if (isset($request->servicios_realizados_ortoptica_adultos)) {
+                foreach ($request->servicios_realizados_ortoptica_adultos as $servicioId) {
+                    ServiciosRealizadosOrtopticaAdultos::create([
+                        'ortopticaAdultos_id' => $ortoptica->id_consulta, 
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
+        
+            if (isset($request->servicios_proximos_ortoptica_adultos)) {
+                foreach ($request->servicios_proximos_ortoptica_adultos as $servicioId) {
+                    ServiciosProximosOrtopticaAdultos::create([
+                        'ortopticaAdultos_id' => $ortoptica->id_consulta, 
+                        'servicios_id' => $servicioId,
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,
