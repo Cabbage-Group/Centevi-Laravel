@@ -7,14 +7,15 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
-import { Col, Input, Row } from 'antd';
+import { Col, Input, Row, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import { CloseCircleTwoTone } from '@ant-design/icons';
 
 const CreateReceta = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { pacientes } = useSelector((state) => state.pacientes);
+  const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const initialValues = {
     id_paciente: "",
@@ -81,6 +82,9 @@ const CreateReceta = () => {
 
   };
 
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
+  const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
@@ -132,10 +136,7 @@ const CreateReceta = () => {
 
                           {({ setFieldValue, values }) => (
                             <Form
-
                             >
-
-
                               <div className="form-row" style={{ marginBottom: "2rem" }}>
 
                                 <div className="col-md-4" >
@@ -177,7 +178,29 @@ const CreateReceta = () => {
 
                                 <div className="form-group col-md-4" >
                                   <label htmlFor="pacientes">Pacientes</label>
-                                  <Field
+                                  <Select
+                                    showSearch
+                                    placeholder="Seleccione el paciente"
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
+                                    options={pacientes_options_selecteds}
+                                    style={{
+                                      width: "100%",
+                                      height: "48px",
+                                      color: "black",
+                                      fontWeight: "bold",
+                                    }}
+                                    onChange={(e) => {
+                                      // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
+                                      // setFieldValue('paciente', e.target.value);
+                                      // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
+                                    }}
+                                  />
+                                  {/* <Field
                                     as="select"
                                     name="id_paciente"
                                     className="form-control"
@@ -194,7 +217,7 @@ const CreateReceta = () => {
                                         Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
                                       </option>
                                     ))}
-                                  </Field>
+                                  </Field> */}
                                   <ErrorMessage name="id_paciente" component="div" className="text-danger" />
 
                                 </div>
@@ -465,10 +488,254 @@ const CreateReceta = () => {
                                 style={{
                                   border: '2px solid blue',
                                   borderRadius: '25px',
-                                  marginTop: '-20px'
+                                  marginTop: '-20px',
+                                  padding: '15px'
+                                  // background: 'red'
                                 }}
                               >
-                                <div className="row p-1">
+                                <Row gutter={[16, 16]}>
+                                  <Col xxl={8} xl={8} md={8}>
+                                    <h6 className="text-center p-2">
+                                      TIPO DE LENTE:
+                                    </h6>
+
+                                    <Select
+                                      showSearch
+                                      // value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+
+                                        if (!serviciosRealizados.find(servicio => servicio.id == value)) {
+                                          serviciosRealizados.push(val)
+                                          setServiciosRealizados([...serviciosRealizados])
+                                        }
+                                      }}
+                                      options={[
+                                        { id: 1, codigo: "Monofocal" },
+                                        { id: 2, codigo: "Bifocal" },
+                                        { id: 3, codigo: "Interview" },
+                                        { id: 4, codigo: "Antifatigue" },
+                                        { id: 5, codigo: "Progresivo" },
+                                      ].map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo
+                                      }))}
+                                    >
+                                    </Select>
+                                    {/* <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        serviciosRealizados.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div> */}
+                                  </Col>
+                                  <Col xxl={8} xl={8} md={8}>
+                                    <h6 className="text-center p-2">
+                                      MATERIAL:
+                                    </h6>
+
+                                    <Select
+                                      showSearch
+                                      // value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+
+                                        if (!materialesSeleccionados.find(servicio => servicio.id == value)) {
+                                          materialesSeleccionados.push(val)
+                                          setMaterialesSeleccionados([...materialesSeleccionados])
+                                        }
+                                      }}
+                                      options={[
+                                        { id: 1, codigo: "CR-39" },
+                                        { id: 2, codigo: "Policarbonato" },
+                                        { id: 3, codigo: "THIN & LITE" },
+                                        { id: 4, codigo: "SUPER THIN & LITE" },
+                                        { id: 5, codigo: "DRIVEWEAR" },
+                                        { id: 6, codigo: "POLIRIZADO" },
+                                        { id: 7, codigo: "POLICOLOR" },
+                                      ].map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo
+                                      }))}
+                                    >
+                                    </Select>
+                                    {/* <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        materialesSeleccionados.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div> */}
+                                  </Col>
+                                  <Col xxl={8} xl={8} md={8}>
+                                    <h6 className="text-center p-2">
+                                      TRATAMIENTOS Y FILTROS:
+                                    </h6>
+                                    <Select
+                                      showSearch
+                                      // value={null}
+                                      style={{
+                                        width: '100%', color: 'transparent',
+                                        background: 'white !important'
+                                      }}
+                                      onChange={(value, val) => {
+                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+
+                                        if (!tratamientosFiltros.find(servicio => servicio.id == value)) {
+                                          tratamientosFiltros.push(val)
+                                          setTratamientosFiltros([...tratamientosFiltros])
+                                        }
+                                      }}
+                                      options={[
+                                        { id: 1, codigo: "Transitions" },
+                                        { id: 2, codigo: "Antireflejo" },
+                                        { id: 3, codigo: "Espejado" },
+                                        { id: 4, codigo: "Degradante" },
+                                        { id: 5, codigo: "Color" },
+                                        { id: 6, codigo: "Fotocramático" },
+                                        { id: 7, codigo: "UV" },
+                                        { id: 8, codigo: "Tinte" },
+                                        { id: 9, codigo: "Uniforme" },
+                                        { id: 10, codigo: "Intensidad" },
+                                      ].map(servicio => ({
+                                        value: servicio.id,
+                                        label: servicio.codigo
+                                      }))}
+                                    >
+                                    </Select>
+                                    {/* <div
+                                      style={{
+                                        display: 'ruby',
+                                        marginTop: '10px',
+                                        marginBottom: '10px'
+                                      }}
+                                      onClick={() => {
+                                      }}
+                                    >
+                                      {
+                                        tratamientosFiltros.map((servicio) => {
+                                          return (
+                                            <div
+                                              style={{
+                                                color: 'black',
+                                                background: 'white',
+                                                border: '1px solid gray',
+                                                paddingTop: '5px',
+                                                paddingBottom: '5px',
+                                                paddingLeft: '10px',
+                                                paddingRight: '10px',
+                                                borderRadius: '20px',
+                                                display: 'flex',
+                                                marginRight: '5px',
+                                                marginTop: '5px'
+                                              }}
+                                            >
+                                              {servicio.label}
+                                              <div
+                                                style={{
+                                                  marginLeft: '5px',
+                                                  cursor: 'pointer'
+                                                }}
+                                                onClick={() => {
+                                                  setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
+                                                }}
+                                              >
+                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                              </div>
+                                            </div>
+                                          )
+                                        })
+                                      }
+
+                                    </div> */}
+                                  </Col>
+                                </Row>
+                                {/* <div className="row p-1">
                                   <div className="col-md-2">
                                     <h6 className="text-center p-2">
                                       TIPO DE LENTE:
@@ -544,10 +811,10 @@ const CreateReceta = () => {
                                       </label>
                                     </div>
                                   </div>
-                                </div>
+                                </div> */}
                               </div>
 
-                              <div
+                              {/* <div
                                 className="p-2"
                                 style={{
                                   border: '2px solid blue',
@@ -682,10 +949,10 @@ const CreateReceta = () => {
                                   </div>
 
                                 </div>
-                              </div>
+                              </div> */}
 
                               {/*  */}
-                              <div
+                              {/* <div
                                 style={{
                                   border: '2px solid blue',
                                   borderRadius: '25px',
@@ -768,15 +1035,7 @@ const CreateReceta = () => {
 
                                   <div className="col-md-2">
                                     <div className="n-chk">
-                                      {/* <label className="new-control new-checkbox checkbox-outline-success">
-                                        <Field
-                                          className="new-control-input"
-                                          value="fotocromatico"
-                                          name="tratamientos.fotocromatico_t"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                      </label> */}
+
                                       <div
                                         style={{
                                           color: 'black'
@@ -792,42 +1051,7 @@ const CreateReceta = () => {
                                       </div>
                                     </div>
                                   </div>
-                                  {/* <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="filtro_a"
-                                          name="tratamientos.filtro_a"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Filtro de luz azul
-                                      </label>
-                                    </div>
-                                  </div> */}
-                                  {/* <div className="col-md-2">
-                                    <label htmlFor="inputEmail4">
-                                      Gris
-                                    </label>
-                                    <Field
-                                      className="form-control"
-                                      name="tratamientos.gris_t"
 
-                                      type="text"
-                                    />
-                                  </div>
-                                  <div className="col-md-2">
-                                    <label htmlFor="inputEmail4">
-                                      Cafe
-                                    </label>
-                                    <Field
-                                      className="form-control"
-                                      name="tratamientos.cafe_t"
-
-                                      type="text"
-                                    />
-                                  </div> */}
                                 </div>
                                 <div className="row p-2">
                                   <div className="col-md-2">
@@ -909,16 +1133,7 @@ const CreateReceta = () => {
 
                                   <div className="col-md-2">
                                     <div className="n-chk">
-                                      {/* <label className="new-control new-checkbox checkbox-outline-success">
-                                        <Field
-                                          className="new-control-input"
-                                          value="fotocromatico"
-                                          name="tratamientos.fotocromatico_t"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                      </label> */}
-                                      {/* <label className="new-control"> */}
+
                                       <div
                                         style={{
                                           color: 'black'
@@ -926,8 +1141,6 @@ const CreateReceta = () => {
                                       >
                                         Intensidad
                                       </div>
-
-                                      {/* </label> */}
 
                                       <div>
                                         <span>
@@ -941,32 +1154,8 @@ const CreateReceta = () => {
                                 </div>
                                 <div className="row p-2">
 
-
-
-                                  {/* <div className="col-md-2">
-                                    <label htmlFor="inputEmail4">
-                                      Color
-                                    </label>
-                                    <Field
-                                      className="form-control"
-                                      name="tratamientos.color_t"
-
-                                      type="text"
-                                    />
-                                  </div> */}
-                                  {/* <div className="col-md-2">
-                                    <label htmlFor="inputEmail4">
-                                      Intensidad
-                                    </label>
-                                    <Field
-                                      className="form-control"
-                                      name="tratamientos.intensidad_t"
-
-                                      type="text"
-                                    />
-                                  </div> */}
                                 </div>
-                              </div>
+                              </div> */}
                               {/*  */}
 
                               {/*  */}
@@ -983,7 +1172,7 @@ const CreateReceta = () => {
                                 <Row
                                   gutter={[16, 16]}
                                 >
-                                  <Col 
+                                  <Col
                                     xxl={14} xl={14} md={14}
                                     style={{
                                       alignContent: 'center'
@@ -1177,15 +1366,36 @@ const CreateReceta = () => {
                                                 <div
                                                 >
                                                   <b>DOCTOR:</b>
-                                                  <Input />
+                                                  <Select
+                                                    showSearch
+                                                    placeholder="Seleccione el doctor"
+                                                    filterOption={(input, option) => {
+                                                      const searchTerms = input.toLowerCase().split(' ');
+                                                      return searchTerms.every(term =>
+                                                        (option?.label ?? '').toLowerCase().includes(term)
+                                                      );
+                                                    }}
+                                                    options={pacientes_options_selecteds}
+                                                    style={{
+                                                      width: "100%",
+                                                      height: "48px",
+                                                      color: "black",
+                                                      fontWeight: "bold",
+                                                    }}
+                                                    onChange={(e) => { }}
+                                                  />
+                                                  {/* <Input /> */}
                                                 </div>
                                               </Col>
 
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
+                                                  style={{
+                                                    marginTop: '10px'
+                                                  }}
                                                 >
                                                   <b>ELABORADO POR</b>
-                                                  <Input />
+                                                  <Input disabled />
                                                 </div>
                                               </Col>
                                             </Row>
