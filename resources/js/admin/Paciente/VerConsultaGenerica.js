@@ -4,6 +4,8 @@ import { useParams, Link } from 'react-router-dom';
 import { fetchVerConsultaGenerica } from '../../redux/features/pacientes/VerConsultaGenericaSlice.js';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
+import { Select, Button, Row, Col } from 'antd';
+
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -34,6 +36,8 @@ const VerConsultaGenerica = () => {
       dispatch(fetchPacientes({ page: 1, limit: 10000 }));
     }
   }, [dispatch, id, id_consulta]);
+
+  console.log('consultagenerica:', consultagenerica)
 
   return (
     <div
@@ -172,23 +176,128 @@ const VerConsultaGenerica = () => {
                               rows="25"
                             />
                           </div>
-                          <div className="form-group col-md-">
+                          <div className="form-group col-md-12">
                             <label htmlFor="inputAddress">
                               Fecha de proxima cita
                             </label>
                             <input
                               className="form-control"
                               value={
-                                consultagenerica 
-                                ? formatToDateDisplay(consultagenerica.fecha_proxima_consulta) 
-                                : ''
+                                consultagenerica
+                                  ? formatToDateDisplay(consultagenerica.fecha_proxima_consulta)
+                                  : ''
                               }
                               disabled
                               name="fecha_proxima_consulta"
                               type="text"
                             />
                           </div>
+
+
                         </div>
+                        <Row gutter={[16, 16]} >
+
+                          <Col xxl={12} xl={12} md={12}>
+                            <div className="form-row mb-4">
+                              <div className="form-group col-md-12">
+                                <label htmlFor="tags">Servicios Realizados</label>
+                                <Select
+                                  disabled
+                                  value={null}
+                                  style={{
+                                    width: '100%',
+                                    color: 'transparent',
+                                    background: 'white !important'
+                                  }}
+                                >
+                                </Select>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    marginTop: '10px',
+                                    marginBottom: '10px'
+                                  }}
+                                >
+                                  {consultagenerica && consultagenerica.servicios_realizados ? (
+                                    consultagenerica.servicios_realizados.map((servicio, index) => (
+                                      <div
+                                        key={index}
+                                        style={{
+                                          color: 'black',
+                                          background: 'white',
+                                          border: '1px solid gray',
+                                          paddingTop: '5px',
+                                          paddingBottom: '5px',
+                                          paddingLeft: '10px',
+                                          paddingRight: '10px',
+                                          borderRadius: '20px',
+                                          marginRight: '5px',
+                                          marginTop: '5px'
+                                        }}
+                                      >
+                                        {servicio.servicio.codigo + " | " + servicio.servicio.servicio}
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <p>No hay servicios Realizados disponibles</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col xxl={12} xl={12} md={12}>
+                            <div className="form-row mb-4">
+                              <div className="form-group col-md-12">
+                                <label htmlFor="tags">Próximos Servicios</label>
+                                <Select
+                                  disabled
+                                  value={null}
+                                  style={{
+                                    width: '100%',
+                                    color: 'transparent',
+                                    background: 'white !important'
+                                  }}
+                                >
+                                </Select>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    marginTop: '10px',
+                                    marginBottom: '10px'
+                                  }}
+                                >
+                                  {consultagenerica && consultagenerica.servicios_proximos ? (
+                                    consultagenerica.servicios_proximos.map((servicio, index) => (
+                                      <div
+                                        key={index}
+                                        style={{
+                                          color: 'black',
+                                          background: 'white',
+                                          border: '1px solid gray',
+                                          paddingTop: '5px',
+                                          paddingBottom: '5px',
+                                          paddingLeft: '10px',
+                                          paddingRight: '10px',
+                                          borderRadius: '20px',
+                                          marginRight: '5px',
+                                          marginTop: '5px'
+                                        }}
+                                      >
+
+                                        {servicio.servicio.codigo + " | " + servicio.servicio.servicio}
+                                      </div>
+
+                                    ))
+                                  ) : (
+                                    <p>No hay servicios próximos disponibles</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </Col>
+                        </Row>
                       </div>
                     </div>
                   </div>

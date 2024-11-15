@@ -375,8 +375,11 @@ const HistoriaClinica = () => {
                                               }}
                                               onClick={() => {
                                                 const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
+                                                console.log('Filtros aplicados:', newServicios);
                                                 setProximosServicios(newServicios)
                                                 setFieldValue('servicios_proximos_historias_clinicas', newServicios.map(s => s.value));
+                                                console.log('proximosServicios:',proximosServicios)
+                                                console.log('newServicios después del filtro:', newServicios);
                                               }}
                                             >
                                               <CloseCircleTwoTone twoToneColor="#eb2f96" />

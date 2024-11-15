@@ -100,6 +100,8 @@ class ConsultaGenericaController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_historias_clinicas' => 'array',
+            'servicios_proximos_historias_clinicas' => 'array'
             // Otras validaciones aquí...
         ]);
 
@@ -123,6 +125,32 @@ class ConsultaGenericaController extends Controller
 
         // Actualizar el registro con los datos procesados
         $consultaGenerica->update($datos);
+
+        if ($request->has('servicios_realizados_historias_clinicas')) {
+            // Eliminar los servicios realizados existentes
+            ServiciosRealizadosHistoriasClinicas::where('historiaclinica_id', $consultaGenerica->id_consulta)->delete();
+    
+            // Insertar los nuevos servicios realizados
+            foreach ($request->servicios_realizados_historias_clinicas as $servicioId) {
+                ServiciosRealizadosHistoriasClinicas::create([
+                    'historiaclinica_id' => $consultaGenerica->id_consulta,
+                    'servicios_id' => $servicioId,
+                ]);
+            }
+        }
+
+        if ($request->has('servicios_proximos_historias_clinicas')) {
+            // Eliminar los servicios próximos existentes
+            ServiciosProximosHistoriasClinicas::where('historiaclinica_id', $consultaGenerica->id_consulta)->delete();
+    
+            // Insertar los nuevos servicios próximos
+            foreach ($request->servicios_proximos_historias_clinicas as $servicioId) {
+                ServiciosProximosHistoriasClinicas::create([
+                    'historiaclinica_id' => $consultaGenerica->id_consulta,
+                    'servicios_id' => $servicioId,
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -179,6 +207,8 @@ class ConsultaGenericaController extends Controller
         // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
         $ortoptica = ConsultaGenerica::where('paciente', $id)
             ->where('id_consulta', $id_consulta)
+            ->with('serviciosProximos.servicio') 
+            ->with('serviciosRealizados.servicio') 
             ->first();
 
         // Verificar si el registro existe
@@ -190,6 +220,7 @@ class ConsultaGenericaController extends Controller
                 ],
             ], 404);
         }
+
 
         // Formatear la respuesta
         return response()->json([

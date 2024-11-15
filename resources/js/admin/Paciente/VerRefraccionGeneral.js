@@ -5,6 +5,7 @@ import { fetchVerRefraccionGeneral } from '../../redux/features/pacientes/VerRef
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
 import jsPDF from 'jspdf';
+import { Select, Button, Row, Col } from 'antd';
 import html2canvas from 'html2canvas';
 
 const formatToDateDisplay = (dateStr) => {
@@ -1287,7 +1288,112 @@ const VerRefraccionGeneral = () => {
                             type="text"
                           />
                         </div>
+
+
                       </div>
+                      <Row gutter={[16, 16]} >
+
+                        <Col xxl={12} xl={12} md={12}>
+                          <div className="form-row mb-4">
+                            <div className="form-group col-md-12">
+                              <label htmlFor="tags">Servicios Realizados</label>
+                              <Select
+                                disabled
+                                value={null}
+                                style={{
+                                  width: '100%',
+                                  color: 'transparent',
+                                  background: 'white !important'
+                                }}
+                              >
+                              </Select>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  flexWrap: 'wrap',
+                                  marginTop: '10px',
+                                  marginBottom: '10px'
+                                }}
+                              >
+                                {RefraccionGeneral && RefraccionGeneral.servicios_realizados ? (
+                                  RefraccionGeneral.servicios_realizados.map((servicio, index) => (
+                                    <div
+                                      key={index}
+                                      style={{
+                                        color: 'black',
+                                        background: 'white',
+                                        border: '1px solid gray',
+                                        paddingTop: '5px',
+                                        paddingBottom: '5px',
+                                        paddingLeft: '10px',
+                                        paddingRight: '10px',
+                                        borderRadius: '20px',
+                                        marginRight: '5px',
+                                        marginTop: '5px'
+                                      }}
+                                    >
+                                      {servicio.servicio.codigo + " | " + servicio.servicio.servicio}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p>No hay servicios Realizados disponibles</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col xxl={12} xl={12} md={12}>
+                          <div className="form-row mb-4">
+                            <div className="form-group col-md-12">
+                              <label htmlFor="tags">Próximos Servicios</label>
+                              <Select
+                                disabled
+                                value={null}
+                                style={{
+                                  width: '100%',
+                                  color: 'transparent',
+                                  background: 'white !important'
+                                }}
+                              >
+                              </Select>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  flexWrap: 'wrap',
+                                  marginTop: '10px',
+                                  marginBottom: '10px'
+                                }}
+                              >
+                                {RefraccionGeneral && RefraccionGeneral.servicios_proximos ? (
+                                  RefraccionGeneral.servicios_proximos.map((servicio, index) => (
+                                    <div
+                                      key={index}
+                                      style={{
+                                        color: 'black',
+                                        background: 'white',
+                                        border: '1px solid gray',
+                                        paddingTop: '5px',
+                                        paddingBottom: '5px',
+                                        paddingLeft: '10px',
+                                        paddingRight: '10px',
+                                        borderRadius: '20px',
+                                        marginRight: '5px',
+                                        marginTop: '5px'
+                                      }}
+                                    >
+
+                                      {servicio.servicio.codigo + " | " + servicio.servicio.servicio}
+                                    </div>
+
+                                  ))
+                                ) : (
+                                  <p>No hay servicios próximos disponibles</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </Col>
+                      </Row>
 
                     </div>
                   </div>

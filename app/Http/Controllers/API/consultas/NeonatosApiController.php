@@ -108,6 +108,32 @@ class NeonatosApiController extends Controller
     // Actualizar los campos
     $neonato->update($datos);
 
+    if ($request->has('servicios_realizados_optometria_neonatos')) {
+      // Eliminar los servicios realizados existentes
+      ServiciosRealizadosOptometriaNeonatos::where('optometriaNeonatos_id', $neonato->id_consulta)->delete();
+
+      // Insertar los nuevos servicios realizados
+      foreach ($request->servicios_realizados_optometria_neonatos as $servicioId) {
+          ServiciosRealizadosOptometriaNeonatos::create([
+              'optometriaNeonatos_id' => $neonato->id_consulta,
+              'servicios_id' => $servicioId,
+          ]);
+      }
+  }
+
+  if ($request->has('servicios_proximos_optometria_neonatos')) {
+      // Eliminar los servicios próximos existentes
+      ServiciosProximosOptometriaNeonatos::where('optometriaNeonatos_id', $neonato->id_consulta)->delete();
+
+      // Insertar los nuevos servicios próximos
+      foreach ($request->servicios_proximos_optometria_neonatos as $servicioId) {
+          ServiciosProximosOptometriaNeonatos::create([
+              'optometriaNeonatos_id' => $neonato->id_consulta,
+              'servicios_id' => $servicioId,
+          ]);
+      }
+  }
+
     return response()->json([
       'success' => true,
       'message' => 'Neonato actualizado con éxito',
@@ -165,6 +191,8 @@ class NeonatosApiController extends Controller
     // Buscar el registro en la tabla neonato por id_paciente y id_consulta
     $neonato = OptometriaNeonatos::where('paciente', $id)
       ->where('id_consulta', $id_consulta)
+      ->with('serviciosProximos.servicio') 
+      ->with('serviciosRealizados.servicio')
       ->first();
 
     // Verificar si el registro existe

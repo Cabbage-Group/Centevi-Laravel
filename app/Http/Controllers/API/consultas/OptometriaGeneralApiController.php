@@ -98,6 +98,8 @@ class OptometriaGeneralApiController extends Controller
             'id_terapia' => 'required|integer',
             'edad' => 'required|integer',
             'fecha_atencion' => 'required|date',
+            'servicios_realizados_historias_clinicas' => 'array',
+            'servicios_proximos_historias_clinicas' => 'array'
             // Otras validaciones aquí...
         ]);
 
@@ -121,6 +123,32 @@ class OptometriaGeneralApiController extends Controller
 
         // Actualizar los campos
         $refraccionGeneral->update($datos);
+
+        if ($request->has('servicios_realizados_optometria_general')) {
+            // Eliminar los servicios realizados existentes
+            ServiciosRealizadosOptometriaGeneral::where('optometriageneral_id', $refraccionGeneral->id_consulta)->delete();
+    
+            // Insertar los nuevos servicios realizados
+            foreach ($request->servicios_realizados_optometria_general as $servicioId) {
+                ServiciosRealizadosOptometriaGeneral::create([
+                    'optometriageneral_id' => $refraccionGeneral->id_consulta,
+                    'servicios_id' => $servicioId,
+                ]);
+            }
+        }
+
+        if ($request->has('servicios_proximos_optometria_general')) {
+            // Eliminar los servicios próximos existentes
+            ServiciosProximosOptometriaGeneral::where('optometriageneral_id', $refraccionGeneral->id_consulta)->delete();
+    
+            // Insertar los nuevos servicios próximos
+            foreach ($request->servicios_proximos_optometria_general as $servicioId) {
+                ServiciosProximosOptometriaGeneral::create([
+                    'optometriageneral_id' => $refraccionGeneral->id_consulta,
+                    'servicios_id' => $servicioId,
+                ]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -177,6 +205,8 @@ class OptometriaGeneralApiController extends Controller
         // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
         $ortoptica = RefraccionGeneral::where('paciente', $id)
             ->where('id_consulta', $id_consulta)
+            ->with('serviciosProximos.servicio') 
+            ->with('serviciosRealizados.servicio')
             ->first();
 
         // Verificar si el registro existe

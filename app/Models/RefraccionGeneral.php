@@ -56,6 +56,16 @@ class RefraccionGeneral extends Model
         'se_agendo'
     ];
 
+    public function serviciosRealizados()
+    {
+        return $this->hasMany(ServiciosRealizadosOptometriaGeneral::class, 'optometriageneral_id');
+    }
+
+    public function serviciosProximos()
+    {
+        return $this->hasMany(ServiciosProximosOptometriaGeneral::class, 'optometriageneral_id');
+    }
+
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'sucursal' => 'integer',
