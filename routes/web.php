@@ -253,6 +253,10 @@ Route::delete('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_A
 
 Route::get('/api/servicios', [ServiciosApiController::class, 'index']);
 
+Route::get('/api/reportes-servicios-realizados', [PacientesApiController::class, 'obtenerConsultasConServicios']);
+
+Route::get('/api/reportes-servicios-proximos', [PacientesApiController::class, 'obtenerConsultasConServiciosProximos']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

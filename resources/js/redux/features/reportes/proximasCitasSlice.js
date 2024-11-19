@@ -184,5 +184,12 @@ const proximasCitasSlice = createSlice({
 });
 
 
-export const { setOrden, setFechaRange, setOrdenPor, setSearch, updateCitaContacto, updateCitaAgendada } = proximasCitasSlice.actions;
+export const { 
+   setOrden,
+   setFechaRange, 
+   setOrdenPor, 
+   setSearch, 
+   updateCitaContacto, 
+   updateCitaAgendada 
+} = proximasCitasSlice.actions;
 export default proximasCitasSlice.reducer;

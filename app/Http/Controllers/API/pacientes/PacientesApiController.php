@@ -9,7 +9,13 @@ use App\Models\HistoriaClinica;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Models\OptometriaPediatrica;
+use App\Models\ConsultaGenerica;
+use App\Models\RefraccionGeneral;
+use App\Models\OptometriaNeonatos;
+use App\Models\OrtopticaAdultos;
 use Carbon\Carbon;
+use GrahamCampbell\ResultType\Success;
 
 class PacientesApiController extends Controller
 {
@@ -36,7 +42,6 @@ class PacientesApiController extends Controller
     $searchTerms = explode(' ', $search);
 
     // Construir la consulta base
-    // $query = Pacientes::orderBy($sortColumn, $sortOrder);
     $query = Pacientes::orderBy($sortColumn,  $sortOrder);
 
     // Aplicar el filtro de búsqueda si existe
@@ -2189,5 +2194,268 @@ class PacientesApiController extends Controller
     }
 
   }
+  public function obtenerConsultasConServicios(Request $request)
+  {
+      $limit = intval($request->input('limit', 10));
+      $page = intval($request->input('page', 1));
+      $sortColumn = $request->input('sortColumn', 'FECHA_CONSULTA');
+      $sortOrder = $request->input('sortOrder', 'asc');
+      $fecha = $request->input('fecha');
+      $search = $request->input('search');
+
+      $fechaInicio = null;
+      $fechaFin = null;
+
+      if ($fecha) {
+          [$fechaInicio, $fechaFin] = explode(' - ', $fecha);
+      }
+ 
+      $optometriaPediatrica = DB::table('optometria_pediatrica')
+          ->join('pacientes', 'optometria_pediatrica.paciente', '=', 'pacientes.id_paciente')
+          ->join('servicios_realizados_optometria_pediatrica', 'optometria_pediatrica.id_consulta', '=', 'servicios_realizados_optometria_pediatrica.optometriaPediatrica_id')
+          ->join('servicios', 'servicios_realizados_optometria_pediatrica.servicios_id', '=', 'servicios.id')
+          ->select(
+              'optometria_pediatrica.id_consulta as ID_CONSULTA',
+              'optometria_pediatrica.fecha_atencion as FECHA_CONSULTA',
+              DB::raw('"optometria_pediatrica" as CONSULTA'),
+              'pacientes.nro_cedula as CEDULA',
+              DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+              'servicios.servicio as SERVICIO_REALIZADO'
+          );
+   
+      $consultaGenerica = DB::table('consultagenerica')
+          ->join('pacientes', 'consultagenerica.paciente', '=', 'pacientes.id_paciente')
+          ->join('servicios_realizados_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_realizados_historias_clinicas.historiaclinica_id')
+          ->join('servicios', 'servicios_realizados_historias_clinicas.servicios_id', '=', 'servicios.id')
+          ->select(
+              'consultagenerica.id_consulta as ID_CONSULTA',
+              'consultagenerica.fecha_atencion as FECHA_CONSULTA',
+              DB::raw('"consultagenerica" as CONSULTA'),
+              'pacientes.nro_cedula as CEDULA',
+              DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+              'servicios.servicio as SERVICIO_REALIZADO'
+          );
+   
+      $refraccionGeneral = DB::table('refracciongeneral')
+          ->join('pacientes', 'refracciongeneral.paciente', '=', 'pacientes.id_paciente')
+          ->join('servicios_realizados_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_realizados_optometria_general.optometriageneral_id')
+          ->join('servicios', 'servicios_realizados_optometria_general.servicios_id', '=', 'servicios.id')
+          ->select(
+              'refracciongeneral.id_consulta as ID_CONSULTA',
+              'refracciongeneral.fecha_atencion as FECHA_CONSULTA',
+              DB::raw('"refracciongeneral" as CONSULTA'),
+              'pacientes.nro_cedula as CEDULA',
+              DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+              'servicios.servicio as SERVICIO_REALIZADO'
+          );
+  
+      $optometriaNeonatos = DB::table('optometria_neonatos')
+          ->join('pacientes', 'optometria_neonatos.paciente', '=', 'pacientes.id_paciente')
+          ->join('servicios_realizados_optometria_neonatos', 'optometria_neonatos.id_consulta', '=', 'servicios_realizados_optometria_neonatos.optometriaNeonatos_id')
+          ->join('servicios', 'servicios_realizados_optometria_neonatos.servicios_id', '=', 'servicios.id')
+          ->select(
+              'optometria_neonatos.id_consulta as ID_CONSULTA',
+              'optometria_neonatos.fecha_atencion as FECHA_CONSULTA',
+              DB::raw('"optometria_neonatos" as CONSULTA'),
+              'pacientes.nro_cedula as CEDULA',
+              DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+              'servicios.servicio as SERVICIO_REALIZADO'
+          );
+  
+      $ortopticaAdultos = DB::table('ortoptica_adultos')
+          ->join('pacientes', 'ortoptica_adultos.paciente', '=', 'pacientes.id_paciente')
+          ->join('servicios_realizados_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_realizados_ortoptica_adultos.ortopticaAdultos_id')
+          ->join('servicios', 'servicios_realizados_ortoptica_adultos.servicios_id', '=', 'servicios.id')
+          ->select(
+              'ortoptica_adultos.id_consulta as ID_CONSULTA',
+              'ortoptica_adultos.fecha_atencion as FECHA_CONSULTA',
+              DB::raw('"ortoptica_adultos" as CONSULTA'),
+              'pacientes.nro_cedula as CEDULA',
+              DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+              'servicios.servicio as SERVICIO_REALIZADO'
+          );
+    
+      $unionQuery = $optometriaPediatrica
+          ->union($consultaGenerica)
+          ->union($refraccionGeneral)
+          ->union($optometriaNeonatos)
+          ->union($ortopticaAdultos);     
+
+      $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as sub"))
+          ->mergeBindings($unionQuery)
+          ->when($search, function ($query) use ($search) {
+              $query->where(function ($subQuery) use ($search) {
+                  $subQuery->where('ID_CONSULTA', 'LIKE', "%{$search}%")
+                      ->orWhere('CONSULTA', 'LIKE', "%{$search}%")
+                      ->orWhere('CEDULA', 'LIKE', "%{$search}%")
+                      ->orWhere('PACIENTE', 'LIKE', "%{$search}%")
+                      ->orWhere('SERVICIO_REALIZADO', 'LIKE', "%{$search}%");
+              });
+          })
+          ->orderBy($sortColumn, $sortOrder);
+  
+        if ($fechaInicio && $fechaFin) {
+            $consultas->whereBetween('FECHA_CONSULTA', [$fechaInicio, $fechaFin]);
+        }    
+  
+      $dataexport = $consultas->get();
+  
+      $total = $consultas->count();
+      $consultas = $consultas->skip(($page - 1) * $limit)->take($limit)->get();
+  
+      return response()->json([
+          'data' => $consultas,
+          'meta' => [
+              'limit' => $limit,
+              'total' => $total,
+              'page' => $page,
+              'sortOrder' => $sortOrder,
+              'sortColumn' => $sortColumn,
+          ],
+          'export' => [
+            'dataexport' => $dataexport,
+          ],
+          'success' => true
+      ]);
+  }
+  
+
+public function obtenerConsultasConServiciosProximos(Request $request)
+{
+    $limit = intval($request->input('limit', 10)); 
+    $page = intval($request->input('page', 1)); 
+    $sortColumn = $request->input('sortColumn', 'FECHA_CONSULTA'); 
+    $sortOrder = $request->input('sortOrder', 'asc'); 
+    $fecha = $request->input('fecha');
+    $search = $request->input('search'); 
+
+    $fechaInicio = null;
+    $fechaFin = null;
+    if ($fecha) {
+        [$fechaInicio, $fechaFin] = explode(' - ', $fecha);
+        $fechaInicio = trim($fechaInicio);
+        $fechaFin = trim($fechaFin);
+    }
+
+    
+
+    $optometriaPediatrica = DB::table('optometria_pediatrica')
+        ->join('pacientes', 'optometria_pediatrica.paciente', '=', 'pacientes.id_paciente')
+        ->join('servicios_proximos_optometria_pediatrica', 'optometria_pediatrica.id_consulta', '=', 'servicios_proximos_optometria_pediatrica.optometriaPediatrica_id')
+        ->join('servicios', 'servicios_proximos_optometria_pediatrica.servicios_id', '=', 'servicios.id')
+        ->select(
+            'optometria_pediatrica.id_consulta as ID_CONSULTA',
+            'optometria_pediatrica.fecha_atencion as FECHA_CONSULTA',
+            DB::raw('"optometria_pediatrica" as CONSULTA'),
+            'pacientes.nro_cedula as CEDULA',
+            DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+            'servicios.servicio as SERVICIO_PROXIMO'
+        );
+
+ 
+
+    $consultaGenerica = DB::table('consultagenerica')
+        ->join('pacientes', 'consultagenerica.paciente', '=', 'pacientes.id_paciente')
+        ->join('servicios_proximos_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_proximos_historias_clinicas.historiaclinica_id')
+        ->join('servicios', 'servicios_proximos_historias_clinicas.servicios_id', '=', 'servicios.id')
+        ->select(
+            'consultagenerica.id_consulta as ID_CONSULTA',
+            'consultagenerica.fecha_atencion as FECHA_CONSULTA',
+            DB::raw('"consultagenerica" as CONSULTA'),
+            'pacientes.nro_cedula as CEDULA',
+            DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+            'servicios.servicio as SERVICIO_PROXIMO'
+        );
+
+ 
+
+    $refraccionGeneral = DB::table('refracciongeneral')
+        ->join('pacientes', 'refracciongeneral.paciente', '=', 'pacientes.id_paciente')
+        ->join('servicios_proximos_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_proximos_optometria_general.optometriageneral_id')
+        ->join('servicios', 'servicios_proximos_optometria_general.servicios_id', '=', 'servicios.id')
+        ->select(
+            'refracciongeneral.id_consulta as ID_CONSULTA',
+            'refracciongeneral.fecha_atencion as FECHA_CONSULTA',
+            DB::raw('"refracciongeneral" as CONSULTA'),
+            'pacientes.nro_cedula as CEDULA',
+            DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+            'servicios.servicio as SERVICIO_PROXIMO'
+        );
+        
+  
+    
+    $optometriaNeonatos = DB::table('optometria_neonatos')
+        ->join('pacientes', 'optometria_neonatos.paciente', '=', 'pacientes.id_paciente')
+        ->join('servicios_proximos_optometria_neonatos', 'optometria_neonatos.id_consulta', '=', 'servicios_proximos_optometria_neonatos.optometriaNeonatos_id')
+        ->join('servicios', 'servicios_proximos_optometria_neonatos.servicios_id', '=', 'servicios.id')
+        ->select(
+            'optometria_neonatos.id_consulta as ID_CONSULTA',
+            'optometria_neonatos.fecha_atencion as FECHA_CONSULTA',
+            DB::raw('"optometria_neonatos" as CONSULTA'),
+            'pacientes.nro_cedula as CEDULA',
+            DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+            'servicios.servicio as SERVICIO_PROXIMO'
+        );
+     
+
+    $ortopticaAdultos = DB::table('ortoptica_adultos')
+        ->join('pacientes', 'ortoptica_adultos.paciente', '=', 'pacientes.id_paciente')
+        ->join('servicios_proximos_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_proximos_ortoptica_adultos.ortopticaAdultos_id')
+        ->join('servicios', 'servicios_proximos_ortoptica_adultos.servicios_id', '=', 'servicios.id')
+        ->select(
+            'ortoptica_adultos.id_consulta as ID_CONSULTA',
+            'ortoptica_adultos.fecha_atencion as FECHA_CONSULTA',
+            DB::raw('"ortoptica_adultos" as CONSULTA'),
+            'pacientes.nro_cedula as CEDULA',
+            DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+            'servicios.servicio as SERVICIO_PROXIMO'
+        );
+
+    $unionQuery  = $optometriaPediatrica
+        ->union($consultaGenerica)
+        ->union($refraccionGeneral)
+        ->union($optometriaNeonatos)
+        ->union($ortopticaAdultos);
+
+    $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as sub"))
+        ->mergeBindings($unionQuery)
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('ID_CONSULTA', 'LIKE', "%{$search}%")
+                    ->orWhere('CONSULTA', 'LIKE', "%{$search}%")
+                    ->orWhere('CEDULA', 'LIKE', "%{$search}%")
+                    ->orWhere('PACIENTE', 'LIKE', "%{$search}%")
+                    ->orWhere('SERVICIO_PROXIMO', 'LIKE', "%{$search}%");
+            });
+        })
+        ->orderBy($sortColumn, $sortOrder);
+
+      if ($fechaInicio && $fechaFin) {
+          $consultas->whereBetween('FECHA_CONSULTA', [$fechaInicio, $fechaFin]);
+      }     
+
+  
+    $dataexport = $consultas->get();
+
+    $total = $consultas->count(); 
+    $consultas = $consultas->skip(($page - 1) * $limit)->take($limit)->get();
+
+    
+
+    return response()->json([
+        'data' => $consultas,
+        'meta' => [
+            'limit' => $limit,
+            'total' => $total,
+            'page' => $page,
+            'sortOrder' => $sortOrder,
+            'sortColumn' => $sortColumn,
+        ],
+        'export' => [
+            'dataexport' => $dataexport,
+          ],
+        'success' => true
+    ]);
+}
 
 }
