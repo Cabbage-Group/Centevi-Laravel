@@ -6,32 +6,32 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateServiciosProximosOrtopticaAdultosTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::create('servicios_proximos_ortoptica_adultos', function (Blueprint $table) {
-            $table->id();
-            $table->Integer('ortopticaAdultos_id');
-            $table->unsignedInteger('servicios_id');
-            
-            $table->foreign('ortopticaAdultos_id', 'fk_proximos_ortopticaAdultos')->references('id_consulta')->on('ortoptica_adultos')->onDelete('cascade');
-            $table->foreign('servicios_id', 'fk_proximos_servicios_ortopticaAdultos')->references('id')->on('servicios')->onDelete('cascade');
+  /**
+   * Run the migrations.
+   *
+   * @return void
+   */
+  public function up()
+  {
+    Schema::create('servicios_proximos_ortoptica_adultos', function (Blueprint $table) {
+      $table->id();
+      $table->Integer('ortopticaAdultos_id');
+      $table->unsignedInteger('servicios_id');
 
-            $table->timestamps();
-        });
-    }
+      $table->foreign('ortopticaAdultos_id', 'fk_proximos_ortopticaAdultos')->references('id_consulta')->on('ortoptica_adultos')->onDelete('cascade');
+      $table->foreign('servicios_id', 'fk_proximos_servicios_ortopticaAdultos')->references('id')->on('servicios')->onDelete('cascade');
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists('servicios_proximos_ortoptica_adultos');
-    }
+      $table->timestamps();
+    });
+  }
+
+  /**
+   * Reverse the migrations.
+   *
+   * @return void
+   */
+  public function down()
+  {
+    Schema::dropIfExists('servicios_proximos_ortoptica_adultos');
+  }
 }

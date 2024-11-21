@@ -1420,6 +1420,12 @@ const OptometriaPediatra = () => {
                                       value: servicio.id,
                                       label: servicio.codigo + " | " + servicio.servicio
                                     }))}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
                                   >
                                   </Select>
                                   <div
@@ -1495,6 +1501,12 @@ const OptometriaPediatra = () => {
                                       value: servicio.id,
                                       label: servicio.codigo + " | " + servicio.servicio
                                     }))}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
                                   >
                                   </Select>
                                   <div

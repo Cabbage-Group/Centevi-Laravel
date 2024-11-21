@@ -46,8 +46,6 @@ const HistoriaClinica = () => {
     dispatch(fetchServicios())
   }, [dispatch]);
 
-  console.log('servicios:', servicios)
-
   const calculateAge = (birthDate) => {
     const today = new Date();
     const birthDateObj = new Date(birthDate);
@@ -263,6 +261,12 @@ const HistoriaClinica = () => {
                                       value: servicio.id,
                                       label: servicio.codigo + " | " + servicio.servicio
                                     }))}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
                                   >
                                   </Select>
                                   <div
@@ -320,7 +324,7 @@ const HistoriaClinica = () => {
                               <div className="form-row mb-4">
                                 <div className="form-group col-md-12">
                                   <label htmlFor="tags">Proximos Servicios</label>
-                                  <Select                               
+                                  <Select
                                     showSearch
                                     value={null}
                                     style={{
@@ -338,6 +342,12 @@ const HistoriaClinica = () => {
                                       value: servicio.id,
                                       label: servicio.codigo + " | " + servicio.servicio
                                     }))}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
                                   >
                                   </Select>
                                   <div

@@ -6,28 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateServiciosTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::create('servicios', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('codigo', 45);
-            $table->string('servicio', 45);
-            $table->timestamps();
-        });
-    }
+  /**
+   * Run the migrations.
+   *
+   * @return void
+   */
+  public function up()
+  {
+    Schema::create('servicios', function (Blueprint $table) {
+      $table->increments('id');
+      $table->string('codigo', 45);
+      $table->string('servicio', 45);
+      $table->timestamps();
+    });
+  }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists('servicios');
-    }
+  /**
+   * Reverse the migrations.
+   *
+   * @return void
+   */
+  public function down()
+  {
+    Schema::dropIfExists('servicios');
+  }
 }

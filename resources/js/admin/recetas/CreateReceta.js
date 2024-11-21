@@ -7,7 +7,7 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
-import { Col, Input, Row, Select } from 'antd';
+import { Col, Input, Row, Select, Checkbox } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 
@@ -85,6 +85,7 @@ const CreateReceta = () => {
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
+  const [aroCentevi, setAroCentevi] = useState(false);
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
@@ -171,7 +172,7 @@ const CreateReceta = () => {
                                     type="text"
                                     class="form-control"
                                     name="nro_receta"
-                                    disabled
+                                  // disabled
                                   />
                                 </div>
 
@@ -494,14 +495,24 @@ const CreateReceta = () => {
                                 }}
                               >
                                 <Row gutter={[16, 16]}>
+                                  <Col xxl={24} xl={24} md={24}>
+                                    <div
+                                      style={{
+                                        fontSize: '20px',
+                                        color: 'black'
+                                      }}
+                                    >
+                                      Caracteristicas de Cristales
+                                    </div>
+                                  </Col>
                                   <Col xxl={8} xl={8} md={8}>
                                     <h6 className="text-center p-2">
-                                      TIPO DE LENTE:
+                                      TIPO DE CRISTAL:
                                     </h6>
 
                                     <Select
                                       showSearch
-                                      // value={null}
+                                      value={null}
                                       style={{
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
@@ -515,18 +526,19 @@ const CreateReceta = () => {
                                         }
                                       }}
                                       options={[
-                                        { id: 1, codigo: "Monofocal" },
-                                        { id: 2, codigo: "Bifocal" },
-                                        { id: 3, codigo: "Interview" },
-                                        { id: 4, codigo: "Antifatigue" },
-                                        { id: 5, codigo: "Progresivo" },
+                                        { id: 1, codigo: "MP01 | Monofocal Claro Sencillo" },
+                                        { id: 2, codigo: "MPAR | Monofocal + Antirreflejo" },
+                                        { id: 3, codigo: "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                        { id: 4, codigo: "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
+                                        { id: 5, codigo: "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
+                                        { id: 6, codigo: "MPT06 | Monofocal + Transitions" },
                                       ].map(servicio => ({
                                         value: servicio.id,
                                         label: servicio.codigo
                                       }))}
                                     >
                                     </Select>
-                                    {/* <div
+                                    <div
                                       style={{
                                         display: 'ruby',
                                         marginTop: '10px',
@@ -570,7 +582,7 @@ const CreateReceta = () => {
                                         })
                                       }
 
-                                    </div> */}
+                                    </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
                                     <h6 className="text-center p-2">
@@ -579,7 +591,7 @@ const CreateReceta = () => {
 
                                     <Select
                                       showSearch
-                                      // value={null}
+                                      value={null}
                                       style={{
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
@@ -606,7 +618,7 @@ const CreateReceta = () => {
                                       }))}
                                     >
                                     </Select>
-                                    {/* <div
+                                    <div
                                       style={{
                                         display: 'ruby',
                                         marginTop: '10px',
@@ -650,7 +662,7 @@ const CreateReceta = () => {
                                         })
                                       }
 
-                                    </div> */}
+                                    </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
                                     <h6 className="text-center p-2">
@@ -658,7 +670,7 @@ const CreateReceta = () => {
                                     </h6>
                                     <Select
                                       showSearch
-                                      // value={null}
+                                      value={null}
                                       style={{
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
@@ -688,7 +700,7 @@ const CreateReceta = () => {
                                       }))}
                                     >
                                     </Select>
-                                    {/* <div
+                                    <div
                                       style={{
                                         display: 'ruby',
                                         marginTop: '10px',
@@ -732,7 +744,7 @@ const CreateReceta = () => {
                                         })
                                       }
 
-                                    </div> */}
+                                    </div>
                                   </Col>
                                 </Row>
                                 {/* <div className="row p-1">
@@ -1181,15 +1193,34 @@ const CreateReceta = () => {
                                     <Row
                                       gutter={[16, 16]}
                                     >
+                                      <Col xxl={24} xl={24} md={24}>
+                                        <div
+                                          style={{
+                                            fontSize: '20px',
+                                            color: 'black'
+                                          }}
+                                        >
+                                          Caracteristicas de Aro
+                                        </div>
+                                      </Col>
                                       <Col xxl={5} xl={5} md={5}>
                                         <div>
                                           <label className="new-control new-radio radio-classic-primary">
                                             <b>ARO CENTEVI</b>
+                                            {/* <Checkbox
+                                              className="new-control-input"
+                                            >
+
+                                            </Checkbox> */}
                                             <Field
                                               className="new-control-input"
-                                              value="transitions"
-                                              name="tratamientos.transitions"
+                                              value={aroCentevi}
+                                              checked={aroCentevi}
+                                              name="caracaro.aro.propiocentevi"
                                               type="radio"
+                                              onChange={(e) => {
+                                                setAroCentevi(!aroCentevi)
+                                              }}
                                             />
                                             <span className="new-control-indicator" />
                                           </label>
@@ -1198,44 +1229,71 @@ const CreateReceta = () => {
                                       <Col xxl={5} xl={5} md={5}>
                                         <div>
                                           <label className="new-control new-radio radio-classic-primary">
-                                            <b>PROPIO</b>
+                                            <b>ARO PROPIO</b>
                                             <Field
                                               className="new-control-input"
-                                              value="transitions"
-                                              name="tratamientos.transitions"
+                                              value={!aroCentevi}
+                                              checked={!aroCentevi}
+                                              name="caracaro.aro.propiocentevi"
                                               type="radio"
+                                              onChange={() => {
+                                                setAroCentevi(!aroCentevi)
+                                              }}
                                             />
                                             <span className="new-control-indicator" />
                                           </label>
                                         </div>
                                       </Col>
 
-
-
-
-
-                                      <Col xxl={7} xl={7} md={7}>
+                                      <Col xxl={5} xl={5} md={5}>
                                         <div
                                           style={{
-                                            display: 'flex'
+                                            // display: 'flex'
                                           }}
                                         >
-                                          <b>C DIGO</b>
-                                          <Input style={{
-                                            marginLeft: '10px', height: '30px',
-                                            width: '50%'
-                                          }} />
+                                          <div style={{ marginTop: '-15px' }}>
+                                            <b>CÓDIGO</b>
+                                          </div>
+                                          <Input
+                                            style={{
+                                              marginLeft: '0px', height: '30px',
+                                              width: '100%'
+                                            }}
+                                            disabled={!aroCentevi}
+                                          />
                                         </div>
                                       </Col>
 
-                                      <Col xxl={7} xl={7} md={7}>
+                                      <Col xxl={5} xl={5} md={5}>
                                         <div
                                           style={{
-                                            display: 'flex'
+                                            // display: 'flex'
                                           }}
                                         >
-                                          <b>COLOR</b>
-                                          <Input style={{ marginLeft: '10px', height: '30px' }} />
+                                          <div style={{ marginTop: '-15px' }}>
+                                            <b>COLOR</b>
+                                          </div>
+                                          <Input
+                                            style={{
+                                              marginLeft: '0px', height: '30px'
+                                            }}
+                                          />
+                                        </div>
+                                      </Col>
+                                      <Col xxl={4} xl={4} md={4}>
+                                        <div
+                                          style={{
+                                            // display: 'flex'
+                                          }}
+                                        >
+                                          <div style={{ marginTop: '-15px' }}>
+                                            <b>MARCA</b>
+                                          </div>
+                                          <Input
+                                            style={{
+                                              marginLeft: '0px', height: '30px'
+                                            }}
+                                          />
                                         </div>
                                       </Col>
 
@@ -1342,10 +1400,11 @@ const CreateReceta = () => {
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
                                                   style={{
-                                                    display: 'flex'
+                                                    // display: 'flex'
+                                                    marginBottom: '10px'
                                                   }}
                                                 >
-                                                  <label className="new-control new-radio radio-classic-primary">
+                                                  {/* <label className="new-control new-radio radio-classic-primary">
                                                     <b>MARCA</b>
                                                     <Field
                                                       className="new-control-input"
@@ -1354,9 +1413,34 @@ const CreateReceta = () => {
                                                       type="radio"
                                                     />
                                                     <span className="new-control-indicator" />
-                                                  </label>
+                                                  </label> */}
 
-                                                  <Input />
+                                                  {/* <Input /> */}
+                                                  <b>TIPO DE ARO:</b>
+                                                  <Select
+                                                    showSearch
+                                                    placeholder="Selecciona el tipo de aro"
+                                                    // filterOption={(input, option) => {
+                                                    //   const searchTerms = input.toLowerCase().split(' ');
+                                                    //   return searchTerms.every(term =>
+                                                    //     (option?.label ?? '').toLowerCase().includes(term)
+                                                    //   );
+                                                    // }}
+                                                    options={[
+                                                      { label: 'Pasta Completo', value: 1 },
+                                                      { label: 'Pasta Semi al Aire', value: 2 },
+                                                      { label: 'Metal Completo', value: 3 },
+                                                      { label: 'Metal Semi al Aire', value: 4 },
+                                                      { label: 'Al Aire', value: 5 },
+                                                      { label: 'Seguridad', value: 6 },
+                                                    ]}
+                                                    style={{
+                                                      width: "100%",
+                                                      height: "40px",
+                                                      color: "black",
+                                                      fontWeight: "bold",
+                                                    }}
+                                                  />
                                                 </div>
                                               </Col>
 
@@ -1429,7 +1513,7 @@ const CreateReceta = () => {
                                       }}
                                     >
                                       <img
-                                        src="assets/img/recetas/plantilla.png"
+                                        src="assets/img/recetas/lentescentevi.jpeg"
                                         style={{
                                           width: "100%",
                                           // height: "80px"
@@ -1450,10 +1534,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '133px',
+                                          top: '157px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '125px'
+                                          left: '85px'
                                         }}
                                       >
                                         <Input />
@@ -1462,10 +1546,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '228px',
+                                          top: '210px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '230px'
+                                          left: '210px'
                                         }}
                                       >
                                         <Input />
@@ -1474,10 +1558,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '287px',
+                                          top: '279px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '143px'
+                                          left: '84px'
                                         }}
                                       >
                                         <Input />
@@ -1486,10 +1570,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '208px',
+                                          top: '213px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '348px'
+                                          left: '331px'
                                         }}
                                       >
                                         <Input />

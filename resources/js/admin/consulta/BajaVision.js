@@ -4438,156 +4438,168 @@ const BajaVision = () => {
                           {/* Selector de Tags */}
 
                           <Row gutter={[16, 16]} >
-                              <Col xxl={12} xl={12} md={12}>
-                                <div className="form-row mb-4">
-                                  <div className="form-group col-md-12">
-                                    <label htmlFor="tags">Servicios Realizados</label>
-                                    <Select
-                                      showSearch
-                                      value={null}
-                                      style={{
-                                        width: '100%', color: 'transparent',
-                                        background: 'white !important'
-                                      }}
-                                      onChange={(value, val) => {
-                                        if (!serviciosRealizados.find(servicio => servicio.value === value)) {
-                                          const newServicios = [...serviciosRealizados, val];
-                                          setServiciosRealizados(newServicios);
-                                          setFieldValue('servicios_realizados_baja_vision', newServicios.map(s => s.value));
-                                        }
-                                      }}
-                                      options={servicios.map(servicio => ({
-                                        value: servicio.id,
-                                        label: servicio.codigo + " | " + servicio.servicio
-                                      }))}
-                                    >
-                                    </Select>
-                                    <div
-                                      style={{
-                                        display: 'ruby',
-                                        marginTop: '10px',
-                                        marginBottom: '10px'
-                                      }}
-                                      onClick={() => {
-                                      }}
-                                    >
-                                      {
-                                        serviciosRealizados.map((servicio) => {
-                                          return (
+                            <Col xxl={12} xl={12} md={12}>
+                              <div className="form-row mb-4">
+                                <div className="form-group col-md-12">
+                                  <label htmlFor="tags">Servicios Realizados</label>
+                                  <Select
+                                    showSearch
+                                    value={null}
+                                    style={{
+                                      width: '100%', color: 'transparent',
+                                      background: 'white !important'
+                                    }}
+                                    onChange={(value, val) => {
+                                      if (!serviciosRealizados.find(servicio => servicio.value === value)) {
+                                        const newServicios = [...serviciosRealizados, val];
+                                        setServiciosRealizados(newServicios);
+                                        setFieldValue('servicios_realizados_baja_vision', newServicios.map(s => s.value));
+                                      }
+                                    }}
+                                    options={servicios.map(servicio => ({
+                                      value: servicio.id,
+                                      label: servicio.codigo + " | " + servicio.servicio
+                                    }))}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
+                                  >
+                                  </Select>
+                                  <div
+                                    style={{
+                                      display: 'ruby',
+                                      marginTop: '10px',
+                                      marginBottom: '10px'
+                                    }}
+                                    onClick={() => {
+                                    }}
+                                  >
+                                    {
+                                      serviciosRealizados.map((servicio) => {
+                                        return (
+                                          <div
+                                            style={{
+                                              color: 'black',
+                                              background: 'white',
+                                              border: '1px solid gray',
+                                              paddingTop: '5px',
+                                              paddingBottom: '5px',
+                                              paddingLeft: '10px',
+                                              paddingRight: '10px',
+                                              borderRadius: '20px',
+                                              display: 'flex',
+                                              marginRight: '5px',
+                                              marginTop: '5px'
+                                            }}
+                                          >
+                                            {servicio.label}
                                             <div
                                               style={{
-                                                color: 'black',
-                                                background: 'white',
-                                                border: '1px solid gray',
-                                                paddingTop: '5px',
-                                                paddingBottom: '5px',
-                                                paddingLeft: '10px',
-                                                paddingRight: '10px',
-                                                borderRadius: '20px',
-                                                display: 'flex',
-                                                marginRight: '5px',
-                                                marginTop: '5px'
+                                                marginLeft: '5px',
+                                                cursor: 'pointer'
+                                              }}
+                                              onClick={() => {
+                                                const newServicios = serviciosRealizados.filter(serv => serv.value !== servicio.value);
+                                                setServiciosRealizados(newServicios);
+                                                setFieldValue('servicios_realizados_baja_vision', newServicios.map(s => s.value));
                                               }}
                                             >
-                                              {servicio.label}
-                                              <div
-                                                style={{
-                                                  marginLeft: '5px',
-                                                  cursor: 'pointer'
-                                                }}
-                                                onClick={() => {
-                                                  const newServicios = serviciosRealizados.filter(serv => serv.value !== servicio.value);
-                                                  setServiciosRealizados(newServicios);
-                                                  setFieldValue('servicios_realizados_baja_vision', newServicios.map(s => s.value));
-                                                }}
-                                              >
-                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                              </div>
+                                              <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                             </div>
-                                          )
-                                        })
-                                      }
+                                          </div>
+                                        )
+                                      })
+                                    }
 
-                                    </div>
                                   </div>
                                 </div>
-                              </Col>
+                              </div>
+                            </Col>
 
-                              <Col xxl={12} xl={12} md={12}>
-                                <div className="form-row mb-4">
-                                  <div className="form-group col-md-12">
-                                    <label htmlFor="tags">Proximos Servicios</label>
-                                    <Select
-                                      showSearch
-                                      value={null}
-                                      style={{
-                                        width: '100%', color: 'transparent',
-                                        background: 'white !important'
-                                      }}
-                                      onChange={(value, val) => {
-                                        if (!proximosServicios.find(servicio => servicio.value == value)) {
-                                          const newServicios = [...proximosServicios, val];
-                                          setProximosServicios(newServicios)
-                                          setFieldValue('servicios_proximos_baja_vision', newServicios.map(s => s.value));
-                                        }
-                                      }}
-                                      options={servicios.map(servicio => ({
-                                        value: servicio.id,
-                                        label: servicio.codigo + " | " + servicio.servicio
-                                      }))}
-                                    >
-                                    </Select>
-                                    <div
-                                      style={{
-                                        display: 'ruby',
-                                        marginTop: '10px',
-                                        marginBottom: '10px'
-                                      }}
-                                      onClick={() => {
-                                      }}
-                                    >
-                                      {
-                                        proximosServicios.map((servicio) => {
-                                          return (
+                            <Col xxl={12} xl={12} md={12}>
+                              <div className="form-row mb-4">
+                                <div className="form-group col-md-12">
+                                  <label htmlFor="tags">Proximos Servicios</label>
+                                  <Select
+                                    showSearch
+                                    value={null}
+                                    style={{
+                                      width: '100%', color: 'transparent',
+                                      background: 'white !important'
+                                    }}
+                                    onChange={(value, val) => {
+                                      if (!proximosServicios.find(servicio => servicio.value == value)) {
+                                        const newServicios = [...proximosServicios, val];
+                                        setProximosServicios(newServicios)
+                                        setFieldValue('servicios_proximos_baja_vision', newServicios.map(s => s.value));
+                                      }
+                                    }}
+                                    options={servicios.map(servicio => ({
+                                      value: servicio.id,
+                                      label: servicio.codigo + " | " + servicio.servicio
+                                    }))}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
+                                  >
+                                  </Select>
+                                  <div
+                                    style={{
+                                      display: 'ruby',
+                                      marginTop: '10px',
+                                      marginBottom: '10px'
+                                    }}
+                                    onClick={() => {
+                                    }}
+                                  >
+                                    {
+                                      proximosServicios.map((servicio) => {
+                                        return (
+                                          <div
+                                            style={{
+                                              color: 'black',
+                                              background: 'white',
+                                              border: '1px solid gray',
+                                              paddingTop: '5px',
+                                              paddingBottom: '5px',
+                                              paddingLeft: '10px',
+                                              paddingRight: '10px',
+                                              borderRadius: '20px',
+                                              display: 'flex',
+                                              marginRight: '5px',
+                                              marginTop: '5px'
+                                            }}
+                                          >
+                                            {servicio.label}
                                             <div
                                               style={{
-                                                color: 'black',
-                                                background: 'white',
-                                                border: '1px solid gray',
-                                                paddingTop: '5px',
-                                                paddingBottom: '5px',
-                                                paddingLeft: '10px',
-                                                paddingRight: '10px',
-                                                borderRadius: '20px',
-                                                display: 'flex',
-                                                marginRight: '5px',
-                                                marginTop: '5px'
+                                                marginLeft: '5px',
+                                                cursor: 'pointer'
+                                              }}
+                                              onClick={() => {
+                                                const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
+                                                setProximosServicios(newServicios)
+                                                setFieldValue('servicios_proximos_baja_vision', newServicios.map(s => s.value));
                                               }}
                                             >
-                                              {servicio.label}
-                                              <div
-                                                style={{
-                                                  marginLeft: '5px',
-                                                  cursor: 'pointer'
-                                                }}
-                                                onClick={() => {
-                                                  const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
-                                                  setProximosServicios(newServicios)
-                                                  setFieldValue('servicios_proximos_baja_vision', newServicios.map(s => s.value));
-                                                }}
-                                              >
-                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                              </div>
+                                              <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                             </div>
-                                          )
-                                        })
-                                      }
+                                          </div>
+                                        )
+                                      })
+                                    }
 
-                                    </div>
                                   </div>
                                 </div>
-                              </Col>
-                            </Row>
+                              </div>
+                            </Col>
+                          </Row>
 
                           <Button
                             className="btn btn-success mt-3"

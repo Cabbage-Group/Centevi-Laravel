@@ -6,32 +6,32 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateServiciosRealizadosOptometriaPediatricaTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::create('servicios_realizados_optometria_pediatrica', function (Blueprint $table) {
-            $table->id();
-            $table->Integer('optometriaPediatrica_id');
-            $table->unsignedInteger('servicios_id');
+  /**
+   * Run the migrations.
+   *
+   * @return void
+   */
+  public function up()
+  {
+    Schema::create('servicios_realizados_optometria_pediatrica', function (Blueprint $table) {
+      $table->id();
+      $table->Integer('optometriaPediatrica_id');
+      $table->unsignedInteger('servicios_id');
 
-            $table->foreign('optometriaPediatrica_id', 'fk_realizados_optometriaPediatrica')->references('id_consulta')->on('optometria_pediatrica')->onDelete('cascade');
-            $table->foreign('servicios_id', 'fk_realizados_servicios_optometriaPediatrica')->references('id')->on('servicios')->onDelete('cascade');
+      $table->foreign('optometriaPediatrica_id', 'fk_realizados_optometriaPediatrica')->references('id_consulta')->on('optometria_pediatrica')->onDelete('cascade');
+      $table->foreign('servicios_id', 'fk_realizados_servicios_optometriaPediatrica')->references('id')->on('servicios')->onDelete('cascade');
 
-            $table->timestamps();
-        });
-    }
+      $table->timestamps();
+    });
+  }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::dropIfExists('servicios_realizados_optometria_pediatrica');
-    }
+  /**
+   * Reverse the migrations.
+   *
+   * @return void
+   */
+  public function down()
+  {
+    Schema::dropIfExists('servicios_realizados_optometria_pediatrica');
+  }
 }

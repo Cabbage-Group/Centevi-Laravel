@@ -23,7 +23,7 @@ class NeonatosApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_neonatos' => 'array',
-      'servicios_proximos_optometria_neonatos' => 'array' 
+      'servicios_proximos_optometria_neonatos' => 'array'
       // Añadir validaciones para los demás campos necesarios
     ]);
 
@@ -40,21 +40,21 @@ class NeonatosApiController extends Controller
 
       if (isset($request->servicios_realizados_optometria_neonatos)) {
         foreach ($request->servicios_realizados_optometria_neonatos as $servicioId) {
-            ServiciosRealizadosOptometriaNeonatos::create([
-                'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
-                'servicios_id' => $servicioId,
-            ]);
+          ServiciosRealizadosOptometriaNeonatos::create([
+            'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+            'servicios_id' => $servicioId,
+          ]);
         }
-    }
+      }
 
-    if (isset($request->servicios_proximos_optometria_neonatos)) {
+      if (isset($request->servicios_proximos_optometria_neonatos)) {
         foreach ($request->servicios_proximos_optometria_neonatos as $servicioId) {
-            ServiciosProximosOptometriaNeonatos::create([
-                'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
-                'servicios_id' => $servicioId,
-            ]);
+          ServiciosProximosOptometriaNeonatos::create([
+            'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+            'servicios_id' => $servicioId,
+          ]);
         }
-    }
+      }
 
       return response()->json([
         'success' => true,
