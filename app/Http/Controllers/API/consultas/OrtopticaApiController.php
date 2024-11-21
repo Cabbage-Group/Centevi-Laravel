@@ -99,6 +99,8 @@ class OrtopticaApiController extends Controller
       'id_terapia' => 'required|integer',
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
+      'servicios_realizados_historias_clinicas' => 'array',
+      'servicios_proximos_historias_clinicas' => 'array'
       // Otras validaciones aquí...
     ]);
 
@@ -123,6 +125,32 @@ class OrtopticaApiController extends Controller
 
       // Actualizar los campos
       $ortoptica->update($datos);
+
+      if ($request->has('servicios_realizados_ortoptica_adultos')) {
+        // Eliminar los servicios realizados existentes
+        ServiciosRealizadosOrtopticaAdultos::where('ortopticaAdultos_id', $ortoptica->id_consulta)->delete();
+
+        // Insertar los nuevos servicios realizados
+        foreach ($request->servicios_realizados_ortoptica_adultos as $servicioId) {
+          ServiciosRealizadosOrtopticaAdultos::create([
+            'ortopticaAdultos_id' => $ortoptica->id_consulta,
+            'servicios_id' => $servicioId,
+          ]);
+        }
+      }
+
+      if ($request->has('servicios_proximos_ortoptica_adultos')) {
+        // Eliminar los servicios próximos existentes
+        ServiciosProximosOrtopticaAdultos::where('ortopticaAdultos_id', $ortoptica->id_consulta)->delete();
+
+        // Insertar los nuevos servicios próximos
+        foreach ($request->servicios_proximos_ortoptica_adultos as $servicioId) {
+          ServiciosProximosOrtopticaAdultos::create([
+            'ortopticaAdultos_id' => $ortoptica->id_consulta,
+            'servicios_id' => $servicioId,
+          ]);
+        }
+      }
 
       return response()->json([
         'success' => true,
@@ -168,6 +196,8 @@ class OrtopticaApiController extends Controller
     // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
     $ortoptica = OrtopticaAdultos::where('paciente', $id)
       ->where('id_consulta', $id_consulta)
+      ->with('serviciosProximos.servicio')
+      ->with('serviciosRealizados.servicio')
       ->first();
 
     // Verificar si el registro existe

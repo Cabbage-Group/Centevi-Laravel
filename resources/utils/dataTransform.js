@@ -71,4 +71,26 @@ export const transformDataForSinAtencion = (data) => {
   }));
 };
 
+export const transformDataForServiciosRealizados = (data) => {
+  return data.map(serviciosR => ({
+    ID_CONSULTA: serviciosR.ID_CONSULTA,
+    Fecha_Consulta: serviciosR.FECHA_CONSULTA.trim(),
+    Consulta: serviciosR.CONSULTA,
+    Cedula: serviciosR.CEDULA,
+    Paciente: serviciosR.PACIENTE,
+    Servicio_Realizado: serviciosR.SERVICIO_REALIZADO,
+  }));
+};
+
+export const transformDataForServiciosProximos = (data) => {
+  return data.map(serviciosP => ({
+    ID_CONSULTA: serviciosP.ID_CONSULTA,
+    Fecha_Consulta: serviciosP.FECHA_CONSULTA.trim(),
+    Consulta: serviciosP.CONSULTA,
+    Cedula: serviciosP.CEDULA,
+    Paciente: serviciosP.PACIENTE,
+    Servicio_Realizado: serviciosP.SERVICIO_PROXIMO,
+  }));
+};
+
 

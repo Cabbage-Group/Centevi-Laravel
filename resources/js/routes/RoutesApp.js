@@ -62,6 +62,7 @@ import TiposUsuarios from '../admin/tipos-usuarios/VerTiposUsuarios.js';
 import Permisos from '../admin/permisos/Permisos.js';
 import ProtectedRoute from './ProtectedRoute.js';
 import CreateReceta from '../admin/recetas/CreateReceta.js';
+import ServiciosProximosRealizados from '../admin/reportes/ServiciosProximosRealizados.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -165,6 +166,7 @@ const RoutesApp = () => {
           <Route path="/consultas-diarias" element={<Sidebar component={<ConsultasDiarias />} />} />
           <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
           <Route path="/proximas-citas" element={<Sidebar component={<ProximasCitas />} />} />
+          <Route path="/servicios-proximos-realizados" element={<Sidebar component={<ServiciosProximosRealizados />} />} />
 
           <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia />} />} />
           <Route path="/ver-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaPediatrica />} />} />
@@ -186,6 +188,8 @@ const RoutesApp = () => {
           <Route path="/tipos-usuarios" element={<Sidebar component={<TiposUsuarios />} />} />
 
           <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
+
+          <Route path="/servicios-proximos-realizados" element={<Sidebar component={<ServiciosProximosRealizados />} />} />
 
         </Route>
 

@@ -9,7 +9,13 @@ use App\Models\HistoriaClinica;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Models\OptometriaPediatrica;
+use App\Models\ConsultaGenerica;
+use App\Models\RefraccionGeneral;
+use App\Models\OptometriaNeonatos;
+use App\Models\OrtopticaAdultos;
 use Carbon\Carbon;
+use GrahamCampbell\ResultType\Success;
 
 class PacientesApiController extends Controller
 {
@@ -36,8 +42,7 @@ class PacientesApiController extends Controller
     $searchTerms = explode(' ', $search);
 
     // Construir la consulta base
-    // $query = Pacientes::orderBy($sortColumn, $sortOrder);
-    $query = Pacientes::orderBy($sortColumn,  $sortOrder);
+    $query = Pacientes::orderBy($sortColumn, $sortOrder);
 
     // Aplicar el filtro de búsqueda si existe
     if (!empty($search)) {
@@ -79,7 +84,7 @@ class PacientesApiController extends Controller
     if (!empty($doctor)) {
       // Cambiado de "like" a "=" para búsqueda exacta
       $query->where('doctor', '=', $doctor);
-  }
+    }
     // Obtener los datos paginados
     $pacientes = $query->paginate($limit, ['*'], 'page', $page);
 
@@ -495,7 +500,7 @@ class PacientesApiController extends Controller
       $pacientesQuery->havingRaw("FIND_IN_SET(?, doctores) > 0", [$doctor]);
     }
 
-    
+
 
 
     if ($fecha !== null) {
@@ -579,7 +584,7 @@ class PacientesApiController extends Controller
       )
       ->leftJoin('baja_vision as b', 'pacientes.id_paciente', '=', 'b.paciente')
       ->leftJoin('sucursales as s', 'b.sucursal', '=', 's.id_sucursal')
-      ->where(function ($query) use ($fecha, $search,$doctor) {
+      ->where(function ($query) use ($fecha, $search, $doctor) {
         if ($fecha !== null) {
           if (strpos($fecha, ' - ') !== false) {
             list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -603,7 +608,7 @@ class PacientesApiController extends Controller
         };
         if ($doctor !== null) {
           $query->where('b.doctor', $doctor);
-      }
+        }
       });
     $query->unionAll(
       DB::table('pacientes')
@@ -620,7 +625,7 @@ class PacientesApiController extends Controller
         )
         ->join('optometria_neonatos as o', 'pacientes.id_paciente', '=', 'o.paciente')
         ->leftJoin('sucursales as s', 'o.sucursal', '=', 's.id_sucursal')
-        ->where(function ($query) use ($fecha, $search,$doctor) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -644,7 +649,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('o.doctor', $doctor);
-        }
+          }
         })
     );
     $query->unionAll(
@@ -662,7 +667,7 @@ class PacientesApiController extends Controller
         )
         ->join('optometria_pediatrica as o', 'pacientes.id_paciente', '=', 'o.paciente')
         ->leftJoin('sucursales as s', 'o.sucursal', '=', 's.id_sucursal')
-        ->where(function ($query) use ($fecha, $search,$doctor) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -686,7 +691,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('o.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -705,7 +710,7 @@ class PacientesApiController extends Controller
         )
         ->join('ortoptica_adultos as o', 'pacientes.id_paciente', '=', 'o.paciente')
         ->leftJoin('sucursales as s', 'o.sucursal', '=', 's.id_sucursal')
-        ->where(function ($query) use ($fecha, $search,$doctor) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -729,7 +734,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('o.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -748,7 +753,7 @@ class PacientesApiController extends Controller
         )
         ->join('consultagenerica as c', 'pacientes.id_paciente', '=', 'c.paciente')
         ->leftJoin('sucursales as s', 'c.sucursal', '=', 's.id_sucursal')
-        ->where(function ($query) use ($fecha, $search,$doctor) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -772,7 +777,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('c.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -791,7 +796,7 @@ class PacientesApiController extends Controller
         )
         ->join('refracciongeneral as r', 'pacientes.id_paciente', '=', 'r.paciente')
         ->leftJoin('sucursales as s', 'r.sucursal', '=', 's.id_sucursal')
-        ->where(function ($query) use ($fecha, $search,$doctor) {
+        ->where(function ($query) use ($fecha, $search, $doctor) {
           if ($fecha !== null) {
             if (strpos($fecha, ' - ') !== false) {
               list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -815,7 +820,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('r.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1112,8 +1117,8 @@ class PacientesApiController extends Controller
 
     $dataexportQuery = clone $query;
     $dataexport = $dataexportQuery
-        ->orderByRaw('TRIM(' . $ordenPor . ') ' . $orden)
-        ->get();
+      ->orderByRaw('TRIM(' . $ordenPor . ') ' . $orden)
+      ->get();
 
 
     // Contar los registros
@@ -1126,7 +1131,7 @@ class PacientesApiController extends Controller
       ->offset(($page - 1) * $limit)
       ->get();
 
-   
+
     return response()->json([
       'data' => $pacientesSinAtender,
       'meta' => [
@@ -1262,7 +1267,7 @@ class PacientesApiController extends Controller
         DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_realizados_baja_vision.servicios_id AS SIGNED)) as REALIZADOS_SERVICIOS_ID"),
         // 'servicios_proximos_baja_vision.servicios_id as PROXIMO_SERVICIO_ID',
         // 'servicios_realizados_baja_vision.servicios_id as REALIZADO_SERVICIO_ID'
-      ) 
+      )
       ->join('baja_vision', 'pacientes.id_paciente', '=', 'baja_vision.paciente')
       ->leftJoin('sucursales', 'baja_vision.sucursal', '=', 'sucursales.id_sucursal')
 
@@ -1270,7 +1275,7 @@ class PacientesApiController extends Controller
       ->leftJoin('servicios_realizados_baja_vision', 'baja_vision.id_consulta', '=', 'servicios_realizados_baja_vision.bajavision_id')
       ->groupBy('baja_vision.id_consulta')
 
-      ->where(function ($query) use ($fecha, $search , $doctor) {
+      ->where(function ($query) use ($fecha, $search, $doctor) {
         if ($fecha !== null) {
           if (strpos($fecha, ' - ') !== false) {
             list($fechaInicio, $fechaFin) = array_map('trim', explode(' - ', $fecha));
@@ -1294,7 +1299,7 @@ class PacientesApiController extends Controller
         };
         if ($doctor !== null) {
           $query->where('baja_vision.doctor', $doctor);
-      }
+        }
       });
 
 
@@ -1312,8 +1317,8 @@ class PacientesApiController extends Controller
           DB::raw("'Optometría Neonatos' as TIPO"),
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_proximos_optometria_neonatos.servicios_id AS SIGNED)) as PROXIMOS_SERVICIOS_ID"),
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_realizados_optometria_neonatos.servicios_id AS SIGNED)) as REALIZADOS_SERVICIOS_ID"),
-        // 'servicios_proximos_optometria_neonatos.servicios_id as PROXIMO_SERVICIO_ID',
-        // 'servicios_realizados_optometria_neonatos.servicios_id as REALIZADO_SERVICIO_ID'
+          // 'servicios_proximos_optometria_neonatos.servicios_id as PROXIMO_SERVICIO_ID',
+          // 'servicios_realizados_optometria_neonatos.servicios_id as REALIZADO_SERVICIO_ID'
         )
         ->join('optometria_neonatos', 'pacientes.id_paciente', '=', 'optometria_neonatos.paciente')
         ->leftJoin('sucursales', 'optometria_neonatos.sucursal', '=', 'sucursales.id_sucursal')
@@ -1344,7 +1349,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('optometria_neonatos.doctor', $doctor);
-        };        
+          };
         })
     );
 
@@ -1359,7 +1364,7 @@ class PacientesApiController extends Controller
           'optometria_pediatrica.fecha_atencion as FECHA_ATENCION',
           'optometria_pediatrica.doctor as DOCTOR',
           'sucursales.nombre as SUCURSAL',
-          DB::raw("'Optometría Pediátrica' as TIPO"),         
+          DB::raw("'Optometría Pediátrica' as TIPO"),
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_proximos_optometria_pediatrica.servicios_id AS SIGNED)) as PROXIMO_SERVICIO_ID"),
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_realizados_optometria_pediatrica.servicios_id AS SIGNED)) as REALIZADO_SERVICIO_ID"),
           // 'servicios_proximos_optometria_pediatrica.servicios_id as PROXIMO_SERVICIO_ID',
@@ -1394,7 +1399,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('optometria_pediatrica.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1415,7 +1420,7 @@ class PacientesApiController extends Controller
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_realizados_ortoptica_adultos.servicios_id AS SIGNED)) as REALIZADO_SERVICIO_ID")
           // 'servicios_proximos_ortoptica_adultos.servicios_id as PROXIMO_SERVICIO_ID',
           // 'servicios_realizados_ortoptica_adultos.servicios_id as REALIZADO_SERVICIO_ID'
-          )
+        )
         ->join('ortoptica_adultos', 'pacientes.id_paciente', '=', 'ortoptica_adultos.paciente')
         ->leftJoin('sucursales', 'ortoptica_adultos.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('servicios_proximos_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_proximos_ortoptica_adultos.ortopticaAdultos_id')
@@ -1444,7 +1449,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('ortoptica_adultos.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1464,7 +1469,7 @@ class PacientesApiController extends Controller
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_realizados_historias_clinicas.servicios_id AS SIGNED)) as REALIZADO_SERVICIO_ID")
           // 'servicios_proximos_historias_clinicas.servicios_id as PROXIMO_SERVICIO_ID',
           // 'servicios_realizados_historias_clinicas.servicios_id as REALIZADO_SERVICIO_ID'
-          )
+        )
         ->join('consultagenerica', 'pacientes.id_paciente', '=', 'consultagenerica.paciente')
         ->leftJoin('sucursales', 'consultagenerica.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('servicios_proximos_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_proximos_historias_clinicas.historiaclinica_id')
@@ -1495,7 +1500,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('consultagenerica.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1515,7 +1520,7 @@ class PacientesApiController extends Controller
           DB::raw("GROUP_CONCAT(DISTINCT CAST(servicios_realizados_optometria_general.servicios_id AS SIGNED)) as REALIZADO_SERVICIO_ID")
           // 'servicios_proximos_optometria_general.servicios_id as PROXIMO_SERVICIO_ID',
           // 'servicios_realizados_optometria_general.servicios_id as REALIZADO_SERVICIO_ID'
-          )
+        )
         ->join('refracciongeneral', 'pacientes.id_paciente', '=', 'refracciongeneral.paciente')
         ->leftJoin('sucursales', 'refracciongeneral.sucursal', '=', 'sucursales.id_sucursal')
         ->leftJoin('servicios_proximos_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_proximos_optometria_general.optometriageneral_id')
@@ -1545,7 +1550,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('refracciongeneral.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1590,7 +1595,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('terapia_bajav.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1635,7 +1640,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('terapia_optometria_neonatos.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1680,7 +1685,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('terapia_optometria_pediatrica.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1726,7 +1731,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('terapia_ortoptica_adultos.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1842,7 +1847,7 @@ class PacientesApiController extends Controller
         };
         if ($doctor !== null) {
           $query->where('optometria_neonatos.doctor', $doctor);
-      }
+        }
       });
 
     $query->unionAll(
@@ -1905,7 +1910,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('optometria_pediatrica.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -1966,7 +1971,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('ortoptica_adultos.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -2027,7 +2032,7 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('consultagenerica.doctor', $doctor);
-        }
+          }
         })
     );
 
@@ -2088,11 +2093,11 @@ class PacientesApiController extends Controller
           };
           if ($doctor !== null) {
             $query->where('refracciongeneral.doctor', $doctor);
-        }
+          }
         })
     );
 
-  
+
     $result = DB::table(DB::raw("({$query->toSql()}) as sub"))
       ->mergeBindings($query)
       ->orderBy($ordenPor, $orden)
@@ -2188,6 +2193,269 @@ class PacientesApiController extends Controller
       return response()->json(['message' => 'Error al actualizar el contacto', 'error' => $e->getMessage()], 500);
     }
 
+  }
+  public function obtenerConsultasConServicios(Request $request)
+  {
+    $limit = intval($request->input('limit', 10));
+    $page = intval($request->input('page', 1));
+    $sortColumn = $request->input('sortColumn', 'FECHA_CONSULTA');
+    $sortOrder = $request->input('sortOrder', 'asc');
+    $fecha = $request->input('fecha');
+    $search = $request->input('search');
+
+    $fechaInicio = null;
+    $fechaFin = null;
+
+    if ($fecha) {
+      [$fechaInicio, $fechaFin] = explode(' - ', $fecha);
+    }
+
+    $optometriaPediatrica = DB::table('optometria_pediatrica')
+      ->join('pacientes', 'optometria_pediatrica.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_realizados_optometria_pediatrica', 'optometria_pediatrica.id_consulta', '=', 'servicios_realizados_optometria_pediatrica.optometriaPediatrica_id')
+      ->join('servicios', 'servicios_realizados_optometria_pediatrica.servicios_id', '=', 'servicios.id')
+      ->select(
+        'optometria_pediatrica.id_consulta as ID_CONSULTA',
+        'optometria_pediatrica.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"optometria_pediatrica" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_REALIZADO'
+      );
+
+    $consultaGenerica = DB::table('consultagenerica')
+      ->join('pacientes', 'consultagenerica.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_realizados_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_realizados_historias_clinicas.historiaclinica_id')
+      ->join('servicios', 'servicios_realizados_historias_clinicas.servicios_id', '=', 'servicios.id')
+      ->select(
+        'consultagenerica.id_consulta as ID_CONSULTA',
+        'consultagenerica.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"consultagenerica" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_REALIZADO'
+      );
+
+    $refraccionGeneral = DB::table('refracciongeneral')
+      ->join('pacientes', 'refracciongeneral.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_realizados_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_realizados_optometria_general.optometriageneral_id')
+      ->join('servicios', 'servicios_realizados_optometria_general.servicios_id', '=', 'servicios.id')
+      ->select(
+        'refracciongeneral.id_consulta as ID_CONSULTA',
+        'refracciongeneral.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"refracciongeneral" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_REALIZADO'
+      );
+
+    $optometriaNeonatos = DB::table('optometria_neonatos')
+      ->join('pacientes', 'optometria_neonatos.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_realizados_optometria_neonatos', 'optometria_neonatos.id_consulta', '=', 'servicios_realizados_optometria_neonatos.optometriaNeonatos_id')
+      ->join('servicios', 'servicios_realizados_optometria_neonatos.servicios_id', '=', 'servicios.id')
+      ->select(
+        'optometria_neonatos.id_consulta as ID_CONSULTA',
+        'optometria_neonatos.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"optometria_neonatos" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_REALIZADO'
+      );
+
+    $ortopticaAdultos = DB::table('ortoptica_adultos')
+      ->join('pacientes', 'ortoptica_adultos.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_realizados_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_realizados_ortoptica_adultos.ortopticaAdultos_id')
+      ->join('servicios', 'servicios_realizados_ortoptica_adultos.servicios_id', '=', 'servicios.id')
+      ->select(
+        'ortoptica_adultos.id_consulta as ID_CONSULTA',
+        'ortoptica_adultos.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"ortoptica_adultos" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_REALIZADO'
+      );
+
+    $unionQuery = $optometriaPediatrica
+      ->union($consultaGenerica)
+      ->union($refraccionGeneral)
+      ->union($optometriaNeonatos)
+      ->union($ortopticaAdultos);
+
+    $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as sub"))
+      ->mergeBindings($unionQuery)
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($subQuery) use ($search) {
+          $subQuery->where('ID_CONSULTA', 'LIKE', "%{$search}%")
+            ->orWhere('CONSULTA', 'LIKE', "%{$search}%")
+            ->orWhere('CEDULA', 'LIKE', "%{$search}%")
+            ->orWhere('PACIENTE', 'LIKE', "%{$search}%")
+            ->orWhere('SERVICIO_REALIZADO', 'LIKE', "%{$search}%");
+        });
+      })
+      ->orderBy($sortColumn, $sortOrder);
+
+    if ($fechaInicio && $fechaFin) {
+      $consultas->whereBetween('FECHA_CONSULTA', [$fechaInicio, $fechaFin]);
+    }
+
+    $dataexport = $consultas->get();
+
+    $total = $consultas->count();
+    $consultas = $consultas->skip(($page - 1) * $limit)->take($limit)->get();
+
+    return response()->json([
+      'data' => $consultas,
+      'meta' => [
+        'limit' => $limit,
+        'total' => $total,
+        'page' => $page,
+        'sortOrder' => $sortOrder,
+        'sortColumn' => $sortColumn,
+      ],
+      'export' => [
+        'dataexport' => $dataexport,
+      ],
+      'success' => true
+    ]);
+  }
+
+
+  public function obtenerConsultasConServiciosProximos(Request $request)
+  {
+    $limit = intval($request->input('limit', 10));
+    $page = intval($request->input('page', 1));
+    $sortColumn = $request->input('sortColumn', 'FECHA_CONSULTA');
+    $sortOrder = $request->input('sortOrder', 'asc');
+    $fecha = $request->input('fecha');
+    $search = $request->input('search');
+
+    $fechaInicio = null;
+    $fechaFin = null;
+    if ($fecha) {
+      [$fechaInicio, $fechaFin] = explode(' - ', $fecha);
+      $fechaInicio = trim($fechaInicio);
+      $fechaFin = trim($fechaFin);
+    }
+
+
+
+    $optometriaPediatrica = DB::table('optometria_pediatrica')
+      ->join('pacientes', 'optometria_pediatrica.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_proximos_optometria_pediatrica', 'optometria_pediatrica.id_consulta', '=', 'servicios_proximos_optometria_pediatrica.optometriaPediatrica_id')
+      ->join('servicios', 'servicios_proximos_optometria_pediatrica.servicios_id', '=', 'servicios.id')
+      ->select(
+        'optometria_pediatrica.id_consulta as ID_CONSULTA',
+        'optometria_pediatrica.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"optometria_pediatrica" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_PROXIMO'
+      );
+
+
+
+    $consultaGenerica = DB::table('consultagenerica')
+      ->join('pacientes', 'consultagenerica.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_proximos_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_proximos_historias_clinicas.historiaclinica_id')
+      ->join('servicios', 'servicios_proximos_historias_clinicas.servicios_id', '=', 'servicios.id')
+      ->select(
+        'consultagenerica.id_consulta as ID_CONSULTA',
+        'consultagenerica.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"consultagenerica" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_PROXIMO'
+      );
+
+
+
+    $refraccionGeneral = DB::table('refracciongeneral')
+      ->join('pacientes', 'refracciongeneral.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_proximos_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_proximos_optometria_general.optometriageneral_id')
+      ->join('servicios', 'servicios_proximos_optometria_general.servicios_id', '=', 'servicios.id')
+      ->select(
+        'refracciongeneral.id_consulta as ID_CONSULTA',
+        'refracciongeneral.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"refracciongeneral" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_PROXIMO'
+      );
+
+
+
+    $optometriaNeonatos = DB::table('optometria_neonatos')
+      ->join('pacientes', 'optometria_neonatos.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_proximos_optometria_neonatos', 'optometria_neonatos.id_consulta', '=', 'servicios_proximos_optometria_neonatos.optometriaNeonatos_id')
+      ->join('servicios', 'servicios_proximos_optometria_neonatos.servicios_id', '=', 'servicios.id')
+      ->select(
+        'optometria_neonatos.id_consulta as ID_CONSULTA',
+        'optometria_neonatos.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"optometria_neonatos" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_PROXIMO'
+      );
+
+
+    $ortopticaAdultos = DB::table('ortoptica_adultos')
+      ->join('pacientes', 'ortoptica_adultos.paciente', '=', 'pacientes.id_paciente')
+      ->join('servicios_proximos_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_proximos_ortoptica_adultos.ortopticaAdultos_id')
+      ->join('servicios', 'servicios_proximos_ortoptica_adultos.servicios_id', '=', 'servicios.id')
+      ->select(
+        'ortoptica_adultos.id_consulta as ID_CONSULTA',
+        'ortoptica_adultos.fecha_atencion as FECHA_CONSULTA',
+        DB::raw('"ortoptica_adultos" as CONSULTA'),
+        'pacientes.nro_cedula as CEDULA',
+        DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
+        'servicios.servicio as SERVICIO_PROXIMO'
+      );
+
+    $unionQuery = $optometriaPediatrica
+      ->union($consultaGenerica)
+      ->union($refraccionGeneral)
+      ->union($optometriaNeonatos)
+      ->union($ortopticaAdultos);
+
+    $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as sub"))
+      ->mergeBindings($unionQuery)
+      ->when($search, function ($query) use ($search) {
+        $query->where(function ($subQuery) use ($search) {
+          $subQuery->where('ID_CONSULTA', 'LIKE', "%{$search}%")
+            ->orWhere('CONSULTA', 'LIKE', "%{$search}%")
+            ->orWhere('CEDULA', 'LIKE', "%{$search}%")
+            ->orWhere('PACIENTE', 'LIKE', "%{$search}%")
+            ->orWhere('SERVICIO_PROXIMO', 'LIKE', "%{$search}%");
+        });
+      })
+      ->orderBy($sortColumn, $sortOrder);
+
+    if ($fechaInicio && $fechaFin) {
+      $consultas->whereBetween('FECHA_CONSULTA', [$fechaInicio, $fechaFin]);
+    }
+
+
+    $dataexport = $consultas->get();
+
+    $total = $consultas->count();
+    $consultas = $consultas->skip(($page - 1) * $limit)->take($limit)->get();
+
+
+
+    return response()->json([
+      'data' => $consultas,
+      'meta' => [
+        'limit' => $limit,
+        'total' => $total,
+        'page' => $page,
+        'sortOrder' => $sortOrder,
+        'sortColumn' => $sortColumn,
+      ],
+      'export' => [
+        'dataexport' => $dataexport,
+      ],
+      'success' => true
+    ]);
   }
 
 }

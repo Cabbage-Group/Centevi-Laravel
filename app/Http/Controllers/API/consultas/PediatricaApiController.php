@@ -99,6 +99,8 @@ class PediatricaApiController extends Controller
       'id_terapia' => 'required|integer',
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
+      'servicios_realizados_historias_clinicas' => 'array',
+      'servicios_proximos_historias_clinicas' => 'array'
       // Agrega las reglas para los demás campos...
     ]);
 
@@ -123,6 +125,32 @@ class PediatricaApiController extends Controller
 
       // Actualizar los campos
       $optometriaPediatrica->update($datos);
+
+      if ($request->has('servicios_realizados_optometria_pediatrica')) {
+        // Eliminar los servicios realizados existentes
+        ServiciosRealizadosOptometriaPediatrica::where('optometriaPediatrica_id', $optometriaPediatrica->id_consulta)->delete();
+
+        // Insertar los nuevos servicios realizados
+        foreach ($request->servicios_realizados_optometria_pediatrica as $servicioId) {
+          ServiciosRealizadosOptometriaPediatrica::create([
+            'optometriaPediatrica_id' => $optometriaPediatrica->id_consulta,
+            'servicios_id' => $servicioId,
+          ]);
+        }
+      }
+
+      if ($request->has('servicios_proximos_optometria_pediatrica')) {
+        // Eliminar los servicios próximos existentes
+        ServiciosProximosOptometriaPediatrica::where('optometriaPediatrica_id', $optometriaPediatrica->id_consulta)->delete();
+
+        // Insertar los nuevos servicios próximos
+        foreach ($request->servicios_proximos_optometria_pediatrica as $servicioId) {
+          ServiciosProximosOptometriaPediatrica::create([
+            'optometriaPediatrica_id' => $optometriaPediatrica->id_consulta,
+            'servicios_id' => $servicioId,
+          ]);
+        }
+      }
 
       return response()->json([
         'success' => true,
@@ -185,6 +213,8 @@ class PediatricaApiController extends Controller
     // Buscar el registro en la tabla OrtopticaAdultos por id_paciente y id_consulta
     $ortoptica = OptometriaPediatrica::where('paciente', $id)
       ->where('id_consulta', $id_consulta)
+      ->with('serviciosProximos.servicio')
+      ->with('serviciosRealizados.servicio')
       ->first();
 
     // Verificar si el registro existe

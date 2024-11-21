@@ -57,12 +57,12 @@ class OrtopticaAdultos extends Model
 
   public function serviciosRealizados()
   {
-    return $this->hasMany(ServiciosRealizadosBajaVision::class, 'bajavision_id');
+    return $this->hasMany(ServiciosRealizadosOrtopticaAdultos::class, 'ortopticaAdultos_id');
   }
 
   public function serviciosProximos()
   {
-    return $this->hasMany(ServiciosProximosBajaVision::class, 'bajavision_id');
+    return $this->hasMany(ServiciosProximosOrtopticaAdultos::class, 'ortopticaAdultos_id');
   }
 
   // Atributos que deben ser convertidos a tipos nativos
@@ -76,4 +76,3 @@ class OrtopticaAdultos extends Model
   ];
 
 }
-
