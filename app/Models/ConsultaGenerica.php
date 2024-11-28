@@ -7,49 +7,49 @@ use Illuminate\Database\Eloquent\Model;
 
 class ConsultaGenerica extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    // Nombre de la tabla
-    protected $table = 'consultagenerica';
+  // Nombre de la tabla
+  protected $table = 'consultagenerica';
 
-    // Clave primaria de la tabla
-    protected $primaryKey = 'id_consulta';
+  // Clave primaria de la tabla
+  protected $primaryKey = 'id_consulta';
 
-    public $timestamps = false;
+  public $timestamps = false;
 
-    // Atributos que son asignables en masa
-    protected $fillable = [
-        'sucursal',
-        'doctor',
-        'paciente',
-        'id_terapia',
-        'edad',
-        'fecha_atencion',
-        'm_c',
-        'fecha_creacion',
-        'editado',
-        'fecha_proxima_consulta',
-        'hubo_contacto',
-        'se_agendo'
-    ];
+  // Atributos que son asignables en masa
+  protected $fillable = [
+    'sucursal',
+    'doctor',
+    'paciente',
+    'id_terapia',
+    'edad',
+    'fecha_atencion',
+    'm_c',
+    'fecha_creacion',
+    'editado',
+    'fecha_proxima_consulta',
+    'hubo_contacto',
+    'se_agendo'
+  ];
 
-    public function serviciosRealizados()
-    {
-        return $this->hasMany(ServiciosRealizadosHistoriasClinicas::class, 'historiaclinica_id');
-    }
+  public function serviciosRealizados()
+  {
+    return $this->hasMany(ServiciosRealizadosHistoriasClinicas::class, 'historiaclinica_id');
+  }
 
-    public function serviciosProximos()
-    {
-        return $this->hasMany(ServiciosProximosHistoriasClinicas::class, 'historiaclinica_id');
-    }
+  public function serviciosProximos()
+  {
+    return $this->hasMany(ServiciosProximosHistoriasClinicas::class, 'historiaclinica_id');
+  }
 
-    // Atributos que deben ser convertidos a tipos nativos
-    protected $casts = [
-        'sucursal' => 'integer',
-        'paciente' => 'integer',
-        'fecha_atencion' => 'date',
-        'fecha_creacion' => 'datetime',
-        'fecha_proxima_consulta' => 'datetime',
+  // Atributos que deben ser convertidos a tipos nativos
+  protected $casts = [
+    'sucursal' => 'integer',
+    'paciente' => 'integer',
+    'fecha_atencion' => 'date',
+    'fecha_creacion' => 'datetime',
+    'fecha_proxima_consulta' => 'datetime',
 
-    ];
+  ];
 }

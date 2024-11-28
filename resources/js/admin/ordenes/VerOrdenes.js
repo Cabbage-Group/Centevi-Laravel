@@ -2,18 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { fecthRecetas, setOrden, setOrdenPor } from '../../redux/features/recetas/recetasSlice';
-import PaginationRecetas from './PaginationRecetas';
+// import PaginationRecetas from './PaginationRecetas';
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
 
-const VerRecetas = () => {
+const VerOrdenes = () => {
   const dispatch = useDispatch();
   const { recetas, status, error, meta, totalPages, orden, ordenPor, search } = useSelector((state) => state.recetas);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
-  useEffect(() => {
 
+  useEffect(() => {
     dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor, search: localSearch }));
   }, [dispatch, localSearch, currentPage, orden, ordenPor]);
 
@@ -363,12 +363,12 @@ const VerRecetas = () => {
                           </tfoot>
                         </table>
                       )}
-                      <PaginationRecetas
+                      {/* <PaginationRecetas
                         meta={meta}
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
-                      />
+                      /> */}
                     </div>
                   </div>
                 </div>
@@ -381,4 +381,4 @@ const VerRecetas = () => {
   )
 }
 
-export default VerRecetas
+export default VerOrdenes

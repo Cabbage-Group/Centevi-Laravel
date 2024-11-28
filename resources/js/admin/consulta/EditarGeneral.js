@@ -170,7 +170,7 @@ const EditarGeneral = () => {
   });
 
   useEffect(() => {
-    if (RefraccionGeneral && RefraccionGeneral.servicios_proximos && RefraccionGeneral.servicios_proximos.length > 0) {
+    if (RefraccionGeneral) {
       setFormData({
         sucursal: RefraccionGeneral.sucursal || '',
         doctor: RefraccionGeneral.doctor || '',
@@ -207,30 +207,35 @@ const EditarGeneral = () => {
         fecha_proxima_consulta: moment.utc(RefraccionGeneral.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
 
       });
-      const serviciosProximos = RefraccionGeneral.servicios_proximos.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null);
 
-      const serviciosRealizados = RefraccionGeneral.servicios_realizados.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null);
+      if (RefraccionGeneral.servicios_proximos && RefraccionGeneral.servicios_proximos.length > 0) {
+        const serviciosProximos = RefraccionGeneral.servicios_proximos.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null);
+        setProximosServicios(serviciosProximos);
+      }
 
-      setProximosServicios(serviciosProximos);
-      setServiciosRealizados(serviciosRealizados)
+      if (RefraccionGeneral.servicios_realizados && RefraccionGeneral.servicios_realizados.length > 0) {
+        const serviciosRealizados = RefraccionGeneral.servicios_realizados.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null);
+        setServiciosRealizados(serviciosRealizados)
+      }
+
     } else {
       console.log('El array data.servicios_proximos está vacío o no existe.')
     }

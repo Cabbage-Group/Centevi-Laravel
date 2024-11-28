@@ -139,7 +139,7 @@ const EditarNeonatos = () => {
   });
 
   useEffect(() => {
-    if (neonato && neonato.servicios_proximos && neonato.servicios_proximos.length > 0) {
+    if (neonato) {
       setFormData({
         sucursal: neonato.sucursal || '',
         doctor: neonato.doctor || '',
@@ -177,30 +177,35 @@ const EditarNeonatos = () => {
         fecha_proxima_consulta: moment.utc(neonato.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
 
-      const serviciosProximos = neonato.servicios_proximos.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+      if (neonato.servicios_proximos && neonato.servicios_proximos.length > 0) {
+        const serviciosProximos = neonato.servicios_proximos.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
 
-      const serviciosRealizados = neonato.servicios_realizados.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        setProximosServicios(serviciosProximos);
+      }
 
-      setProximosServicios(serviciosProximos);
-      setServiciosRealizados(serviciosRealizados)
+      if (neonato.servicios_realizados && neonato.servicios_realizados.length > 0) {
+        const serviciosRealizados = neonato.servicios_realizados.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+
+        setServiciosRealizados(serviciosRealizados)
+      }
     }
   }, [neonato]);
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ListaPaciente from '../admin/Paciente/ListaPaciente.js';
 import VerRecetas from '../admin/recetas/VerRecetas.js';
+import VerOrdenes from '../admin/ordenes/VerOrdenes.js';
 import CrearReceta from '../admin/recetas/CrearReceta.js';
 import SinAtencion from '../admin/reportes/SinAtencion.js';
 import UltimaAtencion from '../admin/reportes/UltimaAtencion.js';
@@ -63,6 +64,7 @@ import Permisos from '../admin/permisos/Permisos.js';
 import ProtectedRoute from './ProtectedRoute.js';
 import CreateReceta from '../admin/recetas/CreateReceta.js';
 import ServiciosProximosRealizados from '../admin/reportes/ServiciosProximosRealizados.js';
+import Ordenes from '../admin/recetas/ordenes/Ordenes.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -154,7 +156,10 @@ const RoutesApp = () => {
           <Route path="/vision-binocular" element={<Sidebar component={<OrtopticaVisionBinocular />} />} />
 
           <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
+          <Route path="/ordenes" element={<Sidebar component={<VerOrdenes />} />} />
+
           <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
+          <Route path="/orden-receta" element={<Sidebar component={<Ordenes />} />} />
           <Route path="/create-receta" element={<Sidebar component={<CreateReceta />} />} />
           <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
           <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />

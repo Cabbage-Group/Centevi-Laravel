@@ -189,7 +189,7 @@ const EditarOrtoptica = () => {
   });
 
   useEffect(() => {
-    if (ortoptica && ortoptica.servicios_proximos && ortoptica.servicios_proximos.length > 0) {
+    if (ortoptica) {
       setFormData({
         sucursal: ortoptica.sucursal || '',
         doctor: ortoptica.doctor || '',
@@ -227,30 +227,34 @@ const EditarOrtoptica = () => {
         fecha_proxima_consulta: moment.utc(ortoptica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
 
-      const serviciosProximos = ortoptica.servicios_proximos.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+      if (ortoptica.servicios_proximos && ortoptica.servicios_proximos.length > 0) {
+        const serviciosProximos = ortoptica.servicios_proximos.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        setProximosServicios(serviciosProximos);
+      }
 
-      const serviciosRealizados = ortoptica.servicios_realizados.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+      if (ortoptica.servicios_realizados && ortoptica.servicios_realizados.length > 0) {
+        const serviciosRealizados = ortoptica.servicios_realizados.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
 
-      setProximosServicios(serviciosProximos);
-      setServiciosRealizados(serviciosRealizados)
+        setServiciosRealizados(serviciosRealizados)
+      }
     }
   }, [ortoptica]);
 

@@ -55,7 +55,8 @@ const EditarConsultaGenerica = () => {
   });
 
   useEffect(() => {
-    if (consultagenerica && consultagenerica.servicios_proximos && consultagenerica.servicios_proximos.length > 0) {
+    // if (consultagenerica && consultagenerica.servicios_proximos && consultagenerica.servicios_proximos.length > 0) {
+    if (consultagenerica) {
       setFormData({
         sucursal: consultagenerica.sucursal || '',
         doctor: consultagenerica.doctor || '',
@@ -67,37 +68,44 @@ const EditarConsultaGenerica = () => {
         fecha_creacion: consultagenerica.fecha_creacion || '',
         editado: consultagenerica.editado ? JSON.parse(consultagenerica.editado) : {},
         fecha_proxima_consulta: moment.utc(consultagenerica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
-        servicios_proximos_historias_clinicas: consultagenerica.servicios_proximos
+        servicios_proximos_historias_clinicas: consultagenerica?.servicios_proximos
       });
-      const serviciosProximos = consultagenerica.servicios_proximos.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
 
-      const serviciosRealizados = consultagenerica.servicios_realizados.map(item => {
-        const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-        if (servicio) {
-          return {
-            value: servicio.id,
-            label: `${servicio.codigo} | ${servicio.servicio}`
-          };
-        }
-        return null;
-      }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
 
-      setProximosServicios(serviciosProximos);
-      setServiciosRealizados(serviciosRealizados)
+      if (consultagenerica.servicios_proximos && consultagenerica.servicios_proximos.length > 0) {
+        const serviciosProximos = consultagenerica.servicios_proximos.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+
+        setProximosServicios(serviciosProximos);
+      }
+
+      if (consultagenerica.servicios_realizados && consultagenerica.servicios_realizados.length > 0) {
+        const serviciosRealizados = consultagenerica?.servicios_realizados?.map(item => {
+          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+          if (servicio) {
+            return {
+              value: servicio.id,
+              label: `${servicio.codigo} | ${servicio.servicio}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+
+
+        setServiciosRealizados(serviciosRealizados)
+      }
+
     } else {
       console.log('El array data.servicios_proximos está vacío o no existe.')
     }
-
-
 
   }, [consultagenerica]);
 

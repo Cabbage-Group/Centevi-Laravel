@@ -90,7 +90,7 @@ const CreateReceta = () => {
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-  }, [dispatch]);
+  }, []);
 
   const handleSubmit = async (values) => {
     console.log('Valores del formulario al enviar:', values);
@@ -161,7 +161,7 @@ const CreateReceta = () => {
                                   </p>
                                 </div>
                                 <div class="col-md-2"  >
-                                  <h4>Nro. Orden</h4>
+                                  <h4>Nro. Orden*</h4>
                                   <Input
                                     style={{
                                       color: "red",
@@ -178,7 +178,7 @@ const CreateReceta = () => {
 
 
                                 <div className="form-group col-md-4" >
-                                  <label htmlFor="pacientes">Pacientes</label>
+                                  <label htmlFor="pacientes">Pacientes*</label>
                                   <Select
                                     showSearch
                                     placeholder="Seleccione el paciente"
@@ -225,7 +225,7 @@ const CreateReceta = () => {
 
 
                                 <div className="form-group col-md-4" >
-                                  <label htmlFor="inputSucursal">Sucursal</label>
+                                  <label htmlFor="inputSucursal">Sucursal*</label>
                                   <Field
                                     as="select"
                                     name="sucursal"
@@ -332,7 +332,8 @@ const CreateReceta = () => {
                                           </th>
                                           <th
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: '175px'
                                             }}
                                           >
                                             PRISMA
@@ -342,7 +343,7 @@ const CreateReceta = () => {
                                               color: 'white!important'
                                             }}
                                           >
-                                            DISTANCIA PUPILAR
+                                            DISTANCIA PUPILAR*
                                           </th>
                                           <th
                                             style={{
@@ -507,7 +508,7 @@ const CreateReceta = () => {
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
                                     <h6 className="text-center p-2">
-                                      TIPO DE CRISTAL:
+                                      TIPO DE CRISTAL {serviciosRealizados.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
                                     </h6>
 
                                     <Select
@@ -520,7 +521,7 @@ const CreateReceta = () => {
                                       onChange={(value, val) => {
                                         // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!serviciosRealizados.find(servicio => servicio.id == value)) {
+                                        if (!serviciosRealizados.find(servicio => servicio.value == value) && serviciosRealizados.length < 2) {
                                           serviciosRealizados.push(val)
                                           setServiciosRealizados([...serviciosRealizados])
                                         }
@@ -540,7 +541,7 @@ const CreateReceta = () => {
                                     </Select>
                                     <div
                                       style={{
-                                        display: 'ruby',
+                                        // display: 'ruby',
                                         marginTop: '10px',
                                         marginBottom: '10px'
                                       }}
@@ -548,36 +549,50 @@ const CreateReceta = () => {
                                       }}
                                     >
                                       {
-                                        serviciosRealizados.map((servicio) => {
+                                        serviciosRealizados.map((servicio, index) => {
                                           return (
-                                            <div
-                                              style={{
-                                                color: 'black',
-                                                background: 'white',
-                                                border: '1px solid gray',
-                                                paddingTop: '5px',
-                                                paddingBottom: '5px',
-                                                paddingLeft: '10px',
-                                                paddingRight: '10px',
-                                                borderRadius: '20px',
-                                                display: 'flex',
-                                                marginRight: '5px',
-                                                marginTop: '5px'
-                                              }}
-                                            >
-                                              {servicio.label}
+                                            <>
+                                              <div
+                                                style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                              >
+                                                {
+                                                  index == 0
+                                                    ? "Ojo Derecho:"
+                                                    : "Ojo Izquierdo:"
+                                                }
+
+                                              </div>
                                               <div
                                                 style={{
-                                                  marginLeft: '5px',
-                                                  cursor: 'pointer'
-                                                }}
-                                                onClick={() => {
-                                                  setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                                  color: 'black',
+                                                  background: 'white',
+                                                  border: '1px solid gray',
+                                                  paddingTop: '5px',
+                                                  paddingBottom: '5px',
+                                                  paddingLeft: '10px',
+                                                  paddingRight: '10px',
+                                                  borderRadius: '20px',
+                                                  // display: 'flex',
+                                                  display: 'table-cell',
+                                                  marginRight: '5px',
+                                                  marginTop: '5px'
                                                 }}
                                               >
-                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                {servicio.label}
+                                                <span
+                                                  style={{
+                                                    marginLeft: '5px',
+                                                    cursor: 'pointer'
+                                                  }}
+                                                  onClick={() => {
+                                                    // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                                    setServiciosRealizados([])
+                                                  }}
+                                                >
+                                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                </span>
                                               </div>
-                                            </div>
+                                            </>
                                           )
                                         })
                                       }
@@ -586,7 +601,7 @@ const CreateReceta = () => {
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
                                     <h6 className="text-center p-2">
-                                      MATERIAL:
+                                      MATERIAL {materialesSeleccionados.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
                                     </h6>
 
                                     <Select
@@ -599,7 +614,7 @@ const CreateReceta = () => {
                                       onChange={(value, val) => {
                                         // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!materialesSeleccionados.find(servicio => servicio.id == value)) {
+                                        if (!materialesSeleccionados.find(servicio => servicio.value == value) && materialesSeleccionados.length < 2) {
                                           materialesSeleccionados.push(val)
                                           setMaterialesSeleccionados([...materialesSeleccionados])
                                         }
@@ -620,7 +635,7 @@ const CreateReceta = () => {
                                     </Select>
                                     <div
                                       style={{
-                                        display: 'ruby',
+                                        // display: 'ruby',
                                         marginTop: '10px',
                                         marginBottom: '10px'
                                       }}
@@ -628,36 +643,50 @@ const CreateReceta = () => {
                                       }}
                                     >
                                       {
-                                        materialesSeleccionados.map((servicio) => {
+                                        materialesSeleccionados.map((servicio, index) => {
                                           return (
-                                            <div
-                                              style={{
-                                                color: 'black',
-                                                background: 'white',
-                                                border: '1px solid gray',
-                                                paddingTop: '5px',
-                                                paddingBottom: '5px',
-                                                paddingLeft: '10px',
-                                                paddingRight: '10px',
-                                                borderRadius: '20px',
-                                                display: 'flex',
-                                                marginRight: '5px',
-                                                marginTop: '5px'
-                                              }}
-                                            >
-                                              {servicio.label}
+                                            <>
+                                              <div
+                                                style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                              >
+                                                {
+                                                  index == 0
+                                                    ? "Ojo Derecho:"
+                                                    : "Ojo Izquierdo:"
+                                                }
+
+                                              </div>
                                               <div
                                                 style={{
-                                                  marginLeft: '5px',
-                                                  cursor: 'pointer'
-                                                }}
-                                                onClick={() => {
-                                                  setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
+                                                  color: 'black',
+                                                  background: 'white',
+                                                  border: '1px solid gray',
+                                                  paddingTop: '5px',
+                                                  paddingBottom: '5px',
+                                                  paddingLeft: '10px',
+                                                  paddingRight: '10px',
+                                                  borderRadius: '20px',
+                                                  // display: 'flex',
+                                                  display: 'table-cell',
+                                                  marginRight: '5px',
+                                                  marginTop: '5px'
                                                 }}
                                               >
-                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                {servicio.label}
+                                                <span
+                                                  style={{
+                                                    marginLeft: '5px',
+                                                    cursor: 'pointer'
+                                                  }}
+                                                  onClick={() => {
+                                                    // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
+                                                    setMaterialesSeleccionados([])
+                                                  }}
+                                                >
+                                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                </span>
                                               </div>
-                                            </div>
+                                            </>
                                           )
                                         })
                                       }
@@ -666,7 +695,7 @@ const CreateReceta = () => {
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
                                     <h6 className="text-center p-2">
-                                      TRATAMIENTOS Y FILTROS:
+                                      TRATAMIENTOS Y FILTROS {tratamientosFiltros.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
                                     </h6>
                                     <Select
                                       showSearch
@@ -678,7 +707,7 @@ const CreateReceta = () => {
                                       onChange={(value, val) => {
                                         // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!tratamientosFiltros.find(servicio => servicio.id == value)) {
+                                        if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
                                           tratamientosFiltros.push(val)
                                           setTratamientosFiltros([...tratamientosFiltros])
                                         }
@@ -702,7 +731,7 @@ const CreateReceta = () => {
                                     </Select>
                                     <div
                                       style={{
-                                        display: 'ruby',
+                                        // display: 'ruby',
                                         marginTop: '10px',
                                         marginBottom: '10px'
                                       }}
@@ -710,36 +739,50 @@ const CreateReceta = () => {
                                       }}
                                     >
                                       {
-                                        tratamientosFiltros.map((servicio) => {
+                                        tratamientosFiltros.map((servicio, index) => {
                                           return (
-                                            <div
-                                              style={{
-                                                color: 'black',
-                                                background: 'white',
-                                                border: '1px solid gray',
-                                                paddingTop: '5px',
-                                                paddingBottom: '5px',
-                                                paddingLeft: '10px',
-                                                paddingRight: '10px',
-                                                borderRadius: '20px',
-                                                display: 'flex',
-                                                marginRight: '5px',
-                                                marginTop: '5px'
-                                              }}
-                                            >
-                                              {servicio.label}
+                                            <>
+                                              <div
+                                                style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                              >
+                                                {
+                                                  index == 0
+                                                    ? "Ojo Derecho:"
+                                                    : "Ojo Izquierdo:"
+                                                }
+
+                                              </div>
                                               <div
                                                 style={{
-                                                  marginLeft: '5px',
-                                                  cursor: 'pointer'
-                                                }}
-                                                onClick={() => {
-                                                  setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
+                                                  color: 'black',
+                                                  background: 'white',
+                                                  border: '1px solid gray',
+                                                  paddingTop: '5px',
+                                                  paddingBottom: '5px',
+                                                  paddingLeft: '10px',
+                                                  paddingRight: '10px',
+                                                  borderRadius: '20px',
+                                                  // display: 'flex',
+                                                  display: 'table-cell',
+                                                  marginRight: '5px',
+                                                  marginTop: '5px'
                                                 }}
                                               >
-                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                {servicio.label}
+                                                <span
+                                                  style={{
+                                                    marginLeft: '5px',
+                                                    cursor: 'pointer'
+                                                  }}
+                                                  onClick={() => {
+                                                    // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
+                                                    setTratamientosFiltros([])
+                                                  }}
+                                                >
+                                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                </span>
                                               </div>
-                                            </div>
+                                            </>
                                           )
                                         })
                                       }
@@ -1187,7 +1230,7 @@ const CreateReceta = () => {
                                   <Col
                                     xxl={14} xl={14} md={14}
                                     style={{
-                                      alignContent: 'center'
+                                      // alignContent: 'center'
                                     }}
                                   >
                                     <Row
@@ -1197,7 +1240,8 @@ const CreateReceta = () => {
                                         <div
                                           style={{
                                             fontSize: '20px',
-                                            color: 'black'
+                                            color: 'black',
+                                            marginTop: '40px'
                                           }}
                                         >
                                           Caracteristicas de Aro
@@ -1271,7 +1315,7 @@ const CreateReceta = () => {
                                           }}
                                         >
                                           <div style={{ marginTop: '-15px' }}>
-                                            <b>COLOR</b>
+                                            <b>COLOR*</b>
                                           </div>
                                           <Input
                                             style={{
@@ -1305,7 +1349,7 @@ const CreateReceta = () => {
                                         >
                                           <Col xxl={12} xl={12} md={12}>
                                             <Row>
-                                              <Col xxl={12} xl={12} md={12}>
+                                              {/* <Col xxl={12} xl={12} md={12}>
                                                 <div>
                                                   <label className="new-control new-radio radio-classic-primary">
                                                     <b>METAL COMPLETO</b>
@@ -1395,7 +1439,7 @@ const CreateReceta = () => {
                                                     <span className="new-control-indicator" />
                                                   </label>
                                                 </div>
-                                              </Col>
+                                              </Col> */}
 
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
@@ -1416,7 +1460,7 @@ const CreateReceta = () => {
                                                   </label> */}
 
                                                   {/* <Input /> */}
-                                                  <b>TIPO DE ARO:</b>
+                                                  <b>TIPO DE ARO*:</b>
                                                   <Select
                                                     showSearch
                                                     placeholder="Selecciona el tipo de aro"
@@ -1449,7 +1493,7 @@ const CreateReceta = () => {
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
                                                 >
-                                                  <b>DOCTOR:</b>
+                                                  <b>DOCTOR*:</b>
                                                   <Select
                                                     showSearch
                                                     placeholder="Seleccione el doctor"
@@ -1489,8 +1533,9 @@ const CreateReceta = () => {
                                             <b>OBSERVACIONES</b>
                                             <TextArea
                                               style={{
-                                                height: '100px'
+                                                height: '180px'
                                               }}
+                                              rows="5"
                                             />
                                           </Col>
                                         </Row>
@@ -1509,22 +1554,23 @@ const CreateReceta = () => {
                                       style={{
                                         width: '470px',
                                         height: '470px',
-                                        alignContent: "center",
+                                        // alignContent: "center",
                                       }}
                                     >
                                       <img
-                                        src="assets/img/recetas/lentescentevi.jpeg"
+                                        src="assets/img/recetas/lentessinbarilla.png"
                                         style={{
-                                          width: "100%",
+                                          width: "120%",
                                           // height: "80px"
                                         }}
                                       />
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '212px',
+                                          top: '208px',
                                           width: '70px',
-                                          border: '1px solid red'
+                                          border: '1px solid red',
+                                          left: '29px'
                                         }}
                                       >
                                         <Input />
@@ -1534,10 +1580,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '157px',
+                                          top: '128px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '85px'
+                                          left: '147px'
                                         }}
                                       >
                                         <Input />
@@ -1546,10 +1592,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '210px',
+                                          top: '169px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '210px'
+                                          left: '261px'
                                         }}
                                       >
                                         <Input />
@@ -1558,10 +1604,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '279px',
+                                          top: '288px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '84px'
+                                          left: '155px'
                                         }}
                                       >
                                         <Input />
@@ -1570,10 +1616,10 @@ const CreateReceta = () => {
                                       <div
                                         style={{
                                           position: 'absolute',
-                                          top: '213px',
+                                          top: '205px',
                                           width: '70px',
                                           border: '1px solid red',
-                                          left: '331px'
+                                          left: '374px'
                                         }}
                                       >
                                         <Input />
