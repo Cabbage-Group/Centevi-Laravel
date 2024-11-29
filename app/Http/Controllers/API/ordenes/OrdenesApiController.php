@@ -18,8 +18,11 @@ class OrdenesApiController extends Controller
         $sortOrder = $request->input('sortOrder', 'asc');
       
 
-        $ordenes = Ordenes::orderBy($sortColumn, $sortOrder)
-            ->paginate($limit, ['*'], 'page', $page);
+        $ordenes = Ordenes::with(
+            ['paciente:id_paciente,nombres,celular', 'sucursal:id_sucursal,nombre']
+        )
+        ->orderBy($sortColumn, $sortOrder)
+        ->paginate($limit, ['*'], 'page', $page);
 
        
 

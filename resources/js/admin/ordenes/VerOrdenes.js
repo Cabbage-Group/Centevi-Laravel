@@ -195,7 +195,7 @@ const VerOrdenes = () => {
                             <tr role="row">
                               <th
                                 aria-controls="zero-config"
-                                aria-label={`id_orden: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                aria-label={`Nro_Orden: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
                                 aria-sort="descending"
                                 className="sorting_desc"
                                 colSpan="1"
@@ -204,39 +204,10 @@ const VerOrdenes = () => {
                                   width: '527px'
                                 }}
                                 tabIndex="0"
-                                onClick={() => handleSort('id_orden')}
+                                onClick={() => handleSort('Nro_Orden')}
                               >
-                                ID_Orden
+                                Nro_Orden
                               </th>
-                              {/* <th
-                                aria-controls="zero-config"
-                                aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                aria-sort="descending"
-                                className="sorting_desc"
-                                colSpan="1"
-                                rowSpan="1"
-                                style={{
-                                  width: '527px'
-                                }}
-                                tabIndex="0"
-                                onClick={() => handleSort('PACIENTE_NOMBRE')}
-                              >
-                                Nombres Paciente
-                              </th>
-                              <th
-                                aria-controls="zero-config"
-                                aria-label={`Doctor: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
-                                className="sorting"
-                                colSpan="1"
-                                rowSpan="1"
-                                style={{
-                                  width: '266px'
-                                }}
-                                tabIndex="0"
-                                onClick={() => handleSort('DOCTOR')}
-                              >
-                                Doctor
-                              </th> */}
                               <th
                                 aria-controls="zero-config"
                                 aria-label={`created_at: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
@@ -250,6 +221,91 @@ const VerOrdenes = () => {
                                 onClick={() => handleSort('created_at')}
                               >
                                 Fecha de creacion
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Nombre: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                aria-sort="descending"
+                                className="sorting_desc"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '527px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('PACIENTE_NOMBRE')}
+                              >
+                                Sucursal
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Doctor: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                className="sorting"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '266px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('DOCTOR')}
+                              >
+                                Paciente
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Doctor: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                className="sorting"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '266px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('DOCTOR')}
+                              >
+                                Celular
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Doctor: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                className="sorting"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '266px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('DOCTOR')}
+                              >
+                                Laboratorio
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Doctor: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                className="sorting"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '266px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('DOCTOR')}
+                              >
+                                Fase
+                              </th>
+                              <th
+                                aria-controls="zero-config"
+                                aria-label={`Doctor: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                className="sorting"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '266px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('DOCTOR')}
+                              >
+                                Status
                               </th>
                               <th
                                 aria-controls="zero-config"
@@ -272,8 +328,14 @@ const VerOrdenes = () => {
                               <tr key={orden.id_orden}>
                                 {/* <td>{`${orden.PACIENTE_NOMBRE.trim()} ${receta.PACIENTE_APELLIDO.trim()}`}</td>
                                 <td>{orden.DOCTOR}</td> */}
-                                 <td>{orden.id_orden}</td>
+                                 <td>{orden.nro_orden}</td>
                                  <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
+                                 <td>{orden.sucursal.nombre}</td>
+                                 <td>{orden.paciente.nombres}</td>
+                                 <td>{orden.paciente.celular}</td>
+                                 <td>{""}</td>
+                                 <td>{""}</td>
+                                 <td>{""}</td>
                                 <td >
                                   <div className="btn-group">
                                   
@@ -314,19 +376,55 @@ const VerOrdenes = () => {
                                 colSpan="1"
                                 rowSpan="1"
                               >
-                                Id_orden
+                                Nro_Orden
                               </th>
-                              {/* <th
-                                colSpan="1"
-                                rowSpan="1"
-                              >
-                                Doctor
-                              </th> */}
                               <th
                                 colSpan="1"
                                 rowSpan="1"
                               >
-                                Fecha de creacion
+                                Fecha de ingreso
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Sucursal
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Paciente
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Celular
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Laboratorio
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Fase
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Status
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Action
                               </th>
                               <th
                                 className="invisible"
