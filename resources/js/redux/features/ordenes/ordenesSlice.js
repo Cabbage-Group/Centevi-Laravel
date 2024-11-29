@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config.js';
-import CreateOrden from '../../../admin/recetas/CreateOrden.js';
 
 export const fecthOrdenes = createAsyncThunk(
     'ordenes/fecthordenes',
@@ -20,11 +19,24 @@ export const createOrdenes = createAsyncThunk(
             const response = await axios.post(`${API}/ordenes`, data);
             return response.data;
         } catch (error) {
-            console.error('Error creating usuario:', error.response.data);
+            console.error('Error creating orden:', error.response.data);
             throw error;
         }
     }
 );
+
+export const deleteOrdenes = createAsyncThunk(
+    'ordenes/deleteOrden',
+    async (id_orden) => {
+      try {
+        await axios.delete(`${API}/ordenes/${id_orden}`);
+        return id_orden;
+      } catch (error) {
+        console.error('Error deleting orden:', error.response.data);
+        throw error;
+      }
+    }
+  );
 
 
 export const updateOrden = createAsyncThunk(
@@ -98,6 +110,17 @@ const ordenesSlice = createSlice({
                 }
             })
             .addCase(updateOrden.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(deleteOrdenes.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteOrdenes.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.ordenes = state.ordenes.filter(orden => orden.id_orden !== action.payload);
+            })
+            .addCase(deleteOrdenes.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

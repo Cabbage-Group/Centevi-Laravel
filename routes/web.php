@@ -264,6 +264,8 @@ Route::get('/api/ordenes', [OrdenesApiController::class, 'ordenes']);
 
 Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
 
+Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

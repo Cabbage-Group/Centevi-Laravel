@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
-import { fecthOrdenes, setOrden, setOrdenPor } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
 
@@ -36,37 +36,37 @@ const VerOrdenes = () => {
     setLocalSearch('');
   };
 
-  // const handleEliminarReceta = async (id_receta) => {
-  //   try {
-  //     const result = await Swal.fire({
-  //       title: '¿Estás seguro?',
-  //       text: "¡No podrás recuperar esta receta después de eliminarla!",
-  //       icon: 'warning',
-  //       showCancelButton: true,
-  //       confirmButtonColor: '#3085d6',
-  //       cancelButtonColor: '#d33',
-  //       confirmButtonText: 'Sí, eliminar',
-  //       cancelButtonText: 'Cancelar'
-  //     });
+  const handleEliminarOrden = async (id_orden) => {
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás recuperar esta orden después de eliminarla!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      });
 
-  //     if (result.isConfirmed) {
-  //       await dispatch(eliminarRecetas(id_receta));
-  //       dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
+      if (result.isConfirmed) {
+        await dispatch(deleteOrdenes(id_orden));
+        dispatch(fecthOrdenes({ page: currentPage, limit: 7, sortOrder, sortColumn }));
 
-  //       Swal.fire(
-  //         'Eliminado!',
-  //         'La receta ha sido eliminada.',
-  //         'success'
-  //       );
-  //     }
-  //   } catch (error) {
-  //     Swal.fire(
-  //       'Error',
-  //       'Hubo un problema al eliminar la receta.',
-  //       'error'
-  //     );
-  //   }
-  // };
+        Swal.fire(
+          'Eliminado!',
+          'La orden ha sido eliminada.',
+          'success'
+        );
+      }
+    } catch (error) {
+      Swal.fire(
+        'Error',
+        'Hubo un problema al eliminar la orden.',
+        'error'
+      );
+    }
+  };
 
   return (
 
@@ -360,6 +360,27 @@ const VerOrdenes = () => {
                                         />
                                       </svg>
                                     </Link>
+
+                                    <button
+                                      onClick={() => handleEliminarOrden(orden.id_orden)}
+                                      borrar_receta="185"
+                                      className="btn btn-danger btnEliminarReceta"
+                                    >
+                                      <svg
+                                        className="h-6 w-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                        />
+                                      </svg>
+                                    </button>
                                     
                                   </div>
                                 </td>

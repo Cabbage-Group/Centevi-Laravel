@@ -231,4 +231,37 @@ class OrdenesApiController extends Controller
     ], 200);
 }
 
+public function deleteOrden($id_orden)
+{
+    // Buscar la orden por ID
+    $orden = Ordenes::find($id_orden);
+
+    // Validar si la orden existe
+    if (!$orden) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Orden no encontrada',
+            'mensaje_dev' => "Order with ID {$id_orden} does not exist",
+        ], 404);
+    }
+
+    // Intentar eliminar la orden
+    try {
+        $orden->delete();
+
+        return response()->json([
+            'respuesta' => true,
+            'mensaje' => 'Orden eliminada correctamente',
+            'mensaje_dev' => null,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Error al eliminar la orden',
+            'mensaje_dev' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+
 }
