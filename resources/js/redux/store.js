@@ -70,6 +70,7 @@ import usuariosDoctorReducer from './features/usuarios/usuariosDoctorSlice';
 import serviciosReducer from './features/servicios/serviciosSlice';
 import serviciosRealizadosSlice from './features/reportes/serviciosRealizadosSlice';
 import serviciosProximosReducer from './features/reportes/serviciosProximosSlice';
+import ordenesSlice from './features/ordenes/ordenesSlice';
 
 const store = configureStore({
   reducer: {
@@ -150,7 +151,9 @@ const store = configureStore({
 
     serviciosRealizados: serviciosRealizadosSlice,
 
-    serviciosProximos: serviciosProximosReducer
+    serviciosProximos: serviciosProximosReducer,
+
+    ordenes : ordenesSlice
 
 
   }

@@ -17,8 +17,21 @@ import Nuevo from './fases/Nuevo';
 import Listo from './fases/Listo';
 import Retirado from './fases/Retirado';
 import Swal from 'sweetalert2';
+import EditOrden from '../EditOrden';
+import { useLocation } from 'react-router-dom';
 
 const Ordenes = () => {
+
+  // const location = useLocation();
+
+  // const { orden } = location.state || {};   
+
+  // console.log('orden:',orden)
+
+  // if (!orden) {
+  //   return <p>No se encontraron datos de la orden seleccionada.</p>;
+  // }
+
 
   const [itemsSteps, setItemsSteps] = useState([
     {
@@ -138,7 +151,7 @@ const Ordenes = () => {
       </Row>
 
 
-      <CreateReceta />
+      <EditOrden />
 
     </div>
   )

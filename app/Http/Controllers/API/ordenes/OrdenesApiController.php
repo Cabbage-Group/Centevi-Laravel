@@ -9,8 +9,34 @@ use Illuminate\Support\Facades\Validator;
 
 class OrdenesApiController extends Controller
 {
-    public function ordenes(Request $request) {
+    public function ordenes(Request $request)
+    {
+        // Puedes aplicar paginación si es necesario
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+        $sortColumn = $request->input('sortColumn', 'id_orden');
+        $sortOrder = $request->input('sortOrder', 'asc');
+      
 
+        $ordenes = Ordenes::orderBy($sortColumn, $sortOrder)
+            ->paginate($limit, ['*'], 'page', $page);
+
+       
+
+        return response()->json([
+            'data' => $ordenes->items(),
+            'meta' => [
+                'page' => $ordenes->currentPage(),
+                'limit' => $ordenes->perPage(),
+                'total' => $ordenes->total(),
+            ],
+            'respuesta' => true,
+            'status' => [
+                'code' => 200,
+                'message' => 'Recetas retrieved successfully', 
+            ],
+            'mensaje' => 'Órdenes obtenidas correctamente',
+        ], 200);
     }
 
     public function createOrdenes(Request $request){
@@ -120,4 +146,86 @@ class OrdenesApiController extends Controller
             'mensaje_dev' => null
         ], 201);
     }
+
+    public function updateOrden(Request $request, $id_orden)
+{
+    // Buscar la orden por ID
+    $orden = Ordenes::find($id_orden);
+
+    // Validar si la orden existe
+    if (!$orden) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Orden no encontrada',
+            'mensaje_dev' => "Order with ID {$id_orden} does not exist",
+        ], 404);
+    }
+
+    // Validar los datos enviados
+    $validator = Validator::make($request->all(), [
+        'nro_orden' => 'required|integer|unique:ordenes,nro_orden,' . $id_orden . ',id_orden',
+        "id_paciente" => 'nullable|integer',
+        'id_sucursal' => 'nullable|integer',
+        'elaborado_por' => 'nullable|integer',
+        'esfera_od' => 'nullable|string|max:255',
+        'esfera_oi' => 'nullable|string|max:255',
+        'cilindro_od' => 'nullable|string|max:255',
+        'cilindro_oi' => 'nullable|string|max:255',
+        'eje_od' => 'nullable|string|max:255',
+        'eje_oi' => 'nullable|string|max:255',
+        'add_od' => 'nullable|string|max:255',
+        'add_oi' => 'nullable|string|max:255',
+        'prisma_od' => 'nullable|string|max:255',
+        'prisma_oi' => 'nullable|string|max:255',
+        'distancia_od' => 'nullable|string|max:255',
+        'distancia_oi' => 'nullable|string|max:255',
+        'altura_od' => 'nullable|string|max:255',
+        'altura_oi' => 'nullable|string|max:255',
+        'material_od' => 'nullable|string|max:255',
+        'material_oi' => 'nullable|string|max:255',
+        'tratamientos_od' => 'nullable|string|max:255',
+        'tratamientos_oi' => 'nullable|string|max:255',
+        'aro_centevi' => 'nullable|integer|min:0|max:1',
+        'aro_propio' => 'nullable|integer|min:0|max:1',
+        'codigo' => 'nullable|string|max:255',
+        'color' => 'nullable|string|max:255',
+        'marca' => 'nullable|string|max:255',
+        'tipo_aro' => 'nullable|string|max:255',
+        'doctor' => 'nullable|string|max:255',
+        'observaciones' => 'nullable|string|max:255',
+        'l_uno' => 'nullable|string|max:255',
+        'l_dos' => 'nullable|string|max:255',
+        'l_tres' => 'nullable|string|max:255',
+        'l_cuatro' => 'nullable|string|max:255',
+        'l_cinco' => 'nullable|string|max:255',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Errores de validación',
+            'data' => $validator->errors(),
+        ], 400);
+    }
+
+    // Actualizar los datos de la orden
+    $orden = Ordenes::find($id_orden);
+
+    if (!$orden) {
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Orden no encontrada',
+        ], 404);
+    }
+
+    $orden->update($request->all());
+
+
+    return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Orden actualizada correctamente',
+        'data' => $orden,
+    ], 200);
+}
+
 }

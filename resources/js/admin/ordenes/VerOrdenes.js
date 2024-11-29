@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { fecthRecetas, setOrden, setOrdenPor } from '../../redux/features/recetas/recetasSlice';
-// import PaginationRecetas from './PaginationRecetas';
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
+import { fecthOrdenes, setOrden, setOrdenPor } from '../../redux/features/ordenes/ordenesSlice';
+import PaginationOrdenes from './PaginationOrdenes';
+import dayjs from 'dayjs';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
-  const { recetas, status, error, meta, totalPages, orden, ordenPor, search } = useSelector((state) => state.recetas);
+  const { ordenes,status, error, meta, totalPages, sortColumn, sortOrder } = useSelector((state) => state.ordenes);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [localSearch, setLocalSearch] = useState(search);
+  // const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
-    dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor, search: localSearch }));
-  }, [dispatch, localSearch, currentPage, orden, ordenPor]);
+    dispatch(fecthOrdenes({ page: currentPage, limit: 7, sortColumn, sortOrder }));
+  }, [dispatch, currentPage, sortColumn, sortOrder]);
 
   const handleSort = (newOrdenPor) => {
-    const newOrder = orden === 'asc' ? 'desc' : 'asc';
+    const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     dispatch(setOrden(newOrder));
     dispatch(setOrdenPor(newOrdenPor));
-    dispatch(fecthRecetas({ page: currentPage, limit: 7, orden: newOrder, ordenPor: newOrdenPor }))
-      .catch((err) => console.error('Error fetching terapias diarias on sort:', err));
   };
 
   const handlePageChange = (page) => {
@@ -37,37 +36,37 @@ const VerOrdenes = () => {
     setLocalSearch('');
   };
 
-  const handleEliminarReceta = async (id_receta) => {
-    try {
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¡No podrás recuperar esta receta después de eliminarla!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      });
+  // const handleEliminarReceta = async (id_receta) => {
+  //   try {
+  //     const result = await Swal.fire({
+  //       title: '¿Estás seguro?',
+  //       text: "¡No podrás recuperar esta receta después de eliminarla!",
+  //       icon: 'warning',
+  //       showCancelButton: true,
+  //       confirmButtonColor: '#3085d6',
+  //       cancelButtonColor: '#d33',
+  //       confirmButtonText: 'Sí, eliminar',
+  //       cancelButtonText: 'Cancelar'
+  //     });
 
-      if (result.isConfirmed) {
-        await dispatch(eliminarRecetas(id_receta));
-        dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
+  //     if (result.isConfirmed) {
+  //       await dispatch(eliminarRecetas(id_receta));
+  //       dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor }));
 
-        Swal.fire(
-          'Eliminado!',
-          'La receta ha sido eliminada.',
-          'success'
-        );
-      }
-    } catch (error) {
-      Swal.fire(
-        'Error',
-        'Hubo un problema al eliminar la receta.',
-        'error'
-      );
-    }
-  };
+  //       Swal.fire(
+  //         'Eliminado!',
+  //         'La receta ha sido eliminada.',
+  //         'success'
+  //       );
+  //     }
+  //   } catch (error) {
+  //     Swal.fire(
+  //       'Error',
+  //       'Hubo un problema al eliminar la receta.',
+  //       'error'
+  //     );
+  //   }
+  // };
 
   return (
 
@@ -81,8 +80,8 @@ const VerOrdenes = () => {
             >
               <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                 <div className="widget-content widget-content-area br-6">
-                  <Link to={"/crear-receta"} className="btn btn-success mb-4 ml-3 mt-4">
-                    Agregar Receta
+                  <Link to={"/create-orden"} className="btn btn-success mb-4 ml-3 mt-4">
+                    Agregar Orden
                   </Link>
 
                   <div
@@ -149,16 +148,16 @@ const VerOrdenes = () => {
                                   y2="16.65"
                                 />
                               </svg>
-                              <input
+                              {/* <input
                                 aria-controls="html5-extension"
                                 className="form-control"
                                 placeholder="Search..."
                                 type="search"
                                 value={localSearch}
                                 onChange={handleSearchChange}
-                              />
+                              /> */}
 
-                              {localSearch && (
+                              {/* {localSearch && (
                                 <button
                                   onClick={handleClearSearch}
                                   style={{
@@ -173,7 +172,7 @@ const VerOrdenes = () => {
                                 >
                                   &#x2715; { }
                                 </button>
-                              )}
+                              )} */}
                             </label>
                           </div>
                         </div>
@@ -195,6 +194,21 @@ const VerOrdenes = () => {
                           <thead>
                             <tr role="row">
                               <th
+                                aria-controls="zero-config"
+                                aria-label={`id_orden: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                                aria-sort="descending"
+                                className="sorting_desc"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{
+                                  width: '527px'
+                                }}
+                                tabIndex="0"
+                                onClick={() => handleSort('id_orden')}
+                              >
+                                ID_Orden
+                              </th>
+                              {/* <th
                                 aria-controls="zero-config"
                                 aria-label={`Nombre: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
                                 aria-sort="descending"
@@ -222,10 +236,10 @@ const VerOrdenes = () => {
                                 onClick={() => handleSort('DOCTOR')}
                               >
                                 Doctor
-                              </th>
+                              </th> */}
                               <th
                                 aria-controls="zero-config"
-                                aria-label={`Fecha_atencion: activate to sort column ${orden === 'desc' ? 'descending' : 'ascending'}`}
+                                aria-label={`created_at: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
                                 className="sorting"
                                 colSpan="1"
                                 rowSpan="1"
@@ -233,7 +247,7 @@ const VerOrdenes = () => {
                                   width: '299px'
                                 }}
                                 tabIndex="0"
-                                onClick={() => handleSort('fecha_creacion')}
+                                onClick={() => handleSort('created_at')}
                               >
                                 Fecha de creacion
                               </th>
@@ -254,40 +268,19 @@ const VerOrdenes = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {recetas.map((receta) => (
-                              <tr key={receta.ID_PACIENTE}>
-                                <td>{`${receta.PACIENTE_NOMBRE.trim()} ${receta.PACIENTE_APELLIDO.trim()}`}</td>
-                                <td>{receta.DOCTOR}</td>
-                                <td>{receta.FECHA_ATENCION}</td>
+                            {ordenes.map((orden) => (
+                              <tr key={orden.id_orden}>
+                                {/* <td>{`${orden.PACIENTE_NOMBRE.trim()} ${receta.PACIENTE_APELLIDO.trim()}`}</td>
+                                <td>{orden.DOCTOR}</td> */}
+                                 <td>{orden.id_orden}</td>
+                                 <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
                                 <td >
                                   <div className="btn-group">
-                                    <Link to={`/select-receta/${receta.ID_RECETA}`}
-                                      className="btnVerReceta btn btn-primary mb-2 p-1 mr-2 rounded-circle"
-
-                                    >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                        <path
-                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </Link>
-                                    <Link to={`/editar-receta/${receta.ID_RECETA}`}
+                                  
+                                    <Link 
+                                      to={`/orden-receta/${orden.id_orden}`}
                                       className="btn btn-warning btnEditarReceta"
+                                      state={{ orden }} 
                                       data-target="#modalEditarSucursal"
                                       data-toggle="modal"
                                       id_receta="185"
@@ -307,26 +300,7 @@ const VerOrdenes = () => {
                                         />
                                       </svg>
                                     </Link>
-                                    <button
-                                      onClick={() => handleEliminarReceta(receta.ID_RECETA)}
-                                      borrar_receta="185"
-                                      className="btn btn-danger btnEliminarReceta"
-                                    >
-                                      <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                      >
-                                        <path
-                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      </svg>
-                                    </button>
+                                    
                                   </div>
                                 </td>
 
@@ -340,14 +314,14 @@ const VerOrdenes = () => {
                                 colSpan="1"
                                 rowSpan="1"
                               >
-                                Nombre Paciente
+                                Id_orden
                               </th>
-                              <th
+                              {/* <th
                                 colSpan="1"
                                 rowSpan="1"
                               >
                                 Doctor
-                              </th>
+                              </th> */}
                               <th
                                 colSpan="1"
                                 rowSpan="1"
@@ -363,12 +337,12 @@ const VerOrdenes = () => {
                           </tfoot>
                         </table>
                       )}
-                      {/* <PaginationRecetas
+                      <PaginationOrdenes
                         meta={meta}
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
-                      /> */}
+                      />
                     </div>
                   </div>
                 </div>

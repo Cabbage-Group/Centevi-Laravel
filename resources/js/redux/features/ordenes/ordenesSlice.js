@@ -5,9 +5,9 @@ import CreateOrden from '../../../admin/recetas/CreateOrden.js';
 
 export const fecthOrdenes = createAsyncThunk(
     'ordenes/fecthordenes',
-    async ({ page = 1, limit = 7, orden = 'asc', ordenPor = 'nombres', search = '' }) => {
+    async ({ page = 1, limit = 7, sortOrder = 'asc', sortColumn = 'id_orden'}) => {
         const response = await axios.get(`${API}/ordenes`, {
-            params: { page, limit, orden, ordenPor, search }
+            params: { page, limit, sortOrder, sortColumn}
         });
         return response.data;
     }
@@ -26,6 +26,23 @@ export const createOrdenes = createAsyncThunk(
     }
 );
 
+
+export const updateOrden = createAsyncThunk(
+    'ordenes/updateOrdenes',
+    async ({ id_orden, data }) => {
+      try {      
+        console.log('data:',data)
+        const response = await axios.put(`${API}/ordenes/${id_orden}`, data);
+  
+        return response.data;
+      } catch (error) {
+        console.error('Error updating orden:', error.response?.data || error.message);
+        throw error;
+      }
+    }
+  );
+  
+
 const ordenesSlice = createSlice({
     name: 'ordenes',
     initialState: {
@@ -34,19 +51,15 @@ const ordenesSlice = createSlice({
         meta: {},
         status: 'idle',
         error: null,
-        orden: 'asc',
-        ordenPor: 'PACIENTE_NOMBRE',
-        search: '',
+        sortOrder: 'asc',
+        sortColumn: 'id_orden',
     },
     reducers: {
         setOrden(state, action) {
-            state.orden = action.payload;
+            state.sortOrder = action.payload;
         },
         setOrdenPor(state, action) {
-            state.ordenPor = action.payload;
-        },
-        setSearch(state, action) {
-            state.search = action.payload;
+            state.sortColumn = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -61,18 +74,30 @@ const ordenesSlice = createSlice({
             })
             .addCase(fecthOrdenes.rejected, (state, action) => {
                 state.status = 'failed';
-                state.ordenes = [];
-                state.data = [];
                 state.error = action.error.message;
             })
-            .addCase(creatOrdenes.pending, (state) => {
+            .addCase(createOrdenes.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(creatOrdenes.fulfilled, (state, action) => {
+            .addCase(createOrdenes.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.ordenes.push(action.payload.data);
             })
-            .addCase(creatOrdenes.rejected, (state, action) => {
+            .addCase(createOrdenes.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(updateOrden.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateOrden.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const index = state.ordenes.findIndex(receta => receta.id_orden === action.payload.data.id_orden);
+                if (index !== -1) {
+                  state.ordenes[index] = action.payload.data;
+                }
+            })
+            .addCase(updateOrden.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
