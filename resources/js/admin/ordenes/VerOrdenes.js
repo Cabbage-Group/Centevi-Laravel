@@ -326,13 +326,11 @@ const VerOrdenes = () => {
                           <tbody>
                             {ordenes.map((orden) => (
                               <tr key={orden.id_orden}>
-                                {/* <td>{`${orden.PACIENTE_NOMBRE.trim()} ${receta.PACIENTE_APELLIDO.trim()}`}</td>
-                                <td>{orden.DOCTOR}</td> */}
                                  <td>{orden.nro_orden}</td>
                                  <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
-                                 <td>{orden.sucursal.nombre}</td>
-                                 <td>{orden.paciente.nombres}</td>
-                                 <td>{orden.paciente.celular}</td>
+                                 <td>{orden?.sucursal?.nombre || ""}</td>
+                                 <td>{orden?.paciente?.nombres || ""}</td>
+                                 <td>{orden?.paciente?.celular || ""}</td>
                                  <td>{""}</td>
                                  <td>{""}</td>
                                  <td>{""}</td>
