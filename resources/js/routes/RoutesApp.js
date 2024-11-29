@@ -51,6 +51,7 @@ import Home from '../components/pages/Home.js';
 import Login from '../components/auth/Login.js';
 import Sidebar from '../components/partials/Sidebar.js';
 import Navbar from '../components/partials/Navbar.js';
+import CreateOrden from '../admin/recetas/CreateOrden.js';
 import {
   BrowserRouter as Router,
   Route,
@@ -62,7 +63,7 @@ import { fetchValidarToken } from '../redux/features/auth/AuthSlice.js';
 import TiposUsuarios from '../admin/tipos-usuarios/VerTiposUsuarios.js';
 import Permisos from '../admin/permisos/Permisos.js';
 import ProtectedRoute from './ProtectedRoute.js';
-import CreateReceta from '../admin/recetas/CreateReceta.js';
+import CreateReceta from '../admin/recetas/CreateOrden.js';
 import ServiciosProximosRealizados from '../admin/reportes/ServiciosProximosRealizados.js';
 import Ordenes from '../admin/recetas/ordenes/Ordenes.js';
 
@@ -160,7 +161,7 @@ const RoutesApp = () => {
 
           <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
           <Route path="/orden-receta" element={<Sidebar component={<Ordenes />} />} />
-          <Route path="/create-receta" element={<Sidebar component={<CreateReceta />} />} />
+          <Route path="/create-receta" element={<Sidebar component={<CreateOrden />} />} />
           <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
           <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
 

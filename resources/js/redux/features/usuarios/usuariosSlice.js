@@ -95,6 +95,7 @@ const usuariosSlice = createSlice({
   initialState: {
     data: [],
     usuarios: [],
+    usuarios_doctores_options_selecteds: [],
     meta: {},
     status: 'idle',
     error: null,
@@ -110,6 +111,13 @@ const usuariosSlice = createSlice({
         state.status = 'succeeded';
         state.usuarios = action.payload.data;
         state.meta = action.payload.meta;
+
+        state.usuarios_doctores_options_selecteds = state.usuarios
+          .filter(usuario => usuario.perfil === "doctor") 
+          .map(doctor => ({
+            value: doctor.id_usuario,  
+            label: doctor.nombre        
+          }));
       })
       .addCase(fetchUsuarios.rejected, (state, action) => {
         state.status = 'failed';

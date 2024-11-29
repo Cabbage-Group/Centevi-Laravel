@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import CreateReceta from '../CreateReceta'
+import CreateReceta from '../CreateOrden'
 import { Button, Col, Input, Row, Select, Steps } from 'antd'
 import {
   LoadingOutlined,

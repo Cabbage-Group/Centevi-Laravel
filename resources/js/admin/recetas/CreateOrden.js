@@ -1,100 +1,163 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { crearRecetas } from '../../redux/features/recetas/crearRecetasSlice';
+import { createOrdenes } from '../../redux/features/ordenes/ordenesSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
-import { Col, Input, Row, Select, Checkbox } from 'antd';
+import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
-const CreateReceta = () => {
+const CreateOrden = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const {pacientes_options_selecteds ,pacientes} = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
+  const { usuario } = useSelector((state) => state.auth);
+  const { usuarios_doctores_options_selecteds} = useSelector((state) => state.usuarios)
+  const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [telefono, setTelefono] = useState('');
+  const [cedula, setCedula] = useState('');
+
+  const [selectUsuario, setSelectdUsuario] = useState(null)
+  const [selectedTipoCristal, setSelectedTipoCristal] = useState(null);
+  // console.log('pacientes_options_selecteds:',pacientes_options_selecteds)
+  
+  const nombreUsuarioActual = localStorage.getItem('nombre');
+
   const initialValues = {
+    nro_orden: "",
     id_paciente: "",
-    nro_receta: "",
-    direccion: "",
-    cedula: "",
-    telefono: "",
-    rx: {
-      esfera_od: "",
-      cilindro_od: "",
-      eje_od: "",
-      add_od: "",
-      prisma_od: "",
-      distancia_od: "",
-      altura_od: "",
-      esfera_oi: "",
-      cilindro_oi: "",
-      eje_oi: "",
-      add_oi: "",
-      prisma_oi: "",
-      distancia_oi: "",
-      altura_oi: ""
-
-    },
-    tipo_lente: "",
-    material: {
-      material_1: "",
-      gris_m: "",
-      cafe_m: "",
-      material_2: ""
-    },
-    tratamientos: {
-      transitions: "",
-      filtro_a: "",
-      gris_t: "",
-      cafe_t: "",
-      fotocromatico_t: "",
-      antireflejo_t: "",
-      espejado: "",
-      uv: "",
-      tinte: "",
-      degradante: "",
-      uniforme: "",
-      color_t: "",
-      intensidad_t: ""
-    },
-    aro_propio: {
-      aro_centevi: "",
-      propio: "",
-      codigo_aro: "",
-      color_aro: "",
-      marca: "",
-      elaborado: "",
-    },
-    observacion: "",
-    medidas: {
-      alto_l: "",
-      ancho_b_l: "",
-      separacion_l: "",
-      diagonal_l: "",
-    },
-    sucursal: "",
+    id_sucursal: "",
+    esfera_od: "",
+    esfera_oi: "",
+    cilindro_od: "",
+    cilindro_oi: "",
+    eje_od: "",
+    eje_oi: "",
+    add_od: "",
+    prisma_od: "△",
+    prisma_oi: "△",
+    distancia_od: "",
+    distancia_oi: "",
+    altura_od: "",
+    altura_oi: "",
+    tipo_cristal_od: "",
+    tipo_cristal_oi: "",
+    material_od: "",
+    material_oi: "",
+    tratamientos_od: "",
+    tratamientos_oi: "",
+    aro_centevi: "",
+    aro_propio: "",
+    codigo: "",
+    color: "",
+    marca: "",
+    tipo_aro: "",
+    observaciones: "",
     doctor: "",
-
+    l_uno: "",
+    l_dos: "",
+    l_tres: "",
+    l_cuatro: "",
+    l_cinco: "",
   };
+
+  const tipoAroOptions = [
+    { label: 'Pasta Completo', value: 1 },
+    { label: 'Pasta Semi al Aire', value: 2 },
+    { label: 'Metal Completo', value: 3 },
+    { label: 'Metal Semi al Aire', value: 4 },
+    { label: 'Al Aire', value: 5 },
+    { label: 'Seguridad', value: 6 },
+  ];
+  
+
+  const validationSchema = Yup.object().shape({
+    nro_orden: Yup.number()
+      .integer("Debe ser un número entero")
+      .typeError("Debe ser un número")
+      .required("El número de orden es obligatorio"),
+    id_paciente: Yup.number().nullable()
+      .integer("Debe ser un número entero")
+      .typeError("Debe ser un número")
+      .required("Seleccione un paciente"),
+    id_sucursal: Yup.number().nullable()
+      .integer("Debe ser un número entero")
+      .typeError("Debe ser un número")
+      .required("Seleccione un sucursal"),
+    elaborado_por: Yup.number().nullable(),
+    aro_centevi: Yup.number().oneOf([0, 1]),
+    aro_propio: Yup.number().oneOf([0, 1]),
+    tipo_aro: Yup.string() 
+    .nullable()
+    .required("Seleccione un tipo de aro"),
+    doctor: Yup.string()
+    .nullable()
+    .required("Seleccione un doctor"),
+  });
 
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
   const [aroCentevi, setAroCentevi] = useState(false);
+  const [tipoAro, setTipoAro] = useState(null);
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState(null)
+
+ 
+  useEffect(() => {
+    if (selectedPaciente) {
+      // Buscar el paciente seleccionado en la lista de pacientes
+      const pacienteSeleccionado = pacientes.find(
+        (paciente) => paciente.id_paciente === selectedPaciente
+      );
+      if (pacienteSeleccionado) {
+        setTelefono(pacienteSeleccionado.telefono || '');
+        setCedula(pacienteSeleccionado.nro_cedula || '');
+      } else {
+        setTelefono('');
+        setCedula('');
+      }
+    } else {
+      setTelefono('');
+      setCedula('');
+    }
+  }, [selectedPaciente, pacientes]);
+
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchUsuarios({}))
   }, []);
 
   const handleSubmit = async (values) => {
     console.log('Valores del formulario al enviar:', values);
-    const result = await dispatch(crearRecetas(values));
+    const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label); 
+    const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
+    const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
+    const transformedValues = {
+      ...values,
+      id_paciente : selectedPaciente,
+      tipo_cristal_od: serviciosRealizadosSubmit[0] || "", 
+      tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
+      material_od : materialesSeleccionadosSubmit[0] || "",
+      material_oi : materialesSeleccionadosSubmit[1] || "",
+      tratamientos_od : tratamientosFiltrosSubmit[0] || "",
+      tratamientos_oi : tratamientosFiltrosSubmit[1] || "",
+      aro_centevi: aroCentevi ? 1 : 0, 
+      aro_propio: aroCentevi ? 0 : 1,  
+      tipo_aro: tipoAro,
+      doctor: doctorSeleccionado,
+      elaborado_por : usuario?.usuario?.id_usuario
+    };
+    console.log('transformedValues:', transformedValues);
+    const result = await dispatch(createOrdenes(transformedValues));
 
     if (result.meta.requestStatus === 'fulfilled') {
       Swal.fire({
@@ -108,7 +171,7 @@ const CreateReceta = () => {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Hubo un problema al crear la receta. Por favor, intenta de nuevo.',
+        text: 'Hubo un problema al crear la receta. Por favor, intenta de nuevo. Nro de Orden ya existente',
       });
     }
   };
@@ -127,11 +190,25 @@ const CreateReceta = () => {
                 >
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
-
+                      <Button
+                      onClick={()=>{
+                        console.log('serviciosRealizados:',serviciosRealizados)
+                        console.log('materialesSeleccionados:',materialesSeleccionados)
+                        console.log('aroCentevi:',aroCentevi)
+                        console.log('tipoAro:',tipoAro)
+                        console.log('pacientes:',pacientes)
+                        console.log('usuario:',usuario)
+                        console.log('pacientes_options_selecteds:',pacientes_options_selecteds)
+                        console.log('usuarios_doctores_options_selecteds:',usuarios_doctores_options_selecteds)
+                        console.log('nombreUsuarioActual:', nombreUsuarioActual)
+                        console.log('selectedPaciente:', selectedPaciente)
+                      }}>
+                        Aqui
+                      </Button>
                       <div className="widget-content widget-content-area" >
                         <Formik
                           initialValues={initialValues}
-
+                          validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >
 
@@ -163,17 +240,25 @@ const CreateReceta = () => {
                                 <div class="col-md-2"  >
                                   <h4>Nro. Orden*</h4>
                                   <Input
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '40px'
-                                    }}
-                                    type="text"
-                                    class="form-control"
-                                    name="nro_receta"
-                                  // disabled
-                                  />
+                                      name="nro_orden"
+                                      value={values.nro_orden}
+                                      onChange={(e) => {
+                                        const onlyNumbers = e.target.value.replace(/\D/g, ""); 
+                                        setFieldValue("nro_orden", onlyNumbers);
+                                      }}
+                                      placeholder="Ingrese el número de orden"
+                                      style={{
+                                        color: "red",
+                                        fontWeight: "bold",
+                                        marginBottom: "1rem",
+                                        height: '40px',
+                                      }}
+                                    />
+                                    <ErrorMessage
+                                      name="nro_orden"
+                                      component="div"
+                                      style={{ color: "red", fontSize: "12px" }}
+                                    />
                                 </div>
 
 
@@ -181,6 +266,12 @@ const CreateReceta = () => {
                                   <label htmlFor="pacientes">Pacientes*</label>
                                   <Select
                                     showSearch
+                                    value={selectedPaciente}
+                                 
+                                    onChange={(value) => {
+                                      setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
+                                      setFieldValue("id_paciente", value); // También actualizar el campo de Formik
+                                    }}
                                     placeholder="Seleccione el paciente"
                                     filterOption={(input, option) => {
                                       const searchTerms = input.toLowerCase().split(' ');
@@ -195,30 +286,13 @@ const CreateReceta = () => {
                                       color: "black",
                                       fontWeight: "bold",
                                     }}
-                                    onChange={(e) => {
-                                      // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                      // setFieldValue('paciente', e.target.value);
-                                      // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                    }}
+                                    // onChange={(e) => {
+                                    //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
+                                    //   // setFieldValue('paciente', e.target.value);
+                                    //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
+                                    // }}
                                   />
-                                  {/* <Field
-                                    as="select"
-                                    name="id_paciente"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                      const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                      setFieldValue('paciente', e.target.value);
-                                      setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                    }}
-
-                                  >
-                                    <option value="">Seleccione el paciente</option>
-                                    {pacientes.map((paciente) => (
-                                      <option key={paciente.id_paciente} value={paciente.id_paciente}>
-                                        Numero Cedula: {paciente.nro_cedula} || Nombres: {paciente.nombres} {paciente.apellidos}
-                                      </option>
-                                    ))}
-                                  </Field> */}
+                                 
                                   <ErrorMessage name="id_paciente" component="div" className="text-danger" />
 
                                 </div>
@@ -228,11 +302,11 @@ const CreateReceta = () => {
                                   <label htmlFor="inputSucursal">Sucursal*</label>
                                   <Field
                                     as="select"
-                                    name="sucursal"
+                                    name="id_sucursal"
                                     className="form-control"
                                     onChange={(e) => {
                                       const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === parseInt(e.target.value));
-                                      setFieldValue('sucursal', e.target.value);
+                                      setFieldValue('id_sucursal', e.target.value);
                                       setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
                                     }}
                                   >
@@ -241,7 +315,7 @@ const CreateReceta = () => {
                                       <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
                                     ))}
                                   </Field>
-                                  <ErrorMessage name="sucursal" component="div" className="text-danger" />
+                                  <ErrorMessage name="id_sucursal" component="div" className="text-danger" />
                                 </div>
                                 <div className="form-group col-md-2">
                                   <label htmlFor="cedula">
@@ -251,6 +325,7 @@ const CreateReceta = () => {
                                     className="form-control"
                                     name="cedula"
                                     type="text"
+                                    value={cedula} 
                                     style={{
                                       color: "red",
                                       fontWeight: "bold",
@@ -268,6 +343,7 @@ const CreateReceta = () => {
                                     className="form-control"
                                     name="telefono"
                                     type="text"
+                                    value={telefono}
                                     style={{
                                       color: "red",
                                       fontWeight: "bold",
@@ -362,7 +438,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.esfera_od"
+                                              name="esfera_od"
 
                                               as="input"
                                             />
@@ -370,7 +446,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.cilindro_od"
+                                              name="cilindro_od"
 
                                               as="input"
                                             />
@@ -378,7 +454,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.eje_od"
+                                              name="eje_od"
 
                                               as="input"
                                             />
@@ -386,7 +462,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.add_od"
+                                              name="add_od"
 
                                               as="input"
                                             />
@@ -396,24 +472,21 @@ const CreateReceta = () => {
                                               className="form-control"
                                               placeholder="△"
                                               type="text"
-                                              value="△"
-                                              name="rx.prisma_od"
+                                              name="prisma_od"
                                               as="input"
                                             />
                                           </td>
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.distancia_od"
-
+                                              name="distancia_od"
                                               as="input"
                                             />
                                           </td>
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.altura_od"
-
+                                              name="altura_od"
                                               as="input"
                                             />
                                           </td>
@@ -425,7 +498,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.esfera_oi"
+                                              name="esfera_oi"
 
                                               as="input"
                                             />
@@ -433,7 +506,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.cilindro_oi"
+                                              name="cilindro_oi"
 
                                               as="input"
                                             />
@@ -441,7 +514,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.eje_oi"
+                                              name="eje_oi"
 
                                               as="input"
                                             />
@@ -449,7 +522,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.add_oi"
+                                              name="add_oi"
 
                                               as="input"
                                             />
@@ -457,17 +530,16 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              value="△"
                                               type="text"
                                               placeholder="△"
-                                              name="rx.prisma_oi"
+                                              name="prisma_oi"
                                               as="input"
                                             />
                                           </td>
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.distancia_oi"
+                                              name="distancia_oi"
 
                                               as="input"
                                             />
@@ -475,7 +547,7 @@ const CreateReceta = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              name="rx.altura_oi"
+                                              name="altura_oi"
 
                                               as="input"
                                             />
@@ -524,6 +596,7 @@ const CreateReceta = () => {
                                         if (!serviciosRealizados.find(servicio => servicio.value == value) && serviciosRealizados.length < 2) {
                                           serviciosRealizados.push(val)
                                           setServiciosRealizados([...serviciosRealizados])
+
                                         }
                                       }}
                                       options={[
@@ -1258,13 +1331,13 @@ const CreateReceta = () => {
                                             </Checkbox> */}
                                             <Field
                                               className="new-control-input"
-                                              value={aroCentevi}
                                               checked={aroCentevi}
-                                              name="caracaro.aro.propiocentevi"
                                               type="radio"
-                                              onChange={(e) => {
-                                                setAroCentevi(!aroCentevi)
-                                              }}
+                                              name="aro_centevi"
+                                              onChange={() => {
+                                                setAroCentevi(true)
+                                              }
+                                              }
                                             />
                                             <span className="new-control-indicator" />
                                           </label>
@@ -1275,14 +1348,10 @@ const CreateReceta = () => {
                                           <label className="new-control new-radio radio-classic-primary">
                                             <b>ARO PROPIO</b>
                                             <Field
-                                              className="new-control-input"
-                                              value={!aroCentevi}
-                                              checked={!aroCentevi}
-                                              name="caracaro.aro.propiocentevi"
+                                              className="new-control-input"                                        
+                                              checked={!aroCentevi}                                           
                                               type="radio"
-                                              onChange={() => {
-                                                setAroCentevi(!aroCentevi)
-                                              }}
+                                              onChange={() => setAroCentevi(false)}
                                             />
                                             <span className="new-control-indicator" />
                                           </label>
@@ -1298,11 +1367,14 @@ const CreateReceta = () => {
                                           <div style={{ marginTop: '-15px' }}>
                                             <b>CÓDIGO</b>
                                           </div>
-                                          <Input
+                                          <Field
+                                            className="form-control"
+                                            name="codigo"
                                             style={{
                                               marginLeft: '0px', height: '30px',
                                               width: '100%'
                                             }}
+                                            as="input"
                                             disabled={!aroCentevi}
                                           />
                                         </div>
@@ -1317,7 +1389,9 @@ const CreateReceta = () => {
                                           <div style={{ marginTop: '-15px' }}>
                                             <b>COLOR*</b>
                                           </div>
-                                          <Input
+                                          <Field
+                                            className="form-control"
+                                            name= "color"
                                             style={{
                                               marginLeft: '0px', height: '30px'
                                             }}
@@ -1333,7 +1407,9 @@ const CreateReceta = () => {
                                           <div style={{ marginTop: '-15px' }}>
                                             <b>MARCA</b>
                                           </div>
-                                          <Input
+                                          <Field
+                                            className="form-control"
+                                            name="marca"
                                             style={{
                                               marginLeft: '0px', height: '30px'
                                             }}
@@ -1464,27 +1540,23 @@ const CreateReceta = () => {
                                                   <Select
                                                     showSearch
                                                     placeholder="Selecciona el tipo de aro"
-                                                    // filterOption={(input, option) => {
-                                                    //   const searchTerms = input.toLowerCase().split(' ');
-                                                    //   return searchTerms.every(term =>
-                                                    //     (option?.label ?? '').toLowerCase().includes(term)
-                                                    //   );
-                                                    // }}
-                                                    options={[
-                                                      { label: 'Pasta Completo', value: 1 },
-                                                      { label: 'Pasta Semi al Aire', value: 2 },
-                                                      { label: 'Metal Completo', value: 3 },
-                                                      { label: 'Metal Semi al Aire', value: 4 },
-                                                      { label: 'Al Aire', value: 5 },
-                                                      { label: 'Seguridad', value: 6 },
-                                                    ]}
+                                                    value={tipoAro}
+                                                    options={tipoAroOptions}
                                                     style={{
                                                       width: "100%",
                                                       height: "40px",
                                                       color: "black",
                                                       fontWeight: "bold",
                                                     }}
+                                                    onChange={(value) => {
+                                                      const selectedOption = tipoAroOptions.find(option => option.value === value);
+                                                      if (selectedOption) {
+                                                        setTipoAro(selectedOption.label);
+                                                        setFieldValue("tipo_aro", selectedOption.label);
+                                                      }
+                                                    }}
                                                   />
+                                                   <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
                                                 </div>
                                               </Col>
 
@@ -1497,22 +1569,23 @@ const CreateReceta = () => {
                                                   <Select
                                                     showSearch
                                                     placeholder="Seleccione el doctor"
-                                                    filterOption={(input, option) => {
-                                                      const searchTerms = input.toLowerCase().split(' ');
-                                                      return searchTerms.every(term =>
-                                                        (option?.label ?? '').toLowerCase().includes(term)
-                                                      );
-                                                    }}
-                                                    options={pacientes_options_selecteds}
+                                                    value={doctorSeleccionado}
+                                                    options={usuarios_doctores_options_selecteds}
                                                     style={{
                                                       width: "100%",
                                                       height: "48px",
                                                       color: "black",
                                                       fontWeight: "bold",
                                                     }}
-                                                    onChange={(e) => { }}
+                                                    onChange={(value) => {
+                                                      const selectedOption = usuarios_doctores_options_selecteds.find(option => option.value === value);
+                                                      if (selectedOption) {
+                                                        setDoctorSeleccionado(selectedOption.label);
+                                                        setFieldValue("doctor",selectedOption.label)
+                                                      }
+                                                    }}
                                                   />
-                                                  {/* <Input /> */}
+                                                  <ErrorMessage name="doctor" component="div" className="text-danger" />
                                                 </div>
                                               </Col>
 
@@ -1523,7 +1596,9 @@ const CreateReceta = () => {
                                                   }}
                                                 >
                                                   <b>ELABORADO POR</b>
-                                                  <Input disabled />
+                                                  <Input
+                                                    value={usuario?.usuario?.nombre}
+                                                    disabled />
                                                 </div>
                                               </Col>
                                             </Row>
@@ -1531,7 +1606,10 @@ const CreateReceta = () => {
 
                                           <Col xxl={12} xl={12} md={12}>
                                             <b>OBSERVACIONES</b>
-                                            <TextArea
+                                            <Field
+                                              as={TextArea}
+                                              className="form-control"
+                                              name='observaciones'                                           
                                               style={{
                                                 height: '180px'
                                               }}
@@ -1573,7 +1651,9 @@ const CreateReceta = () => {
                                           left: '29px'
                                         }}
                                       >
-                                        <Input />
+                                        <Field
+                                        name='l_uno'
+                                        />
                                       </div>
 
 
@@ -1586,7 +1666,9 @@ const CreateReceta = () => {
                                           left: '147px'
                                         }}
                                       >
-                                        <Input />
+                                        <Field
+                                          name='l_dos' 
+                                        />
                                       </div>
 
                                       <div
@@ -1598,7 +1680,9 @@ const CreateReceta = () => {
                                           left: '261px'
                                         }}
                                       >
-                                        <Input />
+                                        <Field
+                                          name='l_tres'
+                                         />
                                       </div>
 
                                       <div
@@ -1610,7 +1694,9 @@ const CreateReceta = () => {
                                           left: '155px'
                                         }}
                                       >
-                                        <Input />
+                                        <Field
+                                          name='l_cuatro'
+                                         />
                                       </div>
 
                                       <div
@@ -1622,7 +1708,9 @@ const CreateReceta = () => {
                                           left: '374px'
                                         }}
                                       >
-                                        <Input />
+                                        <Field
+                                          name='l_cinco'
+                                         />
                                       </div>
 
                                     </div>
@@ -1671,4 +1759,4 @@ const CreateReceta = () => {
   )
 }
 
-export default CreateReceta
+export default CreateOrden

@@ -104,6 +104,8 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/servicios',
 
     'http://127.0.0.1:8000/api/reporte-servicio-realizados',
-    'http://127.0.0.1:8000/api/reporte-servicio-proximos'
+    'http://127.0.0.1:8000/api/reporte-servicio-proximos',
+
+     'http://127.0.0.1:8000/api/ordenes'
   ];
 }

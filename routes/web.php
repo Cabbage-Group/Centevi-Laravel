@@ -15,6 +15,7 @@ use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
+use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
@@ -256,6 +257,8 @@ Route::get('/api/servicios', [ServiciosApiController::class, 'index']);
 Route::get('/api/reportes-servicios-realizados', [PacientesApiController::class, 'obtenerConsultasConServicios']);
 
 Route::get('/api/reportes-servicios-proximos', [PacientesApiController::class, 'obtenerConsultasConServiciosProximos']);
+
+Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
 
 Route::get('/{any}', function () {
     return view('app');
