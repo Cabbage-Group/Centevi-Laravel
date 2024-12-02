@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CreateReceta from '../CreateOrden'
 import { Button, Col, Input, Row, Select, Steps } from 'antd'
+import { useSelector, useDispatch } from 'react-redux';
 import {
   LoadingOutlined,
   SmileOutlined,
@@ -19,45 +20,81 @@ import Retirado from './fases/Retirado';
 import Swal from 'sweetalert2';
 import EditOrden from '../EditOrden';
 import { useLocation } from 'react-router-dom';
+import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import { current } from '@reduxjs/toolkit';
+import { createFasesOrdenes } from '../../../redux/features/ordenes/fasesOrdenesSlice';
+import { useParams } from 'react-router-dom';
+
 
 const Ordenes = () => {
 
-  // const location = useLocation();
+  const dispatch = useDispatch();
 
-  // const { orden } = location.state || {};   
-
-  // console.log('orden:',orden)
-
-  // if (!orden) {
-  //   return <p>No se encontraron datos de la orden seleccionada.</p>;
-  // }
-
-
-  const [itemsSteps, setItemsSteps] = useState([
-    {
-      title: 'Nuevo',
-      // icon: <SolutionOutlined />,
-      icon: <FileAddOutlined />,
-    },
-    {
-      title: 'En Confección',
-      icon: <ImportOutlined />,
-      // icon: <UserOutlined />,
-    },
-    {
-      title: 'Listo',
-      // icon: <LoadingOutlined />,
-      icon: <CheckCircleOutlined />,
-    },
-    {
-      title: 'Retirado',
-      // status: 'wait',
-      // icon: <SmileOutlined />,
-      icon: <LogoutOutlined />,
-    },
-  ]);
-
+  const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
+  const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
+  const { orderId } = useParams(); 
   const [nivelStep, setNivelStep] = useState(0)
+  const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
+  const [initialized, setInitialized] = useState(false); 
+
+  useEffect(() => {
+    console.log("Datos de fase guardados en nuevaData:", nuevaData);
+    console.log("orderId:", orderId);
+  }, [nuevaData,orderId]); 
+
+  console.log("currentTipoFase:", currentTipoFase);
+  const recibirDatosFase = (data) => {
+    setFaseData(data);
+  };
+
+  useEffect(()=>{
+    dispatch(fecthTiposFasesOrdenes());
+  },[])
+
+  useEffect(() => {
+    if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
+      const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
+        const hasCompleted = tipoFase.fases_ordenes.some(
+          (faseOrden) =>
+            faseOrden.ordenes_id === parseInt(orderId) &&
+            faseOrden.tipo_fase_orden_id === tipoFase.id
+        );
+        return hasCompleted ? index : lastStep;
+      }, -1);
+
+      setNivelStep(lastCompletedStep + 1);
+      setInitialized(true); 
+    }
+  }, [tiposFasesOrdenes, orderId, initialized]);
+
+
+  console.log("tiposFasesOrdenes-----------------------------------------------:", tiposFasesOrdenes);
+
+  const itemsSteps = tiposFasesOrdenes.map((fase) => {
+    let icon;
+    switch (fase.tipo_fase_orden.toLowerCase()) {
+      case 'nuevo':
+        icon = <FileAddOutlined />;
+        break;
+      case 'en confeccion':
+        icon = <ImportOutlined />;
+        break;
+      case 'listo':
+        icon = <CheckCircleOutlined />;
+        break;
+      case 'retirado':
+        icon = <LogoutOutlined />;
+        break;
+      default:
+        icon = <FileAddOutlined />; 
+    }
+    return {
+      title: fase.tipo_fase_orden,
+      icon: icon,
+    };
+  });
+
+  
 
   const avanzarFase = async () => {
     const result = await Swal.fire({
@@ -72,8 +109,13 @@ const Ordenes = () => {
     });
 
     if (result.isConfirmed) {
-
+      const nuevaDataConOrderId = {
+        ...nuevaData, 
+        ordenes_id: orderId, 
+      };
+      console.log('nuevaDataConOrderId:',nuevaDataConOrderId)
       setNivelStep(nivelStep + 1)
+      dispatch(createFasesOrdenes(nuevaDataConOrderId));
       // Mostrar alerta de éxito
       await Swal.fire(
         'Guardado!',
@@ -82,6 +124,8 @@ const Ordenes = () => {
       );
     }
   }
+
+
 
   return (
     <div>
@@ -118,24 +162,40 @@ const Ordenes = () => {
 
               {
                 nivelStep == 0 ? (
-                  <Nuevo />
+                    <Nuevo 
+                      tipoFaseId = {currentTipoFase.id}
+                    />
+
                 ) : nivelStep == 1 ? (
-                  <EnConfeccion />
+                  <EnConfeccion 
+                    tipoFaseId = {currentTipoFase.id}
+                  />
                 ) : nivelStep == 2 ? (
-                  <Listo />
+                  <Listo 
+                    tipoFaseId = {currentTipoFase.id}
+                  />
                 ) : nivelStep == 3 ? (
-                  <Retirado />
+                  <Retirado 
+                    tipoFaseId = {currentTipoFase.id}
+                  />
                 ) : <div></div>
               }
 
               <Row
                 gutter={[16, 16]}
               >
-                <Button
-                  onClick={() => setNivelStep(nivelStep - 1)}
+                {nivelStep > 0 && (
+                  <Button
+                  disabled={nivelStep <= 0} 
+                  onClick={() => {
+                    if (nivelStep > 0) { 
+                      setNivelStep(nivelStep - 1); 
+                    }
+                  }}
                 >
                   Anterior
                 </Button>
+                   )}
                 <Button
                   onClick={() => avanzarFase()}
                   type='primary'

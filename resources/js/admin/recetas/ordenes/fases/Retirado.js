@@ -1,13 +1,58 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom';
+import { useSelector,useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Select, Tooltip } from 'antd'
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-// import Swal from 'sweetalert2';
+import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 
-const Retirado = () => {
+const Retirado = ({tipoFaseId}) => {
+
+  const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
+  const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
+  const [observaciones, setObservaciones] = useState('');
+  const { orderId } = useParams(); 
+
+  useEffect(()=>{
+    dispatch(fecthTiposFasesOrdenes());
+  },[])
+
+  useEffect(() => {
+    if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
+      const tipoFase = tiposFasesOrdenes.find(fase => 
+        fase.fases_ordenes.some(faseOrden => 
+          faseOrden.ordenes_id == orderId  && faseOrden.tipo_fase_orden_id == tipoFaseId
+        )
+      );
+      if (tipoFase) {
+        const faseOrden = tipoFase.fases_ordenes.find(faseOrden => 
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        );
+
+        if (faseOrden) {
+          setObservaciones(faseOrden.observacion);
+          setFechaActual(faseOrden.fecha_fase);
+        }
+      }
+    }
+  }, [tiposFasesOrdenes, orderId, tipoFaseId]);
+
+  useEffect(() => {
+    if (observaciones) {
+      const nuevaFase = {
+        tipo_fase_orden_id:tipoFaseId, 
+        laboratorio: "",
+        observacion:observaciones,
+        fecha_fase: fechaActual,
+      };
+      dispatch(actualizarDatosFase(nuevaFase));
+    }
+  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
+
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -21,7 +66,7 @@ const Retirado = () => {
       cancelButtonText: 'Cancelar'
     });
 
-    if (result.isConfirmed) {
+    if (result.value === true) {
 
       setFechaActual(moment().format('YYYY-MM-DD HH:mm:ss'))
       // Mostrar alerta de éxito
@@ -43,7 +88,11 @@ const Retirado = () => {
           <label htmlFor="inputAddress">
             Observaciones
           </label>
-          <Input.TextArea rows="5" />
+          <Input.TextArea 
+            rows="5" 
+            onChange={(e) => setObservaciones(e.target.value)}
+            value={observaciones}
+          />
         </Col>
         <Col
           xxl={12} xl={12} md={12}

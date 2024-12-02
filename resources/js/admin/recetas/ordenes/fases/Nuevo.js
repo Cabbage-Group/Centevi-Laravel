@@ -1,14 +1,72 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Select, Tooltip } from 'antd'
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-// import Swal from 'sweetalert2';
+import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import { useParams } from 'react-router-dom';
 
-const Nuevo = () => {
 
-  const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
+const Nuevo = ({ tipoFaseId }) => {
+
+  const dispatch = useDispatch();
+  const [fechaActual, setFechaActual] = useState('')
+  const [fechaCreacion, setFechaCreacion] = useState('')
+  const [laboratorio, setLaboratorio] = useState('');
+  const [observaciones, setObservaciones] = useState('');
+  const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
+  const { orderId } = useParams(); 
+
+
+  console.log('tiposFasesOrdenes:',tiposFasesOrdenes)
+  console.log('orderId:',orderId)
+  console.log('fechaActual:',fechaActual)
+
+  useEffect(()=>{
+    dispatch(fecthTiposFasesOrdenes());
+  },[])
+
+  useEffect(() => {
+    if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
+      console.log('entre1')
+      const tipoFase = tiposFasesOrdenes.find(fase => 
+        fase.fases_ordenes.some(faseOrden => 
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        )
+      );
+
+      if (tipoFase) {
+        console.log('entre2')
+        const faseOrden = tipoFase.fases_ordenes.find(faseOrden => 
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        );
+
+        if (faseOrden) {
+          console.log('entre3')
+          setLaboratorio(faseOrden.laboratorio);
+          setObservaciones(faseOrden.observacion);
+          setFechaActual(faseOrden.fecha_fase);
+          setFechaCreacion(faseOrden.created_at);
+        }
+      }
+    }
+  }, [tiposFasesOrdenes, orderId, tipoFaseId]);
+
+  useEffect(() => {
+    if (laboratorio && observaciones) {
+      const nuevaFase = {
+        tipo_fase_orden_id:tipoFaseId, 
+        laboratorio,
+        observacion:observaciones,
+        fecha_fase: fechaActual,
+      };
+      dispatch(actualizarDatosFase(nuevaFase));
+    }
+  }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch]);
+
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -21,11 +79,13 @@ const Nuevo = () => {
       confirmButtonText: 'Sí, guardar',
       cancelButtonText: 'Cancelar'
     });
-
-    if (result.isConfirmed) {
-
-      setFechaActual(moment().format('YYYY-MM-DD HH:mm:ss'))
-      // Mostrar alerta de éxito
+    console.log('holaentre:')
+    console.log('result :',result)
+    if (result.value === true) {
+      console.log('nuevaFecha:',nuevaFecha)
+      const nuevaFecha = moment().format('YYYY-MM-DD HH:mm:ss');
+      console.log('nuevaFecha:',nuevaFecha)
+      setFechaActual(nuevaFecha)
       await Swal.fire(
         'Guardado!',
         'La fecha ha sido actualizada.',
@@ -41,7 +101,7 @@ const Nuevo = () => {
         gutter={[16, 16]}
       >
         <Col xxl={12} xl={12} md={12}>
-          <label htmlFor="inputAddress">
+          <label htmlFor="laboratorio">
             Selecciona el laboratorio
           </label><br />
           <Select
@@ -59,14 +119,18 @@ const Nuevo = () => {
               fontWeight: "bold",
               marginBottom: '20px'
             }}
-            onChange={(e) => {
-            }}
+            onChange={(value) => setLaboratorio(value)}
+            value={laboratorio}
           /><br />
 
-          <label htmlFor="inputAddress">
+          <label htmlFor="observaciones">
             Observaciones
           </label>
-          <Input.TextArea rows="5" />
+          <Input.TextArea 
+            rows="5" 
+            onChange={(e) => setObservaciones(e.target.value)}
+            value={observaciones}
+          />
         </Col>
         <Col
           xxl={12} xl={12} md={12}
@@ -83,7 +147,11 @@ const Nuevo = () => {
                 style={{
                   marginRight: '10px', cursor: 'pointer', fontSize: '18px'
                 }}
-                onClick={() => actualizarFecha()}
+                onClick={() => {
+                  console.log('Ícono clickeado');
+                  actualizarFecha()
+                }
+              }
               />
             </Tooltip>
             {fechaActual}
@@ -97,11 +165,17 @@ const Nuevo = () => {
                   // onChange={}
                   /> */}
           <Divider />
-          <label htmlFor="inputAddress">
+          <label htmlFor="fecha_fase">
             Fecha de creación de la orden
           </label>
           <div>
-            {moment().format('YYYY-MM-DD HH:mm:ss')}
+            <Tooltip title="Actualizar Fecha">
+              <ClockCircleTwoTone
+                style={{ marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
+                // onClick={() => actualizarFecha()}
+              />
+            </Tooltip>
+            {fechaCreacion}
           </div>
           <Divider />
           <label htmlFor="inputAddress">

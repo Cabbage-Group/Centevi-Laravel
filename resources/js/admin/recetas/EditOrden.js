@@ -13,6 +13,7 @@ import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { useLocation } from 'react-router-dom';
 import Ordenes from './ordenes/Ordenes';
+import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesOrdenesSlice';
 
 const EditOrden = () => {
 
@@ -20,28 +21,16 @@ const EditOrden = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = useParams(); 
-
   const { orden } = location.state || {};   
 
-  console.log('orden:',orden)
-
-  
-  console.log('orderId:',orderId)
-
   const {pacientes_options_selecteds ,pacientes} = useSelector((state) => state.pacientes);
-  const { sucursales, sucursales_option_selects } = useSelector((state) => state.sucursales);
+  const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
-  const { usuarios_doctores_options_selecteds} = useSelector((state) => state.usuarios)
+  const { usuarios_doctores_options_selecteds} = useSelector((state) => state.usuarios);
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
-
-  const [selectUsuario, setSelectdUsuario] = useState(null)
-  const [selectedTipoCristal, setSelectedTipoCristal] = useState(null);
-  // console.log('pacientes_options_selecteds:',pacientes_options_selecteds)
-  
-  const nombreUsuarioActual = localStorage.getItem('nombre');
 
   const initialValues = {
     nro_orden: orden?.nro_orden,
