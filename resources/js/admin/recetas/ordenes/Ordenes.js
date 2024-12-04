@@ -164,19 +164,25 @@ const Ordenes = () => {
                 nivelStep == 0 ? (
                     <Nuevo 
                       tipoFaseId = {currentTipoFase.id}
+                      lab = {nuevaData.laboratorio} 
+                     
                     />
 
                 ) : nivelStep == 1 ? (
                   <EnConfeccion 
                     tipoFaseId = {currentTipoFase.id}
+                    lab = {nuevaData.laboratorio}
+                    fecha = {nuevaData.fecha_fase}
                   />
                 ) : nivelStep == 2 ? (
                   <Listo 
                     tipoFaseId = {currentTipoFase.id}
+                    lab = {nuevaData.laboratorio}
                   />
                 ) : nivelStep == 3 ? (
                   <Retirado 
                     tipoFaseId = {currentTipoFase.id}
+                    lab = {nuevaData.laboratorio}
                   />
                 ) : <div></div>
               }

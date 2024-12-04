@@ -8,40 +8,103 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\TiposFasesOrdenes;
 use App\Models\FasesOrdenes;
+use Illuminate\Support\Facades\DB;
 
 class OrdenesApiController extends Controller
 {
-    public function ordenes(Request $request)
-    {
-        $limit = $request->input('limit', 10);
-        $page = $request->input('page', 1);
-        $sortColumn = $request->input('sortColumn', 'id_orden');
-        $sortOrder = $request->input('sortOrder', 'asc');
-      
 
-        $ordenes = Ordenes::with(
-            ['paciente:id_paciente,nombres,celular', 'sucursal:id_sucursal,nombre']
+
+
+public function ordenes(Request $request) {
+    $limit = $request->input('limit', 10);
+    $page = $request->input('page', 1);
+    $sortColumn = $request->input('sortColumn', 'id_orden');
+    $sortOrder = $request->input('sortOrder', 'asc');
+
+    // Subconsulta para contar el número total de fases para cada orden
+    $contadorFasesQuery = DB::table('fases_ordenes')
+        ->select('ordenes_id', DB::raw('COUNT(*) as total_fases'))
+        ->groupBy('ordenes_id');
+
+    // Subconsulta para obtener el primer dato
+    $primeraFaseQuery = DB::table('fases_ordenes as fo')
+        ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+        ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+        ->select(
+            'fo.ordenes_id', 
+            'fo.laboratorio as laboratorio_primera_fase',
+            'fo.observacion as observacion_primera_fase',
+            'fo.fecha_fase as fecha_primera_fase',
+            'contador_fases.total_fases',
+            DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
+            DB::raw('CASE 
+                WHEN contador_fases.total_fases = 4 THEN "Completado"
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
+                ELSE "sin_status"
+            END as status_primera_fase')
         )
-        ->orderBy($sortColumn, $sortOrder)
-        ->paginate($limit, ['*'], 'page', $page);
+        ->whereRaw('fo.id = (
+            SELECT MIN(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo.ordenes_id 
+            AND tipo_fase_orden_id = 1
+        )');
 
-       
+    // Subconsulta para obtener la última fase
+    $ultimaFaseQuery = DB::table('fases_ordenes as fo')
+        ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+        ->select(
+            'fo.ordenes_id', 
+            'tfo.tipo_fase_orden as fase_actual',
+            'fo.laboratorio as laboratorio_ultima_fase',
+            'fo.observacion as observacion_ultima_fase',
+            'fo.fecha_fase as fecha_ultima_fase'
+        )
+        ->whereRaw('fo.id = (
+            SELECT MAX(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo.ordenes_id
+        )');
 
-        return response()->json([
-            'data' => $ordenes->items(),
-            'meta' => [
-                'page' => $ordenes->currentPage(),
-                'limit' => $ordenes->perPage(),
-                'total' => $ordenes->total(),
-            ],
-            'respuesta' => true,
-            'status' => [
-                'code' => 200,
-                'message' => 'Recetas retrieved successfully', 
-            ],
-            'mensaje' => 'Órdenes obtenidas correctamente',
-        ], 200);
-    }
+    // Consulta principal
+    $ordenes = Ordenes::with([
+        'paciente:id_paciente,nombres,celular', 
+        'sucursal:id_sucursal,nombre', 
+    ])
+    ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+    ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+    ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
+    ->select(
+        'ordenes.*', 
+        'usuarios.nombre as elaborado_por_nombre',
+        'primeras_fases.laboratorio_primera_fase as laboratorio',
+        'primeras_fases.observacion_primera_fase as observacion',
+        'primeras_fases.fecha_primera_fase as fecha_fase',
+        'primeras_fases.status_primera_fase as status',
+        'primeras_fases.dias_transcurridos as dias_transcurridos',
+        'primeras_fases.total_fases as total_fases',
+        'ultimas_fases.fase_actual'
+    )
+    ->orderBy($sortColumn, $sortOrder)
+    ->paginate($limit, ['*'], 'page', $page);
+
+    return response()->json([
+        'data' => $ordenes->items(), 
+        'meta' => [
+            'page' => $ordenes->currentPage(), 
+            'limit' => $ordenes->perPage(), 
+            'total' => $ordenes->total(), 
+        ],
+        'respuesta' => true, 
+        'status' => [
+            'code' => 200, 
+            'message' => 'Órdenes retrieved successfully', 
+        ],
+        'mensaje' => 'Órdenes obtenidas correctamente', 
+    ], 200);
+}
 
     public function createOrdenes(Request $request){
         $validator = Validator::make($request->all(), [
@@ -76,7 +139,7 @@ class OrdenesApiController extends Controller
             'marca' => 'nullable|string|max:255',
             'tipo_aro' => 'nullable|string|max:255',
             'doctor' => 'nullable|string|max:255',
-            'observaciones' => 'nullable|string|max:255',
+            'observaciones' => 'nullable|string|max:400',
             'l_uno' => 'nullable|string|max:255',
             'l_dos' => 'nullable|string|max:255',
             'l_tres' => 'nullable|string|max:255',
@@ -192,7 +255,7 @@ class OrdenesApiController extends Controller
         'marca' => 'nullable|string|max:255',
         'tipo_aro' => 'nullable|string|max:255',
         'doctor' => 'nullable|string|max:255',
-        'observaciones' => 'nullable|string|max:255',
+        'observaciones' => 'nullable|string|max:400',
         'l_uno' => 'nullable|string|max:255',
         'l_dos' => 'nullable|string|max:255',
         'l_tres' => 'nullable|string|max:255',
@@ -298,9 +361,9 @@ public function createFasesOrdenes(Request $request)
     $validatedData = $request->validate([
         'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id', 
         'ordenes_id'         => 'required|integer',
-        'laboratorio'        => 'nullable|string|max:45', 
-        'observacion'        => 'nullable|string|max:45',
-        'fecha_fase'         => 'nullable|string|max:45',
+        'laboratorio'        => 'nullable|string|max:45',
+        'fecha_fase'        =>  'nullable|string|max:45',
+        'observacion'        => 'nullable|string|max:400',
     ]);
 
     $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
@@ -340,6 +403,7 @@ public function createFasesOrdenes(Request $request)
         }
     }
 }
+
 
 
 }

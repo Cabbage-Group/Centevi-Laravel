@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom';
+import { useParams,useLocation } from 'react-router-dom';
 import { useSelector,useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Select, Tooltip } from 'antd'
 import moment from 'moment';
@@ -9,17 +9,45 @@ import {
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 
-const Retirado = ({tipoFaseId}) => {
+const Retirado = ({tipoFaseId,lab}) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
+  const [fechaCreacion, setFechaCreacion] = useState('')
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams(); 
+  const location = useLocation();
+  const { orden } = location.state || {};
+  const [laboratorio, setLaboratorio] = useState('');
 
   useEffect(()=>{
     dispatch(fecthTiposFasesOrdenes());
   },[])
+
+  useEffect(() => {
+    if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
+      console.log('entre1111111111111111111111111')
+      const tipoFase2 = tiposFasesOrdenes.find(fase => 
+        fase.fases_ordenes.some(faseOrden => 
+          faseOrden.ordenes_id == orderId  && faseOrden.tipo_fase_orden_id == 1
+      ))
+      if (tipoFase2) {
+        console.log('entre2222222222222222222222')
+        const faseOrden2 = tipoFase2.fases_ordenes.find(faseOrden => 
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
+        );
+       
+
+        if (faseOrden2) {
+          console.log('entre3333333333333333333')
+          console.log('faseOrden333333333333333333333333333:',faseOrden2)
+          setLaboratorio(faseOrden2.laboratorio);
+
+        }
+      }
+  }
+  }, [tiposFasesOrdenes,orderId]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -28,6 +56,7 @@ const Retirado = ({tipoFaseId}) => {
           faseOrden.ordenes_id == orderId  && faseOrden.tipo_fase_orden_id == tipoFaseId
         )
       );
+
       if (tipoFase) {
         const faseOrden = tipoFase.fases_ordenes.find(faseOrden => 
           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
@@ -36,21 +65,33 @@ const Retirado = ({tipoFaseId}) => {
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
+          setFechaCreacion(faseOrden.created_at);
+          
         }
       }
     }
   }, [tiposFasesOrdenes, orderId, tipoFaseId]);
 
+  const getColorForStatus = (status) => {
+    const colors = {
+      Ok: 'green',
+      Advertencia: 'yellow',
+      Critico: 'red',
+      Completado: 'blue',
+    };
+    return colors[status] || 'gray'; // Predeterminado: 'gray'
+  };
+
+  const statusToDisplay = orden?.status_final || orden?.status;
+
   useEffect(() => {
-    if (observaciones) {
       const nuevaFase = {
         tipo_fase_orden_id:tipoFaseId, 
-        laboratorio: "",
+        laboratorio: laboratorio,
         observacion:observaciones,
         fecha_fase: fechaActual,
       };
       dispatch(actualizarDatosFase(nuevaFase));
-    }
   }, [observaciones, fechaActual, tipoFaseId, dispatch]);
 
 
@@ -126,22 +167,21 @@ const Retirado = ({tipoFaseId}) => {
             Fecha de la fase listo
           </label>
           <div>
-            {moment().format('YYYY-MM-DD HH:mm:ss')}
+            {fechaCreacion ? moment(fechaCreacion).format('YYYY-MM-DD HH:mm:ss') : ""}
           </div>
           <Divider />
-          <label htmlFor="inputAddress">
-            Status
-          </label>
-          <div
-            style={{ display: 'flex', justifyContent: 'right' }}
-          >
+          <label htmlFor="status">Status</label>
+          <div style={{ display: 'flex', justifyContent: 'right' }}>
             <div
               style={{
-                width: '15px', height: '15px', borderRadius: '100%',
-                background: 'blue', marginRight: '5px'
+                width: '15px',
+                height: '15px',
+                borderRadius: '100%',
+                backgroundColor: getColorForStatus(statusToDisplay),
+                marginRight: '5px',
               }}
             ></div>
-            <span>Completado</span>
+            <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
         </Col>
       </Row>

@@ -12,8 +12,8 @@ import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { useLocation } from 'react-router-dom';
-import Ordenes from './ordenes/Ordenes';
-import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import moment from 'moment';
+
 
 const EditOrden = () => {
 
@@ -235,7 +235,7 @@ const EditOrden = () => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      2024-11-05
+                                      {moment(orden.created_at).format('DD/MM/YYYY')}
                                     </b>
                                   </p>
                                 </div>
@@ -1606,7 +1606,7 @@ const EditOrden = () => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={usuario?.usuario?.nombre}
+                                                    value={orden.elaborado_por_nombre}
                                                     disabled />
                                                 </div>
                                               </Col>

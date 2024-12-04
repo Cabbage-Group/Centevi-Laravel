@@ -18,7 +18,7 @@ class FasesOrdenes extends Migration
             $table->foreignId('tipo_fase_orden_id')->constrained('tipos_fases_ordenes')->onDelete('cascade'); 
             $table->integer('ordenes_id');
             $table->string('laboratorio', 45)->nullable(); 
-            $table->string('observacion', 200)->nullable();
+            $table->string('observacion', 400)->nullable();
             $table->string('fecha_fase', 45)->nullable(); 
             $table->timestamps();
         });
