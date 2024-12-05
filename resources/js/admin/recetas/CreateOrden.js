@@ -16,10 +16,10 @@ const CreateOrden = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {pacientes_options_selecteds ,pacientes} = useSelector((state) => state.pacientes);
+  const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
-  const { usuarios_doctores_options_selecteds} = useSelector((state) => state.usuarios)
+  const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios)
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
@@ -27,7 +27,7 @@ const CreateOrden = () => {
   const [selectUsuario, setSelectdUsuario] = useState(null)
   const [selectedTipoCristal, setSelectedTipoCristal] = useState(null);
   // console.log('pacientes_options_selecteds:',pacientes_options_selecteds)
-  
+
   const nombreUsuarioActual = localStorage.getItem('nombre');
 
   const initialValues = {
@@ -76,7 +76,7 @@ const CreateOrden = () => {
     { label: 'Al Aire', value: 5 },
     { label: 'Seguridad', value: 6 },
   ];
-  
+
 
   const validationSchema = Yup.object().shape({
     nro_orden: Yup.number()
@@ -94,12 +94,12 @@ const CreateOrden = () => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string() 
-    .nullable()
-    .required("Seleccione un tipo de aro"),
+    tipo_aro: Yup.string()
+      .nullable()
+      .required("Seleccione un tipo de aro"),
     doctor: Yup.string()
-    .nullable()
-    .required("Seleccione un doctor"),
+      .nullable()
+      .required("Seleccione un doctor"),
   });
 
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
@@ -109,7 +109,7 @@ const CreateOrden = () => {
   const [tipoAro, setTipoAro] = useState(null);
   const [doctorSeleccionado, setDoctorSeleccionado] = useState(null)
 
- 
+
   useEffect(() => {
     if (selectedPaciente) {
       // Buscar el paciente seleccionado en la lista de pacientes
@@ -138,23 +138,23 @@ const CreateOrden = () => {
 
   const handleSubmit = async (values) => {
     console.log('Valores del formulario al enviar:', values);
-    const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label); 
+    const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
     const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
     const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
     const transformedValues = {
       ...values,
-      id_paciente : selectedPaciente,
-      tipo_cristal_od: serviciosRealizadosSubmit[0] || "", 
+      id_paciente: selectedPaciente,
+      tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
       tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
-      material_od : materialesSeleccionadosSubmit[0] || "",
-      material_oi : materialesSeleccionadosSubmit[1] || "",
-      tratamientos_od : tratamientosFiltrosSubmit[0] || "",
-      tratamientos_oi : tratamientosFiltrosSubmit[1] || "",
-      aro_centevi: aroCentevi ? 1 : 0, 
-      aro_propio: aroCentevi ? 0 : 1,  
+      material_od: materialesSeleccionadosSubmit[0] || "",
+      material_oi: materialesSeleccionadosSubmit[1] || "",
+      tratamientos_od: tratamientosFiltrosSubmit[0] || "",
+      tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
+      aro_centevi: aroCentevi ? 1 : 0,
+      aro_propio: aroCentevi ? 0 : 1,
       tipo_aro: tipoAro,
       doctor: doctorSeleccionado,
-      elaborado_por : usuario?.usuario?.id_usuario
+      elaborado_por: usuario?.usuario?.id_usuario
     };
     console.log('transformedValues:', transformedValues);
     const result = await dispatch(createOrdenes(transformedValues));
@@ -191,18 +191,18 @@ const CreateOrden = () => {
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <Button
-                      onClick={()=>{
-                        console.log('serviciosRealizados:',serviciosRealizados)
-                        console.log('materialesSeleccionados:',materialesSeleccionados)
-                        console.log('aroCentevi:',aroCentevi)
-                        console.log('tipoAro:',tipoAro)
-                        console.log('pacientes:',pacientes)
-                        console.log('usuario:',usuario)
-                        console.log('pacientes_options_selecteds:',pacientes_options_selecteds)
-                        console.log('usuarios_doctores_options_selecteds:',usuarios_doctores_options_selecteds)
-                        console.log('nombreUsuarioActual:', nombreUsuarioActual)
-                        console.log('selectedPaciente:', selectedPaciente)
-                      }}>
+                        onClick={() => {
+                          console.log('serviciosRealizados:', serviciosRealizados)
+                          console.log('materialesSeleccionados:', materialesSeleccionados)
+                          console.log('aroCentevi:', aroCentevi)
+                          console.log('tipoAro:', tipoAro)
+                          console.log('pacientes:', pacientes)
+                          console.log('usuario:', usuario)
+                          console.log('pacientes_options_selecteds:', pacientes_options_selecteds)
+                          console.log('usuarios_doctores_options_selecteds:', usuarios_doctores_options_selecteds)
+                          console.log('nombreUsuarioActual:', nombreUsuarioActual)
+                          console.log('selectedPaciente:', selectedPaciente)
+                        }}>
                         Aqui
                       </Button>
                       <div className="widget-content widget-content-area" >
@@ -240,25 +240,25 @@ const CreateOrden = () => {
                                 <div class="col-md-2"  >
                                   <h4>Nro. Orden*</h4>
                                   <Input
-                                      name="nro_orden"
-                                      value={values.nro_orden}
-                                      onChange={(e) => {
-                                        const onlyNumbers = e.target.value.replace(/\D/g, ""); 
-                                        setFieldValue("nro_orden", onlyNumbers);
-                                      }}
-                                      placeholder="Ingrese el número de orden"
-                                      style={{
-                                        color: "red",
-                                        fontWeight: "bold",
-                                        marginBottom: "1rem",
-                                        height: '40px',
-                                      }}
-                                    />
-                                    <ErrorMessage
-                                      name="nro_orden"
-                                      component="div"
-                                      style={{ color: "red", fontSize: "12px" }}
-                                    />
+                                    name="nro_orden"
+                                    value={values.nro_orden}
+                                    onChange={(e) => {
+                                      const onlyNumbers = e.target.value.replace(/\D/g, "");
+                                      setFieldValue("nro_orden", onlyNumbers);
+                                    }}
+                                    placeholder="Ingrese el número de orden"
+                                    style={{
+                                      color: "red",
+                                      fontWeight: "bold",
+                                      marginBottom: "1rem",
+                                      height: '40px',
+                                    }}
+                                  />
+                                  <ErrorMessage
+                                    name="nro_orden"
+                                    component="div"
+                                    style={{ color: "red", fontSize: "12px" }}
+                                  />
                                 </div>
 
 
@@ -267,7 +267,7 @@ const CreateOrden = () => {
                                   <Select
                                     showSearch
                                     value={selectedPaciente}
-                                 
+
                                     onChange={(value) => {
                                       setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
                                       setFieldValue("id_paciente", value); // También actualizar el campo de Formik
@@ -286,13 +286,13 @@ const CreateOrden = () => {
                                       color: "black",
                                       fontWeight: "bold",
                                     }}
-                                    // onChange={(e) => {
-                                    //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                    //   // setFieldValue('paciente', e.target.value);
-                                    //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                    // }}
+                                  // onChange={(e) => {
+                                  //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
+                                  //   // setFieldValue('paciente', e.target.value);
+                                  //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
+                                  // }}
                                   />
-                                 
+
                                   <ErrorMessage name="id_paciente" component="div" className="text-danger" />
 
                                 </div>
@@ -325,7 +325,7 @@ const CreateOrden = () => {
                                     className="form-control"
                                     name="cedula"
                                     type="text"
-                                    value={cedula} 
+                                    value={cedula}
                                     style={{
                                       color: "red",
                                       fontWeight: "bold",
@@ -593,20 +593,81 @@ const CreateOrden = () => {
                                       onChange={(value, val) => {
                                         // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!serviciosRealizados.find(servicio => servicio.value == value) && serviciosRealizados.length < 2) {
+                                        if (serviciosRealizados.length < 2) {
                                           serviciosRealizados.push(val)
                                           setServiciosRealizados([...serviciosRealizados])
 
                                         }
                                       }}
                                       options={[
-                                        { id: 1, codigo: "MP01 | Monofocal Claro Sencillo" },
-                                        { id: 2, codigo: "MPAR | Monofocal + Antirreflejo" },
-                                        { id: 3, codigo: "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                        { id: 4, codigo: "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
-                                        { id: 5, codigo: "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
-                                        { id: 6, codigo: "MPT06 | Monofocal + Transitions" },
-                                      ].map(servicio => ({
+                                        { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
+                                        { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
+                                        { "id": 3, "codigo": "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                        { "id": 4, "codigo": "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
+                                        { "id": 5, "codigo": "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
+                                        { "id": 6, "codigo": "MPT06 | Monofocal + Transitions" },
+                                        { "id": 7, "codigo": "MPX07 | Monofocal + Transitions Xtractive" },
+                                        { "id": 8, "codigo": "MPP04 | Monofocal Polarizado (Lente de Sol Oscuro)" },
+                                        { "id": 9, "codigo": "MPE05 | Monofocal Polarizado con Espejado (Lente de Sol Oscuro)" },
+                                        { "id": 10, "codigo": "MTL08 | Monofocal Thin & Lite 1.67 Claros" },
+                                        { "id": 11, "codigo": "MTL09 | Monofocal Thin & Lite 1.67 + Fotocromático" },
+                                        { "id": 12, "codigo": "MHI07 | Monofocal Hi Index Super Thin & Lite 1.74 + Filtro Luz Azul sin AR" },
+                                        { "id": 13, "codigo": "MAF08 | Antifatigue (Relax) Claros + Filtro Luz Azul" },
+                                        { "id": 14, "codigo": "MLE09 | Monofocal Lenticular Claro" },
+                                        { "id": 15, "codigo": "MLT06 | Monofocal Lenticular + Transitions" },
+                                        { "id": 16, "codigo": "BFT2 | Bifocal Flap Top Claro Sencillo" },
+                                        { "id": 17, "codigo": "BFT3 | Bifocal Flap Top Claro + Filtro Luz Azul" },
+                                        { "id": 18, "codigo": "BFTF | Bifocal Flap Top + Fotocromático" },
+                                        { "id": 19, "codigo": "BFTA | Bifocal Flap Top + Fotocromático + Antirreflejo" },
+                                        { "id": 20, "codigo": "BFK01 | Bifocal Kriptop Claro Sencillo" },
+                                        { "id": 21, "codigo": "BKFA | Bifocal Kriptop + Filtro Luz Azul + Antirreflejo" },
+                                        { "id": 22, "codigo": "BKFA1 | Bifocal Kriptop + Filtro Luz Azul + Fotocromático + Antirreflejo" },
+                                        { "id": 23, "codigo": "BKL01 | Bifocal Kriptop Lenticular Claro" },
+                                        { "id": 24, "codigo": "BI001 | Bifocal Invisible Claro" },
+                                        { "id": 25, "codigo": "BIF01 | Bifocal Invisible + Filtro Luz Azul" },
+                                        { "id": 26, "codigo": "BIF02 | Bifocal Invisible + Fotocromático" },
+                                        { "id": 27, "codigo": "BIF03 | Bifocal Invisible + Fotocromático + Filtro Luz Azul" },
+                                        { "id": 28, "codigo": "BIAF1 | Bifocal Invisible + Fotocromático + Antirreflejo" },
+                                        { "id": 29, "codigo": "BBIF1 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) Claro" },
+                                        { "id": 30, "codigo": "BBIF2 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) + Fotocromático" },
+                                        { "id": 31, "codigo": "BTT01 | Trifocal Claro Sencillo (Solo vender a usuarios)" },
+                                        { "id": 32, "codigo": "CM01 | Control Miopia Claro Sencillo" },
+                                        { "id": 33, "codigo": "CM02 | Control Miopia + Filtro Luz Azul" },
+                                        { "id": 34, "codigo": "CM04 | Control Miopia + Transitions" },
+                                        { "id": 35, "codigo": "CM05 | Control Miopia THIN & LITE + Transitions" },
+                                        { "id": 36, "codigo": "CM06 | Control Miopia Polarizado (Lente Oscuro de Sol)" },
+                                        { "id": 37, "codigo": "MGSE | Multifocal Generico Claro Sencillo" },
+                                        { "id": 38, "codigo": "MGFL | Multifocal Generico + Filtro Luz Azul" },
+                                        { "id": 39, "codigo": "MFFT1 | Multifocal Solarmax + Fotocromatico" },
+                                        { "id": 40, "codigo": "MSFF | Multifocal Solarmax + Fotocromatico + Filtro Luz Azul" },
+                                        { "id": 41, "codigo": "MF01 | Multifocal 4NEW Claro sencillo (utilizar este código cuando lleva filtro terapéutico)" },
+                                        { "id": 42, "codigo": "MNTR | Multifocal 4NEW + Transition" },
+                                        { "id": 43, "codigo": "MFSS | Multifocal 4STARTER Sencillo" },
+                                        { "id": 44, "codigo": "MSTR | Multifocal 4STARTER + Transition" },
+                                        { "id": 45, "codigo": "MFPS | Multifocal Panorama Sencillo" },
+                                        { "id": 46, "codigo": "MPTR | Multifocal Panorama + Transition" },
+                                        { "id": 47, "codigo": "MFDS | Multifocal 4DIGILIFE Claro Sencillo" },
+                                        { "id": 48, "codigo": "MDTR | Multifocal 4DIGILIFE + Transition" },
+                                        { "id": 49, "codigo": "SP005 | Sobrepoder en Multifocal (ESF. +/- 8.50 CYL. +/- 3.00)" },
+                                        { "id": 50, "codigo": "PEM1 | Paquete económico monofocales claros sencillos" },
+                                        { "id": 51, "codigo": "PEML | Paquete económico Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                        { "id": 52, "codigo": "PEBK2 | Paquete económico Bifocal Kriptop Claro Sencillo" },
+                                        { "id": 53, "codigo": "PEBT3 | Paquete económico Bifocal Flap Top Claro Sencillo" },
+                                        { "id": 54, "codigo": "PEBI4 | Paquete económico Bifocal Invisible Claro Sencillo" },
+                                        { "id": 55, "codigo": "PEMO5 | Paquete económico Multifocal Claro Sencillo" },
+                                        { "id": 56, "codigo": "FTP01 | Filtro Terapéutico" },
+                                        { "id": 57, "codigo": "FUV1 | Filtro Luz Azul (UV 400)" },
+                                        { "id": 58, "codigo": "PM02 | Prismas" },
+                                        { "id": 59, "codigo": "RT03 | Remover Tinte" },
+                                        { "id": 60, "codigo": "SP04 | Sobrepoder (ESF. +/- 6 CYL: -3.25) Aplica para monofocales y bifocales" },
+                                        { "id": 61, "codigo": "TT05 | Tinte" },
+                                        { "id": 62, "codigo": "MAA6 | Montaje aro al aire" },
+                                        { "id": 63, "codigo": "MA10 | Montaje de aro" },
+                                        { "id": 64, "codigo": "RAR7 | Remover antirreflejo" },
+                                        { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
+                                        { "id": 66, "codigo": "TRANS | Transition" },
+                                        { "id": 67, "codigo": "FOT | Fotocromático" }
+                                    ].map(servicio => ({
                                         value: servicio.id,
                                         label: servicio.codigo
                                       }))}
@@ -687,7 +748,7 @@ const CreateOrden = () => {
                                       onChange={(value, val) => {
                                         // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!materialesSeleccionados.find(servicio => servicio.value == value) && materialesSeleccionados.length < 2) {
+                                        if (materialesSeleccionados.length < 2) {
                                           materialesSeleccionados.push(val)
                                           setMaterialesSeleccionados([...materialesSeleccionados])
                                         }
@@ -780,7 +841,7 @@ const CreateOrden = () => {
                                       onChange={(value, val) => {
                                         // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
+                                        if (tratamientosFiltros.length < 2) {
                                           tratamientosFiltros.push(val)
                                           setTratamientosFiltros([...tratamientosFiltros])
                                         }
@@ -1348,8 +1409,8 @@ const CreateOrden = () => {
                                           <label className="new-control new-radio radio-classic-primary">
                                             <b>ARO PROPIO</b>
                                             <Field
-                                              className="new-control-input"                                        
-                                              checked={!aroCentevi}                                           
+                                              className="new-control-input"
+                                              checked={!aroCentevi}
                                               type="radio"
                                               onChange={() => setAroCentevi(false)}
                                             />
@@ -1391,7 +1452,7 @@ const CreateOrden = () => {
                                           </div>
                                           <Field
                                             className="form-control"
-                                            name= "color"
+                                            name="color"
                                             style={{
                                               marginLeft: '0px', height: '30px'
                                             }}
@@ -1556,7 +1617,7 @@ const CreateOrden = () => {
                                                       }
                                                     }}
                                                   />
-                                                   <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
+                                                  <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
                                                 </div>
                                               </Col>
 
@@ -1581,7 +1642,7 @@ const CreateOrden = () => {
                                                       const selectedOption = usuarios_doctores_options_selecteds.find(option => option.value === value);
                                                       if (selectedOption) {
                                                         setDoctorSeleccionado(selectedOption.label);
-                                                        setFieldValue("doctor",selectedOption.label)
+                                                        setFieldValue("doctor", selectedOption.label)
                                                       }
                                                     }}
                                                   />
@@ -1609,7 +1670,7 @@ const CreateOrden = () => {
                                             <Field
                                               as={TextArea}
                                               className="form-control"
-                                              name='observaciones'                                           
+                                              name='observaciones'
                                               style={{
                                                 height: '180px'
                                               }}
@@ -1652,7 +1713,7 @@ const CreateOrden = () => {
                                         }}
                                       >
                                         <Field
-                                        name='l_uno'
+                                          name='l_uno'
                                         />
                                       </div>
 
@@ -1667,7 +1728,7 @@ const CreateOrden = () => {
                                         }}
                                       >
                                         <Field
-                                          name='l_dos' 
+                                          name='l_dos'
                                         />
                                       </div>
 
@@ -1682,7 +1743,7 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_tres'
-                                         />
+                                        />
                                       </div>
 
                                       <div
@@ -1696,7 +1757,7 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_cuatro'
-                                         />
+                                        />
                                       </div>
 
                                       <div
@@ -1710,7 +1771,7 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_cinco'
-                                         />
+                                        />
                                       </div>
 
                                     </div>
