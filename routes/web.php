@@ -266,6 +266,14 @@ Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
 
 Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden']);
 
+Route::get('/api/tipos-fases-ordenes', [OrdenesApiController::class,'tipoFasesOrdenes']);
+
+Route::post('/api/tipos-fases-ordenes', [OrdenesApiController::class,'createTiposFasesOrdenes']);
+
+Route::get('/api/fases-ordenes', [OrdenesApiController::class,'fasesOrdenes']);
+
+Route::post('/api/create-fases-ordenes', [OrdenesApiController::class,'createFasesOrdenes']);
+
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '.*');

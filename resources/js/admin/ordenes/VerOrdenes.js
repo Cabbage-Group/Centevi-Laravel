@@ -331,9 +331,9 @@ const VerOrdenes = () => {
                                  <td>{orden?.sucursal?.nombre || ""}</td>
                                  <td>{orden?.paciente?.nombres || ""}</td>
                                  <td>{orden?.paciente?.celular || ""}</td>
-                                 <td>{""}</td>
-                                 <td>{""}</td>
-                                 <td>{""}</td>
+                                 <td>{orden?.laboratorio || ""}</td>
+                                 <td>{orden?.fase_actual || ""}</td>
+                                 <td>{orden?.status_final ?? orden?.status ?? ""}</td>
                                 <td >
                                   <div className="btn-group">
                                   

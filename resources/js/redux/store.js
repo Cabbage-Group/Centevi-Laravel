@@ -71,6 +71,11 @@ import serviciosReducer from './features/servicios/serviciosSlice';
 import serviciosRealizadosSlice from './features/reportes/serviciosRealizadosSlice';
 import serviciosProximosReducer from './features/reportes/serviciosProximosSlice';
 import ordenesSlice from './features/ordenes/ordenesSlice';
+import tiposFasesOrdenesSlice from './features/ordenes/tiposFasesOrdenesSlice';
+import fasesOrdenesSlice from './features/ordenes/fasesOrdenesSlice'
+
+
+
 
 const store = configureStore({
   reducer: {
@@ -153,7 +158,11 @@ const store = configureStore({
 
     serviciosProximos: serviciosProximosReducer,
 
-    ordenes : ordenesSlice
+    ordenes : ordenesSlice,
+
+    fasesOrdenes: fasesOrdenesSlice,
+
+    tiposFasesOrdenes: tiposFasesOrdenesSlice
 
 
   }
