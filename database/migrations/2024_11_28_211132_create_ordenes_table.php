@@ -46,7 +46,7 @@ class CreateOrdenesTable extends Migration
             $table->string('marca', 100)->nullable()->nullable();
             $table->string('tipo_aro', 100)->nullable();
             $table->string('doctor', 100)->nullable();
-            $table->string('observaciones', 100)->nullable()->nullable();
+            $table->string('observaciones', 400)->nullable()->nullable();
             $table->string('l_uno', 100)->nullable();
             $table->string('l_dos', 100)->nullable();
             $table->string('l_tres', 100)->nullable();
