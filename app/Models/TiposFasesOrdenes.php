@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class TiposFasesOrdenes extends Model
 {
-    use HasFactory;
-    
-    protected $table = 'tipos_fases_ordenes';
+  use HasFactory;
 
-    protected $fillable = [
-        'tipo_fase_orden',
-    ];
+  protected $table = 'tipos_fases_ordenes';
 
-    public function fasesOrdenes()
-    {
-        return $this->hasMany(FasesOrdenes::class, 'tipo_fase_orden_id');
-    }
+  protected $fillable = [
+    'tipo_fase_orden',
+  ];
+
+  public function fasesOrdenes()
+  {
+    return $this->hasMany(FasesOrdenes::class, 'tipo_fase_orden_id');
+  }
 }

@@ -158,7 +158,7 @@ const store = configureStore({
 
     serviciosProximos: serviciosProximosReducer,
 
-    ordenes : ordenesSlice,
+    ordenes: ordenesSlice,
 
     fasesOrdenes: fasesOrdenesSlice,
 

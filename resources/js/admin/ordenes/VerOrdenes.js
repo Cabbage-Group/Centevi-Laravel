@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
-  const { ordenes,status, error, meta, totalPages, sortColumn, sortOrder } = useSelector((state) => state.ordenes);
+  const { ordenes, status, error, meta, totalPages, sortColumn, sortOrder } = useSelector((state) => state.ordenes);
 
   const [currentPage, setCurrentPage] = useState(1);
   // const [localSearch, setLocalSearch] = useState(search);
@@ -80,7 +80,7 @@ const VerOrdenes = () => {
             >
               <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                 <div className="widget-content widget-content-area br-6">
-                  <Link to={"/create-orden"} className="btn btn-success mb-4 ml-3 mt-4">
+                  <Link to={"/create-orden"} className="btn btn-success ml-3 mt-4">
                     Agregar Orden
                   </Link>
 
@@ -90,92 +90,7 @@ const VerOrdenes = () => {
                   >
                     <div className="dt--top-section">
                       <div className="row">
-                        <div className="col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center">
-                          <div
-                            className="dataTables_length"
-                            id="zero-config_length"
-                          >
-                            <label>
-                              Results :
-                              <select
-                                aria-controls="zero-config"
-                                className="form-control"
-                                name="zero-config_length"
-                              >
-                                <option value="7">
-                                  7
-                                </option>
-                                <option value="10">
-                                  10
-                                </option>
-                                <option value="20">
-                                  20
-                                </option>
-                                <option value="50">
-                                  50
-                                </option>
-                              </select>
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3">
-                          <div
-                            className="dataTables_filter"
-                            id="zero-config_filter"
-                          >
-                            <label>
-                              <svg
-                                className="feather feather-search"
-                                fill="none"
-                                height="24"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                viewBox="0 0 24 24"
-                                width="24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <circle
-                                  cx="11"
-                                  cy="11"
-                                  r="8"
-                                />
-                                <line
-                                  x1="21"
-                                  x2="16.65"
-                                  y1="21"
-                                  y2="16.65"
-                                />
-                              </svg>
-                              {/* <input
-                                aria-controls="html5-extension"
-                                className="form-control"
-                                placeholder="Search..."
-                                type="search"
-                                value={localSearch}
-                                onChange={handleSearchChange}
-                              /> */}
-
-                              {/* {localSearch && (
-                                <button
-                                  onClick={handleClearSearch}
-                                  style={{
-                                    position: 'absolute',
-                                    right: '25px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                  }}
-                                >
-                                  &#x2715; { }
-                                </button>
-                              )} */}
-                            </label>
-                          </div>
-                        </div>
+                        
                       </div>
                     </div>
                     <div className="table-responsive">
@@ -326,21 +241,23 @@ const VerOrdenes = () => {
                           <tbody>
                             {ordenes.map((orden) => (
                               <tr key={orden.id_orden}>
-                                 <td>{orden.nro_orden}</td>
-                                 <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
-                                 <td>{orden?.sucursal?.nombre || ""}</td>
-                                 <td>{orden?.paciente?.nombres || ""}</td>
-                                 <td>{orden?.paciente?.celular || ""}</td>
-                                 <td>{orden?.laboratorio || ""}</td>
-                                 <td>{orden?.fase_actual || ""}</td>
-                                 <td>{orden?.status_final ?? orden?.status ?? ""}</td>
+                                <td>{orden.nro_orden}</td>
+                                <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
+                                <td>{orden?.sucursal?.nombre || ""}</td>
+                                <td>{
+                                  orden?.paciente?.nombres + " " + orden?.paciente?.apellidos
+                                }</td>
+                                <td>{orden?.paciente?.celular || ""}</td>
+                                <td>{orden?.laboratorio || ""}</td>
+                                <td>{orden?.fase_actual || ""}</td>
+                                <td>{orden?.status_final ?? orden?.status ?? ""}</td>
                                 <td >
                                   <div className="btn-group">
-                                  
-                                    <Link 
+
+                                    <Link
                                       to={`/orden-receta/${orden.id_orden}`}
                                       className="btn btn-warning btnEditarReceta"
-                                      state={{ orden }} 
+                                      state={{ orden }}
                                       data-target="#modalEditarSucursal"
                                       data-toggle="modal"
                                       id_receta="185"
@@ -381,7 +298,7 @@ const VerOrdenes = () => {
                                         />
                                       </svg>
                                     </button>
-                                    
+
                                   </div>
                                 </td>
 

@@ -11,7 +11,7 @@ export const fecthFasesOrdenes = createAsyncThunk(
     }
 );
 
-export const createFasesOrdenes= createAsyncThunk(
+export const createFasesOrdenes = createAsyncThunk(
     'fasesOrdenes/createFasesOrdenes',
     async (data) => {
         try {
@@ -31,13 +31,13 @@ const fasesOrdenesSlice = createSlice({
     initialState: {
         data: [],
         fasesOrdenes: [],
-        nuevaData: [],   
+        nuevaData: [],
         status: 'idle',
         error: null,
     },
     reducers: {
         actualizarDatosFase: (state, action) => {
-            state.nuevaData = action.payload;  
+            state.nuevaData = action.payload;
         },
     },
     extraReducers: (builder) => {

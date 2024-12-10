@@ -32,24 +32,25 @@ const Ordenes = () => {
 
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
-  const { orderId } = useParams(); 
+  const { orderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
-  const [initialized, setInitialized] = useState(false); 
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     console.log("Datos de fase guardados en nuevaData:", nuevaData);
     console.log("orderId:", orderId);
-  }, [nuevaData,orderId]); 
+  }, [nuevaData, orderId]);
 
-  console.log("currentTipoFase:", currentTipoFase);
   const recibirDatosFase = (data) => {
     setFaseData(data);
   };
 
-  useEffect(()=>{
-    dispatch(fecthTiposFasesOrdenes());
-  },[])
+  useEffect(() => {
+    if (orderId) {
+      dispatch(fecthTiposFasesOrdenes(orderId));
+    }
+  }, [])
 
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
@@ -63,7 +64,7 @@ const Ordenes = () => {
       }, -1);
 
       setNivelStep(lastCompletedStep + 1);
-      setInitialized(true); 
+      setInitialized(true);
     }
   }, [tiposFasesOrdenes, orderId, initialized]);
 
@@ -86,7 +87,7 @@ const Ordenes = () => {
         icon = <LogoutOutlined />;
         break;
       default:
-        icon = <FileAddOutlined />; 
+        icon = <FileAddOutlined />;
     }
     return {
       title: fase.tipo_fase_orden,
@@ -94,7 +95,7 @@ const Ordenes = () => {
     };
   });
 
-  
+
 
   const avanzarFase = async () => {
     const result = await Swal.fire({
@@ -110,10 +111,10 @@ const Ordenes = () => {
 
     if (result.isConfirmed) {
       const nuevaDataConOrderId = {
-        ...nuevaData, 
-        ordenes_id: orderId, 
+        ...nuevaData,
+        ordenes_id: orderId,
       };
-      console.log('nuevaDataConOrderId:',nuevaDataConOrderId)
+      console.log('nuevaDataConOrderId:', nuevaDataConOrderId)
       setNivelStep(nivelStep + 1)
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
       // Mostrar alerta de éxito
@@ -162,27 +163,27 @@ const Ordenes = () => {
 
               {
                 nivelStep == 0 ? (
-                    <Nuevo 
-                      tipoFaseId = {currentTipoFase.id}
-                      lab = {nuevaData.laboratorio} 
-                     
-                    />
+                  <Nuevo
+                    tipoFaseId={currentTipoFase.id}
+                    lab={nuevaData.laboratorio}
+
+                  />
 
                 ) : nivelStep == 1 ? (
-                  <EnConfeccion 
-                    tipoFaseId = {currentTipoFase.id}
-                    lab = {nuevaData.laboratorio}
-                    fecha = {nuevaData.fecha_fase}
+                  <EnConfeccion
+                    tipoFaseId={currentTipoFase.id}
+                    lab={nuevaData.laboratorio}
+                    fecha={nuevaData.fecha_fase}
                   />
                 ) : nivelStep == 2 ? (
-                  <Listo 
-                    tipoFaseId = {currentTipoFase.id}
-                    lab = {nuevaData.laboratorio}
+                  <Listo
+                    tipoFaseId={currentTipoFase.id}
+                    lab={nuevaData.laboratorio}
                   />
                 ) : nivelStep == 3 ? (
-                  <Retirado 
-                    tipoFaseId = {currentTipoFase.id}
-                    lab = {nuevaData.laboratorio}
+                  <Retirado
+                    tipoFaseId={currentTipoFase.id}
+                    lab={nuevaData.laboratorio}
                   />
                 ) : <div></div>
               }
@@ -192,16 +193,16 @@ const Ordenes = () => {
               >
                 {nivelStep > 0 && (
                   <Button
-                  disabled={nivelStep <= 0} 
-                  onClick={() => {
-                    if (nivelStep > 0) { 
-                      setNivelStep(nivelStep - 1); 
-                    }
-                  }}
-                >
-                  Anterior
-                </Button>
-                   )}
+                    disabled={nivelStep <= 0}
+                    onClick={() => {
+                      if (nivelStep > 0) {
+                        setNivelStep(nivelStep - 1);
+                      }
+                    }}
+                  >
+                    Anterior
+                  </Button>
+                )}
                 <Button
                   onClick={() => avanzarFase()}
                   type='primary'

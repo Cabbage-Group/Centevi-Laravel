@@ -18,10 +18,10 @@ const Nuevo = ({ tipoFaseId, lab }) => {
   const { orderId } = useParams();
   const { orden } = location.state || {};
 
-  console.log('lab.......................................',lab)
-
   useEffect(() => {
-    dispatch(fecthTiposFasesOrdenes());
+    if (orderId) {
+      dispatch(fecthTiposFasesOrdenes(orderId));
+    }
   }, []);
 
   useEffect(() => {

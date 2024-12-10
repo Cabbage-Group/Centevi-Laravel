@@ -41,8 +41,8 @@ const CreateOrden = () => {
     eje_od: "",
     eje_oi: "",
     add_od: "",
-    prisma_od: "△",
-    prisma_oi: "△",
+    prisma_od: "",
+    prisma_oi: "",
     distancia_od: "",
     distancia_oi: "",
     altura_od: "",
@@ -117,7 +117,7 @@ const CreateOrden = () => {
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       if (pacienteSeleccionado) {
-        setTelefono(pacienteSeleccionado.telefono || '');
+        setTelefono(pacienteSeleccionado.celular || '');
         setCedula(pacienteSeleccionado.nro_cedula || '');
       } else {
         setTelefono('');
@@ -190,7 +190,7 @@ const CreateOrden = () => {
                 >
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
-                      <Button
+                      {/* <Button
                         onClick={() => {
                           console.log('serviciosRealizados:', serviciosRealizados)
                           console.log('materialesSeleccionados:', materialesSeleccionados)
@@ -204,7 +204,7 @@ const CreateOrden = () => {
                           console.log('selectedPaciente:', selectedPaciente)
                         }}>
                         Aqui
-                      </Button>
+                      </Button> */}
                       <div className="widget-content widget-content-area" >
                         <Formik
                           initialValues={initialValues}
@@ -337,7 +337,7 @@ const CreateOrden = () => {
                                 </div>
                                 <div className="form-group col-md-2">
                                   <label htmlFor="inputEmail4">
-                                    Telefono
+                                    Celular
                                   </label>
                                   <Input
                                     className="form-control"
@@ -372,7 +372,7 @@ const CreateOrden = () => {
                                           <th
                                             className="text-center"
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
                                             }}
                                           >
                                             RX
@@ -380,28 +380,32 @@ const CreateOrden = () => {
                                           <th
                                             className="text-center"
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: "130px"
                                             }}
                                           >
                                             Esfera
                                           </th>
                                           <th
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: "130px"
                                             }}
                                           >
                                             Cilindro
                                           </th>
                                           <th
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: "130px"
                                             }}
                                           >
                                             Eje
                                           </th>
                                           <th
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: "130px"
                                             }}
                                           >
                                             ADD
@@ -409,21 +413,23 @@ const CreateOrden = () => {
                                           <th
                                             style={{
                                               color: 'white!important',
-                                              width: '175px'
+                                              // width: '175px'
                                             }}
                                           >
                                             PRISMA
                                           </th>
                                           <th
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: "130px"
                                             }}
                                           >
                                             DISTANCIA PUPILAR*
                                           </th>
                                           <th
                                             style={{
-                                              color: 'white!important'
+                                              color: 'white!important',
+                                              width: "130px"
                                             }}
                                           >
                                             ALTURA
@@ -470,9 +476,8 @@ const CreateOrden = () => {
                                           <td>
                                             <Field
                                               className="form-control"
-                                              placeholder="△"
-                                              type="text"
                                               name="prisma_od"
+
                                               as="input"
                                             />
                                           </td>
@@ -480,6 +485,7 @@ const CreateOrden = () => {
                                             <Field
                                               className="form-control"
                                               name="distancia_od"
+
                                               as="input"
                                             />
                                           </td>
@@ -531,7 +537,6 @@ const CreateOrden = () => {
                                             <Field
                                               className="form-control"
                                               type="text"
-                                              placeholder="△"
                                               name="prisma_oi"
                                               as="input"
                                             />
@@ -667,7 +672,7 @@ const CreateOrden = () => {
                                         { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
                                         { "id": 66, "codigo": "TRANS | Transition" },
                                         { "id": 67, "codigo": "FOT | Fotocromático" }
-                                    ].map(servicio => ({
+                                      ].map(servicio => ({
                                         value: servicio.id,
                                         label: servicio.codigo
                                       }))}
@@ -1441,13 +1446,13 @@ const CreateOrden = () => {
                                         </div>
                                       </Col>
 
-                                      <Col xxl={5} xl={5} md={5}>
+                                      <Col xxl={9} xl={9} md={9}>
                                         <div
                                           style={{
                                             // display: 'flex'
                                           }}
                                         >
-                                          <div style={{ marginTop: '-15px' }}>
+                                          <div style={{ marginTop: '-68px' }}>
                                             <b>COLOR*</b>
                                           </div>
                                           <Field
@@ -1458,8 +1463,25 @@ const CreateOrden = () => {
                                             }}
                                           />
                                         </div>
+
+                                        <div
+                                          style={{
+                                            // display: 'flex'
+                                          }}
+                                        >
+                                          <div style={{ marginTop: '1px' }}>
+                                            <b>MARCA</b>
+                                          </div>
+                                          <Field
+                                            className="form-control"
+                                            name="marca"
+                                            style={{
+                                              marginLeft: '0px', height: '30px'
+                                            }}
+                                          />
+                                        </div>
                                       </Col>
-                                      <Col xxl={4} xl={4} md={4}>
+                                      {/* <Col xxl={9} xl={9} md={9}>
                                         <div
                                           style={{
                                             // display: 'flex'
@@ -1476,7 +1498,7 @@ const CreateOrden = () => {
                                             }}
                                           />
                                         </div>
-                                      </Col>
+                                      </Col> */}
 
 
 
@@ -1714,6 +1736,9 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_uno'
+                                          style={{
+                                            width: '68px'
+                                          }}
                                         />
                                       </div>
 
@@ -1729,6 +1754,9 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_dos'
+                                          style={{
+                                            width: '68px'
+                                          }}
                                         />
                                       </div>
 
@@ -1743,6 +1771,9 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_tres'
+                                          style={{
+                                            width: '68px'
+                                          }}
                                         />
                                       </div>
 
@@ -1757,6 +1788,9 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_cuatro'
+                                          style={{
+                                            width: '68px'
+                                          }}
                                         />
                                       </div>
 
@@ -1771,6 +1805,9 @@ const CreateOrden = () => {
                                       >
                                         <Field
                                           name='l_cinco'
+                                          style={{
+                                            width: '68px'
+                                          }}
                                         />
                                       </div>
 
