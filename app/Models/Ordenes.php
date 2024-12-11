@@ -53,7 +53,8 @@ class Ordenes extends Model
         'l_dos',
         'l_tres',
         'l_cuatro',
-        'l_cinco'
+        'l_cinco',
+        'pagado'
     ]; 
 
     // Atributos que deben ser convertidos a tipos nativos

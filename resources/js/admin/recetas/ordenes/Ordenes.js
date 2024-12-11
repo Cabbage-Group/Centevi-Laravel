@@ -19,27 +19,29 @@ import Listo from './fases/Listo';
 import Retirado from './fases/Retirado';
 import Swal from 'sweetalert2';
 import EditOrden from '../EditOrden';
-import { useLocation } from 'react-router-dom';
+import {useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { current } from '@reduxjs/toolkit';
 import { createFasesOrdenes } from '../../../redux/features/ordenes/fasesOrdenesSlice';
-import { useParams } from 'react-router-dom';
 
 
 const Ordenes = () => {
 
   const dispatch = useDispatch();
-
+  const location = useLocation();
+  const { orden } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
   const { orderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
+  const [fechaSolicitud, setFechaSolicitud] = useState(orden.created_at);
+
+  console.log('fechaSolicitud:',fechaSolicitud)
 
   useEffect(() => {
     console.log("Datos de fase guardados en nuevaData:", nuevaData);
-    console.log("orderId:", orderId);
   }, [nuevaData, orderId]);
 
   const recibirDatosFase = (data) => {
@@ -52,26 +54,69 @@ const Ordenes = () => {
     }
   }, [])
 
-  useEffect(() => {
-    if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
-      const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        const hasCompleted = tipoFase.fases_ordenes.some(
-          (faseOrden) =>
-            faseOrden.ordenes_id === parseInt(orderId) &&
-            faseOrden.tipo_fase_orden_id === tipoFase.id
-        );
-        return hasCompleted ? index : lastStep;
-      }, -1);
+  // useEffect(() => {
+  //   if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
+  //     const tipoFase = tiposFasesOrdenes.find((fase) =>
+  //       fase.fases_ordenes.some(
+  //         (faseOrden) =>
+  //           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
+  //       )
+  //     );
 
-      setNivelStep(lastCompletedStep + 1);
-      setInitialized(true);
-    }
-  }, [tiposFasesOrdenes, orderId, initialized]);
+  //     if (tipoFase) {
+  //       const faseOrden = tipoFase.fases_ordenes.find(
+  //         (faseOrden) =>
+  //           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
+  //       );
+
+  //       if (faseOrden) {
+  //         setFechaSolicitud(faseOrden.created_at)
+  //       }
+  //     }
+  //   }
+  // }, [tiposFasesOrdenes, orderId]);
+
+  // useEffect(() => {
+  //   if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
+  //     const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
+  //       const hasCompleted = tipoFase.fases_ordenes.some(
+  //         (faseOrden) =>
+  //           faseOrden.ordenes_id === parseInt(orderId) &&
+  //           faseOrden.tipo_fase_orden_id === tipoFase.id
+            
+  //       );
+  //       return hasCompleted ? index : lastStep;
+  //     }, -1);
+
+    
+  //     setNivelStep(lastCompletedStep + 1);
+  //     setInitialized(true);
+
+  //   }
+   
+  // }, [tiposFasesOrdenes, orderId, initialized]);
 
 
-  console.log("tiposFasesOrdenes-----------------------------------------------:", tiposFasesOrdenes);
+  useEffect(()=>{
+    if (tiposFasesOrdenes.length > 0 && orderId ) {
+    const specificFase = tiposFasesOrdenes
+    .find((tipoFase) => tipoFase.id === 1) 
+    ?.fases_ordenes.find(
+      (faseOrden) => 
+        faseOrden.ordenes_id === parseInt(orderId) 
+    );
 
-  const itemsSteps = tiposFasesOrdenes.map((fase) => {
+  if (specificFase) {
+    console.log('specificFase encontrada:', specificFase);
+    setFechaSolicitud(specificFase.created_at)
+  } else {
+    console.log('No se encontró la fase específica con tipoFase.id === 1 y ordenes_id === orderId');
+  }
+}
+  },[tiposFasesOrdenes,orderId])
+
+
+  const itemsSteps = tiposFasesOrdenes?.map((fase) => {
     let icon;
     switch (fase.tipo_fase_orden.toLowerCase()) {
       case 'nuevo':
@@ -117,6 +162,7 @@ const Ordenes = () => {
       console.log('nuevaDataConOrderId:', nuevaDataConOrderId)
       setNivelStep(nivelStep + 1)
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
+      dispatch(fecthTiposFasesOrdenes(orderId));
       // Mostrar alerta de éxito
       await Swal.fire(
         'Guardado!',
@@ -218,7 +264,9 @@ const Ordenes = () => {
       </Row>
 
 
-      <EditOrden />
+      <EditOrden
+        fecha_solicitud={fechaSolicitud}
+      />
 
     </div>
   )

@@ -11,6 +11,7 @@ import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import moment from 'moment';
 
 const CreateOrden = () => {
 
@@ -233,7 +234,7 @@ const CreateOrden = () => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      2024-11-05
+                                      {moment().format('YYYY-MM-DD')}
                                     </b>
                                   </p>
                                 </div>

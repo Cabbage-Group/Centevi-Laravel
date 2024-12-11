@@ -11,12 +11,16 @@ class FasesOrdenes extends Model
 
   protected $table = 'fases_ordenes';
 
+  public $timestamps = false;
+
   protected $fillable = [
     'tipo_fase_orden_id',
     'ordenes_id',
     'laboratorio',
     'observacion',
     'fecha_fase',
+    'created_at', 
+    'updated_at',
   ];
 
   protected $casts = [

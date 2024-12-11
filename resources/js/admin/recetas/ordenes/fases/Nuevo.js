@@ -9,8 +9,8 @@ import { useParams, useLocation } from 'react-router-dom';
 
 const Nuevo = ({ tipoFaseId, lab }) => {
   const dispatch = useDispatch();
-  const [fechaActual, setFechaActual] = useState('');
-  const [fechaCreacion, setFechaCreacion] = useState('');
+  const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
+  const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [laboratorio, setLaboratorio] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
@@ -50,16 +50,17 @@ const Nuevo = ({ tipoFaseId, lab }) => {
   }, [tiposFasesOrdenes, orderId, tipoFaseId]);
 
   useEffect(() => {
-    if (laboratorio && observaciones) {
+    if (laboratorio && observaciones !== null) { 
       const nuevaFase = {
         tipo_fase_orden_id: tipoFaseId,
         laboratorio: laboratorio,
         observacion: observaciones,
         fecha_fase: fechaActual,
+        created_at: fechaCreacion,
       };
       dispatch(actualizarDatosFase(nuevaFase));
     }
-  }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch]);
+  }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch, fechaCreacion]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -95,6 +96,30 @@ const Nuevo = ({ tipoFaseId, lab }) => {
       );
     }
   }
+
+  const actualizarFechaCreacionOrden = async () => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro de actualizar esta fecha?',
+      text: "¡Confirmarás los cambios en los datos!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, guardar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.value === true) {
+      const nuevaFecha = moment().format('YYYY-MM-DD HH:mm:ss');
+      setFechaCreacion(nuevaFecha)
+      await Swal.fire(
+        'Guardado!',
+        'La fecha ha sido actualizada.',
+        'success'
+      );
+    }
+  }
+
 
 
   return (
@@ -146,6 +171,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{ marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
+                onClick={() => actualizarFechaCreacionOrden()}              
               />
             </Tooltip>
             {fechaCreacion ? moment(fechaCreacion).format('YYYY-MM-DD HH:mm:ss') : ''}

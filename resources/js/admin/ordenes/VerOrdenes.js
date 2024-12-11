@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
-import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor,updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
 
@@ -15,7 +15,7 @@ const VerOrdenes = () => {
   // const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
-    dispatch(fecthOrdenes({ page: currentPage, limit: 7, sortColumn, sortOrder }));
+    dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortColumn, sortOrder }));
   }, [dispatch, currentPage, sortColumn, sortOrder]);
 
   const handleSort = (newOrdenPor) => {
@@ -36,6 +36,21 @@ const VerOrdenes = () => {
     setLocalSearch('');
   };
 
+  const handlePagoToggle = async (id_orden, data,nro_orden) => {
+    try {
+
+      const payload = {
+        pagado: !data,
+        nro_orden,
+      };
+      await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
+      dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
+    } catch (err) {
+      console.error('Error al actualizar el estado de pagado:', err);
+    }
+  };
+
+
   const handleEliminarOrden = async (id_orden) => {
     try {
       const result = await Swal.fire({
@@ -51,7 +66,7 @@ const VerOrdenes = () => {
 
       if (result.isConfirmed) {
         await dispatch(deleteOrdenes(id_orden));
-        dispatch(fecthOrdenes({ page: currentPage, limit: 7, sortOrder, sortColumn }));
+        dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
 
         Swal.fire(
           'Eliminado!',
@@ -122,6 +137,12 @@ const VerOrdenes = () => {
                                 onClick={() => handleSort('Nro_Orden')}
                               >
                                 Nro_Orden
+                              </th>
+                              <th
+                              style={{
+                                width: '800px'
+                              }}>
+                                Pagado
                               </th>
                               <th
                                 aria-controls="zero-config"
@@ -242,6 +263,15 @@ const VerOrdenes = () => {
                             {ordenes.map((orden) => (
                               <tr key={orden.id_orden}>
                                 <td>{orden.nro_orden}</td>
+                                <td>
+                                  <button
+                                    className={`btn btn-xs ${orden.pagado ? 'btn-success' : 'btn-danger'}`}
+                                    onClick={() => handlePagoToggle(orden.id_orden, orden.pagado, orden.nro_orden)}
+                                    style={{ minWidth: '100px' }}
+                                  >
+                                    {orden.pagado ? 'Pagado' : 'Sin Pago'}
+                                  </button>
+                                </td>
                                 <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
                                 <td>{orden?.sucursal?.nombre || ""}</td>
                                 <td>{
@@ -313,6 +343,12 @@ const VerOrdenes = () => {
                                 rowSpan="1"
                               >
                                 Nro_Orden
+                              </th>
+                              <th
+                                colSpan="1"
+                                rowSpan="1"
+                              >
+                                Pagado
                               </th>
                               <th
                                 colSpan="1"

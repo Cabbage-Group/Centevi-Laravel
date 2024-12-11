@@ -4,7 +4,7 @@ import API from '../../../config/config.js';
 
 export const fecthOrdenes = createAsyncThunk(
     'ordenes/fecthordenes',
-    async ({ page = 1, limit = 7, sortOrder = 'asc', sortColumn = 'id_orden'}) => {
+    async ({ page = 1, limit = 20, sortOrder = 'desc', sortColumn = 'created_at'}) => {
         const response = await axios.get(`${API}/ordenes`, {
             params: { page, limit, sortOrder, sortColumn}
         });
@@ -63,8 +63,8 @@ const ordenesSlice = createSlice({
         meta: {},
         status: 'idle',
         error: null,
-        sortOrder: 'asc',
-        sortColumn: 'id_orden',
+        sortOrder: 'desc',
+        sortColumn: 'created_at',
     },
     reducers: {
         setOrden(state, action) {

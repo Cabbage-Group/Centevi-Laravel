@@ -1,60 +1,50 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Select, Tooltip } from 'antd'
+import { Col, Divider, Input, Row, Tooltip } from 'antd';
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
-const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
 
+const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   const dispatch = useDispatch();
-  const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
-  const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
-  const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
+  const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
+  const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
+  const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState(''); 
+  const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
-  const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
   const { orden } = location.state || {};
-
-
-  console.log('orden.....................................:', orden)
 
   useEffect(() => {
     if (orderId) {
       dispatch(fecthTiposFasesOrdenes(orderId));
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
-      console.log('entre1111111111111111111111111')
-      const tipoFase2 = tiposFasesOrdenes.find(fase =>
+      const tipoFaseAnterior = tiposFasesOrdenes.find(fase =>
         fase.fases_ordenes.some(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
-        ))
-      if (tipoFase2) {
-        console.log('entre2222222222222222222222')
-        const faseOrden2 = tipoFase2.fases_ordenes.find(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
+        )
+      );
+      if (tipoFaseAnterior) {
+        const faseOrdenAnterior = tipoFaseAnterior.fases_ordenes.find(faseOrden =>
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
         );
-
-
-        if (faseOrden2) {
-          console.log('entre3333333333333333333')
-          console.log('faseOrden333333333333333333333333333:', faseOrden2)
-          setLaboratorio(faseOrden2.laboratorio);
-
+        if (faseOrdenAnterior) {
+          setLaboratorio(faseOrdenAnterior.laboratorio);
+          setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
         }
       }
     }
   }, [tiposFasesOrdenes, orderId]);
-
-  console.log('laboratorio................:', laboratorio)
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -67,13 +57,10 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
         const faseOrden = tipoFase.fases_ordenes.find(faseOrden =>
           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
         );
-        console.log('faseOrden:', faseOrden)
-
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
-
         }
       }
     }
@@ -87,7 +74,6 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
       fecha_fase: fechaActual,
     };
     dispatch(actualizarDatosFase(nuevaFase));
-
   }, [observaciones, fechaActual, tipoFaseId, dispatch]);
 
   const getColorForStatus = (status) => {
@@ -101,7 +87,6 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   };
 
   const statusToDisplay = orden?.status;
-
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -117,7 +102,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
 
     if (result.value === true) {
       const nuevaFecha = moment().format('YYYY-MM-DD HH:mm:ss');
-      setFechaActual(nuevaFecha)
+      setFechaActual(nuevaFecha);
       await Swal.fire(
         'Guardado!',
         'La fecha ha sido actualizada.',
@@ -162,19 +147,12 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
             </Tooltip>
             {fechaActual}
           </div>
-          {/* <input
-                    className="form-control"
-                    // value={moment.format('YYYY-MM-DD')}
-                    name="fecha_atencion"
-                    type="date"
-                  // onChange={}
-                  /> */}
           <Divider />
           <label htmlFor="inputAddress">
             Fecha de ingreso al laboratorio
           </label>
           <div>
-            {moment().format('YYYY-MM-DD HH:mm:ss')}
+            {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')} {/* Si no hay fecha anterior, se muestra la fecha actual */}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
@@ -193,7 +171,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
         </Col>
       </Row>
     </div>
-  )
+  );
 }
 
-export default EnConfeccion
+export default EnConfeccion;

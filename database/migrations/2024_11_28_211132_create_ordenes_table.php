@@ -52,6 +52,7 @@ class CreateOrdenesTable extends Migration
             $table->string('l_tres', 100)->nullable();
             $table->string('l_cuatro', 100)->nullable();
             $table->string('l_cinco', 100)->nullable();
+            $table->tinyInteger('pagado')->nullable();
             $table->timestamps();
         });
     }

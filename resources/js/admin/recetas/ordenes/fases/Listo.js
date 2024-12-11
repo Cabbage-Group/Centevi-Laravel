@@ -14,6 +14,7 @@ const Listo = ({ tipoFaseId, lab }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
   const [fechaCreacion, setFechaCreacion] = useState('')
+  const [fechaFaseConfeccion, setFechaFaseConfeccion] = useState(''); 
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
@@ -32,23 +33,19 @@ const Listo = ({ tipoFaseId, lab }) => {
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
-      console.log('entre1111111111111111111111111')
       const tipoFase2 = tiposFasesOrdenes.find(fase =>
         fase.fases_ordenes.some(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
         ))
       if (tipoFase2) {
-        console.log('entre2222222222222222222222')
         const faseOrden2 = tipoFase2.fases_ordenes.find(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == 1
+          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
         );
 
 
         if (faseOrden2) {
-          console.log('entre3333333333333333333')
-          console.log('faseOrden333333333333333333333333333:', faseOrden2)
           setLaboratorio(faseOrden2.laboratorio);
-
+          setFechaFaseConfeccion(faseOrden2.fecha_fase);
         }
       }
     }
@@ -160,19 +157,12 @@ const Listo = ({ tipoFaseId, lab }) => {
             </Tooltip>
             {fechaActual}
           </div>
-          {/* <input
-                    className="form-control"
-                    // value={moment.format('YYYY-MM-DD')}
-                    name="fecha_atencion"
-                    type="date"
-                  // onChange={}
-                  /> */}
           <Divider />
           <label htmlFor="inputAddress">
             Fecha de la fase confección
           </label>
           <div>
-            {fechaCreacion ? moment(fechaCreacion).format('YYYY-MM-DD HH:mm:ss') : ""}
+            {fechaFaseConfeccion ? moment(fechaFaseConfeccion).format('YYYY-MM-DD HH:mm:ss') : ""}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
