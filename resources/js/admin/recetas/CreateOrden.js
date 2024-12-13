@@ -11,6 +11,7 @@ import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 const CreateOrden = () => {
@@ -109,7 +110,61 @@ const CreateOrden = () => {
   const [aroCentevi, setAroCentevi] = useState(false);
   const [tipoAro, setTipoAro] = useState(null);
   const [doctorSeleccionado, setDoctorSeleccionado] = useState(null)
+  const [isLeftEye, setIsLeftEye] = useState(false);
+  const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
+  const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
+
+  const toggleEye = () => {
+    setIsLeftEye(!isLeftEye);
+  };
+
+  const toggleEyeMaterial = () => {
+    setIsLeftEyeMaterial(!isLeftEyeMaterial);
+  };
+
+  const toggleEyeTratamientos = () => {
+    setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+  };
+
+
+  const handleSelectChange = (value, option) => {
+    const newEntry = {
+      servicio: isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO",
+      label: option.label,
+    };
+  
+    if (serviciosRealizados.length < 2) {
+      setServiciosRealizados((prev) => [...prev, newEntry]);
+      setIsLeftEye(!isLeftEye);
+    }
+  };
+
+  const handleSelectChangeMaterial = (value, option) => {
+    const newEntryMateriales = {
+      servicio: isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO",
+      label: option.label,
+    };
+    
+    if (materialesSeleccionados.length < 2){
+      setMaterialesSeleccionados((prev) => [...prev, newEntryMateriales]);
+      setIsLeftEyeMaterial(!isLeftEyeMaterial);
+    }
+  };
+
+  const handleSelectChangeTratamientos = (value, option) => {
+    const newEntryTratamientos = {
+      servicio: isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO",
+      label: option.label,
+    };
+    
+    if (tratamientosFiltros.length < 2){
+      setTratamientosFiltros((prev) => [...prev, newEntryTratamientos]);
+      setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+    }
+  };
+
+  
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -138,19 +193,76 @@ const CreateOrden = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    console.log('Valores del formulario al enviar:', values);
+    // console.log('Valores del formulario al enviar:', values);
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
     const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
     const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
+    // console.log('serviciosRealizados:',serviciosRealizados)
+    // console.log('materialesSeleccionados:',materialesSeleccionados)
+    // console.log('tratamientosFiltros:',tratamientosFiltros)
     const transformedValues = {
       ...values,
       id_paciente: selectedPaciente,
-      tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
-      tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
-      material_od: materialesSeleccionadosSubmit[0] || "",
-      material_oi: materialesSeleccionadosSubmit[1] || "",
-      tratamientos_od: tratamientosFiltrosSubmit[0] || "",
-      tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
+
+      ...(serviciosRealizadosSubmit.length === 1 
+        ? (!isLeftEye 
+            ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] } 
+            : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
+          )
+        : serviciosRealizadosSubmit.length === 2
+          ? isLeftEye 
+            ? { 
+                tipo_cristal_oi: serviciosRealizadosSubmit[0], 
+                tipo_cristal_od: serviciosRealizadosSubmit[1] 
+              }
+            : { 
+                tipo_cristal_od: serviciosRealizadosSubmit[0], 
+                tipo_cristal_oi: serviciosRealizadosSubmit[1] 
+              }
+          : {}
+      ),
+
+      ...(materialesSeleccionadosSubmit.length === 1 
+        ? (!isLeftEyeMaterial 
+            ? { material_oi: materialesSeleccionadosSubmit[0] } 
+            : { material_od: materialesSeleccionadosSubmit[0] }
+          )
+        : materialesSeleccionadosSubmit.length === 2
+          ? isLeftEyeMaterial 
+            ? { 
+                material_oi: materialesSeleccionadosSubmit[0], 
+                material_od: materialesSeleccionadosSubmit[1] 
+              }
+            : { 
+                material_od: materialesSeleccionadosSubmit[0], 
+                material_oi: materialesSeleccionadosSubmit[1] 
+              }
+          : {}
+      ),
+
+      ...(tratamientosFiltrosSubmit.length === 1 
+        ? (!isLeftEyeTratamientos 
+            ? { tratamientos_oi: tratamientosFiltrosSubmit[0] } 
+            : { tratamientos_od: tratamientosFiltrosSubmit[0] }
+          )
+        : tratamientosFiltrosSubmit.length === 2
+          ? isLeftEyeTratamientos 
+            ? { 
+                tratamientos_oi: tratamientosFiltrosSubmit[0], 
+                tratamientos_od: tratamientosFiltrosSubmit[1] 
+              }
+            : { 
+                tratamientos_od: tratamientosFiltrosSubmit[0], 
+                tratamientos_oi: tratamientosFiltrosSubmit[1] 
+              }
+          : {}
+      ),
+      // tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
+      // tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
+      // material_od: materialesSeleccionadosSubmit[0] || "",
+      // material_oi: materialesSeleccionadosSubmit[1] || "",
+      // tratamientos_od: tratamientosFiltrosSubmit[0] || "",
+      // tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
       aro_centevi: aroCentevi ? 1 : 0,
       aro_propio: aroCentevi ? 0 : 1,
       tipo_aro: tipoAro,
@@ -177,6 +289,7 @@ const CreateOrden = () => {
     }
   };
 
+  
 
   return (
     <div className="admin-data-content" data-select2-id="15">
@@ -585,8 +698,17 @@ const CreateOrden = () => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 className="text-center p-2">
-                                      TIPO DE CRISTAL {serviciosRealizados.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
+                                    <h6 
+                                      className="text-center p-2"
+                                      onClick={toggleEye}
+                                      style={{ 
+                                        cursor: 'pointer', 
+                                        color: isLeftEye ? 'blue' : 'red',
+                                      }}
+                                    >
+                                       {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                        TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                       {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -596,15 +718,8 @@ const CreateOrden = () => {
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
                                       }}
-                                      onChange={(value, val) => {
-                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                        if (serviciosRealizados.length < 2) {
-                                          serviciosRealizados.push(val)
-                                          setServiciosRealizados([...serviciosRealizados])
-
-                                        }
-                                      }}
+                                      optionFilterProp="label"
+                                      onChange={handleSelectChange}
                                       options={[
                                         { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
                                         { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
@@ -695,11 +810,13 @@ const CreateOrden = () => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                {
-                                                  index == 0
-                                                    ? "Ojo Derecho:"
-                                                    : "Ojo Izquierdo:"
-                                                }
+                                                {servicio.servicio} :
+                                                {/* {
+                                                      
+                                                  isLeftEye
+                                                  ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
+                                                  : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
+                                                } */}
 
                                               </div>
                                               <div
@@ -718,7 +835,7 @@ const CreateOrden = () => {
                                                   marginTop: '5px'
                                                 }}
                                               >
-                                                {servicio.label}
+                                                 {servicio.label}
                                                 <span
                                                   style={{
                                                     marginLeft: '5px',
@@ -740,8 +857,17 @@ const CreateOrden = () => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 className="text-center p-2">
-                                      MATERIAL {materialesSeleccionados.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
+                                    <h6 
+                                      className="text-center p-2"
+                                      onClick={toggleEyeMaterial}
+                                      style={{ 
+                                        cursor: 'pointer', 
+                                        color: isLeftEyeMaterial ? 'blue' : 'red',
+                                      }}
+                                    >
+                                    {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                      MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO " : "OJO DERECHO"}
+                                    {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -751,14 +877,16 @@ const CreateOrden = () => {
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
                                       }}
-                                      onChange={(value, val) => {
-                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                      optionFilterProp="label"
+                                      onChange={handleSelectChangeMaterial}
+                                      // onChange={(value, val) => {
+                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (materialesSeleccionados.length < 2) {
-                                          materialesSeleccionados.push(val)
-                                          setMaterialesSeleccionados([...materialesSeleccionados])
-                                        }
-                                      }}
+                                      //   if (materialesSeleccionados.length < 2) {
+                                      //     materialesSeleccionados.push(val)
+                                      //     setMaterialesSeleccionados([...materialesSeleccionados])
+                                      //   }
+                                      // }}
                                       options={[
                                         { id: 1, codigo: "CR-39" },
                                         { id: 2, codigo: "Policarbonato" },
@@ -789,11 +917,12 @@ const CreateOrden = () => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                {
-                                                  index == 0
-                                                    ? "Ojo Derecho:"
-                                                    : "Ojo Izquierdo:"
-                                                }
+                                                 {servicio.servicio} :
+                                                {/* {
+                                                   isLeftEyeMaterial
+                                                   ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
+                                                   : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
+                                                } */}
 
                                               </div>
                                               <div
@@ -834,8 +963,17 @@ const CreateOrden = () => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 className="text-center p-2">
-                                      TRATAMIENTOS Y FILTROS {tratamientosFiltros.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
+                                    <h6 
+                                      className="text-center p-2"
+                                      onClick={toggleEyeTratamientos}
+                                      style={{ 
+                                        cursor: 'pointer', 
+                                        color: isLeftEyeTratamientos ? 'blue' : 'red',
+                                      }}
+                                    >
+                                      {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                        TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
                                     <Select
                                       showSearch
@@ -844,14 +982,17 @@ const CreateOrden = () => {
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
                                       }}
-                                      onChange={(value, val) => {
-                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                      optionFilterProp="label"
+                                      onChange={handleSelectChangeTratamientos}
+                                      // onChange={(value, val) => {
+                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (tratamientosFiltros.length < 2) {
-                                          tratamientosFiltros.push(val)
-                                          setTratamientosFiltros([...tratamientosFiltros])
-                                        }
-                                      }}
+                                      //   if (tratamientosFiltros.length < 2) {
+                                      //     tratamientosFiltros.push(val)
+                                      //     setTratamientosFiltros([...tratamientosFiltros])
+                                      //   }
+                                      //   // setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+                                      // }}
                                       options={[
                                         { id: 1, codigo: "Transitions" },
                                         { id: 2, codigo: "Antireflejo" },
@@ -885,11 +1026,17 @@ const CreateOrden = () => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                {
+                                                  {servicio.servicio} :
+                                                {/* {
+                                                   isLeftEyeTratamientos
+                                                   ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
+                                                   : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
+                                                } */}
+                                                {/* {
                                                   index == 0
                                                     ? "Ojo Derecho:"
                                                     : "Ojo Izquierdo:"
-                                                }
+                                                } */}
 
                                               </div>
                                               <div

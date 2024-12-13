@@ -12,6 +12,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { useLocation } from 'react-router-dom';
+import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
@@ -31,6 +32,14 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
+  const [isLeftEye, setIsLeftEye] = useState(false);
+  const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
+  const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
+
+  useEffect(() => {
+    const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
+    setIsLeftEye(hasRightEye);
+  }, [serviciosRealizados]);
 
   const initialValues = {
     nro_orden: orden?.nro_orden,
@@ -106,21 +115,76 @@ const EditOrden = ({ fecha_solicitud }) => {
   });
 
   const [serviciosRealizados, setServiciosRealizados] = useState([
-    orden.tipo_cristal_od ? { value: orden.tipo_cristal_od, label: orden.tipo_cristal_od } : null,
-    orden.tipo_cristal_oi ? { value: orden.tipo_cristal_oi, label: orden.tipo_cristal_oi } : null,
+    orden.tipo_cristal_od ? { value: orden.tipo_cristal_od, label: orden.tipo_cristal_od, ojo: "Ojo Derecho" } : null,
+    orden.tipo_cristal_oi ? { value: orden.tipo_cristal_oi, label: orden.tipo_cristal_oi, ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden.material_od ? { value: orden.material_od, label: orden.material_od } : null,
-    orden.material_oi ? { value: orden.material_oi, label: orden.material_oi } : null,
+    orden.material_od ? { value: orden.material_od, label: orden.material_od, ojo: "Ojo Derecho"} : null,
+    orden.material_oi ? { value: orden.material_oi, label: orden.material_oi, ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    orden.tratamientos_od ? { value: orden.tratamientos_od, label: orden.tratamientos_od } : null,
-    orden.tratamientos_oi ? { value: orden.tratamientos_oi, label: orden.tratamientos_oi } : null,
+    orden.tratamientos_od ? { value: orden.tratamientos_od, label: orden.tratamientos_od, ojo: "Ojo Derecho" } : null,
+    orden.tratamientos_oi ? { value: orden.tratamientos_oi, label: orden.tratamientos_oi, ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [aroCentevi, setAroCentevi] = useState(false);
   const [tipoAro, setTipoAro] = useState(orden.tipo_aro);
   const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden.doctor)
 
+  const toggleEye = () => {
+    setIsLeftEye(!isLeftEye);
+  };
+
+  const toggleEyeMaterial = () => {
+    setIsLeftEyeMaterial(!isLeftEyeMaterial);
+  };
+
+  const toggleEyeTratamientos = () => {
+    setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+  };
+
+
+
+  const handleSelectChange = (value, option) => {
+    const newEntry = {
+      ojo: isLeftEye ? "Ojo Izquierdo" : "Ojo Derecho",
+      label: option.label,
+    };
+    const indexFind = serviciosRealizados.findIndex(servicio=>servicio.ojo == newEntry.ojo)
+    if(indexFind !== -1){
+      setServiciosRealizados((prev) =>    
+        prev.map((servicio, index)=>(index === indexFind ? {...servicio,...newEntry}: servicio))
+      );
+    }else{
+      setServiciosRealizados((prev) => {     
+        return [...prev, newEntry];
+      });
+    }
+    setIsLeftEye(!isLeftEye);
+  };
+
+  const handleSelectChangeMaterial = (value, option) => {
+    const newEntryMateriales = {
+      servicio: isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO",
+      label: option.label,
+    };
+    
+    if (materialesSeleccionados.length < 2){
+      setMaterialesSeleccionados((prev) => [...prev, newEntryMateriales]);
+      setIsLeftEyeMaterial(!isLeftEyeMaterial);
+    }
+  };
+
+  const handleSelectChangeTratamientos = (value, option) => {
+    const newEntryTratamientos = {
+      servicio: isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO",
+      label: option.label,
+    };
+    
+    if (tratamientosFiltros.length < 2){
+      setTratamientosFiltros((prev) => [...prev, newEntryTratamientos]);
+      setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+    }
+  };
   useEffect(() => {
     if (orden?.aro_centevi !== undefined) {
       setAroCentevi(orden.aro_centevi === 1);
@@ -154,26 +218,108 @@ const EditOrden = ({ fecha_solicitud }) => {
   }, []);
 
   const handleSubmit = async (values) => {
-    console.log('Valores del formulario al enviar:', values);
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
     const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
     const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
     const transformedValues = {
       ...values,
       id_paciente: selectedPaciente,
-      tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
-      tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
-      material_od: materialesSeleccionadosSubmit[0] || "",
-      material_oi: materialesSeleccionadosSubmit[1] || "",
-      tratamientos_od: tratamientosFiltrosSubmit[0] || "",
-      tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
+
+    //   tipo_cristal_od: serviciosRealizadosSubmit.length === 1 && isLeftEye 
+    // ? serviciosRealizadosSubmit[0] 
+    // : serviciosRealizadosSubmit.length === 2 
+    //   ? serviciosRealizadosSubmit[0] 
+    //   : "", // Limpia si no aplica
+
+    //   tipo_cristal_oi: serviciosRealizadosSubmit.length === 1 && !isLeftEye 
+    // ? serviciosRealizadosSubmit[0] 
+    // : serviciosRealizadosSubmit.length === 2 
+    //   ? serviciosRealizadosSubmit[1] 
+    //   : "", // Limpia si no aplica
+
+    ...(serviciosRealizadosSubmit.length === 1 
+      ? (!isLeftEye 
+          ? { 
+              tipo_cristal_oi: serviciosRealizadosSubmit[0], 
+              tipo_cristal_od: "" 
+            } 
+          : { 
+              tipo_cristal_od: serviciosRealizadosSubmit[0], 
+              tipo_cristal_oi: "" 
+            }
+        )
+      : serviciosRealizadosSubmit.length === 2
+        ? isLeftEye 
+          ? { 
+              tipo_cristal_oi: serviciosRealizadosSubmit[0], 
+              tipo_cristal_od: serviciosRealizadosSubmit[1] 
+            }
+          : { 
+              tipo_cristal_od: serviciosRealizadosSubmit[0], 
+              tipo_cristal_oi: serviciosRealizadosSubmit[1] 
+            }
+        : {}
+    ),
+
+    ...(materialesSeleccionadosSubmit.length === 1 
+      ? (!isLeftEyeMaterial 
+          ? { 
+            material_oi: materialesSeleccionadosSubmit[0] ,
+            material_od: ""
+          } 
+          : { 
+            material_od: materialesSeleccionadosSubmit[0],
+            material_oi: "" 
+          }
+        )
+      : materialesSeleccionadosSubmit.length === 2
+        ? isLeftEyeMaterial 
+          ? { 
+              material_oi: materialesSeleccionadosSubmit[0], 
+              material_od: materialesSeleccionadosSubmit[1] 
+            }
+          : { 
+              material_od: materialesSeleccionadosSubmit[0], 
+              material_oi: materialesSeleccionadosSubmit[1] 
+            }
+        : {}
+    ),
+
+    ...(tratamientosFiltrosSubmit.length === 1 
+      ? (!isLeftEyeTratamientos 
+          ? { 
+            tratamientos_oi: tratamientosFiltrosSubmit[0],
+            tratamientos_od: "" 
+          } 
+          : { 
+            tratamientos_od: tratamientosFiltrosSubmit[0],
+            tratamientos_oi: ""
+          }
+        )
+      : tratamientosFiltrosSubmit.length === 2
+        ? isLeftEyeTratamientos 
+          ? { 
+              tratamientos_oi: tratamientosFiltrosSubmit[0], 
+              tratamientos_od: tratamientosFiltrosSubmit[1] 
+            }
+          : { 
+              tratamientos_od: tratamientosFiltrosSubmit[0], 
+              tratamientos_oi: tratamientosFiltrosSubmit[1] 
+            }
+        : {}
+    ),
+      // tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
+      // tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
+      // material_od: materialesSeleccionadosSubmit[0] || "",
+      // material_oi: materialesSeleccionadosSubmit[1] || "",
+      // tratamientos_od: tratamientosFiltrosSubmit[0] || "",
+      // tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
       aro_centevi: aroCentevi ? 1 : 0,
       aro_propio: aroCentevi ? 0 : 1,
       tipo_aro: tipoAro,
       doctor: doctorSeleccionado,
       elaborado_por: usuario?.usuario?.id_usuario
     };
-    console.log('transformedValues:', transformedValues);
     const result = await dispatch(updateOrden({ id_orden: orderId, data: transformedValues }));
 
     if (result.meta.requestStatus === 'fulfilled') {
@@ -208,6 +354,16 @@ const EditOrden = ({ fecha_solicitud }) => {
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
+                        {/* <Button
+                        onClick={()=>{
+                          console.log('serviciosRealizados:',serviciosRealizados)
+                          console.log('materialesSeleccionados:',materialesSeleccionados)
+                          console.log('tratamientosFiltros:',tratamientosFiltros)
+                          console.log('isLeftEye:',isLeftEye)
+                          
+                        }}>
+                          Aqui
+                        </Button> */}
                         <Formik
                           initialValues={initialValues}
                           validationSchema={validationSchema}
@@ -594,8 +750,17 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 className="text-center p-2">
-                                      TIPO DE CRISTAL {serviciosRealizados.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
+                                    <h6 
+                                      className="text-center p-2"
+                                      onClick={toggleEye}
+                                      style={{ 
+                                        cursor: 'pointer', 
+                                        color: isLeftEye ? 'blue' : 'red',
+                                      }}
+                                    >
+                                      {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                      TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -605,15 +770,17 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
                                       }}
-                                      onChange={(value, val) => {
-                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                      optionFilterProp="label"
+                                      onChange={handleSelectChange}
+                                      // onChange={(value, val) => {
+                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!serviciosRealizados.find(servicio => servicio.value == value) && serviciosRealizados.length < 2) {
-                                          serviciosRealizados.push(val)
-                                          setServiciosRealizados([...serviciosRealizados])
+                                      //   if (!serviciosRealizados.find(servicio => servicio.value == value) && serviciosRealizados.length < 2) {
+                                      //     serviciosRealizados.push(val)
+                                      //     setServiciosRealizados([...serviciosRealizados])
 
-                                        }
-                                      }}
+                                      //   }
+                                      // }}
                                       options={[
                                         { id: 1, codigo: "MP01 | Monofocal Claro Sencillo" },
                                         { id: 2, codigo: "MPAR | Monofocal + Antirreflejo" },
@@ -643,11 +810,12 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                {
+                                               {servicio.ojo ? servicio.ojo : ""}  {servicio.servicio ? servicio.servicio : ""} :
+                                                {/* {
                                                   index == 0
                                                     ? "Ojo Derecho:"
                                                     : "Ojo Izquierdo:"
-                                                }
+                                                } */}
 
                                               </div>
                                               <div
@@ -688,8 +856,17 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 className="text-center p-2">
-                                      MATERIAL {materialesSeleccionados.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
+                                    <h6 
+                                      className="text-center p-2"
+                                      onClick={toggleEyeMaterial}
+                                      style={{ 
+                                        cursor: 'pointer', 
+                                        color: isLeftEyeMaterial ? 'blue' : 'red',
+                                      }}
+                                    >
+                                       {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                        MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                       {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -699,14 +876,16 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
                                       }}
-                                      onChange={(value, val) => {
-                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                      optionFilterProp="label"
+                                      onChange={handleSelectChangeMaterial}
+                                      // onChange={(value, val) => {
+                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!materialesSeleccionados.find(servicio => servicio.value == value) && materialesSeleccionados.length < 2) {
-                                          materialesSeleccionados.push(val)
-                                          setMaterialesSeleccionados([...materialesSeleccionados])
-                                        }
-                                      }}
+                                      //   if (!materialesSeleccionados.find(servicio => servicio.value == value) && materialesSeleccionados.length < 2) {
+                                      //     materialesSeleccionados.push(val)
+                                      //     setMaterialesSeleccionados([...materialesSeleccionados])
+                                      //   }
+                                      // }}
                                       options={[
                                         { id: 1, codigo: "CR-39" },
                                         { id: 2, codigo: "Policarbonato" },
@@ -737,11 +916,12 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                {
+                                                {servicio.ojo ? servicio.ojo : ""}  {servicio.servicio ? servicio.servicio : ""} :
+                                                {/* {
                                                   index == 0
                                                     ? "Ojo Derecho:"
                                                     : "Ojo Izquierdo:"
-                                                }
+                                                } */}
 
                                               </div>
                                               <div
@@ -782,8 +962,17 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 className="text-center p-2">
-                                      TRATAMIENTOS Y FILTROS {tratamientosFiltros.length == 0 ? "OJO DERECHO: " : "OJO IZQUIERDO:"}
+                                    <h6 
+                                      className="text-center p-2"
+                                      onClick={toggleEyeTratamientos}
+                                      style={{ 
+                                        cursor: 'pointer', 
+                                        color: isLeftEyeTratamientos ? 'blue' : 'red',
+                                      }}
+                                    >
+                                      {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                        TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
                                     <Select
                                       showSearch
@@ -792,14 +981,16 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         width: '100%', color: 'transparent',
                                         background: 'white !important'
                                       }}
-                                      onChange={(value, val) => {
-                                        // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                      optionFilterProp="label"
+                                      onChange={handleSelectChangeTratamientos}
+                                      // onChange={(value, val) => {
+                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                        if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
-                                          tratamientosFiltros.push(val)
-                                          setTratamientosFiltros([...tratamientosFiltros])
-                                        }
-                                      }}
+                                      //   if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
+                                      //     tratamientosFiltros.push(val)
+                                      //     setTratamientosFiltros([...tratamientosFiltros])
+                                      //   }
+                                      // }}
                                       options={[
                                         { id: 1, codigo: "Transitions" },
                                         { id: 2, codigo: "Antireflejo" },
@@ -833,11 +1024,12 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                {
+                                                {servicio.ojo ? servicio.ojo : ""}  {servicio.servicio ? servicio.servicio : ""} :
+                                                {/* {
                                                   index == 0
                                                     ? "Ojo Derecho:"
                                                     : "Ojo Izquierdo:"
-                                                }
+                                                } */}
 
                                               </div>
                                               <div
