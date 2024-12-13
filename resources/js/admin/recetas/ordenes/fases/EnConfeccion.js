@@ -13,7 +13,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
-  const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState(''); 
+  const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();

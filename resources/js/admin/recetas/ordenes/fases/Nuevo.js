@@ -50,7 +50,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
   }, [tiposFasesOrdenes, orderId, tipoFaseId]);
 
   useEffect(() => {
-    if (laboratorio && observaciones !== null) { 
+    if (laboratorio && observaciones !== null) {
       const nuevaFase = {
         tipo_fase_orden_id: tipoFaseId,
         laboratorio: laboratorio,
@@ -171,7 +171,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{ marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
-                onClick={() => actualizarFechaCreacionOrden()}              
+                onClick={() => actualizarFechaCreacionOrden()}
               />
             </Tooltip>
             {fechaCreacion ? moment(fechaCreacion).format('YYYY-MM-DD HH:mm:ss') : ''}

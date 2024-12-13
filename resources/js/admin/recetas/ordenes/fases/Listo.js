@@ -14,7 +14,7 @@ const Listo = ({ tipoFaseId, lab }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
   const [fechaCreacion, setFechaCreacion] = useState('')
-  const [fechaFaseConfeccion, setFechaFaseConfeccion] = useState(''); 
+  const [fechaFaseConfeccion, setFechaFaseConfeccion] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();

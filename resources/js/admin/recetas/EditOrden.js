@@ -15,15 +15,13 @@ import { useLocation } from 'react-router-dom';
 import moment from 'moment';
 
 
-const EditOrden = ({fecha_solicitud}) => {
+const EditOrden = ({ fecha_solicitud }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = useParams();
   const { orden } = location.state || {};
-
-  console.log('fecha_solicitud:',fecha_solicitud)
 
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
@@ -237,7 +235,7 @@ const EditOrden = ({fecha_solicitud}) => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                    {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
+                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
                                     </b>
                                   </p>
                                 </div>

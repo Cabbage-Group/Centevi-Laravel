@@ -14,7 +14,7 @@ class OrdenesApiController extends Controller
 {
 
   public function ordenes(Request $request)
-{
+  {
     $limit = $request->input('limit', 10);
     $page = $request->input('page', 1);
     $sortColumn = $request->input('sortColumn', 'created_at');
@@ -23,34 +23,34 @@ class OrdenesApiController extends Controller
     // Asegurarse de que se puede ordenar por created_at
     $validSortColumns = ['id_orden', 'created_at']; // Puedes agregar más columnas si es necesario
     if (!in_array($sortColumn, $validSortColumns)) {
-        $sortColumn = 'id_orden'; // Valor por defecto
+      $sortColumn = 'id_orden'; // Valor por defecto
     }
 
     // Subconsulta para contar el número total de fases para cada orden
     $contadorFasesQuery = DB::table('fases_ordenes')
-        ->select('ordenes_id', DB::raw('COUNT(*) as total_fases'))
-        ->groupBy('ordenes_id');
+      ->select('ordenes_id', DB::raw('COUNT(*) as total_fases'))
+      ->groupBy('ordenes_id');
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
-        ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-        ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
-        ->select(
-            'fo.ordenes_id',
-            'fo.laboratorio as laboratorio_primera_fase',
-            'fo.observacion as observacion_primera_fase',
-            'fo.fecha_fase as fecha_primera_fase',
-            'contador_fases.total_fases',
-            DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-            DB::raw('CASE 
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+      ->select(
+        'fo.ordenes_id',
+        'fo.laboratorio as laboratorio_primera_fase',
+        'fo.observacion as observacion_primera_fase',
+        'fo.fecha_fase as fecha_primera_fase',
+        'contador_fases.total_fases',
+        DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
+        DB::raw('CASE 
                 WHEN contador_fases.total_fases = 4 THEN "Completado"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
                 ELSE "sin_status"
             END as status_primera_fase')
-        )
-        ->whereRaw('fo.id = (
+      )
+      ->whereRaw('fo.id = (
             SELECT MIN(id) 
             FROM fases_ordenes 
             WHERE ordenes_id = fo.ordenes_id 
@@ -59,10 +59,10 @@ class OrdenesApiController extends Controller
 
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
-        ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-        ->select(
-            'fo.ordenes_id',
-            DB::raw('
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->select(
+        'fo.ordenes_id',
+        DB::raw('
                 CASE 
                     WHEN fo.tipo_fase_orden_id IS NULL THEN 
                         (SELECT tipo_fase_orden 
@@ -75,11 +75,11 @@ class OrdenesApiController extends Controller
                          FROM tipos_fases_ordenes 
                          WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                 END as fase_actual'),
-            'fo.laboratorio as laboratorio_ultima_fase',
-            'fo.observacion as observacion_ultima_fase',
-            'fo.fecha_fase as fecha_ultima_fase'
-        )
-        ->whereRaw('fo.id = (
+        'fo.laboratorio as laboratorio_ultima_fase',
+        'fo.observacion as observacion_ultima_fase',
+        'fo.fecha_fase as fecha_ultima_fase'
+      )
+      ->whereRaw('fo.id = (
             SELECT MAX(id) 
             FROM fases_ordenes 
             WHERE ordenes_id = fo.ordenes_id
@@ -87,41 +87,41 @@ class OrdenesApiController extends Controller
 
     // Consulta principal
     $ordenes = Ordenes::with([
-            'paciente:id_paciente,nombres,celular,apellidos',
-            'sucursal:id_sucursal,nombre',
-        ])
-        ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
-        ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
-        ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
-        ->select(
-            'ordenes.*',
-            'usuarios.nombre as elaborado_por_nombre',
-            'primeras_fases.laboratorio_primera_fase as laboratorio',
-            'primeras_fases.observacion_primera_fase as observacion',
-            'primeras_fases.fecha_primera_fase as fecha_fase',
-            'primeras_fases.status_primera_fase as status',
-            'primeras_fases.dias_transcurridos as dias_transcurridos',
-            'primeras_fases.total_fases as total_fases',
-            DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
-        )
-        ->orderBy($sortColumn, $sortOrder) // Ordenar por la columna seleccionada
-        ->paginate($limit, ['*'], 'page', $page);
+      'paciente:id_paciente,nombres,celular,apellidos',
+      'sucursal:id_sucursal,nombre',
+    ])
+      ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+      ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+      ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
+      ->select(
+        'ordenes.*',
+        'usuarios.nombre as elaborado_por_nombre',
+        'primeras_fases.laboratorio_primera_fase as laboratorio',
+        'primeras_fases.observacion_primera_fase as observacion',
+        'primeras_fases.fecha_primera_fase as fecha_fase',
+        'primeras_fases.status_primera_fase as status',
+        'primeras_fases.dias_transcurridos as dias_transcurridos',
+        'primeras_fases.total_fases as total_fases',
+        DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
+      )
+      ->orderBy($sortColumn, $sortOrder) // Ordenar por la columna seleccionada
+      ->paginate($limit, ['*'], 'page', $page);
 
     return response()->json([
-        'data' => $ordenes->items(),
-        'meta' => [
-            'page' => $ordenes->currentPage(),
-            'limit' => $ordenes->perPage(),
-            'total' => $ordenes->total(),
-        ],
-        'respuesta' => true,
-        'status' => [
-            'code' => 200,
-            'message' => 'Órdenes retrieved successfully',
-        ],
-        'mensaje' => 'Órdenes obtenidas correctamente',
+      'data' => $ordenes->items(),
+      'meta' => [
+        'page' => $ordenes->currentPage(),
+        'limit' => $ordenes->perPage(),
+        'total' => $ordenes->total(),
+      ],
+      'respuesta' => true,
+      'status' => [
+        'code' => 200,
+        'message' => 'Órdenes retrieved successfully',
+      ],
+      'mensaje' => 'Órdenes obtenidas correctamente',
     ], 200);
-}
+  }
 
 
   public function createOrdenes(Request $request)
@@ -378,57 +378,57 @@ class OrdenesApiController extends Controller
   }
 
   public function createFasesOrdenes(Request $request)
-{
+  {
     $validatedData = $request->validate([
-        'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
-        'ordenes_id' => 'required|integer',
-        'laboratorio' => 'nullable|string|max:45',
-        'fecha_fase' => 'nullable|string|max:45',
-        'observacion' => 'nullable|string|max:400',
-        'created_at' => 'nullable|date_format:Y-m-d H:i:s', // Valida el formato del campo created_at
+      'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
+      'ordenes_id' => 'required|integer',
+      'laboratorio' => 'nullable|string|max:45',
+      'fecha_fase' => 'nullable|string|max:45',
+      'observacion' => 'nullable|string|max:400',
+      'created_at' => 'nullable|date_format:Y-m-d H:i:s', // Valida el formato del campo created_at
     ]);
 
     $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
-        ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
-        ->first();
+      ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
+      ->first();
 
     if ($existingFase) {
-        $updated = $existingFase->update([
-            'laboratorio' => $validatedData['laboratorio'],
-            'observacion' => $validatedData['observacion'],
-            'fecha_fase' => $validatedData['fecha_fase'],
-            'created_at' => $validatedData['created_at'] ?? $existingFase->created_at, // Actualiza solo si se proporciona
-        ]);
+      $updated = $existingFase->update([
+        'laboratorio' => $validatedData['laboratorio'],
+        'observacion' => $validatedData['observacion'],
+        'fecha_fase' => $validatedData['fecha_fase'],
+        'created_at' => $validatedData['created_at'] ?? $existingFase->created_at, // Actualiza solo si se proporciona
+      ]);
 
-        if ($updated) {
-            return response()->json([
-                'message' => 'Fase de orden actualizada exitosamente',
-                'data' => $existingFase,
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-            ], 500);
-        }
+      if ($updated) {
+        return response()->json([
+          'message' => 'Fase de orden actualizada exitosamente',
+          'data' => $existingFase,
+        ], 200);
+      } else {
+        return response()->json([
+          'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
+        ], 500);
+      }
     } else {
-        try {
-          $faseOrden = FasesOrdenes::create(array_merge(
-            $validatedData,
-            ['created_at' => $validatedData['created_at'] ?? now()]
+      try {
+        $faseOrden = FasesOrdenes::create(array_merge(
+          $validatedData,
+          ['created_at' => $validatedData['created_at'] ?? now()]
         ));
 
-            return response()->json([
-                'message' => 'Fase de orden creada exitosamente',
-                'data' => $faseOrden,
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+          'message' => 'Fase de orden creada exitosamente',
+          'data' => $faseOrden,
+        ], 201);
+      } catch (\Exception $e) {
+        return response()->json([
+          'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
+          'error' => $e->getMessage(),
+        ], 500);
+      }
     }
-}
+  }
 
 
 

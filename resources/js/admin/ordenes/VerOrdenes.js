@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
-import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor,updateOrden } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
 
@@ -36,7 +36,7 @@ const VerOrdenes = () => {
     setLocalSearch('');
   };
 
-  const handlePagoToggle = async (id_orden, data,nro_orden) => {
+  const handlePagoToggle = async (id_orden, data, nro_orden) => {
     try {
 
       const payload = {
@@ -105,7 +105,7 @@ const VerOrdenes = () => {
                   >
                     <div className="dt--top-section">
                       <div className="row">
-                        
+
                       </div>
                     </div>
                     <div className="table-responsive">
@@ -139,9 +139,9 @@ const VerOrdenes = () => {
                                 Nro_Orden
                               </th>
                               <th
-                              style={{
-                                width: '800px'
-                              }}>
+                                style={{
+                                  width: '800px'
+                                }}>
                                 Pagado
                               </th>
                               <th
