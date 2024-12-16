@@ -133,7 +133,7 @@ const CreateOrden = () => {
       servicio: isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO",
       label: option.label,
     };
-  
+
     if (serviciosRealizados.length < 2) {
       setServiciosRealizados((prev) => [...prev, newEntry]);
       setIsLeftEye(!isLeftEye);
@@ -145,8 +145,8 @@ const CreateOrden = () => {
       servicio: isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO",
       label: option.label,
     };
-    
-    if (materialesSeleccionados.length < 2){
+
+    if (materialesSeleccionados.length < 2) {
       setMaterialesSeleccionados((prev) => [...prev, newEntryMateriales]);
       setIsLeftEyeMaterial(!isLeftEyeMaterial);
     }
@@ -157,14 +157,14 @@ const CreateOrden = () => {
       servicio: isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO",
       label: option.label,
     };
-    
-    if (tratamientosFiltros.length < 2){
+
+    if (tratamientosFiltros.length < 2) {
       setTratamientosFiltros((prev) => [...prev, newEntryTratamientos]);
       setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
     }
   };
 
-  
+
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -204,57 +204,57 @@ const CreateOrden = () => {
       ...values,
       id_paciente: selectedPaciente,
 
-      ...(serviciosRealizadosSubmit.length === 1 
-        ? (!isLeftEye 
-            ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] } 
-            : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
-          )
+      ...(serviciosRealizadosSubmit.length === 1
+        ? (!isLeftEye
+          ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] }
+          : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
+        )
         : serviciosRealizadosSubmit.length === 2
-          ? isLeftEye 
-            ? { 
-                tipo_cristal_oi: serviciosRealizadosSubmit[0], 
-                tipo_cristal_od: serviciosRealizadosSubmit[1] 
-              }
-            : { 
-                tipo_cristal_od: serviciosRealizadosSubmit[0], 
-                tipo_cristal_oi: serviciosRealizadosSubmit[1] 
-              }
+          ? isLeftEye
+            ? {
+              tipo_cristal_oi: serviciosRealizadosSubmit[0],
+              tipo_cristal_od: serviciosRealizadosSubmit[1]
+            }
+            : {
+              tipo_cristal_od: serviciosRealizadosSubmit[0],
+              tipo_cristal_oi: serviciosRealizadosSubmit[1]
+            }
           : {}
       ),
 
-      ...(materialesSeleccionadosSubmit.length === 1 
-        ? (!isLeftEyeMaterial 
-            ? { material_oi: materialesSeleccionadosSubmit[0] } 
-            : { material_od: materialesSeleccionadosSubmit[0] }
-          )
+      ...(materialesSeleccionadosSubmit.length === 1
+        ? (!isLeftEyeMaterial
+          ? { material_oi: materialesSeleccionadosSubmit[0] }
+          : { material_od: materialesSeleccionadosSubmit[0] }
+        )
         : materialesSeleccionadosSubmit.length === 2
-          ? isLeftEyeMaterial 
-            ? { 
-                material_oi: materialesSeleccionadosSubmit[0], 
-                material_od: materialesSeleccionadosSubmit[1] 
-              }
-            : { 
-                material_od: materialesSeleccionadosSubmit[0], 
-                material_oi: materialesSeleccionadosSubmit[1] 
-              }
+          ? isLeftEyeMaterial
+            ? {
+              material_oi: materialesSeleccionadosSubmit[0],
+              material_od: materialesSeleccionadosSubmit[1]
+            }
+            : {
+              material_od: materialesSeleccionadosSubmit[0],
+              material_oi: materialesSeleccionadosSubmit[1]
+            }
           : {}
       ),
 
-      ...(tratamientosFiltrosSubmit.length === 1 
-        ? (!isLeftEyeTratamientos 
-            ? { tratamientos_oi: tratamientosFiltrosSubmit[0] } 
-            : { tratamientos_od: tratamientosFiltrosSubmit[0] }
-          )
+      ...(tratamientosFiltrosSubmit.length === 1
+        ? (!isLeftEyeTratamientos
+          ? { tratamientos_oi: tratamientosFiltrosSubmit[0] }
+          : { tratamientos_od: tratamientosFiltrosSubmit[0] }
+        )
         : tratamientosFiltrosSubmit.length === 2
-          ? isLeftEyeTratamientos 
-            ? { 
-                tratamientos_oi: tratamientosFiltrosSubmit[0], 
-                tratamientos_od: tratamientosFiltrosSubmit[1] 
-              }
-            : { 
-                tratamientos_od: tratamientosFiltrosSubmit[0], 
-                tratamientos_oi: tratamientosFiltrosSubmit[1] 
-              }
+          ? isLeftEyeTratamientos
+            ? {
+              tratamientos_oi: tratamientosFiltrosSubmit[0],
+              tratamientos_od: tratamientosFiltrosSubmit[1]
+            }
+            : {
+              tratamientos_od: tratamientosFiltrosSubmit[0],
+              tratamientos_oi: tratamientosFiltrosSubmit[1]
+            }
           : {}
       ),
       // tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
@@ -289,7 +289,7 @@ const CreateOrden = () => {
     }
   };
 
-  
+
 
   return (
     <div className="admin-data-content" data-select2-id="15">
@@ -695,20 +695,28 @@ const CreateOrden = () => {
                                       }}
                                     >
                                       Caracteristicas de Cristales
+                                      <span style={{ fontSize: '13px', color: 'gray', marginLeft: '10px' }}>
+                                        <b>(Click al ojo para cambiar de derecho a izquierdo)</b>
+                                        <EyeOutlined style={{
+                                          cursor: 'pointer',
+                                          color: isLeftEye ? 'blue' : '#067231',
+                                          marginLeft: '10px'
+                                        }} />
+                                      </span>
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 
+                                    <h6
                                       className="text-center p-2"
                                       onClick={toggleEye}
-                                      style={{ 
-                                        cursor: 'pointer', 
-                                        color: isLeftEye ? 'blue' : 'red',
+                                      style={{
+                                        cursor: 'pointer',
+                                        color: isLeftEye ? 'blue' : '#067231',
                                       }}
                                     >
-                                       {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                        TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
-                                       {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                      {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                      TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -835,7 +843,7 @@ const CreateOrden = () => {
                                                   marginTop: '5px'
                                                 }}
                                               >
-                                                 {servicio.label}
+                                                {servicio.label}
                                                 <span
                                                   style={{
                                                     marginLeft: '5px',
@@ -857,17 +865,17 @@ const CreateOrden = () => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 
+                                    <h6
                                       className="text-center p-2"
                                       onClick={toggleEyeMaterial}
-                                      style={{ 
-                                        cursor: 'pointer', 
-                                        color: isLeftEyeMaterial ? 'blue' : 'red',
+                                      style={{
+                                        cursor: 'pointer',
+                                        color: isLeftEyeMaterial ? 'blue' : '#067231',
                                       }}
                                     >
-                                    {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                      {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
                                       MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO " : "OJO DERECHO"}
-                                    {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                      {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -917,7 +925,7 @@ const CreateOrden = () => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                 {servicio.servicio} :
+                                                {servicio.servicio} :
                                                 {/* {
                                                    isLeftEyeMaterial
                                                    ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
@@ -963,16 +971,16 @@ const CreateOrden = () => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 
+                                    <h6
                                       className="text-center p-2"
                                       onClick={toggleEyeTratamientos}
-                                      style={{ 
-                                        cursor: 'pointer', 
-                                        color: isLeftEyeTratamientos ? 'blue' : 'red',
+                                      style={{
+                                        cursor: 'pointer',
+                                        color: isLeftEyeTratamientos ? 'blue' : '#067231',
                                       }}
                                     >
                                       {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                        TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
                                       {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
                                     <Select
@@ -1026,7 +1034,7 @@ const CreateOrden = () => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                                  {servicio.servicio} :
+                                                {servicio.servicio} :
                                                 {/* {
                                                    isLeftEyeTratamientos
                                                    ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")

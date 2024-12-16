@@ -119,7 +119,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     orden.tipo_cristal_oi ? { value: orden.tipo_cristal_oi, label: orden.tipo_cristal_oi, ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden.material_od ? { value: orden.material_od, label: orden.material_od, ojo: "Ojo Derecho"} : null,
+    orden.material_od ? { value: orden.material_od, label: orden.material_od, ojo: "Ojo Derecho" } : null,
     orden.material_oi ? { value: orden.material_oi, label: orden.material_oi, ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [tratamientosFiltros, setTratamientosFiltros] = useState([
@@ -149,13 +149,13 @@ const EditOrden = ({ fecha_solicitud }) => {
       ojo: isLeftEye ? "Ojo Izquierdo" : "Ojo Derecho",
       label: option.label,
     };
-    const indexFind = serviciosRealizados.findIndex(servicio=>servicio.ojo == newEntry.ojo)
-    if(indexFind !== -1){
-      setServiciosRealizados((prev) =>    
-        prev.map((servicio, index)=>(index === indexFind ? {...servicio,...newEntry}: servicio))
+    const indexFind = serviciosRealizados.findIndex(servicio => servicio.ojo == newEntry.ojo)
+    if (indexFind !== -1) {
+      setServiciosRealizados((prev) =>
+        prev.map((servicio, index) => (index === indexFind ? { ...servicio, ...newEntry } : servicio))
       );
-    }else{
-      setServiciosRealizados((prev) => {     
+    } else {
+      setServiciosRealizados((prev) => {
         return [...prev, newEntry];
       });
     }
@@ -164,27 +164,46 @@ const EditOrden = ({ fecha_solicitud }) => {
 
   const handleSelectChangeMaterial = (value, option) => {
     const newEntryMateriales = {
-      servicio: isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO",
+      ojo: isLeftEyeMaterial ? "Ojo Izquierdo" : "Ojo Derecho",
       label: option.label,
     };
-    
-    if (materialesSeleccionados.length < 2){
-      setMaterialesSeleccionados((prev) => [...prev, newEntryMateriales]);
-      setIsLeftEyeMaterial(!isLeftEyeMaterial);
+
+    const indexFind = materialesSeleccionados.findIndex(material => material.ojo == newEntryMateriales.ojo)
+
+    if (indexFind !== -1) {
+      setMaterialesSeleccionados((prev) =>
+        prev.map((material, index) => (index === indexFind ? { ...material, ...newEntryMateriales } : material))
+      );
+    } else {
+      setMaterialesSeleccionados((prev) => {
+        return [...prev, newEntryMateriales];
+      });
     }
+
+    setIsLeftEyeMaterial(!isLeftEyeMaterial);
   };
 
   const handleSelectChangeTratamientos = (value, option) => {
     const newEntryTratamientos = {
-      servicio: isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO",
+      ojo: isLeftEyeTratamientos ? "Ojo Izquierdo" : "Ojo Derecho",
       label: option.label,
     };
-    
-    if (tratamientosFiltros.length < 2){
-      setTratamientosFiltros((prev) => [...prev, newEntryTratamientos]);
-      setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+
+    const indexFind = tratamientosFiltros.findIndex(tratamiento => tratamiento.ojo == newEntryTratamientos.ojo)
+
+    if (indexFind !== -1) {
+      setTratamientosFiltros((prev) =>
+        prev.map((tratamiento, index) => (index === indexFind ? { ...tratamiento, ...newEntryTratamientos } : tratamiento))
+      );
+    } else {
+      setTratamientosFiltros((prev) => {
+        return [...prev, newEntryTratamientos];
+      });
     }
+
+    setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
   };
+
   useEffect(() => {
     if (orden?.aro_centevi !== undefined) {
       setAroCentevi(orden.aro_centevi === 1);
@@ -198,7 +217,7 @@ const EditOrden = ({ fecha_solicitud }) => {
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       if (pacienteSeleccionado) {
-        setTelefono(pacienteSeleccionado.telefono || '');
+        setTelefono(pacienteSeleccionado.celular || '');
         setCedula(pacienteSeleccionado.nro_cedula || '');
       } else {
         setTelefono('');
@@ -225,89 +244,89 @@ const EditOrden = ({ fecha_solicitud }) => {
       ...values,
       id_paciente: selectedPaciente,
 
-    //   tipo_cristal_od: serviciosRealizadosSubmit.length === 1 && isLeftEye 
-    // ? serviciosRealizadosSubmit[0] 
-    // : serviciosRealizadosSubmit.length === 2 
-    //   ? serviciosRealizadosSubmit[0] 
-    //   : "", // Limpia si no aplica
+      //   tipo_cristal_od: serviciosRealizadosSubmit.length === 1 && isLeftEye 
+      // ? serviciosRealizadosSubmit[0] 
+      // : serviciosRealizadosSubmit.length === 2 
+      //   ? serviciosRealizadosSubmit[0] 
+      //   : "", // Limpia si no aplica
 
-    //   tipo_cristal_oi: serviciosRealizadosSubmit.length === 1 && !isLeftEye 
-    // ? serviciosRealizadosSubmit[0] 
-    // : serviciosRealizadosSubmit.length === 2 
-    //   ? serviciosRealizadosSubmit[1] 
-    //   : "", // Limpia si no aplica
+      //   tipo_cristal_oi: serviciosRealizadosSubmit.length === 1 && !isLeftEye 
+      // ? serviciosRealizadosSubmit[0] 
+      // : serviciosRealizadosSubmit.length === 2 
+      //   ? serviciosRealizadosSubmit[1] 
+      //   : "", // Limpia si no aplica
 
-    ...(serviciosRealizadosSubmit.length === 1 
-      ? (!isLeftEye 
-          ? { 
-              tipo_cristal_oi: serviciosRealizadosSubmit[0], 
-              tipo_cristal_od: "" 
-            } 
-          : { 
-              tipo_cristal_od: serviciosRealizadosSubmit[0], 
-              tipo_cristal_oi: "" 
-            }
-        )
-      : serviciosRealizadosSubmit.length === 2
-        ? isLeftEye 
-          ? { 
-              tipo_cristal_oi: serviciosRealizadosSubmit[0], 
-              tipo_cristal_od: serviciosRealizadosSubmit[1] 
-            }
-          : { 
-              tipo_cristal_od: serviciosRealizadosSubmit[0], 
-              tipo_cristal_oi: serviciosRealizadosSubmit[1] 
-            }
-        : {}
-    ),
-
-    ...(materialesSeleccionadosSubmit.length === 1 
-      ? (!isLeftEyeMaterial 
-          ? { 
-            material_oi: materialesSeleccionadosSubmit[0] ,
-            material_od: ""
-          } 
-          : { 
-            material_od: materialesSeleccionadosSubmit[0],
-            material_oi: "" 
+      ...(serviciosRealizadosSubmit.length === 1
+        ? (!isLeftEye
+          ? {
+            tipo_cristal_oi: serviciosRealizadosSubmit[0],
+            tipo_cristal_od: ""
+          }
+          : {
+            tipo_cristal_od: serviciosRealizadosSubmit[0],
+            tipo_cristal_oi: ""
           }
         )
-      : materialesSeleccionadosSubmit.length === 2
-        ? isLeftEyeMaterial 
-          ? { 
-              material_oi: materialesSeleccionadosSubmit[0], 
-              material_od: materialesSeleccionadosSubmit[1] 
+        : serviciosRealizadosSubmit.length === 2
+          ? isLeftEye
+            ? {
+              tipo_cristal_oi: serviciosRealizadosSubmit[0],
+              tipo_cristal_od: serviciosRealizadosSubmit[1]
             }
-          : { 
-              material_od: materialesSeleccionadosSubmit[0], 
-              material_oi: materialesSeleccionadosSubmit[1] 
+            : {
+              tipo_cristal_od: serviciosRealizadosSubmit[0],
+              tipo_cristal_oi: serviciosRealizadosSubmit[1]
             }
-        : {}
-    ),
+          : {}
+      ),
 
-    ...(tratamientosFiltrosSubmit.length === 1 
-      ? (!isLeftEyeTratamientos 
-          ? { 
+      ...(materialesSeleccionadosSubmit.length === 1
+        ? (!isLeftEyeMaterial
+          ? {
+            material_oi: materialesSeleccionadosSubmit[0],
+            material_od: ""
+          }
+          : {
+            material_od: materialesSeleccionadosSubmit[0],
+            material_oi: ""
+          }
+        )
+        : materialesSeleccionadosSubmit.length === 2
+          ? isLeftEyeMaterial
+            ? {
+              material_oi: materialesSeleccionadosSubmit[0],
+              material_od: materialesSeleccionadosSubmit[1]
+            }
+            : {
+              material_od: materialesSeleccionadosSubmit[0],
+              material_oi: materialesSeleccionadosSubmit[1]
+            }
+          : {}
+      ),
+
+      ...(tratamientosFiltrosSubmit.length === 1
+        ? (!isLeftEyeTratamientos
+          ? {
             tratamientos_oi: tratamientosFiltrosSubmit[0],
-            tratamientos_od: "" 
-          } 
-          : { 
+            tratamientos_od: ""
+          }
+          : {
             tratamientos_od: tratamientosFiltrosSubmit[0],
             tratamientos_oi: ""
           }
         )
-      : tratamientosFiltrosSubmit.length === 2
-        ? isLeftEyeTratamientos 
-          ? { 
-              tratamientos_oi: tratamientosFiltrosSubmit[0], 
-              tratamientos_od: tratamientosFiltrosSubmit[1] 
+        : tratamientosFiltrosSubmit.length === 2
+          ? isLeftEyeTratamientos
+            ? {
+              tratamientos_oi: tratamientosFiltrosSubmit[0],
+              tratamientos_od: tratamientosFiltrosSubmit[1]
             }
-          : { 
-              tratamientos_od: tratamientosFiltrosSubmit[0], 
-              tratamientos_oi: tratamientosFiltrosSubmit[1] 
+            : {
+              tratamientos_od: tratamientosFiltrosSubmit[0],
+              tratamientos_oi: tratamientosFiltrosSubmit[1]
             }
-        : {}
-    ),
+          : {}
+      ),
       // tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
       // tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
       // material_od: materialesSeleccionadosSubmit[0] || "",
@@ -502,7 +521,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                 </div>
                                 <div className="form-group col-md-2">
                                   <label htmlFor="inputEmail4">
-                                    Telefono
+                                    Celular
                                   </label>
                                   <Input
                                     className="form-control"
@@ -747,15 +766,23 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       }}
                                     >
                                       Caracteristicas de Cristales
+                                      <span style={{ fontSize: '13px', color: 'gray', marginLeft: '10px' }}>
+                                        <b>(Click al ojo para cambiar de derecho a izquierdo)</b>
+                                        <EyeOutlined style={{
+                                          cursor: 'pointer',
+                                          color: isLeftEye ? 'blue' : '#067231',
+                                          marginLeft: '10px'
+                                        }} />
+                                      </span>
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 
+                                    <h6
                                       className="text-center p-2"
                                       onClick={toggleEye}
-                                      style={{ 
-                                        cursor: 'pointer', 
-                                        color: isLeftEye ? 'blue' : 'red',
+                                      style={{
+                                        cursor: 'pointer',
+                                        color: isLeftEye ? 'blue' : '#067231',
                                       }}
                                     >
                                       {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
@@ -782,12 +809,73 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       //   }
                                       // }}
                                       options={[
-                                        { id: 1, codigo: "MP01 | Monofocal Claro Sencillo" },
-                                        { id: 2, codigo: "MPAR | Monofocal + Antirreflejo" },
-                                        { id: 3, codigo: "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                        { id: 4, codigo: "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
-                                        { id: 5, codigo: "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
-                                        { id: 6, codigo: "MPT06 | Monofocal + Transitions" },
+                                        { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
+                                        { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
+                                        { "id": 3, "codigo": "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                        { "id": 4, "codigo": "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
+                                        { "id": 5, "codigo": "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
+                                        { "id": 6, "codigo": "MPT06 | Monofocal + Transitions" },
+                                        { "id": 7, "codigo": "MPX07 | Monofocal + Transitions Xtractive" },
+                                        { "id": 8, "codigo": "MPP04 | Monofocal Polarizado (Lente de Sol Oscuro)" },
+                                        { "id": 9, "codigo": "MPE05 | Monofocal Polarizado con Espejado (Lente de Sol Oscuro)" },
+                                        { "id": 10, "codigo": "MTL08 | Monofocal Thin & Lite 1.67 Claros" },
+                                        { "id": 11, "codigo": "MTL09 | Monofocal Thin & Lite 1.67 + Fotocromático" },
+                                        { "id": 12, "codigo": "MHI07 | Monofocal Hi Index Super Thin & Lite 1.74 + Filtro Luz Azul sin AR" },
+                                        { "id": 13, "codigo": "MAF08 | Antifatigue (Relax) Claros + Filtro Luz Azul" },
+                                        { "id": 14, "codigo": "MLE09 | Monofocal Lenticular Claro" },
+                                        { "id": 15, "codigo": "MLT06 | Monofocal Lenticular + Transitions" },
+                                        { "id": 16, "codigo": "BFT2 | Bifocal Flap Top Claro Sencillo" },
+                                        { "id": 17, "codigo": "BFT3 | Bifocal Flap Top Claro + Filtro Luz Azul" },
+                                        { "id": 18, "codigo": "BFTF | Bifocal Flap Top + Fotocromático" },
+                                        { "id": 19, "codigo": "BFTA | Bifocal Flap Top + Fotocromático + Antirreflejo" },
+                                        { "id": 20, "codigo": "BFK01 | Bifocal Kriptop Claro Sencillo" },
+                                        { "id": 21, "codigo": "BKFA | Bifocal Kriptop + Filtro Luz Azul + Antirreflejo" },
+                                        { "id": 22, "codigo": "BKFA1 | Bifocal Kriptop + Filtro Luz Azul + Fotocromático + Antirreflejo" },
+                                        { "id": 23, "codigo": "BKL01 | Bifocal Kriptop Lenticular Claro" },
+                                        { "id": 24, "codigo": "BI001 | Bifocal Invisible Claro" },
+                                        { "id": 25, "codigo": "BIF01 | Bifocal Invisible + Filtro Luz Azul" },
+                                        { "id": 26, "codigo": "BIF02 | Bifocal Invisible + Fotocromático" },
+                                        { "id": 27, "codigo": "BIF03 | Bifocal Invisible + Fotocromático + Filtro Luz Azul" },
+                                        { "id": 28, "codigo": "BIAF1 | Bifocal Invisible + Fotocromático + Antirreflejo" },
+                                        { "id": 29, "codigo": "BBIF1 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) Claro" },
+                                        { "id": 30, "codigo": "BBIF2 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) + Fotocromático" },
+                                        { "id": 31, "codigo": "BTT01 | Trifocal Claro Sencillo (Solo vender a usuarios)" },
+                                        { "id": 32, "codigo": "CM01 | Control Miopia Claro Sencillo" },
+                                        { "id": 33, "codigo": "CM02 | Control Miopia + Filtro Luz Azul" },
+                                        { "id": 34, "codigo": "CM04 | Control Miopia + Transitions" },
+                                        { "id": 35, "codigo": "CM05 | Control Miopia THIN & LITE + Transitions" },
+                                        { "id": 36, "codigo": "CM06 | Control Miopia Polarizado (Lente Oscuro de Sol)" },
+                                        { "id": 37, "codigo": "MGSE | Multifocal Generico Claro Sencillo" },
+                                        { "id": 38, "codigo": "MGFL | Multifocal Generico + Filtro Luz Azul" },
+                                        { "id": 39, "codigo": "MFFT1 | Multifocal Solarmax + Fotocromatico" },
+                                        { "id": 40, "codigo": "MSFF | Multifocal Solarmax + Fotocromatico + Filtro Luz Azul" },
+                                        { "id": 41, "codigo": "MF01 | Multifocal 4NEW Claro sencillo (utilizar este código cuando lleva filtro terapéutico)" },
+                                        { "id": 42, "codigo": "MNTR | Multifocal 4NEW + Transition" },
+                                        { "id": 43, "codigo": "MFSS | Multifocal 4STARTER Sencillo" },
+                                        { "id": 44, "codigo": "MSTR | Multifocal 4STARTER + Transition" },
+                                        { "id": 45, "codigo": "MFPS | Multifocal Panorama Sencillo" },
+                                        { "id": 46, "codigo": "MPTR | Multifocal Panorama + Transition" },
+                                        { "id": 47, "codigo": "MFDS | Multifocal 4DIGILIFE Claro Sencillo" },
+                                        { "id": 48, "codigo": "MDTR | Multifocal 4DIGILIFE + Transition" },
+                                        { "id": 49, "codigo": "SP005 | Sobrepoder en Multifocal (ESF. +/- 8.50 CYL. +/- 3.00)" },
+                                        { "id": 50, "codigo": "PEM1 | Paquete económico monofocales claros sencillos" },
+                                        { "id": 51, "codigo": "PEML | Paquete económico Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                        { "id": 52, "codigo": "PEBK2 | Paquete económico Bifocal Kriptop Claro Sencillo" },
+                                        { "id": 53, "codigo": "PEBT3 | Paquete económico Bifocal Flap Top Claro Sencillo" },
+                                        { "id": 54, "codigo": "PEBI4 | Paquete económico Bifocal Invisible Claro Sencillo" },
+                                        { "id": 55, "codigo": "PEMO5 | Paquete económico Multifocal Claro Sencillo" },
+                                        { "id": 56, "codigo": "FTP01 | Filtro Terapéutico" },
+                                        { "id": 57, "codigo": "FUV1 | Filtro Luz Azul (UV 400)" },
+                                        { "id": 58, "codigo": "PM02 | Prismas" },
+                                        { "id": 59, "codigo": "RT03 | Remover Tinte" },
+                                        { "id": 60, "codigo": "SP04 | Sobrepoder (ESF. +/- 6 CYL: -3.25) Aplica para monofocales y bifocales" },
+                                        { "id": 61, "codigo": "TT05 | Tinte" },
+                                        { "id": 62, "codigo": "MAA6 | Montaje aro al aire" },
+                                        { "id": 63, "codigo": "MA10 | Montaje de aro" },
+                                        { "id": 64, "codigo": "RAR7 | Remover antirreflejo" },
+                                        { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
+                                        { "id": 66, "codigo": "TRANS | Transition" },
+                                        { "id": 67, "codigo": "FOT | Fotocromático" }
                                       ].map(servicio => ({
                                         value: servicio.id,
                                         label: servicio.codigo
@@ -810,7 +898,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               <div
                                                 style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                               >
-                                               {servicio.ojo ? servicio.ojo : ""}  {servicio.servicio ? servicio.servicio : ""} :
+                                                {servicio.ojo ? servicio.ojo : ""}  {servicio.servicio ? servicio.servicio : ""} :
                                                 {/* {
                                                   index == 0
                                                     ? "Ojo Derecho:"
@@ -856,17 +944,17 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 
+                                    <h6
                                       className="text-center p-2"
                                       onClick={toggleEyeMaterial}
-                                      style={{ 
-                                        cursor: 'pointer', 
-                                        color: isLeftEyeMaterial ? 'blue' : 'red',
+                                      style={{
+                                        cursor: 'pointer',
+                                        color: isLeftEyeMaterial ? 'blue' : '#067231',
                                       }}
                                     >
-                                       {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                        MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO"}
-                                       {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                      {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                      MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
 
                                     <Select
@@ -962,16 +1050,16 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </div>
                                   </Col>
                                   <Col xxl={8} xl={8} md={8}>
-                                    <h6 
+                                    <h6
                                       className="text-center p-2"
                                       onClick={toggleEyeTratamientos}
-                                      style={{ 
-                                        cursor: 'pointer', 
-                                        color: isLeftEyeTratamientos ? 'blue' : 'red',
+                                      style={{
+                                        cursor: 'pointer',
+                                        color: isLeftEyeTratamientos ? 'blue' : '#067231',
                                       }}
                                     >
                                       {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                        TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                      TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
                                       {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
                                     </h6>
                                     <Select
