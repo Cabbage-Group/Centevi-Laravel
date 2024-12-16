@@ -25,12 +25,10 @@ const CreateOrden = () => {
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
-
-  const [selectUsuario, setSelectdUsuario] = useState(null)
-  const [selectedTipoCristal, setSelectedTipoCristal] = useState(null);
-  // console.log('pacientes_options_selecteds:',pacientes_options_selecteds)
-
-  const nombreUsuarioActual = localStorage.getItem('nombre');
+  const [lenteContacto, setLenteContacto] = useState(false);
+  const [isRowVisible, setIsRowVisible] = useState(true);
+  const [isImageVisible, setIsImageVisible] = useState(true);
+  const [isAroVisible, setIsAroVisible] = useState(true);
 
   const initialValues = {
     nro_orden: "",
@@ -60,7 +58,7 @@ const CreateOrden = () => {
     codigo: "",
     color: "",
     marca: "",
-    tipo_aro: "",
+    tipo_aro: isRowVisible ? "" : null,
     observaciones: "",
     doctor: "",
     l_uno: "",
@@ -68,6 +66,7 @@ const CreateOrden = () => {
     l_tres: "",
     l_cuatro: "",
     l_cinco: "",
+    isRowVisible: isAroVisible,
   };
 
   const tipoAroOptions = [
@@ -96,9 +95,11 @@ const CreateOrden = () => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string()
-      .nullable()
-      .required("Seleccione un tipo de aro"),
+    tipo_aro: Yup.string().when('isRowVisible', {
+      is: true, 
+      then: (schema) => schema.required("Seleccione un tipo de aro"),
+      otherwise: (schema) => schema.notRequired(), 
+    }),
     doctor: Yup.string()
       .nullable()
       .required("Seleccione un doctor"),
@@ -113,6 +114,7 @@ const CreateOrden = () => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
+  
 
 
   const toggleEye = () => {
@@ -257,17 +259,12 @@ const CreateOrden = () => {
             }
           : {}
       ),
-      // tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
-      // tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
-      // material_od: materialesSeleccionadosSubmit[0] || "",
-      // material_oi: materialesSeleccionadosSubmit[1] || "",
-      // tratamientos_od: tratamientosFiltrosSubmit[0] || "",
-      // tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
       aro_centevi: aroCentevi ? 1 : 0,
       aro_propio: aroCentevi ? 0 : 1,
-      tipo_aro: tipoAro,
+      ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
       doctor: doctorSeleccionado,
-      elaborado_por: usuario?.usuario?.id_usuario
+      elaborado_por: usuario?.usuario?.id_usuario,
+      lente_contacto: lenteContacto,
     };
     console.log('transformedValues:', transformedValues);
     const result = await dispatch(createOrdenes(transformedValues));
@@ -289,6 +286,35 @@ const CreateOrden = () => {
     }
   };
 
+  const handleLenteContactoChange = () => {
+    const newLenteContactoState = !lenteContacto;
+    const action = newLenteContactoState ? 'Cambiar a lente contacto' : 'Cambiar a lente normal';
+    Swal.fire({
+      title: `¿Estás seguro de ${action.toLowerCase()}?`,
+      text: `Esto cambiará al modo ${newLenteContactoState ? 'lente de contacto' : 'lente normal'}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: `Sí, ${action.toLowerCase()}`,
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsRowVisible(!isRowVisible);
+        setIsImageVisible(!isImageVisible);
+        setLenteContacto(newLenteContactoState); 
+        setIsAroVisible(!isAroVisible);   
+
+        if (!isRowVisible) {
+          setTipoAro(null);
+        }
+        Swal.fire(
+          `${action.charAt(0).toUpperCase() + action.slice(1)}!`,
+          `El valor de lente de contacto ha sido actualizado.`,
+          'success'
+        );
+      }
+    });
+  };
+
 
 
   return (
@@ -304,26 +330,19 @@ const CreateOrden = () => {
                 >
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
-                      {/* <Button
-                        onClick={() => {
-                          console.log('serviciosRealizados:', serviciosRealizados)
-                          console.log('materialesSeleccionados:', materialesSeleccionados)
-                          console.log('aroCentevi:', aroCentevi)
-                          console.log('tipoAro:', tipoAro)
-                          console.log('pacientes:', pacientes)
-                          console.log('usuario:', usuario)
-                          console.log('pacientes_options_selecteds:', pacientes_options_selecteds)
-                          console.log('usuarios_doctores_options_selecteds:', usuarios_doctores_options_selecteds)
-                          console.log('nombreUsuarioActual:', nombreUsuarioActual)
-                          console.log('selectedPaciente:', selectedPaciente)
+                      <Button
+                        onClick={()=>{
+                          console.log('isRowVisible:',isRowVisible)
                         }}>
                         Aqui
-                      </Button> */}
+                      </Button>
                       <div className="widget-content widget-content-area" >
                         <Formik
-                          initialValues={initialValues}
+                          initialValues={{ ...initialValues, isRowVisible: isAroVisible }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
+
+                          
                         >
 
                           {({ setFieldValue, values }) => (
@@ -368,11 +387,32 @@ const CreateOrden = () => {
                                       height: '40px',
                                     }}
                                   />
+                                 
                                   <ErrorMessage
                                     name="nro_orden"
                                     component="div"
                                     style={{ color: "red", fontSize: "12px" }}
                                   />
+                                </div>
+                                <div class="col-md-2">
+                                  <h4>Cambiar Tipo de lente</h4>
+                                  <div className="d-flex align-items-center">
+                                  <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    style={{
+                                      height: "40px",
+                                      marginTop: "0", 
+                                    }}
+                                    onClick={() => {
+                                      handleLenteContactoChange()
+                                      setIsRowVisible(!isRowVisible);
+                                      setFieldValue("isRowVisible", !isRowVisible); 
+                                    }}                                                           
+                                  >
+                                    {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
+                                  </button>
+                                  </div>
                                 </div>
 
 
@@ -686,6 +726,7 @@ const CreateOrden = () => {
                                   // background: 'red'
                                 }}
                               >
+                          {isRowVisible && (
                                 <Row gutter={[16, 16]}>
                                   <Col xxl={24} xl={24} md={24}>
                                     <div
@@ -1085,6 +1126,8 @@ const CreateOrden = () => {
                                     </div>
                                   </Col>
                                 </Row>
+                                 )}
+                                
                                 {/* <div className="row p-1">
                                   <div className="col-md-2">
                                     <h6 className="text-center p-2">
@@ -1542,6 +1585,8 @@ const CreateOrden = () => {
                                           Caracteristicas de Aro
                                         </div>
                                       </Col>
+
+                                       {isAroVisible && (
                                       <Col xxl={5} xl={5} md={5}>
                                         <div>
                                           <label className="new-control new-radio radio-classic-primary">
@@ -1565,6 +1610,8 @@ const CreateOrden = () => {
                                           </label>
                                         </div>
                                       </Col>
+                                      )}
+                                       {isAroVisible && (
                                       <Col xxl={5} xl={5} md={5}>
                                         <div>
                                           <label className="new-control new-radio radio-classic-primary">
@@ -1579,7 +1626,8 @@ const CreateOrden = () => {
                                           </label>
                                         </div>
                                       </Col>
-
+                                      )}
+                                      {isAroVisible && (
                                       <Col xxl={5} xl={5} md={5}>
                                         <div
                                           style={{
@@ -1601,8 +1649,10 @@ const CreateOrden = () => {
                                           />
                                         </div>
                                       </Col>
-
+                                       )}
+                                       
                                       <Col xxl={9} xl={9} md={9}>
+                                      {isAroVisible && (
                                         <div
                                           style={{
                                             // display: 'flex'
@@ -1619,7 +1669,7 @@ const CreateOrden = () => {
                                             }}
                                           />
                                         </div>
-
+                                        )}
                                         <div
                                           style={{
                                             // display: 'flex'
@@ -1637,27 +1687,7 @@ const CreateOrden = () => {
                                           />
                                         </div>
                                       </Col>
-                                      {/* <Col xxl={9} xl={9} md={9}>
-                                        <div
-                                          style={{
-                                            // display: 'flex'
-                                          }}
-                                        >
-                                          <div style={{ marginTop: '-15px' }}>
-                                            <b>MARCA</b>
-                                          </div>
-                                          <Field
-                                            className="form-control"
-                                            name="marca"
-                                            style={{
-                                              marginLeft: '0px', height: '30px'
-                                            }}
-                                          />
-                                        </div>
-                                      </Col> */}
-
-
-
+                                      
                                       <Col xxl={24} xl={24} md={24}>
                                         <Row
                                           gutter={[16, 16]}
@@ -1755,7 +1785,7 @@ const CreateOrden = () => {
                                                   </label>
                                                 </div>
                                               </Col> */}
-
+                                             {isAroVisible && (
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
                                                   style={{
@@ -1798,9 +1828,7 @@ const CreateOrden = () => {
                                                   <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
                                                 </div>
                                               </Col>
-
-
-
+                                            )}
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
                                                 >
@@ -1859,7 +1887,7 @@ const CreateOrden = () => {
                                       </Col>
                                     </Row>
                                   </Col>
-
+                            {isImageVisible && (
                                   <Col
                                     xxl={10} xl={10} md={10}
                                     style={{
@@ -1971,7 +1999,9 @@ const CreateOrden = () => {
 
 
                                   </Col>
+                                    )}
                                 </Row>
+                                
                               </div>
 
 

@@ -9,14 +9,28 @@ import dayjs from 'dayjs';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
-  const { ordenes, status, error, meta, totalPages, sortColumn, sortOrder } = useSelector((state) => state.ordenes);
+  const { 
+    ordenes, 
+    status, 
+    error, 
+    meta,
+    search, 
+    totalPages, 
+    sortColumn, 
+    sortOrder } = useSelector((state) => state.ordenes);
 
   const [currentPage, setCurrentPage] = useState(1);
-  // const [localSearch, setLocalSearch] = useState(search);
+  const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
-    dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortColumn, sortOrder }));
-  }, [dispatch, currentPage, sortColumn, sortOrder]);
+    dispatch(fecthOrdenes({ 
+      page: currentPage, 
+      limit: 20, 
+      sortColumn, 
+      sortOrder,
+      search: localSearch,
+    }));
+  }, [dispatch, currentPage, sortColumn, sortOrder,localSearch]);
 
   const handleSort = (newOrdenPor) => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -31,11 +45,9 @@ const VerOrdenes = () => {
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
   };
-
   const handleClearSearch = () => {
     setLocalSearch('');
   };
-
   const handlePagoToggle = async (id_orden, data, nro_orden) => {
     try {
 
@@ -49,6 +61,8 @@ const VerOrdenes = () => {
       console.error('Error al actualizar el estado de pagado:', err);
     }
   };
+
+  
 
 
   const handleEliminarOrden = async (id_orden) => {
@@ -104,9 +118,67 @@ const VerOrdenes = () => {
                     id="zero-config_wrapper"
                   >
                     <div className="dt--top-section">
-                      <div className="row">
-
+                    <div className="row">
+                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">                    
                       </div>
+                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                        <div
+                          className="dataTables_filter"
+                          id="html5-extension_filter"
+                        >
+                          <label>
+                            <svg
+                              className="feather feather-search"
+                              fill="none"
+                              height="24"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                              width="24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <circle
+                                cx="11"
+                                cy="11"
+                                r="8"
+                              />
+                              <line
+                                x1="21"
+                                x2="16.65"
+                                y1="21"
+                                y2="16.65"
+                              />
+                            </svg>
+                            <input
+                              aria-controls="html5-extension"
+                              className="form-control"
+                              placeholder="Search..."
+                              type="search"
+                              value={localSearch}
+                              onChange={handleSearchChange}
+                            />
+                            {localSearch && (
+                              <button
+                                onClick={handleClearSearch}
+                                style={{
+                                  position: 'absolute',
+                                  right: '25px',
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                &#x2715; { }
+                              </button>
+                            )}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                     </div>
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}

@@ -4,9 +4,21 @@ import API from '../../../config/config.js';
 
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
-  async ({ page = 1, limit = 20, sortOrder = 'desc', sortColumn = 'created_at' }) => {
+  async ({ 
+    page = 1, 
+    limit = 20, 
+    sortOrder = 'desc', 
+    sortColumn = 'created_at',
+    search = '', 
+  }) => {
     const response = await axios.get(`${API}/ordenes`, {
-      params: { page, limit, sortOrder, sortColumn }
+      params: { 
+        page, 
+        limit, 
+        sortOrder, 
+        sortColumn,
+        search
+      }
     });
     return response.data;
   }
@@ -62,6 +74,7 @@ const ordenesSlice = createSlice({
     ordenes: [],
     meta: {},
     status: 'idle',
+    search: '',
     error: null,
     sortOrder: 'desc',
     sortColumn: 'created_at',
@@ -72,7 +85,10 @@ const ordenesSlice = createSlice({
     },
     setOrdenPor(state, action) {
       state.sortColumn = action.payload;
-    }
+    },
+    setSearch(state, action) {
+      state.search = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -127,5 +143,8 @@ const ordenesSlice = createSlice({
   },
 });
 
-export const { setOrden, setOrdenPor, setSearch } = ordenesSlice.actions;
+export const { 
+  setOrden, 
+  setOrdenPor, 
+  setSearch } = ordenesSlice.actions;
 export default ordenesSlice.reducer;

@@ -35,6 +35,19 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
+  const [lenteContacto, setLenteContacto] = useState(false);
+  const [isRowVisible, setIsRowVisible] = useState(true);
+  const [isImageVisible, setIsImageVisible] = useState(true);
+  const [isAroVisible, setIsAroVisible] = useState(true);
+
+  useEffect(() => {
+    if (orden.lente_contacto) {
+      setLenteContacto(true);
+      setIsRowVisible(false);
+      setIsImageVisible(false);
+      setIsAroVisible(false);
+    }
+  }, [orden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
@@ -78,6 +91,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     l_tres: orden?.l_tres,
     l_cuatro: orden?.l_cuatro,
     l_cinco: orden?.l_cinco,
+    isRowVisible: isAroVisible,
   };
 
   const tipoAroOptions = [
@@ -106,9 +120,11 @@ const EditOrden = ({ fecha_solicitud }) => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string()
-      .nullable()
-      .required("Seleccione un tipo de aro"),
+    tipo_aro: Yup.string().when('isRowVisible', {
+      is: true, 
+      then: (schema) => schema.required("Seleccione un tipo de aro"),
+      otherwise: (schema) => schema.notRequired(), 
+      }),
     doctor: Yup.string()
       .nullable()
       .required("Seleccione un doctor"),
@@ -335,9 +351,10 @@ const EditOrden = ({ fecha_solicitud }) => {
       // tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
       aro_centevi: aroCentevi ? 1 : 0,
       aro_propio: aroCentevi ? 0 : 1,
-      tipo_aro: tipoAro,
+      ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
       doctor: doctorSeleccionado,
-      elaborado_por: usuario?.usuario?.id_usuario
+      elaborado_por: usuario?.usuario?.id_usuario,
+      lente_contacto: lenteContacto,
     };
     const result = await dispatch(updateOrden({ id_orden: orderId, data: transformedValues }));
 
@@ -358,6 +375,36 @@ const EditOrden = ({ fecha_solicitud }) => {
     }
   };
 
+    const handleLenteContactoChange = () => {
+      const newLenteContactoState = !lenteContacto;
+      const action = newLenteContactoState ? 'Cambiar a lente contacto' : 'Cambiar a lente normal';
+      Swal.fire({
+        title: `¿Estás seguro de ${action.toLowerCase()}?`,
+        text: `Esto cambiará al modo ${newLenteContactoState ? 'lente de contacto' : 'lente normal'}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: `Sí, ${action.toLowerCase()}`,
+        cancelButtonText: 'Cancelar',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setIsRowVisible(!isRowVisible);
+          setIsImageVisible(!isImageVisible);
+          setLenteContacto(newLenteContactoState); 
+          setIsAroVisible(!isAroVisible);   
+  
+          if (!isRowVisible) {
+            setTipoAro(null);
+          }
+          Swal.fire(
+            `${action.charAt(0).toUpperCase() + action.slice(1)}!`,
+            `El valor de lente de contacto ha sido actualizado.`,
+            'success'
+          );
+        }
+      });
+    };
+  
+
 
   return (
     <div className="admin-data-content" data-select2-id="15">
@@ -370,6 +417,14 @@ const EditOrden = ({ fecha_solicitud }) => {
                   className="col-lg-12 layout-spacing"
                   id="flFormsGrid"
                 >
+                  <Button
+                                          onClick={()=>{
+                                            console.log('isRowVisible:',isRowVisible)
+                                            console.log('lenteContacto:',lenteContacto)
+                                            console.log('ordenes:',orden)
+                                          }}>
+                                          Aqui
+                                        </Button>
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
@@ -384,7 +439,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                           Aqui
                         </Button> */}
                         <Formik
-                          initialValues={initialValues}
+                          initialValues={{ ...initialValues, isRowVisible: isAroVisible }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >
@@ -437,6 +492,27 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     style={{ color: "red", fontSize: "12px" }}
                                   />
                                 </div>
+                                <div class="col-md-2">
+                                  <h4>Cambiar Tipo de lente</h4>
+                                  <div className="d-flex align-items-center">
+                                  <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    style={{
+                                      height: "40px",
+                                      marginTop: "0", 
+                                    }}
+                                    onClick={() => {
+                                      handleLenteContactoChange()
+                                      setIsRowVisible(!isRowVisible);
+                                      setFieldValue("isRowVisible", !isRowVisible); 
+                                    }}                                                           
+                                  >
+                                    {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
+                                  </button>
+                                  </div>
+                                </div>
+
 
 
                                 <div className="form-group col-md-4" >
@@ -757,6 +833,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   // background: 'red'
                                 }}
                               >
+                            {isRowVisible && (
                                 <Row gutter={[16, 16]}>
                                   <Col xxl={24} xl={24} md={24}>
                                     <div
@@ -1158,6 +1235,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </div>
                                   </Col>
                                 </Row>
+                              )}
                                 {/* <div className="row p-1">
                                   <div className="col-md-2">
                                     <h6 className="text-center p-2">
@@ -1615,6 +1693,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           Caracteristicas de Aro
                                         </div>
                                       </Col>
+                                      {isAroVisible && (
                                       <Col xxl={5} xl={5} md={5}>
                                         <div>
                                           <label className="new-control new-radio radio-classic-primary">
@@ -1638,6 +1717,8 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           </label>
                                         </div>
                                       </Col>
+                                      )}
+                                        {isAroVisible && (
                                       <Col xxl={5} xl={5} md={5}>
                                         <div>
                                           <label className="new-control new-radio radio-classic-primary">
@@ -1652,7 +1733,8 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           </label>
                                         </div>
                                       </Col>
-
+                                        )}
+                                        {isAroVisible && (
                                       <Col xxl={5} xl={5} md={5}>
                                         <div
                                           style={{
@@ -1674,8 +1756,10 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           />
                                         </div>
                                       </Col>
-
+                                        )}
+                                      
                                       <Col xxl={9} xl={9} md={9}>
+                                      {isAroVisible && (
                                         <div
                                           style={{
                                             // display: 'flex'
@@ -1692,6 +1776,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             }}
                                           />
                                         </div>
+                                      )}
 
                                         <div
                                           style={{
@@ -1828,7 +1913,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                   </label>
                                                 </div>
                                               </Col> */}
-
+                                            {isAroVisible && (
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
                                                   style={{
@@ -1871,7 +1956,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                   <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
                                                 </div>
                                               </Col>
-
+                                            )}
 
 
                                               <Col xxl={24} xl={24} md={24}>
@@ -1932,7 +2017,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       </Col>
                                     </Row>
                                   </Col>
-
+                              {isImageVisible && (                
                                   <Col
                                     xxl={10} xl={10} md={10}
                                     style={{
@@ -2044,6 +2129,7 @@ const EditOrden = ({ fecha_solicitud }) => {
 
 
                                   </Col>
+                                )}
                                 </Row>
                               </div>
                               {/*  */}

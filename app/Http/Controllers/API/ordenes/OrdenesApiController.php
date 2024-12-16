@@ -19,6 +19,7 @@ class OrdenesApiController extends Controller
     $page = $request->input('page', 1);
     $sortColumn = $request->input('sortColumn', 'created_at');
     $sortOrder = $request->input('sortOrder', 'asc');
+    $search = $request->input('search', '');
 
     // Asegurarse de que se puede ordenar por created_at
     $validSortColumns = ['id_orden', 'created_at']; // Puedes agregar más columnas si es necesario
@@ -93,6 +94,8 @@ class OrdenesApiController extends Controller
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
       ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
+      ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+      ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
       ->select(
         'ordenes.*',
         'usuarios.nombre as elaborado_por_nombre',
@@ -103,16 +106,38 @@ class OrdenesApiController extends Controller
         'primeras_fases.dias_transcurridos as dias_transcurridos',
         'primeras_fases.total_fases as total_fases',
         DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
-      )
-      ->orderBy($sortColumn, $sortOrder) // Ordenar por la columna seleccionada
+      );
+      if (!empty($search)) {
+        $ordenes->where(function ($query) use ($search) {
+            $query->where('ordenes.id_orden', 'like', "%{$search}%")
+                ->orWhere('usuarios.nombre', 'like', "%{$search}%")
+                ->orWhere('ordenes.doctor', 'like', "%{$search}%")
+                ->orWhere('ordenes.nro_orden', 'like', "%{$search}%")
+                ->orWhere('ordenes.created_at', 'like', "%{$search}%")
+                ->orWhere('ordenes.pagado', 'like', "%{$search}%")
+                ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+                ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+                ->orWhere('pacientes.celular', 'like', "%{$search}%")
+                ->orWhere('primeras_fases.status_primera_fase', 'like', "%{$search}%")
+                ->orWhere('ordenes.created_at', 'like', "%{$search}%")
+                ->orWhere('primeras_fases.laboratorio_primera_fase', 'like', "%{$search}%")
+                ->orWhereRaw("CASE 
+                WHEN ultimas_fases.fase_actual IS NULL THEN 'Nuevo'
+                ELSE ultimas_fases.fase_actual 
+                END LIKE ?", ["%{$search}%"]);
+                
+        });
+    }
+ 
+    $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
 
     return response()->json([
-      'data' => $ordenes->items(),
+      'data' => $paginatedData->items(),
       'meta' => [
-        'page' => $ordenes->currentPage(),
-        'limit' => $ordenes->perPage(),
-        'total' => $ordenes->total(),
+        'page' => $paginatedData->currentPage(),
+        'limit' => $paginatedData->perPage(),
+        'total' => $paginatedData->total(),
       ],
       'respuesta' => true,
       'status' => [
@@ -164,8 +189,6 @@ class OrdenesApiController extends Controller
       'l_tres' => 'nullable|string|max:255',
       'l_cuatro' => 'nullable|string|max:255',
       'l_cinco' => 'nullable|string|max:255',
-
-
     ]);
 
     if ($validator->fails()) {
@@ -214,6 +237,7 @@ class OrdenesApiController extends Controller
       'l_cuatro' => '',
       'l_cinco' => '',
       'pagado' => 0,
+      'lente_contacto' => 0
 
     ];
 
