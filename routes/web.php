@@ -274,6 +274,8 @@ Route::get('/api/fases-ordenes', [OrdenesApiController::class, 'fasesOrdenes']);
 
 Route::post('/api/create-fases-ordenes', [OrdenesApiController::class, 'createFasesOrdenes']);
 
+Route::get('/api/reporte-ordenes', [OrdenesApiController::class, 'reportesOrdenes']);
+
 Route::get('/{any}', function () {
   return view('app');
 })->where('any', '.*');

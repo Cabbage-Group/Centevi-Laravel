@@ -66,6 +66,7 @@ import ProtectedRoute from './ProtectedRoute.js';
 import CreateReceta from '../admin/recetas/CreateOrden.js';
 import ServiciosProximosRealizados from '../admin/reportes/ServiciosProximosRealizados.js';
 import Ordenes from '../admin/recetas/ordenes/Ordenes.js';
+import ReporteOrdenes from '../admin/reportes/ReporteOrdenes.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -173,6 +174,7 @@ const RoutesApp = () => {
           <Route path="/terapias-diarias" element={<Sidebar component={<TerapiasDiarias />} />} />
           <Route path="/proximas-citas" element={<Sidebar component={<ProximasCitas />} />} />
           <Route path="/servicios-proximos-realizados" element={<Sidebar component={<ServiciosProximosRealizados />} />} />
+          <Route path="/reporte-ordenes" element={<Sidebar component={<ReporteOrdenes />} />} />
 
           <Route path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapia />} />} />
           <Route path="/ver-sesion-terapia-pediatrica/:id_paciente/:id_terapia/:id_sesion" element={<Sidebar component={<VerSesionTerapiaPediatrica />} />} />
@@ -196,6 +198,7 @@ const RoutesApp = () => {
           <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
 
           <Route path="/servicios-proximos-realizados" element={<Sidebar component={<ServiciosProximosRealizados />} />} />
+
 
         </Route>
 

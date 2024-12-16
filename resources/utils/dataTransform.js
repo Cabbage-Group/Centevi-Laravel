@@ -94,3 +94,17 @@ export const transformDataForServiciosProximos = (data) => {
 };
 
 
+export const transformDataForReporteOrdenes = (data) => {
+  return data.map(rpOrden => ({
+    Fecha_Orden: rpOrden.created_at_formatted,
+    Nro_orden: rpOrden.nro_orden,
+    Pagado: rpOrden.pagado_nombre,
+    Sucursal: rpOrden.sucursal.nombre,
+    Doctor: rpOrden.doctor,
+    Asesor: rpOrden.elaborado_por_nombre,
+    Laboratorio: rpOrden.laboratorio,
+  }));
+};
+
+
+
