@@ -35,7 +35,7 @@ const Ordenes = () => {
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
-  const [fechaSolicitud, setFechaSolicitud] = useState(orden.created_at);
+  const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
 
   useEffect(() => {
     console.log("Datos de fase guardados en nuevaData:", nuevaData);

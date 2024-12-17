@@ -95,8 +95,8 @@ const CreateOrden = () => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string().when('isRowVisible', {
-      is: true, 
+    tipo_aro: Yup.string().when('lenteContacto', {
+      is: false, 
       then: (schema) => schema.required("Seleccione un tipo de aro"),
       otherwise: (schema) => schema.notRequired(), 
     }),
@@ -296,6 +296,8 @@ const CreateOrden = () => {
       showCancelButton: true,
       confirmButtonText: `Sí, ${action.toLowerCase()}`,
       cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
     }).then((result) => {
       if (result.isConfirmed) {
         setIsRowVisible(!isRowVisible);
@@ -333,7 +335,7 @@ const CreateOrden = () => {
                       <Button
                         onClick={()=>{
                           console.log('isRowVisible:',isRowVisible)
-                        }}>
+                          console.log('lenteContacto:',lenteContacto)                        }}>
                         Aqui
                       </Button>
                       <div className="widget-content widget-content-area" >
@@ -406,8 +408,6 @@ const CreateOrden = () => {
                                     }}
                                     onClick={() => {
                                       handleLenteContactoChange()
-                                      setIsRowVisible(!isRowVisible);
-                                      setFieldValue("isRowVisible", !isRowVisible); 
                                     }}                                                           
                                   >
                                     {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}

@@ -120,11 +120,14 @@ const EditOrden = ({ fecha_solicitud }) => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string().when('isRowVisible', {
-      is: true, 
+    tipo_aro: Yup.string().when('lente_contacto', {
+      is: (lente_contacto) =>{
+        console.log('isRowVisible en validación:', lente_contacto);
+        return lente_contacto;
+      },
       then: (schema) => schema.required("Seleccione un tipo de aro"),
-      otherwise: (schema) => schema.notRequired(), 
-      }),
+      otherwise: (schema) => schema.nullable(),
+    }),
     doctor: Yup.string()
       .nullable()
       .required("Seleccione un doctor"),
@@ -417,14 +420,14 @@ const EditOrden = ({ fecha_solicitud }) => {
                   className="col-lg-12 layout-spacing"
                   id="flFormsGrid"
                 >
-                  <Button
+                  {/* <Button
                                           onClick={()=>{
                                             console.log('isRowVisible:',isRowVisible)
                                             console.log('lenteContacto:',lenteContacto)
                                             console.log('ordenes:',orden)
                                           }}>
                                           Aqui
-                                        </Button>
+                                        </Button> */}
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
@@ -439,7 +442,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                           Aqui
                         </Button> */}
                         <Formik
-                          initialValues={{ ...initialValues, isRowVisible: isAroVisible }}
+                          initialValues={{ ...initialValues,  lente_contacto: lenteContacto  }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >
