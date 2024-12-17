@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
+import { Button, Tooltip } from 'antd';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -112,7 +113,12 @@ const VerOrdenes = () => {
                   <Link to={"/create-orden"} className="btn btn-success ml-3 mt-4">
                     Agregar Orden
                   </Link>
-
+                  {/* <Button
+                  onClick={()=>{
+                    console.log('ordnes:',or)
+                  }}>
+                    Aqui
+                  </Button> */}
                   <div
                     className="dataTables_wrapper container-fluid dt-bootstrap4"
                     id="zero-config_wrapper"
@@ -334,7 +340,22 @@ const VerOrdenes = () => {
                           <tbody>
                             {ordenes.map((orden) => (
                               <tr key={orden.id_orden}>
-                                <td>{orden.nro_orden}</td>
+                                 <td style={{ display: 'flex', alignItems: 'center' }}>
+                                  {orden.nro_orden}
+                                  {orden.lente_contacto ? (
+                                    <img
+                                      src="assets/img/recetas/lentesdecontacto.png" 
+                                      alt="Lente Contacto True"
+                                      style={{ width: '20px', marginLeft: '8px' }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src="assets/img/recetas/lentenormal.png" 
+                                      alt="Lente Contacto False"
+                                      style={{ width: '20px', marginLeft: '8px' }}
+                                    />
+                                  )}
+                                </td>
                                 <td>
                                   <button
                                     className={`btn btn-xs ${orden.pagado ? 'btn-success' : 'btn-danger'}`}
@@ -352,7 +373,26 @@ const VerOrdenes = () => {
                                 <td>{orden?.paciente?.celular || ""}</td>
                                 <td>{orden?.laboratorio || ""}</td>
                                 <td>{orden?.fase_actual || ""}</td>
-                                <td>{orden?.status_final ?? orden?.status ?? ""}</td>
+                                <td>
+                                  <Tooltip title={orden?.status ?? ""}>
+                                  <span
+                                    style={{
+                                      display: 'inline-block',
+                                      width: '12px',
+                                      height: '12px',
+                                      borderRadius: '50%',
+                                      backgroundColor:
+                                         orden?.status === 'Ok'
+                                          ? 'green'
+                                          : orden?.status  === 'Advertencia'
+                                          ? 'yellow'
+                                          : orden?.status  === 'Critico'
+                                          ? 'red'
+                                          : 'gray',
+                                    }}
+                                  ></span>{" "}
+                                  </Tooltip>
+                                </td>
                                 <td >
                                   <div className="btn-group">
 

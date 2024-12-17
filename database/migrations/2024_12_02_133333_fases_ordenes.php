@@ -16,7 +16,7 @@ class FasesOrdenes extends Migration
     Schema::create('fases_ordenes', function (Blueprint $table) {
       $table->id();
       $table->foreignId('tipo_fase_orden_id')->constrained('tipos_fases_ordenes')->onDelete('cascade');
-      $table->integer('ordenes_id');
+      $table->foreignId('ordenes_id')->references('id_orden')->on('ordenes')->onDelete('cascade');
       $table->string('laboratorio', 45)->nullable();
       $table->string('observacion', 400)->nullable();
       $table->string('fecha_fase', 45)->nullable();
