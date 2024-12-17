@@ -96,9 +96,9 @@ const CreateOrden = () => {
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
     tipo_aro: Yup.string().when('isRowVisible', {
-      is: true, 
+      is: true,
       then: (schema) => schema.required("Seleccione un tipo de aro"),
-      otherwise: (schema) => schema.notRequired(), 
+      otherwise: (schema) => schema.notRequired(),
     }),
     doctor: Yup.string()
       .nullable()
@@ -114,7 +114,7 @@ const CreateOrden = () => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
-  
+
 
 
   const toggleEye = () => {
@@ -300,8 +300,8 @@ const CreateOrden = () => {
       if (result.isConfirmed) {
         setIsRowVisible(!isRowVisible);
         setIsImageVisible(!isImageVisible);
-        setLenteContacto(newLenteContactoState); 
-        setIsAroVisible(!isAroVisible);   
+        setLenteContacto(newLenteContactoState);
+        setIsAroVisible(!isAroVisible);
 
         if (!isRowVisible) {
           setTipoAro(null);
@@ -330,19 +330,19 @@ const CreateOrden = () => {
                 >
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
-                      <Button
-                        onClick={()=>{
-                          console.log('isRowVisible:',isRowVisible)
+                      {/* <Button
+                        onClick={() => {
+                          console.log('isRowVisible:', isRowVisible)
                         }}>
                         Aqui
-                      </Button>
+                      </Button> */}
                       <div className="widget-content widget-content-area" >
                         <Formik
                           initialValues={{ ...initialValues, isRowVisible: isAroVisible }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
 
-                          
+
                         >
 
                           {({ setFieldValue, values }) => (
@@ -387,7 +387,7 @@ const CreateOrden = () => {
                                       height: '40px',
                                     }}
                                   />
-                                 
+
                                   <ErrorMessage
                                     name="nro_orden"
                                     component="div"
@@ -397,21 +397,21 @@ const CreateOrden = () => {
                                 <div class="col-md-2">
                                   <h4>Cambiar Tipo de lente</h4>
                                   <div className="d-flex align-items-center">
-                                  <button
-                                    type="button"
-                                    className="btn btn-success"
-                                    style={{
-                                      height: "40px",
-                                      marginTop: "0", 
-                                    }}
-                                    onClick={() => {
-                                      handleLenteContactoChange()
-                                      setIsRowVisible(!isRowVisible);
-                                      setFieldValue("isRowVisible", !isRowVisible); 
-                                    }}                                                           
-                                  >
-                                    {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
-                                  </button>
+                                    <button
+                                      type="button"
+                                      className="btn btn-success"
+                                      style={{
+                                        height: "40px",
+                                        marginTop: "0",
+                                      }}
+                                      onClick={() => {
+                                        handleLenteContactoChange()
+                                        setIsRowVisible(!isRowVisible);
+                                        setFieldValue("isRowVisible", !isRowVisible);
+                                      }}
+                                    >
+                                      {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
+                                    </button>
                                   </div>
                                 </div>
 
@@ -717,418 +717,419 @@ const CreateOrden = () => {
                                   </div>
                                 </div>
                               </div>
-                              <div
-                                style={{
-                                  border: '2px solid blue',
-                                  borderRadius: '25px',
-                                  marginTop: '-20px',
-                                  padding: '15px'
-                                  // background: 'red'
-                                }}
-                              >
-                          {isRowVisible && (
-                                <Row gutter={[16, 16]}>
-                                  <Col xxl={24} xl={24} md={24}>
-                                    <div
-                                      style={{
-                                        fontSize: '20px',
-                                        color: 'black'
-                                      }}
-                                    >
-                                      Caracteristicas de Cristales
-                                      <span style={{ fontSize: '13px', color: 'gray', marginLeft: '10px' }}>
-                                        <b>(Click al ojo para cambiar de derecho a izquierdo)</b>
-                                        <EyeOutlined style={{
-                                          cursor: 'pointer',
-                                          color: isLeftEye ? 'blue' : '#067231',
-                                          marginLeft: '10px'
-                                        }} />
-                                      </span>
-                                    </div>
-                                  </Col>
-                                  <Col xxl={8} xl={8} md={8}>
-                                    <h6
-                                      className="text-center p-2"
-                                      onClick={toggleEye}
-                                      style={{
-                                        cursor: 'pointer',
-                                        color: isLeftEye ? 'blue' : '#067231',
-                                      }}
-                                    >
-                                      {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                      TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
-                                      {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
-                                    </h6>
 
-                                    <Select
-                                      showSearch
-                                      value={null}
-                                      style={{
-                                        width: '100%', color: 'transparent',
-                                        background: 'white !important'
-                                      }}
-                                      optionFilterProp="label"
-                                      onChange={handleSelectChange}
-                                      options={[
-                                        { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
-                                        { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
-                                        { "id": 3, "codigo": "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                        { "id": 4, "codigo": "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
-                                        { "id": 5, "codigo": "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
-                                        { "id": 6, "codigo": "MPT06 | Monofocal + Transitions" },
-                                        { "id": 7, "codigo": "MPX07 | Monofocal + Transitions Xtractive" },
-                                        { "id": 8, "codigo": "MPP04 | Monofocal Polarizado (Lente de Sol Oscuro)" },
-                                        { "id": 9, "codigo": "MPE05 | Monofocal Polarizado con Espejado (Lente de Sol Oscuro)" },
-                                        { "id": 10, "codigo": "MTL08 | Monofocal Thin & Lite 1.67 Claros" },
-                                        { "id": 11, "codigo": "MTL09 | Monofocal Thin & Lite 1.67 + Fotocromático" },
-                                        { "id": 12, "codigo": "MHI07 | Monofocal Hi Index Super Thin & Lite 1.74 + Filtro Luz Azul sin AR" },
-                                        { "id": 13, "codigo": "MAF08 | Antifatigue (Relax) Claros + Filtro Luz Azul" },
-                                        { "id": 14, "codigo": "MLE09 | Monofocal Lenticular Claro" },
-                                        { "id": 15, "codigo": "MLT06 | Monofocal Lenticular + Transitions" },
-                                        { "id": 16, "codigo": "BFT2 | Bifocal Flap Top Claro Sencillo" },
-                                        { "id": 17, "codigo": "BFT3 | Bifocal Flap Top Claro + Filtro Luz Azul" },
-                                        { "id": 18, "codigo": "BFTF | Bifocal Flap Top + Fotocromático" },
-                                        { "id": 19, "codigo": "BFTA | Bifocal Flap Top + Fotocromático + Antirreflejo" },
-                                        { "id": 20, "codigo": "BFK01 | Bifocal Kriptop Claro Sencillo" },
-                                        { "id": 21, "codigo": "BKFA | Bifocal Kriptop + Filtro Luz Azul + Antirreflejo" },
-                                        { "id": 22, "codigo": "BKFA1 | Bifocal Kriptop + Filtro Luz Azul + Fotocromático + Antirreflejo" },
-                                        { "id": 23, "codigo": "BKL01 | Bifocal Kriptop Lenticular Claro" },
-                                        { "id": 24, "codigo": "BI001 | Bifocal Invisible Claro" },
-                                        { "id": 25, "codigo": "BIF01 | Bifocal Invisible + Filtro Luz Azul" },
-                                        { "id": 26, "codigo": "BIF02 | Bifocal Invisible + Fotocromático" },
-                                        { "id": 27, "codigo": "BIF03 | Bifocal Invisible + Fotocromático + Filtro Luz Azul" },
-                                        { "id": 28, "codigo": "BIAF1 | Bifocal Invisible + Fotocromático + Antirreflejo" },
-                                        { "id": 29, "codigo": "BBIF1 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) Claro" },
-                                        { "id": 30, "codigo": "BBIF2 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) + Fotocromático" },
-                                        { "id": 31, "codigo": "BTT01 | Trifocal Claro Sencillo (Solo vender a usuarios)" },
-                                        { "id": 32, "codigo": "CM01 | Control Miopia Claro Sencillo" },
-                                        { "id": 33, "codigo": "CM02 | Control Miopia + Filtro Luz Azul" },
-                                        { "id": 34, "codigo": "CM04 | Control Miopia + Transitions" },
-                                        { "id": 35, "codigo": "CM05 | Control Miopia THIN & LITE + Transitions" },
-                                        { "id": 36, "codigo": "CM06 | Control Miopia Polarizado (Lente Oscuro de Sol)" },
-                                        { "id": 37, "codigo": "MGSE | Multifocal Generico Claro Sencillo" },
-                                        { "id": 38, "codigo": "MGFL | Multifocal Generico + Filtro Luz Azul" },
-                                        { "id": 39, "codigo": "MFFT1 | Multifocal Solarmax + Fotocromatico" },
-                                        { "id": 40, "codigo": "MSFF | Multifocal Solarmax + Fotocromatico + Filtro Luz Azul" },
-                                        { "id": 41, "codigo": "MF01 | Multifocal 4NEW Claro sencillo (utilizar este código cuando lleva filtro terapéutico)" },
-                                        { "id": 42, "codigo": "MNTR | Multifocal 4NEW + Transition" },
-                                        { "id": 43, "codigo": "MFSS | Multifocal 4STARTER Sencillo" },
-                                        { "id": 44, "codigo": "MSTR | Multifocal 4STARTER + Transition" },
-                                        { "id": 45, "codigo": "MFPS | Multifocal Panorama Sencillo" },
-                                        { "id": 46, "codigo": "MPTR | Multifocal Panorama + Transition" },
-                                        { "id": 47, "codigo": "MFDS | Multifocal 4DIGILIFE Claro Sencillo" },
-                                        { "id": 48, "codigo": "MDTR | Multifocal 4DIGILIFE + Transition" },
-                                        { "id": 49, "codigo": "SP005 | Sobrepoder en Multifocal (ESF. +/- 8.50 CYL. +/- 3.00)" },
-                                        { "id": 50, "codigo": "PEM1 | Paquete económico monofocales claros sencillos" },
-                                        { "id": 51, "codigo": "PEML | Paquete económico Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                        { "id": 52, "codigo": "PEBK2 | Paquete económico Bifocal Kriptop Claro Sencillo" },
-                                        { "id": 53, "codigo": "PEBT3 | Paquete económico Bifocal Flap Top Claro Sencillo" },
-                                        { "id": 54, "codigo": "PEBI4 | Paquete económico Bifocal Invisible Claro Sencillo" },
-                                        { "id": 55, "codigo": "PEMO5 | Paquete económico Multifocal Claro Sencillo" },
-                                        { "id": 56, "codigo": "FTP01 | Filtro Terapéutico" },
-                                        { "id": 57, "codigo": "FUV1 | Filtro Luz Azul (UV 400)" },
-                                        { "id": 58, "codigo": "PM02 | Prismas" },
-                                        { "id": 59, "codigo": "RT03 | Remover Tinte" },
-                                        { "id": 60, "codigo": "SP04 | Sobrepoder (ESF. +/- 6 CYL: -3.25) Aplica para monofocales y bifocales" },
-                                        { "id": 61, "codigo": "TT05 | Tinte" },
-                                        { "id": 62, "codigo": "MAA6 | Montaje aro al aire" },
-                                        { "id": 63, "codigo": "MA10 | Montaje de aro" },
-                                        { "id": 64, "codigo": "RAR7 | Remover antirreflejo" },
-                                        { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
-                                        { "id": 66, "codigo": "TRANS | Transition" },
-                                        { "id": 67, "codigo": "FOT | Fotocromático" }
-                                      ].map(servicio => ({
-                                        value: servicio.id,
-                                        label: servicio.codigo
-                                      }))}
-                                    >
-                                    </Select>
-                                    <div
-                                      style={{
-                                        // display: 'ruby',
-                                        marginTop: '10px',
-                                        marginBottom: '10px'
-                                      }}
-                                      onClick={() => {
-                                      }}
-                                    >
-                                      {
-                                        serviciosRealizados.map((servicio, index) => {
-                                          return (
-                                            <>
-                                              <div
-                                                style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
-                                              >
-                                                {servicio.servicio} :
-                                                {/* {
+                              {
+                                isRowVisible && (
+                                  <div
+                                    style={{
+                                      border: '2px solid blue',
+                                      borderRadius: '25px',
+                                      marginTop: '-20px',
+                                      padding: '15px'
+                                      // background: 'red'
+                                    }}
+                                  >
+                                    <Row gutter={[16, 16]}>
+                                      <Col xxl={24} xl={24} md={24}>
+                                        <div
+                                          style={{
+                                            fontSize: '20px',
+                                            color: 'black'
+                                          }}
+                                        >
+                                          Caracteristicas de Cristales
+                                          <span style={{ fontSize: '13px', color: 'gray', marginLeft: '10px' }}>
+                                            <b>(Click al ojo para cambiar de derecho a izquierdo)</b>
+                                            <EyeOutlined style={{
+                                              cursor: 'pointer',
+                                              color: isLeftEye ? 'blue' : '#067231',
+                                              marginLeft: '10px'
+                                            }} />
+                                          </span>
+                                        </div>
+                                      </Col>
+                                      <Col xxl={8} xl={8} md={8}>
+                                        <h6
+                                          className="text-center p-2"
+                                          onClick={toggleEye}
+                                          style={{
+                                            cursor: 'pointer',
+                                            color: isLeftEye ? 'blue' : '#067231',
+                                          }}
+                                        >
+                                          {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                          TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                          {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                        </h6>
+
+                                        <Select
+                                          showSearch
+                                          value={null}
+                                          style={{
+                                            width: '100%', color: 'transparent',
+                                            background: 'white !important'
+                                          }}
+                                          optionFilterProp="label"
+                                          onChange={handleSelectChange}
+                                          options={[
+                                            { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
+                                            { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
+                                            { "id": 3, "codigo": "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                            { "id": 4, "codigo": "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
+                                            { "id": 5, "codigo": "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
+                                            { "id": 6, "codigo": "MPT06 | Monofocal + Transitions" },
+                                            { "id": 7, "codigo": "MPX07 | Monofocal + Transitions Xtractive" },
+                                            { "id": 8, "codigo": "MPP04 | Monofocal Polarizado (Lente de Sol Oscuro)" },
+                                            { "id": 9, "codigo": "MPE05 | Monofocal Polarizado con Espejado (Lente de Sol Oscuro)" },
+                                            { "id": 10, "codigo": "MTL08 | Monofocal Thin & Lite 1.67 Claros" },
+                                            { "id": 11, "codigo": "MTL09 | Monofocal Thin & Lite 1.67 + Fotocromático" },
+                                            { "id": 12, "codigo": "MHI07 | Monofocal Hi Index Super Thin & Lite 1.74 + Filtro Luz Azul sin AR" },
+                                            { "id": 13, "codigo": "MAF08 | Antifatigue (Relax) Claros + Filtro Luz Azul" },
+                                            { "id": 14, "codigo": "MLE09 | Monofocal Lenticular Claro" },
+                                            { "id": 15, "codigo": "MLT06 | Monofocal Lenticular + Transitions" },
+                                            { "id": 16, "codigo": "BFT2 | Bifocal Flap Top Claro Sencillo" },
+                                            { "id": 17, "codigo": "BFT3 | Bifocal Flap Top Claro + Filtro Luz Azul" },
+                                            { "id": 18, "codigo": "BFTF | Bifocal Flap Top + Fotocromático" },
+                                            { "id": 19, "codigo": "BFTA | Bifocal Flap Top + Fotocromático + Antirreflejo" },
+                                            { "id": 20, "codigo": "BFK01 | Bifocal Kriptop Claro Sencillo" },
+                                            { "id": 21, "codigo": "BKFA | Bifocal Kriptop + Filtro Luz Azul + Antirreflejo" },
+                                            { "id": 22, "codigo": "BKFA1 | Bifocal Kriptop + Filtro Luz Azul + Fotocromático + Antirreflejo" },
+                                            { "id": 23, "codigo": "BKL01 | Bifocal Kriptop Lenticular Claro" },
+                                            { "id": 24, "codigo": "BI001 | Bifocal Invisible Claro" },
+                                            { "id": 25, "codigo": "BIF01 | Bifocal Invisible + Filtro Luz Azul" },
+                                            { "id": 26, "codigo": "BIF02 | Bifocal Invisible + Fotocromático" },
+                                            { "id": 27, "codigo": "BIF03 | Bifocal Invisible + Fotocromático + Filtro Luz Azul" },
+                                            { "id": 28, "codigo": "BIAF1 | Bifocal Invisible + Fotocromático + Antirreflejo" },
+                                            { "id": 29, "codigo": "BBIF1 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) Claro" },
+                                            { "id": 30, "codigo": "BBIF2 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) + Fotocromático" },
+                                            { "id": 31, "codigo": "BTT01 | Trifocal Claro Sencillo (Solo vender a usuarios)" },
+                                            { "id": 32, "codigo": "CM01 | Control Miopia Claro Sencillo" },
+                                            { "id": 33, "codigo": "CM02 | Control Miopia + Filtro Luz Azul" },
+                                            { "id": 34, "codigo": "CM04 | Control Miopia + Transitions" },
+                                            { "id": 35, "codigo": "CM05 | Control Miopia THIN & LITE + Transitions" },
+                                            { "id": 36, "codigo": "CM06 | Control Miopia Polarizado (Lente Oscuro de Sol)" },
+                                            { "id": 37, "codigo": "MGSE | Multifocal Generico Claro Sencillo" },
+                                            { "id": 38, "codigo": "MGFL | Multifocal Generico + Filtro Luz Azul" },
+                                            { "id": 39, "codigo": "MFFT1 | Multifocal Solarmax + Fotocromatico" },
+                                            { "id": 40, "codigo": "MSFF | Multifocal Solarmax + Fotocromatico + Filtro Luz Azul" },
+                                            { "id": 41, "codigo": "MF01 | Multifocal 4NEW Claro sencillo (utilizar este código cuando lleva filtro terapéutico)" },
+                                            { "id": 42, "codigo": "MNTR | Multifocal 4NEW + Transition" },
+                                            { "id": 43, "codigo": "MFSS | Multifocal 4STARTER Sencillo" },
+                                            { "id": 44, "codigo": "MSTR | Multifocal 4STARTER + Transition" },
+                                            { "id": 45, "codigo": "MFPS | Multifocal Panorama Sencillo" },
+                                            { "id": 46, "codigo": "MPTR | Multifocal Panorama + Transition" },
+                                            { "id": 47, "codigo": "MFDS | Multifocal 4DIGILIFE Claro Sencillo" },
+                                            { "id": 48, "codigo": "MDTR | Multifocal 4DIGILIFE + Transition" },
+                                            { "id": 49, "codigo": "SP005 | Sobrepoder en Multifocal (ESF. +/- 8.50 CYL. +/- 3.00)" },
+                                            { "id": 50, "codigo": "PEM1 | Paquete económico monofocales claros sencillos" },
+                                            { "id": 51, "codigo": "PEML | Paquete económico Monofocal + Antirreflejo + Filtro Luz Azul" },
+                                            { "id": 52, "codigo": "PEBK2 | Paquete económico Bifocal Kriptop Claro Sencillo" },
+                                            { "id": 53, "codigo": "PEBT3 | Paquete económico Bifocal Flap Top Claro Sencillo" },
+                                            { "id": 54, "codigo": "PEBI4 | Paquete económico Bifocal Invisible Claro Sencillo" },
+                                            { "id": 55, "codigo": "PEMO5 | Paquete económico Multifocal Claro Sencillo" },
+                                            { "id": 56, "codigo": "FTP01 | Filtro Terapéutico" },
+                                            { "id": 57, "codigo": "FUV1 | Filtro Luz Azul (UV 400)" },
+                                            { "id": 58, "codigo": "PM02 | Prismas" },
+                                            { "id": 59, "codigo": "RT03 | Remover Tinte" },
+                                            { "id": 60, "codigo": "SP04 | Sobrepoder (ESF. +/- 6 CYL: -3.25) Aplica para monofocales y bifocales" },
+                                            { "id": 61, "codigo": "TT05 | Tinte" },
+                                            { "id": 62, "codigo": "MAA6 | Montaje aro al aire" },
+                                            { "id": 63, "codigo": "MA10 | Montaje de aro" },
+                                            { "id": 64, "codigo": "RAR7 | Remover antirreflejo" },
+                                            { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
+                                            { "id": 66, "codigo": "TRANS | Transition" },
+                                            { "id": 67, "codigo": "FOT | Fotocromático" }
+                                          ].map(servicio => ({
+                                            value: servicio.id,
+                                            label: servicio.codigo
+                                          }))}
+                                        >
+                                        </Select>
+                                        <div
+                                          style={{
+                                            // display: 'ruby',
+                                            marginTop: '10px',
+                                            marginBottom: '10px'
+                                          }}
+                                          onClick={() => {
+                                          }}
+                                        >
+                                          {
+                                            serviciosRealizados.map((servicio, index) => {
+                                              return (
+                                                <>
+                                                  <div
+                                                    style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                                  >
+                                                    {servicio.servicio} :
+                                                    {/* {
                                                       
                                                   isLeftEye
                                                   ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                   : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                 } */}
 
-                                              </div>
-                                              <div
-                                                style={{
-                                                  color: 'black',
-                                                  background: 'white',
-                                                  border: '1px solid gray',
-                                                  paddingTop: '5px',
-                                                  paddingBottom: '5px',
-                                                  paddingLeft: '10px',
-                                                  paddingRight: '10px',
-                                                  borderRadius: '20px',
-                                                  // display: 'flex',
-                                                  display: 'table-cell',
-                                                  marginRight: '5px',
-                                                  marginTop: '5px'
-                                                }}
-                                              >
-                                                {servicio.label}
-                                                <span
-                                                  style={{
-                                                    marginLeft: '5px',
-                                                    cursor: 'pointer'
-                                                  }}
-                                                  onClick={() => {
-                                                    // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
-                                                    setServiciosRealizados([])
-                                                  }}
-                                                >
-                                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                </span>
-                                              </div>
-                                            </>
-                                          )
-                                        })
-                                      }
+                                                  </div>
+                                                  <div
+                                                    style={{
+                                                      color: 'black',
+                                                      background: 'white',
+                                                      border: '1px solid gray',
+                                                      paddingTop: '5px',
+                                                      paddingBottom: '5px',
+                                                      paddingLeft: '10px',
+                                                      paddingRight: '10px',
+                                                      borderRadius: '20px',
+                                                      // display: 'flex',
+                                                      display: 'table-cell',
+                                                      marginRight: '5px',
+                                                      marginTop: '5px'
+                                                    }}
+                                                  >
+                                                    {servicio.label}
+                                                    <span
+                                                      style={{
+                                                        marginLeft: '5px',
+                                                        cursor: 'pointer'
+                                                      }}
+                                                      onClick={() => {
+                                                        // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                                        setServiciosRealizados([])
+                                                      }}
+                                                    >
+                                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                    </span>
+                                                  </div>
+                                                </>
+                                              )
+                                            })
+                                          }
 
-                                    </div>
-                                  </Col>
-                                  <Col xxl={8} xl={8} md={8}>
-                                    <h6
-                                      className="text-center p-2"
-                                      onClick={toggleEyeMaterial}
-                                      style={{
-                                        cursor: 'pointer',
-                                        color: isLeftEyeMaterial ? 'blue' : '#067231',
-                                      }}
-                                    >
-                                      {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                      MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO " : "OJO DERECHO"}
-                                      {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
-                                    </h6>
+                                        </div>
+                                      </Col>
+                                      <Col xxl={8} xl={8} md={8}>
+                                        <h6
+                                          className="text-center p-2"
+                                          onClick={toggleEyeMaterial}
+                                          style={{
+                                            cursor: 'pointer',
+                                            color: isLeftEyeMaterial ? 'blue' : '#067231',
+                                          }}
+                                        >
+                                          {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                          MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO " : "OJO DERECHO"}
+                                          {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                        </h6>
 
-                                    <Select
-                                      showSearch
-                                      value={null}
-                                      style={{
-                                        width: '100%', color: 'transparent',
-                                        background: 'white !important'
-                                      }}
-                                      optionFilterProp="label"
-                                      onChange={handleSelectChangeMaterial}
-                                      // onChange={(value, val) => {
-                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                        <Select
+                                          showSearch
+                                          value={null}
+                                          style={{
+                                            width: '100%', color: 'transparent',
+                                            background: 'white !important'
+                                          }}
+                                          optionFilterProp="label"
+                                          onChange={handleSelectChangeMaterial}
+                                          // onChange={(value, val) => {
+                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                      //   if (materialesSeleccionados.length < 2) {
-                                      //     materialesSeleccionados.push(val)
-                                      //     setMaterialesSeleccionados([...materialesSeleccionados])
-                                      //   }
-                                      // }}
-                                      options={[
-                                        { id: 1, codigo: "CR-39" },
-                                        { id: 2, codigo: "Policarbonato" },
-                                        { id: 3, codigo: "THIN & LITE" },
-                                        { id: 4, codigo: "SUPER THIN & LITE" },
-                                        { id: 5, codigo: "DRIVEWEAR" },
-                                        { id: 6, codigo: "POLIRIZADO" },
-                                        { id: 7, codigo: "POLICOLOR" },
-                                      ].map(servicio => ({
-                                        value: servicio.id,
-                                        label: servicio.codigo
-                                      }))}
-                                    >
-                                    </Select>
-                                    <div
-                                      style={{
-                                        // display: 'ruby',
-                                        marginTop: '10px',
-                                        marginBottom: '10px'
-                                      }}
-                                      onClick={() => {
-                                      }}
-                                    >
-                                      {
-                                        materialesSeleccionados.map((servicio, index) => {
-                                          return (
-                                            <>
-                                              <div
-                                                style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
-                                              >
-                                                {servicio.servicio} :
-                                                {/* {
+                                          //   if (materialesSeleccionados.length < 2) {
+                                          //     materialesSeleccionados.push(val)
+                                          //     setMaterialesSeleccionados([...materialesSeleccionados])
+                                          //   }
+                                          // }}
+                                          options={[
+                                            { id: 1, codigo: "CR-39" },
+                                            { id: 2, codigo: "Policarbonato" },
+                                            { id: 3, codigo: "THIN & LITE" },
+                                            { id: 4, codigo: "SUPER THIN & LITE" },
+                                            { id: 5, codigo: "DRIVEWEAR" },
+                                            { id: 6, codigo: "POLIRIZADO" },
+                                            { id: 7, codigo: "POLICOLOR" },
+                                          ].map(servicio => ({
+                                            value: servicio.id,
+                                            label: servicio.codigo
+                                          }))}
+                                        >
+                                        </Select>
+                                        <div
+                                          style={{
+                                            // display: 'ruby',
+                                            marginTop: '10px',
+                                            marginBottom: '10px'
+                                          }}
+                                          onClick={() => {
+                                          }}
+                                        >
+                                          {
+                                            materialesSeleccionados.map((servicio, index) => {
+                                              return (
+                                                <>
+                                                  <div
+                                                    style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                                  >
+                                                    {servicio.servicio} :
+                                                    {/* {
                                                    isLeftEyeMaterial
                                                    ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                    : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                 } */}
 
-                                              </div>
-                                              <div
-                                                style={{
-                                                  color: 'black',
-                                                  background: 'white',
-                                                  border: '1px solid gray',
-                                                  paddingTop: '5px',
-                                                  paddingBottom: '5px',
-                                                  paddingLeft: '10px',
-                                                  paddingRight: '10px',
-                                                  borderRadius: '20px',
-                                                  // display: 'flex',
-                                                  display: 'table-cell',
-                                                  marginRight: '5px',
-                                                  marginTop: '5px'
-                                                }}
-                                              >
-                                                {servicio.label}
-                                                <span
-                                                  style={{
-                                                    marginLeft: '5px',
-                                                    cursor: 'pointer'
-                                                  }}
-                                                  onClick={() => {
-                                                    // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
-                                                    setMaterialesSeleccionados([])
-                                                  }}
-                                                >
-                                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                </span>
-                                              </div>
-                                            </>
-                                          )
-                                        })
-                                      }
+                                                  </div>
+                                                  <div
+                                                    style={{
+                                                      color: 'black',
+                                                      background: 'white',
+                                                      border: '1px solid gray',
+                                                      paddingTop: '5px',
+                                                      paddingBottom: '5px',
+                                                      paddingLeft: '10px',
+                                                      paddingRight: '10px',
+                                                      borderRadius: '20px',
+                                                      // display: 'flex',
+                                                      display: 'table-cell',
+                                                      marginRight: '5px',
+                                                      marginTop: '5px'
+                                                    }}
+                                                  >
+                                                    {servicio.label}
+                                                    <span
+                                                      style={{
+                                                        marginLeft: '5px',
+                                                        cursor: 'pointer'
+                                                      }}
+                                                      onClick={() => {
+                                                        // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
+                                                        setMaterialesSeleccionados([])
+                                                      }}
+                                                    >
+                                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                    </span>
+                                                  </div>
+                                                </>
+                                              )
+                                            })
+                                          }
 
-                                    </div>
-                                  </Col>
-                                  <Col xxl={8} xl={8} md={8}>
-                                    <h6
-                                      className="text-center p-2"
-                                      onClick={toggleEyeTratamientos}
-                                      style={{
-                                        cursor: 'pointer',
-                                        color: isLeftEyeTratamientos ? 'blue' : '#067231',
-                                      }}
-                                    >
-                                      {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                      TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
-                                      {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
-                                    </h6>
-                                    <Select
-                                      showSearch
-                                      value={null}
-                                      style={{
-                                        width: '100%', color: 'transparent',
-                                        background: 'white !important'
-                                      }}
-                                      optionFilterProp="label"
-                                      onChange={handleSelectChangeTratamientos}
-                                      // onChange={(value, val) => {
-                                      //   // setFieldValue('servicios_realizados_historias_clinicas', value);
+                                        </div>
+                                      </Col>
+                                      <Col xxl={8} xl={8} md={8}>
+                                        <h6
+                                          className="text-center p-2"
+                                          onClick={toggleEyeTratamientos}
+                                          style={{
+                                            cursor: 'pointer',
+                                            color: isLeftEyeTratamientos ? 'blue' : '#067231',
+                                          }}
+                                        >
+                                          {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                          TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                          {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                        </h6>
+                                        <Select
+                                          showSearch
+                                          value={null}
+                                          style={{
+                                            width: '100%', color: 'transparent',
+                                            background: 'white !important'
+                                          }}
+                                          optionFilterProp="label"
+                                          onChange={handleSelectChangeTratamientos}
+                                          // onChange={(value, val) => {
+                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
 
-                                      //   if (tratamientosFiltros.length < 2) {
-                                      //     tratamientosFiltros.push(val)
-                                      //     setTratamientosFiltros([...tratamientosFiltros])
-                                      //   }
-                                      //   // setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
-                                      // }}
-                                      options={[
-                                        { id: 1, codigo: "Transitions" },
-                                        { id: 2, codigo: "Antireflejo" },
-                                        { id: 3, codigo: "Espejado" },
-                                        { id: 4, codigo: "Degradante" },
-                                        { id: 5, codigo: "Color" },
-                                        { id: 6, codigo: "Fotocramático" },
-                                        { id: 7, codigo: "UV" },
-                                        { id: 8, codigo: "Tinte" },
-                                        { id: 9, codigo: "Uniforme" },
-                                        { id: 10, codigo: "Intensidad" },
-                                      ].map(servicio => ({
-                                        value: servicio.id,
-                                        label: servicio.codigo
-                                      }))}
-                                    >
-                                    </Select>
-                                    <div
-                                      style={{
-                                        // display: 'ruby',
-                                        marginTop: '10px',
-                                        marginBottom: '10px'
-                                      }}
-                                      onClick={() => {
-                                      }}
-                                    >
-                                      {
-                                        tratamientosFiltros.map((servicio, index) => {
-                                          return (
-                                            <>
-                                              <div
-                                                style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
-                                              >
-                                                {servicio.servicio} :
-                                                {/* {
+                                          //   if (tratamientosFiltros.length < 2) {
+                                          //     tratamientosFiltros.push(val)
+                                          //     setTratamientosFiltros([...tratamientosFiltros])
+                                          //   }
+                                          //   // setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+                                          // }}
+                                          options={[
+                                            { id: 1, codigo: "Transitions" },
+                                            { id: 2, codigo: "Antireflejo" },
+                                            { id: 3, codigo: "Espejado" },
+                                            { id: 4, codigo: "Degradante" },
+                                            { id: 5, codigo: "Color" },
+                                            { id: 6, codigo: "Fotocramático" },
+                                            { id: 7, codigo: "UV" },
+                                            { id: 8, codigo: "Tinte" },
+                                            { id: 9, codigo: "Uniforme" },
+                                            { id: 10, codigo: "Intensidad" },
+                                          ].map(servicio => ({
+                                            value: servicio.id,
+                                            label: servicio.codigo
+                                          }))}
+                                        >
+                                        </Select>
+                                        <div
+                                          style={{
+                                            // display: 'ruby',
+                                            marginTop: '10px',
+                                            marginBottom: '10px'
+                                          }}
+                                          onClick={() => {
+                                          }}
+                                        >
+                                          {
+                                            tratamientosFiltros.map((servicio, index) => {
+                                              return (
+                                                <>
+                                                  <div
+                                                    style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                                  >
+                                                    {servicio.servicio} :
+                                                    {/* {
                                                    isLeftEyeTratamientos
                                                    ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                    : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                 } */}
-                                                {/* {
+                                                    {/* {
                                                   index == 0
                                                     ? "Ojo Derecho:"
                                                     : "Ojo Izquierdo:"
                                                 } */}
 
-                                              </div>
-                                              <div
-                                                style={{
-                                                  color: 'black',
-                                                  background: 'white',
-                                                  border: '1px solid gray',
-                                                  paddingTop: '5px',
-                                                  paddingBottom: '5px',
-                                                  paddingLeft: '10px',
-                                                  paddingRight: '10px',
-                                                  borderRadius: '20px',
-                                                  // display: 'flex',
-                                                  display: 'table-cell',
-                                                  marginRight: '5px',
-                                                  marginTop: '5px'
-                                                }}
-                                              >
-                                                {servicio.label}
-                                                <span
-                                                  style={{
-                                                    marginLeft: '5px',
-                                                    cursor: 'pointer'
-                                                  }}
-                                                  onClick={() => {
-                                                    // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
-                                                    setTratamientosFiltros([])
-                                                  }}
-                                                >
-                                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                </span>
-                                              </div>
-                                            </>
-                                          )
-                                        })
-                                      }
+                                                  </div>
+                                                  <div
+                                                    style={{
+                                                      color: 'black',
+                                                      background: 'white',
+                                                      border: '1px solid gray',
+                                                      paddingTop: '5px',
+                                                      paddingBottom: '5px',
+                                                      paddingLeft: '10px',
+                                                      paddingRight: '10px',
+                                                      borderRadius: '20px',
+                                                      // display: 'flex',
+                                                      display: 'table-cell',
+                                                      marginRight: '5px',
+                                                      marginTop: '5px'
+                                                    }}
+                                                  >
+                                                    {servicio.label}
+                                                    <span
+                                                      style={{
+                                                        marginLeft: '5px',
+                                                        cursor: 'pointer'
+                                                      }}
+                                                      onClick={() => {
+                                                        // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
+                                                        setTratamientosFiltros([])
+                                                      }}
+                                                    >
+                                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                    </span>
+                                                  </div>
+                                                </>
+                                              )
+                                            })
+                                          }
 
-                                    </div>
-                                  </Col>
-                                </Row>
-                                 )}
-                                
-                                {/* <div className="row p-1">
+                                        </div>
+                                      </Col>
+                                    </Row>
+
+                                    {/* <div className="row p-1">
                                   <div className="col-md-2">
                                     <h6 className="text-center p-2">
                                       TIPO DE LENTE:
@@ -1205,7 +1206,10 @@ const CreateOrden = () => {
                                     </div>
                                   </div>
                                 </div> */}
-                              </div>
+                                  </div>
+                                )
+                              }
+
 
                               {/* <div
                                 className="p-2"
@@ -1586,89 +1590,89 @@ const CreateOrden = () => {
                                         </div>
                                       </Col>
 
-                                       {isAroVisible && (
-                                      <Col xxl={5} xl={5} md={5}>
-                                        <div>
-                                          <label className="new-control new-radio radio-classic-primary">
-                                            <b>ARO CENTEVI</b>
-                                            {/* <Checkbox
+                                      {isAroVisible && (
+                                        <Col xxl={5} xl={5} md={5}>
+                                          <div>
+                                            <label className="new-control new-radio radio-classic-primary">
+                                              <b>ARO CENTEVI</b>
+                                              {/* <Checkbox
                                               className="new-control-input"
                                             >
 
                                             </Checkbox> */}
-                                            <Field
-                                              className="new-control-input"
-                                              checked={aroCentevi}
-                                              type="radio"
-                                              name="aro_centevi"
-                                              onChange={() => {
-                                                setAroCentevi(true)
-                                              }
-                                              }
-                                            />
-                                            <span className="new-control-indicator" />
-                                          </label>
-                                        </div>
-                                      </Col>
-                                      )}
-                                       {isAroVisible && (
-                                      <Col xxl={5} xl={5} md={5}>
-                                        <div>
-                                          <label className="new-control new-radio radio-classic-primary">
-                                            <b>ARO PROPIO</b>
-                                            <Field
-                                              className="new-control-input"
-                                              checked={!aroCentevi}
-                                              type="radio"
-                                              onChange={() => setAroCentevi(false)}
-                                            />
-                                            <span className="new-control-indicator" />
-                                          </label>
-                                        </div>
-                                      </Col>
+                                              <Field
+                                                className="new-control-input"
+                                                checked={aroCentevi}
+                                                type="radio"
+                                                name="aro_centevi"
+                                                onChange={() => {
+                                                  setAroCentevi(true)
+                                                }
+                                                }
+                                              />
+                                              <span className="new-control-indicator" />
+                                            </label>
+                                          </div>
+                                        </Col>
                                       )}
                                       {isAroVisible && (
-                                      <Col xxl={5} xl={5} md={5}>
-                                        <div
-                                          style={{
-                                            // display: 'flex'
-                                          }}
-                                        >
-                                          <div style={{ marginTop: '-15px' }}>
-                                            <b>CÓDIGO</b>
+                                        <Col xxl={5} xl={5} md={5}>
+                                          <div>
+                                            <label className="new-control new-radio radio-classic-primary">
+                                              <b>ARO PROPIO</b>
+                                              <Field
+                                                className="new-control-input"
+                                                checked={!aroCentevi}
+                                                type="radio"
+                                                onChange={() => setAroCentevi(false)}
+                                              />
+                                              <span className="new-control-indicator" />
+                                            </label>
                                           </div>
-                                          <Field
-                                            className="form-control"
-                                            name="codigo"
-                                            style={{
-                                              marginLeft: '0px', height: '30px',
-                                              width: '100%'
-                                            }}
-                                            as="input"
-                                            disabled={!aroCentevi}
-                                          />
-                                        </div>
-                                      </Col>
-                                       )}
-                                       
-                                      <Col xxl={9} xl={9} md={9}>
+                                        </Col>
+                                      )}
                                       {isAroVisible && (
-                                        <div
-                                          style={{
-                                            // display: 'flex'
-                                          }}
-                                        >
-                                          <div style={{ marginTop: '-68px' }}>
-                                            <b>COLOR*</b>
-                                          </div>
-                                          <Field
-                                            className="form-control"
-                                            name="color"
+                                        <Col xxl={5} xl={5} md={5}>
+                                          <div
                                             style={{
-                                              marginLeft: '0px', height: '30px'
+                                              // display: 'flex'
                                             }}
-                                          />
-                                        </div>
+                                          >
+                                            <div style={{ marginTop: '-15px' }}>
+                                              <b>CÓDIGO</b>
+                                            </div>
+                                            <Field
+                                              className="form-control"
+                                              name="codigo"
+                                              style={{
+                                                marginLeft: '0px', height: '30px',
+                                                width: '100%'
+                                              }}
+                                              as="input"
+                                              disabled={!aroCentevi}
+                                            />
+                                          </div>
+                                        </Col>
+                                      )}
+
+                                      <Col xxl={isRowVisible ? 9 : 12} xl={isRowVisible ? 9 : 12} md={isRowVisible ? 9 : 12}>
+                                        {isAroVisible && (
+                                          <div
+                                            style={{
+                                              // display: 'flex'
+                                            }}
+                                          >
+                                            <div style={{ marginTop: '-68px' }}>
+                                              <b>COLOR*</b>
+                                            </div>
+                                            <Field
+                                              className="form-control"
+                                              name="color"
+                                              style={{
+                                                marginLeft: '0px', height: '30px'
+                                              }}
+                                            />
+                                          </div>
                                         )}
                                         <div
                                           style={{
@@ -1687,7 +1691,7 @@ const CreateOrden = () => {
                                           />
                                         </div>
                                       </Col>
-                                      
+
                                       <Col xxl={24} xl={24} md={24}>
                                         <Row
                                           gutter={[16, 16]}
@@ -1785,15 +1789,15 @@ const CreateOrden = () => {
                                                   </label>
                                                 </div>
                                               </Col> */}
-                                             {isAroVisible && (
-                                              <Col xxl={24} xl={24} md={24}>
-                                                <div
-                                                  style={{
-                                                    // display: 'flex'
-                                                    marginBottom: '10px'
-                                                  }}
-                                                >
-                                                  {/* <label className="new-control new-radio radio-classic-primary">
+                                              {isAroVisible && (
+                                                <Col xxl={24} xl={24} md={24}>
+                                                  <div
+                                                    style={{
+                                                      // display: 'flex'
+                                                      marginBottom: '10px'
+                                                    }}
+                                                  >
+                                                    {/* <label className="new-control new-radio radio-classic-primary">
                                                     <b>MARCA</b>
                                                     <Field
                                                       className="new-control-input"
@@ -1804,31 +1808,31 @@ const CreateOrden = () => {
                                                     <span className="new-control-indicator" />
                                                   </label> */}
 
-                                                  {/* <Input /> */}
-                                                  <b>TIPO DE ARO*:</b>
-                                                  <Select
-                                                    showSearch
-                                                    placeholder="Selecciona el tipo de aro"
-                                                    value={tipoAro}
-                                                    options={tipoAroOptions}
-                                                    style={{
-                                                      width: "100%",
-                                                      height: "40px",
-                                                      color: "black",
-                                                      fontWeight: "bold",
-                                                    }}
-                                                    onChange={(value) => {
-                                                      const selectedOption = tipoAroOptions.find(option => option.value === value);
-                                                      if (selectedOption) {
-                                                        setTipoAro(selectedOption.label);
-                                                        setFieldValue("tipo_aro", selectedOption.label);
-                                                      }
-                                                    }}
-                                                  />
-                                                  <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
-                                                </div>
-                                              </Col>
-                                            )}
+                                                    {/* <Input /> */}
+                                                    <b>TIPO DE ARO*:</b>
+                                                    <Select
+                                                      showSearch
+                                                      placeholder="Selecciona el tipo de aro"
+                                                      value={tipoAro}
+                                                      options={tipoAroOptions}
+                                                      style={{
+                                                        width: "100%",
+                                                        height: "40px",
+                                                        color: "black",
+                                                        fontWeight: "bold",
+                                                      }}
+                                                      onChange={(value) => {
+                                                        const selectedOption = tipoAroOptions.find(option => option.value === value);
+                                                        if (selectedOption) {
+                                                          setTipoAro(selectedOption.label);
+                                                          setFieldValue("tipo_aro", selectedOption.label);
+                                                        }
+                                                      }}
+                                                    />
+                                                    <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
+                                                  </div>
+                                                </Col>
+                                              )}
                                               <Col xxl={24} xl={24} md={24}>
                                                 <div
                                                 >
@@ -1887,121 +1891,121 @@ const CreateOrden = () => {
                                       </Col>
                                     </Row>
                                   </Col>
-                            {isImageVisible && (
-                                  <Col
-                                    xxl={10} xl={10} md={10}
-                                    style={{
-                                      alignContent: "center",
-                                      position: 'relative'
-                                    }}
-                                  >
-                                    <div
+                                  {isImageVisible && (
+                                    <Col
+                                      xxl={10} xl={10} md={10}
                                       style={{
-                                        width: '470px',
-                                        height: '470px',
-                                        // alignContent: "center",
+                                        alignContent: "center",
+                                        position: 'relative'
                                       }}
                                     >
-                                      <img
-                                        src="assets/img/recetas/lentessinbarilla.png"
-                                        style={{
-                                          width: "120%",
-                                          // height: "80px"
-                                        }}
-                                      />
                                       <div
                                         style={{
-                                          position: 'absolute',
-                                          top: '208px',
-                                          width: '70px',
-                                          border: '1px solid red',
-                                          left: '29px'
+                                          width: '470px',
+                                          height: '470px',
+                                          // alignContent: "center",
                                         }}
                                       >
-                                        <Field
-                                          name='l_uno'
+                                        <img
+                                          src="assets/img/recetas/lentessinbarilla.png"
                                           style={{
-                                            width: '68px'
+                                            width: "120%",
+                                            // height: "80px"
                                           }}
                                         />
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            top: '208px',
+                                            width: '70px',
+                                            border: '1px solid red',
+                                            left: '29px'
+                                          }}
+                                        >
+                                          <Field
+                                            name='l_uno'
+                                            style={{
+                                              width: '68px'
+                                            }}
+                                          />
+                                        </div>
+
+
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            top: '128px',
+                                            width: '70px',
+                                            border: '1px solid red',
+                                            left: '147px'
+                                          }}
+                                        >
+                                          <Field
+                                            name='l_dos'
+                                            style={{
+                                              width: '68px'
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            top: '169px',
+                                            width: '70px',
+                                            border: '1px solid red',
+                                            left: '261px'
+                                          }}
+                                        >
+                                          <Field
+                                            name='l_tres'
+                                            style={{
+                                              width: '68px'
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            top: '288px',
+                                            width: '70px',
+                                            border: '1px solid red',
+                                            left: '155px'
+                                          }}
+                                        >
+                                          <Field
+                                            name='l_cuatro'
+                                            style={{
+                                              width: '68px'
+                                            }}
+                                          />
+                                        </div>
+
+                                        <div
+                                          style={{
+                                            position: 'absolute',
+                                            top: '205px',
+                                            width: '70px',
+                                            border: '1px solid red',
+                                            left: '374px'
+                                          }}
+                                        >
+                                          <Field
+                                            name='l_cinco'
+                                            style={{
+                                              width: '68px'
+                                            }}
+                                          />
+                                        </div>
+
                                       </div>
 
 
-                                      <div
-                                        style={{
-                                          position: 'absolute',
-                                          top: '128px',
-                                          width: '70px',
-                                          border: '1px solid red',
-                                          left: '147px'
-                                        }}
-                                      >
-                                        <Field
-                                          name='l_dos'
-                                          style={{
-                                            width: '68px'
-                                          }}
-                                        />
-                                      </div>
-
-                                      <div
-                                        style={{
-                                          position: 'absolute',
-                                          top: '169px',
-                                          width: '70px',
-                                          border: '1px solid red',
-                                          left: '261px'
-                                        }}
-                                      >
-                                        <Field
-                                          name='l_tres'
-                                          style={{
-                                            width: '68px'
-                                          }}
-                                        />
-                                      </div>
-
-                                      <div
-                                        style={{
-                                          position: 'absolute',
-                                          top: '288px',
-                                          width: '70px',
-                                          border: '1px solid red',
-                                          left: '155px'
-                                        }}
-                                      >
-                                        <Field
-                                          name='l_cuatro'
-                                          style={{
-                                            width: '68px'
-                                          }}
-                                        />
-                                      </div>
-
-                                      <div
-                                        style={{
-                                          position: 'absolute',
-                                          top: '205px',
-                                          width: '70px',
-                                          border: '1px solid red',
-                                          left: '374px'
-                                        }}
-                                      >
-                                        <Field
-                                          name='l_cinco'
-                                          style={{
-                                            width: '68px'
-                                          }}
-                                        />
-                                      </div>
-
-                                    </div>
-
-
-                                  </Col>
-                                    )}
+                                    </Col>
+                                  )}
                                 </Row>
-                                
+
                               </div>
 
 
