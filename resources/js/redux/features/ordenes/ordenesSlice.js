@@ -10,6 +10,8 @@ export const fecthOrdenes = createAsyncThunk(
     sortOrder = 'desc', 
     sortColumn = 'created_at',
     search = '', 
+    status = '', 
+    lenteContacto = ''
   }) => {
     const response = await axios.get(`${API}/ordenes`, {
       params: { 
@@ -17,7 +19,9 @@ export const fecthOrdenes = createAsyncThunk(
         limit, 
         sortOrder, 
         sortColumn,
-        search
+        search,
+        status,     
+        lenteContacto 
       }
     });
     return response.data;

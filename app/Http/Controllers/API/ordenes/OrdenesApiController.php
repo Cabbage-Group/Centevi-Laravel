@@ -20,6 +20,8 @@ class OrdenesApiController extends Controller
     $sortColumn = $request->input('sortColumn', 'created_at');
     $sortOrder = $request->input('sortOrder', 'asc');
     $search = $request->input('search', '');
+    $lenteContacto = $request->input('lenteContacto', '');
+    $status = $request->input('status', '');
 
     // Asegurarse de que se puede ordenar por created_at
     $validSortColumns = ['id_orden', 'created_at']; // Puedes agregar más columnas si es necesario
@@ -119,7 +121,6 @@ class OrdenesApiController extends Controller
                 ->orWhere('pacientes.nombres', 'like', "%{$search}%")
                 ->orWhere('pacientes.celular', 'like', "%{$search}%")
                 ->orWhere('primeras_fases.status_primera_fase', 'like', "%{$search}%")
-                ->orWhere('ordenes.created_at', 'like', "%{$search}%")
                 ->orWhere('primeras_fases.laboratorio_primera_fase', 'like', "%{$search}%")
                 ->orWhereRaw("CASE 
                 WHEN ultimas_fases.fase_actual IS NULL THEN 'Nuevo'
@@ -128,6 +129,35 @@ class OrdenesApiController extends Controller
                 
         });
     }
+
+    if ($lenteContacto !== '') {
+      // Convert to boolean for strict comparison
+      $lenteContactoValue = filter_var($lenteContacto, FILTER_VALIDATE_BOOLEAN);
+      
+      if ($lenteContacto === '1' || $lenteContacto === true) {
+          // Only show lente de contacto orders
+          $ordenes->where('ordenes.lente_contacto', true);
+      } elseif ($lenteContacto === '0' || $lenteContacto === false) {
+          // Only show non-lente de contacto orders
+          $ordenes->where('ordenes.lente_contacto', false);
+      }
+      // If empty string, show all orders (no filter applied)
+  }
+
+  if ($status !== '') {
+    // Validate status input
+    $validStatuses = ['Ok', 'Advertencia', 'Critico', 'null'];
+    
+    if (in_array($status, $validStatuses)) {
+        if ($status === 'null') {
+            // When status is 'null', filter for orders without a status
+            $ordenes->whereNull('primeras_fases.status_primera_fase');
+        } else {
+            // Filter for specific status
+            $ordenes->where('primeras_fases.status_primera_fase', $status);
+        }
+    }
+}
  
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
