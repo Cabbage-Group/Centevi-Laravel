@@ -23,14 +23,20 @@ const EditOrden = ({ fecha_solicitud }) => {
   const location = useLocation();
   const { orderId } = useParams();
   const { orden } = location.state || {};
+  const { pacienteOrden } = location.state || {};
+
+  // if (!pacienteOrden) {
+  //   return <p>No hay datos disponibles para editar.</p>;
+  // }
 
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal);
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal || pacienteOrden?.id_sucursal);
   const [telefono, setTelefono] = useState('');
+  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
   const [cedula, setCedula] = useState('');
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
@@ -39,9 +45,12 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [isRowVisible, setIsRowVisible] = useState(true);
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
+  const [nombrePaciente, setNombrePaciente] = useState('');
 
+
+  console.log('selectedPaciente',selectedPaciente)
   useEffect(() => {
-    if (orden.lente_contacto) {
+    if (orden?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
@@ -49,49 +58,55 @@ const EditOrden = ({ fecha_solicitud }) => {
     }
   }, [orden]);
 
+  const generateWhatsAppLink = () => {
+    const telefonoFormateado = telefono.replace(/\D/g, '');
+    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+  };
+
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
     setIsLeftEye(hasRightEye);
   }, [serviciosRealizados]);
 
   const initialValues = {
-    nro_orden: orden?.nro_orden,
-    id_paciente: orden?.id_paciente,
-    id_sucursal: orden?.id_sucursal,
-    esfera_od: orden?.esfera_od,
-    esfera_oi: orden?.esfera_oi,
-    cilindro_od: orden?.cilindro_od,
-    cilindro_oi: orden?.cilindro_oi,
-    eje_od: orden?.eje_od,
-    eje_oi: orden?.eje_oi,
-    add_od: orden?.add_od,
-    add_oi: orden?.add_oi,
-    prisma_od: orden?.prisma_od,
-    prisma_oi: orden?.prisma_oi,
-    distancia_od: orden?.distancia_od,
-    distancia_oi: orden?.distancia_oi,
-    altura_od: orden?.altura_od,
-    altura_oi: orden?.altura_oi,
-    tipo_cristal_od: orden?.tipo_cristal_od,
-    tipo_cristal_oi: orden?.tipo_cristal_oi,
-    material_od: orden?.material_od,
-    material_oi: orden?.material_oi,
-    tratamientos_od: orden?.tratamientos_od,
-    tratamientos_oi: orden?.tratamientos_oi,
-    aro_centevi: orden?.aro_centevi,
-    aro_propio: orden?.aro_propio,
-    codigo: orden?.codigo,
-    color: orden?.color,
-    marca: orden?.marca,
-    tipo_aro: orden?.tipo_aro,
-    observaciones: orden?.observaciones,
-    doctor: orden?.doctor,
-    l_uno: orden?.l_uno,
-    l_dos: orden?.l_dos,
-    l_tres: orden?.l_tres,
-    l_cuatro: orden?.l_cuatro,
-    l_cinco: orden?.l_cinco,
-    isRowVisible: isAroVisible,
+    nro_orden: orden?.nro_orden || pacienteOrden ?.nro_orden,
+    id_paciente: orden?.id_paciente || pacienteOrden?.id_paciente,
+    id_sucursal: orden?.id_sucursal || pacienteOrden?.id_sucursal,
+    esfera_od: orden?.esfera_od || pacienteOrden?.esfera_od,
+    esfera_oi: orden?.esfera_oi || pacienteOrden?.esfera_oi,
+    cilindro_od: orden?.cilindro_od || pacienteOrden?.cilindro_od,
+    cilindro_oi: orden?.cilindro_oi || pacienteOrden?.cilindro_oi,
+    eje_od: orden?.eje_od || pacienteOrden?.eje_od,
+    eje_oi: orden?.eje_oi || pacienteOrden?.eje_oi,
+    add_od: orden?.add_od || pacienteOrden?.add_od,
+    add_oi: orden?.add_oi || pacienteOrden?.add_oi,
+    prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
+    prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
+    distancia_od: orden?.distancia_od || pacienteOrden?.distancia_od,
+    distancia_oi: orden?.distancia_oi || pacienteOrden?.distancia_oi,
+    altura_od: orden?.altura_od || pacienteOrden?.altura_od,
+    altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
+    tipo_cristal_od: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
+    tipo_cristal_oi: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
+    material_od: orden?.material_od || pacienteOrden?.material_od,
+    material_oi: orden?.material_oi || pacienteOrden?.material_oi,
+    tratamientos_od: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
+    tratamientos_oi: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
+    aro_centevi: orden?.aro_centevi || pacienteOrden?.aro_centevi,
+    aro_propio: orden?.aro_propio || pacienteOrden?.aro_propio,
+    codigo: orden?.codigo || pacienteOrden?.codigo,
+    color: orden?.color || pacienteOrden?.color,
+    marca: orden?.marca || pacienteOrden?.marca,
+    tipo_aro: orden?.tipo_aro || pacienteOrden?.tipo_aro,
+    observaciones: orden?.observaciones || pacienteOrden?.observaciones,
+    doctor: orden?.doctor || pacienteOrden?.doctor,
+    l_uno: orden?.l_uno || pacienteOrden?.l_uno,
+    l_dos: orden?.l_dos || pacienteOrden?.l_dos,
+    l_tres: orden?.l_tres || pacienteOrden?.l_tres,
+    l_cuatro: orden?.l_cuatro || pacienteOrden?.l_cuatro,
+    l_cinco: orden?.l_cinco || pacienteOrden?.l_cinco,
+    isRowVisible: isAroVisible ,
   };
 
   const tipoAroOptions = [
@@ -134,20 +149,38 @@ const EditOrden = ({ fecha_solicitud }) => {
   });
 
   const [serviciosRealizados, setServiciosRealizados] = useState([
-    orden.tipo_cristal_od ? { value: orden.tipo_cristal_od, label: orden.tipo_cristal_od, ojo: "Ojo Derecho" } : null,
-    orden.tipo_cristal_oi ? { value: orden.tipo_cristal_oi, label: orden.tipo_cristal_oi, ojo: "Ojo Izquierdo" } : null,
+    orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od ? { 
+      value: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od, 
+      label: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od, 
+      ojo: "Ojo Derecho" } : null,
+    orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi ? { 
+      value: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi, 
+      label: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi, 
+      ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden.material_od ? { value: orden.material_od, label: orden.material_od, ojo: "Ojo Derecho" } : null,
-    orden.material_oi ? { value: orden.material_oi, label: orden.material_oi, ojo: "Ojo Izquierdo" } : null,
+    orden?.material_od || pacienteOrden?.material_od ?{ 
+      value: orden?.material_od || pacienteOrden?.material_od, 
+      label: orden?.material_od || pacienteOrden?.material_od, 
+      ojo: "Ojo Derecho" } : null,
+    orden?.material_oi || pacienteOrden?.material_oi ? { 
+      value: orden?.material_oi || pacienteOrden?.material_oi, 
+      label: orden?.material_oi || pacienteOrden?.material_oi, 
+      ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    orden.tratamientos_od ? { value: orden.tratamientos_od, label: orden.tratamientos_od, ojo: "Ojo Derecho" } : null,
-    orden.tratamientos_oi ? { value: orden.tratamientos_oi, label: orden.tratamientos_oi, ojo: "Ojo Izquierdo" } : null,
+    orden?.tratamientos_od || pacienteOrden?.tratamientos_od? { 
+      value: orden?.tratamientos_od || pacienteOrden?.tratamientos_od, 
+      label: orden?.tratamientos_od || pacienteOrden?.tratamientos_od, 
+      ojo: "Ojo Derecho" } : null,
+    orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi ? { 
+      value: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi, 
+      label: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi, 
+      ojo: "Ojo Izquierdo" } : null,
   ].filter(Boolean));
   const [aroCentevi, setAroCentevi] = useState(false);
-  const [tipoAro, setTipoAro] = useState(orden.tipo_aro);
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden.doctor)
+  const [tipoAro, setTipoAro] = useState(orden?.tipo_aro || pacienteOrden?.tipo_aro);
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden?.doctor || pacienteOrden?.doctor)
 
   const toggleEye = () => {
     setIsLeftEye(!isLeftEye);
@@ -224,10 +257,10 @@ const EditOrden = ({ fecha_solicitud }) => {
   };
 
   useEffect(() => {
-    if (orden?.aro_centevi !== undefined) {
-      setAroCentevi(orden.aro_centevi === 1);
+    if (orden?.aro_centevi !== undefined || pacienteOrden?.aro_centevi !== undefined) {
+      setAroCentevi(orden?.aro_centevi === 1 || pacienteOrden?.aro_centevi === 1);
     }
-  }, [orden]);
+  }, [orden,pacienteOrden]);
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -235,9 +268,11 @@ const EditOrden = ({ fecha_solicitud }) => {
       const pacienteSeleccionado = pacientes.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
+      console.log('pacienteSeleccionado:',pacienteSeleccionado)
       if (pacienteSeleccionado) {
         setTelefono(pacienteSeleccionado.celular || '');
         setCedula(pacienteSeleccionado.nro_cedula || '');
+        setNombrePaciente(pacienteSeleccionado?.nombres || '');
       } else {
         setTelefono('');
         setCedula('');
@@ -248,6 +283,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     }
   }, [selectedPaciente, pacientes]);
 
+  console.log('nombre:',nombrePaciente)
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
@@ -425,6 +461,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             console.log('isRowVisible:',isRowVisible)
                                             console.log('lenteContacto:',lenteContacto)
                                             console.log('ordenes:',orden)
+                                            console.log('pacienteOrden:',pacienteOrden)
                                           }}>
                                           Aqui
                                         </Button> */}
@@ -441,6 +478,12 @@ const EditOrden = ({ fecha_solicitud }) => {
                         }}>
                           Aqui
                         </Button> */}
+                        <Button
+                          onClick={() => window.open(generateWhatsAppLink(), '_blank')}
+                          disabled={!telefono}
+                        >
+                          Enviar mensaje por WhatsApp
+                        </Button>
                         <Formik
                           initialValues={{ ...initialValues,  lente_contacto: lenteContacto  }}
                           validationSchema={validationSchema}
@@ -1997,7 +2040,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={orden.elaborado_por_nombre}
+                                                    value={orden?.elaborado_por_nombre}
                                                     disabled />
                                                 </div>
                                               </Col>
