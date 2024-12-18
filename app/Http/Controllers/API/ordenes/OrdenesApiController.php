@@ -626,14 +626,16 @@ class OrdenesApiController extends Controller
       'l_tres' => $orden['l_tres'],
       'l_cuatro' => $orden['l_cuatro'],
       'l_cinco' => $orden['l_cinco'],
-      'color' => $orden['color'],
-      'codigo' => $orden['codigo'],
-      'marca' => $orden['marca'],
-      'tipo_aro' => $orden['tipo_aro'],
-      'observaciones' => $orden['observaciones'],
+      'color' => $orden['color'] ?? "_",
+      'codigo' => $orden['codigo'] ?? "_",
+      'marca' => $orden['marca'] ?? "_",
+      'tipo_aro' => $orden['tipo_aro'] ?? "_",
+      'observaciones' => $orden['observaciones'] ?? "_",
       'aro_centevi' => $orden['aro_centevi'],
       'aro_propio' => $orden['aro_propio'],
-      'lente_contacto' => $id_orden == 27 || $id_orden == 25 || $id_orden == 23,
+      'lente_contacto' => $orden['lente_contacto'],
+      'tratamientos_oi' => $orden['tratamientos_oi'],
+      'tratamientos_od' => $orden['tratamientos_od'],
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);
