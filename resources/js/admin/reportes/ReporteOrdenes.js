@@ -5,7 +5,7 @@ import ExportButton from './exportButton';
 import {transformDataForReporteOrdenes } from '../../../utils/dataTransform';
 import { BookTwoTone } from '@ant-design/icons';
 import Swal from 'sweetalert2';
-import { Button, Col, Divider, Input, Modal, Row, List } from 'antd';
+import { Button, Col, Divider, Input, Modal, Row, List, Tooltip } from 'antd';
 import moment from 'moment';
 import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange } from '../../redux/features/reportes/reporteOrdenesSlice';
 import PaginationReportesOrdenes from './PaginationReportesOrdenes';
@@ -195,16 +195,42 @@ const ReporteOrdenes = () => {
                           <tr role="row">
                             <th
                               aria-controls="zero-config"
-                              aria-label={`created_at: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                              aria-label={`lente_contacto: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
                               className={`sorting ${sortOrder}`}
                               colSpan="1"
                               rowSpan="1"
                               style={{ width: '153.82px' }}
                               tabIndex="0"
-                              onClick={() => handleSort('created_at')}
+                              onClick={() => handleSort('lente_contacto')}
 
                             >
-                              FECHA_ORDEN
+                              TIPO DE LENTE
+                            </th>
+                            <th
+                              aria-controls="zero-config"
+                              aria-label={`status: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${sortOrder}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('status')}
+
+                            >
+                              STATUS
+                            </th>
+                            <th
+                              aria-controls="zero-config"
+                              aria-label={`created_at_formatted: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${sortOrder}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('created_at_formatted')}
+
+                            >
+                              FECHA DE ORDEN
                             </th>
                             <th
                               aria-controls="zero-config"
@@ -217,7 +243,7 @@ const ReporteOrdenes = () => {
                               onClick={() => handleSort('nro_orden')}
 
                             >
-                              NRO_ORDEN
+                              NRO DE ORDEN
                             </th>
                             <th
 
@@ -295,7 +321,41 @@ const ReporteOrdenes = () => {
                             reportesOrdenes.map((rpOrden) => {                           
                               return (
                                 <tr key={rpOrden.id_orden}>
-                                  <td>{moment.utc(rpOrden.created_at).format('DD-MM-YYYY')}</td>
+                                  <td>{rpOrden.lente_contacto ? (
+                                    <img
+                                      src="assets/img/recetas/lentesdecontacto.png" 
+                                      alt="Lente Contacto True"
+                                      style={{ width: '20px', marginLeft: '8px' }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src="assets/img/recetas/lentenormal.png" 
+                                      alt="Lente Contacto False"
+                                      style={{ width: '20px', marginLeft: '8px' }}
+                                    />
+                                  )}
+                                  </td>
+                                  <td>
+                                    <Tooltip title={rpOrden?.status ?? ""}>
+                                      <span
+                                      style={{
+                                        display: 'inline-block',
+                                        width: '12px',
+                                        height: '12px',
+                                        borderRadius: '50%',
+                                        backgroundColor:
+                                        rpOrden?.status === 'Ok'
+                                            ? 'green'
+                                            : rpOrden?.status  === 'Advertencia'
+                                            ? 'yellow'
+                                            : rpOrden?.status  === 'Critico'
+                                            ? 'red'
+                                            : 'gray',
+                                      }}
+                                    ></span>{" "}
+                                    </Tooltip>
+                                  </td>
+                                  <td>{rpOrden?.created_at_formatted}</td>
                                   <td>{rpOrden?.nro_orden}</td>
                                   <td>{rpOrden?.pagado_nombre}</td>
                                   <td>{rpOrden?.sucursal.nombre}</td>

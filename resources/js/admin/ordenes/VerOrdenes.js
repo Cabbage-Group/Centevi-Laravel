@@ -6,7 +6,8 @@ import Swal from 'sweetalert2';
 import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
-import { Button, Tooltip } from 'antd';
+import { Button, Tooltip,Select } from 'antd';
+
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,8 @@ const VerOrdenes = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
+  const [lenteContactoFilter, setLenteContactoFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     dispatch(fecthOrdenes({ 
@@ -30,8 +33,10 @@ const VerOrdenes = () => {
       sortColumn, 
       sortOrder,
       search: localSearch,
+      lenteContacto: lenteContactoFilter,
+      status: statusFilter,
     }));
-  }, [dispatch, currentPage, sortColumn, sortOrder,localSearch]);
+  }, [dispatch, currentPage, sortColumn, sortOrder,localSearch,lenteContactoFilter,statusFilter]);
 
   const handleSort = (newOrdenPor) => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -98,6 +103,19 @@ const VerOrdenes = () => {
     }
   };
 
+  const handleLenteContactoToggle = () => {
+    // Cycle through filter states: '' -> '1' -> '0'
+    setLenteContactoFilter(prev => 
+      prev === '' ? '1' : 
+      prev === '1' ? '0' : 
+      ''
+    );
+  };
+
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+  };
+
   return (
 
     <div className="row layout-top-spacing">
@@ -113,12 +131,67 @@ const VerOrdenes = () => {
                   <Link to={"/create-orden"} className="btn btn-success ml-3 mt-4">
                     Agregar Orden
                   </Link>
-                  {/* <Button
-                  onClick={()=>{
-                    console.log('ordnes:',or)
-                  }}>
-                    Aqui
-                  </Button> */}
+                  {/* Lente de Contacto Filter Button */}
+                  <div className="d-flex align-items-center mr-3">
+                  <label className="mr-2 mb-0 font-weight-bold">Filtrar por Tipo de lente</label>
+                  <button 
+                      onClick={handleLenteContactoToggle}
+                      className="btn btn-outline-primary position-relative"
+                      style={{ width: '100px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                    >
+                      {lenteContactoFilter === '' && (
+                        <div className="d-flex justify-content-between w-100">
+                          <img 
+                            src="assets/img/recetas/lentesdecontacto.png" 
+                            alt="Lente On" 
+                            style={{ width: '45%', height: '100%', objectFit: 'contain' }}
+                          />
+                          <img 
+                            src="assets/img/recetas/lentenormal.png" 
+                            alt="Lente Off" 
+                            style={{ width: '45%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                      
+                      {lenteContactoFilter === '1' && (
+                        <div className="d-flex justify-content-center w-100">
+                          <img 
+                            src="assets/img/recetas/lentesdecontacto.png" 
+                            alt="Lente On" 
+                            style={{ width: '70%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                      
+                      {lenteContactoFilter === '0' && (
+                        <div className="d-flex justify-content-center w-100">
+                          <img 
+                            src="assets/img/recetas/lentenormal.png" 
+                            alt="Lente Off" 
+                            style={{ width: '70%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                    </button>
+                    <div className="d-flex align-items-center">
+                    <label className="mr-2 mb-0 font-weight-bold">Filtrar por Status</label>
+                   <Select
+                      style={{ width: 200 }}
+                      placeholder="Filtrar por Status"
+                      onChange={handleStatusChange}
+                      value={statusFilter || undefined}
+                      allowClear
+                    >
+                      <Select.Option value="">Todos</Select.Option>
+                      <Select.Option value="Ok">Ok</Select.Option>
+                      <Select.Option value="Advertencia">Advertencia</Select.Option>
+                      <Select.Option value="Critico">Critico</Select.Option>
+                      <Select.Option value="null">Sin Status</Select.Option>
+                    </Select>
+                    </div>  
+                    </div>
+
                   <div
                     className="dataTables_wrapper container-fluid dt-bootstrap4"
                     id="zero-config_wrapper"
