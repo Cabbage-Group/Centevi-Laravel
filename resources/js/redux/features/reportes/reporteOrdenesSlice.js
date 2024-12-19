@@ -4,22 +4,22 @@ import API from '../../../config/config.js';
 
 export const fecthReportesOrdenes = createAsyncThunk(
   'reportesordenes/fecthReportesOrdenes',
-  async ({ 
-    page = 1, 
-    limit = 20, 
-    sortOrder = 'desc', 
+  async ({
+    page = 1,
+    limit = 20,
+    sortOrder = 'desc',
     sortColumn = 'created_at',
     startDate = '',
     endDate = '',
-    search = '', 
+    search = '',
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
-    
+
     const response = await axios.get(`${API}/reporte-ordenes`, {
-      params: { 
-        page, 
-        limit, 
-        sortOrder, 
+      params: {
+        page,
+        limit,
+        sortOrder,
         sortColumn,
         fecha,
         search
@@ -74,9 +74,9 @@ const reportesOrdenesSlice = createSlice({
   },
 });
 
-export const { 
-    setSortOrder, 
-    setSortColumn, 
-    setFechaRange,
-    setSearch } = reportesOrdenesSlice.actions;
+export const {
+  setSortOrder,
+  setSortColumn,
+  setFechaRange,
+  setSearch } = reportesOrdenesSlice.actions;
 export default reportesOrdenesSlice.reducer;

@@ -121,7 +121,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
     tipo_aro: Yup.string().when('lente_contacto', {
-      is: (lente_contacto) =>{
+      is: (lente_contacto) => {
         console.log('isRowVisible en validación:', lente_contacto);
         return lente_contacto;
       },
@@ -442,7 +442,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                           Aqui
                         </Button> */}
                         <Formik
-                          initialValues={{ ...initialValues,  lente_contacto: lenteContacto  }}
+                          initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >

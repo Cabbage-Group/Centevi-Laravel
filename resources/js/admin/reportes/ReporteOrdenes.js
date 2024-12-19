@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import DateRangePicker from './DateRangePicker';
 import ExportButton from './exportButton';
-import {transformDataForReporteOrdenes } from '../../../utils/dataTransform';
+import { transformDataForReporteOrdenes } from '../../../utils/dataTransform';
 import { BookTwoTone } from '@ant-design/icons';
 import Swal from 'sweetalert2';
 import { Button, Col, Divider, Input, Modal, Row, List } from 'antd';
@@ -292,7 +292,7 @@ const ReporteOrdenes = () => {
                         </thead>
                         <tbody>
                           {
-                            reportesOrdenes.map((rpOrden) => {                           
+                            reportesOrdenes.map((rpOrden) => {
                               return (
                                 <tr key={rpOrden.id_orden}>
                                   <td>{moment.utc(rpOrden.created_at).format('DD-MM-YYYY')}</td>

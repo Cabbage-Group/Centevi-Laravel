@@ -107,28 +107,28 @@ class OrdenesApiController extends Controller
         'primeras_fases.total_fases as total_fases',
         DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
       );
-      if (!empty($search)) {
-        $ordenes->where(function ($query) use ($search) {
-            $query->where('ordenes.id_orden', 'like', "%{$search}%")
-                ->orWhere('usuarios.nombre', 'like', "%{$search}%")
-                ->orWhere('ordenes.doctor', 'like', "%{$search}%")
-                ->orWhere('ordenes.nro_orden', 'like', "%{$search}%")
-                ->orWhere('ordenes.created_at', 'like', "%{$search}%")
-                ->orWhere('ordenes.pagado', 'like', "%{$search}%")
-                ->orWhere('sucursales.nombre', 'like', "%{$search}%")
-                ->orWhere('pacientes.nombres', 'like', "%{$search}%")
-                ->orWhere('pacientes.celular', 'like', "%{$search}%")
-                ->orWhere('primeras_fases.status_primera_fase', 'like', "%{$search}%")
-                ->orWhere('ordenes.created_at', 'like', "%{$search}%")
-                ->orWhere('primeras_fases.laboratorio_primera_fase', 'like', "%{$search}%")
-                ->orWhereRaw("CASE 
+    if (!empty($search)) {
+      $ordenes->where(function ($query) use ($search) {
+        $query->where('ordenes.id_orden', 'like', "%{$search}%")
+          ->orWhere('usuarios.nombre', 'like', "%{$search}%")
+          ->orWhere('ordenes.doctor', 'like', "%{$search}%")
+          ->orWhere('ordenes.nro_orden', 'like', "%{$search}%")
+          ->orWhere('ordenes.created_at', 'like', "%{$search}%")
+          ->orWhere('ordenes.pagado', 'like', "%{$search}%")
+          ->orWhere('sucursales.nombre', 'like', "%{$search}%")
+          ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+          ->orWhere('pacientes.celular', 'like', "%{$search}%")
+          ->orWhere('primeras_fases.status_primera_fase', 'like', "%{$search}%")
+          ->orWhere('ordenes.created_at', 'like', "%{$search}%")
+          ->orWhere('primeras_fases.laboratorio_primera_fase', 'like', "%{$search}%")
+          ->orWhereRaw("CASE 
                 WHEN ultimas_fases.fase_actual IS NULL THEN 'Nuevo'
                 ELSE ultimas_fases.fase_actual 
                 END LIKE ?", ["%{$search}%"]);
-                
-        });
+
+      });
     }
- 
+
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
 
@@ -463,9 +463,9 @@ class OrdenesApiController extends Controller
     $search = $request->input('search', '');
     $fecha = $request->input('fecha', '');
 
-    $validSortColumns = ['id_orden', 'created_at']; 
+    $validSortColumns = ['id_orden', 'created_at'];
     if (!in_array($sortColumn, $validSortColumns)) {
-      $sortColumn = 'id_orden'; 
+      $sortColumn = 'id_orden';
     }
 
     $contadorFasesQuery = DB::table('fases_ordenes')
@@ -498,7 +498,7 @@ class OrdenesApiController extends Controller
             AND tipo_fase_orden_id = 1
         )');
 
-    
+
 
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
@@ -549,28 +549,28 @@ class OrdenesApiController extends Controller
         DB::raw("CASE WHEN pagado = 1 THEN 'Sí' ELSE 'No' END AS pagado_nombre"),
         DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted") // Formateo de fecha
       );
-      if (!empty($search)) {
-        $ordenes->where(function ($query) use ($search) {
-            $query->where('ordenes.id_orden', 'like', "%{$search}%")
-                ->orWhere('usuarios.nombre', 'like', "%{$search}%")
-                ->orWhere('ordenes.doctor', 'like', "%{$search}%")
-                ->orWhere('ordenes.created_at', 'like', "%{$search}%")
-                ->orWhere('ordenes.pagado', 'like', "%{$search}%");
-        });
+    if (!empty($search)) {
+      $ordenes->where(function ($query) use ($search) {
+        $query->where('ordenes.id_orden', 'like', "%{$search}%")
+          ->orWhere('usuarios.nombre', 'like', "%{$search}%")
+          ->orWhere('ordenes.doctor', 'like', "%{$search}%")
+          ->orWhere('ordenes.created_at', 'like', "%{$search}%")
+          ->orWhere('ordenes.pagado', 'like', "%{$search}%");
+      });
     }
     if (!empty($fecha)) {
       $dates = explode(' - ', $fecha);
       if (count($dates) === 2) {
-          $startDate = $dates[0];
-          $endDate = $dates[1];
-          $ordenes->whereBetween('ordenes.created_at', [$startDate, $endDate]);
+        $startDate = $dates[0];
+        $endDate = $dates[1];
+        $ordenes->whereBetween('ordenes.created_at', [$startDate, $endDate]);
       }
-  }
+    }
 
     $dataexport = $ordenes->orderBy($sortColumn, $sortOrder)->get();
-  
+
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
-        ->paginate($limit, ['*'], 'page', $page);
+      ->paginate($limit, ['*'], 'page', $page);
 
     return response()->json([
       'data' => $paginatedData->items(),

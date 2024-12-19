@@ -576,7 +576,7 @@ const Sidebar = (props) => {
                   )
                 }
 
-{
+                {
                   ValidarPermisos(
                     "sidebar.reportes.ordenes",
                     <li>
@@ -657,8 +657,8 @@ const Sidebar = (props) => {
                     </li>
                   )
                 }
-                
-                
+
+
 
               </ul>
             </div>

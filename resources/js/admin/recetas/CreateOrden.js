@@ -96,7 +96,7 @@ const CreateOrden = () => {
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
     tipo_aro: Yup.string().when('lenteContacto', {
-      is: false, 
+      is: false,
       then: (schema) => schema.required("Seleccione un tipo de aro"),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -399,19 +399,19 @@ const CreateOrden = () => {
                                 <div class="col-md-2">
                                   <h4>Cambiar Tipo de lente</h4>
                                   <div className="d-flex align-items-center">
-                                  <button
-                                    type="button"
-                                    className="btn btn-success"
-                                    style={{
-                                      height: "40px",
-                                      marginTop: "0", 
-                                    }}
-                                    onClick={() => {
-                                      handleLenteContactoChange()
-                                    }}                                                           
-                                  >
-                                    {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
-                                  </button>
+                                    <button
+                                      type="button"
+                                      className="btn btn-success"
+                                      style={{
+                                        height: "40px",
+                                        marginTop: "0",
+                                      }}
+                                      onClick={() => {
+                                        handleLenteContactoChange()
+                                      }}
+                                    >
+                                      {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
+                                    </button>
                                   </div>
                                 </div>
 
