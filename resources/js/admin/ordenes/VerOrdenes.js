@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
-import { Modal, Skeleton, Button, Tooltip } from 'antd';
+import { Modal, Skeleton, Button, Tooltip, Select } from 'antd';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -26,6 +26,9 @@ const VerOrdenes = () => {
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
 
+  const [lenteContactoFilter, setLenteContactoFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
   useEffect(() => {
     dispatch(fecthOrdenes({
       page: currentPage,
@@ -33,8 +36,11 @@ const VerOrdenes = () => {
       sortColumn,
       sortOrder,
       search: localSearch,
+      lenteContacto: lenteContactoFilter,
+      status: statusFilter,
     }));
-  }, [dispatch, currentPage, sortColumn, sortOrder, localSearch]);
+    // }, [dispatch, currentPage, sortColumn, sortOrder, localSearch]);
+  }, [dispatch, currentPage, sortColumn, sortOrder, localSearch, lenteContactoFilter, statusFilter]);
 
   const handleSort = (newOrdenPor) => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -126,6 +132,18 @@ const VerOrdenes = () => {
     }
     setLoadingPdf(false)
   }
+  const handleLenteContactoToggle = () => {
+    // Cycle through filter states: '' -> '1' -> '0'
+    setLenteContactoFilter(prev =>
+      prev === '' ? '1' :
+        prev === '1' ? '0' :
+          ''
+    );
+  };
+
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+  };
 
   return (
 
@@ -139,82 +157,163 @@ const VerOrdenes = () => {
             >
               <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                 <div className="widget-content widget-content-area br-6">
-                  <Link to={"/create-orden"} className="btn btn-success ml-3 mt-4">
-                    Agregar Orden
-                  </Link>
-                  {/* <Button
-                  onClick={()=>{
-                    console.log('ordnes:',or)
-                  }}>
-                    Aqui
-                  </Button> */}
+
+
+
                   <div
-                    className="dataTables_wrapper container-fluid dt-bootstrap4"
-                    id="zero-config_wrapper"
+                    style={{
+                      display: 'flex'
+                    }}
                   >
-                    <div className="dt--top-section">
-                      <div className="row">
-                        <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                        </div>
-                        <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                          <div
-                            className="dataTables_filter"
-                            id="html5-extension_filter"
-                          >
-                            <label>
-                              <svg
-                                className="feather feather-search"
-                                fill="none"
-                                height="24"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                viewBox="0 0 24 24"
-                                width="24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <circle
-                                  cx="11"
-                                  cy="11"
-                                  r="8"
-                                />
-                                <line
-                                  x1="21"
-                                  x2="16.65"
-                                  y1="21"
-                                  y2="16.65"
-                                />
-                              </svg>
-                              <input
-                                aria-controls="html5-extension"
-                                className="form-control"
-                                placeholder="Search..."
-                                type="search"
-                                value={localSearch}
-                                onChange={handleSearchChange}
-                              />
-                              {localSearch && (
-                                <button
-                                  onClick={handleClearSearch}
+                    <Link
+                      to={"/create-orden"} className="btn btn-success ml-3 mt-4"
+                      style={{ height: '37px' }}
+                    >
+                      Agregar Orden
+                    </Link>
+                    <div>
+                      <div className="dt--top-section">
+                        <div className="row">
+                          <div className="col-sm-24 col-md-12 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                            <div
+                              className="dataTables_filter"
+                              id="html5-extension_filter"
+                            >
+                              <label style={{ position: 'relative' }}>
+                                <div
                                   style={{
                                     position: 'absolute',
-                                    right: '25px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
+                                    right: '8px',
+                                    top: '7px'
                                   }}
                                 >
-                                  &#x2715; { }
-                                </button>
-                              )}
-                            </label>
+                                  <svg
+                                    className="feather feather-search"
+                                    fill="none"
+                                    height="24"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                  >
+                                    <circle
+                                      cx="11"
+                                      cy="11"
+                                      r="8"
+                                    />
+                                    <line
+                                      x1="21"
+                                      x2="16.65"
+                                      y1="21"
+                                      y2="16.65"
+                                    />
+                                  </svg>
+                                </div>
+
+                                <input
+                                  aria-controls="html5-extension"
+                                  className="form-control"
+                                  placeholder="Search..."
+                                  type="search"
+                                  value={localSearch}
+                                  onChange={handleSearchChange}
+                                />
+                                {localSearch && (
+                                  <button
+                                    onClick={handleClearSearch}
+                                    style={{
+                                      position: 'absolute',
+                                      right: '25px',
+                                      top: '50%',
+                                      transform: 'translateY(-50%)',
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    &#x2715; { }
+                                  </button>
+                                )}
+                              </label>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                  </div>
+
+
+                  {/* Lente de Contacto Filter Button */}
+                  {/* <div className="d-flex align-items-center mr-3">
+                    <label className="mr-2 mb-0 font-weight-bold">Filtrar por Tipo de lente:</label><br />
+                    <button
+                      onClick={handleLenteContactoToggle}
+                      className="btn btn-outline-primary position-relative"
+                      style={{ width: '100px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                    >
+                      {lenteContactoFilter === '' && (
+                        <div className="d-flex justify-content-between w-100">
+                          <img
+                            src="assets/img/recetas/lentesdecontacto.png"
+                            alt="Lente On"
+                            style={{ width: '45%', height: '100%', objectFit: 'contain' }}
+                          />
+                          <img
+                            src="assets/img/recetas/lentenormal.png"
+                            alt="Lente Off"
+                            style={{ width: '45%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+
+                      {lenteContactoFilter === '1' && (
+                        <div className="d-flex justify-content-center w-100">
+                          <img
+                            src="assets/img/recetas/lentesdecontacto.png"
+                            alt="Lente On"
+                            style={{ width: '70%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+
+                      {lenteContactoFilter === '0' && (
+                        <div className="d-flex justify-content-center w-100">
+                          <img
+                            src="assets/img/recetas/lentenormal.png"
+                            alt="Lente Off"
+                            style={{ width: '70%', height: '100%', objectFit: 'contain' }}
+                          />
+                        </div>
+                      )}
+                    </button>
+                    <div className="d-flex align-items-center">
+                      <label className="mr-2 mb-0 font-weight-bold">Filtrar por Status:</label><br />
+                      <Select
+                        style={{ width: 200 }}
+                        placeholder="Filtrar por Status"
+                        onChange={handleStatusChange}
+                        value={statusFilter || undefined}
+                        allowClear
+                      >
+                        <Select.Option value="">Todos</Select.Option>
+                        <Select.Option value="Ok">Ok</Select.Option>
+                        <Select.Option value="Advertencia">Advertencia</Select.Option>
+                        <Select.Option value="Critico">Critico</Select.Option>
+                        <Select.Option value="null">Sin Status</Select.Option>
+                      </Select>
+                    </div>
+                  </div> */}
+
+                  <div
+                    className="dataTables_wrapper container-fluid dt-bootstrap4"
+                    id="zero-config_wrapper"
+                  >
+
+
+
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}
                       {status === 'failed' && <p>Error: {error}</p>}

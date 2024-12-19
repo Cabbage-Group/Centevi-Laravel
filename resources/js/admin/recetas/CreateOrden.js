@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { createOrdenes } from '../../redux/features/ordenes/ordenesSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link,useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
@@ -18,6 +18,8 @@ const CreateOrden = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = location.state || {};
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
@@ -29,10 +31,16 @@ const CreateOrden = () => {
   const [isRowVisible, setIsRowVisible] = useState(true);
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
+  
+  useEffect(() => {
+    if (id && pacientes_options_selecteds.length > 0) {
+      setSelectedPaciente(Number(id));
+    }
+  }, [id, pacientes_options_selecteds]);
 
   const initialValues = {
     nro_orden: "",
-    id_paciente: "",
+    id_paciente: "  ",
     id_sucursal: "",
     esfera_od: "",
     esfera_oi: "",
@@ -333,9 +341,10 @@ const CreateOrden = () => {
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       {/* <Button
-                        onClick={() => {
-                          console.log('isRowVisible:', isRowVisible)
-                        }}>
+                        onClick={()=>{
+                          console.log('isRowVisible:',isRowVisible)
+                          console.log('lenteContacto:',lenteContacto)         
+                          console.log('lenteContacto:',lenteContacto)}}>
                         Aqui
                       </Button> */}
                       <div className="widget-content widget-content-area" >
@@ -420,13 +429,14 @@ const CreateOrden = () => {
                                   <label htmlFor="pacientes">Pacientes*</label>
                                   <Select
                                     showSearch
-                                    value={selectedPaciente}
-
+                                    value={pacientes_options_selecteds.length > 0 ? selectedPaciente : undefined}
                                     onChange={(value) => {
+                                      console.log('value:',value)
                                       setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
                                       setFieldValue("id_paciente", value); // También actualizar el campo de Formik
                                     }}
                                     placeholder="Seleccione el paciente"
+                                    loading={pacientes_options_selecteds.length === 0}
                                     filterOption={(input, option) => {
                                       const searchTerms = input.toLowerCase().split(' ');
                                       return searchTerms.every(term =>

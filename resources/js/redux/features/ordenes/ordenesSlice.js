@@ -9,7 +9,9 @@ export const fecthOrdenes = createAsyncThunk(
     limit = 20,
     sortOrder = 'desc',
     sortColumn = 'created_at',
-    search = '',
+    search = '', 
+    status = '', 
+    lenteContacto = ''
   }) => {
     const response = await axios.get(`${API}/ordenes`, {
       params: {
@@ -17,7 +19,9 @@ export const fecthOrdenes = createAsyncThunk(
         limit,
         sortOrder,
         sortColumn,
-        search
+        search,
+        status,     
+        lenteContacto 
       }
     });
     return response.data;
@@ -85,12 +89,21 @@ export const updateOrden = createAsyncThunk(
   }
 );
 
+export const fetchOrdenesDelPaciente = createAsyncThunk(
+  'ordenes/fetchOrdenesDelPaciente',
+  async (id_paciente) => {
+    const response = await axios.get(`${API}/ordenes/${id_paciente}`);
+    return response.data;
+  }
+);
+
 
 const ordenesSlice = createSlice({
   name: 'ordenes',
   initialState: {
     data: [],
     ordenes: [],
+    pacienteOrdenes: [],
     meta: {},
     status: 'idle',
     search: '',
@@ -156,6 +169,18 @@ const ordenesSlice = createSlice({
         state.ordenes = state.ordenes.filter(orden => orden.id_orden !== action.payload);
       })
       .addCase(deleteOrdenes.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchOrdenesDelPaciente.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchOrdenesDelPaciente.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.pacienteOrdenes  = action.payload.data;
+        state.meta = action.payload.meta;
+      })
+      .addCase(fetchOrdenesDelPaciente.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

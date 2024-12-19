@@ -205,6 +205,7 @@ const Ordenes = () => {
                 >
                   Completar Fase
                 </Button>
+                
               </Row>
             </div>
 

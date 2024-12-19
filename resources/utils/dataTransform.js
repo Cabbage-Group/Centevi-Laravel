@@ -96,6 +96,8 @@ export const transformDataForServiciosProximos = (data) => {
 
 export const transformDataForReporteOrdenes = (data) => {
   return data.map(rpOrden => ({
+    Tipo_lente: rpOrden.lente_contacto === 1 ? "Si" : "No",
+    Status: rpOrden.status ?? "Sin estado",
     Fecha_Orden: rpOrden.created_at_formatted,
     Nro_orden: rpOrden.nro_orden,
     Pagado: rpOrden.pagado_nombre,

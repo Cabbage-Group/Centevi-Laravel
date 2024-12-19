@@ -29,7 +29,7 @@ use App\Http\Controllers\API\terapias\Terapias_Optometria_Pediatrica_ApiControll
 use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
-
+use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/usuarios-doctor', [UsuariosApiController::class, 'usuariosDoctor']);
@@ -277,6 +277,12 @@ Route::get('/api/fases-ordenes', [OrdenesApiController::class, 'fasesOrdenes']);
 Route::post('/api/create-fases-ordenes', [OrdenesApiController::class, 'createFasesOrdenes']);
 
 Route::get('/api/reporte-ordenes', [OrdenesApiController::class, 'reportesOrdenes']);
+
+
+Route::get('/api/ordenes/{id}', [OrdenesApiController::class, 'ordenesDelPaciente']);
+
+Route::post('/api/whatsapp-link', [WhatsappApiController::class, 'getWhatsAppLink']);
+
 
 Route::get('/{any}', function () {
   return view('app');
