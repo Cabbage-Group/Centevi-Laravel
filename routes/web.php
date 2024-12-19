@@ -266,6 +266,8 @@ Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
 
 Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden']);
 
+Route::get('/api/ordenes/pdf/{id}', [OrdenesApiController::class, 'verOrdenPdf']);
+
 Route::get('/api/tipos-fases-ordenes/{idOrden}', [OrdenesApiController::class, 'tipoFasesOrdenes']);
 
 Route::post('/api/tipos-fases-ordenes', [OrdenesApiController::class, 'createTiposFasesOrdenes']);

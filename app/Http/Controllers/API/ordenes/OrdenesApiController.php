@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\TiposFasesOrdenes;
 use App\Models\FasesOrdenes;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrdenesApiController extends Controller
 {
@@ -592,6 +593,55 @@ class OrdenesApiController extends Controller
   }
 
 
+  public function verOrdenPdf($id_orden)
+  {
 
+    $orden = Ordenes::find($id_orden);
 
+    $data = [
+      'fecha_solicitud' => $orden['created_at'],
+      'nro_orden' => $orden['nro_orden'],
+      'lenteContacto' => false,
+      'esfera_od' => $orden['esfera_od'],
+      'cilindro_od' => $orden['cilindro_od'],
+      'eje_od' => $orden['eje_od'],
+      'add_od' => $orden['add_od'],
+      'prisma_od' => $orden['prisma_od'],
+      'distancia_od' => $orden['distancia_od'],
+      'altura_od' => $orden['altura_od'],
+
+      'esfera_oi' => $orden['esfera_oi'],
+      'cilindro_oi' => $orden['cilindro_oi'],
+      'eje_oi' => $orden['eje_oi'],
+      'add_oi' => $orden['add_oi'],
+      'prisma_oi' => $orden['prisma_oi'],
+      'distancia_oi' => $orden['distancia_oi'],
+      'altura_oi' => $orden['altura_oi'],
+      'material_od' => $orden['material_od'],
+      'material_oi' => $orden['material_oi'],
+      'tipo_cristal_od' => $orden['tipo_cristal_od'],
+      'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+      'l_uno' => $orden['l_uno'],
+      'l_dos' => $orden['l_dos'],
+      'l_tres' => $orden['l_tres'],
+      'l_cuatro' => $orden['l_cuatro'],
+      'l_cinco' => $orden['l_cinco'],
+      'color' => $orden['color'] ?? "_",
+      'codigo' => $orden['codigo'] ?? "_",
+      'marca' => $orden['marca'] ?? "_",
+      'tipo_aro' => $orden['tipo_aro'] ?? "_",
+      'observaciones' => $orden['observaciones'] ?? "_",
+      'aro_centevi' => $orden['aro_centevi'],
+      'aro_propio' => $orden['aro_propio'],
+      'lente_contacto' => $orden['lente_contacto'],
+      'tratamientos_oi' => $orden['tratamientos_oi'],
+      'tratamientos_od' => $orden['tratamientos_od'],
+    ];
+
+    $pdf = Pdf::loadView('pdf/ordenPdf', $data);
+    return $pdf->stream('orden.pdf', [
+      'Content-Type' => 'application/pdf',
+      'Content-Disposition' => 'inline; filename="orden_' . $id_orden . '.pdf"'
+    ]);
+  }
 }
