@@ -79,8 +79,8 @@ class Ordenes extends Model
   }
 
   public function contactosOrdenes()
-{
+  {
     return $this->hasMany(ContactoOrden::class);
-}
+  }
 
 }

@@ -67,7 +67,7 @@ const HistoriaPaciente = () => {
   const { ortoptica } = useSelector((state) => state.terapiasOrtoptica);
   const [terapiaModificada, setTerapiaModificada] = useState(false);
   const [age, setAge] = useState(null);
-  const { pacienteOrdenes} = useSelector((state) => state.ordenes);
+  const { pacienteOrdenes } = useSelector((state) => state.ordenes);
 
 
   let urgencia = {};
@@ -110,11 +110,11 @@ const HistoriaPaciente = () => {
 
   }, [id, terapiaModificada]);
 
-  useEffect(()=> {
+  useEffect(() => {
     if (id && id !== undefined) {
       dispatch(fetchOrdenesDelPaciente(id));
     }
-  },[id])
+  }, [id])
 
   const handleCreateTerapias = (tipo) => {
     const nuevaTerapia = {
@@ -249,18 +249,18 @@ const HistoriaPaciente = () => {
   };
 
   const handlePagoToggle = async (id_orden, data, nro_orden) => {
-      try {
-  
-        const payload = {
-          pagado: !data,
-          nro_orden,
-        };
-        await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
-        dispatch(fetchOrdenesDelPaciente(id));
-      } catch (err) {
-        console.error('Error al actualizar el estado de pagado:', err);
-      }
-    };
+    try {
+
+      const payload = {
+        pagado: !data,
+        nro_orden,
+      };
+      await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
+      dispatch(fetchOrdenesDelPaciente(id));
+    } catch (err) {
+      console.error('Error al actualizar el estado de pagado:', err);
+    }
+  };
 
   const handleFileUpload = (e) => {
     console.log("Enviar...");
@@ -518,37 +518,37 @@ const HistoriaPaciente = () => {
     });
   };
 
-   const handleEliminarOrden = async (id_orden) => {
-      try {
-        const result = await Swal.fire({
-          title: '¿Estás seguro?',
-          text: "¡No podrás recuperar esta orden después de eliminarla!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, eliminar',
-          cancelButtonText: 'Cancelar'
-        });
-  
-        if (result.isConfirmed) {
-          await dispatch(deleteOrdenes(id_orden));
-          dispatch(fetchOrdenesDelPaciente(id));
-  
-          Swal.fire(
-            'Eliminado!',
-            'La orden ha sido eliminada.',
-            'success'
-          );
-        }
-      } catch (error) {
+  const handleEliminarOrden = async (id_orden) => {
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás recuperar esta orden después de eliminarla!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (result.isConfirmed) {
+        await dispatch(deleteOrdenes(id_orden));
+        dispatch(fetchOrdenesDelPaciente(id));
+
         Swal.fire(
-          'Error',
-          'Hubo un problema al eliminar la orden.',
-          'error'
+          'Eliminado!',
+          'La orden ha sido eliminada.',
+          'success'
         );
       }
-    };
+    } catch (error) {
+      Swal.fire(
+        'Error',
+        'Hubo un problema al eliminar la orden.',
+        'error'
+      );
+    }
+  };
 
   return (
     <div
@@ -1632,7 +1632,7 @@ const HistoriaPaciente = () => {
                                 </table>
                               </div>
                             </div>
-                          )}                         
+                          )}
                           {dataCG.length > 0 && (
                             <div className="card component-card_7 mb-4" style={{ background: 'rgb(0 150 136 / 11%)', width: '96%', left: '2%' }}>
                               <h6 className="p-3">
@@ -1774,9 +1774,6 @@ const HistoriaPaciente = () => {
                         </div>
                         <div
                           className="widget-header mt-4"
-                          style={{
-                            paddingTop: '5%'
-                          }}
                         >
                           <div className="row">
                             <div className="col-xl-12 col-md-12 col-sm-12 col-12">
@@ -1868,22 +1865,22 @@ const HistoriaPaciente = () => {
                                 </>
                               )}
                               <>
-                                  {
-                                    funPermisosObtenidos(
-                                      permisos,
-                                      "historiapaciente.crearorden",
-                                      <div className="col-md-3">
-                                        <Link 
-                                          to={"/create-orden"} 
-                                          state={{ id: id }}
-                                          className="btn btn-success ml-3 mt-4"
-                                        >
-                                          Agregar Orden
-                                        </Link>
-                                      </div>
-                                    )
-                                  }
-                                </>
+                                {
+                                  funPermisosObtenidos(
+                                    permisos,
+                                    "historiapaciente.crearorden",
+                                    <div className="col-md-3">
+                                      <Link
+                                        to={"/create-orden"}
+                                        state={{ id: id }}
+                                        className="btn btn-success ml-3 mt-4"
+                                      >
+                                        Agregar Orden
+                                      </Link>
+                                    </div>
+                                  )
+                                }
+                              </>
                             </>
                           )}
                         </div>
@@ -2183,80 +2180,98 @@ const HistoriaPaciente = () => {
                           }
                         </div>
 
+                        <div
+                          className="widget-header mt-0"
+                          style={{
+                          }}
+                        >
+                          <div className="row">
+                            <div className="col-xl-12 col-md-12 col-sm-12 col-12">
+                              <h3>
+                                ORDENES:
+                              </h3>
+                            </div>
+                          </div>
+                        </div>
                         {pacienteOrdenes.length > 0 && (
-                            <div className="card component-card_7 mb-4" style={{ background: 'rgb(0 150 136 / 11%)', width: '96%', left: '2%' }}>
-                              <h6 className="p-3">
-                                ORDENES DEL PACIENTE:
-                              </h6>
-                              <div className="table-responsive-md">
-                                <table className="table dt-table-hover" id="zero-config" style={{ width: '100%', }}>
-                                  <thead>
-                                    <tr>
-                                      <th
-                                      >
-                                        Nro
-                                      </th>
-                                      <th>
-                                        Nro_Orden
-                                      </th>
-                                      <th>
-                                        Pagado
-                                      </th>
-                                      <th>
-                                        Fecha de creación
-                                      </th>
-                                      <th>
-                                        Sucursal
-                                      </th>
-                                      <th>
-                                        Laboratorio
-                                      </th>
-                                      <th>
-                                        Fase
-                                      </th>
-                                      <th>
-                                        Status
-                                      </th>
-                                      <th className="no-content">
-                                        Acción
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {pacienteOrdenes.map((pacienteOrden, index) => (
-                                      <tr key={pacienteOrden.id_orden}>
-                                        <td className="text-center">{index + 1}</td>
-                                        <td>
-                                          {pacienteOrden.nro_orden}
-                                          {pacienteOrden.lente_contacto ? (
-                                            <img
-                                              src="/assets/img/recetas/lentesdecontacto.png" 
-                                              alt="Lente Contacto True"
-                                              style={{ width: '20px', marginLeft: '8px' }}
-                                            />
-                                          ) : (
-                                            <img
-                                              src="/assets/img/recetas/lentenormal.png" 
-                                              alt="Lente Contacto False"
-                                              style={{ width: '20px', marginLeft: '8px' }}
-                                            />
-                                          )}
-                                        </td>
-                                        <td>
-                                          <button
-                                            className={`btn btn-xs ${pacienteOrden.pagado ? 'btn-success' : 'btn-danger'}`}
-                                            onClick={() => handlePagoToggle(pacienteOrden.id_orden, pacienteOrden.pagado, pacienteOrden.nro_orden)}
-                                            style={{ minWidth: '100px' }}
-                                          >
-                                            {pacienteOrden.pagado ? 'Pagado' : 'Sin Pago'}
-                                          </button>
-                                        </td>
-                                        <td>{moment(pacienteOrden.created_at).format('DD/MM/YYYY')}</td>
-                                        <td>{pacienteOrden?.sucursal?.nombre || ""}</td>
-                                        <td>{pacienteOrden?.laboratorio_ultima_fase || ""}</td>
-                                        <td>{pacienteOrden?.fase_actual || ""}</td>
-                                        <td>
-                                          <Tooltip title={pacienteOrden?.status ?? ""}>
+                          <div
+                            className="card component-card_7 mb-4"
+                            style={{
+                              background: 'rgb(0 150 136 / 11%)', width: '96%'
+                            }}
+                          >
+                            <h6 className="p-3">
+                              ORDENES DEL PACIENTE:
+                            </h6>
+                            <div className="table-responsive-md">
+                              <table className="table dt-table-hover" id="zero-config" style={{ width: '100%', }}>
+                                <thead>
+                                  <tr>
+                                    <th
+                                    >
+                                      Nro
+                                    </th>
+                                    <th>
+                                      Nro_Orden
+                                    </th>
+                                    <th>
+                                      Pagado
+                                    </th>
+                                    <th>
+                                      Fecha de creación
+                                    </th>
+                                    <th>
+                                      Sucursal
+                                    </th>
+                                    <th>
+                                      Laboratorio
+                                    </th>
+                                    <th>
+                                      Fase
+                                    </th>
+                                    <th>
+                                      Status
+                                    </th>
+                                    <th className="no-content">
+                                      Acción
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {pacienteOrdenes.map((pacienteOrden, index) => (
+                                    <tr key={pacienteOrden.id_orden}>
+                                      <td className="text-center">{index + 1}</td>
+                                      <td>
+                                        {pacienteOrden.nro_orden}
+                                        {pacienteOrden.lente_contacto ? (
+                                          <img
+                                            src="/assets/img/recetas/lentesdecontacto.png"
+                                            alt="Lente Contacto True"
+                                            style={{ width: '20px', marginLeft: '8px' }}
+                                          />
+                                        ) : (
+                                          <img
+                                            src="/assets/img/recetas/lentenormal.png"
+                                            alt="Lente Contacto False"
+                                            style={{ width: '20px', marginLeft: '8px' }}
+                                          />
+                                        )}
+                                      </td>
+                                      <td>
+                                        <button
+                                          className={`btn btn-xs ${pacienteOrden.pagado ? 'btn-success' : 'btn-danger'}`}
+                                          onClick={() => handlePagoToggle(pacienteOrden.id_orden, pacienteOrden.pagado, pacienteOrden.nro_orden)}
+                                          style={{ minWidth: '100px' }}
+                                        >
+                                          {pacienteOrden.pagado ? 'Pagado' : 'Sin Pago'}
+                                        </button>
+                                      </td>
+                                      <td>{moment(pacienteOrden.created_at).format('DD/MM/YYYY')}</td>
+                                      <td>{pacienteOrden?.sucursal?.nombre || ""}</td>
+                                      <td>{pacienteOrden?.laboratorio_ultima_fase || ""}</td>
+                                      <td>{pacienteOrden?.fase_actual || ""}</td>
+                                      <td>
+                                        <Tooltip title={pacienteOrden?.status ?? ""}>
                                           <span
                                             style={{
                                               display: 'inline-block',
@@ -2264,25 +2279,51 @@ const HistoriaPaciente = () => {
                                               height: '12px',
                                               borderRadius: '50%',
                                               backgroundColor:
-                                              pacienteOrden?.status === 'Ok'
+                                                pacienteOrden?.status === 'Ok'
                                                   ? 'green'
-                                                  : pacienteOrden?.status  === 'Advertencia'
-                                                  ? 'yellow'
-                                                  : pacienteOrden?.status  === 'Critico'
-                                                  ? 'red'
-                                                  : 'gray',
+                                                  : pacienteOrden?.status === 'Advertencia'
+                                                    ? 'yellow'
+                                                    : pacienteOrden?.status === 'Critico'
+                                                      ? 'red'
+                                                      : 'gray',
                                             }}
                                           ></span>{" "}
-                                          </Tooltip>
-                                        </td> 
-                                        <td>                                         
-                                          <Link 
-                                              to={`/orden-receta/${pacienteOrden.id_orden}`}
-                                              state={{ pacienteOrden }}
+                                        </Tooltip>
+                                      </td>
+                                      <td>
+                                        <Link
+                                          to={`/orden-receta/${pacienteOrden.id_orden}`}
+                                          state={{ pacienteOrden }}
+                                        >
+                                          <button
+                                            className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
+                                            id_consulta="56"
                                           >
+                                            <svg
+                                              className="h-6 w-6"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              viewBox="0 0 24 24"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <path
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                              />
+                                            </svg>
+                                          </button>
+                                        </Link>
+
+                                        {
+                                          funPermisosObtenidos(
+                                            permisos,
+                                            "historiapaciente.eliminarorden",
                                             <button
-                                              className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
-                                              id_consulta="56"
+                                              key={pacienteOrden.id_orden}
+                                              onClick={() => handleEliminarOrden(pacienteOrden.id_orden)}
+                                              className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
                                             >
                                               <svg
                                                 className="h-6 w-6"
@@ -2292,66 +2333,40 @@ const HistoriaPaciente = () => {
                                                 xmlns="http://www.w3.org/2000/svg"
                                               >
                                                 <path
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                                   strokeLinecap="round"
                                                   strokeLinejoin="round"
                                                   strokeWidth="2"
                                                 />
                                               </svg>
                                             </button>
-                                          </Link>
-
-                                          {
-                                            funPermisosObtenidos(
-                                              permisos,
-                                              "historiapaciente.eliminarorden",
-                                              <button
-                                                key={pacienteOrden.id_orden}
-                                                onClick={() => handleEliminarOrden(pacienteOrden.id_orden)}
-                                                className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
-                                              >
-                                                <svg
-                                                  className="h-6 w-6"
-                                                  fill="none"
-                                                  stroke="currentColor"
-                                                  viewBox="0 0 24 24"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                  <path
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                  />
-                                                </svg>
-                                              </button>
-                                            )
-                                          }
-                                        </td>                                      
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                  <tfoot>
-                                    <tr>
-                                      <th>
-                                        Nro
-                                      </th>
-                                      <th>
-                                        Consulta
-                                      </th>
-                                      <th>
-                                        Medico
-                                      </th>
-                                      <th>
-                                        Fecha Atención
-                                      </th>
-                                      <th className="no-content" />
+                                          )
+                                        }
+                                      </td>
                                     </tr>
-                                  </tfoot>
-                                </table>
-                              </div>
+                                  ))}
+                                </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <th>
+                                      Nro
+                                    </th>
+                                    <th>
+                                      Consulta
+                                    </th>
+                                    <th>
+                                      Medico
+                                    </th>
+                                    <th>
+                                      Fecha Atención
+                                    </th>
+                                    <th className="no-content" />
+                                  </tr>
+                                </tfoot>
+                              </table>
                             </div>
-                          )}
+                          </div>
+                        )}
                         <div className="row mt-3 p-3">
                           <h6>SUBIR DOCUMENTOS DEL PACIENTE:</h6>
                           <div className="col-lg-12 layout-spacing" id="fuSingleFile">
