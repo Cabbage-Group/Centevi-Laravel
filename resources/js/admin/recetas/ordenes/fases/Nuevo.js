@@ -10,7 +10,7 @@ import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSl
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 
 const Nuevo = ({ tipoFaseId, lab }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch();  
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [laboratorio, setLaboratorio] = useState('');
@@ -19,11 +19,13 @@ const Nuevo = ({ tipoFaseId, lab }) => {
   const location = useLocation();
   const { orderId } = useParams();
   const { orden } = location.state || {};
+  const { pacienteOrden } = location.state || {};
   const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
+  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
   const idUsuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
@@ -106,7 +108,10 @@ const Nuevo = ({ tipoFaseId, lab }) => {
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`; 
-    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+    
+
     return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
   };
 

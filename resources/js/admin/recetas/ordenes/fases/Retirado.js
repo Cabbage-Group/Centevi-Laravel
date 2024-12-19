@@ -24,10 +24,11 @@ const Retirado = ({ tipoFaseId, lab }) => {
   const { orden } = location.state || {};
   const [laboratorio, setLaboratorio] = useState('');
   const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
+  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -118,7 +119,9 @@ const Retirado = ({ tipoFaseId, lab }) => {
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
-    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+
     return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
   };
 

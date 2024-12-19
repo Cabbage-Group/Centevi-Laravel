@@ -22,11 +22,13 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
   const { orden } = location.state || {};
+  
   const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
+  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
   const idUsuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
@@ -122,9 +124,9 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
-    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
-    console.log('telefonoFormateado:', telefonoFormateado)
-    console.log('mensajePersonalizado:', mensajePersonalizado)
+    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+
     return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
   };
   const actualizarFecha = async () => {

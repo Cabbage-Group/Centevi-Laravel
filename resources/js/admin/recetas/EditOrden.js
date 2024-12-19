@@ -36,7 +36,7 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
   const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal || pacienteOrden?.id_sucursal);
   const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
+  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
   const [cedula, setCedula] = useState('');
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
@@ -60,7 +60,9 @@ const EditOrden = ({ fecha_solicitud }) => {
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = telefono.replace(/\D/g, '');
-    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+
     return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
   };
 
