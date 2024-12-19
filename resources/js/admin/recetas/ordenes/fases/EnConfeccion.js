@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Tooltip } from 'antd';
+import { Col, Divider, Input, Row, Tooltip, Button } from 'antd';
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 
 const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   const dispatch = useDispatch();
@@ -20,12 +22,42 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
   const { orden } = location.state || {};
+  const [telefono, setTelefono] = useState('');
+  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const { pacientes } = useSelector((state) => state.pacientes);
+  const [nombrePaciente, setNombrePaciente] = useState('');
+  const idUsuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
     if (orderId) {
       dispatch(fecthTiposFasesOrdenes(orderId));
     }
   }, []);
+
+  useEffect(() => {
+    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+  }, []);
+
+  useEffect(() => {
+    if (selectedPaciente) {
+      const pacienteSeleccionado = pacientes.find(
+        (paciente) => paciente.id_paciente === selectedPaciente
+      );
+      console.log('pacienteSeleccionado:', pacienteSeleccionado)
+      if (pacienteSeleccionado) {
+        setTelefono(pacienteSeleccionado.celular || '');
+        setNombrePaciente(pacienteSeleccionado?.nombres || '');
+      } else {
+        setTelefono('');
+
+      }
+    } else {
+      setTelefono('');
+    }
+  }, [selectedPaciente, pacientes]);
+
+
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -88,6 +120,13 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
 
   const statusToDisplay = orden?.status;
 
+  const generateWhatsAppLink = () => {
+    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
+    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    console.log('telefonoFormateado:', telefonoFormateado)
+    console.log('mensajePersonalizado:', mensajePersonalizado)
+    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+  };
   const actualizarFecha = async () => {
     const result = await Swal.fire({
       title: '¿Estás seguro de actualizar esta fecha?',
@@ -110,6 +149,27 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
       );
     }
   }
+
+  const handleContactarPaciente = async () => {
+    // Datos para la API
+    const newContactoOrdenData = {
+      ordenes_id: orden?.id_orden,
+      fase_orden_id: tipoFaseId,
+      usuario_id: idUsuario,
+      cantidad: 1
+    };
+
+    try {
+      // Llamar a la API
+      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      console.log('Contacto creado exitosamente');
+
+      // Abrir enlace de WhatsApp
+      window.open(generateWhatsAppLink(), '_blank');
+    } catch (error) {
+      console.error('Error al crear contacto:', error);
+    }
+  };
 
   return (
     <div>
@@ -168,6 +228,26 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
             ></div>
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
+          <Button
+            onClick={handleContactarPaciente}
+            disabled={!telefono}
+          >
+            Contactar al paciente
+          </Button>
+          {/* <Button
+                      onClick={() => {
+                        console.log('nombrePaciente:',nombrePaciente)
+                        console.log('orden:',orden)
+                        console.log('tipoFaseId:',tipoFaseId)
+                        console.log('selectedPaciente:',selectedPaciente)
+                        console.log('nombreUsuario:',nombreUsuario)
+                        console.log('telefono:',telefono)
+                        console.log('mensaje:',mensaje)
+                      }}
+          
+                      >
+                      Aqui            
+                      </Button> */}
         </Col>
       </Row>
     </div>

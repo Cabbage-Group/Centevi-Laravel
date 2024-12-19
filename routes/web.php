@@ -15,6 +15,7 @@ use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
+use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
@@ -280,6 +281,10 @@ Route::get('/api/reporte-ordenes', [OrdenesApiController::class, 'reportesOrdene
 Route::get('/api/ordenes/{id}', [OrdenesApiController::class, 'ordenesDelPaciente']);
 
 Route::post('/api/whatsapp-link', [WhatsappApiController::class, 'getWhatsAppLink']);
+
+Route::get('/api/contacto-orden', [ContactosOrdenesApiController::class, 'index']);
+
+Route::post('/api/contacto-orden', [ContactosOrdenesApiController::class, 'store']);
 
 
 Route::get('/{any}', function () {
