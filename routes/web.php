@@ -273,6 +273,8 @@ Route::post('/api/tipos-fases-ordenes', [OrdenesApiController::class, 'createTip
 
 Route::get('/api/fases-ordenes', [OrdenesApiController::class, 'fasesOrdenes']);
 
+Route::put('/api/fases-ordenes/{id}', [OrdenesApiController::class, 'updateFasesOrdenes']);
+
 Route::post('/api/create-fases-ordenes', [OrdenesApiController::class, 'createFasesOrdenes']);
 
 Route::get('/api/reporte-ordenes', [OrdenesApiController::class, 'reportesOrdenes']);

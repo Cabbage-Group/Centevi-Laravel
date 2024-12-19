@@ -24,6 +24,22 @@ export const createFasesOrdenes = createAsyncThunk(
     }
 );
 
+export const updateFasesOrdenes = createAsyncThunk(
+    'fasesOrdenes/updateFasesOrdenes',
+    async ({ id, data }) => {
+        try {
+            console.log('data:', data)
+            const response = await axios.put(`${API}/fases-ordenes/${id}`, data);
+
+            return response.data;
+        } catch (error) {
+            console.error('Error updating fase orden:', error.response?.data || error.message);
+            throw error;
+        }
+    }
+);
+
+
 
 
 const fasesOrdenesSlice = createSlice({
@@ -61,6 +77,20 @@ const fasesOrdenesSlice = createSlice({
                 state.fasesOrdenes.push(action.payload.data);
             })
             .addCase(createFasesOrdenes.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            })
+            .addCase(updateFasesOrdenes.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateFasesOrdenes.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const index = state.fasesOrdenes.findIndex(receta => receta.id === action.payload.data.id);
+                if (index !== -1) {
+                    state.fasesOrdenes[index] = action.payload.data;
+                }
+            })
+            .addCase(updateFasesOrdenes.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });

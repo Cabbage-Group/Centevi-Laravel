@@ -20,6 +20,7 @@ class FasesOrdenes extends Migration
       $table->string('laboratorio', 45)->nullable();
       $table->string('observacion', 400)->nullable();
       $table->string('fecha_fase', 45)->nullable();
+      $table->tinyInteger('status')->nullable();
       $table->timestamps();
     });
   }
