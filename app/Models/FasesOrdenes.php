@@ -32,4 +32,10 @@ class FasesOrdenes extends Model
   {
     return $this->belongsTo(TiposFasesOrdenes::class, 'tipo_fase_orden_id');
   }
+
+  public function contactosOrdenes()
+  {
+      return $this->hasMany(ContactoOrden::class, 'fase_orden_id');
+  }
+
 }

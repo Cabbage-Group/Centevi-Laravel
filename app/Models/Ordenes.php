@@ -76,4 +76,10 @@ class Ordenes extends Model
   {
     return $this->belongsTo(Sucursales::class, 'id_sucursal', 'id_sucursal');
   }
+
+  public function contactosOrdenes()
+{
+    return $this->hasMany(ContactoOrden::class);
+}
+
 }
