@@ -57,18 +57,31 @@ const Ordenes = () => {
         const hasCompleted = tipoFase.fases_ordenes.some(
           (faseOrden) =>
             faseOrden.ordenes_id === parseInt(orderId) &&
-            faseOrden.tipo_fase_orden_id === tipoFase.id
-
+            faseOrden.tipo_fase_orden_id === tipoFase.id &&
+            faseOrden.status === 1
         );
-        return hasCompleted ? index : lastStep;
-      }, -1);
 
+        const hasPending = tipoFase.fases_ordenes.some(
+          (faseOrden) =>
+            faseOrden.ordenes_id === parseInt(orderId) &&
+            faseOrden.tipo_fase_orden_id === tipoFase.id &&
+            faseOrden.status === 0
+        );
+
+        if (hasCompleted) {
+          return index;
+        } else if (hasPending) {
+          return lastStep;
+        }
+
+        return lastStep;
+      }, -1);
 
       setNivelStep(lastCompletedStep + 1);
       setInitialized(true);
 
+      console.log("Último paso calculado:", lastCompletedStep);
     }
-
   }, [tiposFasesOrdenes, orderId, initialized]);
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
@@ -95,35 +108,41 @@ const Ordenes = () => {
     };
   });
 
-  const avanzarFase = async () => {
+  const avanzarFase = async (avanzar = true, completar = false) => {
     const result = await Swal.fire({
-      title: '¿Estás seguro de avanzar en la fase?',
-      text: "¡Confirmarás los cambios en los datos!",
+      title: completar ? '¿Estás seguro de completar la fase?' : '¿Estás seguro de guardar la fase?',
+      text: completar ? "¡Confirmarás la fase como completada!" : "¡Confirmarás los cambios en los datos!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, guardar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'Sí, ' + (completar ? 'completar' : 'guardar'),
+      cancelButtonText: 'Cancelar',
     });
-
+  
     if (result.isConfirmed) {
+      const status = completar ? 1 : 0;
+  
       const nuevaDataConOrderId = {
         ...nuevaData,
         ordenes_id: orderId,
+        status: status, 
       };
-      console.log('nuevaDataConOrderId:', nuevaDataConOrderId)
-      setNivelStep(nivelStep + 1)
+  
+      console.log('nuevaDataConOrderId:', nuevaDataConOrderId);
+  
+      if (completar || avanzar) {
+        setNivelStep(nivelStep + 1);
+      }
+  
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
       dispatch(fecthTiposFasesOrdenes(orderId));
-      // Mostrar alerta de éxito
-      await Swal.fire(
-        'Guardado!',
-        'La fase ha sido guardada.',
-        'success'
-      );
+  
+      await Swal.fire(completar ? 'Completado!' : 'Guardado!', 
+                      completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.', 
+                      'success');
     }
-  }
+  };
 
   return (
     <div>
@@ -199,13 +218,13 @@ const Ordenes = () => {
                     Anterior
                   </Button>
                 )}
-                <Button
-                  onClick={() => avanzarFase()}
-                  type='primary'
-                >
+                <Button onClick={() => avanzarFase(false, false)} type='default'>
+                  Guardar Fase
+                </Button>
+                <Button onClick={() => avanzarFase(false, true)} type='primary'>
                   Completar Fase
                 </Button>
-                
+
               </Row>
             </div>
 

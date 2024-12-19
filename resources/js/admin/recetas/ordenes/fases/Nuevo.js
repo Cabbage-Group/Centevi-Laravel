@@ -260,20 +260,6 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             >
             Contactar al paciente
             </Button>
-          {/* <Button
-            onClick={() => {
-              console.log('nombrePaciente:',nombrePaciente)
-              console.log('orden:',orden)
-              console.log('tipoFaseId:',tipoFaseId)
-              console.log('selectedPaciente:',selectedPaciente)
-              console.log('nombreUsuario:',nombreUsuario)
-              console.log('telefono:',telefono)
-              console.log('mensaje:',mensaje)
-            }}
-
-            >
-            Aqui            
-            </Button> */}
         </Col>
       </Row>
     </div>
