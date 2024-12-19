@@ -41,6 +41,11 @@ class Usuarios extends Model
     {
         return $this->belongsTo(TiposUsuario::class);
     }
+
+    public function contactosOrdenes()
+    {
+        return $this->hasMany(ContactoOrden::class, 'usuario_id');
+    }
     /**
      * The attributes that should be hidden for serialization.
      *

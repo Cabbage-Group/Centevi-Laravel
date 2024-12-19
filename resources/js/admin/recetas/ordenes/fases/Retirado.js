@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Select, Tooltip } from 'antd'
+import { Col, Divider, Input, Row, Tooltip, Button } from 'antd'
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
+import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 
 const Retirado = ({ tipoFaseId, lab }) => {
 
@@ -21,12 +23,42 @@ const Retirado = ({ tipoFaseId, lab }) => {
   const location = useLocation();
   const { orden } = location.state || {};
   const [laboratorio, setLaboratorio] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [mensaje, setMensaje] = useState('Hola {nombre}, ¿cómo estás?');
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const { pacientes } = useSelector((state) => state.pacientes);
+  const [nombrePaciente, setNombrePaciente] = useState('');
+  const idUsuario = localStorage.getItem('id_usuario');
+
 
   useEffect(() => {
     if (orderId) {
       dispatch(fecthTiposFasesOrdenes(orderId));
     }
   }, [])
+
+  useEffect(() => {
+    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+  }, []);
+
+  useEffect(() => {
+    if (selectedPaciente) {
+      const pacienteSeleccionado = pacientes.find(
+        (paciente) => paciente.id_paciente === selectedPaciente
+      );
+      console.log('pacienteSeleccionado:', pacienteSeleccionado)
+      if (pacienteSeleccionado) {
+        setTelefono(pacienteSeleccionado?.celular || '');
+        setNombrePaciente(pacienteSeleccionado?.nombres || '');
+      } else {
+        setTelefono('');
+
+      }
+    } else {
+      setTelefono('');
+    }
+  }, [selectedPaciente, pacientes]);
+
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -84,6 +116,13 @@ const Retirado = ({ tipoFaseId, lab }) => {
 
   const statusToDisplay = orden?.status_final || orden?.status;
 
+  const generateWhatsAppLink = () => {
+    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
+    const mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+  };
+
+
   useEffect(() => {
     const nuevaFase = {
       tipo_fase_orden_id: tipoFaseId,
@@ -118,6 +157,27 @@ const Retirado = ({ tipoFaseId, lab }) => {
       );
     }
   }
+
+  const handleContactarPaciente = async () => {
+    // Datos para la API
+    const newContactoOrdenData = {
+      ordenes_id: orden?.id_orden,
+      fase_orden_id: tipoFaseId,
+      usuario_id: idUsuario,
+      cantidad: 1
+    };
+
+    try {
+      // Llamar a la API
+      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      console.log('Contacto creado exitosamente');
+
+      // Abrir enlace de WhatsApp
+      window.open(generateWhatsAppLink(), '_blank');
+    } catch (error) {
+      console.error('Error al crear contacto:', error);
+    }
+  };
 
   return (
     <div>
@@ -183,6 +243,12 @@ const Retirado = ({ tipoFaseId, lab }) => {
             ></div>
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
+          <Button
+            onClick={handleContactarPaciente}
+            disabled={!telefono}
+          >
+            Contactar al paciente
+          </Button>
         </Col>
       </Row>
     </div>

@@ -484,12 +484,12 @@ const EditOrden = ({ fecha_solicitud }) => {
                         }}>
                           Aqui
                         </Button> */}
-                        <Button
+                        {/* <Button
                           onClick={() => window.open(generateWhatsAppLink(), '_blank')}
                           disabled={!telefono}
                         >
                           Enviar mensaje por WhatsApp
-                        </Button>
+                        </Button> */}
                         <Formik
                           initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
                           validationSchema={validationSchema}
