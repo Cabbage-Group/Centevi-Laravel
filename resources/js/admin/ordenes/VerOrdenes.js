@@ -3,10 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
-import { deleteOrdenes, fecthOrdenes, setOrden, setOrdenPor, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, setOrden, setOrdenPor, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
-import { Modal, Skeleton, Button, Tooltip, Select } from 'antd';
+import { Modal, Skeleton, Button, Tooltip, Select, Table } from 'antd';
+import {
+  EyeOutlined
+} from '@ant-design/icons';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -17,12 +20,14 @@ const VerOrdenes = () => {
     meta,
     search,
     totalPages,
+    contactoOrden,
     sortColumn,
     sortOrder } = useSelector((state) => state.ordenes);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
   const [showOrden, setShowOrden] = useState(false);
+  const [showContacto, setShowContacto] = useState(false);
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
 
@@ -55,6 +60,21 @@ const VerOrdenes = () => {
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
   };
+
+  const formatDate = (dateString) => {
+    if(!dateString) return ''
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+  
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
+  }
+
   const handleClearSearch = () => {
     setLocalSearch('');
   };
@@ -105,6 +125,19 @@ const VerOrdenes = () => {
       );
     }
   };
+
+  const handleVerContacto = async (id_orden) => {
+    const rpta = await dispatch(fetchContactoOrdenesDelPaciente(id_orden))
+    if(rpta){
+      setShowContacto(true)
+    }else{
+      Swal.fire(
+        'Error',
+        'Hubo un problema al cargar los datos.',
+        'error'
+      );
+    }
+  }
 
   const handleVerOrden = async (id_orden) => {
 
@@ -556,7 +589,13 @@ const VerOrdenes = () => {
                                         <path d="M4.603 12.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-2.227 7.3 7.3 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a11 11 0 0 0 .98 1.686 5.8 5.8 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.86.86 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.7 5.7 0 0 1-.911-.95 11.6 11.6 0 0 0-1.997.406 11.3 11.3 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.8.8 0 0 1-.58.029m1.379-1.901q-.25.115-.459.238c-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361q.016.032.026.044l.035-.012c.137-.056.355-.235.635-.572a8 8 0 0 0 .45-.606m1.64-1.33a13 13 0 0 1 1.01-.193 12 12 0 0 1-.51-.858 21 21 0 0 1-.5 1.05zm2.446.45q.226.244.435.41c.24.19.407.253.498.256a.1.1 0 0 0 .07-.015.3.3 0 0 0 .094-.125.44.44 0 0 0 .059-.2.1.1 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a4 4 0 0 0-.612-.053zM8.078 5.8a7 7 0 0 0 .2-.828q.046-.282.038-.465a.6.6 0 0 0-.032-.198.5.5 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822q.036.167.09.346z" />
                                       </svg>
                                     </button>
-
+                                    <button
+                                      onClick={() => handleVerContacto(orden.id_orden)}
+                                      className="btn btn-info"
+                                      style={{display:'flex',alignItems:'center'}}
+                                    >
+                                      <EyeOutlined />
+                                    </button>
                                     <button
                                       onClick={() => handleEliminarOrden(orden.id_orden)}
                                       borrar_receta="185"
@@ -718,6 +757,35 @@ const VerOrdenes = () => {
             className='btn btn-danger'
           >Cerrar</button>
         </div>
+      </Modal>
+      <Modal
+        open={showContacto}
+        zIndex={1000000000}
+        width={1000}
+        closable={true}
+        onClose={() => setShowContacto(false)}
+        footer={null}
+        onCancel={() => setShowContacto(false)}
+        height='100%'
+        centered={false}>
+          <div style={{marginTop: '20px'}}>
+            <div style={{marginBottom:'10px', fontWeight:600, fontSize:'18px'}}>Veces contactada: {contactoOrden.length}</div>
+            <Table
+              className='Table-Orden-Contacts'
+              columns={[
+                { title:'Usuario', dataIndex:'nombre', key:'nombre'},
+                {
+                  title:'Fecha',
+                  dataIndex:'created_at',
+                  key:'created_at', 
+                  render: (text, record) => {
+                    return formatDate(text)
+                  }},
+              ]}
+              dataSource={contactoOrden}
+            />
+
+          </div>
       </Modal>
     </div>
   )
