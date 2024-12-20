@@ -168,7 +168,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
     // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orden?.id_orden,
-      fase_orden_id: faseOrdenId,
+      tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
     };
@@ -258,18 +258,9 @@ const Nuevo = ({ tipoFaseId, lab }) => {
           </div>
           <Button
             onClick={handleContactarPaciente}
-            disabled={!telefono || !faseOrdenId}
           >
             Contactar al paciente
           </Button>
-          {/* <Button
-              onClick={()=>{
-                console.log('faseOrdenId:',faseOrdenId)
-                console.log('pacienteOrden:',pacienteOrden)
-                console.log('orden:',orden)
-              }}>
-              Aqui
-            </Button> */}
         </Col>
       </Row>
     </div>

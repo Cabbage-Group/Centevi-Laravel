@@ -549,7 +549,9 @@ const VerOrdenes = () => {
                                               ? 'yellow'
                                               : orden?.status === 'Critico'
                                                 ? 'red'
-                                                : 'gray',
+                                                 : orden?.status === 'Completado'
+                                                ? 'blue'
+                                                  : 'gray',
                                       }}
                                     ></span>{" "}
                                   </Tooltip>

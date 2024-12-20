@@ -158,7 +158,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
     // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orden?.id_orden,
-      fase_orden_id: faseOrdenId,
+      tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
     };
@@ -234,22 +234,8 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
           </div>
           <Button
             onClick={handleContactarPaciente}
-            disabled={!telefono || !faseOrdenId}
           >
             Contactar al paciente
-          </Button>
-          <Button
-            onClick={() => {
-              console.log('nombrePaciente:', nombrePaciente)
-              console.log('orden:', orden)
-              console.log('tipoFaseId:', tipoFaseId)
-              console.log('selectedPaciente:', selectedPaciente)
-              console.log('telefono:', telefono)
-              console.log('mensaje:', mensaje)
-              console.log('faseOrdenId:', faseOrdenId)
-            }}
-          >
-            Aqui
           </Button>
         </Col>
       </Row>

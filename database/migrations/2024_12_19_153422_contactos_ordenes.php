@@ -16,7 +16,7 @@ class ContactosOrdenes extends Migration
         Schema::create('contactos_ordenes', function (Blueprint $table) {
             $table->id(); 
             $table->foreignId('ordenes_id')->references('id_orden')->on('ordenes')->onDelete('cascade');
-            $table->foreignId('fase_orden_id')->constrained('fases_ordenes')->onDelete('cascade');
+            $table->foreignId('tipo_fase_orden_id')->constrained('tipos_fases_ordenes')->onDelete('cascade');
             $table->integer('usuario_id')->references('id_usuario')->on('usuarios')->onDelete('cascade');
             $table->unsignedInteger('cantidad')->default(0); 
             $table->timestamps();

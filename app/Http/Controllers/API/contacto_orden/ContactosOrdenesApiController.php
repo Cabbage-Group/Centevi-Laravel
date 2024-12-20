@@ -21,7 +21,7 @@ class ContactosOrdenesApiController extends Controller
   {
     $validatedData = $request->validate([
       'ordenes_id' => 'required|exists:ordenes,id_orden',
-      'fase_orden_id' => 'required|exists:fases_ordenes,id',
+      'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
       'usuario_id' => 'required|exists:usuarios,id_usuario',
     ]);
 

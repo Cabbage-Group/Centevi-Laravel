@@ -21,8 +21,9 @@ import Swal from 'sweetalert2';
 import EditOrden from '../EditOrden';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { current } from '@reduxjs/toolkit';
 import { createFasesOrdenes } from '../../../redux/features/ordenes/fasesOrdenesSlice';
+import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 
 const Ordenes = () => {
 
@@ -36,6 +37,46 @@ const Ordenes = () => {
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
+  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
+  const [telefono, setTelefono] = useState('');
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const { pacientes } = useSelector((state) => state.pacientes);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps);
+  const [nombrePaciente, setNombrePaciente] = useState('');
+  const idUsuario = localStorage.getItem('id_usuario');
+
+
+  const generateWhatsAppLink = () => {
+    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
+    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+
+
+    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+  };
+
+  useEffect(() => {
+      if (selectedPaciente) {
+        const pacienteSeleccionado = pacientes.find(
+          (paciente) => paciente.id_paciente === selectedPaciente
+        );
+        console.log('pacienteSeleccionado:', pacienteSeleccionado)
+        if (pacienteSeleccionado) {
+          setTelefono(pacienteSeleccionado?.celular || '');
+          setNombrePaciente(pacienteSeleccionado?.nombres || '');
+        } else {
+          setTelefono('');
+  
+        }
+      } else {
+        setTelefono('');
+      }
+    }, [selectedPaciente, pacientes]);
+
+   useEffect(() => {
+      dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    }, []);
+  
 
   useEffect(() => {
     console.log("Datos de fase guardados en nuevaData:", nuevaData);
@@ -119,30 +160,48 @@ const Ordenes = () => {
       confirmButtonText: 'Sí, ' + (completar ? 'completar' : 'guardar'),
       cancelButtonText: 'Cancelar',
     });
-  
+
     if (result.isConfirmed) {
       const status = completar ? 1 : 0;
-  
+
       const nuevaDataConOrderId = {
         ...nuevaData,
         ordenes_id: orderId,
-        status: status, 
+        status: status,
       };
-  
+
       console.log('nuevaDataConOrderId:', nuevaDataConOrderId);
-  
+
       if (completar || avanzar) {
         setNivelStep(nivelStep + 1);
       }
-  
+
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
       dispatch(fecthTiposFasesOrdenes(orderId));
-  
-      await Swal.fire(completar ? 'Completado!' : 'Guardado!', 
-                      completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.', 
-                      'success');
+
+      await Swal.fire(completar ? 'Completado!' : 'Guardado!',
+        completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
+        'success');
     }
   };
+
+    const handleContactarPaciente = async () => {
+      const newContactoOrdenData = {
+        ordenes_id: orden?.id_orden,
+        tipo_fase_orden_id: 4,
+        usuario_id: idUsuario,
+        cantidad: 1
+      };
+  
+      try {
+        await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+        console.log('Contacto creado exitosamente');
+  
+        window.open(generateWhatsAppLink(), '_blank');
+      } catch (error) {
+        console.error('Error al crear contacto:', error);
+      }
+    };
 
   return (
     <div>
@@ -164,7 +223,24 @@ const Ordenes = () => {
 
           </div>
 
+
+
           <div>
+            {nivelStep === 4 && (
+              <div
+                style={{
+                  background: '#e6ffed',
+                  border: '1px solid #b7eb8f',
+                  color: '#389e0d',
+                  padding: '15px',
+                  margin: '10px',
+                  borderRadius: '5px',
+                  textAlign: 'center',
+                }}
+              >
+                Se completó todas las fases
+              </div>
+            )}
             <div
               style={{
                 background: 'white',
@@ -224,7 +300,13 @@ const Ordenes = () => {
                 <Button onClick={() => avanzarFase(false, true)} type='primary'>
                   Completar Fase
                 </Button>
-
+              {nivelStep === 4 && (
+                <Button
+                  onClick={handleContactarPaciente}
+                >
+                  Contactar al paciente
+                </Button>
+              )}
               </Row>
             </div>
 

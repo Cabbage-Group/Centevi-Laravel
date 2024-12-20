@@ -33,8 +33,11 @@ class OrdenesApiController extends Controller
 
     // Subconsulta para contar el número total de fases para cada orden
     $contadorFasesQuery = DB::table('fases_ordenes')
-      ->select('ordenes_id', DB::raw('COUNT(*) as total_fases'))
-      ->groupBy('ordenes_id');
+        ->select('ordenes_id', 
+            DB::raw('COUNT(*) as total_fases'),
+            DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+        )
+        ->groupBy('ordenes_id');
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
@@ -46,9 +49,10 @@ class OrdenesApiController extends Controller
         'fo.observacion as observacion_primera_fase',
         'fo.fecha_fase as fecha_primera_fase',
         'contador_fases.total_fases',
+        'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
         DB::raw('CASE 
-                WHEN contador_fases.total_fases = 4 THEN "Completado"
+                WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"

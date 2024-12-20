@@ -13,7 +13,7 @@ class ContactoOrden extends Model
 
     protected $fillable = [
         'ordenes_id', 
-        'fase_orden_id', 
+        'tipo_fase_orden_id', 
         'usuario_id', 
         'cantidad'
     ];
