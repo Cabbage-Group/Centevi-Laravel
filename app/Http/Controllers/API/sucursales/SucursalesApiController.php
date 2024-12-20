@@ -63,6 +63,7 @@ class SucursalesApiController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'ubicacion' => 'required|string|max:255',
+            'ubicacion_maps' => 'required|string|max:255',
             'fecha_creacion' => 'date',
            
         ]);
@@ -71,6 +72,7 @@ class SucursalesApiController extends Controller
         $sucursal = Sucursales::create([
             'nombre' => $request->nombre,
             'ubicacion' => $request->ubicacion,
+            'ubicacion_maps' => $request->ubicacion_maps,
             'fecha_creacion' =>  now(),
         ]);
 
@@ -90,6 +92,7 @@ class SucursalesApiController extends Controller
         $request->validate([
             'nombre' => 'string|max:255',
             'ubicacion' => 'string|max:255',
+            'ubicacion_maps' => 'required|string|max:255',
             'fecha_creacion' => 'date',
           
         ]);

@@ -97,7 +97,7 @@ class OrdenesApiController extends Controller
     // Consulta principal
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
-      'sucursal:id_sucursal,nombre',
+      'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
     ])
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')

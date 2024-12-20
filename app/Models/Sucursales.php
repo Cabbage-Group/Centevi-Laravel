@@ -20,6 +20,7 @@ class Sucursales extends Model
     protected $fillable = [
         'nombre',
         'ubicacion',
+        'ubicacion_maps',
         'fecha_creacion',
     ];
 
