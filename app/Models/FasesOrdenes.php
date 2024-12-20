@@ -27,6 +27,7 @@ class FasesOrdenes extends Model
   protected $casts = [
     'ordenes_id' => 'integer', // Asegura que siempre sea tratado como un número entero
     'tipo_fase_orden_id' => 'integer', // Asegura que siempre sea tratado como un número entero
+    'status' => 'integer', // Asegura que siempre sea tratado como un número entero
   ];
 
   public function tipoFaseOrden()
