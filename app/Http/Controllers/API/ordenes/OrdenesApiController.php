@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\TiposFasesOrdenes;
 use App\Models\FasesOrdenes;
+use App\Models\ContactoOrden;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -809,6 +810,29 @@ class OrdenesApiController extends Controller
         'message' => 'Patient orders retrieved successfully',
       ],
       'mensaje' => 'Órdenes del paciente obtenidas correctamente',
+    ], 200);
+  }
+
+  public function verContactoOrden($id_orden)
+  {
+
+    $data = ContactoOrden::join('usuarios','usuarios.id_usuario','contactos_ordenes.usuario_id')
+                    ->select(
+                      'contactos_ordenes.*',
+                      'usuarios.nombre',
+                    )
+                    ->where('contactos_ordenes.ordenes_id', $id_orden)
+                    ->orderBy('contactos_ordenes.created_at', 'desc')
+                    ->get();
+
+    return response()->json([
+      'data' => $data,
+      'respuesta' => true,
+      'status' => [
+        'code' => 200,
+        'message' => 'Contacto orders retrieved successfully',
+      ],
+      'mensaje' => 'Contactos de Órdenes del paciente obtenidas correctamente',
     ], 200);
   }
 
