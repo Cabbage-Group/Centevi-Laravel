@@ -25,29 +25,13 @@ class ContactosOrdenesApiController extends Controller
         'usuario_id' => 'required|exists:usuarios,id_usuario',
     ]);
 
-    // Buscar si ya existe un registro con los mismos datos
-    $contactoOrden = ContactoOrden::where('ordenes_id', $validatedData['ordenes_id'])
-        ->where('fase_orden_id', $validatedData['fase_orden_id'])
-        ->where('usuario_id', $validatedData['usuario_id'])
-        ->first();
+    $validatedData['cantidad'] = 1; 
+    $contactoOrden = ContactoOrden::create($validatedData);
 
-    if ($contactoOrden) {
-        // Si existe, incrementa el click_count
-        $contactoOrden->increment('cantidad');
-        return response()->json([
-            'success' => true,
-            'message' => 'Click count incrementado exitosamente.',
-            'data' => $contactoOrden,
-        ]);
-    } else {
-        // Si no existe, crea un nuevo registro
-        $validatedData['cantidad'] = 1; // Inicializa con 1
-        $contactoOrden = ContactoOrden::create($validatedData);
-        return response()->json([
-            'success' => true,
-            'message' => 'Contacto de orden creado exitosamente.',
-            'data' => $contactoOrden,
-        ], 201);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Contacto de orden creado exitosamente.',
+        'data' => $contactoOrden,
+    ], 201);
 }
 }

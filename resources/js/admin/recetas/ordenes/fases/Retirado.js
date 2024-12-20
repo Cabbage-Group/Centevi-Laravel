@@ -17,6 +17,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
   const [fechaCreacion, setFechaCreacion] = useState('')
   const [fechaFaseListo, setFechaFaseListo] = useState('');
+  const [faseOrdenId, setFaseOrdenId] = useState();
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
@@ -28,7 +29,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -76,6 +77,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseListo(faseOrden2.fecha_fase)
+        
 
         }
       }
@@ -99,6 +101,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
+          setFaseOrdenId(faseOrden.id)
 
         }
       }
@@ -165,7 +168,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
     // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orden?.id_orden,
-      fase_orden_id: tipoFaseId,
+      fase_orden_id: faseOrdenId,
       usuario_id: idUsuario,
       cantidad: 1
     };
@@ -248,7 +251,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
           </div>
           <Button
             onClick={handleContactarPaciente}
-            disabled={!telefono}
+            disabled={!telefono || !faseOrdenId}
           >
             Contactar al paciente
           </Button>

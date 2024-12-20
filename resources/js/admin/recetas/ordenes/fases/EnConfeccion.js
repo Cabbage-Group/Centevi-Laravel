@@ -21,14 +21,15 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
   const { orderId } = useParams();
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
+  const [faseOrdenId, setFaseOrdenId] = useState();
   const { orden } = location.state || {};
-  
+
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
@@ -95,6 +96,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
+          setFaseOrdenId(faseOrden.id)
         }
       }
     }
@@ -156,7 +158,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
     // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orden?.id_orden,
-      fase_orden_id: tipoFaseId,
+      fase_orden_id: faseOrdenId,
       usuario_id: idUsuario,
       cantidad: 1
     };
@@ -232,24 +234,23 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase }) => {
           </div>
           <Button
             onClick={handleContactarPaciente}
-            disabled={!telefono}
+            disabled={!telefono || !faseOrdenId}
           >
             Contactar al paciente
           </Button>
-          {/* <Button
-                      onClick={() => {
-                        console.log('nombrePaciente:',nombrePaciente)
-                        console.log('orden:',orden)
-                        console.log('tipoFaseId:',tipoFaseId)
-                        console.log('selectedPaciente:',selectedPaciente)
-                        console.log('nombreUsuario:',nombreUsuario)
-                        console.log('telefono:',telefono)
-                        console.log('mensaje:',mensaje)
-                      }}
-          
-                      >
-                      Aqui            
-                      </Button> */}
+          <Button
+            onClick={() => {
+              console.log('nombrePaciente:', nombrePaciente)
+              console.log('orden:', orden)
+              console.log('tipoFaseId:', tipoFaseId)
+              console.log('selectedPaciente:', selectedPaciente)
+              console.log('telefono:', telefono)
+              console.log('mensaje:', mensaje)
+              console.log('faseOrdenId:', faseOrdenId)
+            }}
+          >
+            Aqui
+          </Button>
         </Col>
       </Row>
     </div>

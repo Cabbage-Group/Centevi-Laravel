@@ -22,13 +22,14 @@ const Listo = ({ tipoFaseId, lab }) => {
   const { orderId } = useParams();
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
+  const [faseOrdenId, setFaseOrdenId] = useState();
   const { orden } = location.state || {};
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -75,6 +76,7 @@ const Listo = ({ tipoFaseId, lab }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseConfeccion(faseOrden2.fecha_fase);
+  
         }
       }
     }
@@ -95,6 +97,7 @@ const Listo = ({ tipoFaseId, lab }) => {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
+          setFaseOrdenId(faseOrden.id)
 
 
         }
@@ -162,7 +165,7 @@ const Listo = ({ tipoFaseId, lab }) => {
     // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orden?.id_orden,
-      fase_orden_id: tipoFaseId,
+      fase_orden_id: faseOrdenId,
       usuario_id: idUsuario,
       cantidad: 1
     };
@@ -239,7 +242,7 @@ const Listo = ({ tipoFaseId, lab }) => {
           </div>
           <Button
             onClick={handleContactarPaciente}
-            disabled={!telefono}
+            disabled={!telefono || !faseOrdenId}
           >
             Contactar al paciente
           </Button>
