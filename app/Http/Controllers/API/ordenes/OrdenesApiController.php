@@ -539,6 +539,7 @@ class OrdenesApiController extends Controller
     $sortOrder = $request->input('sortOrder', 'asc');
     $search = $request->input('search', '');
     $fecha = $request->input('fecha', '');
+    $status = $request->input('status', '');
 
 
     $validSortColumns = ['id_orden', 'created_at_formatted', 'laboratorio', 'status', 'lente_contacto', 'doctor', 'pagado'];
@@ -653,6 +654,21 @@ class OrdenesApiController extends Controller
         $startDate = $dates[0];
         $endDate = $dates[1];
         $ordenes->whereBetween('ordenes.created_at', [$startDate, $endDate]);
+      }
+    }
+
+    if ($status !== '') {
+      // Validate status input
+      $validStatuses = ['Ok', 'Advertencia', 'Critico', 'null'];
+
+      if (in_array($status, $validStatuses)) {
+        if ($status === 'null') {
+          // When status is 'null', filter for orders without a status
+          $ordenes->whereNull('primeras_fases.status_primera_fase');
+        } else {
+          // Filter for specific status
+          $ordenes->where('primeras_fases.status_primera_fase', $status);
+        }
       }
     }
 

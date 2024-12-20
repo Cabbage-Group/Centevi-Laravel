@@ -9,6 +9,7 @@ export const fecthReportesOrdenes = createAsyncThunk(
     limit = 20,
     sortOrder = 'desc',
     sortColumn = 'created_at',
+    status = '', 
     startDate = '',
     endDate = '',
     search = '',
@@ -22,7 +23,8 @@ export const fecthReportesOrdenes = createAsyncThunk(
         sortOrder,
         sortColumn,
         fecha,
-        search
+        search,
+        status, 
       }
     });
     return response.data;

@@ -3,10 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import DateRangePicker from './DateRangePicker';
 import ExportButton from './exportButton';
 import { transformDataForReporteOrdenes } from '../../../utils/dataTransform';
-import { BookTwoTone } from '@ant-design/icons';
-import Swal from 'sweetalert2';
-import { Button, Col, Divider, Input, Modal, Row, List, Tooltip } from 'antd';
-import moment from 'moment';
+import { Button, Col, Card, Row, Tooltip } from 'antd';
 import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange } from '../../redux/features/reportes/reporteOrdenesSlice';
 import PaginationReportesOrdenes from './PaginationReportesOrdenes';
 
@@ -17,6 +14,12 @@ const ReporteOrdenes = () => {
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
+  const [statusCounts, setStatusCounts] = useState({
+    ok: 0,
+    warning: 0,
+    critical: 0,
+    null: 0,
+  });
 
   const {
     reportesOrdenes,
@@ -53,6 +56,56 @@ const ReporteOrdenes = () => {
     startDate,
     endDate
   ]);
+
+  // useEffect(() => {
+  //   const fetchStatusCounts = async () => {
+  //     const statuses = ['Ok', 'Advertencia', 'Critico', null];
+  //     const counts = { ok: 0, warning: 0, critical: 0, null: 0 };
+
+  //     for (let i = 0; i < statuses.length; i++) {
+  //       const status = statuses[i];
+  //       const response = await dispatch(
+  //         fecthReportesOrdenes({ status, page: 1, limit: 1 })
+  //       );
+
+  //       if (response.payload?.meta?.total) {
+  //         if (status === 'Ok') counts.ok = response.payload.meta.total;
+  //         if (status === 'Advertencia') counts.warning = response.payload.meta.total;
+  //         if (status === 'Critico') counts.critical = response.payload.meta.total;
+  //         if (status === null) counts.null = response.payload.meta.total;
+  //       }
+  //     }
+
+  //     setStatusCounts(counts);
+  //   };
+
+  //   fetchStatusCounts();
+  // }, [dispatch]);
+
+  useEffect(() => {
+    // Consultas para obtener el conteo por cada estado
+    const fetchStatusCounts = async () => {
+      try {
+        const okCount = await dispatch(fecthReportesOrdenes({ status: 'Ok' }));
+        const warningCount = await dispatch(fecthReportesOrdenes({ status: 'Advertencia' }));
+        const criticalCount = await dispatch(fecthReportesOrdenes({ status: 'Critico' }));
+        const nullCount = await dispatch(fecthReportesOrdenes({ status: null }));
+
+        console.log('okCount11111111:',okCount)
+
+        setStatusCounts({
+          ok: okCount.payload.meta.total, 
+          warning: warningCount.payload.meta.total, 
+          critical: criticalCount.payload.meta.total, 
+          nullStatus: nullCount.payload.meta.total
+        });
+      } catch (error) {
+        console.error("Error al obtener los conteos de estados", error);
+      }
+    };
+
+    fetchStatusCounts();
+  }, [dispatch]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -96,6 +149,31 @@ const ReporteOrdenes = () => {
                 </div>
               </div>
             </div>
+
+            {/* Card con la cantidad de datos por estado */}
+            <Row gutter={16} style={{ marginBottom: '20px' }}>
+              <Col span={6}>
+                <Card title="Ok" bordered={false} hoverable>
+                  <h2>{statusCounts.ok}</h2>
+                </Card>
+              </Col>
+              <Col span={6}>
+                <Card title="Advertencia" bordered={false} hoverable>
+                  <h2>{statusCounts.warning}</h2>
+                </Card>
+              </Col>
+              <Col span={6}>
+                <Card title="Crítico" bordered={false} hoverable>
+                  <h2>{statusCounts.critical}</h2>
+                </Card>
+              </Col>
+              <Col span={6}>
+                <Card title="Null" bordered={false} hoverable>
+                  <h2>{statusCounts.nullStatus}</h2>
+                </Card>
+              </Col>
+            </Row>
+
             <div className="col-md-12" style={{ marginTop: '-60px' }}>
               <div className="form-group col-md-4 mt-4">
                 <label>
@@ -111,6 +189,15 @@ const ReporteOrdenes = () => {
                   onApply={handleDateChange}
                 />
               </div>
+              <Button
+              onClick={()=>{
+                console.log('meta:',meta)
+                console.log('statusCounts:',statusCounts)
+                console.log('meta:',meta)
+                console.log('meta:',meta)
+              }}>
+              meta
+            </Button>
               <div className="table-responsive">
                 <div
                   className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
