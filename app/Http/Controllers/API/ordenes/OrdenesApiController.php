@@ -815,8 +815,13 @@ class OrdenesApiController extends Controller
   public function verOrdenPdf($id_orden)
   {
 
-    $orden = Ordenes::find($id_orden);
-
+    $orden = Ordenes::join('sucursales', 'sucursales.id_sucursal','ordenes.id_sucursal')
+                    ->select(
+                      'ordenes.*',
+                      'sucursales.nombre',
+                    )
+                    ->where('ordenes.id_orden', $id_orden)
+                    ->first();
     $data = [
       'fecha_solicitud' => $orden['created_at'],
       'nro_orden' => $orden['nro_orden'],
@@ -828,7 +833,6 @@ class OrdenesApiController extends Controller
       'prisma_od' => $orden['prisma_od'],
       'distancia_od' => $orden['distancia_od'],
       'altura_od' => $orden['altura_od'],
-
       'esfera_oi' => $orden['esfera_oi'],
       'cilindro_oi' => $orden['cilindro_oi'],
       'eje_oi' => $orden['eje_oi'],
@@ -855,6 +859,7 @@ class OrdenesApiController extends Controller
       'lente_contacto' => $orden['lente_contacto'],
       'tratamientos_oi' => $orden['tratamientos_oi'],
       'tratamientos_od' => $orden['tratamientos_od'],
+      'sucursal' => $orden['nombre'] ?? '',
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);
