@@ -10,7 +10,7 @@ import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSl
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 
 const Nuevo = ({ tipoFaseId, lab }) => {
-  const dispatch = useDispatch();  
+  const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [faseOrdenId, setFaseOrdenId] = useState();
@@ -36,26 +36,26 @@ const Nuevo = ({ tipoFaseId, lab }) => {
   }, []);
 
   useEffect(() => {
-      dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-    }, []);
+    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+  }, []);
 
   useEffect(() => {
-      if (selectedPaciente) {
-        const pacienteSeleccionado = pacientes.find(
-          (paciente) => paciente.id_paciente === selectedPaciente
-        );
-        console.log('pacienteSeleccionado:',pacienteSeleccionado)
-        if (pacienteSeleccionado) {
-          setTelefono(pacienteSeleccionado?.celular || '');
-          setNombrePaciente(pacienteSeleccionado?.nombres || '');
-        } else {
-          setTelefono('');
-
-        }
+    if (selectedPaciente) {
+      const pacienteSeleccionado = pacientes.find(
+        (paciente) => paciente.id_paciente === selectedPaciente
+      );
+      console.log('pacienteSeleccionado:', pacienteSeleccionado)
+      if (pacienteSeleccionado) {
+        setTelefono(pacienteSeleccionado?.celular || '');
+        setNombrePaciente(pacienteSeleccionado?.nombres || '');
       } else {
         setTelefono('');
+
       }
-    }, [selectedPaciente, pacientes]);
+    } else {
+      setTelefono('');
+    }
+  }, [selectedPaciente, pacientes]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -109,10 +109,10 @@ const Nuevo = ({ tipoFaseId, lab }) => {
   const statusToDisplay = orden?.status_final || orden?.status;
 
   const generateWhatsAppLink = () => {
-    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`; 
+    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
     let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
     mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
-    
+
 
     return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
   };
@@ -184,7 +184,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
       console.error('Error al crear contacto:', error);
     }
   };
-  
+
 
 
 
@@ -257,12 +257,12 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
           <Button
-             onClick={handleContactarPaciente}
-             disabled={!telefono || !faseOrdenId}
-            >
+            onClick={handleContactarPaciente}
+            disabled={!telefono || !faseOrdenId}
+          >
             Contactar al paciente
-            </Button>
-            {/* <Button
+          </Button>
+          {/* <Button
               onClick={()=>{
                 console.log('faseOrdenId:',faseOrdenId)
                 console.log('pacienteOrden:',pacienteOrden)
