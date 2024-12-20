@@ -96,6 +96,13 @@ export const fetchOrdenesDelPaciente = createAsyncThunk(
     return response.data;
   }
 );
+export const fetchContactoOrdenesDelPaciente = createAsyncThunk(
+  'ordenes/fetchContactoOrdenesDelPaciente',
+  async (id_paciente) => {
+    const response = await axios.get(`${API}/ordenes/contacto-orden/${id_paciente}`);
+    return response.data;
+  }
+);
 
 
 const ordenesSlice = createSlice({
@@ -104,6 +111,7 @@ const ordenesSlice = createSlice({
     data: [],
     ordenes: [],
     pacienteOrdenes: [],
+    contactoOrden  : [],
     meta: {},
     status: 'idle',
     search: '',
@@ -179,6 +187,9 @@ const ordenesSlice = createSlice({
         state.status = 'succeeded';
         state.pacienteOrdenes  = action.payload.data;
         state.meta = action.payload.meta;
+      })
+      .addCase(fetchContactoOrdenesDelPaciente.fulfilled, (state, action) => {
+        state.contactoOrden  = action.payload.data;
       })
       .addCase(fetchOrdenesDelPaciente.rejected, (state, action) => {
         state.status = 'failed';

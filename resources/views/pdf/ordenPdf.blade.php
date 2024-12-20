@@ -134,6 +134,9 @@
         </button>
     </div>
   </div>
+  <div style="margin-bottom:5px; margin-top:-10px;">
+    <div style="color:#3b3f5c;font-size:13px;"><span style="font-family:'Segoe UI', sans-serif; font-weight:700">Sucursal:</span> <span style="font-family:'Segoe UI', sans-serif;">{{ $sucursal }}</span></div>
+  </div>
   <div class="container-grid">
     <table style="width:100%; font-size:12px" class="table-informacion">
       <tr class="header-table">

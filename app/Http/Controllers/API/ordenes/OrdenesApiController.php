@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\TiposFasesOrdenes;
 use App\Models\FasesOrdenes;
+use App\Models\ContactoOrden;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -63,8 +64,8 @@ class OrdenesApiController extends Controller
 
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
-    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-    ->select(
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->select(
         'fo.ordenes_id',
         DB::raw('
             CASE 
@@ -88,8 +89,8 @@ class OrdenesApiController extends Controller
         'fo.laboratorio as laboratorio_ultima_fase',
         'fo.observacion as observacion_ultima_fase',
         'fo.fecha_fase as fecha_ultima_fase'
-    )
-    ->whereRaw('fo.id = (
+      )
+      ->whereRaw('fo.id = (
         SELECT MAX(id) 
         FROM fases_ordenes 
         WHERE ordenes_id = fo.ordenes_id
@@ -446,7 +447,7 @@ class OrdenesApiController extends Controller
       'fecha_fase' => 'nullable|string|max:45',
       'observacion' => 'nullable|string|max:400',
       'status' => 'nullable|integer|min:0|max:1',
-      'created_at' => 'nullable|date_format:Y-m-d H:i:s', 
+      'created_at' => 'nullable|date_format:Y-m-d H:i:s',
     ]);
 
     $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
@@ -458,7 +459,7 @@ class OrdenesApiController extends Controller
         'laboratorio' => $validatedData['laboratorio'],
         'observacion' => $validatedData['observacion'],
         'fecha_fase' => $validatedData['fecha_fase'],
-        'status' => $validatedData['status'] ?? $existingFase->status, 
+        'status' => $validatedData['status'] ?? $existingFase->status,
         'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
       ]);
 
@@ -493,42 +494,42 @@ class OrdenesApiController extends Controller
   }
 
   public function updateFasesOrdenes(Request $request, $id)
-{
+  {
     // Validar los datos de entrada
     $validatedData = $request->validate([
-        'tipo_fase_orden_id' => 'nullable|exists:tipos_fases_ordenes,id',
-        'ordenes_id' => 'nullable|integer',
-        'laboratorio' => 'nullable|string|max:45',
-        'fecha_fase' => 'nullable|string|max:45',
-        'observacion' => 'nullable|string|max:400',
-        'created_at' => 'nullable|date_format:Y-m-d H:i:s',
-        'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
+      'tipo_fase_orden_id' => 'nullable|exists:tipos_fases_ordenes,id',
+      'ordenes_id' => 'nullable|integer',
+      'laboratorio' => 'nullable|string|max:45',
+      'fecha_fase' => 'nullable|string|max:45',
+      'observacion' => 'nullable|string|max:400',
+      'created_at' => 'nullable|date_format:Y-m-d H:i:s',
+      'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
     ]);
 
     // Buscar la fase de orden por ID
     $faseOrden = FasesOrdenes::find($id);
 
     if (!$faseOrden) {
-        return response()->json([
-            'message' => 'Fase de orden no encontrada.',
-        ], 404);
+      return response()->json([
+        'message' => 'Fase de orden no encontrada.',
+      ], 404);
     }
 
     try {
-        // Actualizar los datos del registro
-        $faseOrden->update(array_filter($validatedData)); // array_filter elimina valores nulos
+      // Actualizar los datos del registro
+      $faseOrden->update(array_filter($validatedData)); // array_filter elimina valores nulos
 
-        return response()->json([
-            'message' => 'Fase de orden actualizada exitosamente.',
-            'data' => $faseOrden,
-        ], 200);
+      return response()->json([
+        'message' => 'Fase de orden actualizada exitosamente.',
+        'data' => $faseOrden,
+      ], 200);
     } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-            'error' => $e->getMessage(),
-        ], 500);
+      return response()->json([
+        'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
+        'error' => $e->getMessage(),
+      ], 500);
     }
-}
+  }
 
 
   public function reportesOrdenes(Request $request)
@@ -828,11 +829,39 @@ class OrdenesApiController extends Controller
     ], 200);
   }
 
+  public function verContactoOrden($id_orden)
+  {
+
+    $data = ContactoOrden::join('usuarios','usuarios.id_usuario','contactos_ordenes.usuario_id')
+                    ->select(
+                      'contactos_ordenes.*',
+                      'usuarios.nombre',
+                    )
+                    ->where('contactos_ordenes.ordenes_id', $id_orden)
+                    ->orderBy('contactos_ordenes.created_at', 'desc')
+                    ->get();
+
+    return response()->json([
+      'data' => $data,
+      'respuesta' => true,
+      'status' => [
+        'code' => 200,
+        'message' => 'Contacto orders retrieved successfully',
+      ],
+      'mensaje' => 'Contactos de Órdenes del paciente obtenidas correctamente',
+    ], 200);
+  }
+
   public function verOrdenPdf($id_orden)
   {
 
-    $orden = Ordenes::find($id_orden);
-
+    $orden = Ordenes::join('sucursales', 'sucursales.id_sucursal', 'ordenes.id_sucursal')
+      ->select(
+        'ordenes.*',
+        'sucursales.nombre',
+      )
+      ->where('ordenes.id_orden', $id_orden)
+      ->first();
     $data = [
       'fecha_solicitud' => $orden['created_at'],
       'nro_orden' => $orden['nro_orden'],
@@ -844,7 +873,6 @@ class OrdenesApiController extends Controller
       'prisma_od' => $orden['prisma_od'],
       'distancia_od' => $orden['distancia_od'],
       'altura_od' => $orden['altura_od'],
-
       'esfera_oi' => $orden['esfera_oi'],
       'cilindro_oi' => $orden['cilindro_oi'],
       'eje_oi' => $orden['eje_oi'],
@@ -871,6 +899,7 @@ class OrdenesApiController extends Controller
       'lente_contacto' => $orden['lente_contacto'],
       'tratamientos_oi' => $orden['tratamientos_oi'],
       'tratamientos_od' => $orden['tratamientos_od'],
+      'sucursal' => $orden['nombre'] ?? '',
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);

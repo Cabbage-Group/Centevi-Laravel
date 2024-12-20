@@ -76,7 +76,7 @@ const Listo = ({ tipoFaseId, lab }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseConfeccion(faseOrden2.fecha_fase);
-  
+
         }
       }
     }
@@ -121,7 +121,7 @@ const Listo = ({ tipoFaseId, lab }) => {
     const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
     let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
     mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
-    
+
     return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
   };
 

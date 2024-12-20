@@ -77,7 +77,7 @@ const Retirado = ({ tipoFaseId, lab }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseListo(faseOrden2.fecha_fase)
-        
+
 
         }
       }
