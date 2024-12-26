@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { createOrdenes, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
+import { updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
-const EditOrden = ({ fecha_solicitud }) => {
+const VerOrden = ({ fecha_solicitud }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,11 +24,6 @@ const EditOrden = ({ fecha_solicitud }) => {
   const { orderId } = useParams();
   const { orden } = location.state || {};
   const { pacienteOrden } = location.state || {};
-
-  // if (!pacienteOrden) {
-  //   return <p>No hay datos disponibles para editar.</p>;
-  // }
-
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
@@ -47,8 +42,6 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
 
-
-  console.log('selectedPaciente', selectedPaciente)
   useEffect(() => {
     if (orden?.lente_contacto) {
       setLenteContacto(true);
@@ -190,20 +183,6 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [tipoAro, setTipoAro] = useState(orden?.tipo_aro || pacienteOrden?.tipo_aro);
   const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden?.doctor || pacienteOrden?.doctor)
 
-  const toggleEye = () => {
-    setIsLeftEye(!isLeftEye);
-  };
-
-  const toggleEyeMaterial = () => {
-    setIsLeftEyeMaterial(!isLeftEyeMaterial);
-  };
-
-  const toggleEyeTratamientos = () => {
-    setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
-  };
-
-
-
   const handleSelectChange = (value, option) => {
     const newEntry = {
       ojo: isLeftEye ? "Ojo Izquierdo" : "Ojo Derecho",
@@ -272,11 +251,9 @@ const EditOrden = ({ fecha_solicitud }) => {
 
   useEffect(() => {
     if (selectedPaciente) {
-      // Buscar el paciente seleccionado en la lista de pacientes
       const pacienteSeleccionado = pacientes.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
-      console.log('pacienteSeleccionado:', pacienteSeleccionado)
       if (pacienteSeleccionado) {
         setTelefono(pacienteSeleccionado.celular || '');
         setCedula(pacienteSeleccionado.nro_cedula || '');
@@ -291,7 +268,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     }
   }, [selectedPaciente, pacientes]);
 
-  console.log('nombre:', nombrePaciente)
+
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
@@ -306,19 +283,6 @@ const EditOrden = ({ fecha_solicitud }) => {
     const transformedValues = {
       ...values,
       id_paciente: selectedPaciente,
-
-      //   tipo_cristal_od: serviciosRealizadosSubmit.length === 1 && isLeftEye 
-      // ? serviciosRealizadosSubmit[0] 
-      // : serviciosRealizadosSubmit.length === 2 
-      //   ? serviciosRealizadosSubmit[0] 
-      //   : "", // Limpia si no aplica
-
-      //   tipo_cristal_oi: serviciosRealizadosSubmit.length === 1 && !isLeftEye 
-      // ? serviciosRealizadosSubmit[0] 
-      // : serviciosRealizadosSubmit.length === 2 
-      //   ? serviciosRealizadosSubmit[1] 
-      //   : "", // Limpia si no aplica
-
       ...(serviciosRealizadosSubmit.length === 1
         ? (!isLeftEye
           ? {
@@ -390,12 +354,6 @@ const EditOrden = ({ fecha_solicitud }) => {
             }
           : {}
       ),
-      // tipo_cristal_od: serviciosRealizadosSubmit[0] || "",
-      // tipo_cristal_oi: serviciosRealizadosSubmit[1] || "",
-      // material_od: materialesSeleccionadosSubmit[0] || "",
-      // material_oi: materialesSeleccionadosSubmit[1] || "",
-      // tratamientos_od: tratamientosFiltrosSubmit[0] || "",
-      // tratamientos_oi: tratamientosFiltrosSubmit[1] || "",
       aro_centevi: aroCentevi ? 1 : 0,
       aro_propio: aroCentevi ? 0 : 1,
       ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
@@ -464,10 +422,10 @@ const EditOrden = ({ fecha_solicitud }) => {
                   className="col-lg-12 layout-spacing"
                   id="flFormsGrid"
                 >
+
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
-
                         <Formik
                           initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
                           validationSchema={validationSchema}
@@ -495,7 +453,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
+                                      {fecha_solicitud? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
                                     </b>
                                   </p>
                                 </div>
@@ -504,6 +462,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   <Input
                                     name="nro_orden"
                                     value={values.nro_orden}
+                                    readOnly
                                     onChange={(e) => {
                                       const onlyNumbers = e.target.value.replace(/\D/g, "");
                                       setFieldValue("nro_orden", onlyNumbers);
@@ -515,6 +474,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       marginBottom: "1rem",
                                       height: '40px',
                                     }}
+
                                   />
                                   <ErrorMessage
                                     name="nro_orden"
@@ -532,11 +492,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         height: "40px",
                                         marginTop: "0",
                                       }}
-                                      onClick={() => {
-                                        handleLenteContactoChange()
-                                        setIsRowVisible(!isRowVisible);
-                                        setFieldValue("isRowVisible", !isRowVisible);
-                                      }}
                                     >
                                       {lenteContacto ? 'Orden de Lente' : 'Orden de lente de contacto'}
                                     </button>
@@ -550,6 +505,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   <Select
                                     showSearch
                                     value={selectedPaciente}
+                                    disabled 
                                     onChange={(value) => {
                                       setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
                                       setFieldValue("id_paciente", value); // También actualizar el campo de Formik
@@ -568,11 +524,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       color: "black",
                                       fontWeight: "bold",
                                     }}
-                                  // onChange={(e) => {
-                                  //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                  //   // setFieldValue('paciente', e.target.value);
-                                  //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                  // }}
                                   />
 
                                   <ErrorMessage name="id_paciente" component="div" className="text-danger" />
@@ -585,6 +536,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   <Select
                                     showSearch
                                     value={selectedSucursal}
+                                    disabled 
                                     placeholder="Seleccione una sucursal"
                                     onChange={(value) => {
                                       setSelectedSucursal(value)
@@ -615,6 +567,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     className="form-control"
                                     name="cedula"
                                     type="text"
+                                    readOnly
                                     value={cedula}
                                     style={{
                                       color: "red",
@@ -633,6 +586,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     className="form-control"
                                     name="telefono"
                                     type="text"
+                                    readOnly
                                     value={telefono}
                                     style={{
                                       color: "red",
@@ -735,7 +689,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="esfera_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -743,7 +697,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="cilindro_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -751,7 +705,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="eje_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -759,7 +713,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="add_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -769,6 +723,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               placeholder="△"
                                               type="text"
                                               name="prisma_od"
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -776,6 +731,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="distancia_od"
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -783,6 +739,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="altura_od"
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -795,7 +752,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="esfera_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -803,7 +760,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="cilindro_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -811,7 +768,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="eje_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -819,7 +776,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="add_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -827,8 +784,9 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               type="text"
-                                              // placeholder="△"
+                                              placeholder="△"
                                               name="prisma_oi"
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -836,7 +794,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="distancia_oi"
-
+                                              readOnly                                  
                                               as="input"
                                             />
                                           </td>
@@ -844,7 +802,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="altura_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -888,7 +846,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
                                           className="text-center p-2"
-                                          onClick={toggleEye}
                                           style={{
                                             cursor: 'pointer',
                                             color: isLeftEye ? 'blue' : '#067231',
@@ -902,21 +859,13 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         <Select
                                           showSearch
                                           value={null}
+                                          disabled
                                           style={{
                                             width: '100%', color: 'transparent',
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChange}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!serviciosRealizados.find(servicio => servicio.value == value) && serviciosRealizados.length < 2) {
-                                          //     serviciosRealizados.push(val)
-                                          //     setServiciosRealizados([...serviciosRealizados])
-
-                                          //   }
-                                          // }}
                                           options={[
                                             { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
                                             { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
@@ -1037,10 +986,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                      onClick={() => {
-                                                        // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
-                                                        setServiciosRealizados([])
-                                                      }}
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>
@@ -1055,7 +1000,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
                                           className="text-center p-2"
-                                          onClick={toggleEyeMaterial}
                                           style={{
                                             cursor: 'pointer',
                                             color: isLeftEyeMaterial ? 'blue' : '#067231',
@@ -1069,20 +1013,13 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         <Select
                                           showSearch
                                           value={null}
+                                          disabled
                                           style={{
                                             width: '100%', color: 'transparent',
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChangeMaterial}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!materialesSeleccionados.find(servicio => servicio.value == value) && materialesSeleccionados.length < 2) {
-                                          //     materialesSeleccionados.push(val)
-                                          //     setMaterialesSeleccionados([...materialesSeleccionados])
-                                          //   }
-                                          // }}
                                           options={[
                                             { id: 1, codigo: "CR-39" },
                                             { id: 2, codigo: "Policarbonato" },
@@ -1143,10 +1080,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                      onClick={() => {
-                                                        // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
-                                                        setMaterialesSeleccionados([])
-                                                      }}
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>
@@ -1161,7 +1094,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
                                           className="text-center p-2"
-                                          onClick={toggleEyeTratamientos}
                                           style={{
                                             cursor: 'pointer',
                                             color: isLeftEyeTratamientos ? 'blue' : '#067231',
@@ -1174,20 +1106,13 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         <Select
                                           showSearch
                                           value={null}
+                                          disabled
                                           style={{
                                             width: '100%', color: 'transparent',
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChangeTratamientos}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
-                                          //     tratamientosFiltros.push(val)
-                                          //     setTratamientosFiltros([...tratamientosFiltros])
-                                          //   }
-                                          // }}
                                           options={[
                                             { id: 1, codigo: "Transitions" },
                                             { id: 2, codigo: "Antireflejo" },
@@ -1251,10 +1176,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                      onClick={() => {
-                                                        // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
-                                                        setTratamientosFiltros([])
-                                                      }}
+                                                     
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>
@@ -1741,6 +1663,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                 className="new-control-input"
                                                 checked={aroCentevi}
                                                 type="radio"
+                                                disabled
                                                 name="aro_centevi"
                                                 onChange={() => {
                                                   setAroCentevi(true)
@@ -1760,6 +1683,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               <Field
                                                 className="new-control-input"
                                                 checked={!aroCentevi}
+                                                disabled
                                                 type="radio"
                                                 onChange={() => setAroCentevi(false)}
                                               />
@@ -1781,6 +1705,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="codigo"
+                                              readOnly
                                               style={{
                                                 marginLeft: '0px', height: '30px',
                                                 width: '100%'
@@ -1805,6 +1730,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="color"
+                                              readOnly
                                               style={{
                                                 marginLeft: '0px', height: '30px'
                                               }}
@@ -1823,6 +1749,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           <Field
                                             className="form-control"
                                             name="marca"
+                                            readOnly
                                             style={{
                                               marginLeft: '0px', height: '30px'
                                             }}
@@ -1972,6 +1899,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                       showSearch
                                                       placeholder="Selecciona el tipo de aro"
                                                       value={tipoAro}
+                                                      disabled
                                                       options={tipoAroOptions}
                                                       style={{
                                                         width: "100%",
@@ -2001,6 +1929,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                     showSearch
                                                     placeholder="Seleccione el doctor"
                                                     value={doctorSeleccionado}
+                                                    disabled
                                                     options={usuarios_doctores_options_selecteds}
                                                     style={{
                                                       width: "100%",
@@ -2040,6 +1969,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               as={TextArea}
                                               className="form-control"
+                                              readOnly
                                               name='observaciones'
                                               style={{
                                                 height: '180px'
@@ -2085,6 +2015,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_uno'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2103,6 +2034,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_dos'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2120,6 +2052,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_tres'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2137,6 +2070,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_cuatro'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2154,6 +2088,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_cinco'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2167,16 +2102,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   )}
                                 </Row>
                               </div>
-                              {/*  */}
-                              <button
-                                className="btn btn-success mt-3"
-                                type="submit"
-                              >
-                                Editar Receta
-                              </button>
-
-
-
                             </Form>
                           )}
                         </Formik>
@@ -2194,4 +2119,4 @@ const EditOrden = ({ fecha_solicitud }) => {
   )
 }
 
-export default EditOrden
+export default VerOrden

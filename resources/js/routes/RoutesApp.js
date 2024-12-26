@@ -67,6 +67,8 @@ import CreateReceta from '../admin/recetas/CreateOrden.js';
 import ServiciosProximosRealizados from '../admin/reportes/ServiciosProximosRealizados.js';
 import Ordenes from '../admin/recetas/ordenes/Ordenes.js';
 import ReporteOrdenes from '../admin/reportes/ReporteOrdenes.js';
+import VerOrden from '../admin/recetas/VerOrden.js';
+import VerUnaOrden from '../admin/recetas/ordenes/VerUnaOrden.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -165,6 +167,8 @@ const RoutesApp = () => {
           <Route path="/create-orden" element={<Sidebar component={<CreateOrden />} />} />
           <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
           <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
+          <Route path="/ver-orden/:orderId" element={<Sidebar component={<VerUnaOrden />} />} />
+          
 
           <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />
           <Route path="/reportes-sin-atencion" element={<Sidebar component={<SinAtencion />} />} />

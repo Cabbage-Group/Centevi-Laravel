@@ -8,8 +8,9 @@ import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tipos
 import { useParams, useLocation } from 'react-router-dom';
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import VecesContacto from '../../VecesContacto';
 
-const Nuevo = ({ tipoFaseId, lab }) => {
+const Nuevo = ({ tipoFaseId, isDisabled  }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -226,7 +227,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{ marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
-                onClick={() => actualizarFecha()}
+                onClick={isDisabled ? null : () => actualizarFecha()}
               />
             </Tooltip>
             {fechaActual}
@@ -237,7 +238,7 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{ marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
-                onClick={() => actualizarFechaCreacionOrden()}
+                onClick={isDisabled ? null : () => actualizarFechaCreacionOrden()} 
               />
             </Tooltip>
             {fechaCreacion ? moment(fechaCreacion).format('YYYY-MM-DD HH:mm:ss') : ''}
@@ -256,11 +257,16 @@ const Nuevo = ({ tipoFaseId, lab }) => {
             ></div>
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
-          <Button
-            onClick={handleContactarPaciente}
-          >
-            Contactar al paciente
-          </Button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
+            <VecesContacto id_orden={orderId} />
+            <Button
+              style={{ marginLeft: '10px' }}
+              onClick={handleContactarPaciente}
+              disabled={isDisabled}
+            >
+              Contactar al paciente
+            </Button>
+          </div>
         </Col>
       </Row>
     </div>

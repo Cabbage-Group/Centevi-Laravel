@@ -18,7 +18,25 @@ const ReporteOrdenes = () => {
     ok: 0,
     warning: 0,
     critical: 0,
+    complet: 0,
     null: 0,
+  });
+
+  const [tipoLenteCounts, setTipoLenteCounts] = useState({
+    lenteContacto1: 0,
+    lenteContacto0: 0,
+  });
+
+  const [laboratorioCounts, setLaboratorioCounts] = useState({
+    ping: 0,
+    optilab: 0,
+    centilab: 0,
+    null: 0,
+  });
+
+  const [pagadoCounts, setPagadoCounts] = useState({
+    pagado1: 0,
+    pagado0: 0,
   });
 
   const {
@@ -57,46 +75,20 @@ const ReporteOrdenes = () => {
     endDate
   ]);
 
-  // useEffect(() => {
-  //   const fetchStatusCounts = async () => {
-  //     const statuses = ['Ok', 'Advertencia', 'Critico', null];
-  //     const counts = { ok: 0, warning: 0, critical: 0, null: 0 };
-
-  //     for (let i = 0; i < statuses.length; i++) {
-  //       const status = statuses[i];
-  //       const response = await dispatch(
-  //         fecthReportesOrdenes({ status, page: 1, limit: 1 })
-  //       );
-
-  //       if (response.payload?.meta?.total) {
-  //         if (status === 'Ok') counts.ok = response.payload.meta.total;
-  //         if (status === 'Advertencia') counts.warning = response.payload.meta.total;
-  //         if (status === 'Critico') counts.critical = response.payload.meta.total;
-  //         if (status === null) counts.null = response.payload.meta.total;
-  //       }
-  //     }
-
-  //     setStatusCounts(counts);
-  //   };
-
-  //   fetchStatusCounts();
-  // }, [dispatch]);
-
   useEffect(() => {
-    // Consultas para obtener el conteo por cada estado
     const fetchStatusCounts = async () => {
       try {
         const okCount = await dispatch(fecthReportesOrdenes({ status: 'Ok' }));
         const warningCount = await dispatch(fecthReportesOrdenes({ status: 'Advertencia' }));
         const criticalCount = await dispatch(fecthReportesOrdenes({ status: 'Critico' }));
+        const completCount = await dispatch(fecthReportesOrdenes({ status: 'Completado' }));
         const nullCount = await dispatch(fecthReportesOrdenes({ status: null }));
 
-        console.log('okCount11111111:',okCount)
-
         setStatusCounts({
-          ok: okCount.payload.meta.total, 
-          warning: warningCount.payload.meta.total, 
-          critical: criticalCount.payload.meta.total, 
+          ok: okCount.payload.meta.total,
+          warning: warningCount.payload.meta.total,
+          critical: criticalCount.payload.meta.total,
+          complet: completCount.payload.meta.total,
           nullStatus: nullCount.payload.meta.total
         });
       } catch (error) {
@@ -106,6 +98,69 @@ const ReporteOrdenes = () => {
 
     fetchStatusCounts();
   }, [dispatch]);
+
+  useEffect(() => {
+    // Consultas para obtener el conteo por cada estado
+    const fetchLaboratorioCounts = async () => {
+      try {
+        const pingCount = await dispatch(fecthReportesOrdenes({ laboratorio: 'Ping' }));
+        const optilabCount = await dispatch(fecthReportesOrdenes({ laboratorio: 'Optilab' }));
+        const centilabCount = await dispatch(fecthReportesOrdenes({ laboratorio: 'Centilab' }));
+        const nullCount = await dispatch(fecthReportesOrdenes({ laboratorio: null }));
+
+        setLaboratorioCounts({
+          ping: pingCount.payload.meta.total,
+          optilab: optilabCount.payload.meta.total,
+          centilab: centilabCount.payload.meta.total,
+          null: nullCount.payload.meta.total
+        });
+      } catch (error) {
+        console.error("Error al obtener los conteos de estados", error);
+      }
+    };
+
+    fetchLaboratorioCounts();
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Consultas para obtener el conteo por tipo de lenteContacto
+    const fetchTipoLenteCounts = async () => {
+      try {
+        const lenteContacto1Count = await dispatch(fecthReportesOrdenes({ lenteContacto: 1 }));
+        const lenteContacto0Count = await dispatch(fecthReportesOrdenes({ lenteContacto: 0 }));
+
+        setTipoLenteCounts({
+          lenteContacto1: lenteContacto1Count.payload.meta.total,
+          lenteContacto0: lenteContacto0Count.payload.meta.total
+        });
+      } catch (error) {
+        console.error("Error al obtener los conteos de lenteContacto", error);
+      }
+    };
+
+    fetchTipoLenteCounts();
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Consultas para obtener el conteo por tipo de lenteContacto
+    const fetchPagadoCounts = async () => {
+      try {
+        const pagado1Count = await dispatch(fecthReportesOrdenes({ pagado: 1 }));
+        const pagado0Count = await dispatch(fecthReportesOrdenes({ pagado: 0 }));
+
+        setPagadoCounts({
+          pagado1: pagado1Count.payload.meta.total,
+          pagado0: pagado0Count.payload.meta.total
+        });
+      } catch (error) {
+        console.error("Error al obtener los conteos de lenteContacto", error);
+      }
+    };
+
+    fetchPagadoCounts();
+  }, [dispatch]);
+
+
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -150,29 +205,7 @@ const ReporteOrdenes = () => {
               </div>
             </div>
 
-            {/* Card con la cantidad de datos por estado */}
-            <Row gutter={16} style={{ marginBottom: '20px' }}>
-              <Col span={6}>
-                <Card title="Ok" bordered={false} hoverable>
-                  <h2>{statusCounts.ok}</h2>
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card title="Advertencia" bordered={false} hoverable>
-                  <h2>{statusCounts.warning}</h2>
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card title="Crítico" bordered={false} hoverable>
-                  <h2>{statusCounts.critical}</h2>
-                </Card>
-              </Col>
-              <Col span={6}>
-                <Card title="Null" bordered={false} hoverable>
-                  <h2>{statusCounts.nullStatus}</h2>
-                </Card>
-              </Col>
-            </Row>
+
 
             <div className="col-md-12" style={{ marginTop: '-60px' }}>
               <div className="form-group col-md-4 mt-4">
@@ -189,15 +222,8 @@ const ReporteOrdenes = () => {
                   onApply={handleDateChange}
                 />
               </div>
-              <Button
-              onClick={()=>{
-                console.log('meta:',meta)
-                console.log('statusCounts:',statusCounts)
-                console.log('meta:',meta)
-                console.log('meta:',meta)
-              }}>
-              meta
-            </Button>
+
+
               <div className="table-responsive">
                 <div
                   className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
@@ -214,7 +240,7 @@ const ReporteOrdenes = () => {
                           />
                         </div>
                       </div>
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-center justify-content-start mt-md-0 mt-3">
                         <div
                           className="dataTables_filter"
                           id="html5-extension_filter"
@@ -270,13 +296,95 @@ const ReporteOrdenes = () => {
                             )}
                           </label>
                         </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                  <div>
+                    <div className="row">
+                      <div className="col-md-3" >
+                        <Card title="Resumen de estado" bordered={false} hoverable>
+                          <p> <span style={{
+                            display: 'inline-block',
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            backgroundColor: 'green',
+                            marginRight: '8px'
+                          }}></span>
+                            Ok: {statusCounts.ok}</p>
+                          <p><span style={{
+                            display: 'inline-block',
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            backgroundColor: 'yellow',
+                            marginRight: '8px'
+                          }}></span>
+                            Advertencia: {statusCounts.warning}</p>
+                          <p><span style={{
+                            display: 'inline-block',
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            backgroundColor: 'red',
+                            marginRight: '8px'
+                          }}></span>
+                            Critico: {statusCounts.critical}</p>
+                          <p><span style={{
+                            display: 'inline-block',
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            backgroundColor: 'blue',
+                            marginRight: '8px'
+                          }}></span>
+                            Completado: {statusCounts.complet}</p>
+                        </Card>
+                      </div>
+
+                      <div className="col-md-3">
+                        <Card title="Resumen Lente" bordered={false} hoverable>
+                          <p>
+                            <img 
+                                src="assets/img/recetas/lentesdecontacto.png" 
+                                alt="Lente de contacto" 
+                                style={{ width: '20px', height: '20px', marginRight: '8px' }} 
+                            />
+                            Lente contacto: {tipoLenteCounts.lenteContacto1}
+                          </p>
+                          <p>
+                            <img 
+                                src="assets/img/recetas/lentenormal.png" 
+                                alt="Lente de contacto" 
+                                style={{ width: '20px', height: '20px', marginRight: '8px' }} 
+                            />
+                            Lente ocular: {tipoLenteCounts.lenteContacto0}
+                          </p>
+                        </Card>
+                      </div>
+
+                      <div className="col-md-3">
+                        <Card title="Resumen Laboratorio" bordered={false} hoverable>
+                          <p>Ping: {laboratorioCounts.ping}</p>
+                          <p>Optilab: {laboratorioCounts.optilab}</p>
+                          <p>Centilab: {laboratorioCounts.centilab}</p>
+                        </Card>
+                      </div>
+
+                      <div className="col-md-3">
+                        <Card title="Resumen de Pagos" bordered={false} hoverable>
+                          <p>Pagado: {pagadoCounts.pagado1}</p>
+                          <p>Sin Pago: {pagadoCounts.pagado0}</p>
+                        </Card>
                       </div>
                     </div>
                   </div>
-                  {status === 'loading' && <p>Loading...</p>}
-                  {status === 'failed' && <p>Error: {error}</p>}
-                  {status === 'succeeded' && (
-                    <div className="table-responsive">
+                  <div className="table-responsive">
+                    {status === 'loading' && <p>Loading...</p>}
+                    {status === 'failed' && <p>Error: {error}</p>}
+                    {status === 'succeeded' && (
                       <table aria-describedby="zero-config_info" className="table dt-table-hover tablas dataTable" id="zero-config" role="grid" style={{ width: '100%' }}>
                         <thead>
                           <tr role="row">
@@ -410,13 +518,13 @@ const ReporteOrdenes = () => {
                                 <tr key={rpOrden.id_orden}>
                                   <td>{rpOrden.lente_contacto ? (
                                     <img
-                                      src="assets/img/recetas/lentesdecontacto.png" 
+                                      src="assets/img/recetas/lentesdecontacto.png"
                                       alt="Lente Contacto True"
                                       style={{ width: '20px', marginLeft: '8px' }}
                                     />
                                   ) : (
                                     <img
-                                      src="assets/img/recetas/lentenormal.png" 
+                                      src="assets/img/recetas/lentenormal.png"
                                       alt="Lente Contacto False"
                                       style={{ width: '20px', marginLeft: '8px' }}
                                     />
@@ -425,21 +533,23 @@ const ReporteOrdenes = () => {
                                   <td>
                                     <Tooltip title={rpOrden?.status ?? ""}>
                                       <span
-                                      style={{
-                                        display: 'inline-block',
-                                        width: '12px',
-                                        height: '12px',
-                                        borderRadius: '50%',
-                                        backgroundColor:
-                                        rpOrden?.status === 'Ok'
-                                            ? 'green'
-                                            : rpOrden?.status  === 'Advertencia'
-                                            ? 'yellow'
-                                            : rpOrden?.status  === 'Critico'
-                                            ? 'red'
-                                            : 'gray',
-                                      }}
-                                    ></span>{" "}
+                                        style={{
+                                          display: 'inline-block',
+                                          width: '12px',
+                                          height: '12px',
+                                          borderRadius: '50%',
+                                          backgroundColor:
+                                            rpOrden?.status === 'Ok'
+                                              ? 'green'
+                                              : rpOrden?.status === 'Advertencia'
+                                                ? 'yellow'
+                                                : rpOrden?.status === 'Critico'
+                                                  ? 'red'
+                                                  : rpOrden?.status === 'Completado'
+                                                    ? 'blue'
+                                                    : 'gray',
+                                        }}
+                                      ></span>{" "}
                                     </Tooltip>
                                   </td>
                                   <td>{rpOrden?.created_at_formatted}</td>
@@ -454,18 +564,24 @@ const ReporteOrdenes = () => {
                             })
                           }
                         </tbody>
-                      </table>
+                        
+                      </table>)}
                       <PaginationReportesOrdenes
                         meta={meta}
                         currentPage={currentPage}
                         totalPages={totalPages}
                         onPageChange={handlePageChange}
                       />
+                      
                     </div>
-                  )}
+                 
                 </div>
+                
               </div>
+              
             </div>
+
+
 
           </div>
 

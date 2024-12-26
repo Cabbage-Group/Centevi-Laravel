@@ -10,8 +10,9 @@ import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrd
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import VecesContacto from '../../VecesContacto';
 
-const Listo = ({ tipoFaseId, lab }) => {
+const Listo = ({ tipoFaseId, lab,isDisabled }) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -214,7 +215,7 @@ const Listo = ({ tipoFaseId, lab }) => {
                 style={{
                   marginRight: '10px', cursor: 'pointer', fontSize: '18px'
                 }}
-                onClick={() => actualizarFecha()}
+                onClick={isDisabled ? null : () => actualizarFecha()}
               />
             </Tooltip>
             {fechaActual}
@@ -240,11 +241,16 @@ const Listo = ({ tipoFaseId, lab }) => {
             ></div>
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
-          <Button
-            onClick={handleContactarPaciente}
-          >
-            Contactar al paciente
-          </Button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
+            <VecesContacto id_orden={orderId} />
+            <Button
+              style={{ marginLeft: '10px' }}
+              onClick={handleContactarPaciente}
+              disabled={isDisabled}
+            >
+              Contactar al paciente
+            </Button>
+          </div>
         </Col>
       </Row>
     </div>

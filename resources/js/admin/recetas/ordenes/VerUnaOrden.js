@@ -1,34 +1,28 @@
 import React, { useEffect, useState } from 'react'
-import CreateReceta from '../CreateOrden'
-import { Button, Col, Input, Row, Select, Steps } from 'antd'
+import { Button, Col, Row, Steps, Modal,Table } from 'antd'
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  LoadingOutlined,
-  SmileOutlined,
-  SolutionOutlined,
-  UserOutlined,
   FileAddOutlined,
   ImportOutlined,
   CheckCircleOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
-import moment from 'moment';
-import EnConfeccion from './fases/EnConfeccion';
+
 import Nuevo from './fases/Nuevo';
 import Listo from './fases/Listo';
+import EnConfeccion from './fases/EnConfeccion';
 import Retirado from './fases/Retirado';
-import Swal from 'sweetalert2';
-import EditOrden from '../EditOrden';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { createFasesOrdenes } from '../../../redux/features/ordenes/fasesOrdenesSlice';
-import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
 
-const Ordenes = () => {
+const VerUnaOrden = () => {
 
   const dispatch = useDispatch();
+  const {
+      contactoOrden
+     } = useSelector((state) => state.ordenes);
   const location = useLocation();
   const { orden } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
@@ -38,52 +32,18 @@ const Ordenes = () => {
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
-  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
-  const [telefono, setTelefono] = useState('');
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
-  const { pacientes } = useSelector((state) => state.pacientes);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps);
-  const [nombrePaciente, setNombrePaciente] = useState('');
-  const idUsuario = localStorage.getItem('id_usuario');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [currentPhase, setCurrentPhase] = useState(0);
 
 
-  const generateWhatsAppLink = () => {
-    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
-    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
-    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
-
-
-    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
-  };
 
   useEffect(() => {
-      if (selectedPaciente) {
-        const pacienteSeleccionado = pacientes.find(
-          (paciente) => paciente.id_paciente === selectedPaciente
-        );
-        if (pacienteSeleccionado) {
-          setTelefono(pacienteSeleccionado?.celular || '');
-          setNombrePaciente(pacienteSeleccionado?.nombres || '');
-        } else {
-          setTelefono('');
-  
-        }
-      } else {
-        setTelefono('');
-      }
-    }, [selectedPaciente, pacientes]);
-
-   useEffect(() => {
       dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-    }, []);
-  
+  }, []);
+
 
   useEffect(() => {
   }, [nuevaData, orderId]);
-
-  const recibirDatosFase = (data) => {
-    setFaseData(data);
-  };
 
   useEffect(() => {
     if (orderId) {
@@ -109,7 +69,7 @@ const Ordenes = () => {
         );
 
         if (hasCompleted) {
-          return index;
+          return index;       
         } else if (hasPending) {
           return lastStep;
         }
@@ -117,11 +77,15 @@ const Ordenes = () => {
         return lastStep;
       }, -1);
 
+      const nextPhase = lastCompletedStep + 1;
+      setCurrentPhase(nextPhase);
       setNivelStep(lastCompletedStep + 1);
       setInitialized(true);
 
+      console.log("Último paso calculado:", lastCompletedStep);
     }
   }, [tiposFasesOrdenes, orderId, initialized]);
+
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
     let icon;
@@ -147,57 +111,6 @@ const Ordenes = () => {
     };
   });
 
-  const avanzarFase = async (avanzar = true, completar = false) => {
-    const result = await Swal.fire({
-      title: completar ? '¿Estás seguro de completar la fase?' : '¿Estás seguro de guardar la fase?',
-      text: completar ? "¡Confirmarás la fase como completada!" : "¡Confirmarás los cambios en los datos!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, ' + (completar ? 'completar' : 'guardar'),
-      cancelButtonText: 'Cancelar',
-    });
-
-    if (result.isConfirmed) {
-      const status = completar ? 1 : 0;
-
-      const nuevaDataConOrderId = {
-        ...nuevaData,
-        ordenes_id: orderId,
-        status: status,
-      };
-
-      if (completar || avanzar) {
-        setNivelStep(nivelStep + 1);
-      }
-
-      dispatch(createFasesOrdenes(nuevaDataConOrderId));
-      dispatch(fecthTiposFasesOrdenes(orderId));
-
-      await Swal.fire(completar ? 'Completado!' : 'Guardado!',
-        completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
-        'success');
-    }
-  };
-
-    const handleContactarPaciente = async () => {
-      const newContactoOrdenData = {
-        ordenes_id: orden?.id_orden,
-        tipo_fase_orden_id: 4,
-        usuario_id: idUsuario,
-        cantidad: 1
-      };
-  
-      try {
-        await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
-        console.log('Contacto creado exitosamente');
-  
-        window.open(generateWhatsAppLink(), '_blank');
-      } catch (error) {
-        console.error('Error al crear contacto:', error);
-      }
-    };
 
   return (
     <div>
@@ -218,9 +131,6 @@ const Ordenes = () => {
             />
 
           </div>
-
-
-
           <div>
             {nivelStep === 4 && (
               <div
@@ -252,24 +162,27 @@ const Ordenes = () => {
                 nivelStep == 0 ? (
                   <Nuevo
                     tipoFaseId={currentTipoFase.id}
-                    lab={nuevaData.laboratorio}
+                    isDisabled={isButtonDisabled} 
 
                   />
 
                 ) : nivelStep == 1 ? (
-                  <EnConfeccion
+                  <EnConfeccion 
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaData.laboratorio}
+                    isDisabled={isButtonDisabled} 
                     fecha={nuevaData.fecha_fase}
                   />
                 ) : nivelStep == 2 ? (
                   <Listo
                     tipoFaseId={currentTipoFase.id}
+                    isDisabled={isButtonDisabled} 
                     lab={nuevaData.laboratorio}
                   />
                 ) : nivelStep == 3 ? (
                   <Retirado
                     tipoFaseId={currentTipoFase.id}
+                    isDisabled={isButtonDisabled} 
                     lab={nuevaData.laboratorio}
                   />
                 ) : <div></div>
@@ -280,25 +193,42 @@ const Ordenes = () => {
               >
                 {nivelStep > 0 && (
                   <Button
-                    disabled={nivelStep <= 0}
-                    onClick={() => {
-                      if (nivelStep > 0) {
-                        setNivelStep(nivelStep - 1);
-                      }
-                    }}
+                  disabled={nivelStep <= 0}
+                  onClick={() => {
+                    if (nivelStep > 0) {
+                      setNivelStep(nivelStep - 1);
+                    }
+                  }}
                   >
                     Anterior
                   </Button>
                 )}
-                <Button onClick={() => avanzarFase(false, false)} type='default'>
+                <Button
+                  onClick={() => {
+                    if (nivelStep < 4) {
+                      setNivelStep(nivelStep + 1);
+                    }
+                  }}
+                  disabled={nivelStep == currentPhase}
+                  >
+                    Siguiente
+                  </Button>
+                
+                <Button 
+                    disabled
+                    type='default'
+                >
                   Guardar Fase
                 </Button>
-                <Button onClick={() => avanzarFase(false, true)} type='primary'>
+                <Button 
+                    type='primary'
+                    disabled               
+                >
                   Completar Fase
                 </Button>
               {nivelStep === 4 && (
                 <Button
-                  onClick={handleContactarPaciente}
+                    disabled
                 >
                   Contactar al paciente
                 </Button>
@@ -310,11 +240,13 @@ const Ordenes = () => {
 
         </Col>
       </Row>
-      <EditOrden
-        fecha_solicitud={fechaSolicitud}
-      />
+
+      <VerOrden
+         fecha_solicitud={fechaSolicitud}
+      >
+      </VerOrden>
     </div>
   )
 }
 
-export default Ordenes
+export default VerUnaOrden

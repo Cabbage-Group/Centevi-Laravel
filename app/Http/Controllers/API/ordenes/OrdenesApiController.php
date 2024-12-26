@@ -26,7 +26,7 @@ class OrdenesApiController extends Controller
     $status = $request->input('status', '');
 
     // Asegurarse de que se puede ordenar por created_at
-    $validSortColumns = ['id_orden', 'created_at']; // Puedes agregar más columnas si es necesario
+    $validSortColumns = ['id_orden', 'created_at']; 
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'id_orden'; // Valor por defecto
     }
@@ -130,6 +130,7 @@ class OrdenesApiController extends Controller
           ->orWhere('ordenes.pagado', 'like', "%{$search}%")
           ->orWhere('sucursales.nombre', 'like', "%{$search}%")
           ->orWhere('pacientes.nombres', 'like', "%{$search}%")
+          ->orWhere('pacientes.apellidos', 'like', "%{$search}%")
           ->orWhere('pacientes.celular', 'like', "%{$search}%")
           ->orWhere('primeras_fases.status_primera_fase', 'like', "%{$search}%")
           ->orWhere('primeras_fases.laboratorio_primera_fase', 'like', "%{$search}%")
@@ -157,7 +158,7 @@ class OrdenesApiController extends Controller
 
     if ($status !== '') {
       // Validate status input
-      $validStatuses = ['Ok', 'Advertencia', 'Critico', 'null'];
+      $validStatuses = ['Ok', 'Advertencia', 'Critico', 'Completado','null'];
 
       if (in_array($status, $validStatuses)) {
         if ($status === 'null') {
@@ -545,7 +546,10 @@ class OrdenesApiController extends Controller
     $search = $request->input('search', '');
     $fecha = $request->input('fecha', '');
     $status = $request->input('status', '');
-
+    $lenteContacto = $request->input('lenteContacto', '');
+    $laboratorio = $request->input('laboratorio', '');
+    $pagado = $request->input('pagado', '');
+    
 
     $validSortColumns = ['id_orden', 'created_at_formatted', 'laboratorio', 'status', 'lente_contacto', 'doctor', 'pagado'];
     if (!in_array($sortColumn, $validSortColumns)) {
@@ -553,8 +557,11 @@ class OrdenesApiController extends Controller
     }
 
     $contadorFasesQuery = DB::table('fases_ordenes')
-      ->select('ordenes_id', DB::raw('COUNT(*) as total_fases'))
-      ->groupBy('ordenes_id');
+        ->select('ordenes_id', 
+            DB::raw('COUNT(*) as total_fases'),
+            DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+        )
+        ->groupBy('ordenes_id');
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
@@ -566,9 +573,10 @@ class OrdenesApiController extends Controller
         'fo.observacion as observacion_primera_fase',
         'fo.fecha_fase as fecha_primera_fase',
         'contador_fases.total_fases',
+        'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
         DB::raw('CASE 
-                WHEN contador_fases.total_fases = 4 THEN "Completado"
+                WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
@@ -664,7 +672,7 @@ class OrdenesApiController extends Controller
 
     if ($status !== '') {
       // Validate status input
-      $validStatuses = ['Ok', 'Advertencia', 'Critico', 'null'];
+      $validStatuses = ['Ok', 'Advertencia', 'Critico', 'Completado', 'null'];
 
       if (in_array($status, $validStatuses)) {
         if ($status === 'null') {
@@ -674,6 +682,41 @@ class OrdenesApiController extends Controller
           // Filter for specific status
           $ordenes->where('primeras_fases.status_primera_fase', $status);
         }
+      }
+    }
+
+    if ($laboratorio !== '') {
+      // Validar valores permitidos para laboratorio
+      $validLaboratorios = ['Ping', 'Optilab', 'Centilab'];
+    
+      if (in_array($laboratorio, $validLaboratorios)) {
+        // Filtrar por laboratorio específico
+        $ordenes->where('primeras_fases.laboratorio_primera_fase', $laboratorio);
+      } elseif ($laboratorio === 'null') {
+        // Filtrar por órdenes que no tienen laboratorio (NULL)
+        $ordenes->whereNull('primeras_fases.laboratorio_primera_fase');
+      }
+    }
+
+    if ($lenteContacto !== '') {
+      // Convert to boolean for strict comparison
+      $lenteContactoValue = filter_var($lenteContacto, FILTER_VALIDATE_BOOLEAN);
+
+      if ($lenteContacto === '1' || $lenteContacto === true) {
+        // Only show lente de contacto orders
+        $ordenes->where('ordenes.lente_contacto', true);
+      } elseif ($lenteContacto === '0' || $lenteContacto === false) {
+        // Only show non-lente de contacto orders
+        $ordenes->where('ordenes.lente_contacto', false);
+      }
+      // If empty string, show all orders (no filter applied)
+    }
+
+    if ($pagado !== '') {
+      if ($pagado === '1') {
+        $ordenes->where('ordenes.pagado', true);
+      } elseif ($pagado === '0') {
+        $ordenes->where('ordenes.pagado', false);
       }
     }
 
