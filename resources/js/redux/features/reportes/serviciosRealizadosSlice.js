@@ -11,10 +11,14 @@ export const fetchServiciosRealizados = createAsyncThunk(
     sortColumn = 'ID_CONSULTA',
     startDate = '',
     endDate = '',
+    startDateProxima = '',
+    endDateProxima = '',
     search = '',
   }) => {
     try {
       const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
+
+      const fechaProxima = startDateProxima && endDateProxima ? `${startDateProxima} - ${endDateProxima}` : '';
 
       const params = {
         page,
@@ -22,6 +26,7 @@ export const fetchServiciosRealizados = createAsyncThunk(
         sortOrder,
         sortColumn,
         fecha,
+        fechaProxima,
         search
       };
       const response = await axios.get(`${API}/reportes-servicios-realizados`, { params })
@@ -52,8 +57,13 @@ const serviciosRealizadosSlice = createSlice({
       state.sortColumn = action.payload;
     },
     setFechaRange(state, action) {
+      console.log('entre a setFechaRange')
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
+    },
+    setFechaProximaRange(state,action){
+      state.startDateProxima = action.payload.startDateProxima;
+      state.endDateProxima = action.payload.endDateProxima;
     },
     setSearch(state, action) {
       state.search = action.payload;
@@ -82,6 +92,7 @@ export const {
   setSortOrder,
   setSortColumn,
   setFechaRange,
+  setFechaProximaRange,
   setSearch,
 } = serviciosRealizadosSlice.actions;
 export default serviciosRealizadosSlice.reducer;

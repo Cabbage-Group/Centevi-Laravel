@@ -9,9 +9,9 @@ import { BookTwoTone } from '@ant-design/icons';
 import Swal from 'sweetalert2';
 import { Button, Col, Divider, Input, Modal, Row, List } from 'antd';
 import moment from 'moment';
-import { fetchServiciosRealizados, setSortOrder, setSortColumn, setFechaRange } from '../../redux/features/reportes/serviciosRealizadosSlice';
+import { fetchServiciosRealizados, setSortOrder, setSortColumn, setFechaRange, setFechaProximaRange } from '../../redux/features/reportes/serviciosRealizadosSlice';
 import PaginationServiciosRealizados from './PaginationServiciosRealizados';
-import { fetchServiciosProximos, setSortColumnServiciosProximos, setSortOrderServiciosProximos, setFechaRangeServiciosProximos } from '../../redux/features/reportes/serviciosProximosSlice';
+import { fetchServiciosProximos, setSortColumnServiciosProximos, setSortOrderServiciosProximos, setFechaRangeServiciosProximos, setFechaProximaRangeServiciosProximos } from '../../redux/features/reportes/serviciosProximosSlice';
 import PaginationServiciosProximos from './PaginationServiciosProximos';
 
 const ProximasCitas = () => {
@@ -19,11 +19,15 @@ const ProximasCitas = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [localStartDateProxima, setLocalStartDateProxima] = useState(startDateProxima);
+  const [localEndDateProxima, setLocalEndDateProxima] = useState(endDateProxima);
   const [localSearch, setLocalSearch] = useState(search);
 
   const [currentPageserviciosProximos, setCurrentPageserviciosProximos] = useState(1);
   const [localEndDateServiciosProximos, setLocalEndDateServiciosProximos] = useState(endDateServiciosProximos);
   const [localStartDateServiciosProximos, setLocalStartDateServiciosProximos] = useState(startDateServiciosProximos);
+  const [localEndDateProximaServiciosProximos, setLocalEndDateProximaServiciosProximos] = useState(endDateProximaServiciosProximos);
+  const [localStartDateProximaServiciosProximos, setLocalStartDateProximaServiciosProximos] = useState(startDateProximaServiciosProximos);
   const [localSearchServiciosProximos, setLocalSearchServiciosProximos] = useState(searchServiciosProximos);
 
 
@@ -35,6 +39,8 @@ const ProximasCitas = () => {
     totalPages,
     startDate,
     endDate,
+    startDateProxima,
+    endDateProxima,
     search,
     dataexport,
     status,
@@ -49,6 +55,8 @@ const ProximasCitas = () => {
     totalPagesServiciosProximos,
     startDateServiciosProximos,
     endDateServiciosProximos,
+    startDateProximaServiciosProximos,
+    endDateProximaServiciosProximos,
     searchServiciosProximos,
     dataexportServiciosProximos,
     statusServiciosProximos,
@@ -63,6 +71,8 @@ const ProximasCitas = () => {
       sortColumn,
       startDate,
       endDate,
+      startDateProxima,
+      endDateProxima,
       search: localSearch,
     }));
 
@@ -74,7 +84,9 @@ const ProximasCitas = () => {
     sortColumn,
     sortOrder,
     startDate,
-    endDate
+    endDate,
+    startDateProxima,
+    endDateProxima
   ]);
 
   useEffect(() => {
@@ -85,6 +97,8 @@ const ProximasCitas = () => {
       sortColumnServiciosProximos,
       startDateServiciosProximos,
       endDateServiciosProximos,
+      startDateProximaServiciosProximos,
+      endDateProximaServiciosProximos,
       searchServiciosProximos: localSearchServiciosProximos
     }))
 
@@ -95,6 +109,8 @@ const ProximasCitas = () => {
     sortColumnServiciosProximos,
     sortOrderServiciosProximos,
     startDateServiciosProximos,
+    startDateProximaServiciosProximos,
+    endDateProximaServiciosProximos,
     endDateServiciosProximos
   ]);
 
@@ -107,11 +123,20 @@ const ProximasCitas = () => {
   };
 
   const handleDateChange = () => {
+    console.log('entre a datechange')
     dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
+  };
+
+  const handleDateProximaChange = () => {
+    dispatch(setFechaProximaRange({ startDateProxima: localStartDateProxima, endDateProxima: localEndDateProxima }));
   };
 
   const handleDateChangeServiciosProximos = () => {
     dispatch(setFechaRangeServiciosProximos({ startDateServiciosProximos: localStartDateServiciosProximos, endDateServiciosProximos: localEndDateServiciosProximos }));
+  };
+
+  const handleDateProximaChangeServiciosProximos = () => {
+    dispatch(setFechaProximaRangeServiciosProximos({ startDateProximaServiciosProximos: localStartDateProximaServiciosProximos, endDateProximaServiciosProximos: localEndDateProximaServiciosProximos }));
   };
 
   const handleSearchChange = (event) => {
@@ -173,6 +198,26 @@ const ProximasCitas = () => {
                     setLocalEndDate(end);
                   }}
                   onApply={handleDateChange}
+                  onReset={() => {
+                    dispatch(setFechaRange({ startDate: '', endDate: '' }));  
+                  }}
+                />
+              </div>
+              <div className="form-group col-md-4 mt-4">
+                <label>
+                  Buscar por Fecha Proxima:
+                </label>
+                <DateRangePicker
+                  startDate={localStartDateProxima}
+                  endDate={localEndDateProxima}
+                  onChange={(start, end) => {
+                    setLocalStartDateProxima(start);
+                    setLocalEndDateProxima(end);
+                  }}
+                  onApply={handleDateProximaChange}
+                  onReset={() => {
+                    dispatch(setFechaProximaRange({ startDateProxima: '', endDateProxima: '' }));  
+                  }}
                 />
               </div>
               <div className="table-responsive">
@@ -393,6 +438,26 @@ const ProximasCitas = () => {
                     setLocalEndDateServiciosProximos(end);
                   }}
                   onApply={handleDateChangeServiciosProximos}
+                  onReset={() => {
+                    dispatch(setFechaRangeServiciosProximos({ startDateServiciosProximos: '', endDateServiciosProximos: '' }));  
+                  }}
+                />
+              </div>
+              <div className="form-group col-md-4 mt-4">
+                <label>
+                  Buscar por Fecha Proxima:
+                </label>
+                <DateRangePicker
+                  startDate={localStartDateProximaServiciosProximos}
+                  endDate={localEndDateProximaServiciosProximos}
+                  onChange={(start, end) => {
+                    setLocalStartDateProximaServiciosProximos(start);
+                    setLocalEndDateProximaServiciosProximos(end);
+                  }}
+                  onApply={handleDateProximaChangeServiciosProximos}
+                  onReset={() => {
+                    dispatch(setFechaProximaRangeServiciosProximos({ startDateProximaServiciosProximos: '', endDateProximaServiciosProximos: '' }));  
+                  }}
                 />
               </div>
               <div className="table-responsive">

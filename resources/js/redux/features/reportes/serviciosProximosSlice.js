@@ -11,10 +11,14 @@ export const fetchServiciosProximos = createAsyncThunk(
     sortColumnServiciosProximos = 'ID_CONSULTA',
     startDateServiciosProximos = '',
     endDateServiciosProximos = '',
+    startDateProximaServiciosProximos = '',
+    endDateProximaServiciosProximos = '',
     searchServiciosProximos = '',
   }) => {
     try {
       const fecha = startDateServiciosProximos && endDateServiciosProximos ? `${startDateServiciosProximos} - ${endDateServiciosProximos}` : '';
+
+      const fechaProxima = startDateProximaServiciosProximos && endDateProximaServiciosProximos ? `${startDateProximaServiciosProximos} - ${endDateProximaServiciosProximos}` : '';
 
       const params = {
         page,
@@ -22,6 +26,7 @@ export const fetchServiciosProximos = createAsyncThunk(
         sortOrder: sortOrderServiciosProximos,
         sortColumn: sortColumnServiciosProximos,
         fecha,
+        fechaProxima,
         search: searchServiciosProximos
       };
       const response = await axios.get(`${API}/reportes-servicios-proximos`, { params })
@@ -54,6 +59,10 @@ const serviciosProximosSlice = createSlice({
       state.startDateServiciosProximos = action.payload.startDateServiciosProximos;
       state.endDateServiciosProximos = action.payload.endDateServiciosProximos;
     },
+    setFechaProximaRangeServiciosProximos(state, action) {
+      state.startDateProximaServiciosProximos = action.payload.startDateProximaServiciosProximos;
+      state.endDateProximaServiciosProximos = action.payload.endDateProximaServiciosProximos;
+    },
     setSearchServiciosProximos(state, action) {
       state.searchServiciosProximos = action.payload;
     },
@@ -80,6 +89,7 @@ export const {
   setSortOrderServiciosProximos,
   setSortColumnServiciosProximos,
   setFechaRangeServiciosProximos,
+  setFechaProximaRangeServiciosProximos,
   setSearchServiciosProximos,
 } = serviciosProximosSlice.actions;
 

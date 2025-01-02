@@ -2201,14 +2201,24 @@ class PacientesApiController extends Controller
     $sortColumn = $request->input('sortColumn', 'FECHA_CONSULTA');
     $sortOrder = $request->input('sortOrder', 'asc');
     $fecha = $request->input('fecha');
+    $fechaProxima = $request->input('fechaProxima');
     $search = $request->input('search');
 
     $fechaInicio = null;
     $fechaFin = null;
 
+    $fechaInicioProxima = null;
+    $fechaFinProxima = null;
+
     if ($fecha) {
       [$fechaInicio, $fechaFin] = explode(' - ', $fecha);
     }
+
+    if ($fechaProxima) {
+      [$fechaInicioProxima, $fechaFinProxima] = explode(' - ', $fechaProxima);
+    }
+
+
 
     $optometriaPediatrica = DB::table('optometria_pediatrica')
       ->join('pacientes', 'optometria_pediatrica.paciente', '=', 'pacientes.id_paciente')
@@ -2217,6 +2227,7 @@ class PacientesApiController extends Controller
       ->select(
         'optometria_pediatrica.id_consulta as ID_CONSULTA',
         'optometria_pediatrica.fecha_atencion as FECHA_CONSULTA',
+        'optometria_pediatrica.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"optometria_pediatrica" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2230,6 +2241,7 @@ class PacientesApiController extends Controller
       ->select(
         'consultagenerica.id_consulta as ID_CONSULTA',
         'consultagenerica.fecha_atencion as FECHA_CONSULTA',
+        'consultagenerica.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"consultagenerica" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2243,6 +2255,7 @@ class PacientesApiController extends Controller
       ->select(
         'refracciongeneral.id_consulta as ID_CONSULTA',
         'refracciongeneral.fecha_atencion as FECHA_CONSULTA',
+        'refracciongeneral.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"refracciongeneral" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2256,6 +2269,7 @@ class PacientesApiController extends Controller
       ->select(
         'optometria_neonatos.id_consulta as ID_CONSULTA',
         'optometria_neonatos.fecha_atencion as FECHA_CONSULTA',
+        'optometria_neonatos.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"optometria_neonatos" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2269,6 +2283,7 @@ class PacientesApiController extends Controller
       ->select(
         'ortoptica_adultos.id_consulta as ID_CONSULTA',
         'ortoptica_adultos.fecha_atencion as FECHA_CONSULTA',
+        'ortoptica_adultos.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"ortoptica_adultos" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2296,6 +2311,10 @@ class PacientesApiController extends Controller
 
     if ($fechaInicio && $fechaFin) {
       $consultas->whereBetween('FECHA_CONSULTA', [$fechaInicio, $fechaFin]);
+    }
+
+    if ($fechaInicioProxima && $fechaFinProxima) {
+      $consultas->whereBetween('FECHA_PROXIMA', [$fechaInicioProxima, $fechaFinProxima]);
     }
 
     $dataexport = $consultas->get();
@@ -2327,14 +2346,25 @@ class PacientesApiController extends Controller
     $sortColumn = $request->input('sortColumn', 'FECHA_CONSULTA');
     $sortOrder = $request->input('sortOrder', 'asc');
     $fecha = $request->input('fecha');
+    $fechaProxima = $request->input('fechaProxima');
     $search = $request->input('search');
 
     $fechaInicio = null;
     $fechaFin = null;
+
+    $fechaInicioProxima = null;
+    $fechaFinProxima = null;
+
     if ($fecha) {
       [$fechaInicio, $fechaFin] = explode(' - ', $fecha);
       $fechaInicio = trim($fechaInicio);
       $fechaFin = trim($fechaFin);
+    }
+
+    if ($fechaProxima) {
+      [$fechaInicioProxima, $fechaFinProxima] = explode(' - ', $fechaProxima);
+      $fechaInicioProxima = trim($fechaInicioProxima);
+      $fechaFinProxima = trim($fechaFinProxima);
     }
 
 
@@ -2346,6 +2376,7 @@ class PacientesApiController extends Controller
       ->select(
         'optometria_pediatrica.id_consulta as ID_CONSULTA',
         'optometria_pediatrica.fecha_atencion as FECHA_CONSULTA',
+        'optometria_pediatrica.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"optometria_pediatrica" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2361,6 +2392,7 @@ class PacientesApiController extends Controller
       ->select(
         'consultagenerica.id_consulta as ID_CONSULTA',
         'consultagenerica.fecha_atencion as FECHA_CONSULTA',
+        'consultagenerica.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"consultagenerica" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2376,6 +2408,7 @@ class PacientesApiController extends Controller
       ->select(
         'refracciongeneral.id_consulta as ID_CONSULTA',
         'refracciongeneral.fecha_atencion as FECHA_CONSULTA',
+        'refracciongeneral.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"refracciongeneral" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2391,6 +2424,7 @@ class PacientesApiController extends Controller
       ->select(
         'optometria_neonatos.id_consulta as ID_CONSULTA',
         'optometria_neonatos.fecha_atencion as FECHA_CONSULTA',
+        'optometria_neonatos.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"optometria_neonatos" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2405,6 +2439,7 @@ class PacientesApiController extends Controller
       ->select(
         'ortoptica_adultos.id_consulta as ID_CONSULTA',
         'ortoptica_adultos.fecha_atencion as FECHA_CONSULTA',
+        'ortoptica_adultos.fecha_proxima_consulta as FECHA_PROXIMA',
         DB::raw('"ortoptica_adultos" as CONSULTA'),
         'pacientes.nro_cedula as CEDULA',
         DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as PACIENTE'),
@@ -2432,6 +2467,10 @@ class PacientesApiController extends Controller
 
     if ($fechaInicio && $fechaFin) {
       $consultas->whereBetween('FECHA_CONSULTA', [$fechaInicio, $fechaFin]);
+    }
+
+    if ($fechaInicioProxima && $fechaFinProxima) {
+      $consultas->whereBetween('FECHA_PROXIMA', [$fechaInicioProxima, $fechaFinProxima]);
     }
 
 
