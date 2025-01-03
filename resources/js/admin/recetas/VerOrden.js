@@ -78,8 +78,7 @@ const VerOrden = ({ fecha_solicitud }) => {
     add_oi: orden?.add_oi || pacienteOrden?.add_oi,
     prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
     prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
-    distancia_od: orden?.distancia_od || pacienteOrden?.distancia_od,
-    distancia_oi: orden?.distancia_oi || pacienteOrden?.distancia_oi,
+    distancia_od: orden?.distancia_od + (orden?.distancia_oi ? '/' + orden?.distancia_oi : '') || pacienteOrden?.distancia_od + (pacienteOrden?.distancia_oi ? '/' + pacienteOrden?.distancia_oi : ''),
     altura_od: orden?.altura_od || pacienteOrden?.altura_od,
     altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
     tipo_cristal_od: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
@@ -453,7 +452,7 @@ const VerOrden = ({ fecha_solicitud }) => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      {fecha_solicitud? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
+                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
                                     </b>
                                   </p>
                                 </div>
@@ -505,7 +504,7 @@ const VerOrden = ({ fecha_solicitud }) => {
                                   <Select
                                     showSearch
                                     value={selectedPaciente}
-                                    disabled 
+                                    disabled
                                     onChange={(value) => {
                                       setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
                                       setFieldValue("id_paciente", value); // También actualizar el campo de Formik
@@ -536,7 +535,7 @@ const VerOrden = ({ fecha_solicitud }) => {
                                   <Select
                                     showSearch
                                     value={selectedSucursal}
-                                    disabled 
+                                    disabled
                                     placeholder="Seleccione una sucursal"
                                     onChange={(value) => {
                                       setSelectedSucursal(value)
@@ -727,12 +726,12 @@ const VerOrden = ({ fecha_solicitud }) => {
                                               as="input"
                                             />
                                           </td>
-                                          <td>
+                                          <td style={{ paddingTop: '70px', textAlign: 'center' }}>
                                             <Field
                                               className="form-control"
                                               name="distancia_od"
-                                              readOnly
                                               as="input"
+                                              readOnly
                                             />
                                           </td>
                                           <td>
@@ -791,12 +790,6 @@ const VerOrden = ({ fecha_solicitud }) => {
                                             />
                                           </td>
                                           <td>
-                                            <Field
-                                              className="form-control"
-                                              name="distancia_oi"
-                                              readOnly                                  
-                                              as="input"
-                                            />
                                           </td>
                                           <td>
                                             <Field
@@ -1176,7 +1169,7 @@ const VerOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                     
+
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>

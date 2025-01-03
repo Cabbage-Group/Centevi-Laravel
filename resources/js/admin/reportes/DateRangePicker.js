@@ -14,9 +14,6 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset }) => 
         startDate ? moment(startDate, 'YYYY-MM-DD') : null,
         endDate ? moment(endDate, 'YYYY-MM-DD') : null,
     ]);
-    console.log('fecha:', startDate)
-    console.log('fechaEnd:', endDate)
-
     useEffect(() => {
         if (startDate === currentDate && endDate === currentDate) {
             setDates([null, null]);

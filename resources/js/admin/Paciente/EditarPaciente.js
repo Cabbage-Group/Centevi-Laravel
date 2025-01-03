@@ -139,8 +139,12 @@ const EditarPaciente = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const updatedFormData = {
+        ...formData,
+        celular: formData.celular.replace(/\s+/g, ''), // Elimina todos los espacios
+      };
 
-      await dispatch(fetchEditarPaciente({ id, data: formData })).unwrap();
+      await dispatch(fetchEditarPaciente({ id, data: updatedFormData })).unwrap();
 
       Swal.fire({
         icon: 'success',

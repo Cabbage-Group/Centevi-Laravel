@@ -37,10 +37,181 @@ export const fecthReportesOrdenes = createAsyncThunk(
   }
 );
 
+export const fecthStatusTotals = createAsyncThunk(
+  'reportesordenes/fecthStatusTotals',
+  async ({
+    page = 1,
+    limit = 20,
+    sortOrder = 'desc',
+    sortColumn = 'created_at',
+    startDate = '',
+    endDate = '',
+    search = '',
+    lenteContacto = '',
+    laboratorio = '',
+    pagado = '',
+  }) => {
+    const statusValues = ['Ok', 'Advertencia', 'Critico', 'Completado'];
+    const requests = statusValues.map(statusValue =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          page,
+          limit,
+          sortOrder,
+          sortColumn,
+          fecha: startDate && endDate ? `${startDate} - ${endDate}` : '',
+          search,
+          status: statusValue,
+          lenteContacto,
+          laboratorio,
+          pagado
+        }
+      })
+    );
+
+    const responses = await Promise.all(requests);
+
+    // Formatear la respuesta para devolver los totales por cada status
+    const totalsByStatus = responses.reduce((acc, response, index) => {
+      const statusValue = statusValues[index];
+      acc[statusValue] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsByStatus;
+  }
+);
+
+export const fecthLenteContactoTotals = createAsyncThunk(
+  'reportesordenes/fecthLenteContactoTotals',
+  async ({
+    page = 1,
+    limit = 20,
+    sortOrder = 'desc',
+    sortColumn = 'created_at',
+    startDate = '',
+    endDate = '',
+    search = '',
+    status = '',
+    laboratorio = '',
+    pagado = '',
+  }) => {
+    const lenteContactoValues = [0, 1]; // Los valores posibles de lenteContacto (0 o 1)
+    const requests = lenteContactoValues.map(lenteContactoValue =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          page,
+          limit,
+          sortOrder,
+          sortColumn,
+          fecha: startDate && endDate ? `${startDate} - ${endDate}` : '',
+          search,
+          status,
+          lenteContacto: lenteContactoValue,
+          laboratorio,
+          pagado
+        }
+      })
+    );
+
+    const responses = await Promise.all(requests);
+
+    // Formatear la respuesta para devolver los totales por cada valor de lenteContacto
+    const totalsByLenteContacto = responses.reduce((acc, response, index) => {
+      const lenteContactoValue = lenteContactoValues[index];
+      acc[lenteContactoValue] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsByLenteContacto;
+  }
+);
+
+export const fecthLaboratorioTotals = createAsyncThunk(
+  'reportesordenes/fecthLaboratorioTotals',
+  async ({
+    page = 1,
+    limit = 20,
+    sortOrder = 'desc',
+    sortColumn = 'created_at',
+    startDate = '',
+    endDate = '',
+    search = '',
+    pagado = '',
+  }) => {
+    const laboratoriosValues = ['Ping', 'Optilab', 'Centilab','Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
+    const requests = laboratoriosValues.map(laboratoriosValue =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          page,
+          limit,
+          sortOrder,
+          sortColumn,
+          fecha: startDate && endDate ? `${startDate} - ${endDate}` : '',
+          search,
+          laboratorio:laboratoriosValue,
+          pagado
+        }
+      })
+    );
+
+    const responses = await Promise.all(requests);
+
+    // Formatear la respuesta para devolver los totales por cada status
+    const totalsByLaboratorios= responses.reduce((acc, response, index) => {
+      const laboratoriosValue = laboratoriosValues[index];
+      acc[laboratoriosValue] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsByLaboratorios;
+  }
+);
+
+export const fecthPagadoTotals = createAsyncThunk(
+  'reportesordenes/fecthPagadoTotals',
+  async ({
+    page = 1,
+    limit = 20,
+    sortOrder = 'desc',
+    sortColumn = 'created_at',
+    startDate = '',
+    endDate = '',
+    search = '',
+  }) => {
+    const pagadoValues = [0, 1]; // Los valores posibles de lenteContacto (0 o 1)
+    const requests = pagadoValues.map(pagadoValue =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          page,
+          limit,
+          sortOrder,
+          sortColumn,
+          fecha: startDate && endDate ? `${startDate} - ${endDate}` : '',
+          search,
+          pagado: pagadoValue
+        }
+      })
+    );
+
+    const responses = await Promise.all(requests);
+
+    // Formatear la respuesta para devolver los totales por cada valor de lenteContacto
+    const totalsByPagado= responses.reduce((acc, response, index) => {
+      const pagadoValue = pagadoValues[index];
+      acc[pagadoValue] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsByPagado;
+  }
+);
+
 const reportesOrdenesSlice = createSlice({
   name: 'reportesOrdenes',
   initialState: {
     reportesOrdenes: [],
+    reportesOrdenesStatus: [],
     meta: {},
     dataexport: [],
     search: '',
@@ -63,6 +234,9 @@ const reportesOrdenesSlice = createSlice({
     setSearch(state, action) {
       state.search = action.payload;
     },
+    setStatusFilter(state, action) {
+      state.statusFilter = action.payload; 
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -77,6 +251,30 @@ const reportesOrdenesSlice = createSlice({
       })
       .addCase(fecthReportesOrdenes.rejected, (state, action) => {
         state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fecthStatusTotals.fulfilled, (state, action) => {
+        state.statusTotals = action.payload;
+      })
+      .addCase(fecthStatusTotals.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(fecthLenteContactoTotals.fulfilled, (state, action) => {
+        state.lenteContactoTotals = action.payload;
+      })
+      .addCase(fecthLenteContactoTotals.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(fecthLaboratorioTotals.fulfilled, (state, action) => {
+        state.laboratoriosTotals = action.payload;
+      })
+      .addCase(fecthLaboratorioTotals.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(fecthPagadoTotals.fulfilled, (state, action) => {
+        state.pagadoTotals = action.payload;
+      })
+      .addCase(fecthPagadoTotals.rejected, (state, action) => {
         state.error = action.error.message;
       });
   },

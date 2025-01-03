@@ -687,7 +687,7 @@ class OrdenesApiController extends Controller
 
     if ($laboratorio !== '') {
       // Validar valores permitidos para laboratorio
-      $validLaboratorios = ['Ping', 'Optilab', 'Centilab'];
+      $validLaboratorios = ['Ping', 'Optilab', 'Centilab','Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
     
       if (in_array($laboratorio, $validLaboratorios)) {
         // Filtrar por laboratorio específico

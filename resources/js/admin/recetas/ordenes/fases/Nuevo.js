@@ -22,13 +22,41 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
   const { orderId } = useParams();
   const { orden } = location.state || {};
   const { pacienteOrden } = location.state || {};
-  const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
+  const [celular, setCelular] = useState('');
+  const [mensaje, setMensaje] = useState(
+    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+  );
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.sucursal?.nombre);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
+  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
+
+  const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([
+    { value: 'Centilab', label: 'Centilab' },
+    { value: 'Ping', label: 'Ping' },
+    { value: 'Optilab', label: 'Optilab' },
+  ]);
+
+  useEffect(() => {
+    // Cambiar las opciones del Select si lente_contacto es true
+    if (orden?.lente_contacto) {
+      setOpcionesLaboratorio([
+        { value: 'Vista Pro', label: 'Vista Pro' },
+        { value: 'Haseth J&J', label: 'Haseth J&J' },
+        { value: 'Alcon', label: 'Alcon' },
+        { value: 'B+L', label: 'B+L' },
+      ]);
+    } else {
+      setOpcionesLaboratorio([
+        { value: 'Centilab', label: 'Centilab' },
+        { value: 'Ping', label: 'Ping' },
+        { value: 'Optilab', label: 'Optilab' },
+      ]);
+    }
+  }, [orden?.lente_contacto]);
+  
 
   useEffect(() => {
     if (orderId) {
@@ -46,15 +74,16 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       console.log('pacienteSeleccionado:', pacienteSeleccionado)
+      console.log('orden:',orden)
       if (pacienteSeleccionado) {
-        setTelefono(pacienteSeleccionado?.celular || '');
+        setCelular(pacienteSeleccionado?.celular || '');
         setNombrePaciente(pacienteSeleccionado?.nombres || '');
       } else {
-        setTelefono('');
+        setCelular('');
 
       }
     } else {
-      setTelefono('');
+      setCelular('');
     }
   }, [selectedPaciente, pacientes]);
 
@@ -110,12 +139,18 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
   const statusToDisplay = orden?.status_final || orden?.status;
 
   const generateWhatsAppLink = () => {
-    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
-    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
-    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+    const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
+    let mensajePersonalizado = mensaje
+      .replace('{nombre}', nombrePaciente)
+      .replace('{sucursal}', selectedSucursal);
+  
+    if (ubicacionMaps) {
+      mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
+    }
+    const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
+  
 
-
-    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+    return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
 
 
@@ -198,11 +233,7 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
           <Select
             showSearch
             placeholder=""
-            options={[
-              { value: 'Centilab', label: 'Centilab' },
-              { value: 'Ping', label: 'Ping' },
-              { value: 'Optilab', label: 'Optilab' },
-            ]}
+            options={opcionesLaboratorio}
             style={{
               width: '200px',
               height: '30px',

@@ -15,15 +15,11 @@ const Sucursales = () => {
     const [localSearch, setLocalSearch] = useState(search);
     const [sortOrder, setSortOrder] = useState('asc');
     const [sortColumn, setSortColumn] = useState('nombre');
-
     const [formValues, setFormValues] = useState({
         nombre: '',
         ubicacion: '',
        
     });
-
-   
-
 
     useEffect(() => {
         if (selectedSucursal && isEditMode) {

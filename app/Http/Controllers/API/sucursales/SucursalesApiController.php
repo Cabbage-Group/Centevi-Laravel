@@ -63,7 +63,7 @@ class SucursalesApiController extends Controller
     $request->validate([
       'nombre' => 'required|string|max:255',
       'ubicacion' => 'required|string|max:255',
-      'ubicacion_maps' => 'required|string|max:255',
+      'ubicacion_maps' => 'required|string|max:800',
       'fecha_creacion' => 'date',
 
     ]);
@@ -92,7 +92,7 @@ class SucursalesApiController extends Controller
     $request->validate([
       'nombre' => 'string|max:255',
       'ubicacion' => 'string|max:255',
-      'ubicacion_maps' => 'required|string|max:255',
+      'ubicacion_maps' => 'required|string|max:800',
       'fecha_creacion' => 'date',
 
     ]);

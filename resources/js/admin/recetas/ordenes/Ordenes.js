@@ -38,22 +38,31 @@ const Ordenes = () => {
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
-  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal}');
-  const [telefono, setTelefono] = useState('');
+  const [mensaje, setMensaje] = useState(
+      'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+    );
+  const [celular, setCelular] = useState('');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
+  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
 
 
   const generateWhatsAppLink = () => {
-    const telefonoFormateado = `507${telefono.replace(/\D/g, '')}`;
-    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
-    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+    const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
+    let mensajePersonalizado = mensaje
+      .replace('{nombre}', nombrePaciente)
+      .replace('{sucursal}', selectedSucursal);
+  
+    if (ubicacionMaps) {
+      mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
+    }
+    const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
+  
 
-
-    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+    return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
 
   useEffect(() => {
@@ -62,14 +71,14 @@ const Ordenes = () => {
           (paciente) => paciente.id_paciente === selectedPaciente
         );
         if (pacienteSeleccionado) {
-          setTelefono(pacienteSeleccionado?.celular || '');
+          setCelular(pacienteSeleccionado?.celular || '');
           setNombrePaciente(pacienteSeleccionado?.nombres || '');
         } else {
-          setTelefono('');
+          setCelular('');
   
         }
       } else {
-        setTelefono('');
+        setCelular('');
       }
     }, [selectedPaciente, pacientes]);
 
