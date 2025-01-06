@@ -1177,7 +1177,19 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             { id: 16, codigo: "Filtro Amarillo/ Naranja 510" },
                                             { id: 17, codigo: "Filtro Naranja Claro 525" },
                                             { id: 18, codigo: "Filtro Naranja Oscuro 550" },
-                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" }
+                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" },
+                                            { id: 20, codigo: "Fotocromático Gris" },
+                                            { id: 21, codigo: "Fotocromático Café" },
+                                            { id: 22, codigo: "Antirreflejo AR" },
+                                            { id: 23, codigo: "Polarizado Negro" },
+                                            { id: 24, codigo: "Polarizado Café" },
+                                            { id: 25, codigo: "Polarizado Gris + Espejado" },
+                                            { id: 26, codigo: "Polarizado Café + Espejado" },
+                                            { id: 27, codigo: "Tinte Uniforme" },
+                                            { id: 28, codigo: "Tinte Degradante" },
+                                            { id: 29, codigo: "Filtro UV" },
+                                            { id: 30, codigo: "Transitions Gris" },
+                                            { id: 31, codigo: "Transitions Café" }
                                           ].map(servicio => ({
                                             value: servicio.id,
                                             label: servicio.codigo

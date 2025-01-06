@@ -570,7 +570,7 @@ const CreateOrden = () => {
                                               // width: '175px'
                                             }}
                                           >
-                                             {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
+                                            {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
                                           </th>
                                           <th
                                             style={{
@@ -578,7 +578,7 @@ const CreateOrden = () => {
                                               width: "130px"
                                             }}
                                           >
-                                             {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
+                                            {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
                                           </th>
                                           <th
                                             style={{
@@ -586,7 +586,7 @@ const CreateOrden = () => {
                                               width: "130px"
                                             }}
                                           >
-                                             {isAroVisible ? 'ALTURA' : 'Diametro'}
+                                            {isAroVisible ? 'ALTURA' : 'Diametro'}
                                           </th>
                                         </tr>
                                       </thead>
@@ -596,15 +596,15 @@ const CreateOrden = () => {
                                             OD
                                           </td>
                                           <td>
-                                              <Field
-                                                className="form-control"
-                                                name="esfera_od"
-                                                as="input"
-                                                style={{
-                                                  width: isAroVisible ? '90px' : '120px', 
-                                                }}
-                                              />
-                                            </td>
+                                            <Field
+                                              className="form-control"
+                                              name="esfera_od"
+                                              as="input"
+                                              style={{
+                                                width: isAroVisible ? '90px' : '120px',
+                                              }}
+                                            />
+                                          </td>
                                           <td>
                                             <Field
                                               className="form-control"
@@ -673,7 +673,7 @@ const CreateOrden = () => {
                                               name="esfera_oi"
                                               as="input"
                                               style={{
-                                                width: isAroVisible ? '90px' : '120px', 
+                                                width: isAroVisible ? '90px' : '120px',
                                               }}
                                             />
                                           </td>
@@ -1062,7 +1062,20 @@ const CreateOrden = () => {
                                             { id: 16, codigo: "Filtro Amarillo/ Naranja 510" },
                                             { id: 17, codigo: "Filtro Naranja Claro 525" },
                                             { id: 18, codigo: "Filtro Naranja Oscuro 550" },
-                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" }
+                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" },
+                                            { id: 20, codigo: "Fotocromático Gris" },
+                                            { id: 21, codigo: "Fotocromático Café" },
+                                            { id: 22, codigo: "Antirreflejo AR" },
+                                            { id: 23, codigo: "Polarizado Negro" },
+                                            { id: 24, codigo: "Polarizado Café" },
+                                            { id: 25, codigo: "Polarizado Gris + Espejado" },
+                                            { id: 26, codigo: "Polarizado Café + Espejado" },
+                                            { id: 27, codigo: "Tinte Uniforme" },
+                                            { id: 28, codigo: "Tinte Degradante" },
+                                            { id: 29, codigo: "Filtro UV" },
+                                            { id: 30, codigo: "Transitions Gris" },
+                                            { id: 31, codigo: "Transitions Café" }
+
                                           ].map(servicio => ({
                                             value: servicio.id,
                                             label: servicio.codigo
@@ -1687,11 +1700,11 @@ const CreateOrden = () => {
                                             <b>MARCA</b>
                                           </div>
                                           {isAroVisible ? (
-                                             <Field
+                                            <Field
                                               className="form-control"
                                               name="marca"
                                               style={{ marginLeft: '0px', height: '30px', display: 'block' }}
-                                           />                                         
+                                            />
                                           ) : (
                                             <Select
                                               name="marca"
@@ -1708,7 +1721,7 @@ const CreateOrden = () => {
                                                 setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
                                                 setFieldValue("marca", value); // También actualizar el campo de Formik
                                               }}
-                                              filterOption={(input, option) => 
+                                              filterOption={(input, option) =>
                                                 option.label.toLowerCase().includes(input.toLowerCase())
                                               }
                                               options={[
@@ -1738,7 +1751,7 @@ const CreateOrden = () => {
                                                 { value: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ', label: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ' },
                                                 { value: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)', label: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)' },
                                                 { value: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)', label: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)' },
-                                                { value: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ', label: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ' },                                   
+                                                { value: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ', label: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ' },
                                                 { value: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)', label: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)' },
                                                 { value: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
                                                 { value: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50' },
@@ -1749,11 +1762,11 @@ const CreateOrden = () => {
                                                 { value: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00', label: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00' },
                                                 { value: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00', label: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00' },
                                                 { value: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)', label: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)' },
-                                                { value: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)', label: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)' },           
-                                                { value: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)', label: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)' },                               
+                                                { value: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)', label: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)' },
+                                                { value: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)', label: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)' },
                                                 { value: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00', label: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00' },
                                               ]}
-                                          />
+                                            />
                                           )}
                                         </div>
                                       </Col>
@@ -1894,7 +1907,7 @@ const CreateOrden = () => {
                                                           setFieldValue("tipo_aro", selectedOption.label);
                                                         }
                                                       }}
-                                                      filterOption={(input, option) => 
+                                                      filterOption={(input, option) =>
                                                         option.label.toLowerCase().includes(input.toLowerCase())
                                                       }
                                                     />
@@ -1924,7 +1937,7 @@ const CreateOrden = () => {
                                                         setFieldValue("doctor", selectedOption.label)
                                                       }
                                                     }}
-                                                    filterOption={(input, option) => 
+                                                    filterOption={(input, option) =>
                                                       option.label.toLowerCase().includes(input.toLowerCase())
                                                     }
                                                   />

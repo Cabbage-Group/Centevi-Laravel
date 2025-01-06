@@ -10,7 +10,7 @@ import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSl
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
 
-const Nuevo = ({ tipoFaseId, isDisabled  }) => {
+const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -56,7 +56,7 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
       ]);
     }
   }, [orden?.lente_contacto]);
-  
+
 
   useEffect(() => {
     if (orderId) {
@@ -74,7 +74,7 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       console.log('pacienteSeleccionado:', pacienteSeleccionado)
-      console.log('orden:',orden)
+      console.log('orden:', orden)
       if (pacienteSeleccionado) {
         setCelular(pacienteSeleccionado?.celular || '');
         setNombrePaciente(pacienteSeleccionado?.nombres || '');
@@ -143,12 +143,12 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
     let mensajePersonalizado = mensaje
       .replace('{nombre}', nombrePaciente)
       .replace('{sucursal}', selectedSucursal);
-  
+
     if (ubicacionMaps) {
       mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
     }
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
-  
+
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
@@ -269,7 +269,7 @@ const Nuevo = ({ tipoFaseId, isDisabled  }) => {
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{ marginRight: '10px', cursor: 'pointer', fontSize: '18px' }}
-                onClick={isDisabled ? null : () => actualizarFechaCreacionOrden()} 
+                onClick={isDisabled ? null : () => actualizarFechaCreacionOrden()}
               />
             </Tooltip>
             {fechaCreacion ? moment(fechaCreacion).format('YYYY-MM-DD HH:mm:ss') : ''}

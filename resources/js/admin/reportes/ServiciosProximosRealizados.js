@@ -199,7 +199,7 @@ const ProximasCitas = () => {
                   }}
                   onApply={handleDateChange}
                   onReset={() => {
-                    dispatch(setFechaRange({ startDate: '', endDate: '' }));  
+                    dispatch(setFechaRange({ startDate: '', endDate: '' }));
                   }}
                 />
               </div>
@@ -216,7 +216,7 @@ const ProximasCitas = () => {
                   }}
                   onApply={handleDateProximaChange}
                   onReset={() => {
-                    dispatch(setFechaProximaRange({ startDateProxima: '', endDateProxima: '' }));  
+                    dispatch(setFechaProximaRange({ startDateProxima: '', endDateProxima: '' }));
                   }}
                 />
               </div>
@@ -439,7 +439,7 @@ const ProximasCitas = () => {
                   }}
                   onApply={handleDateChangeServiciosProximos}
                   onReset={() => {
-                    dispatch(setFechaRangeServiciosProximos({ startDateServiciosProximos: '', endDateServiciosProximos: '' }));  
+                    dispatch(setFechaRangeServiciosProximos({ startDateServiciosProximos: '', endDateServiciosProximos: '' }));
                   }}
                 />
               </div>
@@ -456,7 +456,7 @@ const ProximasCitas = () => {
                   }}
                   onApply={handleDateProximaChangeServiciosProximos}
                   onReset={() => {
-                    dispatch(setFechaProximaRangeServiciosProximos({ startDateProximaServiciosProximos: '', endDateProximaServiciosProximos: '' }));  
+                    dispatch(setFechaProximaRangeServiciosProximos({ startDateProximaServiciosProximos: '', endDateProximaServiciosProximos: '' }));
                   }}
                 />
               </div>

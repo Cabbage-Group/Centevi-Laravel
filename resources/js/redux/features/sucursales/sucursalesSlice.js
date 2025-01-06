@@ -85,14 +85,14 @@ const sucursalesSlice = createSlice({
         state.meta = action.payload.meta;
         state.metaSucursales = action.payload.meta;
 
-        state.sucursales_option_selects = action.payload.data.map(({id_sucursal,nombre,ubicacion, ...rest})=> 
+        state.sucursales_option_selects = action.payload.data.map(({ id_sucursal, nombre, ubicacion, ...rest }) =>
           id_sucursal && nombre && ubicacion ?
-          {
-            value: id_sucursal,
-            label: nombre,
-            ...rest  
-          } :
-          {...rest}
+            {
+              value: id_sucursal,
+              label: nombre,
+              ...rest
+            } :
+            { ...rest }
         );
       })
       .addCase(fetchSucursales.rejected, (state, action) => {

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchSucursales, deleteSucursal,createSucursal, updateSucursal } from '../../redux/features/sucursales/sucursalesSlice';
+import { fetchSucursales, deleteSucursal, createSucursal, updateSucursal } from '../../redux/features/sucursales/sucursalesSlice';
 import PaginationSucursales from './PaginationSucursales';
 import Swal from 'sweetalert2';
 
 
 const Sucursales = () => {
     const dispatch = useDispatch();
-    const { sucursales, meta, status, error,totalPages, search  } = useSelector((state) => state.sucursales);
+    const { sucursales, meta, status, error, totalPages, search } = useSelector((state) => state.sucursales);
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedSucursal, setSelectedSucursal] = useState(null);
@@ -18,7 +18,7 @@ const Sucursales = () => {
     const [formValues, setFormValues] = useState({
         nombre: '',
         ubicacion: '',
-       
+
     });
 
     useEffect(() => {
@@ -26,7 +26,7 @@ const Sucursales = () => {
             setFormValues({
                 nombre: selectedSucursal.nombre || '',
                 ubicacion: selectedSucursal.ubicacion || '',
-                
+
 
             });
         } else {
@@ -43,9 +43,11 @@ const Sucursales = () => {
     }, [dispatch, currentPage]);
 
     useEffect(() => {
-        dispatch(fetchSucursales({ page: currentPage, limit: 7, search: localSearch ,sortColumn,
-            sortOrder, }));
-    }, [dispatch,localSearch, currentPage, sortColumn, sortOrder]);
+        dispatch(fetchSucursales({
+            page: currentPage, limit: 7, search: localSearch, sortColumn,
+            sortOrder,
+        }));
+    }, [dispatch, localSearch, currentPage, sortColumn, sortOrder]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -109,33 +111,33 @@ const Sucursales = () => {
         if (isEditMode && selectedSucursal) {
 
             dispatch(updateSucursal({ id: selectedSucursal.id_sucursal, updatedData: formValues }))
-            .then(() => {
-                Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Sucursal actualizada correctamente.',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    didClose: () => {
-                        window.location.reload();
-                    }
+                .then(() => {
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: 'Sucursal actualizada correctamente.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        didClose: () => {
+                            window.location.reload();
+                        }
+                    });
+                    setIsModalVisible(false);
+                    setIsEditMode(false);
+                    setSelectedSucursal(null);
+                    dispatch(fetchSucursales({ page: currentPage }));
+                })
+                .catch((error) => {
+                    const errorMessage = error.response?.data?.message || 'Hubo un problema al actualizar la sucursal.';
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: errorMessage,
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                    });
                 });
-                setIsModalVisible(false);
-                setIsEditMode(false);
-                setSelectedSucursal(null);
-                dispatch(fetchSucursales({ page: currentPage })); 
-            })
-            .catch((error) => {
-                const errorMessage = error.response?.data?.message || 'Hubo un problema al actualizar la sucursal.';
-                Swal.fire({
-                    title: '¡Error!',
-                    text: errorMessage,
-                    icon: 'error',
-                    confirmButtonText: 'OK',
-                });
-            });
-        }else{
+        } else {
 
-        dispatch(createSucursal(newSucursalData))
+            dispatch(createSucursal(newSucursalData))
                 .then(() => {
                     Swal.fire({
                         title: 'Éxito!',
@@ -145,7 +147,7 @@ const Sucursales = () => {
                         didClose: () => {
                             window.location.reload();
                         }
-                       
+
 
                     });
                 })
@@ -157,7 +159,7 @@ const Sucursales = () => {
                         icon: 'error',
                         confirmButtonText: 'OK'
                     });
-            });
+                });
         }
     }
 
@@ -212,12 +214,12 @@ const Sucursales = () => {
                             <div className="row layout-top-spacing" id="cancel-row">
                                 <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                                     <div className="widget-content widget-content-area br-6">
-                                        <button 
-                                        className="btn btn-success mb-4 ml-3 mt-4" 
-                                        data-toggle="modal" 
-                                        data-target="#modalAgregarSucursal"
-                                        onClick={handleCreateClick}
-                                       
+                                        <button
+                                            className="btn btn-success mb-4 ml-3 mt-4"
+                                            data-toggle="modal"
+                                            data-target="#modalAgregarSucursal"
+                                            onClick={handleCreateClick}
+
                                         >
                                             Agregar Sucursal
                                         </button>
@@ -243,62 +245,62 @@ const Sucursales = () => {
                                                                     <circle cx="11" cy="11" r="8" />
                                                                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                                                 </svg>
-                                                                <input 
-                                                                type="search" 
-                                                                className="form-control" 
-                                                                placeholder="Search..." 
-                                                                aria-controls="zero-config" 
-                                                                value={localSearch}
-                                                                onChange={handleSearchChange}
+                                                                <input
+                                                                    type="search"
+                                                                    className="form-control"
+                                                                    placeholder="Search..."
+                                                                    aria-controls="zero-config"
+                                                                    value={localSearch}
+                                                                    onChange={handleSearchChange}
                                                                 />
                                                                 {localSearch && (
-                                                                        <button
-                                                                            onClick={handleClearSearch}
-                                                                            style={{
-                                                                                position: 'absolute',
-                                                                                right: '25px',
-                                                                                top: '50%',
-                                                                                transform: 'translateY(-50%)',
-                                                                                background: 'none',
-                                                                                border: 'none',
-                                                                                cursor: 'pointer',
-                                                                            }}
-                                                                        >
-                                                                            &#x2715; { }
-                                                                        </button>
-                                                                    )}
+                                                                    <button
+                                                                        onClick={handleClearSearch}
+                                                                        style={{
+                                                                            position: 'absolute',
+                                                                            right: '25px',
+                                                                            top: '50%',
+                                                                            transform: 'translateY(-50%)',
+                                                                            background: 'none',
+                                                                            border: 'none',
+                                                                            cursor: 'pointer',
+                                                                        }}
+                                                                    >
+                                                                        &#x2715; { }
+                                                                    </button>
+                                                                )}
                                                             </label>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                             </div>
-                                           
-                                            <div 
-                                            
-                                            className="table-responsive">
-                                               
+
+                                            <div
+
+                                                className="table-responsive">
+
                                                 <table id="zero-config" className="table dt-table-hover tablaSucursal dataTable" style={{ width: "100%" }} role="grid" aria-describedby="zero-config_info">
                                                     <thead>
                                                         <tr role="row">
-                                                            <th 
-                                                            aria-label="Nombre: activate to sort column ascending"
-                                                            className={`sorting_${sortColumn === 'nombre' ? sortOrder : ''}`}
-                                                            tabIndex="0" 
-                                                            aria-controls="zero-config"
-                                                            onClick={() => handleSort('nombre')}>
+                                                            <th
+                                                                aria-label="Nombre: activate to sort column ascending"
+                                                                className={`sorting_${sortColumn === 'nombre' ? sortOrder : ''}`}
+                                                                tabIndex="0"
+                                                                aria-controls="zero-config"
+                                                                onClick={() => handleSort('nombre')}>
                                                                 Nombre Sucursal
                                                             </th>
-                                                            <th 
-                                                            className={`sorting_${sortColumn === 'ubicacion' ? sortOrder : ''}`}
-                                                            tabIndex="0" 
-                                                            aria-controls="zero-config"
-                                                            onClick={() => handleSort('ubicacion')}>Ubicacion</th>
-                                                            <th 
-                                                            className={`sorting_${sortColumn === 'fecha_creacion' ? sortOrder : ''}`}
-                                                            tabIndex="0" 
-                                                            aria-controls="zero-config"
-                                                            onClick={() => handleSort('fecha_creacion')}>Fecha de creacion</th>
+                                                            <th
+                                                                className={`sorting_${sortColumn === 'ubicacion' ? sortOrder : ''}`}
+                                                                tabIndex="0"
+                                                                aria-controls="zero-config"
+                                                                onClick={() => handleSort('ubicacion')}>Ubicacion</th>
+                                                            <th
+                                                                className={`sorting_${sortColumn === 'fecha_creacion' ? sortOrder : ''}`}
+                                                                tabIndex="0"
+                                                                aria-controls="zero-config"
+                                                                onClick={() => handleSort('fecha_creacion')}>Fecha de creacion</th>
                                                             <th className="text-center dt-no-sorting sorting" tabIndex="0" aria-controls="zero-config">Action</th>
                                                         </tr>
                                                     </thead>
@@ -310,19 +312,19 @@ const Sucursales = () => {
                                                                 <td>{sucursal.fecha_creacion}</td>
                                                                 <td>
                                                                     <div className="btn-group">
-                                                                        <button 
-                                                                        className="btn btn-warning btnEditarSucursal" 
-                                                                        id_sucursal="3" 
-                                                                        data-toggle="modal" 
-                                                                        data-target="#modalEditarSucursal"
-                                                                        onClick={() => handleEditClick(sucursal)}
+                                                                        <button
+                                                                            className="btn btn-warning btnEditarSucursal"
+                                                                            id_sucursal="3"
+                                                                            data-toggle="modal"
+                                                                            data-target="#modalEditarSucursal"
+                                                                            onClick={() => handleEditClick(sucursal)}
                                                                         >
                                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                                 <path strokeLinecap="modalEditarSucursal" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                                             </svg>
                                                                         </button>
-                                                                        <button className="btn btn-danger btnEliminarSucursal" 
-                                                
+                                                                        <button className="btn btn-danger btnEliminarSucursal"
+
                                                                             onClick={() => handleDeleteClick(sucursal)}>
                                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -343,14 +345,14 @@ const Sucursales = () => {
                                                         </tr>
                                                     </tfoot>
                                                 </table>
-                                                       
+
                                             </div>
                                             <PaginationSucursales
-                                            meta={meta}
-                                            currentPage={currentPage}
-                                            totalPages={totalPages}
-                                            onPageChange={handlePageChange}
-                                            />                               
+                                                meta={meta}
+                                                currentPage={currentPage}
+                                                totalPages={totalPages}
+                                                onPageChange={handlePageChange}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -359,197 +361,197 @@ const Sucursales = () => {
                     </div>
                 </div>
 
-                {isModalVisible && (  
-                <div
-                    aria-hidden="true"
-                    className="modal fade"
-                    id="modalAgregarSucursal"
-
-                >
+                {isModalVisible && (
                     <div
-                        className="modal-dialog"
+                        aria-hidden="true"
+                        className="modal fade"
+                        id="modalAgregarSucursal"
+
                     >
-                        <div className="modal-content">
-                            <form
-                                encType="multipart/form-data"
-                                method="post"
-                                role="form"
-                                onSubmit={handleFormSubmit}
-                            >
-                                <div
-                                    className="modal-header"
-                                    style={{
-                                        background: '#1abc9c',
-                                        color: 'white'
-                                    }}
+                        <div
+                            className="modal-dialog"
+                        >
+                            <div className="modal-content">
+                                <form
+                                    encType="multipart/form-data"
+                                    method="post"
+                                    role="form"
+                                    onSubmit={handleFormSubmit}
                                 >
-                                    <button
-                                        className="close"
-                                        data-dismiss="modal"
-                                        type="button"
-                                        onClick={handleModalClose}
-
+                                    <div
+                                        className="modal-header"
+                                        style={{
+                                            background: '#1abc9c',
+                                            color: 'white'
+                                        }}
                                     >
-                                        ×
-                                    </button>
-                                    <h4 className="modal-title">
-                                        Agregar Sucursal
-                                    </h4>
-                                </div>
-                                <div className="modal-body">
-                                    <div className="box-body">
-                                        <div className="form-group">
-                                            <div className="input-group">
-                                                <span className="input-group-addon">
-                                                    <i className="fa fa-user" />
-                                                </span>
-                                                <input
-                                                    className="form-control input-lg"
-                                                    name="nombre"
-                                                    placeholder="Ingresar nombre"
-                                                    required
-                                                    type="text"
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
-                                        </div>                                 
-                                        <div className="form-group">
-                                            <div className="input-group">
-                                                <span className="input-group-addon">
-                                                    <i className="fa fa-lock" />
-                                                </span>
-                                                <input
-                                                    className="form-control input-lg"
-                                                    name="ubicacion"
-                                                    placeholder="Ingresar ubicacion"
-                                                    required
-                                                    type="text"
-                                                    onChange={handleChange}
-                                                />
-                                            </div>
-                                        </div>                                                                                                        
+                                        <button
+                                            className="close"
+                                            data-dismiss="modal"
+                                            type="button"
+                                            onClick={handleModalClose}
+
+                                        >
+                                            ×
+                                        </button>
+                                        <h4 className="modal-title">
+                                            Agregar Sucursal
+                                        </h4>
                                     </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button
-                                        className="btn btn-default pull-left"
-                                        data-dismiss="modal"
-                                        type="button"
-                                        onClick={handleModalClose}
-                                    >
-                                        Salir
-                                    </button>
-                                    <button
-                                        className="btn btn-success"
-                                        type="submit"
-                                    >
-                                        Guardar Sucursal
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-            )}
-     {isModalVisible &&(        
-                <div
-                    className="modal fade show"
-                    id="modalEditarSucursal"
-                    role="dialog"
-                >
-                    <div className="modal-dialog" >
-                        <div className="modal-content">
-
-                            <form
-                                encType="multipart/form-data"
-                                method="post"
-                                role="form"
-                                onSubmit={handleFormSubmit}
-                            >
-
-                                <div
-                                    className="modal-header"
-                                    style={{
-                                        background: '#1abc9c',
-                                        color: 'white'
-                                    }}
-                                >
-                                    <button
-                                        className="close"
-                                        data-dismiss="modal"
-                                        type="button"
-                                        onClick={handleModalClose}
-                                    >
-                                        ×
-                                    </button>
-                                    <h4 className="modal-title">
-                                        Editar usuario
-                                    </h4>
-                                </div>
-                                <div className="modal-body">
-                                    <div className="box-body">
-                                        <div className="form-group">
-                                            <div className="input-group">
-                                                <span className="input-group-addon">
-                                                    <i className="fa fa-user" />
-                                                </span>
-                                                <input
-                                                    className="form-control input-lg"
-                                                    value={formValues?.nombre || ''}
-                                                    id="editarNombre"
-                                                    name="nombre"
-                                                    onChange={handleChange}
-                                                    required
-                                                    type="text"
-                                                />
+                                    <div className="modal-body">
+                                        <div className="box-body">
+                                            <div className="form-group">
+                                                <div className="input-group">
+                                                    <span className="input-group-addon">
+                                                        <i className="fa fa-user" />
+                                                    </span>
+                                                    <input
+                                                        className="form-control input-lg"
+                                                        name="nombre"
+                                                        placeholder="Ingresar nombre"
+                                                        required
+                                                        type="text"
+                                                        onChange={handleChange}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <div className="input-group">
+                                                    <span className="input-group-addon">
+                                                        <i className="fa fa-lock" />
+                                                    </span>
+                                                    <input
+                                                        className="form-control input-lg"
+                                                        name="ubicacion"
+                                                        placeholder="Ingresar ubicacion"
+                                                        required
+                                                        type="text"
+                                                        onChange={handleChange}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                        
-                                        <div className="form-group">
-                                            <div className="input-group">
-                                                <span className="input-group-addon">
-                                                    <i className="fa fa-lock" />
-                                                </span>
-                                                <input
-                                                    className="form-control input-lg"
-                                                    value={formValues?.ubicacion || ''}
-                                                    name="ubicacion"
-                                                    onChange={handleChange}
-                                                    type="text"
-                                                />
-            
-                                            </div>
-                                        </div>
-                                        
-                                        
-                                        
                                     </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button
-                                        className="btn btn-default pull-left"
-                                        data-dismiss="modal"
-                                        type="button"
-                                        onClick={handleModalClose}
+                                    <div className="modal-footer">
+                                        <button
+                                            className="btn btn-default pull-left"
+                                            data-dismiss="modal"
+                                            type="button"
+                                            onClick={handleModalClose}
+                                        >
+                                            Salir
+                                        </button>
+                                        <button
+                                            className="btn btn-success"
+                                            type="submit"
+                                        >
+                                            Guardar Sucursal
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                )}
+                {isModalVisible && (
+                    <div
+                        className="modal fade show"
+                        id="modalEditarSucursal"
+                        role="dialog"
+                    >
+                        <div className="modal-dialog" >
+                            <div className="modal-content">
+
+                                <form
+                                    encType="multipart/form-data"
+                                    method="post"
+                                    role="form"
+                                    onSubmit={handleFormSubmit}
+                                >
+
+                                    <div
+                                        className="modal-header"
+                                        style={{
+                                            background: '#1abc9c',
+                                            color: 'white'
+                                        }}
                                     >
-                                        Salir
-                                    </button>
-                                    <button
-                                        className="btn btn-success"
-                                        type="submit"
-                                    >
-                                        Modificar Sucursal
-                                    </button>
-                                </div>
-                            </form>
+                                        <button
+                                            className="close"
+                                            data-dismiss="modal"
+                                            type="button"
+                                            onClick={handleModalClose}
+                                        >
+                                            ×
+                                        </button>
+                                        <h4 className="modal-title">
+                                            Editar usuario
+                                        </h4>
+                                    </div>
+                                    <div className="modal-body">
+                                        <div className="box-body">
+                                            <div className="form-group">
+                                                <div className="input-group">
+                                                    <span className="input-group-addon">
+                                                        <i className="fa fa-user" />
+                                                    </span>
+                                                    <input
+                                                        className="form-control input-lg"
+                                                        value={formValues?.nombre || ''}
+                                                        id="editarNombre"
+                                                        name="nombre"
+                                                        onChange={handleChange}
+                                                        required
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="form-group">
+                                                <div className="input-group">
+                                                    <span className="input-group-addon">
+                                                        <i className="fa fa-lock" />
+                                                    </span>
+                                                    <input
+                                                        className="form-control input-lg"
+                                                        value={formValues?.ubicacion || ''}
+                                                        name="ubicacion"
+                                                        onChange={handleChange}
+                                                        type="text"
+                                                    />
+
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button
+                                            className="btn btn-default pull-left"
+                                            data-dismiss="modal"
+                                            type="button"
+                                            onClick={handleModalClose}
+                                        >
+                                            Salir
+                                        </button>
+                                        <button
+                                            className="btn btn-success"
+                                            type="submit"
+                                        >
+                                            Modificar Sucursal
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </div>
 
                         </div>
 
                     </div>
-
-                </div>
-                   )}                     
+                )}
             </div>
         </div>
     )

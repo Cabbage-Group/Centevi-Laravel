@@ -8,7 +8,8 @@ import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
 import { Modal, Skeleton, Button, Tooltip, Select, Table } from 'antd';
 import {
-  EyeOutlined
+  EyeOutlined,
+  WhatsAppOutlined
 } from '@ant-design/icons';
 
 const VerOrdenes = () => {
@@ -280,7 +281,7 @@ const VerOrdenes = () => {
 
 
                   {/* Lente de Contacto Filter Button */}
-                  {/* <div className="d-flex align-items-center mr-3">
+                  <div className="d-flex align-items-center mr-3">
                     <label className="mr-2 mb-0 font-weight-bold">Filtrar por Tipo de lente:</label><br />
                     <button
                       onClick={handleLenteContactoToggle}
@@ -338,7 +339,7 @@ const VerOrdenes = () => {
                         <Select.Option value="null">Sin Status</Select.Option>
                       </Select>
                     </div>
-                  </div> */}
+                  </div>
 
                   <div
                     className="dataTables_wrapper container-fluid dt-bootstrap4"
@@ -610,9 +611,9 @@ const VerOrdenes = () => {
                                     <button
                                       onClick={() => handleVerContacto(orden.id_orden)}
                                       className="btn btn-info"
-                                      style={{display:'flex',alignItems:'center'}}
+                                      style={{display:'flex',alignItems:'center', background: 'green'}}
                                     >
-                                      <EyeOutlined />
+                                      <WhatsAppOutlined />
                                     </button>
                                     <button
                                       onClick={() => handleEliminarOrden(orden.id_orden)}

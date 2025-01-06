@@ -12,7 +12,7 @@ import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSl
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
 
-const Retirado = ({ tipoFaseId, lab,isDisabled }) => {
+const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -27,13 +27,13 @@ const Retirado = ({ tipoFaseId, lab,isDisabled }) => {
   const [laboratorio, setLaboratorio] = useState('');
   const [celular, setCelular] = useState('');
   const [mensaje, setMensaje] = useState(
-      'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre );
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps );
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
+  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -129,12 +129,12 @@ const Retirado = ({ tipoFaseId, lab,isDisabled }) => {
     let mensajePersonalizado = mensaje
       .replace('{nombre}', nombrePaciente)
       .replace('{sucursal}', selectedSucursal);
-  
+
     if (ubicacionMaps) {
       mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
     }
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
-  
+
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };

@@ -39,8 +39,8 @@ const Ordenes = () => {
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
   const [mensaje, setMensaje] = useState(
-      'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
-    );
+    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+  );
   const [celular, setCelular] = useState('');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
@@ -55,37 +55,37 @@ const Ordenes = () => {
     let mensajePersonalizado = mensaje
       .replace('{nombre}', nombrePaciente)
       .replace('{sucursal}', selectedSucursal);
-  
+
     if (ubicacionMaps) {
       mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
     }
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
-  
+
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
 
   useEffect(() => {
-      if (selectedPaciente) {
-        const pacienteSeleccionado = pacientes.find(
-          (paciente) => paciente.id_paciente === selectedPaciente
-        );
-        if (pacienteSeleccionado) {
-          setCelular(pacienteSeleccionado?.celular || '');
-          setNombrePaciente(pacienteSeleccionado?.nombres || '');
-        } else {
-          setCelular('');
-  
-        }
+    if (selectedPaciente) {
+      const pacienteSeleccionado = pacientes.find(
+        (paciente) => paciente.id_paciente === selectedPaciente
+      );
+      if (pacienteSeleccionado) {
+        setCelular(pacienteSeleccionado?.celular || '');
+        setNombrePaciente(pacienteSeleccionado?.nombres || '');
       } else {
         setCelular('');
-      }
-    }, [selectedPaciente, pacientes]);
 
-   useEffect(() => {
-      dispatch(fetchPacientes({ page: 1, limit: 10000 }));
-    }, []);
-  
+      }
+    } else {
+      setCelular('');
+    }
+  }, [selectedPaciente, pacientes]);
+
+  useEffect(() => {
+    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+  }, []);
+
 
   useEffect(() => {
   }, [nuevaData, orderId]);
@@ -190,23 +190,23 @@ const Ordenes = () => {
     }
   };
 
-    const handleContactarPaciente = async () => {
-      const newContactoOrdenData = {
-        ordenes_id: orden?.id_orden,
-        tipo_fase_orden_id: 4,
-        usuario_id: idUsuario,
-        cantidad: 1
-      };
-  
-      try {
-        await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
-        console.log('Contacto creado exitosamente');
-  
-        window.open(generateWhatsAppLink(), '_blank');
-      } catch (error) {
-        console.error('Error al crear contacto:', error);
-      }
+  const handleContactarPaciente = async () => {
+    const newContactoOrdenData = {
+      ordenes_id: orden?.id_orden,
+      tipo_fase_orden_id: 4,
+      usuario_id: idUsuario,
+      cantidad: 1
     };
+
+    try {
+      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      console.log('Contacto creado exitosamente');
+
+      window.open(generateWhatsAppLink(), '_blank');
+    } catch (error) {
+      console.error('Error al crear contacto:', error);
+    }
+  };
 
   return (
     <div>
@@ -305,13 +305,13 @@ const Ordenes = () => {
                 <Button onClick={() => avanzarFase(false, true)} type='primary'>
                   Completar Fase
                 </Button>
-              {nivelStep === 4 && (
-                <Button
-                  onClick={handleContactarPaciente}
-                >
-                  Contactar al paciente
-                </Button>
-              )}
+                {nivelStep === 4 && (
+                  <Button
+                    onClick={handleContactarPaciente}
+                  >
+                    Contactar al paciente
+                  </Button>
+                )}
               </Row>
             </div>
 

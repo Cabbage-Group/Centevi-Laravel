@@ -9,7 +9,7 @@ export const fecthReportesOrdenes = createAsyncThunk(
     limit = 20,
     sortOrder = 'desc',
     sortColumn = 'created_at',
-    status = '', 
+    status = '',
     lenteContacto = '',
     laboratorio = '',
     pagado = '',
@@ -27,7 +27,7 @@ export const fecthReportesOrdenes = createAsyncThunk(
         sortColumn,
         fecha,
         search,
-        status, 
+        status,
         lenteContacto,
         laboratorio,
         pagado
@@ -139,7 +139,7 @@ export const fecthLaboratorioTotals = createAsyncThunk(
     search = '',
     pagado = '',
   }) => {
-    const laboratoriosValues = ['Ping', 'Optilab', 'Centilab','Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
+    const laboratoriosValues = ['Ping', 'Optilab', 'Centilab', 'Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
     const requests = laboratoriosValues.map(laboratoriosValue =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -149,7 +149,7 @@ export const fecthLaboratorioTotals = createAsyncThunk(
           sortColumn,
           fecha: startDate && endDate ? `${startDate} - ${endDate}` : '',
           search,
-          laboratorio:laboratoriosValue,
+          laboratorio: laboratoriosValue,
           pagado
         }
       })
@@ -158,7 +158,7 @@ export const fecthLaboratorioTotals = createAsyncThunk(
     const responses = await Promise.all(requests);
 
     // Formatear la respuesta para devolver los totales por cada status
-    const totalsByLaboratorios= responses.reduce((acc, response, index) => {
+    const totalsByLaboratorios = responses.reduce((acc, response, index) => {
       const laboratoriosValue = laboratoriosValues[index];
       acc[laboratoriosValue] = response.data.meta.total;
       return acc;
@@ -197,7 +197,7 @@ export const fecthPagadoTotals = createAsyncThunk(
     const responses = await Promise.all(requests);
 
     // Formatear la respuesta para devolver los totales por cada valor de lenteContacto
-    const totalsByPagado= responses.reduce((acc, response, index) => {
+    const totalsByPagado = responses.reduce((acc, response, index) => {
       const pagadoValue = pagadoValues[index];
       acc[pagadoValue] = response.data.meta.total;
       return acc;
@@ -235,7 +235,7 @@ const reportesOrdenesSlice = createSlice({
       state.search = action.payload;
     },
     setStatusFilter(state, action) {
-      state.statusFilter = action.payload; 
+      state.statusFilter = action.payload;
     },
   },
   extraReducers: (builder) => {

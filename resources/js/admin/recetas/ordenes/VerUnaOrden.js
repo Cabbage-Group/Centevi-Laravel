@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Row, Steps, Modal,Table } from 'antd'
+import { Button, Col, Row, Steps, Modal, Table } from 'antd'
 import { useSelector, useDispatch } from 'react-redux';
 import {
   FileAddOutlined,
@@ -21,8 +21,8 @@ const VerUnaOrden = () => {
 
   const dispatch = useDispatch();
   const {
-      contactoOrden
-     } = useSelector((state) => state.ordenes);
+    contactoOrden
+  } = useSelector((state) => state.ordenes);
   const location = useLocation();
   const { orden } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
@@ -38,7 +38,7 @@ const VerUnaOrden = () => {
 
 
   useEffect(() => {
-      dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
   }, []);
 
 
@@ -69,7 +69,7 @@ const VerUnaOrden = () => {
         );
 
         if (hasCompleted) {
-          return index;       
+          return index;
         } else if (hasPending) {
           return lastStep;
         }
@@ -162,27 +162,27 @@ const VerUnaOrden = () => {
                 nivelStep == 0 ? (
                   <Nuevo
                     tipoFaseId={currentTipoFase.id}
-                    isDisabled={isButtonDisabled} 
+                    isDisabled={isButtonDisabled}
 
                   />
 
                 ) : nivelStep == 1 ? (
-                  <EnConfeccion 
+                  <EnConfeccion
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaData.laboratorio}
-                    isDisabled={isButtonDisabled} 
+                    isDisabled={isButtonDisabled}
                     fecha={nuevaData.fecha_fase}
                   />
                 ) : nivelStep == 2 ? (
                   <Listo
                     tipoFaseId={currentTipoFase.id}
-                    isDisabled={isButtonDisabled} 
+                    isDisabled={isButtonDisabled}
                     lab={nuevaData.laboratorio}
                   />
                 ) : nivelStep == 3 ? (
                   <Retirado
                     tipoFaseId={currentTipoFase.id}
-                    isDisabled={isButtonDisabled} 
+                    isDisabled={isButtonDisabled}
                     lab={nuevaData.laboratorio}
                   />
                 ) : <div></div>
@@ -193,12 +193,12 @@ const VerUnaOrden = () => {
               >
                 {nivelStep > 0 && (
                   <Button
-                  disabled={nivelStep <= 0}
-                  onClick={() => {
-                    if (nivelStep > 0) {
-                      setNivelStep(nivelStep - 1);
-                    }
-                  }}
+                    disabled={nivelStep <= 0}
+                    onClick={() => {
+                      if (nivelStep > 0) {
+                        setNivelStep(nivelStep - 1);
+                      }
+                    }}
                   >
                     Anterior
                   </Button>
@@ -210,29 +210,29 @@ const VerUnaOrden = () => {
                     }
                   }}
                   disabled={nivelStep == currentPhase}
-                  >
-                    Siguiente
-                  </Button>
-                
-                <Button 
-                    disabled
-                    type='default'
+                >
+                  Siguiente
+                </Button>
+
+                <Button
+                  disabled
+                  type='default'
                 >
                   Guardar Fase
                 </Button>
-                <Button 
-                    type='primary'
-                    disabled               
+                <Button
+                  type='primary'
+                  disabled
                 >
                   Completar Fase
                 </Button>
-              {nivelStep === 4 && (
-                <Button
+                {nivelStep === 4 && (
+                  <Button
                     disabled
-                >
-                  Contactar al paciente
-                </Button>
-              )}
+                  >
+                    Contactar al paciente
+                  </Button>
+                )}
               </Row>
             </div>
 
@@ -242,7 +242,7 @@ const VerUnaOrden = () => {
       </Row>
 
       <VerOrden
-         fecha_solicitud={fechaSolicitud}
+        fecha_solicitud={fechaSolicitud}
       >
       </VerOrden>
     </div>

@@ -61,7 +61,7 @@ const serviciosRealizadosSlice = createSlice({
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
     },
-    setFechaProximaRange(state,action){
+    setFechaProximaRange(state, action) {
       state.startDateProxima = action.payload.startDateProxima;
       state.endDateProxima = action.payload.endDateProxima;
     },
