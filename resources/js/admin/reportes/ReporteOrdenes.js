@@ -204,7 +204,7 @@ const ReporteOrdenes = () => {
                     <div className="row">
                       <div className="col-md-3" >
                         {/* AQUI */}
-                        {/* <Card title="Resumen de estado" bordered={false} hoverable>
+                        <Card title="Resumen de estado" bordered={false} hoverable>
                           <p> <span style={{
                             display: 'inline-block',
                             width: '10px',
@@ -241,11 +241,11 @@ const ReporteOrdenes = () => {
                             marginRight: '8px'
                           }}></span>
                             Completado: {statusTotals?.Completado}</p>
-                        </Card> */}
+                        </Card>
                       </div>
 
                       <div className="col-md-3">
-                        {/* <Card title="Resumen Lente" bordered={false} hoverable>
+                        <Card title="Resumen Lente" bordered={false} hoverable>
                           <p>
                             <img
                               src="assets/img/recetas/lentesdecontacto.png"
@@ -262,11 +262,11 @@ const ReporteOrdenes = () => {
                             />
                             Lente ocular: {lenteContactoTotals?.['0']}
                           </p>
-                        </Card> */}
+                        </Card>
                       </div>
 
                       <div className="col-md-3">
-                        {/* <Card title="Resumen Laboratorio" bordered={false} hoverable>
+                        <Card title="Resumen Laboratorio" bordered={false} hoverable>
                           <p>Ping: {laboratoriosTotals?.Ping}</p>
                           <p>Optilab: {laboratoriosTotals?.Optilab}</p>
                           <p>Centilab: {laboratoriosTotals?.Centilab}</p>
@@ -274,14 +274,14 @@ const ReporteOrdenes = () => {
                           <p>Haseth J&J: {laboratoriosTotals?.['Haseth J&J']}</p>
                           <p>Alcon: {laboratoriosTotals?.Alcon}</p>
                           <p>B+L: {laboratoriosTotals?.['B+L']}</p>
-                        </Card> */}
+                        </Card>
                       </div>
 
                       <div className="col-md-3">
-                        {/* <Card title="Resumen de Pagos" bordered={false} hoverable>
+                        <Card title="Resumen de Pagos" bordered={false} hoverable>
                           <p>Pagado: {pagadoTotals?.['1']}</p>
                           <p>Sin Pago: {pagadoTotals?.['0']}</p>
-                        </Card> */}
+                        </Card>
                       </div>
                     </div>
                   </div>

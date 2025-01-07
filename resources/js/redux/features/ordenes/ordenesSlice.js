@@ -11,17 +11,25 @@ export const fecthOrdenes = createAsyncThunk(
     sortColumn = 'created_at',
     search = '', 
     status = '', 
-    lenteContacto = ''
+    lenteContacto = '',
+    pagado = '',
+    sucursal = '',
+    laboratorio = '',
+    fase = '',
+    startDate = '',
+    endDate = '',
   }) => {
-    const response = await axios.get(`${API}/ordenes`, {
+    const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
+
+    const response = await axios.post(`${API}/verOrdenes`,  { pagado,sucursal,status,lenteContacto, laboratorio, fase}, 
+    {
       params: {
         page,
         limit,
         sortOrder,
         sortColumn,
-        search,
-        status,     
-        lenteContacto 
+        fecha,
+        search,   
       }
     });
     return response.data;
@@ -129,6 +137,10 @@ const ordenesSlice = createSlice({
     setSearch(state, action) {
       state.search = action.payload;
     },
+    setFechaRange(state, action) {
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -201,5 +213,6 @@ const ordenesSlice = createSlice({
 export const {
   setOrden,
   setOrdenPor,
+  setFechaRange,
   setSearch } = ordenesSlice.actions;
 export default ordenesSlice.reducer;

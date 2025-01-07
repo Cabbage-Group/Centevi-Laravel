@@ -636,23 +636,14 @@ const CreateOrden = () => {
                                               as="input"
                                             />
                                           </td>
-                                          <td
-                                            style={{
-                                              paddingTop: '70px',
-                                              textAlign: 'center',
-                                              verticalAlign: 'middle',
-                                              display: 'flex',
-                                              justifyContent: 'center',
-                                              alignItems: 'center', // Esto centra verticalmente el contenido en el td
-                                            }}
-                                          >
+                                          <td                                         >
                                             <Field
                                               className="form-control"
                                               name="distancia_od"
                                               as="input"
-                                              style={{
-                                                width: isAroVisible ? '90px' : '120px',
-                                              }}
+                                              // style={{
+                                              //   width: isAroVisible ? '90px' : '120px',
+                                              // }}
                                             />
                                           </td>
                                           <td>
@@ -709,8 +700,18 @@ const CreateOrden = () => {
                                               as="input"
                                             />
                                           </td>
-                                          <td>
-                                          </td>
+                                          {isRowVisible ? (
+                                            <td></td> 
+                                          ) : (
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                type="text"
+                                                name="distancia_oi"
+                                                as="input"
+                                              />
+                                            </td>
+                                          )}
                                           <td>
                                             <Field
                                               className="form-control"

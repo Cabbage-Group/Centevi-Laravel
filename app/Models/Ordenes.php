@@ -64,7 +64,6 @@ class Ordenes extends Model
     'id_paciente' => 'integer',
     'id_sucursal' => 'integer',
     'elaborado_por' => 'integer',
-    'pagado' => 'integer',
     'lente_contacto' => 'integer',
   ];
 

@@ -11,6 +11,8 @@ use App\Models\FasesOrdenes;
 use App\Models\ContactoOrden;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class OrdenesApiController extends Controller
 {
@@ -22,8 +24,13 @@ class OrdenesApiController extends Controller
     $sortColumn = $request->input('sortColumn', 'created_at');
     $sortOrder = $request->input('sortOrder', 'asc');
     $search = $request->input('search', '');
-    $lenteContacto = $request->input('lenteContacto', '');
-    $status = $request->input('status', '');
+    $lenteContacto = $request->input('lenteContacto', []);
+    $status = $request->input('status', []);
+    $pagado = $request->input('pagado', []);
+    $sucursal = $request->input('sucursal', []);
+    $fecha = $request->input('fecha', '');
+    $laboratorio = $request->input('laboratorio', []);
+    $fase = $request->input('fase', []);
 
     // Asegurarse de que se puede ordenar por created_at
     $validSortColumns = ['id_orden', 'created_at']; 
@@ -118,6 +125,7 @@ class OrdenesApiController extends Controller
         'primeras_fases.status_primera_fase as status',
         'primeras_fases.dias_transcurridos as dias_transcurridos',
         'primeras_fases.total_fases as total_fases',
+        DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted"),
         DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
       );
     if (!empty($search)) {
@@ -142,32 +150,47 @@ class OrdenesApiController extends Controller
       });
     }
 
-    if ($lenteContacto !== '') {
-      // Convert to boolean for strict comparison
-      $lenteContactoValue = filter_var($lenteContacto, FILTER_VALIDATE_BOOLEAN);
-
-      if ($lenteContacto === '1' || $lenteContacto === true) {
-        // Only show lente de contacto orders
-        $ordenes->where('ordenes.lente_contacto', true);
-      } elseif ($lenteContacto === '0' || $lenteContacto === false) {
-        // Only show non-lente de contacto orders
-        $ordenes->where('ordenes.lente_contacto', false);
+    if (is_array($lenteContacto) && !empty($lenteContacto)) {
+      // Si se selecciona "both", filtra por 0 y 1
+      if (in_array('both', $lenteContacto)) {
+          $ordenes->whereIn('ordenes.lente_contacto', ['0', '1']);
+      } else {
+          // Filtra solo por los valores seleccionados (0 o 1)
+          $ordenes->whereIn('ordenes.lente_contacto', $lenteContacto);
       }
-      // If empty string, show all orders (no filter applied)
+    }  
+    if (is_array($fase) && !empty($fase)) {
+      $ordenes->whereIn('ultimas_fases.fase_actual', $fase);
     }
 
-    if ($status !== '') {
-      // Validate status input
-      $validStatuses = ['Ok', 'Advertencia', 'Critico', 'Completado','null'];
+  if (is_array($status) && !empty($status)) {
+    // Filtrar por valores específicos de status (como Ok, Critico, etc.)
+    $ordenes->whereIn('primeras_fases.status_primera_fase', array_filter($status, fn($value) => $value !== null));
+  
+  
+    // Si el array contiene null, filtrar por los registros donde el status_primera_fase es null
+  if (in_array(null, $status, true)) {
+        $ordenes->orWhereNull('primeras_fases.status_primera_fase');
+    }
+  }
+    
+  if (is_array($laboratorio) && !empty($laboratorio)) {
+    $ordenes->whereIn('primeras_fases.laboratorio_primera_fase', $laboratorio);
+  }
 
-      if (in_array($status, $validStatuses)) {
-        if ($status === 'null') {
-          // When status is 'null', filter for orders without a status
-          $ordenes->whereNull('primeras_fases.status_primera_fase');
-        } else {
-          // Filter for specific status
-          $ordenes->where('primeras_fases.status_primera_fase', $status);
-        }
+    if (is_array($pagado) && !empty($pagado)) {
+      $ordenes->whereIn('ordenes.pagado', $pagado);
+  }
+
+    if (is_array($sucursal) && !empty($sucursal)) {
+        $ordenes->whereIn('ordenes.id_sucursal', $sucursal);
+    }
+    if (!empty($fecha)) {
+      $dates = explode(' - ', $fecha);
+      if (count($dates) === 2) {
+        $startDate = $dates[0];
+        $endDate = $dates[1];
+        $ordenes->whereBetween('ordenes.created_at', [$startDate, $endDate]);
       }
     }
 
@@ -278,7 +301,7 @@ class OrdenesApiController extends Controller
       'l_tres' => '',
       'l_cuatro' => '',
       'l_cinco' => '',
-      'pagado' => 0,
+      'pagado' => '',
       'lente_contacto' => 0
 
     ];
@@ -714,11 +737,13 @@ class OrdenesApiController extends Controller
 
     if ($pagado !== '') {
       if ($pagado === '1') {
-        $ordenes->where('ordenes.pagado', true);
+          $ordenes->where('ordenes.pagado', '1');
       } elseif ($pagado === '0') {
-        $ordenes->where('ordenes.pagado', false);
+          $ordenes->where('ordenes.pagado', '0');
+      } elseif ($pagado === '2') {
+          $ordenes->where('ordenes.pagado', '2');
       }
-    }
+  }
 
     $dataexport = $ordenes->orderBy($sortColumn, $sortOrder)->get();
 

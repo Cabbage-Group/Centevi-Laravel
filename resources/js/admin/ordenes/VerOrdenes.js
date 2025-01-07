@@ -3,14 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
-import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, setOrden, setOrdenPor, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, setFechaRange, setOrden, setOrdenPor, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
 import PaginationOrdenes from './PaginationOrdenes';
 import dayjs from 'dayjs';
-import { Modal, Skeleton, Button, Tooltip, Select, Table } from 'antd';
+import { Modal, Skeleton, Button, Tooltip, Select, Table, Space, Tag } from 'antd';
 import {
   EyeOutlined,
   WhatsAppOutlined
 } from '@ant-design/icons';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
+import DateRangePicker from '../reportes/DateRangePicker';
+
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -21,9 +24,15 @@ const VerOrdenes = () => {
     meta,
     search,
     totalPages,
+    startDate,
+    endDate,
     contactoOrden,
     sortColumn,
     sortOrder } = useSelector((state) => state.ordenes);
+
+  const {
+    sucursales_option_selects
+  } = useSelector((state) => state.sucursales);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
@@ -31,9 +40,14 @@ const VerOrdenes = () => {
   const [showContacto, setShowContacto] = useState(false);
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
-
+  const [pagadoFilter, setPagadoFilter] = useState([]);
+  const [sucursalFilter, setSucursalFilter] = useState([]);
+  const [laboratorioFilter, setLaboratorioFilter] = useState([]);
+  const [faseFilter, setFaseFilter] = useState([]);
   const [lenteContactoFilter, setLenteContactoFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [localEndDate, setLocalEndDate] = useState(endDate);
+  const [localStartDate, setLocalStartDate] = useState(startDate);
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -42,11 +56,32 @@ const VerOrdenes = () => {
       sortColumn,
       sortOrder,
       search: localSearch,
+      startDate,
+      endDate,
       lenteContacto: lenteContactoFilter,
       status: statusFilter,
+      pagado: pagadoFilter,
+      sucursal: sucursalFilter,
+      laboratorio: laboratorioFilter,
+      fase: faseFilter
     }));
-    // }, [dispatch, currentPage, sortColumn, sortOrder, localSearch]);
-  }, [dispatch, currentPage, sortColumn, sortOrder, localSearch, lenteContactoFilter, statusFilter]);
+  }, [dispatch,
+    currentPage,
+    sortColumn,
+    sortOrder,
+    localSearch,
+    startDate,
+    endDate,
+    lenteContactoFilter,
+    statusFilter,
+    pagadoFilter,
+    sucursalFilter,
+    laboratorioFilter,
+    faseFilter]);
+
+  useEffect(() => {
+    dispatch(fetchSucursales({}))
+  }, [dispatch])
 
   const handleSort = (newOrdenPor) => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -63,7 +98,7 @@ const VerOrdenes = () => {
   };
 
   const formatDate = (dateString) => {
-    if(!dateString) return ''
+    if (!dateString) return ''
     const date = new Date(dateString);
 
     const day = String(date.getDate()).padStart(2, '0')
@@ -72,27 +107,41 @@ const VerOrdenes = () => {
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
     const seconds = String(date.getSeconds()).padStart(2, '0')
-  
+
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
   }
 
   const handleClearSearch = () => {
     setLocalSearch('');
   };
-  const handlePagoToggle = async (id_orden, data, nro_orden) => {
+  const handlePagoToggle = async (id_orden, estadoActual, nro_orden) => {
     try {
+      const estado = parseInt(estadoActual);
+      let nuevoEstado;
+      console.log('estadoActual:', estadoActual)
+      if (estado === 0) {
+        console.log('entre a abonado')
+        nuevoEstado = 2;
+      } else if (estado === 2) {
+        console.log('entre a pagado')
+        nuevoEstado = 1;
+      } else {
+        console.log('entre a no pagado')
+        nuevoEstado = 0;
+      }
 
+      console.log('nuevoEstado:', nuevoEstado)
       const payload = {
-        pagado: !data,
+        pagado: nuevoEstado,
         nro_orden,
       };
+      console.log('payload:', payload)
       await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
       dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
     } catch (err) {
       console.error('Error al actualizar el estado de pagado:', err);
     }
   };
-
 
 
   const handleEliminarOrden = async (id_orden) => {
@@ -129,9 +178,9 @@ const VerOrdenes = () => {
 
   const handleVerContacto = async (id_orden) => {
     const rpta = await dispatch(fetchContactoOrdenesDelPaciente(id_orden))
-    if(rpta){
+    if (rpta) {
       setShowContacto(true)
-    }else{
+    } else {
       Swal.fire(
         'Error',
         'Hubo un problema al cargar los datos.',
@@ -166,17 +215,31 @@ const VerOrdenes = () => {
     }
     setLoadingPdf(false)
   }
-  const handleLenteContactoToggle = () => {
-    // Cycle through filter states: '' -> '1' -> '0'
-    setLenteContactoFilter(prev =>
-      prev === '' ? '1' :
-        prev === '1' ? '0' :
-          ''
-    );
+  const handleLenteContactoChange = (value) => {
+    setLenteContactoFilter(value);
   };
-
   const handleStatusChange = (value) => {
     setStatusFilter(value);
+  };
+
+  const handlePagadoChange = (value) => {
+    setPagadoFilter(value);
+  };
+
+  const handleSucursalChange = (value) => {
+    setSucursalFilter(value);
+  };
+
+  const handleLaboratorioChange = (value) => {
+    setLaboratorioFilter(value);
+  };
+
+  const handleFaseChange = (value) => {
+    setFaseFilter(value);
+  };
+
+  const handleDateChange = () => {
+    dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
   };
 
   return (
@@ -206,6 +269,7 @@ const VerOrdenes = () => {
                       Agregar Orden
                     </Link>
                     <div>
+
                       <div className="dt--top-section">
                         <div className="row">
                           <div className="col-sm-24 col-md-12 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
@@ -213,6 +277,7 @@ const VerOrdenes = () => {
                               className="dataTables_filter"
                               id="html5-extension_filter"
                             >
+
                               <label style={{ position: 'relative' }}>
                                 <div
                                   style={{
@@ -272,82 +337,156 @@ const VerOrdenes = () => {
                                   </button>
                                 )}
                               </label>
+                              <div >
+                                <label>
+                                  Buscar por Fecha:
+                                </label>
+                                <DateRangePicker
+                                  startDate={localStartDate}
+                                  endDate={localEndDate}
+                                  onChange={(start, end) => {
+                                    setLocalStartDate(start);
+                                    setLocalEndDate(end);
+                                  }}
+                                  onApply={handleDateChange}
+                                  onReset={() => {
+                                    dispatch(setFechaRange({ startDate: '', endDate: '' }));
+                                  }}
+
+                                />
+                              </div>
                             </div>
                           </div>
+                          
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col space-y-4 mt-4 mb-4 px-4">
+                      <div className="flex items-center">
+                        <label className="font-weight-bold">Filtrar por Tipo de lente:</label>
+                        <Select
+                          mode="multiple"
+                          style={{ width: '100%', height: '40%' }}
+                          placeholder="Selecciona el tipo de lente"
+                          onChange={handleLenteContactoChange}
+                          value={lenteContactoFilter || undefined}
+                          allowClear              
+                        >                     
+                          <Select.Option value="1">
+                            <div style={{ width: '30px', height: '30px' }}>
+                              <img
+                                src="assets/img/recetas/lentesdecontacto.png"
+                                alt="Lente On"
+                                style={{ width: '50%', height: '50%'}}
+                              />
+                            </div>
+                          </Select.Option>
+
+                          <Select.Option value="0">
+                            <div style={{ width: '30px', height: '30px' }}>
+                              <img
+                                src="assets/img/recetas/lentenormal.png"
+                                alt="Lente Off"
+                                style={{ width: '50%', height: '50%'}}
+                              />
+                            </div>
+                          </Select.Option>
+                        </Select>
+                        <div className="d-flex flex-column">
+                          <label className="mb-1 font-weight-bold">Filtrar por Status:</label>
+                          <Select
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder="Filtrar por Status"
+                            onChange={handleStatusChange}
+                            value={statusFilter || undefined}
+                            allowClear
+                          >
+                            <Select.Option value="Ok">Ok</Select.Option>
+                            <Select.Option value="Advertencia">Advertencia</Select.Option>
+                            <Select.Option value="Critico">Critico</Select.Option>
+                            <Select.Option value="Completado">Completado</Select.Option>
+                          </Select>
+
+                        </div>
+                        <div className="d-flex flex-column">
+                          <label className="mb-1 font-weight-bold">Filtrar por Fase:</label>
+                          <Select
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder="Filtrar por Fase"
+                            onChange={handleFaseChange}
+                            value={faseFilter || undefined}
+                            allowClear
+                          >
+                            <Select.Option value="Nuevo">Nuevo</Select.Option>
+                            <Select.Option value="Listo">Listo</Select.Option>
+                            <Select.Option value="En confeccion">En confeccion</Select.Option>
+                            <Select.Option value="Retirado">Retirado</Select.Option>
+                          </Select>
+
+                        </div>
+                        <div className="d-flex flex-column">
+                          <label className="mb-1 font-weight-bold">Filtrar por Laboratorio:</label>
+                          <Select
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder="Filtrar por Laboratorio"
+                            onChange={handleLaboratorioChange}
+                            value={laboratorioFilter || undefined}
+                            allowClear
+                          >
+                            <Select.Option value="Ping">Ping</Select.Option>
+                            <Select.Option value="Centilab">Centilab</Select.Option>
+                            <Select.Option value="Optilab">Optilab</Select.Option>
+                            <Select.Option value="Vista Pro">Vista Pro</Select.Option>
+                            <Select.Option value="Haseth J&J">Haseth J&J</Select.Option>
+                            <Select.Option value="Alcon">Alcon</Select.Option>
+                            <Select.Option value="B+L">B+L</Select.Option>
+                          </Select>
+
+                        </div>
+                        <div className="d-flex flex-column">
+                          <label className="mb-1 font-weight-bold">Filtrar por Pago:</label>
+                          <Space style={{ width: '100%' }} direction="vertical">
+                            <Select
+                              mode="multiple"
+                              style={{ width: '100%' }}
+                              placeholder="Seleccione estado de pago"
+                              onChange={handlePagadoChange}
+                              value={pagadoFilter}
+                              allowClear
+                            >
+                              <Select.Option value="0">Sin Pago</Select.Option>
+                              <Select.Option value="2">Abonado</Select.Option>
+                              <Select.Option value="1">Pagado</Select.Option>
+                            </Select>
+                          </Space>
+                        </div>
+                        <div className="d-flex flex-column">
+                          <label className="mb-1 font-weight-bold">Filtrar por Sucursal:</label>
+                          <Select
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder="Seleccione la sucursal"
+                            onChange={handleSucursalChange}
+                            value={sucursalFilter}
+                            allowClear
+                          >
+                            {sucursales_option_selects.map((sucursal) => (
+                              <Option key={sucursal.value} value={sucursal.value}>
+                                {sucursal.label}
+                              </Option>
+                            ))}
+                          </Select>
                         </div>
                       </div>
                     </div>
                   </div>
-
-
-                  {/* Lente de Contacto Filter Button */}
-                  <div className="d-flex align-items-center mr-3">
-                    <label className="mr-2 mb-0 font-weight-bold">Filtrar por Tipo de lente:</label><br />
-                    <button
-                      onClick={handleLenteContactoToggle}
-                      className="btn btn-outline-primary position-relative"
-                      style={{ width: '100px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-                    >
-                      {lenteContactoFilter === '' && (
-                        <div className="d-flex justify-content-between w-100">
-                          <img
-                            src="assets/img/recetas/lentesdecontacto.png"
-                            alt="Lente On"
-                            style={{ width: '45%', height: '100%', objectFit: 'contain' }}
-                          />
-                          <img
-                            src="assets/img/recetas/lentenormal.png"
-                            alt="Lente Off"
-                            style={{ width: '45%', height: '100%', objectFit: 'contain' }}
-                          />
-                        </div>
-                      )}
-
-                      {lenteContactoFilter === '1' && (
-                        <div className="d-flex justify-content-center w-100">
-                          <img
-                            src="assets/img/recetas/lentesdecontacto.png"
-                            alt="Lente On"
-                            style={{ width: '70%', height: '100%', objectFit: 'contain' }}
-                          />
-                        </div>
-                      )}
-
-                      {lenteContactoFilter === '0' && (
-                        <div className="d-flex justify-content-center w-100">
-                          <img
-                            src="assets/img/recetas/lentenormal.png"
-                            alt="Lente Off"
-                            style={{ width: '70%', height: '100%', objectFit: 'contain' }}
-                          />
-                        </div>
-                      )}
-                    </button>
-                    <div className="d-flex align-items-center">
-                      <label className="mr-2 mb-0 font-weight-bold">Filtrar por Status:</label><br />
-                      <Select
-                        style={{ width: 200 }}
-                        placeholder="Filtrar por Status"
-                        onChange={handleStatusChange}
-                        value={statusFilter || undefined}
-                        allowClear
-                      >
-                        <Select.Option value="">Todos</Select.Option>
-                        <Select.Option value="Ok">Ok</Select.Option>
-                        <Select.Option value="Advertencia">Advertencia</Select.Option>
-                        <Select.Option value="Critico">Critico</Select.Option>
-                        <Select.Option value="null">Sin Status</Select.Option>
-                      </Select>
-                    </div>
-                  </div>
-
                   <div
                     className="dataTables_wrapper container-fluid dt-bootstrap4"
                     id="zero-config_wrapper"
                   >
-
-
-
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}
                       {status === 'failed' && <p>Error: {error}</p>}
@@ -520,11 +659,20 @@ const VerOrdenes = () => {
                                 </td>
                                 <td>
                                   <button
-                                    className={`btn btn-xs ${orden.pagado ? 'btn-success' : 'btn-danger'}`}
-                                    onClick={() => handlePagoToggle(orden.id_orden, orden.pagado, orden.nro_orden)}
+                                    className={`btn btn-xs ${parseInt(orden.pagado) === 1
+                                      ? 'btn-success'
+                                      : parseInt(orden.pagado) === 2
+                                        ? 'btn-warning'
+                                        : 'btn-danger'
+                                      }`}
+                                    onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado), orden.nro_orden)}
                                     style={{ minWidth: '100px' }}
                                   >
-                                    {orden.pagado ? 'Pagado' : 'Sin Pago'}
+                                    {parseInt(orden.pagado) === 1
+                                      ? 'pagado'
+                                      : parseInt(orden.pagado) === 2
+                                        ? 'abonado'
+                                        : 'sin pago'}
                                   </button>
                                 </td>
                                 <td>{dayjs(orden.created_at).format('DD/MM/YYYY')}</td>
@@ -550,8 +698,8 @@ const VerOrdenes = () => {
                                               ? 'yellow'
                                               : orden?.status === 'Critico'
                                                 ? 'red'
-                                                 : orden?.status === 'Completado'
-                                                ? 'blue'
+                                                : orden?.status === 'Completado'
+                                                  ? 'blue'
                                                   : 'gray',
                                       }}
                                     ></span>{" "}
@@ -586,18 +734,18 @@ const VerOrdenes = () => {
                                     <Link
                                       to={`/ver-orden/${orden.id_orden}`}
                                       className="btn btn-info"
-                                      style={{display:'flex',alignItems:'center'}}
+                                      style={{ display: 'flex', alignItems: 'center' }}
                                       state={{ orden }}
                                     >
-                                     
-                                         <path
-                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                          strokeLinecap="modalEditarSucursal"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-                                      
-                                      <EyeOutlined/>
+
+                                      <path
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        strokeLinecap="modalEditarSucursal"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                      />
+
+                                      <EyeOutlined />
                                     </Link>
                                     <button
                                       onClick={() => handleVerOrden(orden.id_orden)}
@@ -611,7 +759,7 @@ const VerOrdenes = () => {
                                     <button
                                       onClick={() => handleVerContacto(orden.id_orden)}
                                       className="btn btn-info"
-                                      style={{display:'flex',alignItems:'center', background: 'green'}}
+                                      style={{ display: 'flex', alignItems: 'center', background: 'green' }}
                                     >
                                       <WhatsAppOutlined />
                                     </button>
@@ -787,24 +935,25 @@ const VerOrdenes = () => {
         onCancel={() => setShowContacto(false)}
         height='100%'
         centered={false}>
-          <div style={{marginTop: '20px'}}>
-            <div style={{marginBottom:'10px', fontWeight:600, fontSize:'18px'}}>Veces contactada: {contactoOrden.length}</div>
-            <Table
-              className='Table-Orden-Contacts'
-              columns={[
-                { title:'Usuario', dataIndex:'nombre', key:'nombre'},
-                {
-                  title:'Fecha',
-                  dataIndex:'created_at',
-                  key:'created_at', 
-                  render: (text, record) => {
-                    return formatDate(text)
-                  }},
-              ]}
-              dataSource={contactoOrden}
-            />
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ marginBottom: '10px', fontWeight: 600, fontSize: '18px' }}>Veces contactada: {contactoOrden.length}</div>
+          <Table
+            className='Table-Orden-Contacts'
+            columns={[
+              { title: 'Usuario', dataIndex: 'nombre', key: 'nombre' },
+              {
+                title: 'Fecha',
+                dataIndex: 'created_at',
+                key: 'created_at',
+                render: (text, record) => {
+                  return formatDate(text)
+                }
+              },
+            ]}
+            dataSource={contactoOrden}
+          />
 
-          </div>
+        </div>
       </Modal>
     </div>
   )

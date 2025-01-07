@@ -261,7 +261,7 @@ Route::get('/api/reportes-servicios-proximos', [PacientesApiController::class, '
 
 Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
 
-Route::get('/api/ordenes', [OrdenesApiController::class, 'ordenes']);
+Route::post('/api/verOrdenes', [OrdenesApiController::class, 'ordenes']);
 
 Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
 
