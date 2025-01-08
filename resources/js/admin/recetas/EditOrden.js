@@ -82,6 +82,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
     prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
     distancia_od: orden?.distancia_od + (orden?.distancia_oi ? '/' + orden?.distancia_oi : '') || pacienteOrden?.distancia_od + (pacienteOrden?.distancia_oi ? '/' + pacienteOrden?.distancia_oi : ''),
+    distancia_oi : orden?.distancia_oi || pacienteOrden?.distancia_oi,
     altura_od: orden?.altura_od || pacienteOrden?.altura_od,
     altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
     tipo_cristal_od: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
@@ -748,7 +749,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               as="input"
                                             />
                                           </td>
-                                          <td style={{ paddingTop: '70px', textAlign: 'center' }}>
+                                          <td >
                                             <Field
                                               className="form-control"
                                               name="distancia_od"
@@ -807,9 +808,19 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               name="prisma_oi"
                                               as="input"
                                             />
-                                          </td>
-                                          <td>
-                                          </td>
+                                          </td>  
+                                          {isRowVisible ? (
+                                              <td></td> 
+                                            ) : (
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  type="text"
+                                                  name="distancia_oi"
+                                                  as="input"
+                                                />
+                                              </td>
+                                            )}                                 
                                           <td>
                                             <Field
                                               className="form-control"
