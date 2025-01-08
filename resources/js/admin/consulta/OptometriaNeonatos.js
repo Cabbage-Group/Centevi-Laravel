@@ -127,7 +127,7 @@ const OptometriaNeonatos = () => {
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchServicios());
   }, []);
 

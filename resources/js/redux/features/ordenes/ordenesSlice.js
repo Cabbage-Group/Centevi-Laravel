@@ -21,17 +21,21 @@ export const fecthOrdenes = createAsyncThunk(
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-    const response = await axios.post(`${API}/verOrdenes`,  { pagado,sucursal,status,lenteContacto, laboratorio, fase}, 
-    {
-      params: {
+    const response = await axios.post(`${API}/verOrdenes`,  
+      { 
         page,
         limit,
         sortOrder,
         sortColumn,
+        search,
         fecha,
-        search,   
-      }
-    });
+        pagado,
+        sucursal,
+        status,
+        lenteContacto, 
+        laboratorio, 
+        fase
+      },);
     return response.data;
   }
 );

@@ -33,7 +33,7 @@ const VerConsultaGenerica = () => {
     if (id && id_consulta) {
       dispatch(fetchVerConsultaGenerica({ id, id_consulta }));
       dispatch(fetchSucursales({ page: 1, limit: 100 }));
-      dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     }
   }, [dispatch, id, id_consulta]);
 

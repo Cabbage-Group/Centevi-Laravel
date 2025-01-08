@@ -179,7 +179,7 @@ export const fecthPagadoTotals = createAsyncThunk(
     endDate = '',
     search = '',
   }) => {
-    const pagadoValues = [0, 1]; // Los valores posibles de lenteContacto (0 o 1)
+    const pagadoValues = [0, 1, 2]; // Los valores posibles de lenteContacto (0 o 1)
     const requests = pagadoValues.map(pagadoValue =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -207,11 +207,40 @@ export const fecthPagadoTotals = createAsyncThunk(
   }
 );
 
+export const fetchBranchTotals = createAsyncThunk(
+  'reportesordenes/fetchBranchTotals',
+  async ({sucursales = [],sucursalesNames = []}) => {
+    console.log('entre:',sucursales)
+    console.log('sucursalesNames:',sucursalesNames)
+    const requests = sucursales.map(sucursal =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          sucursales: sucursal
+        }
+      })
+    );
+    console.log('requests:',requests)
+    console.log('requests:',requests.data)
+
+    const responses = await Promise.all(requests);
+    console.log('responses:',responses.data)
+
+    const totalsBySucursal = responses.reduce((acc, response, index) => {
+      const sucursal = sucursalesNames[index];
+      acc[sucursal] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsBySucursal;
+  }
+);
+
 const reportesOrdenesSlice = createSlice({
   name: 'reportesOrdenes',
   initialState: {
     reportesOrdenes: [],
     reportesOrdenesStatus: [],
+    branchTotals: {},
     meta: {},
     dataexport: [],
     search: '',
@@ -275,6 +304,12 @@ const reportesOrdenesSlice = createSlice({
         state.pagadoTotals = action.payload;
       })
       .addCase(fecthPagadoTotals.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(fetchBranchTotals.fulfilled, (state, action) => {
+        state.branchTotals = action.payload;
+      })
+      .addCase(fetchBranchTotals.rejected, (state, action) => {
         state.error = action.error.message;
       });
   },

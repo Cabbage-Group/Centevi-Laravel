@@ -32,7 +32,7 @@ class PacientesApiController extends Controller
     // Validar los parámetros
     $request->validate([
       'page' => 'integer|min:1',
-      'limit' => 'integer|min:1|max:10000',
+      'limit' => 'integer|min:1|max:50000',
       'sortOrder' => 'in:asc,desc',
       'sortColumn' => 'string|in:sucursal,id_paciente,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
       'search' => 'string|nullable|max:255', // Validación para el parámetro de búsqueda

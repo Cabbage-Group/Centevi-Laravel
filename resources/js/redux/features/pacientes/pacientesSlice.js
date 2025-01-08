@@ -6,7 +6,7 @@ import API from '../../../config/config.js';
 export const fetchPacientes = createAsyncThunk(
   'pacientes/fetchPacientes',
   async ({
-    page = 1, limit = 10000, sortOrder = 'asc', sortColumn = 'nombres',
+    page = 1, limit = 50000, sortOrder = 'asc', sortColumn = 'nombres',
     search = '', doctor = null
   }) => {
 

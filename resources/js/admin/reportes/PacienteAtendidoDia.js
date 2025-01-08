@@ -9,7 +9,7 @@ import { transformDataForAtendidosPorDia } from '../../../utils/dataTransform';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { BookTwoTone } from '@ant-design/icons';
 import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
-import { Button, Col, Divider, Input, Modal, Row ,List} from 'antd';
+import { Button, Col, Divider, Input, Modal, Row, List } from 'antd';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice';
 
 const PacienteAtendidoDia = ({
@@ -44,7 +44,7 @@ const PacienteAtendidoDia = ({
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
   const [showServicios, setShowServicios] = useState(false);
   const { servicios } = useSelector((state) => state.servicios);
-  
+
 
   useEffect(() => {
     // dispatch(fetchPacientes({}));
@@ -69,7 +69,7 @@ const PacienteAtendidoDia = ({
     dispatch(fetchServicios());
   }, [localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
 
-  console.log('atendidosPorDia:',atendidosPorDia)
+  console.log('atendidosPorDia:', atendidosPorDia)
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
@@ -106,19 +106,19 @@ const PacienteAtendidoDia = ({
     return acc;
   }, {});
 
-  
+
   const proximosServicios = filaSeleccionada?.PROXIMOS_SERVICIOS_ID
     ? filaSeleccionada.PROXIMOS_SERVICIOS_ID
-        .split(',') // Separa los IDs por coma
-        .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
-        .filter(Boolean) // Filtra valores undefined o null
+      .split(',') // Separa los IDs por coma
+      .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
+      .filter(Boolean) // Filtra valores undefined o null
     : [];
 
   const realizadosServicios = filaSeleccionada?.REALIZADOS_SERVICIOS_ID
     ? filaSeleccionada.REALIZADOS_SERVICIOS_ID
-        .split(',') // Separa los IDs por coma
-        .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
-        .filter(Boolean) // Filtra valores undefined o null
+      .split(',') // Separa los IDs por coma
+      .map((id) => serviciosMap[id.trim()]) // Mapea cada ID a su nombre
+      .filter(Boolean) // Filtra valores undefined o null
     : [];
 
 
@@ -141,156 +141,69 @@ const PacienteAtendidoDia = ({
                   </div>
                 </div>
               </div>
-              {/* <div className="all-card">
-              <div className="row">
-                <div className="col-lg-3 col-md-6">
-                  <div className="widget widget-one_hybrid widget-referral">
-                    <div className="widget-heading">
-                      <div className="w-title">
-                        <div className="w-icon">
-                          <svg
-                            className="feather feather-users"
-                            fill="none"
-                            height="24"
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            width="24"
-                            xmlns="http://www.w3.org/2000/svg"
+              <div className="col-md-12">
+                <div className="form-group col-md-4 mt-4 " style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ marginRight: '10px', marginTop: 'px' }}>
+                    <label>
+                      Buscar por Fecha:
+                    </label>
+                    <DateRangePicker
+                      startDate={localStartDate}
+                      endDate={localEndDate}
+                      onChange={(start, end) => {
+                        setLocalStartDate(start);
+                        setLocalEndDate(end);
+                      }}
+                      onApply={handleDateChange}
+                    />
+                  </div>
+                  <div
+                    className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center"
+                    style={{ marginTop: '50px' }}
+                  >
+                    <ExportButton
+                      dataexport={dataexport}
+                      transformData={transformDataForAtendidosPorDia}
+                      fileName="Atendidos_Por_Dia.xlsx"
+                    />
+                  </div>
+
+                  <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                    <div
+                      className="dataTables_filter"
+                      id="html5-extension_filter"
+                    >
+                      <label>
+                        <input
+                          style={{ marginTop: '50px' }}
+                          aria-controls="html5-extension"
+                          className="form-control"
+                          placeholder="Search..."
+                          type="search"
+                          value={localSearch}
+                          onChange={handleSearchChange}
+                        />
+                        {localSearch && (
+                          <button
+                            onClick={handleClearSearch}
+                            style={{
+                              position: 'absolute',
+                              right: '25px',
+                              top: '70%',
+                              transform: 'translateY(-50%)',
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                            }}
                           >
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle
-                              cx="9"
-                              cy="7"
-                              r="4"
-                            />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                        </div>
-                        <div className="">
-                          <p className="w-value">
-                            {metaPacientes.total}
-                          </p>
-                          <h5 className="">
-                            PACIENTES
-                          </h5>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="widget-content">
-                      <div className="w-chart">
-                      </div>
+                            &#x2715; { }
+                          </button>
+                        )}
+                      </label>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div> */}
-
-              <div className="col-md-12">
-                {
-                  showFilters ? (
-                    <div className="form-group col-md-4 mt-4">
-                      <label>
-                        Buscar por Fecha:
-                      </label>
-                      <DateRangePicker
-                        startDate={localStartDate}
-                        endDate={localEndDate}
-                        onChange={(start, end) => {
-                          setLocalStartDate(start);
-                          setLocalEndDate(end);
-                        }}
-                        onApply={handleDateChange}
-                      />
-                    </div>
-                  ) : null
-                }
-
-                <div className="table-responsive">
-                  <div
-                    className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
-                    id="html5-extension_wrapper"
-                  >
-
-                    {
-                      showFilters ? (
-                        <div className="dt--top-section">
-                          <div className="row">
-                            <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                              <div className="dt-buttons">
-                                <ExportButton
-                                  dataexport={dataexport}
-                                  transformData={transformDataForAtendidosPorDia}
-                                  fileName="Atendidos_Por_Dia.xlsx"
-                                />
-                              </div>
-                            </div>
-                            <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                              <div
-                                className="dataTables_filter"
-                                id="html5-extension_filter"
-                              >
-                                <label>
-                                  <svg
-                                    className="feather feather-search"
-                                    fill="none"
-                                    height="24"
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    viewBox="0 0 24 24"
-                                    width="24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                  >
-                                    <circle
-                                      cx="11"
-                                      cy="11"
-                                      r="8"
-                                    />
-                                    <line
-                                      x1="21"
-                                      x2="16.65"
-                                      y1="21"
-                                      y2="16.65"
-                                    />
-                                  </svg>
-                                  <input
-                                    aria-controls="html5-extension"
-                                    className="form-control"
-                                    placeholder="Search..."
-                                    type="search"
-                                    value={localSearch}
-                                    onChange={handleSearchChange} // Maneja los cambios en el campo de búsqueda
-                                  />
-                                  {localSearch && (
-                                    <button
-                                      onClick={handleClearSearch}
-                                      style={{
-                                        position: 'absolute',
-                                        right: '25px',
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                      }}
-                                    >
-                                      &#x2715; { }
-                                    </button>
-                                  )}
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : null
-                    }
-
-                    {
+                  </div>
+                  {
                       showFilters ? (
                         funPermisosObtenidos(
                           permisos,
@@ -313,6 +226,12 @@ const PacienteAtendidoDia = ({
                         )
                       ) : null
                     }
+
+                  <div className="table-responsive">
+                    <div
+                      className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
+                      id="html5-extension_wrapper"
+                    >
 
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}
@@ -422,14 +341,14 @@ const PacienteAtendidoDia = ({
                                 Doctor
                               </th>
                               <th
-                              aria-controls="zero-config"
-                              colSpan="1"
-                              rowSpan="1"
-                              style={{ width: '100px' }}
-                              tabIndex="0"
-                            >
-                              Servicios
-                            </th>
+                                aria-controls="zero-config"
+                                colSpan="1"
+                                rowSpan="1"
+                                style={{ width: '100px' }}
+                                tabIndex="0"
+                              >
+                                Servicios
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -451,19 +370,19 @@ const PacienteAtendidoDia = ({
                                 <td>{atendidoPorDia.FECHA_ATENCION}</td>
                                 <td>{atendidoPorDia.DOCTOR}</td>
                                 <td
-                                style={{
-                                  textAlign: "center",
-                                  fontSize: "20px",
-                                  cursor: 'pointer'
-                                }}
-                                onClick={() => {
-                                  setTxtNotas('Servicios')
-                                  setfilaSeleccionada(atendidoPorDia)
-                                  setShowServicios(!showServicios)
-                                }}
-                              >
-                                <BookTwoTone />
-                              </td>
+                                  style={{
+                                    textAlign: "center",
+                                    fontSize: "20px",
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => {
+                                    setTxtNotas('Servicios')
+                                    setfilaSeleccionada(atendidoPorDia)
+                                    setShowServicios(!showServicios)
+                                  }}
+                                >
+                                  <BookTwoTone />
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -490,42 +409,42 @@ const PacienteAtendidoDia = ({
         </div>
       </div>
       <Modal
-      title="Servicios"
-      open={showServicios}
-      onOk={() => setShowServicios(!showServicios)}
-      onCancel={() => setShowServicios(!showServicios)}
-    >
-      <Row gutter={[16, 16]} justify="start">
-        <Col span={12}> 
-          <div style={{ marginBottom: '20px' }}>
-            <div><b>Proximos Servicios</b></div>
-            <List
-              size="small"
-              bordered
-              dataSource={proximosServicios}
-              renderItem={(item) => <List.Item>{item}</List.Item>}
-              locale={{
-                emptyText: 'No hay servicios', 
-              }}
-            />
-          </div>
-        </Col>
-        <Col span={12}>
-          <div>
-            <div><b>Servicios Realizados</b></div>
-            <List
-              size="small"
-              bordered
-              dataSource={realizadosServicios}
-              renderItem={(item) => <List.Item>{item}</List.Item>}
-              locale={{
-                emptyText: 'No hay servicios', 
-              }}
-            />
-          </div>
-        </Col>
-      </Row>
-    </Modal>
+        title="Servicios"
+        open={showServicios}
+        onOk={() => setShowServicios(!showServicios)}
+        onCancel={() => setShowServicios(!showServicios)}
+      >
+        <Row gutter={[16, 16]} justify="start">
+          <Col span={12}>
+            <div style={{ marginBottom: '20px' }}>
+              <div><b>Proximos Servicios</b></div>
+              <List
+                size="small"
+                bordered
+                dataSource={proximosServicios}
+                renderItem={(item) => <List.Item>{item}</List.Item>}
+                locale={{
+                  emptyText: 'No hay servicios',
+                }}
+              />
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <div><b>Servicios Realizados</b></div>
+              <List
+                size="small"
+                bordered
+                dataSource={realizadosServicios}
+                renderItem={(item) => <List.Item>{item}</List.Item>}
+                locale={{
+                  emptyText: 'No hay servicios',
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
+      </Modal>
 
       {/*  */}
 

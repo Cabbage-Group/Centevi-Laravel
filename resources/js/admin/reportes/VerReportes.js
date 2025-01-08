@@ -70,144 +70,72 @@ const ReportePaciente = () => {
                 </div>
               </div>
             </div>
-            {/* <div className="all-card">
-              <div className="row">
-                <div className="col-lg-3 col-md-6">
-                  <div className="widget widget-one_hybrid widget-referral">
-                    <div className="widget-heading">
-                      <div className="w-title">
-                        <div className="w-icon">
-                          <svg
-                            className="feather feather-users"
-                            fill="none"
-                            height="24"
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                            width="24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle
-                              cx="9"
-                              cy="7"
-                              r="4"
-                            />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                        </div>
-                        <div className="">
-                          <p className="w-value">
-                            {metaPacientes.total}
-                          </p>
-                          <h5 className="">
-                            PACIENTES
-                          </h5>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="widget-content">
-                      <div className="w-chart">
-                      </div>
-                    </div>
+            <div className="col-md-12">
+              <div className="form-group col-md-4 mt-4 " style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ marginRight: '10px', marginTop: 'px' }}>
+                  <label>
+                    Buscar por Fecha:
+                  </label>
+                  <DateRangePicker
+                    startDate={localStartDate}
+                    endDate={localEndDate}
+                    onChange={(start, end) => {
+                      setLocalStartDate(start);
+                      setLocalEndDate(end);
+                    }}
+                    onApply={handleDateChange}
+                  />
+                </div>
+                <div
+                  className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center"
+                  style={{ marginTop: '50px' }}
+                >
+                  <ExportButton
+                    dataexport={dataexport}
+                    transformData={transformDataForAtendidosPorDia}
+                    fileName="Reporte_Paciente.xlsx"
+                  />
+                </div>
+                <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                  <div
+                    className="dataTables_filter"
+                    id="html5-extension_filter"
+                  >
+                    <label>
+                      <input
+                        style={{ marginTop: '50px' }}
+                        aria-controls="html5-extension"
+                        className="form-control"
+                        placeholder="Search..."
+                        type="search"
+                        value={localSearch}
+                        onChange={handleSearchChange}
+                      />
+                      {localSearch && (
+                        <button
+                          onClick={handleClearSearch}
+                          style={{
+                            position: 'absolute',
+                            right: '25px',
+                            top: '70%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          &#x2715; { }
+                        </button>
+                      )}
+                    </label>
                   </div>
                 </div>
-              </div>
-            </div> */}
-            
-            <div className="col-md-12">
-              <div className="form-group col-md-4 mt-4">
-                <label>
-                  Buscar por Fecha:
-                </label>
-                <DateRangePicker
-                  startDate={localStartDate}
-                  endDate={localEndDate}
-                  onChange={(start, end) => {
-                    setLocalStartDate(start);
-                    setLocalEndDate(end);
-                  }}
-                  onApply={handleDateChange}
-                />
               </div>
               <div className="table-responsive">
                 <div
                   className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
                   id="html5-extension_wrapper"
                 >
-                  <div className="dt--top-section">
-                    <div className="row">
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                        <div className="dt-buttons">
-                          <ExportButton
-                            dataexport={dataexport}
-                            transformData={transformDataForAtendidosPorDia}
-                            fileName="Reporte_Paciente.xlsx"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                        <div
-                          className="dataTables_filter"
-                          id="html5-extension_filter"
-                        >
-                          <label>
-                            <svg
-                              className="feather feather-search"
-                              fill="none"
-                              height="24"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                              width="24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="11"
-                                cy="11"
-                                r="8"
-                              />
-                              <line
-                                x1="21"
-                                x2="16.65"
-                                y1="21"
-                                y2="16.65"
-                              />
-                            </svg>
-                            <input
-                              aria-controls="html5-extension"
-                              className="form-control"
-                              placeholder="Search..."
-                              type="search"
-                              value={localSearch}
-                              onChange={handleSearchChange}
-                            />
-                            {localSearch && (
-                              <button
-                                onClick={handleClearSearch}
-                                style={{
-                                  position: 'absolute',
-                                  right: '25px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                &#x2715; { }
-                              </button>
-                            )}
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}
                     {status === 'failed' && <p>Error: {error}</p>}
