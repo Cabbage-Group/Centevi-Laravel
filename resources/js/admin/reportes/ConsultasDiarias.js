@@ -93,9 +93,9 @@ const ConsultasDiarias = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-12" style={{ marginTop: '-60px' }}>
-              <div className="form-group col-md-4 mt-4 " style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ marginRight: '10px', marginTop: 'px' }}>
+            <div className="col-md-12">
+              <div className="form-group col-md-4 mt-4" style={{ display: 'flex', alignItems: 'start', gap: '20px' }}>
+                <div style={{ marginRight: '10px' }}>
                   <label>
                     Buscar por Fecha:
                   </label>
@@ -109,24 +109,18 @@ const ConsultasDiarias = () => {
                     onApply={handleDateChange}
                   />
                 </div>
-                <div
-                  className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center"
-                  style={{ marginTop: '50px' }}
-                >
+                <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center" style={{ marginTop: '35px' }}>
                   <ExportButton
                     dataexport={dataexport}
                     transformData={transformDataForConsultasDiarias}
                     fileName="consultas_diarias.xlsx"
                   />
                 </div>
-                <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                  <div
-                    className="dataTables_filter"
-                    id="html5-extension_filter"
-                  >
-                    <label>
+                <div className="d-flex flex-column">
+                  <div className="dataTables_filter" id="html5-extension_filter">
+                    <label style={{ width: '100%', position: 'relative' }}>
                       <input
-                        style={{ marginTop: '50px' }}
+                        style={{ marginTop: '50px', width: '200px', paddingRight: '30px' }}
                         aria-controls="html5-extension"
                         className="form-control"
                         placeholder="Search..."
@@ -140,7 +134,7 @@ const ConsultasDiarias = () => {
                           style={{
                             position: 'absolute',
                             right: '25px',
-                            top: '70%',
+                            top: '75%',
                             transform: 'translateY(-50%)',
                             background: 'none',
                             border: 'none',
@@ -150,25 +144,35 @@ const ConsultasDiarias = () => {
                           &#x2715; { }
                         </button>
                       )}
+                      {!localSearch && (
+                        <img
+                          src="/assets/img/lupa.png" 
+                          alt="Search"
+                          style={{
+                            position: 'absolute',
+                            right: '10px',
+                            top: '75%',
+                            transform: 'translateY(-50%)',
+                            width: '20px', 
+                            height: '20px',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                      )}
                     </label>
                   </div>
                 </div>
-              </div>
-              <div className="table-responsive">
-                <div
-                  className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
-                  id="html5-extension_wrapper"
-                >                
-                  {
+                {
                     funPermisosObtenidos(
                       permisos,
                       "reportes.atendidospordia.buscarpordoctor",
-                      <div className="dt--top-section">
+                      <div className="d-flex flex-column" style={{ minWidth: '250px', marginTop: '18px' }}>
                         <label>Buscar por Doctor:</label>
                         <select
                           className="form-control"
                           value={selectedDoctor}
                           onChange={handleDoctorChange}
+                          style={{ width: '100%' }}
                         >
                           <option value="todos">Todos los doctores</option>
                           {usuarios.map((usuario) => (
@@ -180,7 +184,12 @@ const ConsultasDiarias = () => {
                       </div>
                     )
                   }
-
+              </div>
+              <div className="table-responsive">
+                <div
+                  className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
+                  id="html5-extension_wrapper"
+                >                
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}
                     {status === 'failed' && <p>Error: {error}</p>}

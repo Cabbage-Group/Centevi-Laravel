@@ -253,6 +253,21 @@ const ProximasCitas = () => {
                           &#x2715; { }
                         </button>
                       )}
+                      {!localSearch && (
+                        <img
+                          src="/assets/img/lupa.png" 
+                          alt="Search"
+                          style={{
+                            position: 'absolute',
+                            right: '25px',
+                            top: '70%',
+                            transform: 'translateY(-50%)',
+                            width: '20px', 
+                            height: '20px',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                      )}
                     </label>
                   </div>
                 </div>
