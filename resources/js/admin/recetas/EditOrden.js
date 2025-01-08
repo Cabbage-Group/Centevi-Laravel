@@ -291,7 +291,7 @@ const EditOrden = ({ fecha_solicitud }) => {
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchUsuarios({}))
   }, []);
 
@@ -509,13 +509,14 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         height: "40px",
                                         marginTop: "0",
                                       }}
+                                      disabled={true}
                                       onClick={() => {
                                         handleLenteContactoChange()
                                         setIsRowVisible(!isRowVisible);
                                         setFieldValue("isRowVisible", !isRowVisible);
                                       }}
                                     >
-                                      {lenteContacto ? 'Orden de Lente' : 'Orden de lente de contacto'}
+                                      {lenteContacto ? ' Cambiar a lente de contacto' : 'Cambiar a lente normal'}
                                     </button>
                                   </div>
                                 </div>
@@ -545,11 +546,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       color: "black",
                                       fontWeight: "bold",
                                     }}
-                                  // onChange={(e) => {
-                                  //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                  //   // setFieldValue('paciente', e.target.value);
-                                  //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                  // }}
                                   />
 
                                   <ErrorMessage name="id_paciente" component="div" className="text-danger" />
@@ -683,7 +679,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               // width: '175px'
                                             }}
                                           >
-                                            PRISMA
+                                            {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
                                           </th>
                                           <th
                                             style={{
@@ -691,7 +687,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               width: "130px"
                                             }}
                                           >
-                                            DISTANCIA PUPILAR*
+                                            {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
                                           </th>
                                           <th
                                             style={{
@@ -699,7 +695,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               width: "130px"
                                             }}
                                           >
-                                            ALTURA
+                                             {isAroVisible ? 'ALTURA' : 'Diametro'}
                                           </th>
                                         </tr>
                                       </thead>

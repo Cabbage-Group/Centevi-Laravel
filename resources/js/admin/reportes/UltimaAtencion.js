@@ -162,112 +162,98 @@ const UltimaAtencion = () => {
               </div>
             </div>
             <div className="col-md-12">
-              <div className="form-group col-md-4 mt-4">
-                <label>
-                  Buscar por Fecha:
-                </label>
-                <DateRangePicker
-                  startDate={localStartDate}
-                  endDate={localEndDate}
-                  onChange={(start, end) => {
-                    setLocalStartDate(start);
-                    setLocalEndDate(end);
-                  }}
-                  onApply={handleDateChange}
-                />
+              <div className="form-group col-md-4 mt-4" style={{ display: 'flex', alignItems: 'start', gap: '20px' }}>
+                <div style={{ marginRight: '10px' }}>
+                  <label>
+                    Buscar por Fecha:
+                  </label>
+                  <DateRangePicker
+                    startDate={localStartDate}
+                    endDate={localEndDate}
+                    onChange={(start, end) => {
+                      setLocalStartDate(start);
+                      setLocalEndDate(end);
+                    }}
+                    onApply={handleDateChange}
+                  />
+                </div>
+                <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center" style={{ marginTop: '35px' }}>
+                  <ExportButton
+                    dataexport={dataexport}
+                    transformData={transformDataForUltimaAtencion}
+                    fileName="ultimaAtencion_diarias.xlsx"
+                  />
+                </div>
+                <div className="d-flex flex-column">
+                  <div className="dataTables_filter" id="html5-extension_filter">
+                    <label style={{ width: '100%', position: 'relative' }}>
+                      <input
+                        style={{ marginTop: '50px', width: '200px', paddingRight: '30px' }}
+                        aria-controls="html5-extension"
+                        className="form-control"
+                        placeholder="Search..."
+                        type="search"
+                        value={localSearch}
+                        onChange={handleSearchChange}
+                      />
+                      {localSearch && (
+                        <button
+                          onClick={handleClearSearch}
+                          style={{
+                            position: 'absolute',
+                            right: '25px',
+                            top: '75%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          &#x2715; { }
+                        </button>
+                      )}
+                      {!localSearch && (
+                        <img
+                          src="/assets/img/lupa.png" 
+                          alt="Search"
+                          style={{
+                            position: 'absolute',
+                            right: '10px',
+                            top: '75%',
+                            transform: 'translateY(-50%)',
+                            width: '20px', 
+                            height: '20px',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                      )}
+                    </label>
+                  </div>
+                </div>
+                <div className="d-flex flex-column" style={{ minWidth: '250px', marginTop: '18px' }}>
+                  <label className="mb-2">Buscar por Doctor:</label>
+                  <select
+                    className="form-control"
+                    value={selectedDoctor}
+                    onChange={handleDoctorChange}
+                    style={{ width: '100%' }}
+                  >
+                    <option value="todos">Todos los doctores</option>
+                    {usuarios.map((usuario) => (
+                      <option key={usuario.id} value={usuario.nombre}>
+                        {usuario.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="table-responsive">
                 <div
                   className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
                   id="html5-extension_wrapper"
                 >
-                  <div className="dt--top-section">
-                    <div className="row">
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                        <div className="dt-buttons">
-                          <ExportButton
-                            dataexport={dataexport}
-                            transformData={transformDataForUltimaAtencion}
-                            fileName="ultimaAtencion_diarias.xlsx"
-                          />
-                        </div>
-                      </div>
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                        <div
-                          className="dataTables_filter"
-                          id="html5-extension_filter"
-                        >
-                          <label>
-                            <svg
-                              className="feather feather-search"
-                              fill="none"
-                              height="24"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                              width="24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="11"
-                                cy="11"
-                                r="8"
-                              />
-                              <line
-                                x1="21"
-                                x2="16.65"
-                                y1="21"
-                                y2="16.65"
-                              />
-                            </svg>
-                            <input
-                              aria-controls="html5-extension"
-                              className="form-control"
-                              placeholder="Search..."
-                              type="search"
-                              value={localSearch}
-                              onChange={handleSearchChange}
-                            />
-                            {localSearch && (
-                              <button
-                                onClick={handleClearSearch}
-                                style={{
-                                  position: 'absolute',
-                                  right: '25px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                &#x2715; { }
-                              </button>
-                            )}
 
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Nuevo select para buscar por doctor */}
-                  <div className="dt--top-section">
-                    <label>Buscar por Doctor:</label>
-                    <select
-                      className="form-control"
-                      value={selectedDoctor}
-                      onChange={handleDoctorChange}
-                    >
-                      <option value="todos">Todos los doctores</option>
-                      {usuarios.map((usuario) => (
-                        <option key={usuario.id} value={usuario.nombre}>
-                          {usuario.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}
                     {status === 'failed' && <p>Error: {error}</p>}

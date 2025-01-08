@@ -4,8 +4,9 @@ import DateRangePicker from './DateRangePicker';
 import ExportButton from './exportButton';
 import { transformDataForReporteOrdenes } from '../../../utils/dataTransform';
 import { Button, Col, Card, Row, Tooltip } from 'antd';
-import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange, fecthStatusTotals, fecthLenteContactoTotals, fecthLaboratorioTotals, fecthPagadoTotals } from '../../redux/features/reportes/reporteOrdenesSlice';
+import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange, fecthStatusTotals, fecthLenteContactoTotals, fecthLaboratorioTotals, fecthPagadoTotals, fetchBranchTotals } from '../../redux/features/reportes/reporteOrdenesSlice';
 import PaginationReportesOrdenes from './PaginationReportesOrdenes';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 
 
 const ReporteOrdenes = () => {
@@ -28,6 +29,10 @@ const ReporteOrdenes = () => {
     error
   } = useSelector((state) => state.reportesOrdenes);
 
+  const {
+    sucursales_option_selects,
+  } = useSelector((state) => state.sucursales);
+
   useEffect(() => {
     dispatch(fecthReportesOrdenes({
       page: currentPage,
@@ -38,8 +43,6 @@ const ReporteOrdenes = () => {
       endDate,
       search: localSearch,
     }));
-
-
   }, [
     dispatch,
     currentPage,
@@ -52,15 +55,30 @@ const ReporteOrdenes = () => {
 
   useEffect(() => {
     dispatch(fecthStatusTotals({}))
-    dispatch(fecthLenteContactoTotals({}));
+    dispatch(fecthLenteContactoTotals({}))
     dispatch(fecthLaboratorioTotals({}))
     dispatch(fecthPagadoTotals({}))
+    dispatch(fetchSucursales({}))
   }, [dispatch])
+
+  useEffect(() => {
+    if (sucursales_option_selects.length > 0) {
+      const sucursalIds = sucursales_option_selects.map(sucursal => sucursal.value);
+      const sucursalNames = sucursales_option_selects.map(sucursal => sucursal.label);
+      dispatch(fetchBranchTotals(
+        {
+          sucursales: sucursalIds,
+          sucursalesNames: sucursalNames
+        }
+      ));
+    }
+  }, [dispatch, sucursales_option_selects]);
 
   const statusTotals = useSelector((state) => state.reportesOrdenes.statusTotals);
   const lenteContactoTotals = useSelector((state) => state.reportesOrdenes.lenteContactoTotals);
   const laboratoriosTotals = useSelector((state) => state.reportesOrdenes.laboratoriosTotals);
   const pagadoTotals = useSelector((state) => state.reportesOrdenes.pagadoTotals);
+  const branchTotals = useSelector((state) => state.reportesOrdenes.branchTotals);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -104,25 +122,218 @@ const ReporteOrdenes = () => {
                 </div>
               </div>
             </div>
-            <div className="col-md-12" style={{ marginTop: '-60px' }}>
-              <div className="form-group col-md-4 mt-4">
-                <label>
-                  Buscar por Fecha:
-                </label>
-                <DateRangePicker
-                  startDate={localStartDate}
-                  endDate={localEndDate}
-                  onChange={(start, end) => {
-                    setLocalStartDate(start);
-                    setLocalEndDate(end);
-                  }}
-                  onApply={handleDateChange}
-                  onReset={() => {
-                    dispatch(setFechaRange({ startDate: '', endDate: '' }));
-                  }}
+            <div>
+              <div className="row" style={{ marginTop: '-20px' }}>
+                <div className="col-md-2">
+                  <Card title="Resumen de estado" bordered={false} hoverable>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                      <div style={{ marginRight: '20px' }}>
+                        <Tooltip title="Ok">
+                          <p>
+                            <span style={{
+                              display: 'inline-block',
+                              width: '10px',
+                              height: '10px',
+                              borderRadius: '50%',
+                              backgroundColor: 'green',
+                              marginRight: '8px'
+                            }}></span>
+                            : {statusTotals?.Ok}
+                          </p>
+                        </Tooltip>
+                        <Tooltip title="Advertencia">
+                          <p>
+                            <span style={{
+                              display: 'inline-block',
+                              width: '10px',
+                              height: '10px',
+                              borderRadius: '50%',
+                              backgroundColor: 'yellow',
+                              marginRight: '8px'
+                            }}></span>
+                           : {statusTotals?.Advertencia}
+                          </p>
+                        </Tooltip>
+                      </div>
+                      <div >
+                        <Tooltip title="Crítico">
+                          <p>
+                            <span style={{
+                              display: 'inline-block',
+                              width: '10px',
+                              height: '10px',
+                              borderRadius: '50%',
+                              backgroundColor: 'red',
+                              marginRight: '8px'
+                            }}></span>
+                            : {statusTotals?.Critico}
+                          </p>
+                        </Tooltip>
+                        <Tooltip title="Completado">
+                          <p>
+                            <span style={{
+                              display: 'inline-block',
+                              width: '10px',
+                              height: '10px',
+                              borderRadius: '50%',
+                              backgroundColor: 'blue',
+                              marginRight: '8px'
+                            }}></span>
+                            : {statusTotals?.Completado}
+                          </p>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
 
-                />
+                <div className="col-md-2">
+                  <Card title="Resumen Lente" bordered={false} hoverable>
+                    <p>
+                      <img
+                        src="assets/img/recetas/lentesdecontacto.png"
+                        alt="Lente de contacto"
+                        style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                      />
+                      : {lenteContactoTotals?.['1']}
+                    </p>
+                    <p>
+                      <img
+                        src="assets/img/recetas/lentenormal.png"
+                        alt="Lente de contacto"
+                        style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                      />
+                      : {lenteContactoTotals?.['0']}
+                    </p>
+                  </Card>
+                </div>
+
+                <div className="col-md-3">
+                  <Card title="Resumen Laboratorio" bordered={false} hoverable>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                      <div style={{ width: '33%' }}>
+                        <p>Ping: {laboratoriosTotals?.Ping}</p>
+                        <p>Optilab: {laboratoriosTotals?.Optilab}</p>
+                        <p>Centilab: {laboratoriosTotals?.Centilab}</p>
+                      </div>
+                      <div style={{ width: '33%' }}>
+                        <p>Vista Pro: {laboratoriosTotals?.['Vista Pro']}</p>
+                        <p>Haseth J&J: {laboratoriosTotals?.['Haseth J&J']}</p>
+                      </div>
+                      <div style={{ width: '33%' }}>
+                        <p>Alcon: {laboratoriosTotals?.Alcon}</p>
+                        <p>B+L: {laboratoriosTotals?.['B+L']}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="col-md-2">
+                  <Card title="Resumen de Pagos" bordered={false} hoverable>
+                    <p>Pagado: {pagadoTotals?.['1']}</p>
+                    <p>Abonado: {pagadoTotals?.['2']}</p>
+                    <p>Sin Pago: {pagadoTotals?.['0']}</p>
+                  </Card>
+                </div>
+                <div className="col-md-3">
+                  <Card title="Resumen por Sucursal" bordered={false} hoverable>
+                    {branchTotals && Object.entries(branchTotals).map(([branchId, total]) => {
+                      const truncatedBranchId = branchId.length > 10 ? branchId.substring(0, 40) + '...' : branchId;
+
+                      return (
+                        <Tooltip title={`${branchId}: ${total}`} key={branchId}>
+                          <p>
+                            {truncatedBranchId}: {total}
+                          </p>
+                        </Tooltip>
+                      );
+                    })}
+                  </Card>
+                </div>
               </div>
+            </div>
+            <div className="col-md-12" style={{ marginTop: '-80px' }}>
+              <div className="form-group col-md-4 mt-4 " style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ marginRight: '10px', marginTop: 'px' }}>
+                  <label>
+                    Buscar por Fecha:
+                  </label>
+                  <DateRangePicker
+                    startDate={localStartDate}
+                    endDate={localEndDate}
+                    onChange={(start, end) => {
+                      setLocalStartDate(start);
+                      setLocalEndDate(end);
+                    }}
+                    onApply={handleDateChange}
+                    onReset={() => {
+                      dispatch(setFechaRange({ startDate: '', endDate: '' }));
+                    }}
+
+                  />
+                </div>
+                <div
+                  className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center"
+                  style={{ marginTop: '50px' }}
+                >
+                  <ExportButton
+                    dataexport={dataexport}
+                    transformData={transformDataForReporteOrdenes}
+                    fileName="reporte_ordenes.xlsx"
+                  />
+                </div>
+                <div className="col-sm-12 col-md-6 d-flex justify-content-md-center justify-content-start mt-md-0 mt-3">
+                  <div className="relative w-full max-w-md">
+                    <label className="relative block">
+                      <input
+                        style={{ marginTop: '50px' }}
+                        aria-controls="html5-extension"
+                        className="form-control"
+                        placeholder="Search..."
+                        type="search"
+                        value={localSearch}
+                        onChange={handleSearchChange}
+                      />
+                      {localSearch && (
+                        <button
+                          onClick={handleClearSearch}
+                          style={{
+                            position: 'absolute',
+                            right: '25px',
+                            top: '70%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          &#x2715; { }
+                        </button>
+                      )}
+                       {!localSearch && (
+                        <img
+                          src="/assets/img/lupa.png"
+                          alt="Search"
+                          style={{
+                            position: 'absolute',
+                            right: '25px',
+                            top: '70%',
+                            transform: 'translateY(-50%)',
+                            width: '20px',
+                            height: '20px',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                      )}
+                    </label>
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
               <div className="table-responsive">
                 <div
                   className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
@@ -131,15 +342,15 @@ const ReporteOrdenes = () => {
                   <div className="dt--top-section">
                     <div className="row">
                       <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                        <div className="dt-buttons">
+                        {/* <div className="dt-buttons">
                           <ExportButton
                             dataexport={dataexport}
                             transformData={transformDataForReporteOrdenes}
                             fileName="reporte_ordenes.xlsx"
                           />
-                        </div>
+                        </div> */}
                       </div>
-                      <div className="col-sm-12 col-md-6 d-flex justify-content-md-center justify-content-start mt-md-0 mt-3">
+                      {/* <div className="col-sm-12 col-md-6 d-flex justify-content-md-center justify-content-start mt-md-0 mt-3">
                         <div
                           className="dataTables_filter"
                           id="html5-extension_filter"
@@ -196,94 +407,9 @@ const ReporteOrdenes = () => {
                           </label>
                         </div>
 
-                      </div>
+                      </div> */}
                     </div>
 
-                  </div>
-                  <div>
-                    <div className="row">
-                      <div className="col-md-3" >
-                        {/* AQUI */}
-                        <Card title="Resumen de estado" bordered={false} hoverable>
-                          <p> <span style={{
-                            display: 'inline-block',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            backgroundColor: 'green',
-                            marginRight: '8px'
-                          }}></span>
-                            Ok: {statusTotals?.Ok}</p>
-                          <p><span style={{
-                            display: 'inline-block',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            backgroundColor: 'yellow',
-                            marginRight: '8px'
-                          }}></span>
-                            Advertencia: {statusTotals?.Advertencia}</p>
-                          <p><span style={{
-                            display: 'inline-block',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            backgroundColor: 'red',
-                            marginRight: '8px'
-                          }}></span>
-                            Critico: {statusTotals?.Critico}</p>
-                          <p><span style={{
-                            display: 'inline-block',
-                            width: '10px',
-                            height: '10px',
-                            borderRadius: '50%',
-                            backgroundColor: 'blue',
-                            marginRight: '8px'
-                          }}></span>
-                            Completado: {statusTotals?.Completado}</p>
-                        </Card>
-                      </div>
-
-                      <div className="col-md-3">
-                        <Card title="Resumen Lente" bordered={false} hoverable>
-                          <p>
-                            <img
-                              src="assets/img/recetas/lentesdecontacto.png"
-                              alt="Lente de contacto"
-                              style={{ width: '20px', height: '20px', marginRight: '8px' }}
-                            />
-                            Lente contacto: {lenteContactoTotals?.['1']}
-                          </p>
-                          <p>
-                            <img
-                              src="assets/img/recetas/lentenormal.png"
-                              alt="Lente de contacto"
-                              style={{ width: '20px', height: '20px', marginRight: '8px' }}
-                            />
-                            Lente ocular: {lenteContactoTotals?.['0']}
-                          </p>
-                        </Card>
-                      </div>
-
-                      <div className="col-md-3">
-                        <Card title="Resumen Laboratorio" bordered={false} hoverable>
-                          <p>Ping: {laboratoriosTotals?.Ping}</p>
-                          <p>Optilab: {laboratoriosTotals?.Optilab}</p>
-                          <p>Centilab: {laboratoriosTotals?.Centilab}</p>
-                          <p>Vista Pro: {laboratoriosTotals?.['Vista Pro']}</p>
-                          <p>Haseth J&J: {laboratoriosTotals?.['Haseth J&J']}</p>
-                          <p>Alcon: {laboratoriosTotals?.Alcon}</p>
-                          <p>B+L: {laboratoriosTotals?.['B+L']}</p>
-                        </Card>
-                      </div>
-
-                      <div className="col-md-3">
-                        <Card title="Resumen de Pagos" bordered={false} hoverable>
-                          <p>Pagado: {pagadoTotals?.['1']}</p>
-                          <p>Sin Pago: {pagadoTotals?.['0']}</p>
-                        </Card>
-                      </div>
-                    </div>
                   </div>
                   <div className="table-responsive">
                     {status === 'loading' && <p>Loading...</p>}

@@ -78,7 +78,7 @@ const ExportButton = ({ dataexport, transformData, fileName }) => {
             .catch(err => alert('Error al copiar: ' + err));
     };
     return (
-        <div>
+        <div className="dt-buttons">
             {' '}
             <button
                 aria-controls="html5-extension"

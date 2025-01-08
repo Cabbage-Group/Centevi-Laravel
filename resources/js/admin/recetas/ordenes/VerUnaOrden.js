@@ -38,7 +38,7 @@ const VerUnaOrden = () => {
 
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 10000 }));
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
   }, []);
 
 

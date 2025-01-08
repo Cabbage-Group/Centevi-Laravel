@@ -572,6 +572,7 @@ class OrdenesApiController extends Controller
     $lenteContacto = $request->input('lenteContacto', '');
     $laboratorio = $request->input('laboratorio', '');
     $pagado = $request->input('pagado', '');
+    $sucursales = $request->input('sucursales','');
     
 
     $validSortColumns = ['id_orden', 'created_at_formatted', 'laboratorio', 'status', 'lente_contacto', 'doctor', 'pagado'];
@@ -706,6 +707,9 @@ class OrdenesApiController extends Controller
           $ordenes->where('primeras_fases.status_primera_fase', $status);
         }
       }
+    }
+    if(!empty($sucursales)) {
+      $ordenes->where('ordenes.id_sucursal',$sucursales);
     }
 
     if ($laboratorio !== '') {
