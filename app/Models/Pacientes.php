@@ -42,7 +42,6 @@ class Pacientes extends Model
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
         'sucursal' => 'integer',
-        'fecha_nacimiento' => 'date',
         'fecha_creacion' => 'date',
     ];
 
