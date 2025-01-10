@@ -17,6 +17,14 @@ import DateRangePicker from '../reportes/DateRangePicker';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
+  const pagado = useSelector((state) => state.fasesOrdenes.pagado);
+  const tipoLente = useSelector((state) => state.fasesOrdenes.tipoLente);
+  const laboratorio = useSelector((state) => state.fasesOrdenes.laboratorio);
+  const fase = useSelector((state) => state.fasesOrdenes.fase);
+  const sucursal = useSelector((state) => state.fasesOrdenes.sucursal);
+  const statusOrden = useSelector((state) => state.fasesOrdenes.statusOrden);
+  const fechaInicio = useSelector((state) => state.fasesOrdenes.fechaInicio);
+  const fechaFin = useSelector((state) => state.fasesOrdenes.fechaFin);
   const {
     ordenes,
     status,
@@ -40,14 +48,14 @@ const VerOrdenes = () => {
   const [showContacto, setShowContacto] = useState(false);
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
-  const [pagadoFilter, setPagadoFilter] = useState([]);
-  const [sucursalFilter, setSucursalFilter] = useState([]);
-  const [laboratorioFilter, setLaboratorioFilter] = useState([]);
-  const [faseFilter, setFaseFilter] = useState([]);
-  const [lenteContactoFilter, setLenteContactoFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [localEndDate, setLocalEndDate] = useState(endDate);
-  const [localStartDate, setLocalStartDate] = useState(startDate);
+  const [pagadoFilter, setPagadoFilter] = useState(pagado || []);
+  const [sucursalFilter, setSucursalFilter] = useState(sucursal || []);
+  const [laboratorioFilter, setLaboratorioFilter] = useState(laboratorio || []);
+  const [faseFilter, setFaseFilter] = useState(fase || []);
+  const [lenteContactoFilter, setLenteContactoFilter] = useState(tipoLente || []);
+  const [statusFilter, setStatusFilter] = useState(statusOrden || []);
+  const [localEndDate, setLocalEndDate] = useState(fechaFin);
+  const [localStartDate, setLocalStartDate] = useState(fechaInicio);
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -318,9 +326,12 @@ const VerOrdenes = () => {
                             startDate={localStartDate}
                             endDate={localEndDate}
                             onChange={(start, end) => {
+                              console.log('start:',start)
+                              console.log('end:',end)
                               setLocalStartDate(start);
                               setLocalEndDate(end);
                             }}
+                            skipReset={true}
                             onApply={handleDateChange}
                             onReset={() => {
                               dispatch(setFechaRange({ startDate: '', endDate: '' }));
@@ -406,7 +417,7 @@ const VerOrdenes = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Filtrar por Status"
                                 onChange={handleStatusChange}
-                                value={statusFilter || undefined}
+                                value={statusFilter || ''}
                                 allowClear
                               >
                                 <Select.Option value="Ok">Ok</Select.Option>
@@ -440,7 +451,7 @@ const VerOrdenes = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Seleccione estado de pago"
                                 onChange={handlePagadoChange}
-                                value={pagadoFilter}
+                                value={pagadoFilter || ''}
                                 allowClear
                               >
                                 <Select.Option value="0">Sin Pago</Select.Option>
@@ -681,7 +692,17 @@ const VerOrdenes = () => {
                                     <Link
                                       to={`/orden-receta/${orden.id_orden}`}
                                       className="btn btn-warning btnEditarReceta"
-                                      state={{ orden }}
+                                      state={{ 
+                                        orden,
+                                        pagadoFilter,
+                                        sucursalFilter,
+                                        laboratorioFilter,
+                                        faseFilter,
+                                        lenteContactoFilter,
+                                        statusFilter,
+                                        localStartDate,
+                                        localEndDate
+                                      }}
                                       data-target="#modalEditarSucursal"
                                       data-toggle="modal"
                                       id_receta="185"

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import CreateReceta from '../CreateOrden'
-import { Button, Col, Input, Row, Select, Steps } from 'antd'
+import { Button, Col, Input, Row, Select, Steps, Tooltip } from 'antd'
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import {
   LoadingOutlined,
   SmileOutlined,
@@ -21,7 +23,7 @@ import Swal from 'sweetalert2';
 import EditOrden from '../EditOrden';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { createFasesOrdenes } from '../../../redux/features/ordenes/fasesOrdenesSlice';
+import { createFasesOrdenes, setFaseFilter, setFechaFinFilter, setFechaInicioFilter, setLaboratorioFilter, setPagadoFilter, setStatusFilter, setSucursalFilter, setTipoLenteFilter } from '../../../redux/features/ordenes/fasesOrdenesSlice';
 import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
@@ -30,7 +32,19 @@ const Ordenes = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { orden } = location.state || {};
+  const navigate = useNavigate();  
+  const { 
+    orden,
+    pagadoFilter,
+    sucursalFilter,
+    laboratorioFilter,
+    faseFilter,
+    lenteContactoFilter,
+    statusFilter,
+    localStartDate,
+    localEndDate
+  } = location.state || {};
+
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
   const { orderId } = useParams();
@@ -49,6 +63,11 @@ const Ordenes = () => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
 
+  console.log('pagadoFilter:',pagadoFilter)
+
+  const retroceder = () => {
+    navigate(`/ordenes`);  // Aquí defines la URL y pasas pagadoFilter
+  };
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -64,6 +83,17 @@ const Ordenes = () => {
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
+
+  useEffect(()=>{
+    dispatch(setPagadoFilter(pagadoFilter))
+    dispatch(setLaboratorioFilter(laboratorioFilter))
+    dispatch(setTipoLenteFilter(lenteContactoFilter))
+    dispatch(setFaseFilter(faseFilter))
+    dispatch(setSucursalFilter(sucursalFilter))
+    dispatch(setStatusFilter(statusFilter))
+    dispatch(setFechaInicioFilter(localStartDate))
+    dispatch(setFechaFinFilter(localEndDate))
+  })
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -210,8 +240,18 @@ const Ordenes = () => {
 
   return (
     <div>
+      
       <Row>
+      <Tooltip title="Retroceder a tabla de órdenes">
+              <Button 
+                onClick={retroceder} 
+                icon={<ArrowLeftOutlined />} 
+                style={{ display: 'flex', alignItems: 'center' ,marginLeft: '10px',}}
+              >
+              </Button>
+            </Tooltip>
         <Col xxl={24} xl={24} md={24}>
+        
           <div
             style={{
               background: 'white',
@@ -299,6 +339,7 @@ const Ordenes = () => {
                     Anterior
                   </Button>
                 )}
+                
                 <Button onClick={() => avanzarFase(false, false)} type='default'>
                   Guardar Fase
                 </Button>

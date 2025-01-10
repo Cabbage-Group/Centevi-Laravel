@@ -3,35 +3,43 @@ import { DatePicker } from 'antd';
 import moment from 'moment';
 import 'antd/dist/reset.css';
 import { useLocation } from 'react-router-dom';
+import dayjs from 'dayjs';
 import { DeleteOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 
-const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitToLast30Days = false }) => {
+const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitToLast30Days = false, skipReset = false }) => {
     const currentDate = moment().format('YYYY-MM-DD');
     const location = useLocation();
     const [dates, setDates] = useState([
-        startDate ? moment(startDate, 'YYYY-MM-DD') : null,
-        endDate ? moment(endDate, 'YYYY-MM-DD') : null,
+        startDate ? dayjs(startDate, 'YYYY-MM-DD') : null,
+        endDate ? dayjs(endDate, 'YYYY-MM-DD') : null,
     ]);
 
-    useEffect(() => {
-        if (startDate === currentDate && endDate === currentDate) {
-            setDates([null, null]);
-        }
-    }, [startDate, endDate, currentDate]);
+
+    console.log('startDate:',startDate)
+    console.log('endDate:',endDate)
+    console.log('dates:',dates)
+
+    // useEffect(() => {
+    //     if (startDate === currentDate && endDate === currentDate) {
+    //         setDates([null, null]);
+    //     }
+    // }, [startDate, endDate, currentDate]);
 
     useEffect(() => {
-        setDates([null, null]);
-    }, [location.pathname]);
+        if (!skipReset) {
+            setDates([null, null]);
+        }
+    }, [location.pathname, skipReset]);
 
 
     const handleChange = (dates) => {
         if (dates && dates.length === 2) {
+            console.log('dates2:',dates)
             setDates(dates);
             onChange(dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD'));
         } else {
-
             onChange('', '');
         }
     };
@@ -48,7 +56,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitT
             const last30Days = moment().subtract(30, 'days');
             return current && (current.isBefore(last30Days, 'day') || current.isAfter(moment(), 'day'));
         }
-        return false; // No limitar fechas si el booleano está inactivo
+        return false; 
     };
 
     return (

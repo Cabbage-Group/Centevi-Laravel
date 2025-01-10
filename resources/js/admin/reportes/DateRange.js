@@ -20,13 +20,23 @@ const DateRangeSeparate = ({ onApply, onReset }) => {
     setEndDate(null);
     onReset?.();
   };
+  
+    
 
   const disabledEndDate = (current) => {
     if (!startDate || !current) return false;
     // Solo deshabilitar fechas después de 30 días a partir de la fecha inicial
-    console.log('startDate:',startDate)
-    const maxDate = moment(startDate).add(20, 'days');
-    console.log('maxDate:',maxDate)
+    // console.log('startDate:',startDate)
+    // const maxDate = moment(startDate).add(20, 'days');
+    // console.log('maxDate:',maxDate)
+    // console.log("Start Date:", startDate.format("YYYY-MM-DD"));
+    // console.log("Max Date:", maxDate.format("YYYY-MM-DD"));
+    // const startDate = moment("2024-12-11").startOf('day');  // Establece la hora a las 00:00
+    // const maxDate = startDate.add(30, 'days');  // Sumar 30 días
+
+    // console.log("Start Date:", startDate.format("YYYY-MM-DD"));
+    // console.log("Max Date:", maxDate.format("YYYY-MM-DD"));
+    
     return current.isAfter(maxDate);
   };
 

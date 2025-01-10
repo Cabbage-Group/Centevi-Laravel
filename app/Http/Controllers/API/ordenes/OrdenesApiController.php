@@ -573,7 +573,8 @@ class OrdenesApiController extends Controller
     $laboratorio = $request->input('laboratorio', '');
     $pagado = $request->input('pagado', '');
     $sucursales = $request->input('sucursales','');
-    
+    $doctor = $request->input('doctor','');
+    $asesor = $request->input('asesor','');    
 
     $validSortColumns = ['id_orden', 'created_at_formatted', 'laboratorio', 'status', 'lente_contacto', 'doctor', 'pagado'];
     if (!in_array($sortColumn, $validSortColumns)) {
@@ -708,8 +709,17 @@ class OrdenesApiController extends Controller
         }
       }
     }
+
     if(!empty($sucursales)) {
       $ordenes->where('ordenes.id_sucursal',$sucursales);
+    }
+
+    if(!empty($doctor)) {
+      $ordenes->where('ordenes.doctor',$doctor);
+    }
+
+    if(!empty($asesor)) {
+      $ordenes->where('usuarios.nombre',$asesor);
     }
 
     if ($laboratorio !== '') {
