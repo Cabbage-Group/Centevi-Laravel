@@ -40,7 +40,7 @@ const PacienteAtendidoDia = ({
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
-  const { usuarios } = useSelector((state) => state.usuarios);
+  const { usuarios, usuarios_activados } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
   const [showServicios, setShowServicios] = useState(false);
   const { servicios } = useSelector((state) => state.servicios);
@@ -224,8 +224,8 @@ const PacienteAtendidoDia = ({
                               style={{ width: '100%' }}
                             >
                               <option value="todos">Todos los doctores</option>
-                              {usuarios.map((usuario) => (
-                                <option key={usuario.id} value={usuario.nombre}>
+                              {usuarios_activados.map((usuario) => (
+                                <option key={usuario.id_usuario} value={usuario.nombre}>
                                   {usuario.nombre}
                                 </option>
                               ))}

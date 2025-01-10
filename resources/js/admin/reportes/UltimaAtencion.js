@@ -31,7 +31,7 @@ const UltimaAtencion = () => {
   const [localSearch, setLocalSearch] = useState(search);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [currentPage, setCurrentPage] = useState(1);
-  const { usuarios } = useSelector((state) => state.usuarios);
+  const { usuarios, usuarios_activados } = useSelector((state) => state.usuarios);
   const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
 
 
@@ -239,8 +239,8 @@ const UltimaAtencion = () => {
                     style={{ width: '100%' }}
                   >
                     <option value="todos">Todos los doctores</option>
-                    {usuarios.map((usuario) => (
-                      <option key={usuario.id} value={usuario.nombre}>
+                    {usuarios_activados.map((usuario) => (
+                      <option key={usuario.id_usuario} value={usuario.nombre}>
                         {usuario.nombre}
                       </option>
                     ))}

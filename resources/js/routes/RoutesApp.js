@@ -69,6 +69,7 @@ import Ordenes from '../admin/recetas/ordenes/Ordenes.js';
 import ReporteOrdenes from '../admin/reportes/ReporteOrdenes.js';
 import VerOrden from '../admin/recetas/VerOrden.js';
 import VerUnaOrden from '../admin/recetas/ordenes/VerUnaOrden.js';
+import VerKpis from '../admin/kpis/VerKpis.js';
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -202,6 +203,8 @@ const RoutesApp = () => {
           <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
 
           <Route path="/servicios-proximos-realizados" element={<Sidebar component={<ServiciosProximosRealizados />} />} />
+
+          <Route path="/ver-kpis" element={<Sidebar component={<VerKpis />} />} />
 
 
         </Route>

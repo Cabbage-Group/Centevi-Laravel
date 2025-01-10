@@ -74,7 +74,7 @@ import ordenesSlice from './features/ordenes/ordenesSlice';
 import tiposFasesOrdenesSlice from './features/ordenes/tiposFasesOrdenesSlice';
 import fasesOrdenesSlice from './features/ordenes/fasesOrdenesSlice'
 import reportesOrdenesSlice from './features/reportes/reporteOrdenesSlice'
-
+import kpisSlice from './features/kpis/kpisSlice'
 
 
 
@@ -165,7 +165,9 @@ const store = configureStore({
 
     tiposFasesOrdenes: tiposFasesOrdenesSlice,
 
-    reportesOrdenes: reportesOrdenesSlice
+    reportesOrdenes: reportesOrdenesSlice,
+
+    kpis: kpisSlice
 
 
   }

@@ -22,8 +22,6 @@ export const fetchAtendidosPorDia = createAsyncThunk(
       
       const response = await axios.get(`${API}/pacientesAtendidosPorDiaV2`, { params });
 
-      console.log('meta:', response.data.meta);
-      console.log('mensaje:', response.data);
 
       return response.data;
     } catch (error) {

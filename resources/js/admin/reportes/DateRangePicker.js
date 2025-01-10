@@ -7,13 +7,14 @@ import { DeleteOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 
-const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset }) => {
+const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitToLast30Days = false }) => {
     const currentDate = moment().format('YYYY-MM-DD');
     const location = useLocation();
     const [dates, setDates] = useState([
         startDate ? moment(startDate, 'YYYY-MM-DD') : null,
         endDate ? moment(endDate, 'YYYY-MM-DD') : null,
     ]);
+
     useEffect(() => {
         if (startDate === currentDate && endDate === currentDate) {
             setDates([null, null]);
@@ -35,15 +36,19 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset }) => 
         }
     };
 
-    const handleApply = () => {
-        onApply();
-    };
-
     const handleClear = () => {
         setDates([null, null]);
         if (onReset) {
             onReset();
         }
+    };
+
+    const disabledDate = (current) => {
+        if (limitToLast30Days) {
+            const last30Days = moment().subtract(30, 'days');
+            return current && (current.isBefore(last30Days, 'day') || current.isAfter(moment(), 'day'));
+        }
+        return false; // No limitar fechas si el booleano está inactivo
     };
 
     return (
@@ -54,6 +59,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset }) => 
                     onChange={handleChange}
                     format="YYYY-MM-DD"
                     allowClear={false}
+                    disabledDate={disabledDate} 
                     style={{ width: 328, height: 40 }}
                 />
                 <button
