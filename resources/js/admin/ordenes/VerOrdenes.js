@@ -331,26 +331,26 @@ const VerOrdenes = () => {
                       <div style={{ width: '65%' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
                           <div>
-                          <div>
-                            <div className="mb-4">
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Laboratorio:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Filtrar por Laboratorio"
-                                onChange={handleLaboratorioChange}
-                                value={laboratorioFilter || undefined}
-                                allowClear
-                              >
-                                <Select.Option value="Ping">Ping</Select.Option>
-                                <Select.Option value="Centilab">Centilab</Select.Option>
-                                <Select.Option value="Optilab">Optilab</Select.Option>
-                                <Select.Option value="Vista Pro">Vista Pro</Select.Option>
-                                <Select.Option value="Haseth J&J">Haseth J&J</Select.Option>
-                                <Select.Option value="Alcon">Alcon</Select.Option>
-                                <Select.Option value="B+L">B+L</Select.Option>
-                              </Select>
-                            </div>  
+                            <div>
+                              <div className="mb-4">
+                                <label className="mb-2 font-weight-bold d-block">Filtrar por Laboratorio:</label>
+                                <Select
+                                  mode="multiple"
+                                  style={{ width: '100%' }}
+                                  placeholder="Filtrar por Laboratorio"
+                                  onChange={handleLaboratorioChange}
+                                  value={laboratorioFilter || undefined}
+                                  allowClear
+                                >
+                                  <Select.Option value="Ping">Ping</Select.Option>
+                                  <Select.Option value="Centilab">Centilab</Select.Option>
+                                  <Select.Option value="Optilab">Optilab</Select.Option>
+                                  <Select.Option value="Vista Pro">Vista Pro</Select.Option>
+                                  <Select.Option value="Haseth J&J">Haseth J&J</Select.Option>
+                                  <Select.Option value="Alcon">Alcon</Select.Option>
+                                  <Select.Option value="B+L">B+L</Select.Option>
+                                </Select>
+                              </div>
                               <label className="mb-2 font-weight-bold d-block">Filtrar por Sucursal:</label>
                               <Select
                                 mode="multiple"
@@ -366,10 +366,10 @@ const VerOrdenes = () => {
                                   </Option>
                                 ))}
                               </Select>
-                            </div>                        
+                            </div>
                           </div>
                           <div>
-                          <div className="mb-4">
+                            <div className="mb-4">
                               <label className="mb-2 font-weight-bold d-block">Filtrar por Tipo de lente:</label>
                               <Select
                                 mode="multiple"

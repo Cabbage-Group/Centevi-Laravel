@@ -199,7 +199,7 @@ const CreateOrden = () => {
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    dispatch(fetchPacientes({ page: 1, limit: 50000}));
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchUsuarios({}))
   }, []);
 
@@ -641,9 +641,9 @@ const CreateOrden = () => {
                                               className="form-control"
                                               name="distancia_od"
                                               as="input"
-                                              // style={{
-                                              //   width: isAroVisible ? '90px' : '120px',
-                                              // }}
+                                            // style={{
+                                            //   width: isAroVisible ? '90px' : '120px',
+                                            // }}
                                             />
                                           </td>
                                           <td>
@@ -701,7 +701,7 @@ const CreateOrden = () => {
                                             />
                                           </td>
                                           {isRowVisible ? (
-                                            <td></td> 
+                                            <td></td>
                                           ) : (
                                             <td>
                                               <Field

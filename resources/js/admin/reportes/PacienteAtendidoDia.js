@@ -142,8 +142,8 @@ const PacienteAtendidoDia = ({
                 </div>
               </div>
               <div className="col-md-12">
-              <div className="form-group col-md-4 mt-4" style={{ display: 'flex', alignItems: 'start', gap: '20px' }}>
-                <div style={{ marginRight: '10px' }}>
+                <div className="form-group col-md-4 mt-4" style={{ display: 'flex', alignItems: 'start', gap: '20px' }}>
+                  <div style={{ marginRight: '10px' }}>
                     <label>
                       Buscar por Fecha:
                     </label>
@@ -193,53 +193,53 @@ const PacienteAtendidoDia = ({
                           </button>
                         )}
                         {!localSearch && (
-                        <img
-                          src="/assets/img/lupa.png" 
-                          alt="Search"
-                          style={{
-                            position: 'absolute',
-                            right: '10px',
-                            top: '75%',
-                            transform: 'translateY(-50%)',
-                            width: '20px', 
-                            height: '20px',
-                            pointerEvents: 'none',
-                          }}
-                        />
-                      )}
+                          <img
+                            src="/assets/img/lupa.png"
+                            alt="Search"
+                            style={{
+                              position: 'absolute',
+                              right: '10px',
+                              top: '75%',
+                              transform: 'translateY(-50%)',
+                              width: '20px',
+                              height: '20px',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        )}
                       </label>
                     </div>
                   </div>
                   {
-                      showFilters ? (
-                        funPermisosObtenidos(
-                          permisos,
-                          "reportes.atendidospordia.buscarpordoctor",
-                          <div className="d-flex flex-column" style={{ minWidth: '250px', marginTop: '18px' }}>
-                            <label>Buscar por Doctor:</label>
-                            <select
-                              className="form-control"
-                              value={selectedDoctor}
-                              onChange={handleDoctorChange}
-                              style={{ width: '100%' }}
-                            >
-                              <option value="todos">Todos los doctores</option>
-                              {usuarios.map((usuario) => (
-                                <option key={usuario.id} value={usuario.nombre}>
-                                  {usuario.nombre}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        )
-                      ) : null
-                    }
-                  </div>            
-                  <div className="table-responsive">
-                    <div
-                      className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
-                      id="html5-extension_wrapper"
-                    >
+                    showFilters ? (
+                      funPermisosObtenidos(
+                        permisos,
+                        "reportes.atendidospordia.buscarpordoctor",
+                        <div className="d-flex flex-column" style={{ minWidth: '250px', marginTop: '18px' }}>
+                          <label>Buscar por Doctor:</label>
+                          <select
+                            className="form-control"
+                            value={selectedDoctor}
+                            onChange={handleDoctorChange}
+                            style={{ width: '100%' }}
+                          >
+                            <option value="todos">Todos los doctores</option>
+                            {usuarios.map((usuario) => (
+                              <option key={usuario.id} value={usuario.nombre}>
+                                {usuario.nombre}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )
+                    ) : null
+                  }
+                </div>
+                <div className="table-responsive">
+                  <div
+                    className="dataTables_wrapper container-fluid dt-bootstrap4 no-footer"
+                    id="html5-extension_wrapper"
+                  >
 
                     <div className="table-responsive">
                       {status === 'loading' && <p>Loading...</p>}

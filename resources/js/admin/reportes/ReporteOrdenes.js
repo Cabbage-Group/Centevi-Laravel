@@ -151,7 +151,7 @@ const ReporteOrdenes = () => {
                               backgroundColor: 'yellow',
                               marginRight: '8px'
                             }}></span>
-                           : {statusTotals?.Advertencia}
+                            : {statusTotals?.Advertencia}
                           </p>
                         </Tooltip>
                       </div>
@@ -310,7 +310,7 @@ const ReporteOrdenes = () => {
                           &#x2715; { }
                         </button>
                       )}
-                       {!localSearch && (
+                      {!localSearch && (
                         <img
                           src="/assets/img/lupa.png"
                           alt="Search"

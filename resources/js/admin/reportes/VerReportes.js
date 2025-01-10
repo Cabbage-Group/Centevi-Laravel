@@ -141,7 +141,7 @@ const ReportePaciente = () => {
                             pointerEvents: 'none',
                           }}
                         />
-                      )}                   
+                      )}
                     </label>
                   </div>
                 </div>

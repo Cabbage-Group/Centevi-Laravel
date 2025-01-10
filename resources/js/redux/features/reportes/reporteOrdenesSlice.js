@@ -209,9 +209,9 @@ export const fecthPagadoTotals = createAsyncThunk(
 
 export const fetchBranchTotals = createAsyncThunk(
   'reportesordenes/fetchBranchTotals',
-  async ({sucursales = [],sucursalesNames = []}) => {
-    console.log('entre:',sucursales)
-    console.log('sucursalesNames:',sucursalesNames)
+  async ({ sucursales = [], sucursalesNames = [] }) => {
+    console.log('entre:', sucursales)
+    console.log('sucursalesNames:', sucursalesNames)
     const requests = sucursales.map(sucursal =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -219,11 +219,11 @@ export const fetchBranchTotals = createAsyncThunk(
         }
       })
     );
-    console.log('requests:',requests)
-    console.log('requests:',requests.data)
+    console.log('requests:', requests)
+    console.log('requests:', requests.data)
 
     const responses = await Promise.all(requests);
-    console.log('responses:',responses.data)
+    console.log('responses:', responses.data)
 
     const totalsBySucursal = responses.reduce((acc, response, index) => {
       const sucursal = sucursalesNames[index];

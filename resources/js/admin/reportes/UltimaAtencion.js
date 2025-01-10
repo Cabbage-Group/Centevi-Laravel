@@ -214,14 +214,14 @@ const UltimaAtencion = () => {
                       )}
                       {!localSearch && (
                         <img
-                          src="/assets/img/lupa.png" 
+                          src="/assets/img/lupa.png"
                           alt="Search"
                           style={{
                             position: 'absolute',
                             right: '10px',
                             top: '75%',
                             transform: 'translateY(-50%)',
-                            width: '20px', 
+                            width: '20px',
                             height: '20px',
                             pointerEvents: 'none',
                           }}
