@@ -16,6 +16,7 @@ use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
+use App\Http\Controllers\API\Kpis\KpisApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
@@ -290,6 +291,8 @@ Route::post('/api/whatsapp-link', [WhatsappApiController::class, 'getWhatsAppLin
 Route::get('/api/contacto-orden', [ContactosOrdenesApiController::class, 'index']);
 
 Route::post('/api/contacto-orden', [ContactosOrdenesApiController::class, 'store']);
+
+Route::get('/api/kpis', [KpisApiController::class, 'VerKpis']);
 
 
 Route::get('/{any}', function () {

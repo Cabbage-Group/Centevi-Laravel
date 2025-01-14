@@ -78,6 +78,7 @@ const Usuarios = () => {
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
+    setCurrentPage(1)
   };
 
   const handlePageChange = (page) => {
@@ -771,8 +772,7 @@ const Usuarios = () => {
                         <select
                           className="form-control input-lg"
                           name="sucursal"
-                          onChange={handleChange}
-                          required                                            >
+                          onChange={handleChange}                                          >
                           <option value={""}>Selecionar Sucursal</option>
                           {sucursales.map((sucursal) => (
                             <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
@@ -791,7 +791,6 @@ const Usuarios = () => {
                         name="foto"
                         type="file"
                         accept="image/*"
-                        required
                         onChange={handleFileChange}
 
                       />
@@ -1002,7 +1001,6 @@ const Usuarios = () => {
                         name="editarFoto"
                         type="file"
                         accept="image/*"
-
                         onChange={handleFileChange}
                       />
                       <p className="help-block">

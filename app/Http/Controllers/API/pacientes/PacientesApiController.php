@@ -29,68 +29,38 @@ class PacientesApiController extends Controller
     $search = $request->query('search', '');
     $doctor = $request->query('doctor', '');
 
-    // Validar los parámetros
     $request->validate([
       'page' => 'integer|min:1',
       'limit' => 'integer|min:1|max:50000',
       'sortOrder' => 'in:asc,desc',
       'sortColumn' => 'string|in:sucursal,id_paciente,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
-      'search' => 'string|nullable|max:255', // Validación para el parámetro de búsqueda
+      'search' => 'string|nullable|max:255',
     ]);
 
-    // Dividimos la cadena de búsqueda por espacios
-    $searchTerms = explode(' ', $search);
+    $data = Pacientes::query();
 
-    // Construir la consulta base
-    $query = Pacientes::orderBy($sortColumn, $sortOrder);
-
-    // Aplicar el filtro de búsqueda si existe
     if (!empty($search)) {
-      $query->where(function ($q) use ($search, $searchTerms) {
-        $q
-          // ->where('sucursal', 'like', "%{$search}%")
-          // ->orWhere('doctor', 'like', "%{$search}%")
-          // ->orwhereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$search}%"])
-          // ->orwhere(DB::raw("CONCAT(nombres, ' ', apellidos)"), 'LIKE', "%{$search}%")
-          ->orwhere(function ($query) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-              // Buscamos en ambas columnas first_name y last_name
-              $query->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$term}%"]);
-              // $query->whereRaw("CONCAT(nombres) LIKE ?", ["{$term}%"]);
-              // $query->whereRaw("CONCAT(apellidos) LIKE ?", ["%{$term}%"]);
-            }
-          })
-          // ->orWhere('nombres', 'like', "%{$search}%")
-          // ->orWhere('apellidos', 'like', "%{$search}%")
-          ->orWhere('nro_cedula', 'like', "%{$search}%")
-          // ->orWhere('email', 'like', "%{$search}%")
-          // ->orWhere('nro_seguro', 'like', "%{$search}%")
-          // ->orWhere('fecha_nacimiento', 'like', "%{$search}%")
-          // ->orWhere('genero', 'like', "%{$search}%")
-          // ->orWhere('lugar_nacimiento', 'like', "%{$search}%")
-          ->orWhere('direccion', 'like', "%{$search}%")
-          // ->orWhere('ocupacion', 'like', "%{$search}%")
-          // ->orWhere('telefono', 'like', "%{$search}%")
-          // ->orWhere('celular', 'like', "%{$search}%")
-          // ->orWhere('medico', 'like', "%{$search}%")
-          // ->orWhere('urgencia', 'like', "%{$search}%")
-          // ->orWhere('menor', 'like', "%{$search}%")
-          ->orWhere('fecha_creacion', 'like', "%{$search}%")
-        ;
-      });
+      $data->where(DB::raw("CONCAT(nombres, ' ', apellidos)"), 'like', "%{$search}%")
+        ->orWhere('nro_cedula', 'like', "%{$search}%")
+        ->orWhere('direccion', 'like', "%{$search}%")
+        ->orWhere('fecha_creacion', 'like', "%{$search}%");
     }
 
-    // Aplicar el filtro de doctor si existe
     if (!empty($doctor)) {
-      // Cambiado de "like" a "=" para búsqueda exacta
-      $query->where('doctor', '=', $doctor);
+      $data->where('doctor', '=', $doctor);
     }
-    // Obtener los datos paginados
-    $pacientes = $query->paginate($limit, ['*'], 'page', $page);
 
-    // Formatear la respuesta
+    $data->orderBy($sortColumn, $sortOrder);
+
+    $pacientes = $data->paginate($limit, ['*'], 'page', $page);
+
+    $formattedData = $pacientes->items();
+    foreach ($formattedData as &$paciente) {
+      $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
+    }
+
     return response()->json([
-      'data' => $pacientes->items(),
+      'data' => $formattedData,
       'meta' => [
         'page' => $pacientes->currentPage(),
         'limit' => $pacientes->perPage(),
@@ -102,6 +72,8 @@ class PacientesApiController extends Controller
       ]
     ]);
   }
+
+
 
   public function PacientesMenores()
   {

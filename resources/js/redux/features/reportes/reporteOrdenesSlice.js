@@ -210,8 +210,6 @@ export const fecthPagadoTotals = createAsyncThunk(
 export const fetchBranchTotals = createAsyncThunk(
   'reportesordenes/fetchBranchTotals',
   async ({ sucursales = [], sucursalesNames = [] }) => {
-    console.log('entre:', sucursales)
-    console.log('sucursalesNames:', sucursalesNames)
     const requests = sucursales.map(sucursal =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -219,12 +217,7 @@ export const fetchBranchTotals = createAsyncThunk(
         }
       })
     );
-    console.log('requests:', requests)
-    console.log('requests:', requests.data)
-
     const responses = await Promise.all(requests);
-    console.log('responses:', responses.data)
-
     const totalsBySucursal = responses.reduce((acc, response, index) => {
       const sucursal = sucursalesNames[index];
       acc[sucursal] = response.data.meta.total;
@@ -234,6 +227,56 @@ export const fetchBranchTotals = createAsyncThunk(
     return totalsBySucursal;
   }
 );
+
+export const fetchDoctoresTotals = createAsyncThunk(
+  'reportesordenes/fetchDoctoresTotals',
+  async ({ doctores = [], doctoresNames = [] }) => {
+    const requests = doctoresNames.map(doctor =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          doctor: doctor
+        }
+      })
+    );
+    const responses = await Promise.all(requests);
+    const totalsByDoctor = responses.reduce((acc, response, index) => {
+      const doctor = doctoresNames[index];
+      acc[doctor] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsByDoctor;
+  }
+);
+
+export const fetchAsesoresTotals = createAsyncThunk(
+  'reportesordenes/fetchAsesoresTotals',
+  async ({ asesores = [], asesoresNames = [] }) => {
+    console.log('asesores:', asesores)
+    console.log('asesoresNames:', asesoresNames)
+    const requests = asesoresNames.map(asesor =>
+      axios.get(`${API}/reporte-ordenes`, {
+        params: {
+          asesor: asesor
+        }
+      })
+    );
+    console.log('requests:', requests)
+    console.log('requests:', requests.data)
+
+    const responses = await Promise.all(requests);
+    console.log('responses:', responses.data)
+
+    const totalsByAsesor = responses.reduce((acc, response, index) => {
+      const asesor = asesoresNames[index];
+      acc[asesor] = response.data.meta.total;
+      return acc;
+    }, {});
+
+    return totalsByAsesor;
+  }
+);
+
 
 const reportesOrdenesSlice = createSlice({
   name: 'reportesOrdenes',
@@ -310,6 +353,18 @@ const reportesOrdenesSlice = createSlice({
         state.branchTotals = action.payload;
       })
       .addCase(fetchBranchTotals.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(fetchDoctoresTotals.fulfilled, (state, action) => {
+        state.doctoresTotals = action.payload;
+      })
+      .addCase(fetchDoctoresTotals.rejected, (state, action) => {
+        state.error = action.error.message;
+      })
+      .addCase(fetchAsesoresTotals.fulfilled, (state, action) => {
+        state.asesoresTotals = action.payload;
+      })
+      .addCase(fetchAsesoresTotals.rejected, (state, action) => {
         state.error = action.error.message;
       });
   },

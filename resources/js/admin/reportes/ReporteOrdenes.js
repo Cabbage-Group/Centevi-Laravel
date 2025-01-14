@@ -4,17 +4,23 @@ import DateRangePicker from './DateRangePicker';
 import ExportButton from './exportButton';
 import { transformDataForReporteOrdenes } from '../../../utils/dataTransform';
 import { Button, Col, Card, Row, Tooltip } from 'antd';
-import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange, fecthStatusTotals, fecthLenteContactoTotals, fecthLaboratorioTotals, fecthPagadoTotals, fetchBranchTotals } from '../../redux/features/reportes/reporteOrdenesSlice';
+import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange, fecthStatusTotals, fecthLenteContactoTotals, fecthLaboratorioTotals, fecthPagadoTotals, fetchBranchTotals, fetchDoctoresTotals, fetchAsesoresTotals } from '../../redux/features/reportes/reporteOrdenesSlice';
 import PaginationReportesOrdenes from './PaginationReportesOrdenes';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 
 const ReporteOrdenes = () => {
   const dispatch = useDispatch();
+  const [visibleCount, setVisibleCount] = useState(4);
+  const [visibleCountSucursal, setVisibleCountSucursal] = useState(4);
+  const [visibleCountAsesor, setVisibleCountAsesor] = useState(4);
   const [currentPage, setCurrentPage] = useState(1);
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
+  const { usuarios_doctores_options_selecteds, usuarios_activados } = useSelector((state) => state.usuarios)
+  const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const {
     reportesOrdenes,
     sortColumn,
@@ -29,9 +35,6 @@ const ReporteOrdenes = () => {
     error
   } = useSelector((state) => state.reportesOrdenes);
 
-  const {
-    sucursales_option_selects,
-  } = useSelector((state) => state.sucursales);
 
   useEffect(() => {
     dispatch(fecthReportesOrdenes({
@@ -59,6 +62,7 @@ const ReporteOrdenes = () => {
     dispatch(fecthLaboratorioTotals({}))
     dispatch(fecthPagadoTotals({}))
     dispatch(fetchSucursales({}))
+    dispatch(fetchUsuarios({}))
   }, [dispatch])
 
   useEffect(() => {
@@ -74,11 +78,43 @@ const ReporteOrdenes = () => {
     }
   }, [dispatch, sucursales_option_selects]);
 
+  useEffect(() => {
+    if (usuarios_doctores_options_selecteds.length > 0) {
+      const doctoresIds = usuarios_doctores_options_selecteds.map(doctor => doctor.value);
+      const doctoresNames = usuarios_doctores_options_selecteds.map(doctor => doctor.label);
+      dispatch(fetchDoctoresTotals(
+        {
+          doctores: doctoresIds,
+          doctoresNames: doctoresNames
+        }
+      ));
+    }
+  }, [dispatch, usuarios_doctores_options_selecteds]);
+
+  useEffect(() => {
+    if (usuarios_activados.length > 0) {
+      const asesoressIds = usuarios_activados.map(asesor => asesor.id_usuario);
+      const asesoresNames = usuarios_activados.map(asesor => asesor.nombre);
+      dispatch(fetchAsesoresTotals(
+        {
+          asesores: asesoressIds,
+          asesoresNames: asesoresNames
+        }
+      ));
+    }
+  }, [dispatch, usuarios_activados]);
+
+  console.log('usuarios_activados:', usuarios_activados)
+
   const statusTotals = useSelector((state) => state.reportesOrdenes.statusTotals);
   const lenteContactoTotals = useSelector((state) => state.reportesOrdenes.lenteContactoTotals);
   const laboratoriosTotals = useSelector((state) => state.reportesOrdenes.laboratoriosTotals);
   const pagadoTotals = useSelector((state) => state.reportesOrdenes.pagadoTotals);
   const branchTotals = useSelector((state) => state.reportesOrdenes.branchTotals);
+  const doctoresTotals = useSelector((state) => state.reportesOrdenes.doctoresTotals);
+  const asesoresTotals = useSelector((state) => state.reportesOrdenes.asesoresTotals);
+
+  console.log('asesoresTotals:', asesoresTotals)
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -101,6 +137,18 @@ const ReporteOrdenes = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     dispatch(setSortOrder(newOrder));
     dispatch(setSortColumn(newOrdenPor));
+  };
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 4);
+  };
+
+  const handleLoadMoreSucursal = () => {
+    setVisibleCountSucursal((prev) => prev + 4);
+  };
+
+  const handleLoadMoreAsesor = () => {
+    setVisibleCountAsesor((prev) => prev + 4);
   };
 
 
@@ -208,7 +256,7 @@ const ReporteOrdenes = () => {
                   </Card>
                 </div>
 
-                <div className="col-md-3">
+                <div className="col-md-4">
                   <Card title="Resumen Laboratorio" bordered={false} hoverable>
                     <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                       <div style={{ width: '33%' }}>
@@ -228,31 +276,151 @@ const ReporteOrdenes = () => {
                   </Card>
                 </div>
 
-                <div className="col-md-2">
+                <div className="col-md-4" >
                   <Card title="Resumen de Pagos" bordered={false} hoverable>
                     <p>Pagado: {pagadoTotals?.['1']}</p>
                     <p>Abonado: {pagadoTotals?.['2']}</p>
                     <p>Sin Pago: {pagadoTotals?.['0']}</p>
                   </Card>
                 </div>
-                <div className="col-md-3">
-                  <Card title="Resumen por Sucursal" bordered={false} hoverable>
-                    {branchTotals && Object.entries(branchTotals).map(([branchId, total]) => {
-                      const truncatedBranchId = branchId.length > 10 ? branchId.substring(0, 40) + '...' : branchId;
+                <div className="col-md-4" style={{ marginTop: '20px' }}>
+                  <Card
+                    title="Resumen por Doctor"
+                    bordered={false}
+                    hoverable
+                    style={{
+                      height: '300px',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {doctoresTotals &&
+                      Object.entries(doctoresTotals)
+                        .slice(0, visibleCount)
+                        .map(([doctorId, total]) => {
+                          const truncatedBranchId =
+                            doctorId.length > 10 ? doctorId.substring(0, 40) + '...' : doctorId;
 
-                      return (
-                        <Tooltip title={`${branchId}: ${total}`} key={branchId}>
-                          <p>
-                            {truncatedBranchId}: {total}
-                          </p>
-                        </Tooltip>
-                      );
-                    })}
+                          return (
+                            <Tooltip title={`${doctorId}: ${total}`} key={doctorId}>
+                              <p>
+                                {truncatedBranchId}: {total}
+                              </p>
+                            </Tooltip>
+                          );
+                        })}
+
+                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                      {visibleCount < Object.keys(doctoresTotals || {}).length ? (
+                        <Button type="link" onClick={handleLoadMore}>
+                          Cargar más
+                        </Button>
+                      ) : (
+                        <Button
+                          type="link"
+                          onClick={() => setVisibleCount(4)}
+                        >
+                          Ver menos
+                        </Button>
+                      )}
+                    </div>
                   </Card>
                 </div>
+
+                <div className="col-md-4" style={{ marginTop: '20px' }}>
+                  <Card
+                    title="Resumen por Sucursal"
+                    bordered={false}
+                    hoverable
+                    style={{
+                      height: '300px',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {branchTotals &&
+                      Object.entries(branchTotals)
+                        .slice(0, visibleCountSucursal)
+                        .map(([branchId, total]) => {
+                          // Solo agregar puntos suspensivos si el texto es truncado
+                          const isTruncated = branchId.length > 60;
+                          const displayedBranchId = isTruncated
+                            ? branchId.substring(0, 60) + '...'
+                            : branchId;
+
+                          return (
+                            <Tooltip title={`${branchId}: ${total}`} key={branchId}>
+                              <p>
+                                {displayedBranchId}: {total}
+                              </p>
+                            </Tooltip>
+                          );
+                        })}
+
+                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                      {visibleCountSucursal < Object.keys(branchTotals || {}).length ? (
+                        <Button type="link" onClick={handleLoadMoreSucursal}>
+                          Cargar más
+                        </Button>
+                      ) : (
+                        <Button
+                          type="link"
+                          onClick={() => setVisibleCountSucursal(4)}
+                        >
+                          Ver menos
+                        </Button>
+                      )}
+                    </div>
+                  </Card>
+                </div>
+
+                <div className="col-md-4" style={{ marginTop: '20px' }}>
+                  <Card
+                    title="Resumen por Asesor"
+                    bordered={false}
+                    hoverable
+                    style={{
+                      height: '300px',
+                      overflowY: 'auto',
+                    }}
+                  >
+                    {asesoresTotals &&
+                      Object.entries(asesoresTotals)
+                        .slice(0, visibleCountAsesor)
+                        .map(([branchId, total]) => {
+                          // Solo agregar puntos suspensivos si el texto es truncado
+                          const isTruncated = branchId.length > 60;
+                          const displayedBranchId = isTruncated
+                            ? branchId.substring(0, 60) + '...'
+                            : branchId;
+
+                          return (
+                            <Tooltip title={`${branchId}: ${total}`} key={branchId}>
+                              <p>
+                                {displayedBranchId}: {total}
+                              </p>
+                            </Tooltip>
+                          );
+                        })}
+
+                    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                      {visibleCountAsesor < Object.keys(asesoresTotals || {}).length ? (
+                        <Button type="link" onClick={handleLoadMoreAsesor}>
+                          Cargar más
+                        </Button>
+                      ) : (
+                        <Button
+                          type="link"
+                          onClick={() => setVisibleCountAsesor(4)}
+                        >
+                          Ver menos
+                        </Button>
+                      )}
+                    </div>
+                  </Card>
+                </div>
+
               </div>
             </div>
-            <div className="col-md-12" style={{ marginTop: '-80px' }}>
+            <div className="col-md-12" style={{ marginTop: '-30px' }}>
               <div className="form-group col-md-4 mt-4 " style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ marginRight: '10px', marginTop: 'px' }}>
                   <label>

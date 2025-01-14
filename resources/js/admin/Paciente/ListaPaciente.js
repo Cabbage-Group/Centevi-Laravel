@@ -20,7 +20,9 @@ const ListaPaciente = () => {
   }, [currentPage, localSearch]);
 
   const handleSearchChange = (event) => {
-    setLocalSearch(event.target.value);
+    const newSearch = event.target.value;
+    setLocalSearch(newSearch);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {

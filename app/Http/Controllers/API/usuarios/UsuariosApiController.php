@@ -118,7 +118,7 @@ class UsuariosApiController extends Controller
   public function update(Request $request, $id)
   {
 
-    
+
 
     Log::info('Incoming request data:', $request->all());
 
@@ -294,6 +294,7 @@ class UsuariosApiController extends Controller
         'ultimo_login' => $request->input('ultimo_login'),
         'editado' => $request->input('editado'),
         'tipo_usuario_id' => $request->input('tipo_usuario_id'),
+        'token' => $this->generarCodigoAleatorio(),
       ];
 
       // Insertar el nuevo usuario y obtener el ID
@@ -318,6 +319,19 @@ class UsuariosApiController extends Controller
         'errors' => $e->getMessage(),
       ], 500);
     }
+  }
+
+  private function generarCodigoAleatorio($longitud = 60)
+  {
+    $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $codigoAleatorio = '';
+    $max = strlen($caracteres) - 1;
+
+    for ($i = 0; $i < $longitud; $i++) {
+      $codigoAleatorio .= $caracteres[random_int(0, $max)];
+    }
+
+    return $codigoAleatorio;
   }
 
 

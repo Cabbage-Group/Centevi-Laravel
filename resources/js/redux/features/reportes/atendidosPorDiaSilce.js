@@ -11,19 +11,17 @@ export const fetchAtendidosPorDia = createAsyncThunk(
   async ({ page = 1, limit = 10, orden = 'asc', ordenPor = 'PACIENTE_NOMBRE', startDate = '', endDate = '', search = '', doctor = null }) => {
     try {
       const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
-      
+
       // Crear un objeto de parámetros base
       const params = { page, limit, orden, ordenPor, fecha, search };
-      
+
       // Solo añadir el parámetro doctor si se proporciona explícitamente
       if (doctor) {
         params.doctor = doctor;
       }
-      
+
       const response = await axios.get(`${API}/pacientesAtendidosPorDiaV2`, { params });
 
-      console.log('meta:', response.data.meta);
-      console.log('mensaje:', response.data);
 
       return response.data;
     } catch (error) {

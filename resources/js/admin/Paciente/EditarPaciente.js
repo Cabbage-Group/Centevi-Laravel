@@ -4,6 +4,7 @@ import { fetchVerPaciente } from '../../redux/features/pacientes/VerPacienteSlic
 import { fetchEditarPaciente } from '../../redux/features/pacientes/EditarPacienteSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { Button } from 'antd';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -184,7 +185,6 @@ const EditarPaciente = () => {
                       </div>
                     </div>
                     <div className="widget-content widget-content-area">
-
                       <form
                         method="post"
                         role="form"
@@ -266,7 +266,7 @@ const EditarPaciente = () => {
                             <label htmlFor="fecha_nacimiento">Fecha de Nacimiento</label>
                             <input
                               className="form-control"
-                              value={formatToDateDisplay(formData.fecha_nacimiento)}
+                              value={formData.fecha_nacimiento}
                               name="fecha_nacimiento"
                               type="text"
                               onChange={handleChange}

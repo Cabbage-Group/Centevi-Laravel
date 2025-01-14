@@ -48,12 +48,44 @@ const fasesOrdenesSlice = createSlice({
         data: [],
         fasesOrdenes: [],
         nuevaData: [],
+        pagado: [],
+        laboratorio: [],
+        tipoLente: [],
+        fase: [],
+        sucursal: [],
+        statusOrden: [],
+        fechaInicio: '',
+        fechaFin: '',
         status: 'idle',
         error: null,
     },
     reducers: {
         actualizarDatosFase: (state, action) => {
             state.nuevaData = action.payload;
+        },
+        setPagadoFilter: (state, action) => {
+            state.pagado = action.payload;
+        },
+        setLaboratorioFilter: (state, action) => {
+            state.laboratorio = action.payload;
+        },
+        setTipoLenteFilter: (state, action) => {
+            state.tipoLente = action.payload;
+        },
+        setFaseFilter: (state, action) => {
+            state.fase = action.payload;
+        },
+        setSucursalFilter: (state, action) => {
+            state.sucursal = action.payload;
+        },
+        setStatusFilter: (state, action) => {
+            state.statusOrden = action.payload;
+        },
+        setFechaInicioFilter: (state, action) => {
+            state.fechaInicio = action.payload;
+        },
+        setFechaFinFilter: (state, action) => {
+            state.fechaFin = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -97,6 +129,16 @@ const fasesOrdenesSlice = createSlice({
     },
 });
 
-export const { actualizarDatosFase } = fasesOrdenesSlice.actions;
+export const {
+    actualizarDatosFase,
+    setPagadoFilter,
+    setLaboratorioFilter,
+    setTipoLenteFilter,
+    setFaseFilter,
+    setSucursalFilter,
+    setStatusFilter,
+    setFechaInicioFilter,
+    setFechaFinFilter
+} = fasesOrdenesSlice.actions;
 
 export default fasesOrdenesSlice.reducer;
