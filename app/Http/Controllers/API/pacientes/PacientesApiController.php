@@ -26,24 +26,49 @@ class PacientesApiController extends Controller
     $limit = $request->query('limit', 300);
     $sortOrder = $request->query('sortOrder', 'asc');
     $sortColumn = $request->query('sortColumn', 'id_paciente');
-    $search = $request->query('search', '');
+    // $search = $request->query('search', '');
     $doctor = $request->query('doctor', '');
+    $search = $request->query('search', '');
 
     $request->validate([
-      'page' => 'integer|min:1',
-      'limit' => 'integer|min:1|max:50000',
-      'sortOrder' => 'in:asc,desc',
-      'sortColumn' => 'string|in:sucursal,id_paciente,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
-      'search' => 'string|nullable|max:255',
+        'page' => 'integer|min:1',
+        'limit' => 'integer|min:1|max:50000',
+        'sortOrder' => 'in:asc,desc',
+        'sortColumn' => 'string|in:sucursal,id_paciente,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
+        'search' => 'string|nullable|max:255',
+        'nameFilter' => 'string|nullable|max:255',
     ]);
 
     $data = Pacientes::query();
 
+    // if (!empty($search)) {
+    //     $nameParts = explode(' ', $search);
+    //     $data->where(function ($query) use ($search) {
+    //         $query->where(DB::raw("CONCAT(nombres, ' ', apellidos)"), 'like', "%{$search}%")
+    //             ->orWhere(DB::raw("CONCAT(apellidos, ' ', nombres)"), 'like', "%{$search}%")
+    //             ->orWhere('nro_cedula', 'like', "%{$search}%")
+    //             ->orWhere('direccion', 'like', "%{$search}%")
+    //             ->orWhere('fecha_creacion', 'like', "%{$search}%")
+    //             ->orWhere('nombres', 'like', "%{$search}%")
+    //             ->orWhere('apellidos', 'like', "%{$search}%");
+    //     });
+    // } else {
+      
+    // }
+
     if (!empty($search)) {
-      $data->where(DB::raw("CONCAT(nombres, ' ', apellidos)"), 'like', "%{$search}%")
-        ->orWhere('nro_cedula', 'like', "%{$search}%")
-        ->orWhere('direccion', 'like', "%{$search}%")
-        ->orWhere('fecha_creacion', 'like', "%{$search}%");
+        $nameParts = explode(' ', $search);
+        $data->where(function ($query) use ($nameParts) {
+            foreach ($nameParts as $part) {
+                $query->where(function ($subQuery) use ($part) {
+                    $subQuery->where('nombres', 'like', "%{$part}%")
+                         ->orWhere('apellidos', 'like', "%{$part}%")                   
+                        ->orWhere('nro_cedula', 'like', "%{$part}%")
+                        ->orWhere('direccion', 'like', "%{$part}%")
+                        ->orWhere('fecha_creacion', 'like', "%{$part}%");
+                });
+            }
+        });
     }
 
     if (!empty($doctor)) {
@@ -72,6 +97,7 @@ class PacientesApiController extends Controller
       ]
     ]);
   }
+
 
 
 
