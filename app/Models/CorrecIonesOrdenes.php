@@ -5,21 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ordenes extends Model
-{
+class CorrecionesOrdenes extends Model
+{       
   use HasFactory;
 
   // Nombre de la tabla
-  protected $table = 'ordenes';
+  protected $table = 'correciones_ordenes';
 
-  // Clave primaria de la tabla
-  protected $primaryKey = 'id_orden';
-
-  // Atributos que son asignables en masa
   protected $fillable = [
-    'nro_orden',
-    'id_paciente',
-    'id_sucursal',
+    'ordenes_id',
     'elaborado_por',
     'esfera_od',
     'esfera_oi',
@@ -55,39 +49,17 @@ class Ordenes extends Model
     'l_cuatro',
     'l_cinco',
     'pagado',
-    'lente_contacto',
-    'correccion'
   ];
 
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
-    'nro_orden' => 'integer',
-    'id_paciente' => 'integer',
-    'id_sucursal' => 'integer',
     'elaborado_por' => 'integer',
-    'lente_contacto' => 'integer',
   ];
 
-  public function paciente()
-  {
-    return $this->belongsTo(Pacientes::class, 'id_paciente', 'id_paciente');
-  }
-
-  public function sucursal()
-  {
-    return $this->belongsTo(Sucursales::class, 'id_sucursal', 'id_sucursal');
-  }
-
-  public function contactosOrdenes()
-  {
-    return $this->hasMany(ContactoOrden::class);
-  }
-
-  public function correciones()
-  {
-      return $this->hasMany(CorrecionesOrdenes::class, 'ordenes_id', 'id_orden');
-  }
-
+  public function orden()
+    {
+        return $this->belongsTo(Ordenes::class, 'ordenes_id', 'id_orden');
+    }
 
 
 }

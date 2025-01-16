@@ -5,8 +5,8 @@ import API from '../../../config/config.js';
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
   async ({
-    page = 1,
-    limit = 20,
+    page = '',
+    limit = 10000000000000,
     sortOrder = 'desc',
     sortColumn = 'created_at',
     search = '', 
@@ -124,6 +124,7 @@ const ordenesSlice = createSlice({
     ordenes: [],
     pacienteOrdenes: [],
     contactoOrden  : [],
+    ordenes_options_selecteds: [],
     meta: {},
     status: 'idle',
     search: '',
@@ -155,6 +156,17 @@ const ordenesSlice = createSlice({
         state.status = 'succeeded';
         state.ordenes = action.payload.data;
         state.meta = action.payload.meta;
+
+        state.ordenes_options_selecteds = action.payload.data.map((
+          { id_orden, nro_orden, paciente, ...rest }) =>
+            paciente?.id_paciente && paciente?.nombres && paciente?.apellidos
+            ? {
+                value: id_orden,
+                label: `Nro Orden: ${nro_orden} || Nombre: ${paciente.nombres.trim()} ${paciente.apellidos.trim()}`,
+                ...rest
+            } :
+            { ...rest }
+        );
       })
       .addCase(fecthOrdenes.rejected, (state, action) => {
         state.status = 'failed';

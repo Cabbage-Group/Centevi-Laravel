@@ -75,6 +75,8 @@ import tiposFasesOrdenesSlice from './features/ordenes/tiposFasesOrdenesSlice';
 import fasesOrdenesSlice from './features/ordenes/fasesOrdenesSlice'
 import reportesOrdenesSlice from './features/reportes/reporteOrdenesSlice'
 import kpisSlice from './features/kpis/kpisSlice'
+import correcionesordenesSlice from './features/correciones-ordenes/correcionesOrdenesSlice'
+import correccionesFasesOrdenes from './features/correciones-ordenes/correccionesFasesOrdenesSlice'
 
 
 
@@ -167,7 +169,11 @@ const store = configureStore({
 
     reportesOrdenes: reportesOrdenesSlice,
 
-    kpis: kpisSlice
+    kpis: kpisSlice,
+
+    correcionesordenes: correcionesordenesSlice,
+
+    correccionesFasesOrdenes: correccionesFasesOrdenes
 
 
   }

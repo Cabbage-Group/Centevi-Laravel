@@ -52,7 +52,6 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
       const pacienteSeleccionado = pacientes.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
-      console.log('pacienteSeleccionado:', pacienteSeleccionado)
       if (pacienteSeleccionado) {
         setCelular(pacienteSeleccionado?.celular || '');
         setNombrePaciente(pacienteSeleccionado?.nombres || '');

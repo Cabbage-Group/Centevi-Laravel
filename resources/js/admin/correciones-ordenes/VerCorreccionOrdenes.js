@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { createOrdenes, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
+import { updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -16,20 +16,20 @@ import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
-const EditOrden = ({ fecha_solicitud }) => {
+const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = useParams();
-  const { orden } = location.state || {};
+  const { correcion } = location.state || {};
   const { pacienteOrden } = location.state || {};
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal || pacienteOrden?.id_sucursal);
+  const [selectedPaciente, setSelectedPaciente] = useState(correcion?.id_paciente);
+  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.id_sucursal);
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
   const [cedula, setCedula] = useState('');
@@ -41,17 +41,23 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedMarca, setSelectedMarca] = useState(orden?.marca || pacienteOrden?.marca);
 
- 
   useEffect(() => {
-    if (orden?.lente_contacto) {
+    if (correcion?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [orden]);
+  }, [correcion]);
+
+  const generateWhatsAppLink = () => {
+    const telefonoFormateado = telefono.replace(/\D/g, '');
+    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
+    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
+
+    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
+  };
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
@@ -59,42 +65,41 @@ const EditOrden = ({ fecha_solicitud }) => {
   }, [serviciosRealizados]);
 
   const initialValues = {
-    nro_orden: orden?.nro_orden || pacienteOrden?.nro_orden,
-    id_paciente: orden?.id_paciente || pacienteOrden?.id_paciente,
-    id_sucursal: orden?.id_sucursal || pacienteOrden?.id_sucursal,
-    esfera_od: orden?.esfera_od || pacienteOrden?.esfera_od,
-    esfera_oi: orden?.esfera_oi || pacienteOrden?.esfera_oi,
-    cilindro_od: orden?.cilindro_od || pacienteOrden?.cilindro_od,
-    cilindro_oi: orden?.cilindro_oi || pacienteOrden?.cilindro_oi,
-    eje_od: orden?.eje_od || pacienteOrden?.eje_od,
-    eje_oi: orden?.eje_oi || pacienteOrden?.eje_oi,
-    add_od: orden?.add_od || pacienteOrden?.add_od,
-    add_oi: orden?.add_oi || pacienteOrden?.add_oi,
-    prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
-    prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
-    distancia_od: orden?.distancia_od + (orden?.distancia_oi ? '/' + orden?.distancia_oi : '') || pacienteOrden?.distancia_od + (pacienteOrden?.distancia_oi ? '/' + pacienteOrden?.distancia_oi : ''),
-    distancia_oi : orden?.distancia_oi || pacienteOrden?.distancia_oi,
-    altura_od: orden?.altura_od || pacienteOrden?.altura_od,
-    altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
-    tipo_cristal_od: '',
-    tipo_cristal_oi: '',
-    material_od: '',
-    material_oi: '',
-    tratamientos_od: '',
-    tratamientos_oi: '',
-    aro_centevi: orden?.aro_centevi || pacienteOrden?.aro_centevi,
-    aro_propio: orden?.aro_propio || pacienteOrden?.aro_propio,
-    codigo: orden?.codigo || pacienteOrden?.codigo,
-    color: orden?.color || pacienteOrden?.color,
-    marca: orden?.marca || pacienteOrden?.marca,
-    tipo_aro: orden?.tipo_aro || pacienteOrden?.tipo_aro,
-    observaciones: orden?.observaciones || pacienteOrden?.observaciones,
-    doctor: orden?.doctor || pacienteOrden?.doctor,
-    l_uno: orden?.l_uno || pacienteOrden?.l_uno,
-    l_dos: orden?.l_dos || pacienteOrden?.l_dos,
-    l_tres: orden?.l_tres || pacienteOrden?.l_tres,
-    l_cuatro: orden?.l_cuatro || pacienteOrden?.l_cuatro,
-    l_cinco: orden?.l_cinco || pacienteOrden?.l_cinco,
+    nro_orden: correcion?.nro_orden ,
+    id_paciente: correcion?.id_paciente ,
+    id_sucursal: correcion?.id_sucursal ,
+    esfera_od: correcion?.esfera_od,
+    esfera_oi: correcion?.esfera_oi ,
+    cilindro_od: correcion?.cilindro_od ,
+    cilindro_oi: correcion?.cilindro_oi ,
+    eje_od: correcion?.eje_od ,
+    eje_oi: correcion?.eje_oi ,
+    add_od: correcion?.add_od ,
+    add_oi: correcion?.add_oi ,
+    prisma_od: correcion?.prisma_od ,
+    prisma_oi: correcion?.prisma_oi ,
+    distancia_od: correcion?.distancia_od ,
+    altura_od: correcion?.altura_od ,
+    altura_oi: correcion?.altura_oi ,
+    tipo_cristal_od: correcion?.tipo_cristal_od ,
+    tipo_cristal_oi: correcion?.tipo_cristal_od ,
+    material_od: correcion?.material_od ,
+    material_oi: correcion?.material_oi ,
+    tratamientos_od: correcion?.tratamientos_od ,
+    tratamientos_oi: correcion?.tratamientos_oi ,
+    aro_centevi: correcion?.aro_centevi ,
+    aro_propio: correcion?.aro_propio ,
+    codigo: correcion?.codigo ,
+    color: correcion?.color ,
+    marca: correcion?.marca ,
+    tipo_aro: correcion?.tipo_aro ,
+    observaciones: correcion?.observaciones ,
+    doctor: correcion?.doctor ,
+    l_uno: correcion?.l_uno ,
+    l_dos: correcion?.l_dos ,
+    l_tres: correcion?.l_tres ,
+    l_cuatro: correcion?.l_cuatro ,
+    l_cinco: correcion?.l_cinco ,
     isRowVisible: isAroVisible,
   };
 
@@ -126,6 +131,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     aro_propio: Yup.number().oneOf([0, 1]),
     tipo_aro: Yup.string().when('lente_contacto', {
       is: (lente_contacto) => {
+        console.log('isRowVisible en validación:', lente_contacto);
         return lente_contacto;
       },
       then: (schema) => schema.required("Seleccione un tipo de aro"),
@@ -137,58 +143,44 @@ const EditOrden = ({ fecha_solicitud }) => {
   });
 
   const [serviciosRealizados, setServiciosRealizados] = useState([
-    orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od ? {
-      value: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-      label: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
+    correcion?.tipo_cristal_od  ? {
+      value: correcion?.tipo_cristal_od ,
+      label: correcion?.tipo_cristal_od ,
       ojo: "Ojo Derecho"
     } : null,
-    orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi ? {
-      value: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi,
-      label: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi,
+    correcion?.tipo_cristal_oi ? {
+      value: correcion?.tipo_cristal_oi ,
+      label: correcion?.tipo_cristal_oi ,
       ojo: "Ojo Izquierdo"
     } : null,
   ].filter(Boolean));
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden?.material_od || pacienteOrden?.material_od ? {
-      value: orden?.material_od || pacienteOrden?.material_od,
-      label: orden?.material_od || pacienteOrden?.material_od,
+    correcion?.material_od  ? {
+      value: correcion?.material_od ,
+      label: correcion?.material_od ,
       ojo: "Ojo Derecho"
     } : null,
-    orden?.material_oi || pacienteOrden?.material_oi ? {
-      value: orden?.material_oi || pacienteOrden?.material_oi,
-      label: orden?.material_oi || pacienteOrden?.material_oi,
+    correcion?.material_oi  ? {
+      value: correcion?.material_oi ,
+      label: correcion?.material_oi ,
       ojo: "Ojo Izquierdo"
     } : null,
   ].filter(Boolean));
   const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    orden?.tratamientos_od || pacienteOrden?.tratamientos_od ? {
-      value: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
-      label: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
+    correcion?.tratamientos_od  ? {
+      value: correcion?.tratamientos_od ,
+      label: correcion?.tratamientos_od ,
       ojo: "Ojo Derecho"
     } : null,
-    orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi ? {
-      value: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
-      label: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
+    correcion?.tratamientos_oi ? {
+      value: correcion?.tratamientos_oi ,
+      label: correcion?.tratamientos_oi ,
       ojo: "Ojo Izquierdo"
     } : null,
   ].filter(Boolean));
   const [aroCentevi, setAroCentevi] = useState(false);
-  const [tipoAro, setTipoAro] = useState(orden?.tipo_aro || pacienteOrden?.tipo_aro);
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden?.doctor || pacienteOrden?.doctor)
-
-  const toggleEye = () => {
-    setIsLeftEye(!isLeftEye);
-  };
-
-  const toggleEyeMaterial = () => {
-    setIsLeftEyeMaterial(!isLeftEyeMaterial);
-  };
-
-  const toggleEyeTratamientos = () => {
-    setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
-  };
-
-
+  const [tipoAro, setTipoAro] = useState(correcion?.tipo_aro );
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState(correcion?.doctor)
 
   const handleSelectChange = (value, option) => {
     const newEntry = {
@@ -251,14 +243,13 @@ const EditOrden = ({ fecha_solicitud }) => {
   };
 
   useEffect(() => {
-    if (orden?.aro_centevi !== undefined || pacienteOrden?.aro_centevi !== undefined) {
-      setAroCentevi(orden?.aro_centevi === 1 || pacienteOrden?.aro_centevi === 1);
+    if (correcion?.aro_centevi !== undefined ) {
+      setAroCentevi(correcion?.aro_centevi === 1 );
     }
-  }, [orden, pacienteOrden]);
+  }, [correcion, pacienteOrden]);
 
   useEffect(() => {
     if (selectedPaciente) {
-      // Buscar el paciente seleccionado en la lista de pacientes
       const pacienteSeleccionado = pacientes.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
@@ -430,10 +421,10 @@ const EditOrden = ({ fecha_solicitud }) => {
                   className="col-lg-12 layout-spacing"
                   id="flFormsGrid"
                 >
+
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
-
                         <Formik
                           initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
                           validationSchema={validationSchema}
@@ -464,147 +455,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
                                     </b>
                                   </p>
-                                </div>
-                                <div class="col-md-2"  >
-                                  <h4>Nro. Orden*</h4>
-                                  <Input
-                                    name="nro_orden"
-                                    value={values.nro_orden}
-                                    onChange={(e) => {
-                                      const onlyNumbers = e.target.value.replace(/\D/g, "");
-                                      setFieldValue("nro_orden", onlyNumbers);
-                                    }}
-                                    placeholder="Ingrese el número de orden"
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '40px',
-                                    }}
-                                  />
-                                  <ErrorMessage
-                                    name="nro_orden"
-                                    component="div"
-                                    style={{ color: "red", fontSize: "12px" }}
-                                  />
-                                </div>
-                                <div class="col-md-2">
-                                  <h4>Cambiar Tipo de lente</h4>
-                                  <div className="d-flex align-items-center">
-                                    <button
-                                      type="button"
-                                      className="btn btn-success"
-                                      style={{
-                                        height: "40px",
-                                        marginTop: "0",
-                                      }}
-                                      disabled={true}
-                                      onClick={() => {
-                                        handleLenteContactoChange()
-                                        setIsRowVisible(!isRowVisible);
-                                        setFieldValue("isRowVisible", !isRowVisible);
-                                      }}
-                                    >
-                                      {lenteContacto ? ' Cambiar a lente de contacto' : 'Cambiar a lente normal'}
-                                    </button>
-                                  </div>
-                                </div>
-
-
-
-                                <div className="form-group col-md-4" >
-                                  <label htmlFor="pacientes">Pacientes*</label>
-                                  <Select
-                                    showSearch
-                                    value={selectedPaciente}
-                                    onChange={(value) => {
-                                      setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
-                                      setFieldValue("id_paciente", value); // También actualizar el campo de Formik
-                                    }}
-                                    placeholder="Seleccione el paciente"
-                                    filterOption={(input, option) => {
-                                      const searchTerms = input.toLowerCase().split(' ');
-                                      return searchTerms.every(term =>
-                                        (option?.label ?? '').toLowerCase().includes(term)
-                                      );
-                                    }}
-                                    options={pacientes_options_selecteds}
-                                    style={{
-                                      width: "100%",
-                                      height: "48px",
-                                      color: "black",
-                                      fontWeight: "bold",
-                                    }}
-                                  />
-
-                                  <ErrorMessage name="id_paciente" component="div" className="text-danger" />
-
-                                </div>
-
-
-                                <div className="form-group col-md-4" >
-                                  <label htmlFor="sucursales">Sucursal*</label>
-                                  <Select
-                                    showSearch
-                                    value={selectedSucursal}
-                                    placeholder="Seleccione una sucursal"
-                                    onChange={(value) => {
-                                      setSelectedSucursal(value)
-                                      setFieldValue('id_sucursal', value);
-                                    }}
-                                    filterOption={(input, option) => {
-                                      const searchTerms = input.toLowerCase().split(' ');
-                                      return searchTerms.every(term =>
-                                        (option?.label ?? '').toLowerCase().includes(term)
-                                      );
-                                    }}
-                                    options={sucursales_option_selects}
-                                    style={{
-                                      width: "100%",
-                                      height: "48px",
-                                      color: "black",
-                                      fontWeight: "bold",
-                                    }}
-                                  />
-
-                                  <ErrorMessage name="id_sucursal" component="div" className="text-danger" />
-                                </div>
-                                <div className="form-group col-md-2">
-                                  <label htmlFor="cedula">
-                                    Cedula
-                                  </label>
-                                  <Input
-                                    className="form-control"
-                                    name="cedula"
-                                    type="text"
-                                    value={cedula}
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '48px'
-                                    }}
-                                    disabled
-                                  />
-                                </div>
-                                <div className="form-group col-md-2">
-                                  <label htmlFor="inputEmail4">
-                                    Celular
-                                  </label>
-                                  <Input
-                                    className="form-control"
-                                    name="telefono"
-                                    type="text"
-                                    value={telefono}
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '48px'
-                                    }}
-                                    disabled
-                                  />
-                                </div>
+                                </div>                                                                                                                                                                          
                               </div>
                               <div
                                 className="form-row"
@@ -668,7 +519,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               // width: '175px'
                                             }}
                                           >
-                                            {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
+                                            PRISMA
                                           </th>
                                           <th
                                             style={{
@@ -676,7 +527,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               width: "130px"
                                             }}
                                           >
-                                            {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
+                                            DISTANCIA PUPILAR*
                                           </th>
                                           <th
                                             style={{
@@ -684,7 +535,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               width: "130px"
                                             }}
                                           >
-                                             {isAroVisible ? 'ALTURA' : 'Diametro'}
+                                            ALTURA
                                           </th>
                                         </tr>
                                       </thead>
@@ -697,7 +548,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="esfera_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -705,7 +556,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="cilindro_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -713,7 +564,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="eje_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -721,7 +572,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="add_od"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -731,20 +582,23 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               placeholder="△"
                                               type="text"
                                               name="prisma_od"
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
-                                          <td >
+                                          <td style={{ paddingTop: '70px', textAlign: 'center' }}>
                                             <Field
                                               className="form-control"
                                               name="distancia_od"
                                               as="input"
+                                              readOnly
                                             />
                                           </td>
                                           <td>
                                             <Field
                                               className="form-control"
                                               name="altura_od"
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -757,7 +611,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="esfera_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -765,7 +619,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="cilindro_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -773,7 +627,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="eje_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -781,7 +635,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="add_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -789,28 +643,19 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               type="text"
-                                              // placeholder="△"
+                                              placeholder="△"
                                               name="prisma_oi"
+                                              readOnly
                                               as="input"
                                             />
-                                          </td>  
-                                          {isRowVisible ? (
-                                              <td></td> 
-                                            ) : (
-                                              <td>
-                                                <Field
-                                                  className="form-control"
-                                                  type="text"
-                                                  name="distancia_oi"
-                                                  as="input"
-                                                />
-                                              </td>
-                                            )}                                 
+                                          </td>
+                                          <td>
+                                          </td>
                                           <td>
                                             <Field
                                               className="form-control"
                                               name="altura_oi"
-
+                                              readOnly
                                               as="input"
                                             />
                                           </td>
@@ -854,7 +699,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
                                           className="text-center p-2"
-                                          onClick={toggleEye}
                                           style={{
                                             cursor: 'pointer',
                                             color: isLeftEye ? 'blue' : '#067231',
@@ -868,13 +712,13 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         <Select
                                           showSearch
                                           value={null}
+                                          disabled
                                           style={{
                                             width: '100%', color: 'transparent',
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChange}
-                                      
                                           options={[
                                             { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
                                             { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
@@ -995,10 +839,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                      onClick={() => {
-                                                        // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
-                                                        setServiciosRealizados([])
-                                                      }}
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>
@@ -1013,7 +853,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
                                           className="text-center p-2"
-                                          onClick={toggleEyeMaterial}
                                           style={{
                                             cursor: 'pointer',
                                             color: isLeftEyeMaterial ? 'blue' : '#067231',
@@ -1027,12 +866,13 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         <Select
                                           showSearch
                                           value={null}
+                                          disabled
                                           style={{
                                             width: '100%', color: 'transparent',
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeMaterial}                                      
+                                          onChange={handleSelectChangeMaterial}
                                           options={[
                                             { id: 1, codigo: "CR-39" },
                                             { id: 2, codigo: "Policarbonato" },
@@ -1093,10 +933,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                      onClick={() => {
-                                                        // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
-                                                        setMaterialesSeleccionados([])
-                                                      }}
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>
@@ -1111,7 +947,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
                                           className="text-center p-2"
-                                          onClick={toggleEyeTratamientos}
                                           style={{
                                             cursor: 'pointer',
                                             color: isLeftEyeTratamientos ? 'blue' : '#067231',
@@ -1124,20 +959,13 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         <Select
                                           showSearch
                                           value={null}
+                                          disabled
                                           style={{
                                             width: '100%', color: 'transparent',
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChangeTratamientos}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
-                                          //     tratamientosFiltros.push(val)
-                                          //     setTratamientosFiltros([...tratamientosFiltros])
-                                          //   }
-                                          // }}
                                           options={[
                                             { id: 1, codigo: "Transitions" },
                                             { id: 2, codigo: "Antireflejo" },
@@ -1149,27 +977,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             { id: 8, codigo: "Tinte" },
                                             { id: 9, codigo: "Uniforme" },
                                             { id: 10, codigo: "Intensidad" },
-                                            { id: 11, codigo: "Filtro TERA chocolate claros rosado" },
-                                            { id: 12, codigo: "Filtro EP Azul claro" },
-                                            { id: 13, codigo: "Filtro Amarillo Claro 450" },
-                                            { id: 14, codigo: "Filtro Amarillo Fuerte 350" },
-                                            { id: 15, codigo: "Filtro Chocolate Oscuro EB 480" },
-                                            { id: 16, codigo: "Filtro Amarillo/ Naranja 510" },
-                                            { id: 17, codigo: "Filtro Naranja Claro 525" },
-                                            { id: 18, codigo: "Filtro Naranja Oscuro 550" },
-                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" },
-                                            { id: 20, codigo: "Fotocromático Gris" },
-                                            { id: 21, codigo: "Fotocromático Café" },
-                                            { id: 22, codigo: "Antirreflejo AR" },
-                                            { id: 23, codigo: "Polarizado Negro" },
-                                            { id: 24, codigo: "Polarizado Café" },
-                                            { id: 25, codigo: "Polarizado Gris + Espejado" },
-                                            { id: 26, codigo: "Polarizado Café + Espejado" },
-                                            { id: 27, codigo: "Tinte Uniforme" },
-                                            { id: 28, codigo: "Tinte Degradante" },
-                                            { id: 29, codigo: "Filtro UV" },
-                                            { id: 30, codigo: "Transitions Gris" },
-                                            { id: 31, codigo: "Transitions Café" }
                                           ].map(servicio => ({
                                             value: servicio.id,
                                             label: servicio.codigo
@@ -1222,10 +1029,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                         marginLeft: '5px',
                                                         cursor: 'pointer'
                                                       }}
-                                                      onClick={() => {
-                                                        // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
-                                                        setTratamientosFiltros([])
-                                                      }}
+
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                     </span>
@@ -1712,6 +1516,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                 className="new-control-input"
                                                 checked={aroCentevi}
                                                 type="radio"
+                                                disabled
                                                 name="aro_centevi"
                                                 onChange={() => {
                                                   setAroCentevi(true)
@@ -1731,6 +1536,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               <Field
                                                 className="new-control-input"
                                                 checked={!aroCentevi}
+                                                disabled
                                                 type="radio"
                                                 onChange={() => setAroCentevi(false)}
                                               />
@@ -1752,6 +1558,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="codigo"
+                                              readOnly
                                               style={{
                                                 marginLeft: '0px', height: '30px',
                                                 width: '100%'
@@ -1776,6 +1583,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               className="form-control"
                                               name="color"
+                                              readOnly
                                               style={{
                                                 marginLeft: '0px', height: '30px'
                                               }}
@@ -1783,80 +1591,22 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           </div>
                                         )}
 
-                                        <div style={{}}>
+                                        <div
+                                          style={{
+                                            // display: 'flex'
+                                          }}
+                                        >
                                           <div style={{ marginTop: '1px' }}>
                                             <b>MARCA</b>
                                           </div>
-                                          {isAroVisible ? (
-                                            <Field
-                                              className="form-control"
-                                              name="marca"
-                                              style={{ marginLeft: '0px', height: '30px', display: 'block' }}
-                                            />
-                                          ) : (
-                                            <Select
-                                              name="marca"
-                                              placeholder="Selecciona la marca"
-                                              value={selectedMarca}
-                                              showSearch
-                                              style={{
-                                                width: "100%",
-                                                height: "48px",
-                                                color: "black",
-                                                fontWeight: "bold",
-                                              }}
-                                              onChange={(value) => {
-                                                console.log('value:', value)
-                                                setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
-                                                setFieldValue("marca", value); // También actualizar el campo de Formik
-                                              }}
-                                              filterOption={(input, option) =>
-                                                option.label.toLowerCase().includes(input.toLowerCase())
-                                              }
-                                              options={[
-                                                { value: 'L001 | Acuvue 2', label: 'L001 | Acuvue 2' },
-                                                { value: 'L002 | Acuvue Oasys Esferico ', label: 'L002 | Acuvue Oasys Esferico ' },
-                                                { value: 'L003 | Acuvue Oasys Astigmatismo', label: 'L003 | Acuvue Oasys Astigmatismo' },
-                                                { value: 'L004 | Acuvue Oasys Presbicia', label: 'L004 | Acuvue Oasys Presbicia' },
-                                                { value: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades', label: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades' },
-                                                { value: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades', label: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades' },
-                                                { value: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades', label: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades' },
-                                                { value: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ', label: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ' },
-                                                { value: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades', label: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades' },
-                                                { value: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)', label: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)' },
-                                                { value: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)', label: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)' },
-                                                { value: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)', label: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)' },
-                                                { value: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00', label: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00' },
-                                                { value: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)', label: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)' },
-                                                { value: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)', label: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)' },
-                                                { value: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)', label: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)' },
-                                                { value: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High', label: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High' },
-                                                { value: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)', label: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)' },
-                                                { value: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)', label: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)' },
-                                                { value: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)', label: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)' },
-                                                { value: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)', label: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)' },
-                                                { value: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High', label: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High' },
-                                                { value: 'L023 | Avaira Vitality Esferico ', label: 'L023 | Avaira Vitality Esferico ' },
-                                                { value: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ', label: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ' },
-                                                { value: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)', label: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)' },
-                                                { value: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)', label: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)' },
-                                                { value: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ', label: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ' },
-                                                { value: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)', label: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)' },
-                                                { value: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
-                                                { value: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50' },
-                                                { value: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)', label: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)' },
-                                                { value: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)', label: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)' },
-                                                { value: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
-                                                { value: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50' },
-                                                { value: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00', label: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00' },
-                                                { value: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00', label: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00' },
-                                                { value: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)', label: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)' },
-                                                { value: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)', label: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)' },
-                                                { value: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)', label: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)' },
-                                                { value: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00', label: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00' },
-                                              ]}
-                                            />
-                                          )}
+                                          <Field
+                                            className="form-control"
+                                            name="marca"
+                                            readOnly
+                                            style={{
+                                              marginLeft: '0px', height: '30px'
+                                            }}
+                                          />
                                         </div>
                                       </Col>
                                       {/* <Col xxl={4} xl={4} md={4}>
@@ -2002,6 +1752,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                       showSearch
                                                       placeholder="Selecciona el tipo de aro"
                                                       value={tipoAro}
+                                                      disabled
                                                       options={tipoAroOptions}
                                                       style={{
                                                         width: "100%",
@@ -2016,9 +1767,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                           setFieldValue("tipo_aro", selectedOption.label);
                                                         }
                                                       }}
-                                                      filterOption={(input, option) =>
-                                                        option.label.toLowerCase().includes(input.toLowerCase())
-                                                      }
                                                     />
                                                     <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
                                                   </div>
@@ -2034,6 +1782,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                     showSearch
                                                     placeholder="Seleccione el doctor"
                                                     value={doctorSeleccionado}
+                                                    disabled
                                                     options={usuarios_doctores_options_selecteds}
                                                     style={{
                                                       width: "100%",
@@ -2061,7 +1810,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={orden?.elaborado_por_nombre}
+                                                    value={correcion?.elaborado_por_nombre}
                                                     disabled />
                                                 </div>
                                               </Col>
@@ -2073,6 +1822,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             <Field
                                               as={TextArea}
                                               className="form-control"
+                                              readOnly
                                               name='observaciones'
                                               style={{
                                                 height: '180px'
@@ -2118,6 +1868,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_uno'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2136,6 +1887,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_dos'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2153,6 +1905,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_tres'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2170,6 +1923,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_cuatro'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2187,6 +1941,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                         >
                                           <Field
                                             name='l_cinco'
+                                            readOnly
                                             style={{
                                               width: '68px'
                                             }}
@@ -2200,16 +1955,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                   )}
                                 </Row>
                               </div>
-                              {/*  */}
-                              <button
-                                className="btn btn-success mt-3"
-                                type="submit"
-                              >
-                                Editar Receta
-                              </button>
-
-
-
                             </Form>
                           )}
                         </Formik>
@@ -2227,4 +1972,4 @@ const EditOrden = ({ fecha_solicitud }) => {
   )
 }
 
-export default EditOrden
+export default VerCorreccionOrdenes
