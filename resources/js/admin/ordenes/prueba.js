@@ -5,7 +5,7 @@ import {
     WhatsAppOutlined
 } from '@ant-design/icons';
 import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor } from '../../redux/features/ordenes/ordenesSlice';
-import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
+import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import { Modal, Tooltip, Skeleton, Table } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -21,7 +21,8 @@ const CollapsibleTable = (
         lenteContactoFiltro,
         statusFiltro,
         localEndDateFiltro,
-        localStartDateFiltro
+        localStartDateFiltro,
+        localSearch
     }
 
 ) => {
@@ -41,13 +42,17 @@ const CollapsibleTable = (
         sortColumn,
         sortOrder
     } = useSelector((state) => state.ordenes);
-    const { correcionesbyOrden } = useSelector((state) => state.correcionesordenes);
+    const { 
+        correcionesbyOrden,
+        contactoCorreccionOrden
+    } = useSelector((state) => state.correcionesordenes);
     const [urlPdfOrden, setUrlPdfOrden] = useState(null)
     const [loadingPdf, setLoadingPdf] = useState(false)
     const [currentPage, setCurrentPage] = useState(1);
     const [showContacto, setShowContacto] = useState(false);
+    const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
 
-    console.log('pagadoFiltro:',pagadoFiltro)
+    console.log('localSearch:',localSearch)
     useEffect(() => {
         dispatch(fecthOrdenes({
             page: currentPage,
@@ -62,7 +67,8 @@ const CollapsibleTable = (
             status: statusFiltro,
             lenteContacto: lenteContactoFiltro,
             fase: faseFiltro,
-            laboratorio: laboratorioFiltro
+            laboratorio: laboratorioFiltro,
+          
 
         }));
     }, [dispatch,
@@ -243,6 +249,19 @@ const CollapsibleTable = (
         }
     }
 
+    const handleVerContactoCorreccion = async (id) => {
+        const rpta = await dispatch(fetchContactoCorreccionesOrdenesDelPaciente(id))
+        if (rpta) {
+            setShowContactoCorrecion(true)
+        } else {
+            Swal.fire(
+                'Error',
+                'Hubo un problema al cargar los datos.',
+                'error'
+            );
+        }
+    }
+
     const formatDate = (dateString) => {
         if (!dateString) return ''
         const date = new Date(dateString);
@@ -307,7 +326,7 @@ const CollapsibleTable = (
                                                 </span>
                                             ) : null}
 
-                                            {orden.nro_orden}
+                                            {orden.nro_orden_id}
                                             {orden.lente_contacto ? (
                                                 <img
                                                     src="assets/img/recetas/lentesdecontacto.png"
@@ -583,7 +602,7 @@ const CollapsibleTable = (
                                                                                 </svg>
                                                                             </button>
                                                                             <button
-                                                                                onClick={() => handleVerContacto(correcion.ordenes_id)}
+                                                                                onClick={() => handleVerContactoCorreccion(correcion.id)}
                                                                                 className="btn btn-info"
                                                                                 style={{ display: 'flex', alignItems: 'center', background: 'green' }}
                                                                             >
@@ -776,6 +795,36 @@ const CollapsibleTable = (
                             },
                         ]}
                         dataSource={contactoOrden}
+                    />
+
+                </div>
+            </Modal>
+            <Modal
+                open={showContactoCorreccion}
+                zIndex={1000000000}
+                width={1000}
+                closable={true}
+                onClose={() => setShowContactoCorrecion(false)}
+                footer={null}
+                onCancel={() => setShowContactoCorrecion(false)}
+                height='100%'
+                centered={false}>
+                <div style={{ marginTop: '20px' }}>
+                    <div style={{ marginBottom: '10px', fontWeight: 600, fontSize: '18px' }}>Veces contactada: {contactoCorreccionOrden.length}</div>
+                    <Table
+                        className='Table-Orden-Contacts'
+                        columns={[
+                            { title: 'Usuario', dataIndex: 'nombre', key: 'nombre' },
+                            {
+                                title: 'Fecha',
+                                dataIndex: 'created_at',
+                                key: 'created_at',
+                                render: (text, record) => {
+                                    return formatDate(text)
+                                }
+                            },
+                        ]}
+                        dataSource={contactoCorreccionOrden}
                     />
 
                 </div>

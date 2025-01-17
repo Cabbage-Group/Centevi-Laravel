@@ -125,6 +125,7 @@ const ordenesSlice = createSlice({
     pacienteOrdenes: [],
     contactoOrden  : [],
     ordenes_options_selecteds: [],
+    nro_orden_auto: [],
     meta: {},
     status: 'idle',
     search: '',
@@ -178,6 +179,7 @@ const ordenesSlice = createSlice({
       .addCase(createOrdenes.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.ordenes.push(action.payload.data);
+        state.nro_orden_auto =  action.payload.data[0].nro_orden_id;
       })
       .addCase(createOrdenes.rejected, (state, action) => {
         state.status = 'failed';

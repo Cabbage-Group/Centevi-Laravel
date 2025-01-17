@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\correciones_ordenes;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContactoCorrecionesOrdenes;
 use App\Models\CorrecIonesOrdenes;
 use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Ordenes;
@@ -350,6 +351,7 @@ class CorrecionesOrdenesController extends Controller
             'ordenes.pagado as pagado_orden',
             'ordenes.lente_contacto as lente_contacto',
             'sucursales.nombre as sucursal',
+            'sucursales.ubicacion_maps as ubicacion_maps',
             DB::raw('CONCAT(pacientes.nombres, " ", pacientes.apellidos) as paciente_nombre_completo'),
             DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
           )
@@ -598,6 +600,31 @@ public function createFasesCorrecionesOrdenes(Request $request)
       ], 500);
     }
   }
+
+  public function verContactoCorreccionOrden($id_orden)
+  {
+
+    $data = ContactoCorrecionesOrdenes::join('usuarios','usuarios.id_usuario','contactos_correciones_ordenes.usuario_id')
+                    ->select(
+                      'contactos_correciones_ordenes.*',
+                      'usuarios.nombre',
+                    )
+                    ->where('contactos_correciones_ordenes.correccion_ordenes_id', $id_orden)
+                    ->orderBy('contactos_correciones_ordenes.created_at', 'desc')
+                    ->get();
+
+    return response()->json([
+      'data' => $data,
+      'respuesta' => true,
+      'status' => [
+        'code' => 200,
+        'message' => 'Contacto orders retrieved successfully',
+      ],
+      'mensaje' => 'Contactos de Órdenes del paciente obtenidas correctamente',
+    ], 200);
+  }
+
+  
 
 
 }

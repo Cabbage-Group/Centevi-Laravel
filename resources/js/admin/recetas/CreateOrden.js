@@ -32,6 +32,9 @@ const CreateOrden = () => {
   const [isRowVisible, setIsRowVisible] = useState(true);
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
+  const { nro_orden_auto } = useSelector((state) => state.ordenes);
+
+  console.log('nro_orden_auto:',nro_orden_auto)
 
   useEffect(() => {
     if (id && pacientes_options_selecteds.length > 0) {
@@ -40,7 +43,6 @@ const CreateOrden = () => {
   }, [id, pacientes_options_selecteds]);
 
   const initialValues = {
-    nro_orden: "",
     id_paciente: "  ",
     id_sucursal: "",
     esfera_od: "",
@@ -89,10 +91,6 @@ const CreateOrden = () => {
 
 
   const validationSchema = Yup.object().shape({
-    nro_orden: Yup.number()
-      .integer("Debe ser un número entero")
-      .typeError("Debe ser un número")
-      .required("El número de orden es obligatorio"),
     id_paciente: Yup.number().nullable()
       .integer("Debe ser un número entero")
       .typeError("Debe ser un número")
@@ -273,12 +271,12 @@ const CreateOrden = () => {
     };
     console.log('transformedValues:', transformedValues);
     const result = await dispatch(createOrdenes(transformedValues));
-
     if (result.meta.requestStatus === 'fulfilled') {
+      console.log('result:', result);
       Swal.fire({
         icon: 'success',
         title: 'Receta creada',
-        text: 'La receta se ha creado exitosamente.',
+        html: `La receta se ha creado exitosamente. Número de orden: <b style="font-size: 25px;">${result.payload.data[0].nro_orden_id}</b>`,
       }).then(() => {
         navigate(-1);
       });
@@ -375,11 +373,6 @@ const CreateOrden = () => {
                                   <h4>Nro. Orden*</h4>
                                   <Input
                                     name="nro_orden"
-                                    value={values.nro_orden}
-                                    onChange={(e) => {
-                                      const onlyNumbers = e.target.value.replace(/\D/g, "");
-                                      setFieldValue("nro_orden", onlyNumbers);
-                                    }}
                                     placeholder="Ingrese el número de orden"
                                     style={{
                                       color: "red",
@@ -387,6 +380,7 @@ const CreateOrden = () => {
                                       marginBottom: "1rem",
                                       height: '40px',
                                     }}
+                                    disabled
                                   />
 
                                   <ErrorMessage
