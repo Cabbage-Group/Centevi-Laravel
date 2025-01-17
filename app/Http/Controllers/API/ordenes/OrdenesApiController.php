@@ -944,9 +944,12 @@ class OrdenesApiController extends Controller
   {
 
     $orden = Ordenes::join('sucursales', 'sucursales.id_sucursal', 'ordenes.id_sucursal')
+      ->join('pacientes','pacientes.id_paciente','ordenes.id_paciente')
       ->select(
         'ordenes.*',
         'sucursales.nombre',
+        'pacientes.nombres',
+        'pacientes.apellidos',
       )
       ->where('ordenes.id_orden', $id_orden)
       ->first();
@@ -988,6 +991,7 @@ class OrdenesApiController extends Controller
       'tratamientos_oi' => $orden['tratamientos_oi'],
       'tratamientos_od' => $orden['tratamientos_od'],
       'sucursal' => $orden['nombre'] ?? '',
+      'nombres_apellidos_paciente' => ($orden['nombres'] ?? '') . ' ' . ($orden['apellidos'] ?? '')
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);
