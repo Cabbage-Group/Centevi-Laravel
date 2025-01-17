@@ -25,7 +25,7 @@ class ContactoOrden extends Model
 
     public function faseOrden()
     {
-        return $this->belongsTo(FasesOrdenes::class, 'fase_orden_id');
+        return $this->belongsTo(FasesOrdenes::class, 'tipo_fase_orden_id');
     }
 
     

@@ -242,9 +242,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud }) => {
   
   
     useEffect(() => {
-      dispatch(fetchSucursales({ page: 1, limit: 100 }));
-      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-      dispatch(fetchUsuarios({}))
+      // dispatch(fetchSucursales({ page: 1, limit: 100 }));
+      // dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+      // dispatch(fetchUsuarios({}))
     }, []);
   
     const handleSubmit = async (values) => {

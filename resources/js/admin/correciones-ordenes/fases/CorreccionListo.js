@@ -11,6 +11,8 @@ import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFas
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VecesContacto from '../../recetas/VecesContacto';
 import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
+import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
+import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 
 const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
 
@@ -25,15 +27,13 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
   const [laboratorio, setLaboratorio] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
   const { correcion } = location.state || {};
-  const [celular, setCelular] = useState('');
+  const [celular, setCelular] = useState(correcion?.celular);
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(correcion?.id_paciente);
-  const { pacientes } = useSelector((state) => state.pacientes);
-  const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.sucursal?.ubicacion_maps);
+  const [nombrePaciente, setNombrePaciente] = useState(correcion?.paciente_nombre_completo);
+  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal);
+  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -43,27 +43,11 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
     }
   }, [])
 
-  useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
+  // useEffect(() => {
+  //   dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+  // }, []);
 
-  useEffect(() => {
-    if (selectedPaciente) {
-      const pacienteSeleccionado = pacientes.find(
-        (paciente) => paciente.id_paciente === selectedPaciente
-      );
-      if (pacienteSeleccionado) {
-        setCelular(pacienteSeleccionado?.celular || '');
-        setNombrePaciente(pacienteSeleccionado?.nombres || '');
-      } else {
-        setCelular('');
-
-      }
-    } else {
-      setCelular('');
-    }
-  }, [selectedPaciente, pacientes]);
-
+ 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFase2 = tiposFasesOrdenes.find(fase =>
@@ -175,15 +159,15 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
-      tipo_fase_orden_id: tipoFaseId,
+      correccion_ordenes_id: correcion?.id,
+      tipo_fase_cr_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
     };
 
     try {
       // Llamar a la API
-      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      await dispatch(createContactoCorreccionOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
       // Abrir enlace de WhatsApp
@@ -252,7 +236,7 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContacto id_orden={correccionOrderId} />
+            <VecesContactoCorrecciones id={correccionOrderId} />
             <Button
               style={{ marginLeft: '10px' }}
               onClick={handleContactarPaciente}

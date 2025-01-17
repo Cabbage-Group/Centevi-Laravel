@@ -51,35 +51,7 @@ const VerOrdenes = () => {
     );
   };
 
-  const {
-    correcionesordenes,
-  } = useSelector((state) => state.correcionesordenes);
-
-  useEffect(() => {
-    dispatch(fecthCorrecionesOrdenes({
-      page: 1,
-      limit: 10,
-      sortColumn,
-      sortOrder,
-    }));
-  }, [dispatch,
-    sortColumn,
-    sortOrder]);
-
-
-  const {
-    ordenes,
-    status,
-    error,
-    meta,
-    search,
-    totalPages,
-    startDate,
-    endDate,
-    contactoOrden,
-    sortColumn,
-    sortOrder } = useSelector((state) => state.ordenes);
-
+ 
   const handleSortCorreciones = (newOrdenPor) => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
   };
@@ -132,6 +104,7 @@ const VerOrdenes = () => {
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
+    
   };
 
   const formatDate = (dateString) => {
@@ -181,77 +154,7 @@ const VerOrdenes = () => {
   };
 
 
-  const handleEliminarOrden = async (id_orden) => {
-    try {
-      const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: "¡No podrás recuperar esta orden después de eliminarla!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      });
 
-      if (result.isConfirmed) {
-        await dispatch(deleteOrdenes(id_orden));
-        dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
-
-        Swal.fire(
-          'Eliminado!',
-          'La orden ha sido eliminada.',
-          'success'
-        );
-      }
-    } catch (error) {
-      Swal.fire(
-        'Error',
-        'Hubo un problema al eliminar la orden.',
-        'error'
-      );
-    }
-  };
-
-  const handleVerContacto = async (id_orden) => {
-    const rpta = await dispatch(fetchContactoOrdenesDelPaciente(id_orden))
-    if (rpta) {
-      setShowContacto(true)
-    } else {
-      Swal.fire(
-        'Error',
-        'Hubo un problema al cargar los datos.',
-        'error'
-      );
-    }
-  }
-
-  const handleVerOrden = async (id_orden) => {
-
-    try {
-      setLoadingPdf(true)
-      setShowOrden(true)
-      const url = await dispatch(verOrdenPdf(id_orden))
-      if (url) {
-        setUrlPdfOrden(url.payload)
-      } else {
-        Swal.fire(
-          'Error',
-          'Hubo un problema al visualizar la orden.',
-          'error'
-        );
-      }
-    } catch (error) {
-      console.log(error)
-      Swal.fire(
-        'Error',
-        'Hubo un problema al visualizar la orden.',
-        'error'
-      );
-      setLoadingPdf(false)
-    }
-    setLoadingPdf(false)
-  }
   const handleLenteContactoChange = (value) => {
     setLenteContactoFilter(value);
   };
@@ -279,11 +182,6 @@ const VerOrdenes = () => {
     dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
   };
 
-  const showModal = (orden, idorden) => {
-    setModalData(orden);
-    setIdOrden(idorden)
-    setIsModalVisible(true);
-  };
 
   const handleCancel = () => {
     setIsModalVisible(false);
@@ -537,7 +435,7 @@ const VerOrdenes = () => {
                        statusFiltro={statusFilter}
                        localEndDateFiltro={localEndDate}
                        localStartDateFiltro={localStartDate}
-                 
+                       
                     />
                 </div>
               </div>

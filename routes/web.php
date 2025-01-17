@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\API\contacto_correcciones_ordenes\ContactosCorreccionesOrdenesApiController;
 use App\Http\Controllers\API\Documentos\DocumentosPacientesApiController;
 use App\Http\Controllers\API\tipos_permisos\TiposPermisosController;
 use Illuminate\Support\Facades\Route;
@@ -16,8 +17,8 @@ use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
-use App\Http\Controllers\Api\correciones_ordenes\CorrecionesOrdenesController;
-use App\Http\Controllers\API\Kpis\KpisApiController;
+use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
+use App\Http\Controllers\API\kpis\KpisApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
@@ -312,6 +313,18 @@ Route::get('/api/fases-correciones-ordenes', [CorrecionesOrdenesController::clas
 Route::post('/api/create-fases-correciones-ordenes', [CorrecionesOrdenesController::class, 'createFasesCorrecionesOrdenes']);
 
 Route::put('/api/fases-correciones-ordenes/{id}', [CorrecionesOrdenesController::class, 'updateFasesCorreccionesOrdenes']);
+
+Route::get('/api/correciones-ordenes/contacto-correccion-orden/{id}', [CorrecionesOrdenesController::class, 'verContactoCorreccionOrden']);
+
+Route::get('/api/cont-correccion-orden', [ContactosCorreccionesOrdenesApiController::class, 'index']);
+
+Route::post('/api/cont-correccion-orden', [ContactosCorreccionesOrdenesApiController::class, 'store']);
+
+Route::delete('/api/migration', [OrdenesApiController::class, 'migrarNroOrdenes']);
+
+Route::get('/api/allordenes', [OrdenesApiController::class, 'getOrdenesConTotal']);
+
+
 
 Route::get('/{any}', function () {
   return view('app');
