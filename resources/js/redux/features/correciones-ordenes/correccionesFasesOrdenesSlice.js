@@ -62,30 +62,6 @@ const fasesCorrecionesOrdenesSlice = createSlice({
         actualizarDatosFaseCorrecciones: (state, action) => {
             state.nuevaDataCorrecciones = action.payload;
         },
-        setPagadoFilter: (state, action) => {
-            state.pagado = action.payload;
-        },
-        setLaboratorioFilter: (state, action) => {
-            state.laboratorio = action.payload;
-        },
-        setTipoLenteFilter: (state, action) => {
-            state.tipoLente = action.payload;
-        },
-        setFaseFilter: (state, action) => {
-            state.fase = action.payload;
-        },
-        setSucursalFilter: (state, action) => {
-            state.sucursal = action.payload;
-        },
-        setStatusFilter: (state, action) => {
-            state.statusOrden = action.payload;
-        },
-        setFechaInicioFilter: (state, action) => {
-            state.fechaInicio = action.payload;
-        },
-        setFechaFinFilter: (state, action) => {
-            state.fechaFin = action.payload;
-        },
     },
     extraReducers: (builder) => {
         builder
@@ -129,15 +105,7 @@ const fasesCorrecionesOrdenesSlice = createSlice({
 });
 
 export const { 
-    actualizarDatosFaseCorrecciones, 
-    setPagadoFilter,
-    setLaboratorioFilter,
-    setTipoLenteFilter,
-    setFaseFilter,
-    setSucursalFilter,
-    setStatusFilter,
-    setFechaInicioFilter,
-    setFechaFinFilter
+    actualizarDatosFaseCorrecciones
  } = fasesCorrecionesOrdenesSlice.actions;
 
 export default fasesCorrecionesOrdenesSlice.reducer;

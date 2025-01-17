@@ -33,6 +33,15 @@ const CreateOrden = () => {
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
   const { nro_orden_auto } = useSelector((state) => state.ordenes);
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
+  const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
+  const [aroCentevi, setAroCentevi] = useState(false);
+  const [tipoAro, setTipoAro] = useState(null);
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState(null)
+  const [isLeftEye, setIsLeftEye] = useState(false);
+  const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
+  const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
   console.log('nro_orden_auto:',nro_orden_auto)
 
@@ -112,15 +121,7 @@ const CreateOrden = () => {
       .required("Seleccione un doctor"),
   });
 
-  const [serviciosRealizados, setServiciosRealizados] = useState([]);
-  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
-  const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
-  const [aroCentevi, setAroCentevi] = useState(false);
-  const [tipoAro, setTipoAro] = useState(null);
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(null)
-  const [isLeftEye, setIsLeftEye] = useState(false);
-  const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
-  const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
+
 
 
 

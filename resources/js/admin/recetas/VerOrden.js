@@ -461,11 +461,11 @@ const VerOrden = ({ fecha_solicitud }) => {
                                   <h4>Nro. Orden*</h4>
                                   <Input
                                     name="nro_orden"
-                                    value={values.nro_orden}
+                                    value={values.nro_orden_id}
                                     readOnly
                                     onChange={(e) => {
                                       const onlyNumbers = e.target.value.replace(/\D/g, "");
-                                      setFieldValue("nro_orden", onlyNumbers);
+                                      setFieldValue("nro_orden_id", onlyNumbers);
                                     }}
                                     placeholder="Ingrese el número de orden"
                                     style={{

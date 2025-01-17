@@ -159,11 +159,11 @@ const ordenesSlice = createSlice({
         state.meta = action.payload.meta;
 
         state.ordenes_options_selecteds = action.payload.data.map((
-          { id_orden, nro_orden, paciente, ...rest }) =>
+          { id_orden, nro_orden_id, paciente, ...rest }) =>
             paciente?.id_paciente && paciente?.nombres && paciente?.apellidos
             ? {
                 value: id_orden,
-                label: `Nro Orden: ${nro_orden} || Nombre: ${paciente.nombres.trim()} ${paciente.apellidos.trim()}`,
+                label: `Nro Orden: ${nro_orden_id} || Nombre: ${paciente.nombres.trim()} ${paciente.apellidos.trim()}`,
                 ...rest
             } :
             { ...rest }

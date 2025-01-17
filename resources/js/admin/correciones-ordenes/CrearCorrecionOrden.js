@@ -75,6 +75,7 @@ const CreateCorrecionOrden = () => {
 
     const initialValues = {
         ordenes_id: orden?.id_orden ,
+        nro_orden_id: orden?.nro_orden_id,
         esfera_od: orden?.esfera_od,
         esfera_oi: orden?.esfera_oi,
         cilindro_od: orden?.cilindro_od,
@@ -398,7 +399,7 @@ const CreateCorrecionOrden = () => {
                                                                         onChange={(value) => {
                                                                             console.log('value:', value)
                                                                             setSelectedOrden(value); // Actualizar el estado con el paciente seleccionado
-                                                                            setFieldValue("ordenes_id", value); // También actualizar el campo de Formik
+                                                                            setFieldValue("nro_orden_id", value); // También actualizar el campo de Formik
                                                                         }}
                                                                         placeholder="Seleccione el orden"
                                                                         loading={ordenes_options_selecteds.length === 0}

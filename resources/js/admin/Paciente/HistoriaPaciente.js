@@ -250,19 +250,34 @@ const HistoriaPaciente = () => {
     }
   };
 
-  const handlePagoToggle = async (id_orden, data, nro_orden) => {
+  const handlePagoToggle = async (id_orden, estadoActual) => {
     try {
+      const estado = parseInt(estadoActual);
+      let nuevoEstado;
+      console.log('estadoActual:', estadoActual)
+      if (estado === 0) {
+        console.log('entre a abonado')
+        nuevoEstado = 2;
+      } else if (estado === 2) {
+        console.log('entre a pagado')
+        nuevoEstado = 1;
+      } else {
+        console.log('entre a no pagado')
+        nuevoEstado = 0;
+      }
 
+      console.log('nuevoEstado:', nuevoEstado)
       const payload = {
-        pagado: !data,
-        nro_orden,
+        pagado: nuevoEstado
       };
+      console.log('payload:', payload)
       await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
-      dispatch(fetchOrdenesDelPaciente(id));
+       dispatch(fetchOrdenesDelPaciente(id));
+
     } catch (err) {
       console.error('Error al actualizar el estado de pagado:', err);
     }
-  };
+  }
 
   const handleFileUpload = (e) => {
     console.log("Enviar...");
@@ -2262,7 +2277,7 @@ const HistoriaPaciente = () => {
                                     <tr key={pacienteOrden.id_orden}>
                                       <td className="text-center">{index + 1}</td>
                                       <td>
-                                        {pacienteOrden.nro_orden}
+                                        {pacienteOrden.nro_orden_id}
                                         {pacienteOrden.lente_contacto ? (
                                           <img
                                             src="/assets/img/recetas/lentesdecontacto.png"
@@ -2279,16 +2294,25 @@ const HistoriaPaciente = () => {
                                       </td>
                                       <td>
                                         <button
-                                          className={`btn btn-xs ${pacienteOrden.pagado ? 'btn-success' : 'btn-danger'}`}
-                                          onClick={() => handlePagoToggle(pacienteOrden.id_orden, pacienteOrden.pagado, pacienteOrden.nro_orden)}
+                                          className={`btn btn-xs ${parseInt(pacienteOrden.pagado) === 1
+                                            ? 'btn-success'
+                                            : parseInt(pacienteOrden.pagado) === 2
+                                                ? 'btn-warning'
+                                                : 'btn-danger'
+                                            }`}
+                                          onClick={() => handlePagoToggle(pacienteOrden.id_orden, parseInt(pacienteOrden.pagado))}
                                           style={{ minWidth: '100px' }}
                                         >
-                                          {pacienteOrden.pagado ? 'Pagado' : 'Sin Pago'}
+                                          {parseInt(pacienteOrden.pagado) === 1
+                                                    ? 'pagado'
+                                                    : parseInt(pacienteOrden.pagado) === 2
+                                                        ? 'abonado'
+                                                        : 'sin pago'}
                                         </button>
                                       </td>
                                       <td>{moment(pacienteOrden.created_at).format('DD/MM/YYYY')}</td>
                                       <td>{pacienteOrden?.sucursal?.nombre || ""}</td>
-                                      <td style={{display:'flex', alignItems:'center'}}>
+                                      <td style={{ display: 'flex', alignItems: 'center' }}>
                                         <button
                                           onClick={() => handleVerOrden(pacienteOrden.id_orden)}
                                           className="btn btn-primary btnEditarConsultaCG btn mb-2 p-1 mr-2 rounded-circle"

@@ -24,15 +24,16 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   const [laboratorio, setLaboratorio] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
   const { orden } = location.state || {};
+  const { pacienteOrden } = location.state || {};
   const [celular, setCelular] = useState('');
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal.nombre);
+  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.sucursal.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
@@ -124,7 +125,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-  const statusToDisplay = orden?.status;
+  const statusToDisplay = orden?.status || pacienteOrden?.status;
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -168,7 +169,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
+      ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
       tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1

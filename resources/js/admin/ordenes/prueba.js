@@ -27,7 +27,7 @@ const CollapsibleTable = (
 
 ) => {
     const dispatch = useDispatch();
-    const [collapsedordens, setCollapsedordens] = useState([]);
+    const [collapsedordens, setCollapsedordens] = useState();
     const [selectedOrdenId, setSelectedOrdenId] = useState(null);
     const [showOrden, setShowOrden] = useState(false);
     const {
@@ -96,19 +96,16 @@ const CollapsibleTable = (
     };
 
     const toggleorden = (index, ordenId) => {
-        setCollapsedordens(prevState =>
-            prevState.includes(index)
-                ? prevState.filter(orden => orden !== index)
-                : [...prevState, index]
-        );
-
-        if (!collapsedordens.includes(index)) {
+        setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
+    
+        if (collapsedordens !== index) {
             setSelectedOrdenId(ordenId);
             dispatch(fetchCorreccionesByOrdenId(ordenId)); 
         }
     };
+    
 
-    const handlePagoToggle = async (id_orden, estadoActual, nro_orden) => {
+    const handlePagoToggle = async (id_orden, estadoActual) => {
         try {
             const estado = parseInt(estadoActual);
             let nuevoEstado;
@@ -126,12 +123,25 @@ const CollapsibleTable = (
 
             console.log('nuevoEstado:', nuevoEstado)
             const payload = {
-                pagado: nuevoEstado,
-                nro_orden,
+                pagado: nuevoEstado
             };
             console.log('payload:', payload)
             await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
-            dispatch(fecthOrdenes({ page: currentPage, limit: 20 }));
+            dispatch(fecthOrdenes({
+                page: currentPage,
+                limit: 20,
+                sortColumn,
+                sortOrder,
+                search,
+                startDate,
+                endDate,
+                pagado: pagadoFiltro,
+                sucursal: sucursalFiltro,
+                status: statusFiltro,
+                lenteContacto: lenteContactoFiltro,
+                fase: faseFiltro,
+                laboratorio: laboratorioFiltro,
+            }));
         } catch (err) {
             console.error('Error al actualizar el estado de pagado:', err);
         }
@@ -179,7 +189,21 @@ const CollapsibleTable = (
 
             if (result.isConfirmed) {
                 await dispatch(deleteOrdenes(id_orden));
-                dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
+                dispatch(fecthOrdenes({
+                    page: currentPage,
+                    limit: 20,
+                    sortColumn,
+                    sortOrder,
+                    search: search,
+                    startDate,
+                    endDate,
+                    pagado: pagadoFiltro,
+                    sucursal: sucursalFiltro,
+                    status: statusFiltro,
+                    lenteContacto: lenteContactoFiltro,
+                    fase: faseFiltro,
+                    laboratorio: laboratorioFiltro,                     
+                }));
 
                 Swal.fire(
                     'Eliminado!',
@@ -210,14 +234,25 @@ const CollapsibleTable = (
             });
     
             if (result.isConfirmed) {
-                await dispatch(deleteCorreccionesOrdenes(id_orden));
-                dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
-    
-                setCollapsedordens(prevState =>
-                    prevState.filter(orden => orden !== index)
-                );
+                await dispatch(deleteCorreccionesOrdenes(id_orden));   
+                setCollapsedordens(prevState => (prevState === index ? null : prevState));            
+                dispatch(fecthOrdenes({
+                    page: currentPage,
+                    limit: 20,
+                    sortColumn,
+                    sortOrder,
+                    search: search,
+                    startDate,
+                    endDate,
+                    pagado: pagadoFiltro,
+                    sucursal: sucursalFiltro,
+                    status: statusFiltro,
+                    lenteContacto: lenteContactoFiltro,
+                    fase: faseFiltro,
+                    laboratorio: laboratorioFiltro,                     
+                }));
 
-                dispatch(fetchCorreccionesByOrdenId(id_orden));
+                // dispatch(fetchCorreccionesByOrdenId(id_orden));
     
                 Swal.fire(
                     'Eliminado!',
@@ -314,20 +349,20 @@ const CollapsibleTable = (
                         </thead>
                         <tbody>
                             {ordenes?.map((orden, index) => (
-                                <React.Fragment key={orden.id_orden}>
+                                <React.Fragment key={orden?.id_orden}>
                                     <tr>
                                         <td>
                                         {orden?.correccion ? (
                                                 <span
                                                     style={{ cursor: 'pointer' }}
-                                                    onClick={() => toggleorden(index, orden.id_orden)}
+                                                    onClick={() => toggleorden(index, orden?.id_orden)}
                                                 >
-                                                    {collapsedordens.includes(index) ? '▲' : '▼'}
+                                                     {collapsedordens === index ? '▲' : '▼'}
                                                 </span>
                                             ) : null}
 
-                                            {orden.nro_orden_id}
-                                            {orden.lente_contacto ? (
+                                            {orden?.nro_orden_id}
+                                            {orden?.lente_contacto ? (
                                                 <img
                                                     src="assets/img/recetas/lentesdecontacto.png"
                                                     alt="Lente Contacto True"
@@ -349,8 +384,8 @@ const CollapsibleTable = (
                                                         ? 'btn-warning'
                                                         : 'btn-danger'
                                                     }`}
-                                                onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado), orden.nro_orden)}
-                                                style={{ minWidth: '50px' }}
+                                                onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado))}
+                                                style={{ minWidth: '100px' }}
                                             >
                                                 {parseInt(orden.pagado) === 1
                                                     ? 'pagado'
@@ -481,7 +516,7 @@ const CollapsibleTable = (
 
                                     </tr>
 
-                                    {collapsedordens.includes(index) && (
+                                    {collapsedordens === index && (
                                         <tr>
                                             <td colSpan="10" style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
                                                 <table className="table dt-table-hover">
@@ -491,10 +526,10 @@ const CollapsibleTable = (
                                                             ?.filter(
                                                                 (correcion) => correcion.ordenes_id === orden.id_orden
                                                             )
-                                                            .map((correcion) => (
+                                                            .map((correcion,idx) => (
                                                                 <tr key={correcion.id}>
 
-                                                                    <td style={{ width: columnWidths.nroOrden }}>{correcion.nro_orden}</td>
+                                                                    <td style={{ width: columnWidths.nroOrden }}> {correcion.nro_orden_id}-C{idx + 1}</td>
                                                                     <td style={{ width: columnWidths.pagado }} >
                                                                         <button
                                                                             className={`btn btn-xs ${parseInt(orden.pagado) === 1
@@ -554,7 +589,15 @@ const CollapsibleTable = (
                                                                                 to={`/correciones-ordenes/${correcion.id}`}
                                                                                 className="btn btn-warning btnEditarReceta"
                                                                                 state={{
-                                                                                    correcion
+                                                                                    correcion,
+                                                                                    pagadoFiltro,
+                                                                                    sucursalFiltro,
+                                                                                    laboratorioFiltro,
+                                                                                    faseFiltro,
+                                                                                    lenteContactoFiltro,
+                                                                                    statusFiltro,
+                                                                                    localStartDateFiltro,
+                                                                                    localEndDateFiltro 
                                                                                   
                                                                                 }}
                                                                                 data-target="#modalEditarSucursal"

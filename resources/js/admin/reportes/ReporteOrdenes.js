@@ -601,6 +601,19 @@ const ReporteOrdenes = () => {
                             </th>
                             <th
                               aria-controls="zero-config"
+                              aria-label={`tipo_cristal_od_codigo: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${sortOrder}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('tipo_cristal_od_codigo' || 'tipo_cristal_oi_codigo')}
+
+                            >
+                              CODIGO TIPO CRISTAL
+                            </th>
+                            <th
+                              aria-controls="zero-config"
                               aria-label={`status: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
                               className={`sorting ${sortOrder}`}
                               colSpan="1"
@@ -728,6 +741,7 @@ const ReporteOrdenes = () => {
                                     />
                                   )}
                                   </td>
+                                  <td>{rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo}</td>
                                   <td>
                                     <Tooltip title={rpOrden?.status ?? ""}>
                                       <span
