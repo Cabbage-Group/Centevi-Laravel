@@ -6,38 +6,38 @@ import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
-import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
-import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
-import VecesContacto from '../../VecesContacto';
+import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
+import VecesContacto from '../../recetas/VecesContacto';
+import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
+import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 
-const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
+const CorreccionEnConfeccion = ({ tipoFaseId,isDisabled }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const [observaciones, setObservaciones] = useState('');
-  const { orderId } = useParams();
+  const { correccionOrderId } = useParams();
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
-  const { orden } = location.state || {};
+  const { correcion } = location.state || {};
   const [celular, setCelular] = useState('');
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const [selectedPaciente, setSelectedPaciente] = useState(correcion?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal?.nombre);
+  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
-    if (orderId) {
-      dispatch(fecthTiposFasesOrdenes(orderId));
+    if (correccionOrderId) {
+      dispatch(fecthTiposFasesOrdenes(correccionOrderId));
     }
   }, []);
 
@@ -67,13 +67,13 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFaseAnterior = tiposFasesOrdenes.find(fase =>
-        fase.fases_ordenes.some(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
+        fase.fases_correcciones_ordenes.some(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
         )
       );
       if (tipoFaseAnterior) {
-        const faseOrdenAnterior = tipoFaseAnterior.fases_ordenes.find(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
+        const faseOrdenAnterior = tipoFaseAnterior.fases_correcciones_ordenes.find(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
         );
         if (faseOrdenAnterior) {
           setLaboratorio(faseOrdenAnterior.laboratorio);
@@ -81,18 +81,18 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
         }
       }
     }
-  }, [tiposFasesOrdenes, orderId]);
+  }, [tiposFasesOrdenes, correccionOrderId]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFase = tiposFasesOrdenes.find(fase =>
-        fase.fases_ordenes.some(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        fase.fases_correcciones_ordenes.some(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
         )
       );
       if (tipoFase) {
-        const faseOrden = tipoFase.fases_ordenes.find(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        const faseOrden = tipoFase.fases_correcciones_ordenes.find(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
         );
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
@@ -102,16 +102,16 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
         }
       }
     }
-  }, [tiposFasesOrdenes, orderId, tipoFaseId]);
+  }, [tiposFasesOrdenes, correccionOrderId, tipoFaseId]);
 
   useEffect(() => {
     const nuevaFase = {
-      tipo_fase_orden_id: tipoFaseId,
+      tipo_fase_correccion_orden_id: tipoFaseId,
       laboratorio: laboratorio,
       observacion: observaciones,
       fecha_fase: fechaActual,
     };
-    dispatch(actualizarDatosFase(nuevaFase));
+    dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
   }, [observaciones, fechaActual, tipoFaseId, dispatch]);
 
   const getColorForStatus = (status) => {
@@ -124,7 +124,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-  const statusToDisplay = orden?.status;
+  const statusToDisplay = correcion?.status;
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -244,7 +244,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContacto id_orden={orderId} />
+            <VecesContacto id_orden={correccionOrderId} />
             <Button
               style={{ marginLeft: '10px' }}
               onClick={handleContactarPaciente}
@@ -259,4 +259,4 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   );
 }
 
-export default EnConfeccion;
+export default CorreccionEnConfeccion;

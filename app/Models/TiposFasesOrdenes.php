@@ -19,4 +19,9 @@ class TiposFasesOrdenes extends Model
   {
     return $this->hasMany(FasesOrdenes::class, 'tipo_fase_orden_id');
   }
+
+  public function fasesCorreccionesOrdenes()
+  {
+    return $this->hasMany(FasesCorreccionesOrdenes::class, 'tipo_fase_correccion_orden_id');
+  }
 }

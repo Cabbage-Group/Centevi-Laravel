@@ -302,7 +302,7 @@ class OrdenesApiController extends Controller
       'l_tres' => '',
       'l_cuatro' => '',
       'l_cinco' => '',
-      'pagado' => '',
+      'pagado' => 0,
       'lente_contacto' => 0
 
     ];
@@ -433,7 +433,7 @@ class OrdenesApiController extends Controller
   public function tipoFasesOrdenes()
   {
 
-    $tiposFases = TiposFasesOrdenes::with('fasesOrdenes')->get();
+    $tiposFases = TiposFasesOrdenes::with(['fasesOrdenes', 'fasesCorreccionesOrdenes'])->get();
     return response()->json([
       'data' => $tiposFases,
       'status' => [
@@ -997,3 +997,4 @@ class OrdenesApiController extends Controller
     ]);
   }
 }
+

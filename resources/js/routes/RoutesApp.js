@@ -70,6 +70,13 @@ import ReporteOrdenes from '../admin/reportes/ReporteOrdenes.js';
 import VerOrden from '../admin/recetas/VerOrden.js';
 import VerUnaOrden from '../admin/recetas/ordenes/VerUnaOrden.js';
 import VerKpis from '../admin/kpis/VerKpis.js';
+import VerCorrecionesOrdenes from '../admin/correciones-ordenes/VerCorrecionesOrdenes.js';
+import CreateCorrecionOrden from '../admin/correciones-ordenes/CrearCorrecionOrden.js';
+import CorrecionOrdenes from '../admin/correciones-ordenes/CorrecionOrden.js';
+import CorrecionOrden from '../admin/correciones-ordenes/CorrecionOrden.js';
+import VerUnaCorrecionOrden from '../admin/correciones-ordenes/VerUnaCorrecionOrdenes.js';
+import VerUnaCorrecionOrdenes from '../admin/correciones-ordenes/VerUnaCorrecionOrdenes.js';
+
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -206,6 +213,14 @@ const RoutesApp = () => {
 
           <Route path="/ver-kpis" element={<Sidebar component={<VerKpis />} />} />
 
+          <Route path="/ver-correciones-ordenes" element={<Sidebar component={<VerCorrecionesOrdenes />} />} />
+
+          <Route path="/ver-correcion-orden/:correccionOrderId" element={<Sidebar component={<VerUnaCorrecionOrdenes />} />} />
+
+          <Route path="/crear-correciones-ordenes" element={<Sidebar component={<CreateCorrecionOrden />} />} />
+
+          
+          <Route path="/correciones-ordenes/:correccionOrderId" element={<Sidebar component={<CorrecionOrden />} />} />
 
         </Route>
 
