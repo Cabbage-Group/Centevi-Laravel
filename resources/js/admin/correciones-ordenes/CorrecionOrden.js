@@ -24,7 +24,7 @@ import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesO
 
 import { createContactoOrden } from '../../redux/features/contacto-orden/ContactoOrdenSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
-import EditarCorrecionOrden from './EditarCorrecionorden';
+import EditarCorrecionOrden from './EditarCorrecionOrden';
 import { createFasesOrdenes } from '../../redux/features/ordenes/fasesOrdenesSlice';
 import { createCorreccionesFasesOrdenes } from '../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
 import CorreccionNuevo from './fases/CorreccionNuevo';
