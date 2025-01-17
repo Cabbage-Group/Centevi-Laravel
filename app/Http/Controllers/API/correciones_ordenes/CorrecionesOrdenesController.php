@@ -10,6 +10,7 @@ use App\Models\Ordenes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CorrecionesOrdenesController extends Controller
 {
@@ -624,7 +625,75 @@ public function createFasesCorrecionesOrdenes(Request $request)
     ], 200);
   }
 
-  
+  public function getOrdenCorrecionPdf($id_orden)
+  {
+    $orden = CorrecionesOrdenes::with([
+      ])
+        ->join('ordenes', 'correciones_ordenes.ordenes_id', '=', 'ordenes.id_orden') 
+        ->join('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
+        ->join('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+        ->select(
+          'correciones_ordenes.*',
+          'sucursales.nombre',
+          'pacientes.nombres',
+          'pacientes.apellidos',
+          'ordenes.nro_orden',
+          'ordenes.id_orden as id_orden',
+        )->where('correciones_ordenes.id',$id_orden)->first();
 
 
+    $idCorrelativo = CorrecionesOrdenes::with([
+      ])
+      ->where('correciones_ordenes.id','<=',$id_orden)
+      ->where('correciones_ordenes.ordenes_id',$orden['id_orden'])
+      ->orderBy('id')
+      ->count();
+
+    $data = [
+      'fecha_solicitud' => $orden['created_at'],
+      'nro_orden' => $orden['nro_orden'].' - C'.$idCorrelativo,
+      'lenteContacto' => false,
+      'esfera_od' => $orden['esfera_od'],
+      'cilindro_od' => $orden['cilindro_od'],
+      'eje_od' => $orden['eje_od'],
+      'add_od' => $orden['add_od'],
+      'prisma_od' => $orden['prisma_od'],
+      'distancia_od' => $orden['distancia_od'],
+      'altura_od' => $orden['altura_od'],
+      'esfera_oi' => $orden['esfera_oi'],
+      'cilindro_oi' => $orden['cilindro_oi'],
+      'eje_oi' => $orden['eje_oi'],
+      'add_oi' => $orden['add_oi'],
+      'prisma_oi' => $orden['prisma_oi'],
+      'distancia_oi' => $orden['distancia_oi'],
+      'altura_oi' => $orden['altura_oi'],
+      'material_od' => $orden['material_od'],
+      'material_oi' => $orden['material_oi'],
+      'tipo_cristal_od' => $orden['tipo_cristal_od'],
+      'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+      'l_uno' => $orden['l_uno'],
+      'l_dos' => $orden['l_dos'],
+      'l_tres' => $orden['l_tres'],
+      'l_cuatro' => $orden['l_cuatro'],
+      'l_cinco' => $orden['l_cinco'],
+      'color' => $orden['color'] ?? "_",
+      'codigo' => $orden['codigo'] ?? "_",
+      'marca' => $orden['marca'] ?? "_",
+      'tipo_aro' => $orden['tipo_aro'] ?? "_",
+      'observaciones' => $orden['observaciones'] ?? "_",
+      'aro_centevi' => $orden['aro_centevi'],
+      'aro_propio' => $orden['aro_propio'],
+      'lente_contacto' => $orden['lente_contacto'],
+      'tratamientos_oi' => $orden['tratamientos_oi'],
+      'tratamientos_od' => $orden['tratamientos_od'],
+      'sucursal' => $orden['nombre'] ?? '',
+      'nombres_apellidos_paciente' => ($orden['nombres'] ?? '') . ' ' . ($orden['apellidos'] ?? '')
+    ];
+
+    $pdf = Pdf::loadView('pdf/ordenPdf', $data);
+    return $pdf->stream('orden.pdf', [
+      'Content-Type' => 'application/pdf',
+      'Content-Disposition' => 'inline; filename="orden_' . $id_orden . '.pdf"'
+    ]);
+  }
 }
