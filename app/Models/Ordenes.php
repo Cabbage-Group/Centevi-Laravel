@@ -17,6 +17,7 @@ class Ordenes extends Model
 
   // Atributos que son asignables en masa
   protected $fillable = [
+    'nro_orden_id',
     'nro_orden',
     'id_paciente',
     'id_sucursal',
@@ -55,7 +56,8 @@ class Ordenes extends Model
     'l_cuatro',
     'l_cinco',
     'pagado',
-    'lente_contacto'
+    'lente_contacto',
+    'correccion'
   ];
 
   // Atributos que deben ser convertidos a tipos nativos
@@ -81,5 +83,28 @@ class Ordenes extends Model
   {
     return $this->hasMany(ContactoOrden::class);
   }
+
+  public function correciones()
+  {
+      return $this->hasMany(CorrecionesOrdenes::class, 'ordenes_id', 'id_orden');
+  }
+
+  public function nroOrden()
+    {
+        return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
+    }
+
+  // protected static function boot()
+  // {
+  //     parent::boot();
+  
+  //     static::creating(function ($orden) {
+  //         $ultimoNumero = self::max('nro_orden') ?? 99;
+  //         $orden->nro_orden = ($ultimoNumero < 99) ? 99 : $ultimoNumero + 1;
+  //     });
+  // }
+  
+
+
 
 }

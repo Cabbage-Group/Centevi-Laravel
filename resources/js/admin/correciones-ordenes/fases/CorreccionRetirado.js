@@ -1,118 +1,101 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Tooltip, Button } from 'antd';
+import { Col, Divider, Input, Row, Tooltip, Button } from 'antd'
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
-import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
-import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
-import VecesContacto from '../../VecesContacto';
+import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
+import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
+import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import VecesContacto from '../../recetas/VecesContacto';
+import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
+import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 
-const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
+const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
+
   const dispatch = useDispatch();
-  const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
-  const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
-  const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
-  const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
-  const [observaciones, setObservaciones] = useState('');
-  const { orderId } = useParams();
-  const location = useLocation();
-  const [laboratorio, setLaboratorio] = useState('');
+  const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
+  const [fechaCreacion, setFechaCreacion] = useState('')
+  const [fechaFaseListo, setFechaFaseListo] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
-  const { orden } = location.state || {};
-  const [celular, setCelular] = useState('');
+  const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
+  const [observaciones, setObservaciones] = useState('');
+  const { correccionOrderId } = useParams();
+  const location = useLocation();
+  const { correcion } = location.state || {};
+  const [laboratorio, setLaboratorio] = useState('');
+  const [celular, setCelular] = useState(correcion?.celular);
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+ 
   const { pacientes } = useSelector((state) => state.pacientes);
-  const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
+  const [nombrePaciente, setNombrePaciente] = useState(correcion?.paciente_nombre_completo);
+  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal);
+  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
 
+
   useEffect(() => {
-    if (orderId) {
-      dispatch(fecthTiposFasesOrdenes(orderId));
+    if (correccionOrderId) {
+      dispatch(fecthTiposFasesOrdenes(correccionOrderId));
     }
-  }, []);
+  }, [])
 
-  useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
+  // useEffect(() => {
+  //   dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+  // }, []);
 
-  useEffect(() => {
-    if (selectedPaciente) {
-      const pacienteSeleccionado = pacientes.find(
-        (paciente) => paciente.id_paciente === selectedPaciente
-      );
-      if (pacienteSeleccionado) {
-        setCelular(pacienteSeleccionado?.celular || '');
-        setNombrePaciente(pacienteSeleccionado?.nombres || '');
-      } else {
-        setCelular('');
-
-      }
-    } else {
-      setCelular('');
-    }
-  }, [selectedPaciente, pacientes]);
-
-
+ 
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
-      const tipoFaseAnterior = tiposFasesOrdenes.find(fase =>
-        fase.fases_ordenes.some(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
-        )
-      );
-      if (tipoFaseAnterior) {
-        const faseOrdenAnterior = tipoFaseAnterior.fases_ordenes.find(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
+      const tipoFase2 = tiposFasesOrdenes.find(fase =>
+        fase.fases_correcciones_ordenes.some(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
+        ))
+      if (tipoFase2) {
+        const faseOrden2 = tipoFase2.fases_correcciones_ordenes.find(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
         );
-        if (faseOrdenAnterior) {
-          setLaboratorio(faseOrdenAnterior.laboratorio);
-          setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
+
+
+        if (faseOrden2) {
+          setLaboratorio(faseOrden2.laboratorio);
+          setFechaFaseListo(faseOrden2.fecha_fase)
+
+
         }
       }
     }
-  }, [tiposFasesOrdenes, orderId]);
+  }, [tiposFasesOrdenes, correccionOrderId]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFase = tiposFasesOrdenes.find(fase =>
-        fase.fases_ordenes.some(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        fase.fases_correcciones_ordenes.some(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
         )
       );
+
       if (tipoFase) {
-        const faseOrden = tipoFase.fases_ordenes.find(faseOrden =>
-          faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+        const faseOrden = tipoFase.fases_correcciones_ordenes.find(faseOrden =>
+          faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
         );
+
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
           setFaseOrdenId(faseOrden.id)
+
         }
       }
     }
-  }, [tiposFasesOrdenes, orderId, tipoFaseId]);
-
-  useEffect(() => {
-    const nuevaFase = {
-      tipo_fase_orden_id: tipoFaseId,
-      laboratorio: laboratorio,
-      observacion: observaciones,
-      fecha_fase: fechaActual,
-    };
-    dispatch(actualizarDatosFase(nuevaFase));
-  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
+  }, [tiposFasesOrdenes, correccionOrderId, tipoFaseId]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -124,7 +107,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-  const statusToDisplay = orden?.status;
+  const statusToDisplay =  correcion?.status;
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -142,6 +125,18 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   };
 
 
+
+  useEffect(() => {
+    const nuevaFase = {
+      tipo_fase_correccion_orden_id: tipoFaseId,
+      laboratorio: laboratorio,
+      observacion: observaciones,
+      fecha_fase: fechaActual,
+    };
+    dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
+  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
+
+
   const actualizarFecha = async () => {
     const result = await Swal.fire({
       title: '¿Estás seguro de actualizar esta fecha?',
@@ -155,8 +150,9 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
     });
 
     if (result.value === true) {
-      const nuevaFecha = moment().format('YYYY-MM-DD HH:mm:ss');
-      setFechaActual(nuevaFecha);
+
+      setFechaActual(moment().format('YYYY-MM-DD HH:mm:ss'))
+      // Mostrar alerta de éxito
       await Swal.fire(
         'Guardado!',
         'La fecha ha sido actualizada.',
@@ -168,15 +164,15 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
-      tipo_fase_orden_id: tipoFaseId,
+      correccion_ordenes_id: correcion?.id,
+      tipo_fase_cr_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
     };
 
     try {
       // Llamar a la API
-      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      await dispatch(createContactoCorreccionOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
       // Abrir enlace de WhatsApp
@@ -209,7 +205,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
           }}
         >
           <label htmlFor="inputAddress">
-            Fecha de la fase confección
+            Fecha de la fase Retirado
           </label>
           <div>
             <Tooltip title="Actualizar Fecha">
@@ -224,10 +220,10 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
           </div>
           <Divider />
           <label htmlFor="inputAddress">
-            Fecha de ingreso al laboratorio
+            Fecha de la fase listo
           </label>
           <div>
-            {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')} {/* Si no hay fecha anterior, se muestra la fecha actual */}
+            {fechaFaseListo ? moment(fechaFaseListo).format('YYYY-MM-DD HH:mm:ss') : ""}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
@@ -244,7 +240,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContacto id_orden={orderId} />
+            <VecesContactoCorrecciones id={correccionOrderId} />
             <Button
               style={{ marginLeft: '10px' }}
               onClick={handleContactarPaciente}
@@ -256,7 +252,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
         </Col>
       </Row>
     </div>
-  );
+  )
 }
 
-export default EnConfeccion;
+export default CorreccionRetirado

@@ -30,6 +30,7 @@ class FasesOrdenes extends Model
     'status' => 'integer', // Asegura que siempre sea tratado como un número entero
   ];
 
+
   public function tipoFaseOrden()
   {
     return $this->belongsTo(TiposFasesOrdenes::class, 'tipo_fase_orden_id');

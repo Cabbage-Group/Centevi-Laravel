@@ -8,30 +8,29 @@ import {
   LogoutOutlined,
 } from '@ant-design/icons';
 
-import Nuevo from './fases/Nuevo';
-import Listo from './fases/Listo';
-import EnConfeccion from './fases/EnConfeccion';
-import Retirado from './fases/Retirado';
 import { useParams, useLocation } from 'react-router-dom';
-import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
-import VerOrden from '../VerOrden';
+import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
+import CorreccionNuevo from './fases/CorreccionNuevo';
+import CorreccionEnConfeccion from './fases/CorreccionEnConfeccion';
+import CorreccionListo from './fases/CorreccionListo';
+import CorreccionRetirado from './fases/CorreccionRetirado';
+import VerCorreccionOrdenes from './VerCorreccionOrdenes';
 
-const VerUnaOrden = () => {
+const VerUnaCorrecionOrdenes = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { orden } = location.state || {};
+  const { correcion } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
-  const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
-  const { orderId } = useParams();
+  const nuevaDataCorrecciones = useSelector((state) => state.fasesOrdenes.nuevaDataCorrecciones);
+  const { correccionOrderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
-  const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
+  const [fechaSolicitud, setFechaSolicitud] = useState(correcion?.created_at);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
-
 
 
   useEffect(() => {
@@ -40,28 +39,28 @@ const VerUnaOrden = () => {
 
 
   useEffect(() => {
-  }, [nuevaData, orderId]);
+  }, [nuevaDataCorrecciones, correccionOrderId]);
 
   useEffect(() => {
-    if (orderId) {
-      dispatch(fecthTiposFasesOrdenes(orderId));
+    if (correccionOrderId) {
+      dispatch(fecthTiposFasesOrdenes(correccionOrderId));
     }
   }, [])
 
   useEffect(() => {
-    if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
+    if (tiposFasesOrdenes.length > 0 && correccionOrderId && !initialized) {
       const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        const hasCompleted = tipoFase.fases_ordenes.some(
+        const hasCompleted = tipoFase.fases_correcciones_ordenes.some(
           (faseOrden) =>
-            faseOrden.ordenes_id === parseInt(orderId) &&
-            faseOrden.tipo_fase_orden_id === tipoFase.id &&
+            faseOrden.correccion_ordenes_id === parseInt(correccionOrderId) &&
+            faseOrden.tipo_fase_correccion_orden_id === tipoFase.id &&
             faseOrden.status === 1
         );
 
-        const hasPending = tipoFase.fases_ordenes.some(
+        const hasPending = tipoFase.fases_correcciones_ordenes.some(
           (faseOrden) =>
-            faseOrden.ordenes_id === parseInt(orderId) &&
-            faseOrden.tipo_fase_orden_id === tipoFase.id &&
+            faseOrden.correccion_ordenes_id === parseInt(correccionOrderId) &&
+            faseOrden.tipo_fase_correccion_orden_id === tipoFase.id &&
             faseOrden.status === 0
         );
 
@@ -78,10 +77,8 @@ const VerUnaOrden = () => {
       setCurrentPhase(nextPhase);
       setNivelStep(lastCompletedStep + 1);
       setInitialized(true);
-
-      console.log("Último paso calculado:", lastCompletedStep);
     }
-  }, [tiposFasesOrdenes, orderId, initialized]);
+  }, [tiposFasesOrdenes, correccionOrderId, initialized]);
 
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
@@ -157,30 +154,30 @@ const VerUnaOrden = () => {
 
               {
                 nivelStep == 0 ? (
-                  <Nuevo
+                  <CorreccionNuevo
                     tipoFaseId={currentTipoFase?.id}
                     isDisabled={isButtonDisabled}
 
                   />
 
                 ) : nivelStep == 1 ? (
-                  <EnConfeccion
+                  <CorreccionEnConfeccion
                     tipoFaseId={currentTipoFase?.id}
-                    lab={nuevaData?.laboratorio}
+                    lab={nuevaDataCorrecciones?.laboratorio}
                     isDisabled={isButtonDisabled}
-                    fecha={nuevaData?.fecha_fase}
+                    fecha={nuevaDataCorrecciones?.fecha_fase}
                   />
                 ) : nivelStep == 2 ? (
-                  <Listo
+                  <CorreccionListo
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
-                    lab={nuevaData?.laboratorio}
+                    lab={nuevaDataCorrecciones?.laboratorio}
                   />
                 ) : nivelStep == 3 ? (
-                  <Retirado
+                  <CorreccionRetirado
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
-                    lab={nuevaData?.laboratorio}
+                    lab={nuevaDataCorrecciones?.laboratorio}
                   />
                 ) : <div></div>
               }
@@ -238,12 +235,12 @@ const VerUnaOrden = () => {
         </Col>
       </Row>
 
-      <VerOrden
+      <VerCorreccionOrdenes
         fecha_solicitud={fechaSolicitud}
       >
-      </VerOrden>
+      </VerCorreccionOrdenes>
     </div>
   )
 }
 
-export default VerUnaOrden
+export default VerUnaCorrecionOrdenes

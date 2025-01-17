@@ -108,6 +108,7 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/verOrdenes',
     'http://127.0.0.1:8000/api/ordenes/*',
+    'http://127.0.0.1:8000/api/ordenes',
 
     'http://127.0.0.1:8000/api/tipos-fases-ordenes',
     'http://127.0.0.1:8000/api/fases-ordenes',
@@ -121,7 +122,25 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/contacto-orden',
 
-    'http://127.0.0.1:8000/api/kpis'
+    'http://127.0.0.1:8000/api/kpis',
+
+    'http://127.0.0.1:8000/api/correciones-ordenes/*',
+
+    'http://127.0.0.1:8000/api/correciones-ordenes',
+
+    'http://127.0.0.1:8000/api/create-fases-correccion-ordenes',
+
+    'http://127.0.0.1:8000/api/fases-correciones-ordenes/*',
+
+    'http://127.0.0.1:8000/api/create-fases-correciones-ordenes',
+
+    'http://127.0.0.1:8000/api/contacto-correccion-orden/*',
+
+    'http://127.0.0.1:8000/api/cont-correccion-orden',
+
+    'http://127.0.0.1:8000/api/migration',
+
+    'http://127.0.0.1:8000/api/allordenes',
 
   ];
 }

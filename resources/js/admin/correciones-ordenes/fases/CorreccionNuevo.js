@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Select, Tooltip, Button } from 'antd';
-import moment from 'moment';
+import { useDispatch, useSelector } from 'react-redux';
+import { Row, Col, Divider, Input, Select, Tooltip, Button } from 'antd';
 import { ClockCircleTwoTone } from '@ant-design/icons';
-import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
-import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { useParams, useLocation } from 'react-router-dom';
-import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
-import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
-import VecesContacto from '../../VecesContacto';
+import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
+import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
+import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
+import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import moment from 'moment';
+import { useLocation, useParams } from 'react-router-dom';
+import VecesContacto from '../../recetas/VecesContacto';
+import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
+import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
+import { fetchSucursales } from '../../../redux/features/sucursales/sucursalesSlice';
 
-const Nuevo = ({ tipoFaseId, isDisabled }) => {
+const CorreccionNuevo = ({ tipoFaseId, isDisabled }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -19,18 +22,16 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const [observaciones, setObservaciones] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const location = useLocation();
-  const { orderId } = useParams();
-  const { orden } = location.state || {};
+  const { correccionOrderId } = useParams();
+  const { correcion } = location.state || {};
   const { pacienteOrden } = location.state || {};
-  const [celular, setCelular] = useState('');
+  const [celular, setCelular] = useState(correcion?.celular);
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
-  const { pacientes } = useSelector((state) => state.pacientes);
-  const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.sucursal?.ubicacion_maps);
+  const [nombrePaciente, setNombrePaciente] = useState(correcion?.paciente_nombre_completo);
+  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal );
+  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.ubicacion_maps );
   const idUsuario = localStorage.getItem('id_usuario');
 
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([
@@ -39,9 +40,15 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
     { value: 'Optilab', label: 'Optilab' },
   ]);
 
+  // useEffect(() => {
+  //     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+  //   }, []);
+
+  console.log('correcion:',correcion)
+  console.log('celular:',celular)
   useEffect(() => {
     // Cambiar las opciones del Select si lente_contacto es true
-    if (orden?.lente_contacto) {
+    if (correcion?.lente_contacto) {
       setOpcionesLaboratorio([
         { value: 'Vista Pro', label: 'Vista Pro' },
         { value: 'Haseth J&J', label: 'Haseth J&J' },
@@ -55,49 +62,47 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
         { value: 'Optilab', label: 'Optilab' },
       ]);
     }
-  }, [orden?.lente_contacto]);
+  }, [correcion?.lente_contacto]);
 
 
   useEffect(() => {
-    if (orderId) {
-      dispatch(fecthTiposFasesOrdenes(orderId));
+    if (correccionOrderId) {
+      dispatch(fecthTiposFasesOrdenes(correccionOrderId));
     }
   }, []);
 
-  useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
+ 
 
-  useEffect(() => {
-    if (selectedPaciente) {
-      const pacienteSeleccionado = pacientes.find(
-        (paciente) => paciente.id_paciente === selectedPaciente
-      );
-      if (pacienteSeleccionado) {
-        setCelular(pacienteSeleccionado?.celular || '');
-        setNombrePaciente(pacienteSeleccionado?.nombres || '');
-      } else {
-        setCelular('');
+  // useEffect(() => {
+  //   if (selectedPaciente) {
+  //     const pacienteSeleccionado = pacientes.find(
+  //       (paciente) => paciente.id_paciente === selectedPaciente
+  //     );
+  //     if (pacienteSeleccionado) {
+  //       setCelular(pacienteSeleccionado?.celular || '');
+  //       setNombrePaciente(pacienteSeleccionado?.nombres || '');
+  //     } else {
+  //       setCelular('');
 
-      }
-    } else {
-      setCelular('');
-    }
-  }, [selectedPaciente, pacientes]);
+  //     }
+  //   } else {
+  //     setCelular('');
+  //   }
+  // }, [selectedPaciente, pacientes]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFase = tiposFasesOrdenes.find((fase) =>
-        fase.fases_ordenes.some(
+        fase.fases_correcciones_ordenes.some(
           (faseOrden) =>
-            faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+            faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
         )
       );
 
       if (tipoFase) {
-        const faseOrden = tipoFase.fases_ordenes.find(
+        const faseOrden = tipoFase.fases_correcciones_ordenes.find(
           (faseOrden) =>
-            faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
+            faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
         );
 
         if (faseOrden) {
@@ -109,18 +114,18 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
         }
       }
     }
-  }, [tiposFasesOrdenes, orderId, tipoFaseId]);
+  }, [tiposFasesOrdenes, correccionOrderId, tipoFaseId]);
 
   useEffect(() => {
     if (laboratorio && observaciones !== null) {
       const nuevaFase = {
-        tipo_fase_orden_id: tipoFaseId,
+        tipo_fase_correccion_orden_id: tipoFaseId,
         laboratorio: laboratorio,
         observacion: observaciones,
         fecha_fase: fechaActual,
         created_at: fechaCreacion,
       };
-      dispatch(actualizarDatosFase(nuevaFase));
+      dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
     }
   }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch, fechaCreacion]);
 
@@ -134,7 +139,9 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-  const statusToDisplay = orden?.status_final || orden?.status;
+
+
+  const statusToDisplay = correcion?.status;
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -199,20 +206,18 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   }
 
   const handleContactarPaciente = async () => {
-    // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
-      tipo_fase_orden_id: tipoFaseId,
+      correccion_ordenes_id: correcion?.id,
+      tipo_fase_cr_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
     };
 
     try {
-      // Llamar a la API
-      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      
+      await dispatch(createContactoCorreccionOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
-      // Abrir enlace de WhatsApp
       window.open(generateWhatsAppLink(), '_blank');
     } catch (error) {
       console.error('Error al crear contacto:', error);
@@ -287,7 +292,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
             <span>{statusToDisplay || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContacto id_orden={orderId} />
+            <VecesContactoCorrecciones id={correccionOrderId} />
             <Button
               style={{ marginLeft: '10px' }}
               onClick={handleContactarPaciente}
@@ -302,4 +307,4 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   );
 };
 
-export default Nuevo;
+export default CorreccionNuevo;

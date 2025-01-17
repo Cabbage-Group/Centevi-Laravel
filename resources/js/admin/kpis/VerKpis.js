@@ -6,6 +6,8 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import DateRange from '../reportes/DateRange';
 import { Button } from 'antd';
 import DateRangeSeparate from '../reportes/DateRange';
+import CollapsedTable from '../ordenes/CollapsedTable';
+import CollapsibleTable from '../ordenes/prueba';
 
 const VerKpis = () => {
 
@@ -84,7 +86,10 @@ const VerKpis = () => {
         <Legend />
         {renderLines()}
       </LineChart>
+      <h1>Tabla Colapsable</h1>
+      <CollapsibleTable />
     </ResponsiveContainer>
+    
   );
 };
 
