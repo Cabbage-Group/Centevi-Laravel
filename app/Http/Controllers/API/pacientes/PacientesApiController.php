@@ -20,7 +20,7 @@ use GrahamCampbell\ResultType\Success;
 class PacientesApiController extends Controller
 {
   public function pacientes(Request $request)
-{
+  {
     // Obtener los parámetros
     $page = $request->query('page', 1);
     $limit = $request->query('limit', 300);
@@ -72,7 +72,7 @@ class PacientesApiController extends Controller
     }
 
     if (!empty($doctor)) {
-        $data->where('doctor', '=', $doctor);
+      $data->where('doctor', '=', $doctor);
     }
 
     $data->orderBy($sortColumn, $sortOrder);
@@ -81,22 +81,22 @@ class PacientesApiController extends Controller
 
     $formattedData = $pacientes->items();
     foreach ($formattedData as &$paciente) {
-        $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
+      $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
     }
 
     return response()->json([
-        'data' => $formattedData,
-        'meta' => [
-            'page' => $pacientes->currentPage(),
-            'limit' => $pacientes->perPage(),
-            'total' => $pacientes->total(),
-        ],
-        'status' => [
-            'code' => 200,
-            'message' => 'Pacientes retrieved successfully',
-        ]
+      'data' => $formattedData,
+      'meta' => [
+        'page' => $pacientes->currentPage(),
+        'limit' => $pacientes->perPage(),
+        'total' => $pacientes->total(),
+      ],
+      'status' => [
+        'code' => 200,
+        'message' => 'Pacientes retrieved successfully',
+      ]
     ]);
-}
+  }
 
 
 

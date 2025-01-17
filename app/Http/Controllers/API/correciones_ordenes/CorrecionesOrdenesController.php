@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\correciones_ordenes;
+namespace App\Http\Controllers\API\correciones_ordenes;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactoCorrecionesOrdenes;
-use App\Models\CorrecionesOrdenes;
+use App\Models\CorrecIonesOrdenes;
 use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Ordenes;
 use Illuminate\Http\Request;

@@ -129,8 +129,8 @@ const fasesOrdenesSlice = createSlice({
     },
 });
 
-export const { 
-    actualizarDatosFase, 
+export const {
+    actualizarDatosFase,
     setPagadoFilter,
     setLaboratorioFilter,
     setTipoLenteFilter,
@@ -139,6 +139,6 @@ export const {
     setStatusFilter,
     setFechaInicioFilter,
     setFechaFinFilter
- } = fasesOrdenesSlice.actions;
+} = fasesOrdenesSlice.actions;
 
 export default fasesOrdenesSlice.reducer;

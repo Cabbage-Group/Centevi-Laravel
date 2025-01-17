@@ -8,7 +8,7 @@ import { DeleteOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
 
-const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitToLast30Days = false, skipReset = false }) => {
+const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset, limitToLast30Days = false, skipReset = false }) => {
     const currentDate = moment().format('YYYY-MM-DD');
     const location = useLocation();
     const [dates, setDates] = useState([
@@ -17,9 +17,9 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitT
     ]);
 
 
-    console.log('startDate:',startDate)
-    console.log('endDate:',endDate)
-    console.log('dates:',dates)
+    console.log('startDate:', startDate)
+    console.log('endDate:', endDate)
+    console.log('dates:', dates)
 
     // useEffect(() => {
     //     if (startDate === currentDate && endDate === currentDate) {
@@ -36,7 +36,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitT
 
     const handleChange = (dates) => {
         if (dates && dates.length === 2) {
-            console.log('dates2:',dates)
+            console.log('dates2:', dates)
             setDates(dates);
             onChange(dates[0].format('YYYY-MM-DD'), dates[1].format('YYYY-MM-DD'));
         } else {
@@ -56,7 +56,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitT
             const last30Days = moment().subtract(30, 'days');
             return current && (current.isBefore(last30Days, 'day') || current.isAfter(moment(), 'day'));
         }
-        return false; 
+        return false;
     };
 
     return (
@@ -67,7 +67,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset,limitT
                     onChange={handleChange}
                     format="YYYY-MM-DD"
                     allowClear={false}
-                    disabledDate={disabledDate} 
+                    disabledDate={disabledDate}
                     style={{ width: 328, height: 40 }}
                 />
                 <button

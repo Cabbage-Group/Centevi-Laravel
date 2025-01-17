@@ -9,8 +9,8 @@ export const fecthOrdenes = createAsyncThunk(
     limit = 10000000000000,
     sortOrder = 'desc',
     sortColumn = 'created_at',
-    search = '', 
-    status = '', 
+    search = '',
+    status = '',
     lenteContacto = '',
     pagado = '',
     sucursal = '',
@@ -21,8 +21,8 @@ export const fecthOrdenes = createAsyncThunk(
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-    const response = await axios.post(`${API}/verOrdenes`,  
-      { 
+    const response = await axios.post(`${API}/verOrdenes`,
+      {
         page,
         limit,
         sortOrder,
@@ -32,8 +32,8 @@ export const fecthOrdenes = createAsyncThunk(
         pagado,
         sucursal,
         status,
-        lenteContacto, 
-        laboratorio, 
+        lenteContacto,
+        laboratorio,
         fase
       },);
     return response.data;
@@ -215,11 +215,11 @@ const ordenesSlice = createSlice({
       })
       .addCase(fetchOrdenesDelPaciente.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.pacienteOrdenes  = action.payload.data;
+        state.pacienteOrdenes = action.payload.data;
         state.meta = action.payload.meta;
       })
       .addCase(fetchContactoOrdenesDelPaciente.fulfilled, (state, action) => {
-        state.contactoOrden  = action.payload.data;
+        state.contactoOrden = action.payload.data;
       })
       .addCase(fetchOrdenesDelPaciente.rejected, (state, action) => {
         state.status = 'failed';

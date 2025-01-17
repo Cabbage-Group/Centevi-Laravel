@@ -20,8 +20,8 @@ const DateRangeSeparate = ({ onApply, onReset }) => {
     setEndDate(null);
     onReset?.();
   };
-  
-    
+
+
 
   const disabledEndDate = (current) => {
     if (!startDate || !current) return false;
@@ -36,7 +36,7 @@ const DateRangeSeparate = ({ onApply, onReset }) => {
 
     // console.log("Start Date:", startDate.format("YYYY-MM-DD"));
     // console.log("Max Date:", maxDate.format("YYYY-MM-DD"));
-    
+
     return current.isAfter(maxDate);
   };
 

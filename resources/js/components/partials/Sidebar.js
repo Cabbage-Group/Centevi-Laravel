@@ -240,25 +240,6 @@ const Sidebar = (props) => {
                 </a>
               </li>
 
-              <li className="menu">
-                <a href="#kpis" data-active="false" className="menu-toggle">
-                  <div className="base-menu">
-                    <div className="base-icons">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                        strokeLinejoin="round" className="feather feather-box">
-                        <path
-                          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                        </path>
-                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                        <line x1="12" y1="22.08" x2="12" y2="12" />
-                      </svg>
-                    </div>
-                    <span>KPIS</span>
-                  </div>
-                </a>
-              </li>
-
 
               <div className="ps__rail-x" style={{ left: 0, bottom: 0, }}>
                 <div className="ps__thumb-x" tabIndex="0" style={{ left: 0, width: 0, }}></div>
@@ -732,29 +713,6 @@ const Sidebar = (props) => {
                           <line x1="1.05" y1="12" x2="7" y2="12" />
                           <line x1="17.01" y1="12" x2="22.96" y2="12" />
                         </svg></span> Ver Tipos de Usuarios
-                      </Link>
-                    </li>
-                  )
-                }
-
-              </ul>
-            </div>
-
-            <div className="submenu" id="kpis">
-              <ul className="submenu-list" data-parent-element="#uiKit">
-                {
-                  ValidarPermisos(
-                    "sidebar.tiposusuarios",
-                    <li>
-                      <Link to={"/ver-kpis"}>
-                        <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                          height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                          className="feather feather-git-commit">
-                          <circle cx="12" cy="12" r="4" />
-                          <line x1="1.05" y1="12" x2="7" y2="12" />
-                          <line x1="17.01" y1="12" x2="22.96" y2="12" />
-                        </svg></span> Ver kpis
                       </Link>
                     </li>
                   )

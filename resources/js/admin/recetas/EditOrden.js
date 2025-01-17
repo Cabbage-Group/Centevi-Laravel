@@ -683,7 +683,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               width: "130px"
                                             }}
                                           >
-                                             {isAroVisible ? 'ALTURA' : 'Diametro'}
+                                            {isAroVisible ? 'ALTURA' : 'Diametro'}
                                           </th>
                                         </tr>
                                       </thead>
@@ -792,19 +792,19 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               name="prisma_oi"
                                               as="input"
                                             />
-                                          </td>  
+                                          </td>
                                           {isRowVisible ? (
-                                              <td></td> 
-                                            ) : (
-                                              <td>
-                                                <Field
-                                                  className="form-control"
-                                                  type="text"
-                                                  name="distancia_oi"
-                                                  as="input"
-                                                />
-                                              </td>
-                                            )}                                 
+                                            <td></td>
+                                          ) : (
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                type="text"
+                                                name="distancia_oi"
+                                                as="input"
+                                              />
+                                            </td>
+                                          )}
                                           <td>
                                             <Field
                                               className="form-control"

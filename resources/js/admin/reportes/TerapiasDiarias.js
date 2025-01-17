@@ -91,62 +91,62 @@ const TerapiasDiarias = () => {
                   />
                 </div>
                 <div
-                    className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center"
-                    style={{ marginTop: '50px' }}
+                  className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center"
+                  style={{ marginTop: '50px' }}
                 >
-                    <ExportButton
-                      dataexport={dataexport}
-                      transformData={transformDataForTerapias}
-                      fileName="terapias_diarias.xlsx"
-                    />
+                  <ExportButton
+                    dataexport={dataexport}
+                    transformData={transformDataForTerapias}
+                    fileName="terapias_diarias.xlsx"
+                  />
                 </div>
-                  <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                    <div
-                      className="dataTables_filter"
-                      id="html5-extension_filter"
-                    >
-                      <label>
-                        <input
-                          style={{ marginTop: '50px' }}
-                          aria-controls="html5-extension"
-                          className="form-control"
-                          placeholder="Search..."
-                          type="search"
-                          value={localSearch}
-                          onChange={handleSearchChange}
-                        />
-                        {localSearch && (
-                          <button
-                            onClick={handleClearSearch}
-                            style={{
-                              position: 'absolute',
-                              right: '25px',
-                              top: '70%',
-                              transform: 'translateY(-50%)',
-                              background: 'none',
-                              border: 'none',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            &#x2715; { }
-                          </button>
-                        )}
-                        {!localSearch && (
+                <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
+                  <div
+                    className="dataTables_filter"
+                    id="html5-extension_filter"
+                  >
+                    <label>
+                      <input
+                        style={{ marginTop: '50px' }}
+                        aria-controls="html5-extension"
+                        className="form-control"
+                        placeholder="Search..."
+                        type="search"
+                        value={localSearch}
+                        onChange={handleSearchChange}
+                      />
+                      {localSearch && (
+                        <button
+                          onClick={handleClearSearch}
+                          style={{
+                            position: 'absolute',
+                            right: '25px',
+                            top: '70%',
+                            transform: 'translateY(-50%)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          &#x2715; { }
+                        </button>
+                      )}
+                      {!localSearch && (
                         <img
-                          src="/assets/img/lupa.png" 
+                          src="/assets/img/lupa.png"
                           alt="Search"
                           style={{
                             position: 'absolute',
                             right: '25px',
                             top: '70%',
                             transform: 'translateY(-50%)',
-                            width: '20px', 
+                            width: '20px',
                             height: '20px',
                             pointerEvents: 'none',
                           }}
                         />
                       )}
-                      </label>
+                    </label>
                   </div>
                 </div>
               </div>
