@@ -66,6 +66,7 @@ const VerOrden = ({ fecha_solicitud }) => {
 
   const initialValues = {
     nro_orden: orden?.nro_orden || pacienteOrden?.nro_orden,
+    nro_orden_id: orden.nro_orden_id || pacienteOrden.nro_orden_id,
     id_paciente: orden?.id_paciente || pacienteOrden?.id_paciente,
     id_sucursal: orden?.id_sucursal || pacienteOrden?.id_sucursal,
     esfera_od: orden?.esfera_od || pacienteOrden?.esfera_od,

@@ -68,9 +68,9 @@ const VerCorrecionesOrdenes = () => {
         sortColumn,
         sortOrder]);
 
-    useEffect(() => {
-        dispatch(fetchSucursales({}))
-    }, [dispatch])
+    // useEffect(() => {
+    //     dispatch(fetchSucursales({}))
+    // }, [dispatch])
 
     const handleSort = (newOrdenPor) => {
         const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';

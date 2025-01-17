@@ -179,14 +179,14 @@ const CorrecionOrden = () => {
 
   const handleContactarPaciente = async () => {
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
-      tipo_fase_orden_id: 4,
+      correccion_ordenes_id: correcion?.id,
+      tipo_fase_cr_orden_id: 4,
       usuario_id: idUsuario,
       cantidad: 1
     };
 
     try {
-      await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
+      await dispatch(createContactoCorreccionOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
       window.open(generateWhatsAppLink(), '_blank');

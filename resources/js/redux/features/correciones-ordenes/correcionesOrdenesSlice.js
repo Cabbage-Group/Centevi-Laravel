@@ -74,12 +74,21 @@ export const updateCorreccionOrden = createAsyncThunk(
     }
 );
 
+export const fetchContactoCorreccionesOrdenesDelPaciente = createAsyncThunk(
+    'ordenes/fetchContactoOrdenesDelPaciente',
+    async (id) => {
+        const response = await axios.get(`${API}/correciones-ordenes/contacto-correccion-orden/${id}`);
+        return response.data;
+    }
+);
+
 const correcionesordenesSlice = createSlice({
     name: 'correcionesordenes',
     initialState: {
         correcionesordenes: [],
         correciones_ordenes_options_selecteds: [],
         correcionesbyOrden: [],
+        contactoCorreccionOrden: [],
         metabyOrden: {},
         meta: {},
         status: 'idle',
@@ -157,9 +166,12 @@ const correcionesordenesSlice = createSlice({
             .addCase(updateCorreccionOrden.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
+            })
+            .addCase(fetchContactoCorreccionesOrdenesDelPaciente.fulfilled, (state, action) => {
+                state.contactoCorreccionOrden = action.payload.data;
             });
 
-    },
+},
 });
 
 export const {
