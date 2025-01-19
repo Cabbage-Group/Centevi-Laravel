@@ -34,12 +34,12 @@ const VerKpis = () => {
 
 
   useEffect(() => {
-    dispatch(fetchKpis({startDate,endDate}))
+    dispatch(fetchKpis({ startDate, endDate }))
   }, [dispatch, startDate, endDate])
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
-  },[dispatch])
+  }, [dispatch])
 
   const renderLines = () => {
     return sucursales.map((sucursal) => {
@@ -65,9 +65,9 @@ const VerKpis = () => {
       <div style={{ marginRight: '10px', marginTop: 'px' }}>
 
         <Button
-        onClick={()=>{
-          console.log('localStartDate:',localStartDate)
-        }}>
+          onClick={() => {
+            console.log('localStartDate:', localStartDate)
+          }}>
           AQUI2
         </Button>
         <label>

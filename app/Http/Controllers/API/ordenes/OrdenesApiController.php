@@ -34,18 +34,19 @@ class OrdenesApiController extends Controller
     $fase = $request->input('fase', []);
 
     // Asegurarse de que se puede ordenar por created_at
-    $validSortColumns = ['id_orden', 'created_at']; 
+    $validSortColumns = ['id_orden', 'created_at', 'nro_order_id']; 
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'id_orden'; // Valor por defecto
     }
 
     // Subconsulta para contar el número total de fases para cada orden
     $contadorFasesQuery = DB::table('fases_ordenes')
-        ->select('ordenes_id', 
-            DB::raw('COUNT(*) as total_fases'),
-            DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
-        )
-        ->groupBy('ordenes_id');
+      ->select(
+        'ordenes_id',
+        DB::raw('COUNT(*) as total_fases'),
+        DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+      )
+      ->groupBy('ordenes_id');
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
@@ -134,7 +135,7 @@ class OrdenesApiController extends Controller
         $query->where('ordenes.id_orden', 'like', "%{$search}%")
           ->orWhere('usuarios.nombre', 'like', "%{$search}%")
           ->orWhere('ordenes.doctor', 'like', "%{$search}%")
-          ->orWhere('ordenes.nro_orden', 'like', "%{$search}%")
+          ->orWhere('ordenes.nro_orden_id', 'like', "%{$search}%")
           ->orWhere('ordenes.created_at', 'like', "%{$search}%")
           ->orWhere('ordenes.pagado', 'like', "%{$search}%")
           ->orWhere('sucursales.nombre', 'like', "%{$search}%")
@@ -154,37 +155,37 @@ class OrdenesApiController extends Controller
     if (is_array($lenteContacto) && !empty($lenteContacto)) {
       // Si se selecciona "both", filtra por 0 y 1
       if (in_array('both', $lenteContacto)) {
-          $ordenes->whereIn('ordenes.lente_contacto', ['0', '1']);
+        $ordenes->whereIn('ordenes.lente_contacto', ['0', '1']);
       } else {
-          // Filtra solo por los valores seleccionados (0 o 1)
-          $ordenes->whereIn('ordenes.lente_contacto', $lenteContacto);
+        // Filtra solo por los valores seleccionados (0 o 1)
+        $ordenes->whereIn('ordenes.lente_contacto', $lenteContacto);
       }
-    }  
+    }
     if (is_array($fase) && !empty($fase)) {
       $ordenes->whereIn('ultimas_fases.fase_actual', $fase);
     }
 
-  if (is_array($status) && !empty($status)) {
-    // Filtrar por valores específicos de status (como Ok, Critico, etc.)
-    $ordenes->whereIn('primeras_fases.status_primera_fase', array_filter($status, fn($value) => $value !== null));
-  
-  
-    // Si el array contiene null, filtrar por los registros donde el status_primera_fase es null
-  if (in_array(null, $status, true)) {
+    if (is_array($status) && !empty($status)) {
+      // Filtrar por valores específicos de status (como Ok, Critico, etc.)
+      $ordenes->whereIn('primeras_fases.status_primera_fase', array_filter($status, fn($value) => $value !== null));
+
+
+      // Si el array contiene null, filtrar por los registros donde el status_primera_fase es null
+      if (in_array(null, $status, true)) {
         $ordenes->orWhereNull('primeras_fases.status_primera_fase');
+      }
     }
-  }
-    
-  if (is_array($laboratorio) && !empty($laboratorio)) {
-    $ordenes->whereIn('primeras_fases.laboratorio_primera_fase', $laboratorio);
-  }
+
+    if (is_array($laboratorio) && !empty($laboratorio)) {
+      $ordenes->whereIn('primeras_fases.laboratorio_primera_fase', $laboratorio);
+    }
 
     if (is_array($pagado) && !empty($pagado)) {
       $ordenes->whereIn('ordenes.pagado', $pagado);
-  }
+    }
 
     if (is_array($sucursal) && !empty($sucursal)) {
-        $ordenes->whereIn('ordenes.id_sucursal', $sucursal);
+      $ordenes->whereIn('ordenes.id_sucursal', $sucursal);
     }
     if (!empty($fecha)) {
       $dates = explode(' - ', $fecha);
@@ -350,7 +351,6 @@ class OrdenesApiController extends Controller
     }
 
     $validator = Validator::make($request->all(), [
-      'nro_orden' => 'required|integer|unique:ordenes,nro_orden,' . $id_orden . ',id_orden',
       "id_paciente" => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
       'elaborado_por' => 'nullable|integer',
@@ -587,21 +587,30 @@ class OrdenesApiController extends Controller
     $lenteContacto = $request->input('lenteContacto', '');
     $laboratorio = $request->input('laboratorio', '');
     $pagado = $request->input('pagado', '');
-    $sucursales = $request->input('sucursales','');
-    $doctor = $request->input('doctor','');
-    $asesor = $request->input('asesor','');    
+    $sucursales = $request->input('sucursales', '');
+    $doctor = $request->input('doctor', '');
+    $asesor = $request->input('asesor', '');
 
-    $validSortColumns = ['id_orden', 'created_at_formatted', 'laboratorio', 'status', 'lente_contacto', 'doctor', 'pagado'];
+    $validSortColumns = ['id_orden', 
+    'created_at_formatted', 
+    'laboratorio', 'status', 
+    'lente_contacto', 
+    'doctor', 
+    'pagado',
+    'nro_orden_id',
+    'tipo_cristal_od_codigo', 
+    'tipo_cristal_oi_codigo'];
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'id_orden';
     }
 
     $contadorFasesQuery = DB::table('fases_ordenes')
-        ->select('ordenes_id', 
-            DB::raw('COUNT(*) as total_fases'),
-            DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
-        )
-        ->groupBy('ordenes_id');
+      ->select(
+        'ordenes_id',
+        DB::raw('COUNT(*) as total_fases'),
+        DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+      )
+      ->groupBy('ordenes_id');
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
@@ -684,7 +693,11 @@ class OrdenesApiController extends Controller
         'ordenes.pagado',
         'ordenes.doctor',
         'ordenes.lente_contacto',
+        'ordenes.tipo_cristal_od',
+        'ordenes.tipo_cristal_oi',
         'usuarios.nombre as elaborado_por_nombre',
+        DB::raw('SUBSTRING_INDEX(ordenes.tipo_cristal_od, " | ", 1) as tipo_cristal_od_codigo'),
+        DB::raw('SUBSTRING_INDEX(ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
         // 'primeras_fases.laboratorio_primera_fase as laboratorio',
         'primeras_fases.status_primera_fase as status',
         DB::raw('COALESCE(primeras_fases.laboratorio_primera_fase, "") as laboratorio'),
@@ -696,9 +709,12 @@ class OrdenesApiController extends Controller
       $ordenes->where(function ($query) use ($search) {
         $query->where('ordenes.id_orden', 'like', "%{$search}%")
           ->orWhere('usuarios.nombre', 'like', "%{$search}%")
+          ->orWhere('ordenes.nro_orden_id', 'like', "%{$search}%")
           ->orWhere('ordenes.doctor', 'like', "%{$search}%")
           ->orWhere('ordenes.created_at', 'like', "%{$search}%")
-          ->orWhere('ordenes.pagado', 'like', "%{$search}%");
+          ->orWhere('ordenes.pagado', 'like', "%{$search}%")
+          ->orWhere(DB::raw('SUBSTRING_INDEX(ordenes.tipo_cristal_od, " | ", 1)'), 'like', "%{$search}%")
+          ->orWhere(DB::raw('SUBSTRING_INDEX(ordenes.tipo_cristal_oi, " | ", 1)'), 'like', "%{$search}%");
       });
     }
     if (!empty($fecha)) {
@@ -725,22 +741,22 @@ class OrdenesApiController extends Controller
       }
     }
 
-    if(!empty($sucursales)) {
-      $ordenes->where('ordenes.id_sucursal',$sucursales);
+    if (!empty($sucursales)) {
+      $ordenes->where('ordenes.id_sucursal', $sucursales);
     }
 
-    if(!empty($doctor)) {
-      $ordenes->where('ordenes.doctor',$doctor);
+    if (!empty($doctor)) {
+      $ordenes->where('ordenes.doctor', $doctor);
     }
 
-    if(!empty($asesor)) {
-      $ordenes->where('usuarios.nombre',$asesor);
+    if (!empty($asesor)) {
+      $ordenes->where('usuarios.nombre', $asesor);
     }
 
     if ($laboratorio !== '') {
       // Validar valores permitidos para laboratorio
-      $validLaboratorios = ['Ping', 'Optilab', 'Centilab','Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
-    
+      $validLaboratorios = ['Ping', 'Optilab', 'Centilab', 'Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
+
       if (in_array($laboratorio, $validLaboratorios)) {
         // Filtrar por laboratorio específico
         $ordenes->where('primeras_fases.laboratorio_primera_fase', $laboratorio);
@@ -766,13 +782,13 @@ class OrdenesApiController extends Controller
 
     if ($pagado !== '') {
       if ($pagado === '1') {
-          $ordenes->where('ordenes.pagado', '1');
+        $ordenes->where('ordenes.pagado', '1');
       } elseif ($pagado === '0') {
-          $ordenes->where('ordenes.pagado', '0');
+        $ordenes->where('ordenes.pagado', '0');
       } elseif ($pagado === '2') {
-          $ordenes->where('ordenes.pagado', '2');
+        $ordenes->where('ordenes.pagado', '2');
       }
-  }
+    }
 
     $dataexport = $ordenes->orderBy($sortColumn, $sortOrder)->get();
 
@@ -822,7 +838,7 @@ class OrdenesApiController extends Controller
     $search = $request->input('search', '');
 
     // Validate sort column
-    $validSortColumns = ['id_orden', 'created_at', 'nro_orden'];
+    $validSortColumns = ['id_orden', 'created_at', 'nro_orden','nro_orden_id'];
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'created_at';
     }
@@ -885,7 +901,7 @@ class OrdenesApiController extends Controller
 
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
-      'sucursal:id_sucursal,nombre',
+      'sucursal:id_sucursal,nombre,ubicacion_maps',
     ])
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
@@ -905,9 +921,11 @@ class OrdenesApiController extends Controller
       $ordenes->where(function ($query) use ($search) {
         $query->where('ordenes.id_orden', 'like', "%{$search}%")
           ->orWhere('ordenes.nro_orden', 'like', "%{$search}%")
+          ->orWhere('ordenes.nro_orden_id', 'like', "%{$search}%")
           ->orWhere('usuarios.nombre', 'like', "%{$search}%")
           ->orWhere('ordenes.doctor', 'like', "%{$search}%")
           ->orWhere('ultimas_fases.fase_actual', 'like', "%{$search}%");
+          
       });
     }
 
@@ -933,14 +951,14 @@ class OrdenesApiController extends Controller
   public function verContactoOrden($id_orden)
   {
 
-    $data = ContactoOrden::join('usuarios','usuarios.id_usuario','contactos_ordenes.usuario_id')
-                    ->select(
-                      'contactos_ordenes.*',
-                      'usuarios.nombre',
-                    )
-                    ->where('contactos_ordenes.ordenes_id', $id_orden)
-                    ->orderBy('contactos_ordenes.created_at', 'desc')
-                    ->get();
+    $data = ContactoOrden::join('usuarios', 'usuarios.id_usuario', 'contactos_ordenes.usuario_id')
+      ->select(
+        'contactos_ordenes.*',
+        'usuarios.nombre',
+      )
+      ->where('contactos_ordenes.ordenes_id', $id_orden)
+      ->orderBy('contactos_ordenes.created_at', 'desc')
+      ->get();
 
     return response()->json([
       'data' => $data,

@@ -26,7 +26,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
@@ -41,7 +41,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
 
   useEffect(() => {
     // Cambiar las opciones del Select si lente_contacto es true
-    if (orden?.lente_contacto) {
+    if (orden?.lente_contacto || pacienteOrden?.lente_contacto) {
       setOpcionesLaboratorio([
         { value: 'Vista Pro', label: 'Vista Pro' },
         { value: 'Haseth J&J', label: 'Haseth J&J' },
@@ -55,7 +55,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
         { value: 'Optilab', label: 'Optilab' },
       ]);
     }
-  }, [orden?.lente_contacto]);
+  }, [orden?.lente_contacto, pacienteOrden?.lente_contacto]);
 
 
   useEffect(() => {
@@ -201,7 +201,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
+      ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
       tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1

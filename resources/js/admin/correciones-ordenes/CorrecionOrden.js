@@ -13,24 +13,16 @@ import {
   CheckCircleOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
-import moment from 'moment';
-import EnConfeccion from '../recetas/ordenes/fases/EnConfeccion';
-import Nuevo from '../recetas/ordenes/fases/Nuevo';
-import Listo from '../recetas/ordenes/fases/Listo';
-import Retirado from '../recetas/ordenes/fases/Retirado';
 import Swal from 'sweetalert2';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesOrdenesSlice';
-
-import { createContactoOrden } from '../../redux/features/contacto-orden/ContactoOrdenSlice';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
-import EditarCorrecionOrden from './EditarCorrecionOrden';
-import { createFasesOrdenes } from '../../redux/features/ordenes/fasesOrdenesSlice';
+import EditarCorrecionOrden from './EditarCorrecionorden';
 import { createCorreccionesFasesOrdenes } from '../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
 import CorreccionNuevo from './fases/CorreccionNuevo';
 import CorreccionEnConfeccion from './fases/CorreccionEnConfeccion';
 import CorreccionListo from './fases/CorreccionListo';
 import CorreccionRetirado from './fases/CorreccionRetirado';
+import { setFaseFilter, setFechaInicioFilter, setLaboratorioFilter, setPagadoFilter, setStatusFilter, setSucursalFilter, setTipoLenteFilter } from '../../redux/features/ordenes/fasesOrdenesSlice';
 
 const CorrecionOrden = () => {
 
@@ -38,7 +30,15 @@ const CorrecionOrden = () => {
   const location = useLocation();
   const navigate = useNavigate();  
   const { 
-    correcion
+    correcion,
+    pagadoFiltro,
+    sucursalFiltro,
+    laboratorioFiltro,
+    faseFiltro,
+    lenteContactoFiltro,
+    statusFiltro,
+    localStartDateFiltro,
+    localEndDateFiltro
   } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.correccionesFasesOrdenes.nuevaDataCorrecciones);
@@ -78,6 +78,17 @@ const CorrecionOrden = () => {
 
   useEffect(() => {
   }, [nuevaDataCorrecciones, correccionOrderId]);
+
+  useEffect(() =>{
+      dispatch(setPagadoFilter(pagadoFiltro))
+      dispatch(setLaboratorioFilter(laboratorioFiltro))
+      dispatch(setTipoLenteFilter(lenteContactoFiltro))
+      dispatch(setFaseFilter(faseFiltro))
+      dispatch(setSucursalFilter(sucursalFiltro))
+      dispatch(setStatusFilter(statusFiltro))
+      dispatch(setFechaInicioFilter(localStartDateFiltro))
+      dispatch(setFechaInicioFilter(localEndDateFiltro))
+  })
 
  
 

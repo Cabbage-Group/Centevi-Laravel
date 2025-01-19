@@ -19,7 +19,7 @@ const ReporteOrdenes = () => {
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
-  const { usuarios_doctores_options_selecteds,usuarios_activados } = useSelector((state) => state.usuarios)
+  const { usuarios_doctores_options_selecteds, usuarios_activados } = useSelector((state) => state.usuarios)
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const {
     reportesOrdenes,
@@ -104,7 +104,7 @@ const ReporteOrdenes = () => {
     }
   }, [dispatch, usuarios_activados]);
 
-  console.log('usuarios_activados:',usuarios_activados)
+  console.log('usuarios_activados:', usuarios_activados)
 
   const statusTotals = useSelector((state) => state.reportesOrdenes.statusTotals);
   const lenteContactoTotals = useSelector((state) => state.reportesOrdenes.lenteContactoTotals);
@@ -171,7 +171,7 @@ const ReporteOrdenes = () => {
               </div>
             </div>
             <div>
-              <div className="row" style={{ marginTop: '-20px' }}>             
+              <div className="row" style={{ marginTop: '-20px' }}>
                 <div className="col-md-2">
                   <Card title="Resumen de estado" bordered={false} hoverable>
                     <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -289,13 +289,13 @@ const ReporteOrdenes = () => {
                     bordered={false}
                     hoverable
                     style={{
-                      height: '300px', 
-                      overflowY: 'auto', 
+                      height: '300px',
+                      overflowY: 'auto',
                     }}
                   >
                     {doctoresTotals &&
                       Object.entries(doctoresTotals)
-                        .slice(0, visibleCount) 
+                        .slice(0, visibleCount)
                         .map(([doctorId, total]) => {
                           const truncatedBranchId =
                             doctorId.length > 10 ? doctorId.substring(0, 40) + '...' : doctorId;
@@ -327,23 +327,23 @@ const ReporteOrdenes = () => {
                 </div>
 
                 <div className="col-md-4" style={{ marginTop: '20px' }}>
-                  <Card 
-                    title="Resumen por Sucursal" 
-                    bordered={false} 
+                  <Card
+                    title="Resumen por Sucursal"
+                    bordered={false}
                     hoverable
                     style={{
-                      height: '300px', 
-                      overflowY: 'auto', 
+                      height: '300px',
+                      overflowY: 'auto',
                     }}
                   >
-                    {branchTotals && 
+                    {branchTotals &&
                       Object.entries(branchTotals)
                         .slice(0, visibleCountSucursal)
                         .map(([branchId, total]) => {
                           // Solo agregar puntos suspensivos si el texto es truncado
                           const isTruncated = branchId.length > 60;
-                          const displayedBranchId = isTruncated 
-                            ? branchId.substring(0, 60) + '...' 
+                          const displayedBranchId = isTruncated
+                            ? branchId.substring(0, 60) + '...'
                             : branchId;
 
                           return (
@@ -373,23 +373,23 @@ const ReporteOrdenes = () => {
                 </div>
 
                 <div className="col-md-4" style={{ marginTop: '20px' }}>
-                  <Card 
-                    title="Resumen por Asesor" 
-                    bordered={false} 
+                  <Card
+                    title="Resumen por Asesor"
+                    bordered={false}
                     hoverable
                     style={{
-                      height: '300px', 
-                      overflowY: 'auto', 
+                      height: '300px',
+                      overflowY: 'auto',
                     }}
                   >
-                    {asesoresTotals && 
+                    {asesoresTotals &&
                       Object.entries(asesoresTotals)
                         .slice(0, visibleCountAsesor)
                         .map(([branchId, total]) => {
                           // Solo agregar puntos suspensivos si el texto es truncado
                           const isTruncated = branchId.length > 60;
-                          const displayedBranchId = isTruncated 
-                            ? branchId.substring(0, 60) + '...' 
+                          const displayedBranchId = isTruncated
+                            ? branchId.substring(0, 60) + '...'
                             : branchId;
 
                           return (
@@ -601,6 +601,19 @@ const ReporteOrdenes = () => {
                             </th>
                             <th
                               aria-controls="zero-config"
+                              aria-label={`tipo_cristal_od_codigo: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${sortOrder}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('tipo_cristal_od_codigo' || 'tipo_cristal_oi_codigo')}
+
+                            >
+                              CODIGO TIPO CRISTAL
+                            </th>
+                            <th
+                              aria-controls="zero-config"
                               aria-label={`status: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
                               className={`sorting ${sortOrder}`}
                               colSpan="1"
@@ -728,6 +741,7 @@ const ReporteOrdenes = () => {
                                     />
                                   )}
                                   </td>
+                                  <td>{rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo}</td>
                                   <td>
                                     <Tooltip title={rpOrden?.status ?? ""}>
                                       <span

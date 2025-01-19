@@ -118,7 +118,7 @@ class UsuariosApiController extends Controller
   public function update(Request $request, $id)
   {
 
-    
+
 
     Log::info('Incoming request data:', $request->all());
 
@@ -294,7 +294,7 @@ class UsuariosApiController extends Controller
         'ultimo_login' => $request->input('ultimo_login'),
         'editado' => $request->input('editado'),
         'tipo_usuario_id' => $request->input('tipo_usuario_id'),
-        'token' => $this->generarCodigoAleatorio(), 
+        'token' => $this->generarCodigoAleatorio(),
       ];
 
       // Insertar el nuevo usuario y obtener el ID

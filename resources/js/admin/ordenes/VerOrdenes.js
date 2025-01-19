@@ -51,7 +51,35 @@ const VerOrdenes = () => {
     );
   };
 
- 
+  const {
+    correcionesordenes,
+  } = useSelector((state) => state.correcionesordenes);
+
+  useEffect(() => {
+    dispatch(fecthCorrecionesOrdenes({
+      page: 1,
+      limit: 10,
+      sortColumn,
+      sortOrder,
+    }));
+  }, [dispatch,
+    sortColumn,
+    sortOrder]);
+
+
+  const {
+    ordenes,
+    status,
+    error,
+    meta,
+    search,
+    totalPages,
+    startDate,
+    endDate,
+    contactoOrden,
+    sortColumn,
+    sortOrder } = useSelector((state) => state.ordenes);
+
   const handleSortCorreciones = (newOrdenPor) => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
   };
@@ -435,7 +463,8 @@ const VerOrdenes = () => {
                        statusFiltro={statusFilter}
                        localEndDateFiltro={localEndDate}
                        localStartDateFiltro={localStartDate}
-                       
+                       localSearch= {localSearch}
+                 
                     />
                 </div>
               </div>

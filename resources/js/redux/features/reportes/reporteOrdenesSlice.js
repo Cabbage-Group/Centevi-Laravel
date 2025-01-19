@@ -209,7 +209,7 @@ export const fecthPagadoTotals = createAsyncThunk(
 
 export const fetchBranchTotals = createAsyncThunk(
   'reportesordenes/fetchBranchTotals',
-  async ({sucursales = [],sucursalesNames = []}) => {
+  async ({ sucursales = [], sucursalesNames = [] }) => {
     const requests = sucursales.map(sucursal =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -230,7 +230,7 @@ export const fetchBranchTotals = createAsyncThunk(
 
 export const fetchDoctoresTotals = createAsyncThunk(
   'reportesordenes/fetchDoctoresTotals',
-  async ({doctores = [],doctoresNames = []}) => {
+  async ({ doctores = [], doctoresNames = [] }) => {
     const requests = doctoresNames.map(doctor =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -239,7 +239,7 @@ export const fetchDoctoresTotals = createAsyncThunk(
       })
     );
     const responses = await Promise.all(requests);
-    const totalsByDoctor= responses.reduce((acc, response, index) => {
+    const totalsByDoctor = responses.reduce((acc, response, index) => {
       const doctor = doctoresNames[index];
       acc[doctor] = response.data.meta.total;
       return acc;
@@ -251,9 +251,9 @@ export const fetchDoctoresTotals = createAsyncThunk(
 
 export const fetchAsesoresTotals = createAsyncThunk(
   'reportesordenes/fetchAsesoresTotals',
-  async ({asesores = [],asesoresNames = []}) => {
-    console.log('asesores:',asesores)
-    console.log('asesoresNames:',asesoresNames)
+  async ({ asesores = [], asesoresNames = [] }) => {
+    console.log('asesores:', asesores)
+    console.log('asesoresNames:', asesoresNames)
     const requests = asesoresNames.map(asesor =>
       axios.get(`${API}/reporte-ordenes`, {
         params: {
@@ -261,13 +261,13 @@ export const fetchAsesoresTotals = createAsyncThunk(
         }
       })
     );
-    console.log('requests:',requests)
-    console.log('requests:',requests.data)
+    console.log('requests:', requests)
+    console.log('requests:', requests.data)
 
     const responses = await Promise.all(requests);
-    console.log('responses:',responses.data)
+    console.log('responses:', responses.data)
 
-    const totalsByAsesor= responses.reduce((acc, response, index) => {
+    const totalsByAsesor = responses.reduce((acc, response, index) => {
       const asesor = asesoresNames[index];
       acc[asesor] = response.data.meta.total;
       return acc;

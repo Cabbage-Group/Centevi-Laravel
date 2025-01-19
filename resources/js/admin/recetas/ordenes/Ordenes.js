@@ -46,7 +46,11 @@ const Ordenes = () => {
     localEndDateFiltro
   } = location.state || {};
 
-  console.log('pagadoFilter:',pagadoFiltro)
+  const {
+    pacienteOrden
+  } = location.state || {}
+
+  console.log('pacienteOrden:',pacienteOrden)
 
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
@@ -54,15 +58,15 @@ const Ordenes = () => {
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
-  const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
+  const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at || pacienteOrden?.created_at);
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
   const [celular, setCelular] = useState('');
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente);
+  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
+  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps );
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
 
@@ -223,7 +227,7 @@ const Ordenes = () => {
 
   const handleContactarPaciente = async () => {
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden,
+      ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
       tipo_fase_orden_id: 4,
       usuario_id: idUsuario,
       cantidad: 1
@@ -290,7 +294,12 @@ const Ordenes = () => {
                   <Link
                     to={`/crear-correciones-ordenes`}
                     className="btn btn-warning btnEditarReceta"
-                    state={{ orden }}
+                    state={
+                      { 
+                        orden ,
+                        pacienteOrden
+                      }
+                    }
                     data-target="#modalEditarSucursal"
                     data-toggle="modal"
                     id_receta="185"

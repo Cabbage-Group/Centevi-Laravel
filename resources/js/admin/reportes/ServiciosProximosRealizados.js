@@ -463,7 +463,7 @@ const ProximasCitas = () => {
                     className="dataTables_filter"
                     id="html5-extension_filter"
                   >
-                    <label>         
+                    <label>
                       <input
                         style={{ marginTop: '50px' }}
                         aria-controls="html5-extension"

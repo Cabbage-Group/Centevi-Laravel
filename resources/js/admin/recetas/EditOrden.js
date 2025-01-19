@@ -45,13 +45,13 @@ const EditOrden = ({ fecha_solicitud }) => {
 
  
   useEffect(() => {
-    if (orden?.lente_contacto) {
+    if (orden?.lente_contacto || pacienteOrden?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [orden]);
+  }, [orden,pacienteOrden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
@@ -60,6 +60,7 @@ const EditOrden = ({ fecha_solicitud }) => {
 
   const initialValues = {
     nro_orden: orden?.nro_orden || pacienteOrden?.nro_orden,
+    nro_orden_id: orden?.nro_orden_id || pacienteOrden?.nro_orden_id,
     id_paciente: orden?.id_paciente || pacienteOrden?.id_paciente,
     id_sucursal: orden?.id_sucursal || pacienteOrden?.id_sucursal,
     esfera_od: orden?.esfera_od || pacienteOrden?.esfera_od,
@@ -72,7 +73,7 @@ const EditOrden = ({ fecha_solicitud }) => {
     add_oi: orden?.add_oi || pacienteOrden?.add_oi,
     prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
     prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
-    distancia_od: orden?.distancia_od + (orden?.distancia_oi ? '/' + orden?.distancia_oi : '') || pacienteOrden?.distancia_od + (pacienteOrden?.distancia_oi ? '/' + pacienteOrden?.distancia_oi : ''),
+    distancia_od: orden?.distancia_od  || pacienteOrden?.distancia_od,
     distancia_oi : orden?.distancia_oi || pacienteOrden?.distancia_oi,
     altura_od: orden?.altura_od || pacienteOrden?.altura_od,
     altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
@@ -98,6 +99,8 @@ const EditOrden = ({ fecha_solicitud }) => {
     isRowVisible: isAroVisible,
   };
 
+
+
   const tipoAroOptions = [
     { label: 'Pasta Completo', value: 1 },
     { label: 'Pasta Semi al Aire', value: 2 },
@@ -109,10 +112,6 @@ const EditOrden = ({ fecha_solicitud }) => {
 
 
   const validationSchema = Yup.object().shape({
-    nro_orden: Yup.number()
-      .integer("Debe ser un número entero")
-      .typeError("Debe ser un número")
-      .required("El número de orden es obligatorio"),
     id_paciente: Yup.number().nullable()
       .integer("Debe ser un número entero")
       .typeError("Debe ser un número")
@@ -468,11 +467,11 @@ const EditOrden = ({ fecha_solicitud }) => {
                                 <div class="col-md-2"  >
                                   <h4>Nro. Orden*</h4>
                                   <Input
-                                    name="nro_orden"
-                                    value={values.nro_orden}
+                                    name="nro_orden_id"
+                                    value={values.nro_orden_id}
                                     onChange={(e) => {
                                       const onlyNumbers = e.target.value.replace(/\D/g, "");
-                                      setFieldValue("nro_orden", onlyNumbers);
+                                      setFieldValue("nro_orden_id", onlyNumbers);
                                     }}
                                     placeholder="Ingrese el número de orden"
                                     style={{
@@ -483,7 +482,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     }}
                                   />
                                   <ErrorMessage
-                                    name="nro_orden"
+                                    name="nro_orden_id"
                                     component="div"
                                     style={{ color: "red", fontSize: "12px" }}
                                   />
@@ -684,7 +683,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               width: "130px"
                                             }}
                                           >
-                                             {isAroVisible ? 'ALTURA' : 'Diametro'}
+                                            {isAroVisible ? 'ALTURA' : 'Diametro'}
                                           </th>
                                         </tr>
                                       </thead>
@@ -793,19 +792,19 @@ const EditOrden = ({ fecha_solicitud }) => {
                                               name="prisma_oi"
                                               as="input"
                                             />
-                                          </td>  
+                                          </td>
                                           {isRowVisible ? (
-                                              <td></td> 
-                                            ) : (
-                                              <td>
-                                                <Field
-                                                  className="form-control"
-                                                  type="text"
-                                                  name="distancia_oi"
-                                                  as="input"
-                                                />
-                                              </td>
-                                            )}                                 
+                                            <td></td>
+                                          ) : (
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                type="text"
+                                                name="distancia_oi"
+                                                as="input"
+                                              />
+                                            </td>
+                                          )}
                                           <td>
                                             <Field
                                               className="form-control"
