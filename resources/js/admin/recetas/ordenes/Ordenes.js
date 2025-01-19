@@ -27,7 +27,7 @@ import { createContactoOrden } from '../../../redux/features/contacto-orden/Cont
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
 import EditOrden from '../EditOrden';
-import EditarCorrecionOrden from '../../correciones-ordenes/EditarCorrecionorden';
+import EditarCorrecionOrden from '../../correciones-ordenes/EditarCorrecionOrden';
 
 const Ordenes = () => {
 
