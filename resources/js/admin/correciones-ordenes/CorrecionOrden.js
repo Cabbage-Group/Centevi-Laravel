@@ -16,7 +16,7 @@ import {
 import Swal from 'sweetalert2';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import EditarCorrecionOrden from './EditarCorrecionorden';
+import EditarCorrecionOrden from './EditarCorrecionOrden';
 import { createCorreccionesFasesOrdenes } from '../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
 import CorreccionNuevo from './fases/CorreccionNuevo';
 import CorreccionEnConfeccion from './fases/CorreccionEnConfeccion';

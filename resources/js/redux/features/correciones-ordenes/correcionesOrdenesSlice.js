@@ -82,6 +82,28 @@ export const fetchContactoCorreccionesOrdenesDelPaciente = createAsyncThunk(
     }
 );
 
+export const verOrdenCorrecionPdf = createAsyncThunk(
+    'ordenes-correciones/viewPdf',
+    async (id_orden, { rejectWithValue }) => {
+      let urlPdf = null
+      try {
+        const response = await axios.get(`${API}/correciones-ordenes/pdf/${id_orden}`, {
+          responseType: 'blob',
+        })
+        console.log("response")
+        console.log(response)
+        const blob = new Blob([response.data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+        urlPdf = url
+      } catch (error) {
+        console.error('Error al visualizar la orden:', error.response?.data)
+        return rejectWithValue(error.response?.data || 'Error al obtener PDF')
+      }
+      return urlPdf
+    }
+  );
+  
+
 const correcionesordenesSlice = createSlice({
     name: 'correcionesordenes',
     initialState: {

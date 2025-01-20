@@ -135,6 +135,7 @@
     </div>
   </div>
   <div style="margin-bottom:5px; margin-top:-10px;">
+    <div id="name-lastname" style="color:#3b3f5c;font-size:13px;"><span style="font-family:'Segoe UI', sans-serif; font-weight:700">Paciente:</span> <span style="font-family:'Segoe UI', sans-serif;">{{ ucwords(strtolower($nombres_apellidos_paciente)) }}</span></div>
     <div style="color:#3b3f5c;font-size:13px;"><span style="font-family:'Segoe UI', sans-serif; font-weight:700">Sucursal:</span> <span style="font-family:'Segoe UI', sans-serif;">{{ $sucursal }}</span></div>
   </div>
   <div class="container-grid">
