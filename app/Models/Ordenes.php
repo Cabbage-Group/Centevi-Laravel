@@ -67,6 +67,7 @@ class Ordenes extends Model
     'id_sucursal' => 'integer',
     'elaborado_por' => 'integer',
     'lente_contacto' => 'integer',
+    'correccion' => 'integer',
   ];
 
   public function paciente()
