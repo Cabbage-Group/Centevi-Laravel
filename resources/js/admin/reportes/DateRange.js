@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import { DatePicker, Button } from "antd";
-import moment from "moment";
-import "antd/dist/reset.css";
+import { DatePicker, Button, ConfigProvider } from "antd";
+import dayjs from "dayjs";
+import "dayjs/locale/es";
+import locale from "antd/es/locale/es_ES";
+
+dayjs.locale("es");
 
 const DateRangeSeparate = ({ onApply, onReset }) => {
   const [startDate, setStartDate] = useState(null);
@@ -21,52 +24,43 @@ const DateRangeSeparate = ({ onApply, onReset }) => {
     onReset?.();
   };
 
-
-
   const disabledEndDate = (current) => {
     if (!startDate || !current) return false;
-    // Solo deshabilitar fechas después de 30 días a partir de la fecha inicial
-    // console.log('startDate:',startDate)
-    // const maxDate = moment(startDate).add(20, 'days');
-    // console.log('maxDate:',maxDate)
-    // console.log("Start Date:", startDate.format("YYYY-MM-DD"));
-    // console.log("Max Date:", maxDate.format("YYYY-MM-DD"));
-    // const startDate = moment("2024-12-11").startOf('day');  // Establece la hora a las 00:00
-    // const maxDate = startDate.add(30, 'days');  // Sumar 30 días
-
-    // console.log("Start Date:", startDate.format("YYYY-MM-DD"));
-    // console.log("Max Date:", maxDate.format("YYYY-MM-DD"));
-
-    return current.isAfter(maxDate);
+    const minDate = startDate.startOf("day"); 
+    const maxDate = startDate.add(30, "day").endOf("day");
+    return current.isBefore(minDate) || current.isAfter(maxDate);
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <DatePicker
-        value={startDate}
-        onChange={(date) => {
-          setStartDate(date);
-          // Reset end date if it would be invalid with new start date
-          if (endDate && moment(date).add(30, 'days').isBefore(endDate)) {
-            setEndDate(null);
-          }
-        }}
-        placeholder="Select Start Date"
-        format="YYYY-MM-DD"
-      />
-      <DatePicker
-        value={endDate}
-        onChange={(date) => setEndDate(date)}
-        placeholder="Select End Date"
-        format="YYYY-MM-DD"
-        disabled={!startDate}
-        disabledDate={disabledEndDate}
-      />
-      <Button onClick={handleClear}>Clear</Button>
-      <Button onClick={handleApply} type="primary" disabled={!startDate || !endDate}>
-        Apply
-      </Button>
-    </div>
+    <ConfigProvider locale={locale}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <DatePicker
+          value={startDate}
+          onChange={(date) => {
+            setStartDate(date);
+            if (endDate && (date.add(30, "day").isBefore(endDate) || endDate.isBefore(date))) {
+              setEndDate(null);
+            }
+          }}
+          placeholder="Seleccionar fecha de inicio"
+          format="YYYY-MM-DD"
+          locale="es"
+        />
+        <DatePicker
+          value={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholder="Seleccionar fecha de fin"
+          format="YYYY-MM-DD"
+          locale="es"
+          disabled={!startDate}
+          disabledDate={disabledEndDate}
+        />
+        <Button onClick={handleClear}>Limpiar</Button>
+        <Button onClick={handleApply} type="primary" disabled={!startDate || !endDate}>
+          Aplicar
+        </Button>
+      </div>
+    </ConfigProvider>
   );
 };
 

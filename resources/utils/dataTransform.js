@@ -1,4 +1,5 @@
-// Función para transformar datos de terapias
+import moment from 'moment';
+
 export const transformDataForTerapias = (data) => {
   return data.map(terapia => ({
     Nombre: terapia.PACIENTE_NOMBRE.trim(),
@@ -94,19 +95,62 @@ export const transformDataForServiciosProximos = (data) => {
 };
 
 
+// export const transformDataForReporteOrdenes = (data) => {
+//   return data.map(rpOrden => ({
+//     Tipo_lente: rpOrden.lente_contacto === 1 ? "Si" : "No",
+//     Status: rpOrden.status ?? "Sin estado",
+//     Fecha_Orden: rpOrden.created_at_formatted,
+//     Nro_orden: rpOrden.nro_orden,
+//     Pagado: rpOrden.pagado_nombre,
+//     Sucursal: rpOrden.sucursal.nombre,
+//     Doctor: rpOrden.doctor,
+//     Asesor: rpOrden.elaborado_por_nombre,
+//     Laboratorio: rpOrden.laboratorio,
+//   }));
+// };
+
 export const transformDataForReporteOrdenes = (data) => {
-  return data.map(rpOrden => ({
-    Tipo_lente: rpOrden.lente_contacto === 1 ? "Si" : "No",
-    Status: rpOrden.status ?? "Sin estado",
-    Fecha_Orden: rpOrden.created_at_formatted,
-    Nro_orden: rpOrden.nro_orden,
-    Pagado: rpOrden.pagado_nombre,
-    Sucursal: rpOrden.sucursal.nombre,
-    Doctor: rpOrden.doctor,
-    Asesor: rpOrden.elaborado_por_nombre,
-    Laboratorio: rpOrden.laboratorio,
-  }));
+  const transformedData = [];
+
+  data.forEach(rpOrden => {
+    const ordenTransformada = {
+      Tipo_Lente: rpOrden.lente_contacto === 1 ? "Si" : "No",
+      Tipo_Cristal: rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo || "",
+      Status: rpOrden.status ?? "Sin estado",
+      Fecha_Orden: rpOrden.created_at_formatted,
+      Nro_orden: rpOrden.nro_orden_id,
+      Pagado: rpOrden.pagado_nombre,
+      Sucursal: rpOrden.sucursal.nombre,
+      Doctor: rpOrden.doctor,
+      Asesor: rpOrden.elaborado_por_nombre,
+      Laboratorio: rpOrden.laboratorio,
+    };
+
+    if (rpOrden.correciones && rpOrden.correciones.length > 0) {
+      transformedData.push(ordenTransformada);
+      rpOrden.correciones.forEach(correccion => {
+        transformedData.push({
+          Tipo_Lente: correccion.lente_contacto === 1 ? "Si" : "No",
+          Tipo_Cristal: correccion?.tipo_cristal_od_codigo || correccion?.tipo_cristal_oi_codigo || "",
+          Status: correccion.status ?? "Sin estado",
+          Fecha_Orden: moment(correccion.created_at).format('DD-MM-YYYY'),
+          Nro_orden: correccion.correcion_format,
+          Pagado: correccion.pagado_nombre,
+          Sucursal: correccion.nombre_sucursal ?? "Sin sucursal",
+          Doctor: correccion.doctor,
+          Asesor: correccion.elaborado_por_nombre,
+          Laboratorio: correccion.laboratorio,
+        });
+      });
+    } else {
+      console.log('transformedData',transformedData)
+      transformedData.push(ordenTransformada);
+    }
+  });
+
+  return transformedData;
 };
+
 
 
 
