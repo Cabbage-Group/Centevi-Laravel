@@ -11,89 +11,204 @@ class KpisApiController extends Controller
 {
   public function VerKpis(Request $request)
   {
-    // Obtener los parámetros de ordenamiento
     $orderBy = $request->get('sortColumn', 'name'); // Campo para ordenar
     $orderDirection = $request->get('sortOrder', 'asc'); // Dirección (asc o desc)
-
-    // Validar los parámetros de ordenamiento
+  
+ 
     if (!in_array($orderDirection, ['asc', 'desc'])) {
       $orderDirection = 'asc';
     }
-
-    // Procesar los filtros de fecha
-    $startDate = $request->get('startDate', null); // Fecha de inicio
-    $endDate = $request->get('endDate', null); // Fecha de fin
-
-    // Establecer fechas predeterminadas si no se proporcionan
-    $defaultStartDate = Carbon::now()->subDays(29)->startOfDay();
-    $defaultEndDate = Carbon::now()->endOfDay();
-
+  
+    $startDate = $request->get('startDate', null);
+    $endDate = $request->get('endDate', null);
+  
     try {
-      $startDate = $startDate
-        ? Carbon::createFromFormat('Y-m-d-H:i', $startDate)
-        : $defaultStartDate;
-      $endDate = $endDate
-        ? Carbon::createFromFormat('Y-m-d-H:i', $endDate)
-        : $defaultEndDate;
+      $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
+      $endDate = $endDate ? Carbon::createFromFormat('Y-m-d-H:i', $endDate) : null;
     } catch (\Exception $e) {
       return response()->json(['error' => 'Invalid date format'], 400);
     }
+  
 
-    // Generar las fechas dentro del rango especificado
-    $dates = collect();
-    for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-      $dates->push($date->format('Y-m-d'));
-    }
+    $sucursales = DB::table('sucursales')->select('id_sucursal', 'nombre')->get();
+  
 
-    // Obtener los nombres de las sucursales dinámicamente
-    $sucursales = DB::table('sucursales')
-      ->select('id_sucursal', 'nombre')
-      ->get();
-
-    // Construir dinámicamente los campos de las sucursales
     $selectQueries = [];
     foreach ($sucursales as $sucursal) {
-      $selectQueries[] = DB::raw(
-        "SUM(CASE WHEN id_sucursal = {$sucursal->id_sucursal} THEN 1 ELSE 0 END) as `{$sucursal->nombre}`"
-      );
+      $selectQueries[] = DB::raw("SUM(CASE WHEN id_sucursal = {$sucursal->id_sucursal} THEN 1 ELSE 0 END) as `{$sucursal->nombre}`");
     }
-
-    // Obtener los datos agrupados por fecha y sucursal dentro del rango especificado
-    $result = DB::table('ordenes')
-      ->select(
-        DB::raw('DATE(created_at) as name'),
-        ...$selectQueries
-      )
-      ->whereBetween(DB::raw('DATE(created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-      ->groupBy(DB::raw('DATE(created_at)'))
-      ->get();
-
-    // Crear un mapa de datos existentes por fecha
+  
+    $query = DB::table('ordenes')->select(
+      DB::raw('DATE(created_at) as name'),
+      ...$selectQueries
+    )->groupBy(DB::raw('DATE(created_at)'));
+  
+    // Aplicar filtro de fecha solo si se proporcionan valores
+    if ($startDate && $endDate) {
+      $query->whereBetween(DB::raw('DATE(created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+    }
+  
+    $result = $query->get();
+  
     $mappedData = $result->keyBy('name');
-
-    // Combinar las fechas generadas con los datos de la consulta
+  
+    $dates = $result->pluck('name');
+  
     $data = $dates->map(function ($date) use ($sucursales, $mappedData) {
-      $entry = [
-        'name' => $date,
-      ];
-
+      $entry = ['name' => Carbon::parse($date)->format('d-m-y')]; // Formatear la fecha
+  
       foreach ($sucursales as $sucursal) {
         $entry[$sucursal->nombre] = isset($mappedData[$date]) ? (int) $mappedData[$date]->{$sucursal->nombre} : 0;
       }
-
+  
       return $entry;
     });
-
-    // Ordenar los datos según el parámetro recibido
+  
     $sortedData = $data->sortBy([
-      fn($a, $b) => $orderDirection === 'asc'
-      ? $a[$orderBy] <=> $b[$orderBy]
-      : $b[$orderBy] <=> $a[$orderBy]
+      fn($a, $b) => $orderDirection === 'asc' ? $a[$orderBy] <=> $b[$orderBy] : $b[$orderBy] <=> $a[$orderBy]
+    ]);
+  
+    return response()->json(['data' => $sortedData->values()]);
+  }
+
+  public function VerKpisAsesores(Request $request)
+{
+    $orderBy = $request->get('sortColumn', 'name'); // Campo para ordenar
+    $orderDirection = $request->get('sortOrder', 'asc'); // Dirección (asc o desc)
+
+    if (!in_array($orderDirection, ['asc', 'desc'])) {
+        $orderDirection = 'asc';
+    }
+
+    $startDate = $request->get('startDate', null);
+    $endDate = $request->get('endDate', null);
+
+    try {
+        $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
+        $endDate = $endDate ? Carbon::createFromFormat('Y-m-d-H:i', $endDate) : null;
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Invalid date format'], 400);
+    }
+
+    $asesores = DB::table('usuarios')
+        ->where('estado', 1)         
+        ->select('id_usuario', 'nombre')
+        ->get();
+
+    $selectQueries = [];
+    foreach ($asesores as $asesor) {
+        $selectQueries[] = DB::raw("SUM(CASE WHEN ordenes.elaborado_por = {$asesor->id_usuario} THEN 1 ELSE 0 END) as `{$asesor->nombre}`");
+    }
+
+    $query = DB::table('ordenes')
+        ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+        ->where('usuarios.estado', 1)      
+        ->select(
+            DB::raw('DATE(ordenes.created_at) as name'),
+            ...$selectQueries
+        )
+        ->groupBy(DB::raw('DATE(ordenes.created_at)'));
+
+    // Aplicar filtro de fecha si se proporcionan valores
+    if ($startDate && $endDate) {
+        $query->whereBetween(DB::raw('DATE(ordenes.created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+    }
+
+    $result = $query->get();
+
+    // Asegurar que todos los asesores aparezcan, incluso si no tienen órdenes
+    $mappedData = $result->keyBy('name');
+    $dates = $result->pluck('name');
+
+    $data = $dates->map(function ($date) use ($asesores, $mappedData) {
+        $entry = ['name' => Carbon::parse($date)->format('d-m-y')]; // Formatear la fecha
+
+        foreach ($asesores as $asesor) {
+            $entry[$asesor->nombre] = isset($mappedData[$date]) ? (int) $mappedData[$date]->{$asesor->nombre} : 0;
+        }
+
+        return $entry;
+    });
+
+    // Agregar asesores que no tienen órdenes para que aparezcan en la lista con valores `0`
+    if ($data->isEmpty()) {
+        $data->push(['name' => now()->format('d-m-y')] + collect($asesores)->pluck('nombre')->flip()->map(fn() => 0)->toArray());
+    }
+
+    $sortedData = $data->sortBy([
+        fn($a, $b) => $orderDirection === 'asc' ? $a[$orderBy] <=> $b[$orderBy] : $b[$orderBy] <=> $a[$orderBy]
     ]);
 
-    // Retornar la respuesta en formato JSON
-    return response()->json([
-      'data' => $sortedData->values()
+    return response()->json(['data' => $sortedData->values()]);
+}
+
+
+  public function VerKpisDoctores(Request $request)
+{
+    $orderBy = $request->get('sortColumn', 'name'); // Campo para ordenar
+    $orderDirection = $request->get('sortOrder', 'asc'); // Dirección (asc o desc)
+
+    if (!in_array($orderDirection, ['asc', 'desc'])) {
+        $orderDirection = 'asc';
+    }
+
+    $startDate = $request->get('startDate', null);
+    $endDate = $request->get('endDate', null);
+
+    try {
+        $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
+        $endDate = $endDate ? Carbon::createFromFormat('Y-m-d-H:i', $endDate) : null;
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Invalid date format'], 400);
+    }
+
+    $doctores = DB::table('usuarios')
+        ->where('perfil', 'doctor')  
+        ->where('estado', 1)        
+        ->select('id_usuario', 'nombre')
+        ->get();
+
+    $selectQueries = [];
+    foreach ($doctores as $doctor) {
+        $selectQueries[] = DB::raw("SUM(CASE WHEN ordenes.elaborado_por = {$doctor->id_usuario} THEN 1 ELSE 0 END) as `{$doctor->nombre}`");
+    }
+
+    // Construir la consulta con los doctores
+    $query = DB::table('ordenes')
+        ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+        ->where('usuarios.perfil', 'doctor') // Filtrar solo doctores
+        ->select(
+            DB::raw('DATE(ordenes.created_at) as name'),
+            ...$selectQueries
+        )
+        ->groupBy(DB::raw('DATE(ordenes.created_at)'));
+
+    // Aplicar filtro de fecha solo si se proporcionan valores
+    if ($startDate && $endDate) {
+        $query->whereBetween(DB::raw('DATE(ordenes.created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+    }
+
+    $result = $query->get();
+
+    $mappedData = $result->keyBy('name');
+    $dates = $result->pluck('name');
+
+    $data = $dates->map(function ($date) use ($doctores, $mappedData) {
+        $entry = ['name' => Carbon::parse($date)->format('d-m-y')]; // Formatear la fecha
+
+        foreach ($doctores as $doctor) {
+            $entry[$doctor->nombre] = isset($mappedData[$date]) ? (int) $mappedData[$date]->{$doctor->nombre} : 0;
+        }
+
+        return $entry;
+    });
+
+    $sortedData = $data->sortBy([
+        fn($a, $b) => $orderDirection === 'asc' ? $a[$orderBy] <=> $b[$orderBy] : $b[$orderBy] <=> $a[$orderBy]
     ]);
-  }
+
+    return response()->json(['data' => $sortedData->values()]);
+}
+
+  
 }
