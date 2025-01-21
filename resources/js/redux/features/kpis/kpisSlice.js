@@ -1,20 +1,77 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config';
+import dayjs from 'dayjs';
 
 export const fetchKpis = createAsyncThunk(
   'kpis/fetchKpis',
-  async ({
-    sortOrder = 'asc',
-    startDate = '', 
-    endDate = ''}) => {
+  async ({ sortOrder = 'asc', startDate = '', endDate = '' }) => {
     try {
-      const formattedStartDate = startDate ? `${startDate}-00:00` : '';
-      const formattedEndDate = endDate ? `${endDate}-23:59` : '';
-      const fecha = formattedStartDate && formattedEndDate ? `${formattedStartDate} - ${formattedEndDate}` : '';
-      const params = { sortOrder, fecha };
-      const response = await axios.get(`${API}/kpis`, {params});
+      const today = dayjs();
+      const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
+      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
+      
+      console.log('startDate:', formattedStartDate);
+      console.log('endDate:', formattedEndDate);
+      
+      const params = { 
+        sortOrder, 
+        startDate: formattedStartDate,
+        endDate: formattedEndDate 
+      };
+      const response = await axios.get(`${API}/kpis`, { params });
 
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching Kpis:', error.response.data);
+      throw error;
+    }
+  }
+);
+
+export const fetchKpisAsesores = createAsyncThunk(
+  'kpis/fetchKpisAsesores',
+  async ({ sortOrder = 'asc', startDate = '', endDate = '' }) => {
+    try {
+      const today = dayjs();
+      const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
+      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
+      
+      console.log('startDate:', formattedStartDate);
+      console.log('endDate:', formattedEndDate);
+      
+      const params = { 
+        sortOrder, 
+        startDate: formattedStartDate,
+        endDate: formattedEndDate 
+      };
+      const response = await axios.get(`${API}/kpis/asesores`, { params });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching Kpis:', error.response.data);
+      throw error;
+    }
+  }
+);
+
+export const fetchKpisDoctores = createAsyncThunk(
+  'kpis/fetchKpisDoctores',
+  async ({ sortOrder = 'asc', startDate = '', endDate = '' }) => {
+    try {
+      const today = dayjs();
+      const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
+      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
+      
+      console.log('startDate:', formattedStartDate);
+      console.log('endDate:', formattedEndDate);
+      
+      const params = { 
+        sortOrder, 
+        startDate: formattedStartDate,
+        endDate: formattedEndDate 
+      };
+      const response = await axios.get(`${API}/kpis/doctores`, { params });
 
       return response.data;
     } catch (error) {
@@ -28,16 +85,34 @@ const kpisSlice = createSlice({
   name: 'kpis',
   initialState: {
     kpis: [],
+    kpisAsesores: [],
+    kpisDoctores: [],
+    statusAsesores : 'idle',
+    statusDoctores : 'idle',
+    errorAsesores: null,
+    errorDoctores: null,
     sortOrder: 'asc',
     status: 'idle',
     error: null,
-    search: ''
+    search: '',
+    startDate: null,
+    endDate: null,
+    startDateAsesores: null,
+    endDateAsesores: null,
   },
   reducers: {
     setFechaRange(state, action) {
-        state.startDate = action.payload.startDate;
-        state.endDate = action.payload.endDate;
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
     },
+    setFechaRangeAsesores(state, action) {
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
+    },
+    setFechaRangeDoctores(state, action) {
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
+},
   },
   extraReducers: (builder) => {
     builder
@@ -52,11 +127,35 @@ const kpisSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
+      .addCase(fetchKpisAsesores.pending, (state) => {
+        state.statusAsesores  = 'loading';
+      })
+      .addCase(fetchKpisAsesores.fulfilled, (state, action) => {
+        state.statusAsesores  = 'succeeded';
+        state.kpisAsesores = action.payload.data;
+      })
+      .addCase(fetchKpisAsesores.rejected, (state, action) => {
+        state.statusAsesores  = 'failed';
+        state.errorAsesores = action.error.message;
+      })
+      .addCase(fetchKpisDoctores.pending, (state) => {
+        state.statusDoctores  = 'loading';
+      })
+      .addCase(fetchKpisDoctores.fulfilled, (state, action) => {
+        state.statusDoctores  = 'succeeded';
+        state.kpisDoctores = action.payload.data;
+      })
+      .addCase(fetchKpisDoctores.rejected, (state, action) => {
+        state.statusDoctores  = 'failed';
+        state.errorDoctores = action.error.message;
+      });
   },
 });
 
 export const {
   setSortOrder,
-  setFechaRange
+  setFechaRange,
+  setFechaRangeAsesores,
+  setFechaRangeDoctores
 } = kpisSlice.actions;
 export default kpisSlice.reducer;

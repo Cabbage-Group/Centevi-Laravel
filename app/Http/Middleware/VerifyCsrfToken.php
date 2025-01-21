@@ -122,7 +122,7 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/contacto-orden',
 
-    'http://127.0.0.1:8000/api/kpis',
+    'http://127.0.0.1:8000/api/kpis/*',
 
     'http://127.0.0.1:8000/api/correciones-ordenes/*',
 

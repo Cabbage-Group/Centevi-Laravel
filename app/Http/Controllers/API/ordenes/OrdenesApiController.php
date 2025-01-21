@@ -611,6 +611,13 @@ class OrdenesApiController extends Controller
         DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
       )
       ->groupBy('ordenes_id');
+    
+    $contadorFasesQueryCorrecciones = DB::table('fases_correcciones_ordenes')
+      ->select('correccion_ordenes_id', 
+          DB::raw('COUNT(*) as total_fases'),
+          DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+      )
+      ->groupBy('correccion_ordenes_id');
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
@@ -651,36 +658,125 @@ class OrdenesApiController extends Controller
 
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
-      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-      ->select(
-        'fo.ordenes_id',
+    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+    ->select(
+      'fo.ordenes_id',
+      DB::raw('
+          CASE 
+              WHEN fo.status = 1 THEN 
+                  CASE 
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
+                          (SELECT tipo_fase_orden 
+                           FROM tipos_fases_ordenes 
+                           ORDER BY id ASC LIMIT 1)
+                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
+                      ELSE 
+                          (SELECT tipo_fase_orden 
+                           FROM tipos_fases_ordenes 
+                           WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
+                  END
+              ELSE 
+                  tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
+          END as fase_actual',
+      ),
+      'fo.laboratorio as laboratorio_ultima_fase',
+      'fo.observacion as observacion_ultima_fase',
+      'fo.fecha_fase as fecha_ultima_fase'
+    )
+    ->whereRaw('fo.id = (
+      SELECT MAX(id) 
+      FROM fases_ordenes 
+      WHERE ordenes_id = fo.ordenes_id
+  )');
+
+  $primeraFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
+    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
+    ->leftJoinSub($contadorFasesQueryCorrecciones, 'contador_fases', 'fo.correccion_ordenes_id', '=', 'contador_fases.correccion_ordenes_id')
+    ->select(
+        'fo.correccion_ordenes_id',
+        'fo.laboratorio as laboratorio_primera_fase',
+        'fo.observacion as observacion_primera_fase',
+        'fo.fecha_fase as fecha_primera_fase',
+        'contador_fases.total_fases',
+        'contador_fases.fases_completadas',
+        DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
+        DB::raw('CASE 
+                WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
+                ELSE "sin_status"
+            END as status_primera_fase')
+    )
+    ->whereRaw('fo.id = (
+        SELECT MIN(id) 
+        FROM fases_correcciones_ordenes 
+        WHERE correccion_ordenes_id = fo.correccion_ordenes_id 
+        AND tipo_fase_correccion_orden_id = 1
+    )');
+
+$ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
+    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
+    ->select(
+        'fo.correccion_ordenes_id',
         DB::raw('
-                CASE 
-                    WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                        (SELECT tipo_fase_orden 
-                         FROM tipos_fases_ordenes 
-                         ORDER BY id ASC LIMIT 1)
-                    WHEN fo.tipo_fase_orden_id = 4 THEN 
-                        tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                    ELSE 
-                        (SELECT tipo_fase_orden 
-                         FROM tipos_fases_ordenes 
-                         WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
-                END as fase_actual'),
+            CASE 
+                WHEN fo.status = 1 THEN 
+                    CASE 
+                        WHEN fo.tipo_fase_correccion_orden_id IS NULL THEN 
+                            (SELECT tipo_fase_orden FROM tipos_fases_ordenes ORDER BY id ASC LIMIT 1)
+                        WHEN fo.tipo_fase_correccion_orden_id = 4 THEN 
+                            tfo.tipo_fase_orden
+                        ELSE 
+                            (SELECT tipo_fase_orden FROM tipos_fases_ordenes WHERE id = fo.tipo_fase_correccion_orden_id + 1 LIMIT 1)
+                    END
+                ELSE 
+                    tfo.tipo_fase_orden
+            END as fase_actual'
+        ),
         'fo.laboratorio as laboratorio_ultima_fase',
         'fo.observacion as observacion_ultima_fase',
         'fo.fecha_fase as fecha_ultima_fase'
-      )
-      ->whereRaw('fo.id = (
-            SELECT MAX(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id
-        )');
+    )
+    ->whereRaw('fo.id = (
+        SELECT MAX(id) 
+        FROM fases_correcciones_ordenes 
+        WHERE correccion_ordenes_id = fo.correccion_ordenes_id
+    )');
 
-    // Consulta principal
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre',
+      'correciones' => function($query) use ($primeraFaseCorreccionQuery, $ultimaFaseCorreccionQuery) {
+        $query->select(
+            'correciones_ordenes.*',
+            'usuarios.nombre as elaborado_por_nombre',
+            'ordenes.nro_orden_id',
+            'ordenes.lente_contacto',
+            'sucursales.nombre as nombre_sucursal',
+            'primeras_fases.laboratorio_primera_fase as laboratorio',
+            'primeras_fases.observacion_primera_fase as observacion',
+            'primeras_fases.fecha_primera_fase as fecha_fase',
+            'primeras_fases.status_primera_fase as status',
+            'primeras_fases.dias_transcurridos',
+            'primeras_fases.total_fases',
+            DB::raw("CASE WHEN ordenes.pagado = 1 THEN 'Sí' ELSE 'No' END AS pagado_nombre"),
+            DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_od, " | ", 1) as tipo_cristal_od_codigo'),
+            DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
+            DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
+            DB::raw("CONCAT(
+                ordenes.nro_orden_id, 
+                '-C', 
+                ROW_NUMBER() OVER (PARTITION BY correciones_ordenes.ordenes_id ORDER BY correciones_ordenes.created_at)
+            ) as correcion_format")
+        )
+        ->join('ordenes', 'correciones_ordenes.ordenes_id', '=', 'ordenes.id_orden')
+        ->join('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+        ->join('usuarios', 'correciones_ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+        ->leftJoinSub($primeraFaseCorreccionQuery, 'primeras_fases', 'correciones_ordenes.id', '=', 'primeras_fases.correccion_ordenes_id')
+        ->leftJoinSub($ultimaFaseCorreccionQuery, 'ultimas_fases', 'correciones_ordenes.id', '=', 'ultimas_fases.correccion_ordenes_id');
+    }
     ])
       ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
@@ -690,21 +786,22 @@ class OrdenesApiController extends Controller
         'ordenes.nro_orden',
         'ordenes.id_paciente',
         'ordenes.id_sucursal',
+        'ordenes.nro_orden_id',
         'ordenes.pagado',
         'ordenes.doctor',
         'ordenes.lente_contacto',
         'ordenes.tipo_cristal_od',
         'ordenes.tipo_cristal_oi',
+        'primeras_fases.status_primera_fase as status',
         'usuarios.nombre as elaborado_por_nombre',
         DB::raw('SUBSTRING_INDEX(ordenes.tipo_cristal_od, " | ", 1) as tipo_cristal_od_codigo'),
         DB::raw('SUBSTRING_INDEX(ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
-        // 'primeras_fases.laboratorio_primera_fase as laboratorio',
-        'primeras_fases.status_primera_fase as status',
         DB::raw('COALESCE(primeras_fases.laboratorio_primera_fase, "") as laboratorio'),
         DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
         DB::raw("CASE WHEN pagado = 1 THEN 'Sí' ELSE 'No' END AS pagado_nombre"),
-        DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted") // Formateo de fecha
+        DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted") 
       );
+      
     if (!empty($search)) {
       $ordenes->where(function ($query) use ($search) {
         $query->where('ordenes.id_orden', 'like', "%{$search}%")
@@ -792,7 +889,7 @@ class OrdenesApiController extends Controller
 
     $dataexport = $ordenes->orderBy($sortColumn, $sortOrder)->get();
 
-
+    
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
 

@@ -95,6 +95,7 @@ class Ordenes extends Model
         return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
     }
 
+ 
   // protected static function boot()
   // {
   //     parent::boot();

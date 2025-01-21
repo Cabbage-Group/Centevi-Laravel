@@ -296,7 +296,9 @@ Route::post('/api/contacto-orden', [ContactosOrdenesApiController::class, 'store
 
 Route::get('/api/kpis', [KpisApiController::class, 'VerKpis']);
 
-Route::get('/api/correciones-ordenes/pdf/{id}', [CorrecionesOrdenesController::class, 'getOrdenCorrecionPdf']);
+Route::get('/api/kpis/asesores', [KpisApiController::class, 'VerKpisAsesores']);
+
+Route::get('/api/kpis/doctores', [KpisApiController::class, 'VerKpisDoctores']);
 
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);
 
