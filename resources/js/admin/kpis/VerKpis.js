@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchKpis, fetchKpisAsesores, fetchKpisDoctores, setFechaRange, setFechaRangeAsesores, setFechaRangeDoctores } from '../../redux/features/kpis/kpisSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangeSeparate from '../reportes/DateRange';
-import { Checkbox } from 'antd';
+import { Checkbox, Select } from 'antd';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 const VerKpis = () => {
@@ -41,8 +41,22 @@ const VerKpis = () => {
   const [activeLines, setActiveLines] = useState([]);
   const [activeLinesUsuarios, setActiveLinesUsuarios] = useState([]);
   const [activeLinesDoctores, setActiveLinesDoctores] = useState([]);
+  const [lenteContactoFilter, setLenteContactoFilter] = useState([]);
+  const [lenteContactoFilterAsesores, setLenteContactoFilterAsesores] = useState([]);
+  const [lenteContactoFilterDoctores, setLenteContactoFilterDoctores] = useState([]);
 
 
+  const handleLenteContactoChange = (value) => {
+    setLenteContactoFilter(value);
+  };
+
+  const handleLenteContactoChangeAsesores = (value) => {
+    setLenteContactoFilterAsesores(value);
+  };
+
+  const handleLenteContactoChangeDoctores = (value) => {
+    setLenteContactoFilterDoctores(value);
+  };
 
   const handleDateApply = (newStartDate, newEndDate) => {
     setLocalStartDate(newStartDate);
@@ -87,16 +101,16 @@ const VerKpis = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchKpis({ startDate: localStartDate, endDate: localEndDate }));
-  }, [dispatch, localStartDate, localEndDate]);
+    dispatch(fetchKpis({ startDate: localStartDate, endDate: localEndDate, lenteContacto: lenteContactoFilter }));
+  }, [dispatch, localStartDate, localEndDate, lenteContactoFilter]);
 
   useEffect(() => {
-    dispatch(fetchKpisAsesores({ startDate: localStartDateAsesores, endDate: localEndDateAsesores }));
-  }, [dispatch, localStartDateAsesores, localEndDateAsesores]);
+    dispatch(fetchKpisAsesores({ startDate: localStartDateAsesores, endDate: localEndDateAsesores, lenteContacto: lenteContactoFilterAsesores }));
+  }, [dispatch, localStartDateAsesores, localEndDateAsesores, lenteContactoFilterAsesores]);
 
   useEffect(() => {
-    dispatch(fetchKpisDoctores({ startDate: localStartDateDoctores, endDate: localEndDateDoctores }));
-  }, [dispatch, localStartDateDoctores, localEndDateDoctores]);
+    dispatch(fetchKpisDoctores({ startDate: localStartDateDoctores, endDate: localEndDateDoctores, lenteContacto: lenteContactoFilterDoctores }));
+  }, [dispatch, localStartDateDoctores, localEndDateDoctores, lenteContactoFilterDoctores]);
 
   useEffect(() => {
     dispatch(fetchSucursales({}));
@@ -216,7 +230,7 @@ const VerKpis = () => {
     for (let i = 0; i < sucursales.length; i += 12) {
       chunkedSucursales.push(sucursales.slice(i, i + 12));
     }
-  
+
     return (
       <div style={{ display: 'flex', gap: '20px' }}>
         {chunkedSucursales.map((chunk, chunkIndex) => (
@@ -234,7 +248,7 @@ const VerKpis = () => {
                     onChange={(e) => handleCheckboxChange(sucursal.id_sucursal, e.target.checked)}
                     style={{ marginRight: '5px' }}
                   />
-                  <span 
+                  <span
                     style={{ color: lineColor, fontSize: '12px', width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                     title={sucursal.nombre} // Muestra el nombre completo cuando se pasa el mouse
                   >
@@ -248,8 +262,8 @@ const VerKpis = () => {
       </div>
     );
   };
-  
-  
+
+
 
   const renderLegendDoctores = () => {
     // Dividir los doctores en columnas de 7 elementos
@@ -257,7 +271,7 @@ const VerKpis = () => {
     for (let i = 0; i < usuarios_doctores_options_selecteds.length; i += 12) {
       chunkedDoctores.push(usuarios_doctores_options_selecteds.slice(i, i + 12));
     }
-  
+
     return (
       <div style={{ display: 'flex', gap: '20px' }}>
         {chunkedDoctores.map((chunk, chunkIndex) => (
@@ -275,7 +289,7 @@ const VerKpis = () => {
                     onChange={(e) => handleCheckboxChangeDoctores(doctor.value, e.target.checked)}
                     style={{ marginRight: '5px' }}
                   />
-                  <span 
+                  <span
                     style={{
                       color: lineColor,
                       fontSize: '12px',
@@ -296,8 +310,8 @@ const VerKpis = () => {
       </div>
     );
   };
-  
-  
+
+
 
 
   const renderLegendAsesores = () => {
@@ -306,7 +320,7 @@ const VerKpis = () => {
     for (let i = 0; i < usuarios_activados.length; i += 12) {
       chunkedUsuarios.push(usuarios_activados.slice(i, i + 12));
     }
-  
+
     return (
       <div style={{ display: 'flex', gap: '20px' }}>
         {chunkedUsuarios.map((chunk, chunkIndex) => (
@@ -324,7 +338,7 @@ const VerKpis = () => {
                     onChange={(e) => handleCheckboxChangeUsuarios(usuario.id_usuario, e.target.checked)}
                     style={{ marginRight: '5px' }}
                   />
-                  <span 
+                  <span
                     style={{
                       color: lineColor,
                       fontSize: '12px',
@@ -363,15 +377,46 @@ const VerKpis = () => {
     }
     return null;
   };
-  
+
   return (
     <div>
-      <ResponsiveContainer width="100%" height={300}>
-        <div style={{ marginRight: '10px', marginTop: 'px' }}>
-          <label>
-            Buscar por Fecha Sucursales:
-          </label>
+      <ResponsiveContainer width="100%" height={300} >
+        <label>
+          Buscar por Fecha Sucursales:
+        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
           <DateRangeSeparate onApply={handleDateApply} onReset={handleDateReset} />
+          <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
+            <label>
+              Filtrar por Tipo de Lente:
+            </label>
+            <Select
+              mode="multiple"
+              style={{ width: '200px' }}
+              placeholder="Selecciona el tipo de lente"
+              onChange={handleLenteContactoChange}
+              value={lenteContactoFilter || undefined}
+              allowClear
+            >
+              <Select.Option value="1">
+                <img
+                  src="assets/img/recetas/lentesdecontacto.png"
+                  alt="Lente On"
+                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                />
+                Lente de Contacto
+              </Select.Option>
+              <Select.Option value="0">
+                <img
+                  src="assets/img/recetas/lentenormal.png"
+                  alt="Lente Off"
+                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                />
+                Lente Normal
+              </Select.Option>
+            </Select>
+          </div>
         </div>
         <LineChart
           data={kpis}
@@ -380,7 +425,7 @@ const VerKpis = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip content={customTooltip}/>
+          <Tooltip content={customTooltip} />
           <Legend
             content={renderLegend}
             align="right"
@@ -391,12 +436,43 @@ const VerKpis = () => {
         </LineChart>
       </ResponsiveContainer>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <div style={{ marginRight: '10px', marginTop: '100px' }}>
-          <label>
-            Buscar por Fecha Asesores:
-          </label>
+      <ResponsiveContainer width="100%" height={300} style={{marginTop: '100px' }}>
+        <label>
+          Buscar por Fecha Asesores:
+        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
           <DateRangeSeparate onApply={handleDateApplyAsesores} onReset={handleDateResetAsesores} />
+          <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
+            <label>
+              Filtrar por Tipo de Lente Asesores:
+            </label>
+            <Select
+              mode="multiple"
+              style={{ width: '200px' }}
+              placeholder="Selecciona el tipo de lente"
+              onChange={handleLenteContactoChangeAsesores}
+              value={lenteContactoFilterAsesores || undefined}
+              allowClear
+            >
+              <Select.Option value="1">
+                <img
+                  src="assets/img/recetas/lentesdecontacto.png"
+                  alt="Lente On"
+                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                />
+                Lente de Contacto
+              </Select.Option>
+              <Select.Option value="0">
+                <img
+                  src="assets/img/recetas/lentenormal.png"
+                  alt="Lente Off"
+                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                />
+                Lente Normal
+              </Select.Option>
+            </Select>
+          </div>
         </div>
         <LineChart
           data={kpisAsesores}
@@ -405,7 +481,7 @@ const VerKpis = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip  content={customTooltip}/>
+          <Tooltip content={customTooltip} />
           <Legend
             content={renderLegendAsesores}
             align="right"
@@ -416,12 +492,45 @@ const VerKpis = () => {
         </LineChart>
       </ResponsiveContainer>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <div style={{ marginRight: '10px', marginTop: '100px' }}>
-          <label>
-            Buscar por Fecha Doctores:
-          </label>
+      <ResponsiveContainer width="100%" height={300}  style={{marginTop: '100px' }} >
+        <label >
+          Buscar por Fecha Doctores:
+        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
           <DateRangeSeparate onApply={handleDateApplyDoctores} onReset={handleDateResetDoctores} />
+          <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
+            <label>
+              Filtrar por Tipo de Lente Doctores:
+            </label>
+
+            <Select
+              mode="multiple"
+              style={{ width: '200px' }}
+              placeholder="Selecciona el tipo de lente"
+              onChange={handleLenteContactoChangeDoctores}
+              value={lenteContactoFilterDoctores || undefined}
+              allowClear
+            >
+              <Select.Option value="1">
+                <img
+                  src="assets/img/recetas/lentesdecontacto.png"
+                  alt="Lente On"
+                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                />
+                Lente de Contacto
+              </Select.Option>
+              <Select.Option value="0">
+                <img
+                  src="assets/img/recetas/lentenormal.png"
+                  alt="Lente Off"
+                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                />
+                Lente Normal
+              </Select.Option>
+            </Select>
+
+          </div>
         </div>
         <LineChart
           data={kpisDoctores}
@@ -430,7 +539,7 @@ const VerKpis = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip content={customTooltip}/>
+          <Tooltip content={customTooltip} />
           <Legend
             content={renderLegendDoctores}
             align="right"

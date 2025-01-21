@@ -294,11 +294,11 @@ Route::get('/api/contacto-orden', [ContactosOrdenesApiController::class, 'index'
 
 Route::post('/api/contacto-orden', [ContactosOrdenesApiController::class, 'store']);
 
-Route::get('/api/kpis', [KpisApiController::class, 'VerKpis']);
+Route::post('/api/kpis', [KpisApiController::class, 'VerKpis']);
 
-Route::get('/api/kpis/asesores', [KpisApiController::class, 'VerKpisAsesores']);
+Route::post('/api/kpis/asesores', [KpisApiController::class, 'VerKpisAsesores']);
 
-Route::get('/api/kpis/doctores', [KpisApiController::class, 'VerKpisDoctores']);
+Route::post('/api/kpis/doctores', [KpisApiController::class, 'VerKpisDoctores']);
 
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);
 

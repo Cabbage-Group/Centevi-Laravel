@@ -5,47 +5,44 @@ import dayjs from 'dayjs';
 
 export const fetchKpis = createAsyncThunk(
   'kpis/fetchKpis',
-  async ({ sortOrder = 'asc', startDate = '', endDate = '' }) => {
+  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = '' }) => {
     try {
       const today = dayjs();
       const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
       const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
-      
-      console.log('startDate:', formattedStartDate);
-      console.log('endDate:', formattedEndDate);
-      
-      const params = { 
-        sortOrder, 
+
+      const requestBody = {
+        sortOrder,
         startDate: formattedStartDate,
-        endDate: formattedEndDate 
+        endDate: formattedEndDate,
+        lenteContacto
       };
-      const response = await axios.get(`${API}/kpis`, { params });
+
+      const response = await axios.post(`${API}/kpis`, requestBody); 
 
       return response.data;
     } catch (error) {
-      console.error('Error fetching Kpis:', error.response.data);
+      console.error('Error fetching Kpis:', error.response?.data || error.message);
       throw error;
     }
   }
 );
 
+
 export const fetchKpisAsesores = createAsyncThunk(
   'kpis/fetchKpisAsesores',
-  async ({ sortOrder = 'asc', startDate = '', endDate = '' }) => {
+  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = ''  }) => {
     try {
       const today = dayjs();
       const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
       const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
-      
-      console.log('startDate:', formattedStartDate);
-      console.log('endDate:', formattedEndDate);
-      
-      const params = { 
+      const requestBody = { 
         sortOrder, 
         startDate: formattedStartDate,
-        endDate: formattedEndDate 
+        endDate: formattedEndDate,
+        lenteContacto
       };
-      const response = await axios.get(`${API}/kpis/asesores`, { params });
+      const response = await axios.post(`${API}/kpis/asesores`, requestBody );
 
       return response.data;
     } catch (error) {
@@ -57,21 +54,18 @@ export const fetchKpisAsesores = createAsyncThunk(
 
 export const fetchKpisDoctores = createAsyncThunk(
   'kpis/fetchKpisDoctores',
-  async ({ sortOrder = 'asc', startDate = '', endDate = '' }) => {
+  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = ''  }) => {
     try {
       const today = dayjs();
       const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
-      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
-      
-      console.log('startDate:', formattedStartDate);
-      console.log('endDate:', formattedEndDate);
-      
-      const params = { 
+      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');     
+      const requestBody = { 
         sortOrder, 
         startDate: formattedStartDate,
-        endDate: formattedEndDate 
+        endDate: formattedEndDate,
+        lenteContacto
       };
-      const response = await axios.get(`${API}/kpis/doctores`, { params });
+      const response = await axios.post(`${API}/kpis/doctores`,  requestBody );
 
       return response.data;
     } catch (error) {

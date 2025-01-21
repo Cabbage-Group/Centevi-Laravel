@@ -19,8 +19,9 @@ class KpisApiController extends Controller
       $orderDirection = 'asc';
     }
   
-    $startDate = $request->get('startDate', null);
-    $endDate = $request->get('endDate', null);
+    $startDate = $request->input('startDate', null);
+    $endDate = $request->input('endDate', null);
+    $lenteContacto = $request->input('lenteContacto', null);
   
     try {
       $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
@@ -47,6 +48,16 @@ class KpisApiController extends Controller
     if ($startDate && $endDate) {
       $query->whereBetween(DB::raw('DATE(created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
     }
+
+    if (!is_null($lenteContacto) && is_array($lenteContacto)) {
+      if (!empty($lenteContacto)) {
+          $query->whereIn('lente_contacto', $lenteContacto); // Filtrar si hay valores en el array
+      }
+      // Si $lenteContacto está vacío, no se aplica ningún filtro y devuelve todos los registros
+  } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
+      $query->where('lente_contacto', $lenteContacto);
+  }
+
   
     $result = $query->get();
   
@@ -73,15 +84,16 @@ class KpisApiController extends Controller
 
   public function VerKpisAsesores(Request $request)
 {
-    $orderBy = $request->get('sortColumn', 'name'); // Campo para ordenar
-    $orderDirection = $request->get('sortOrder', 'asc'); // Dirección (asc o desc)
+    $orderBy = $request->input('sortColumn', 'name'); // Campo para ordenar
+    $orderDirection = $request->input('sortOrder', 'asc'); // Dirección (asc o desc)
 
     if (!in_array($orderDirection, ['asc', 'desc'])) {
         $orderDirection = 'asc';
     }
 
-    $startDate = $request->get('startDate', null);
-    $endDate = $request->get('endDate', null);
+    $startDate = $request->input('startDate', null);
+    $endDate = $request->input('endDate', null);
+    $lenteContacto = $request->input('lenteContacto', null);
 
     try {
         $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
@@ -114,6 +126,15 @@ class KpisApiController extends Controller
         $query->whereBetween(DB::raw('DATE(ordenes.created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
     }
 
+    if (!is_null($lenteContacto) && is_array($lenteContacto)) {
+      if (!empty($lenteContacto)) {
+          $query->whereIn('lente_contacto', $lenteContacto); // Filtrar si hay valores en el array
+      }
+      // Si $lenteContacto está vacío, no se aplica ningún filtro y devuelve todos los registros
+  } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
+      $query->where('lente_contacto', $lenteContacto);
+  }
+
     $result = $query->get();
 
     // Asegurar que todos los asesores aparezcan, incluso si no tienen órdenes
@@ -145,15 +166,16 @@ class KpisApiController extends Controller
 
   public function VerKpisDoctores(Request $request)
 {
-    $orderBy = $request->get('sortColumn', 'name'); // Campo para ordenar
-    $orderDirection = $request->get('sortOrder', 'asc'); // Dirección (asc o desc)
+    $orderBy = $request->input('sortColumn', 'name'); // Campo para ordenar
+    $orderDirection = $request->input('sortOrder', 'asc'); // Dirección (asc o desc)
 
     if (!in_array($orderDirection, ['asc', 'desc'])) {
         $orderDirection = 'asc';
     }
 
-    $startDate = $request->get('startDate', null);
-    $endDate = $request->get('endDate', null);
+    $startDate = $request->input('startDate', null);
+    $endDate = $request->input('endDate', null);
+    $lenteContacto = $request->input('lenteContacto', null);
 
     try {
         $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
@@ -187,6 +209,15 @@ class KpisApiController extends Controller
     if ($startDate && $endDate) {
         $query->whereBetween(DB::raw('DATE(ordenes.created_at)'), [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
     }
+
+    if (!is_null($lenteContacto) && is_array($lenteContacto)) {
+      if (!empty($lenteContacto)) {
+          $query->whereIn('lente_contacto', $lenteContacto); // Filtrar si hay valores en el array
+      }
+      // Si $lenteContacto está vacío, no se aplica ningún filtro y devuelve todos los registros
+  } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
+      $query->where('lente_contacto', $lenteContacto);
+  }
 
     $result = $query->get();
 
