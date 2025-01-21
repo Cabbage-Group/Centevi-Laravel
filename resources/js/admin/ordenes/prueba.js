@@ -537,7 +537,7 @@ const CollapsibleTable = (
                                                             .map((correcion, index) => (
                                                                 <tr key={correcion.id}>
 
-                                                                    <td style={{ width: columnWidths.nroOrden }}>{correcion.nro_orden} - C{index+1}</td>
+                                                                    <td style={{ width: columnWidths.nroOrden }}>{correcion.nro_orden_id} - C{index+1}</td>
                                                                     <td style={{ width: columnWidths.pagado }} >
                                                                         <button
                                                                             className={`btn btn-xs ${parseInt(orden.pagado) === 1

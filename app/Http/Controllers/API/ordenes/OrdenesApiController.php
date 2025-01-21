@@ -1083,7 +1083,7 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
       ->first();
     $data = [
       'fecha_solicitud' => $orden['created_at'],
-      'nro_orden' => $orden['nro_orden'],
+      'nro_orden' => $orden['nro_orden_id'],
       'lenteContacto' => false,
       'esfera_od' => $orden['esfera_od'],
       'cilindro_od' => $orden['cilindro_od'],
@@ -1119,7 +1119,9 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
       'tratamientos_oi' => $orden['tratamientos_oi'],
       'tratamientos_od' => $orden['tratamientos_od'],
       'sucursal' => $orden['nombre'] ?? '',
-      'nombres_apellidos_paciente' => ($orden['nombres'] ?? '') . ' ' . ($orden['apellidos'] ?? '')
+      'nombres_apellidos_paciente' => ($orden['nombres'] ? explode(' ', trim($orden['nombres']))[0] : '') 
+      . ' ' 
+      . ($orden['apellidos'] ? explode(' ', trim($orden['apellidos']))[0] : '') 
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);

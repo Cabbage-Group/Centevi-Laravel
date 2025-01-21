@@ -639,7 +639,7 @@ public function createFasesCorrecionesOrdenes(Request $request)
           'sucursales.nombre',
           'pacientes.nombres',
           'pacientes.apellidos',
-          'ordenes.nro_orden',
+          'ordenes.nro_orden_id',
           'ordenes.id_orden as id_orden',
         )->where('correciones_ordenes.id',$id_orden)->first();
 
@@ -653,7 +653,7 @@ public function createFasesCorrecionesOrdenes(Request $request)
 
     $data = [
       'fecha_solicitud' => $orden['created_at'],
-      'nro_orden' => $orden['nro_orden'].' - C'.$idCorrelativo,
+      'nro_orden' => $orden['nro_orden_id'].' - C'.$idCorrelativo,
       'lenteContacto' => false,
       'esfera_od' => $orden['esfera_od'],
       'cilindro_od' => $orden['cilindro_od'],
@@ -689,7 +689,9 @@ public function createFasesCorrecionesOrdenes(Request $request)
       'tratamientos_oi' => $orden['tratamientos_oi'],
       'tratamientos_od' => $orden['tratamientos_od'],
       'sucursal' => $orden['nombre'] ?? '',
-      'nombres_apellidos_paciente' => ($orden['nombres'] ?? '') . ' ' . ($orden['apellidos'] ?? '')
+      'nombres_apellidos_paciente' => ($orden['nombres'] ? explode(' ', trim($orden['nombres']))[0] : '') 
+      . ' ' 
+      . ($orden['apellidos'] ? explode(' ', trim($orden['apellidos']))[0] : '') 
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);
