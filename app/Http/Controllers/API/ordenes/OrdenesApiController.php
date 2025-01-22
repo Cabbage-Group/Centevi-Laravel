@@ -308,7 +308,7 @@ class OrdenesApiController extends Controller
               'l_tres' => '',
               'l_cuatro' => '',
               'l_cinco' => '',
-              'pagado' => 0,
+              'pagado' => 2,
               'lente_contacto' => 0,
               'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
           ];

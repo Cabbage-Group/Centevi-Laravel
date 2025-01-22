@@ -473,6 +473,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                       const onlyNumbers = e.target.value.replace(/\D/g, "");
                                       setFieldValue("nro_orden_id", onlyNumbers);
                                     }}
+                                    disabled
                                     placeholder="Ingrese el número de orden"
                                     style={{
                                       color: "red",
