@@ -54,6 +54,7 @@ class CorrecionesOrdenes extends Model
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'elaborado_por' => 'integer',
+    'ordenes_id' => 'integer',
   ];
 
   public function orden()

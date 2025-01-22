@@ -281,7 +281,7 @@ const ReporteOrdenes = () => {
                   <Card title="Resumen de Pagos" bordered={false} hoverable>
                     <p>Pagado: {pagadoTotals?.['1']}</p>
                     <p>Abonado: {pagadoTotals?.['2']}</p>
-                    <p>Sin Pago: {pagadoTotals?.['0']}</p>
+                    <p>Cortesia: {pagadoTotals?.['0']}</p>
                   </Card>
                 </div>
                 <div className="col-md-4" style={{ marginTop: '20px' }}>
@@ -724,115 +724,115 @@ const ReporteOrdenes = () => {
                           </tr>
                         </thead>
                         <tbody>
-  {
-    reportesOrdenes.map((rpOrden) => {
-      return (
-        <>
-          {/* Fila para el reporte de orden */}
-          <tr key={rpOrden.id_orden}>
-            <td>{rpOrden.lente_contacto ? (
-              <img
-                src="assets/img/recetas/lentesdecontacto.png"
-                alt="Lente Contacto True"
-                style={{ width: '20px', marginLeft: '8px' }}
-              />
-            ) : (
-              <img
-                src="assets/img/recetas/lentenormal.png"
-                alt="Lente Contacto False"
-                style={{ width: '20px', marginLeft: '8px' }}
-              />
-            )}
-            </td>
-            <td>{rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo}</td>
-            <td>
-              <Tooltip title={rpOrden?.status ?? ""}>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    backgroundColor:
-                      rpOrden?.status === 'Ok'
-                        ? 'green'
-                        : rpOrden?.status === 'Advertencia'
-                          ? 'yellow'
-                          : rpOrden?.status === 'Critico'
-                            ? 'red'
-                            : rpOrden?.status === 'Completado'
-                              ? 'blue'
-                              : 'gray',
-                  }}
-                ></span>{" "}
-              </Tooltip>
-            </td>
-            <td>{rpOrden?.created_at_formatted}</td>
-            <td>{rpOrden?.nro_orden_id}</td>
-            <td>{rpOrden?.pagado_nombre}</td>
-            <td>{rpOrden?.sucursal.nombre}</td>
-            <td>{rpOrden?.doctor}</td>
-            <td>{rpOrden?.elaborado_por_nombre}</td>
-            <td>{rpOrden?.laboratorio}</td>
-          </tr>
+                          {
+                            reportesOrdenes.map((rpOrden) => {
+                              return (
+                                <>
+                                  {/* Fila para el reporte de orden */}
+                                  <tr key={rpOrden.id_orden}>
+                                    <td>{rpOrden.lente_contacto ? (
+                                      <img
+                                        src="assets/img/recetas/lentesdecontacto.png"
+                                        alt="Lente Contacto True"
+                                        style={{ width: '20px', marginLeft: '8px' }}
+                                      />
+                                    ) : (
+                                      <img
+                                        src="assets/img/recetas/lentenormal.png"
+                                        alt="Lente Contacto False"
+                                        style={{ width: '20px', marginLeft: '8px' }}
+                                      />
+                                    )}
+                                    </td>
+                                    <td>{rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo}</td>
+                                    <td>
+                                      <Tooltip title={rpOrden?.status ?? ""}>
+                                        <span
+                                          style={{
+                                            display: 'inline-block',
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            backgroundColor:
+                                              rpOrden?.status === 'Ok'
+                                                ? 'green'
+                                                : rpOrden?.status === 'Advertencia'
+                                                  ? 'yellow'
+                                                  : rpOrden?.status === 'Critico'
+                                                    ? 'red'
+                                                    : rpOrden?.status === 'Completado'
+                                                      ? 'blue'
+                                                      : 'gray',
+                                          }}
+                                        ></span>{" "}
+                                      </Tooltip>
+                                    </td>
+                                    <td>{rpOrden?.created_at_formatted}</td>
+                                    <td>{rpOrden?.nro_orden_id}</td>
+                                    <td>{rpOrden?.pagado_nombre}</td>
+                                    <td>{rpOrden?.sucursal?.nombre}</td>
+                                    <td>{rpOrden?.doctor}</td>
+                                    <td>{rpOrden?.elaborado_por_nombre}</td>
+                                    <td>{rpOrden?.laboratorio}</td>
+                                  </tr>
 
-          {/* Fila para las correcciones */}
-          {
-            rpOrden.correciones && rpOrden.correciones.length > 0 &&
-            rpOrden.correciones.map((correccion, index) => (
-              <tr key={`correccion-${rpOrden.id_orden}-${index}`}>
-                 <td>{correccion.lente_contacto ? (
-                    <img
-                      src="assets/img/recetas/lentesdecontacto.png"
-                      alt="Lente Contacto True"
-                      style={{ width: '20px', marginLeft: '8px' }}
-                    />
-                  ) : (
-                    <img
-                      src="assets/img/recetas/lentenormal.png"
-                      alt="Lente Contacto False"
-                      style={{ width: '20px', marginLeft: '8px' }}
-                    />
-                  )}
-                </td>
-                <td>{correccion.tipo_cristal_od_codigo || correccion.tipo_cristal_oi_codigo}</td>
-                <td>
-                  <Tooltip title={correccion.status ?? ""}>
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '50%',
-                        backgroundColor:
-                          correccion.status === 'Ok'
-                            ? 'green'
-                            : correccion.status === 'Advertencia'
-                              ? 'yellow'
-                              : correccion.status === 'Critico'
-                                ? 'red'
-                                : correccion.status === 'Completado'
-                                  ? 'blue'
-                                  : 'gray',
-                      }}
-                    ></span>{" "}
-                  </Tooltip>
-                </td>
-                <td>{moment(correccion.created_at).format('DD-MM-YYYY')}</td>
-                <td>{correccion.correcion_format}</td>
-                <td>{correccion.pagado_nombre}</td>
-                <td>{correccion.nombre_sucursal}</td>
-                <td>{correccion.doctor}</td>
-                <td>{correccion.elaborado_por_nombre}</td>
-                <td>{correccion.laboratorio}</td>
-              </tr>
-            ))
-          }
-        </>
-      );
-    })
-  }
-</tbody>
+                                  {/* Fila para las correcciones */}
+                                  {
+                                    rpOrden.correciones && rpOrden.correciones.length > 0 &&
+                                    rpOrden.correciones.map((correccion, index) => (
+                                      <tr key={`correccion-${rpOrden.id_orden}-${index}`}>
+                                        <td>{correccion.lente_contacto ? (
+                                          <img
+                                            src="assets/img/recetas/lentesdecontacto.png"
+                                            alt="Lente Contacto True"
+                                            style={{ width: '20px', marginLeft: '8px' }}
+                                          />
+                                        ) : (
+                                          <img
+                                            src="assets/img/recetas/lentenormal.png"
+                                            alt="Lente Contacto False"
+                                            style={{ width: '20px', marginLeft: '8px' }}
+                                          />
+                                        )}
+                                        </td>
+                                        <td>{correccion.tipo_cristal_od_codigo || correccion.tipo_cristal_oi_codigo}</td>
+                                        <td>
+                                          <Tooltip title={correccion.status ?? ""}>
+                                            <span
+                                              style={{
+                                                display: 'inline-block',
+                                                width: '12px',
+                                                height: '12px',
+                                                borderRadius: '50%',
+                                                backgroundColor:
+                                                  correccion.status === 'Ok'
+                                                    ? 'green'
+                                                    : correccion.status === 'Advertencia'
+                                                      ? 'yellow'
+                                                      : correccion.status === 'Critico'
+                                                        ? 'red'
+                                                        : correccion.status === 'Completado'
+                                                          ? 'blue'
+                                                          : 'gray',
+                                              }}
+                                            ></span>{" "}
+                                          </Tooltip>
+                                        </td>
+                                        <td>{moment(correccion.created_at).format('DD-MM-YYYY')}</td>
+                                        <td>{correccion.correcion_format}</td>
+                                        <td>{correccion.pagado_nombre}</td>
+                                        <td>{correccion.nombre_sucursal}</td>
+                                        <td>{correccion.doctor}</td>
+                                        <td>{correccion.elaborado_por_nombre}</td>
+                                        <td>{correccion.laboratorio}</td>
+                                      </tr>
+                                    ))
+                                  }
+                                </>
+                              );
+                            })
+                          }
+                        </tbody>
 
 
 

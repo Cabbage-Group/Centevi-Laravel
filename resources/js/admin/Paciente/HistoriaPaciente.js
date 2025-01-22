@@ -2307,7 +2307,7 @@ const HistoriaPaciente = () => {
                                                     ? 'pagado'
                                                     : parseInt(pacienteOrden.pagado) === 2
                                                         ? 'abonado'
-                                                        : 'sin pago'}
+                                                        : 'Cortesia'}
                                         </button>
                                       </td>
                                       <td>{moment(pacienteOrden.created_at).format('DD/MM/YYYY')}</td>

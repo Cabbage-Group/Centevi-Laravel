@@ -443,7 +443,7 @@ const VerOrdenes = () => {
                                 value={pagadoFilter || ''}
                                 allowClear
                               >
-                                <Select.Option value="0">Sin Pago</Select.Option>
+                                <Select.Option value="0">Cortesia</Select.Option>
                                 <Select.Option value="2">Abonado</Select.Option>
                                 <Select.Option value="1">Pagado</Select.Option>
                               </Select>

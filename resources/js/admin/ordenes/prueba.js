@@ -397,7 +397,7 @@ const CollapsibleTable = (
                                                     ? 'pagado'
                                                     : parseInt(orden.pagado) === 2
                                                         ? 'abonado'
-                                                        : 'sin pago'}
+                                                        : 'Cortesia'}
                                             </button>
                                         </td>
                                         <td>{orden?.created_at_formatted}</td>
@@ -553,7 +553,7 @@ const CollapsibleTable = (
                                                                                 ? 'pagado'
                                                                                 : parseInt(orden.pagado) === 2
                                                                                     ? 'abonado'
-                                                                                    : 'sin pago'}
+                                                                                    : 'Cortesia'}
                                                                         </button>
                                                                     </td>
                                                                     <td style={{ width: columnWidths.fecha }}>

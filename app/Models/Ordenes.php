@@ -68,6 +68,7 @@ class Ordenes extends Model
     'elaborado_por' => 'integer',
     'lente_contacto' => 'integer',
     'correccion' => 'integer',
+    'nro_orden_id' => 'integer',
   ];
 
   public function paciente()
@@ -87,25 +88,25 @@ class Ordenes extends Model
 
   public function correciones()
   {
-      return $this->hasMany(CorrecionesOrdenes::class, 'ordenes_id', 'id_orden');
+    return $this->hasMany(CorrecionesOrdenes::class, 'ordenes_id', 'id_orden');
   }
 
   public function nroOrden()
-    {
-        return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
-    }
+  {
+    return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
+  }
 
- 
+
   // protected static function boot()
   // {
   //     parent::boot();
-  
+
   //     static::creating(function ($orden) {
   //         $ultimoNumero = self::max('nro_orden') ?? 99;
   //         $orden->nro_orden = ($ultimoNumero < 99) ? 99 : $ultimoNumero + 1;
   //     });
   // }
-  
+
 
 
 

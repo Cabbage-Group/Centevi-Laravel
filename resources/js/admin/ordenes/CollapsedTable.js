@@ -224,7 +224,7 @@ const CollapsedTable = ({ data }) => {
                                                 ? 'pagado'
                                                 : parseInt(correcionorden.pagado_orden) === 2
                                                     ? 'abonado'
-                                                    : 'sin pago'}
+                                                    : 'Cortesia'}
                                         </button>
                                     </td>
                                     <td>{dayjs(correcionorden.created_at).format('DD/MM/YYYY')}</td>
