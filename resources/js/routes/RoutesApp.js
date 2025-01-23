@@ -76,6 +76,7 @@ import CorrecionOrdenes from '../admin/correciones-ordenes/CorrecionOrden.js';
 import CorrecionOrden from '../admin/correciones-ordenes/CorrecionOrden.js';
 import VerUnaCorrecionOrden from '../admin/correciones-ordenes/VerUnaCorrecionOrdenes.js';
 import VerUnaCorrecionOrdenes from '../admin/correciones-ordenes/VerUnaCorrecionOrdenes.js';
+import Email from '../admin/email/SendEmail.js';
 
 
 const RoutesApp = () => {
@@ -221,6 +222,12 @@ const RoutesApp = () => {
 
           
           <Route path="/correciones-ordenes/:correccionOrderId" element={<Sidebar component={<CorrecionOrden />} />} />
+
+          <Route path="/diseño" element={<Sidebar component={<CorrecionOrden />} />} />
+
+          <Route path="/email" element={<Sidebar component={<Email />} />} />
+
+      
 
         </Route>
 
