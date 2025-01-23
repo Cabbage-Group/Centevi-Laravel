@@ -10,9 +10,10 @@ import { Modal, Tooltip, Skeleton, Table } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
 const CollapsibleTable = (
-     {
+    {
         search,
         pagadoFiltro,
         sucursalFiltro,
@@ -42,7 +43,7 @@ const CollapsibleTable = (
         sortColumn,
         sortOrder
     } = useSelector((state) => state.ordenes);
-    const { 
+    const {
         correcionesbyOrden,
         contactoCorreccionOrden
     } = useSelector((state) => state.correcionesordenes);
@@ -51,8 +52,9 @@ const CollapsibleTable = (
     const [currentPage, setCurrentPage] = useState(1);
     const [showContacto, setShowContacto] = useState(false);
     const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
+    const { permisos } = useSelector((state) => state.auth);
 
-    console.log('localSearch:',localSearch)
+    console.log('localSearch:', localSearch)
     useEffect(() => {
         dispatch(fecthOrdenes({
             page: currentPage,
@@ -68,7 +70,7 @@ const CollapsibleTable = (
             lenteContacto: lenteContactoFiltro,
             fase: faseFiltro,
             laboratorio: laboratorioFiltro,
-          
+
 
         }));
     }, [dispatch,
@@ -97,13 +99,13 @@ const CollapsibleTable = (
 
     const toggleorden = (index, ordenId) => {
         setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
-    
+
         if (collapsedordens !== index) {
             setSelectedOrdenId(ordenId);
-            dispatch(fetchCorreccionesByOrdenId(ordenId)); 
+            dispatch(fetchCorreccionesByOrdenId(ordenId));
         }
     };
-    
+
 
     const handlePagoToggle = async (id_orden, estadoActual) => {
         try {
@@ -154,9 +156,9 @@ const CollapsibleTable = (
             setLoadingPdf(true)
             setShowOrden(true)
             let url = null
-            if(correccion){
-                url = await dispatch(verOrdenCorrecionPdf(id_orden))                
-            }else{
+            if (correccion) {
+                url = await dispatch(verOrdenCorrecionPdf(id_orden))
+            } else {
                 url = await dispatch(verOrdenPdf(id_orden))
             }
             if (url) {
@@ -208,7 +210,7 @@ const CollapsibleTable = (
                     status: statusFiltro,
                     lenteContacto: lenteContactoFiltro,
                     fase: faseFiltro,
-                    laboratorio: laboratorioFiltro,                     
+                    laboratorio: laboratorioFiltro,
                 }));
 
                 Swal.fire(
@@ -238,10 +240,10 @@ const CollapsibleTable = (
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
             });
-    
+
             if (result.isConfirmed) {
-                await dispatch(deleteCorreccionesOrdenes(id_orden));   
-                setCollapsedordens(prevState => (prevState === index ? null : prevState));            
+                await dispatch(deleteCorreccionesOrdenes(id_orden));
+                setCollapsedordens(prevState => (prevState === index ? null : prevState));
                 dispatch(fecthOrdenes({
                     page: currentPage,
                     limit: 20,
@@ -255,11 +257,11 @@ const CollapsibleTable = (
                     status: statusFiltro,
                     lenteContacto: lenteContactoFiltro,
                     fase: faseFiltro,
-                    laboratorio: laboratorioFiltro,                     
+                    laboratorio: laboratorioFiltro,
                 }));
 
                 // dispatch(fetchCorreccionesByOrdenId(id_orden));
-    
+
                 Swal.fire(
                     'Eliminado!',
                     'La corrección ha sido eliminada.',
@@ -274,7 +276,7 @@ const CollapsibleTable = (
             );
         }
     };
-    
+
 
 
     const handleVerContacto = async (id_orden) => {
@@ -302,6 +304,23 @@ const CollapsibleTable = (
             );
         }
     }
+
+    const confirmPagoToggle = (id_orden, pagado, nro_orden) => {
+        Swal.fire({
+            title: 'Confirmación',
+            text: "¿Está seguro de cambiar el estado de la orden?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                handlePagoToggle(id_orden, pagado, nro_orden)
+            }
+        });
+    };
 
     const formatDate = (dateString) => {
         if (!dateString) return ''
@@ -358,12 +377,12 @@ const CollapsibleTable = (
                                 <React.Fragment key={orden?.id_orden}>
                                     <tr>
                                         <td>
-                                        {orden?.correccion ? (
+                                            {orden?.correccion ? (
                                                 <span
                                                     style={{ cursor: 'pointer' }}
                                                     onClick={() => toggleorden(index, orden?.id_orden)}
                                                 >
-                                                     {collapsedordens === index ? '▲' : '▼'}
+                                                    {collapsedordens === index ? '▲' : '▼'}
                                                 </span>
                                             ) : null}
 
@@ -390,7 +409,7 @@ const CollapsibleTable = (
                                                         ? 'btn-warning'
                                                         : 'btn-danger'
                                                     }`}
-                                                onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado))}
+                                                onClick={() => confirmPagoToggle(orden.id_orden, parseInt(orden.pagado))}
                                                 style={{ minWidth: '100px' }}
                                             >
                                                 {parseInt(orden.pagado) === 1
@@ -443,7 +462,7 @@ const CollapsibleTable = (
                                                         lenteContactoFiltro,
                                                         statusFiltro,
                                                         localStartDateFiltro,
-                                                        localEndDateFiltro                                                                                                     
+                                                        localEndDateFiltro
                                                     }}
                                                     data-target="#modalEditarSucursal"
                                                     data-toggle="modal"
@@ -498,27 +517,30 @@ const CollapsibleTable = (
                                                 >
                                                     <WhatsAppOutlined />
                                                 </button>
-                                                <button
-                                                    onClick={() => handleEliminarOrden(orden.id_orden)}
-                                                    borrar_receta="185"
-                                                    className="btn btn-danger btnEliminarReceta"
-                                                >
-                                                    <svg
-                                                        className="h-6 w-6"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth="2"
-                                                        />
-                                                    </svg>
-                                                </button>
-
+                                                {
+                                                    funPermisosObtenidosBoolean(permisos, 'sidebar.recetas.ordenes.eliminarorden')
+                                                        ? <button
+                                                            onClick={() => handleEliminarOrden(orden.id_orden)}
+                                                            borrar_receta="185"
+                                                            className="btn btn-danger btnEliminarReceta"
+                                                        >
+                                                            <svg
+                                                                className="h-6 w-6"
+                                                                fill="none"
+                                                                stroke="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path
+                                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                        : null
+                                                }
                                             </div>
                                         </td>
 
@@ -537,7 +559,7 @@ const CollapsibleTable = (
                                                             .map((correcion, index) => (
                                                                 <tr key={correcion.id}>
 
-                                                                    <td style={{ width: columnWidths.nroOrden }}>{correcion.nro_orden_id} - C{index+1}</td>
+                                                                    <td style={{ width: columnWidths.nroOrden }}>{correcion.nro_orden_id} - C{index + 1}</td>
                                                                     <td style={{ width: columnWidths.pagado }} >
                                                                         <button
                                                                             className={`btn btn-xs ${parseInt(orden.pagado) === 1
@@ -546,7 +568,7 @@ const CollapsibleTable = (
                                                                                     ? 'btn-warning'
                                                                                     : 'btn-danger'
                                                                                 }`}
-                                                                            onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado), orden.nro_orden)}
+                                                                            onAbort={async () => confirmPagoToggle(orden.id_orden, parseInt(orden.pagado), orden.nro_orden)}
                                                                             style={{ minWidth: '50px' }}
                                                                         >
                                                                             {parseInt(orden.pagado) === 1
@@ -605,8 +627,8 @@ const CollapsibleTable = (
                                                                                     lenteContactoFiltro,
                                                                                     statusFiltro,
                                                                                     localStartDateFiltro,
-                                                                                    localEndDateFiltro 
-                                                                                  
+                                                                                    localEndDateFiltro
+
                                                                                 }}
                                                                                 data-target="#modalEditarSucursal"
                                                                                 data-toggle="modal"
@@ -661,27 +683,30 @@ const CollapsibleTable = (
                                                                             >
                                                                                 <WhatsAppOutlined />
                                                                             </button>
-                                                                            <button
-                                                                                onClick={() => handleEliminarCorrecionOrden(correcion.id,index)}
-                                                                                borrar_receta="185"
-                                                                                className="btn btn-danger btnEliminarReceta"
-                                                                            >
-                                                                                <svg
-                                                                                    className="h-6 w-6"
-                                                                                    fill="none"
-                                                                                    stroke="currentColor"
-                                                                                    viewBox="0 0 24 24"
-                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                >
-                                                                                    <path
-                                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                        strokeWidth="2"
-                                                                                    />
-                                                                                </svg>
-                                                                            </button>
-
+                                                                            {
+                                                                                funPermisosObtenidosBoolean(permisos, 'sidebar.recetas.ordenes.eliminarorden')
+                                                                                    ? <button
+                                                                                        onClick={() => handleEliminarCorrecionOrden(correcion.id, index)}
+                                                                                        borrar_receta="185"
+                                                                                        className="btn btn-danger btnEliminarReceta"
+                                                                                    >
+                                                                                        <svg
+                                                                                            className="h-6 w-6"
+                                                                                            fill="none"
+                                                                                            stroke="currentColor"
+                                                                                            viewBox="0 0 24 24"
+                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                        >
+                                                                                            <path
+                                                                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                                                strokeLinecap="round"
+                                                                                                strokeLinejoin="round"
+                                                                                                strokeWidth="2"
+                                                                                            />
+                                                                                        </svg>
+                                                                                    </button>
+                                                                                    : null
+                                                                            }
                                                                         </div>
                                                                     </td>
 
