@@ -77,6 +77,7 @@ import reportesOrdenesSlice from './features/reportes/reporteOrdenesSlice'
 import kpisSlice from './features/kpis/kpisSlice'
 import correcionesordenesSlice from './features/correciones-ordenes/correcionesOrdenesSlice'
 import correccionesFasesOrdenes from './features/correciones-ordenes/correccionesFasesOrdenesSlice'
+import emailSlice from './features/email/emailSlice'
 
 
 
@@ -173,7 +174,9 @@ const store = configureStore({
 
     correcionesordenes: correcionesordenesSlice,
 
-    correccionesFasesOrdenes: correccionesFasesOrdenes
+    correccionesFasesOrdenes: correccionesFasesOrdenes,
+
+    email: emailSlice
 
 
   }

@@ -122,7 +122,23 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/contacto-orden',
 
-    'http://127.0.0.1:8000/api/kpis/*',
+    'http://127.0.0.1:8000/api/kpis',
+
+    'http://127.0.0.1:8000/api/kpis/asesores',
+
+    'http://127.0.0.1:8000/api/kpis/doctores',
+
+    'http://127.0.0.1:8000/api/kpis/doctor-ordenes',
+
+    'http://127.0.0.1:8000/api/kpis/fases-ordenes',
+
+    'http://127.0.0.1:8000/api/kpis/status-ordenes',
+
+    'http://127.0.0.1:8000/api/kpis/asesor-ordenes',
+
+    'http://127.0.0.1:8000/api/kpis/asesor-fases',
+
+    'http://127.0.0.1:8000/api/kpis/asesor-status',
 
     'http://127.0.0.1:8000/api/correciones-ordenes/*',
 
@@ -141,6 +157,8 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/migration',
 
     'http://127.0.0.1:8000/api/allordenes',
+
+    'http://127.0.0.1:8000/api/send-verification-email',
 
   ];
 }
