@@ -97,6 +97,8 @@ const usuariosSlice = createSlice({
     usuarios: [],
     usuarios_activados: [],
     usuarios_doctores_options_selecteds: [],
+    doctores_activados: [],
+    asesores_activados: [],
     meta: {},
     status: 'idle',
     error: null,
@@ -120,6 +122,10 @@ const usuariosSlice = createSlice({
             label: doctor.nombre
           }));
         state.usuarios_activados = state.usuarios
+          .filter(usuario => usuario.estado === 1);
+        state.doctores_activados = state.usuarios
+          .filter(usuario => usuario.perfil === "doctor" && usuario.estado === 1)
+        state.asesores_activados = state.usuarios
           .filter(usuario => usuario.estado === 1);
       })
       .addCase(fetchUsuarios.rejected, (state, action) => {

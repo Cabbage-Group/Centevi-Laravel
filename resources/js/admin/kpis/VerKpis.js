@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchKpis, fetchKpisAsesores, fetchKpisDoctores, setFechaRange, setFechaRangeAsesores, setFechaRangeDoctores } from '../../redux/features/kpis/kpisSlice';
+import { fetchKpis, fetchKpisAsesores, fetchKpisAsesoresFases, fetchKpisAsesoresOrdenes, fetchKpisAsesoresStatus, fetchKpisDoctores, fetchKpisDoctoresFases, fetchKpisDoctoresOrdenes, fetchKpisDoctoresStatus, setFechaRange, setFechaRangeAsesores, setFechaRangeDoctores } from '../../redux/features/kpis/kpisSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangeSeparate from '../reportes/DateRange';
-import { Checkbox, Select } from 'antd';
+import { Checkbox, Select, Radio, Row, Col } from 'antd';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 const VerKpis = () => {
@@ -19,18 +19,64 @@ const VerKpis = () => {
     '#34495E',
   ];
 
+  const data = [
+    { name: "Group A", value: 16 },
+    { name: "Group B", value: 4 },
+
+  ];
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+
+  const RADIAN = Math.PI / 180;
+  const renderCustomizedLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    index
+  }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
   const dispatch = useDispatch();
   const {
     kpis,
     kpisAsesores,
     kpisDoctores,
+    kpisDoctoresOrdenes,
+    kpisDoctoresFases,
+    kpisDoctoresStatus,
+    kpisAsesoresOrdenes,
+    kpisAsesoresFases,
+    kpisAsesoresStatus,
     startDate,
     endDate,
     startDateAsesores,
     endDateAsesores,
   } = useSelector((state) => state.kpis);
   const { sucursales } = useSelector((state) => state.sucursales);
-  const { usuarios_doctores_options_selecteds, usuarios_activados } = useSelector((state) => state.usuarios);
+  const {
+    usuarios_doctores_options_selecteds,
+    doctores_activados,
+    usuarios_activados,
+    asesores_activados } = useSelector((state) => state.usuarios);
 
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localEndDate, setLocalEndDate] = useState(endDate);
@@ -44,6 +90,24 @@ const VerKpis = () => {
   const [lenteContactoFilter, setLenteContactoFilter] = useState([]);
   const [lenteContactoFilterAsesores, setLenteContactoFilterAsesores] = useState([]);
   const [lenteContactoFilterDoctores, setLenteContactoFilterDoctores] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [selectedDoctorFase, setSelectedDoctorFase] = useState(null);
+  const [selectedDoctorStatus, setSelectedDoctorStatus] = useState(null);
+  const [selectedAsesor, setSelectedAsesor] = useState(null);
+  const [selectedAsesorFase, setSelectedAsesorFase] = useState(null);
+  const [selectedAsesorStatus, setSelectedAsesorStatus] = useState(null);
+
+  console.log('asesores_activados:', asesores_activados)
+
+  const chunkSize = 4;
+  const doctorChunks = [];
+  const asesoresChunk = [];
+  for (let i = 0; i < doctores_activados.length; i += chunkSize) {
+    doctorChunks.push(doctores_activados.slice(i, i + chunkSize));
+  }
+  for (let i = 0; i < asesores_activados.length; i += chunkSize) {
+    asesoresChunk.push(asesores_activados.slice(i, i + chunkSize));
+  }
 
 
   const handleLenteContactoChange = (value) => {
@@ -56,6 +120,33 @@ const VerKpis = () => {
 
   const handleLenteContactoChangeDoctores = (value) => {
     setLenteContactoFilterDoctores(value);
+  };
+
+  const handleSelectAll = () => {
+    const allIds = sucursales.map(sucursal => sucursal.id_sucursal);
+    setActiveLines(allIds);
+  };
+
+  const handleDeselectAll = () => {
+    setActiveLines([]);
+  };
+
+  const handleSelectAllAsesores = () => {
+    const allIds = usuarios_activados.map(usuario => usuario.id_usuario);
+    setActiveLinesUsuarios(allIds);
+  };
+
+  const handleDeselectAllAsesores = () => {
+    setActiveLinesUsuarios([]);
+  };
+
+  const handleSelectAllDoctores = () => {
+    const allIds = usuarios_doctores_options_selecteds.map(doctor => doctor.value);
+    setActiveLinesDoctores(allIds);
+  };
+
+  const handleDeselectAllDoctores = () => {
+    setActiveLinesDoctores([]);
   };
 
   const handleDateApply = (newStartDate, newEndDate) => {
@@ -99,6 +190,79 @@ const VerKpis = () => {
 
     dispatch(setFechaRangeAsesores({ startDate: null, endDate: null }));
   };
+
+  useEffect(() => {
+    if (doctores_activados.length > 0 && !selectedDoctor) {
+      setSelectedDoctor(doctores_activados[0].id_usuario);
+    }
+  }, [doctores_activados, selectedDoctor]);
+
+  useEffect(() => {
+    if (doctores_activados.length > 0 && !selectedDoctorFase) {
+      setSelectedDoctorFase(doctores_activados[0].id_usuario);
+    }
+  }, [doctores_activados, selectedDoctorFase]);
+
+  useEffect(() => {
+    if (doctores_activados.length > 0 && !selectedDoctorStatus) {
+      setSelectedDoctorStatus(doctores_activados[0].id_usuario);
+    }
+  }, [doctores_activados, selectedDoctorStatus]);
+
+  useEffect(() => {
+    if (asesores_activados.length > 0 && !selectedAsesor) {
+      setSelectedAsesor(asesores_activados[0].id_usuario);
+    }
+  }, [asesores_activados, selectedAsesor]);
+
+  useEffect(() => {
+    if (asesores_activados.length > 0 && !selectedAsesorFase) {
+      setSelectedAsesorFase(asesores_activados[0].id_usuario);
+    }
+  }, [asesores_activados, selectedAsesorFase]);
+
+  useEffect(() => {
+    if (asesores_activados.length > 0 && !selectedAsesorStatus) {
+      setSelectedAsesorStatus(asesores_activados[0].id_usuario);
+    }
+  }, [asesores_activados, selectedAsesorStatus]);
+
+  useEffect(() => {
+    if (selectedDoctor) {
+      dispatch(fetchKpisDoctoresOrdenes(selectedDoctor));
+    }
+  }, [selectedDoctor, dispatch]);
+
+  useEffect(() => {
+    if (selectedDoctorFase) {
+      dispatch(fetchKpisDoctoresFases(selectedDoctorFase));
+    }
+  }, [selectedDoctorFase, dispatch]);
+
+
+  useEffect(() => {
+    if (selectedDoctorStatus) {
+      dispatch(fetchKpisDoctoresStatus(selectedDoctorStatus));
+    }
+  }, [selectedDoctorStatus,dispatch]);
+
+  useEffect(() => {
+    if (selectedAsesor) {
+      dispatch(fetchKpisAsesoresOrdenes(selectedAsesor));
+    }
+  }, [selectedAsesor, dispatch]);
+
+  useEffect(() => {
+    if (selectedAsesorFase) {
+      dispatch(fetchKpisAsesoresFases(selectedAsesorFase));
+    }
+  }, [selectedAsesorFase, dispatch]);
+
+  useEffect(() => {
+    if (selectedAsesorStatus) {
+      dispatch(fetchKpisAsesoresStatus(selectedAsesorStatus));
+    }
+  }, [selectedAsesorStatus, dispatch]);
 
   useEffect(() => {
     dispatch(fetchKpis({ startDate: localStartDate, endDate: localEndDate, lenteContacto: lenteContactoFilter }));
@@ -317,8 +481,8 @@ const VerKpis = () => {
   const renderLegendAsesores = () => {
     // Dividir los asesores en columnas de 7 elementos
     const chunkedUsuarios = [];
-    for (let i = 0; i < usuarios_activados.length; i += 12) {
-      chunkedUsuarios.push(usuarios_activados.slice(i, i + 12));
+    for (let i = 0; i < usuarios_activados.length; i += 10) {
+      chunkedUsuarios.push(usuarios_activados.slice(i, i + 10));
     }
 
     return (
@@ -330,7 +494,7 @@ const VerKpis = () => {
             gap: '8px',
           }}>
             {chunk.map((usuario, index) => {
-              const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
+              const lineColor = colors[(chunkIndex * 10 + index) % colors.length];
               return (
                 <div key={usuario.id_usuario} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
                   <Checkbox
@@ -378,6 +542,21 @@ const VerKpis = () => {
     return null;
   };
 
+  const buttonStyle = (color) => ({
+    backgroundColor: color === 'green' ? '#4CAF50' : '#F44336',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    transition: 'background-color 0.3s',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    outline: 'none',
+  });
+
+
   return (
     <div>
       <ResponsiveContainer width="100%" height={300} >
@@ -417,6 +596,20 @@ const VerKpis = () => {
               </Select.Option>
             </Select>
           </div>
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAll}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAll}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
+          </div>
         </div>
         <LineChart
           data={kpis}
@@ -436,7 +629,7 @@ const VerKpis = () => {
         </LineChart>
       </ResponsiveContainer>
 
-      <ResponsiveContainer width="100%" height={300} style={{marginTop: '100px' }}>
+      <ResponsiveContainer width="100%" height={300} style={{ marginTop: '100px' }}>
         <label>
           Buscar por Fecha Asesores:
         </label>
@@ -473,6 +666,20 @@ const VerKpis = () => {
               </Select.Option>
             </Select>
           </div>
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAllAsesores}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAllAsesores}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
+          </div>
         </div>
         <LineChart
           data={kpisAsesores}
@@ -492,7 +699,7 @@ const VerKpis = () => {
         </LineChart>
       </ResponsiveContainer>
 
-      <ResponsiveContainer width="100%" height={300}  style={{marginTop: '100px' }} >
+      <ResponsiveContainer width="100%" height={300} style={{ marginTop: '100px' }} >
         <label >
           Buscar por Fecha Doctores:
         </label>
@@ -531,6 +738,20 @@ const VerKpis = () => {
             </Select>
 
           </div>
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAllDoctores}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAllDoctores}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
+          </div>
         </div>
         <LineChart
           data={kpisDoctores}
@@ -549,6 +770,145 @@ const VerKpis = () => {
           {renderLinesDoctores()}
         </LineChart>
       </ResponsiveContainer>
+      {/* <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <ResponsiveContainer width={300} height={300}>
+          <PieChart>
+            <Pie
+              data={kpisDoctoresOrdenes}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={renderCustomizedLabel}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {kpisDoctoresOrdenes.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <div>
+          <Radio.Group
+            onChange={(e) => setSelectedDoctor(e.target.value)}
+            value={selectedDoctor}
+          >
+            <Row gutter={[16, 16]}>
+              {doctorChunks.map((group, colIndex) => (
+                <Col key={colIndex}>
+                  {group.map((doctor) => (
+                    <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
+                      {doctor.nombre}
+                    </Radio>
+                  ))}
+                </Col>
+              ))}
+            </Row>
+          </Radio.Group>
+        </div>
+      </div> */}
+      <div>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Doctores</h2>
+        <div style={{ display: 'flex', gap: '40px', marginTop: '40px' }}>
+          {[{ data: kpisDoctoresOrdenes, selected: selectedDoctor, setSelected: setSelectedDoctor },
+          { data: kpisDoctoresFases, selected: selectedDoctorFase, setSelected: setSelectedDoctorFase },
+          { data: kpisDoctoresStatus, selected: selectedDoctorStatus, setSelected: setSelectedDoctorStatus }].map((item, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+
+              <ResponsiveContainer >
+                <PieChart>
+                  <Pie
+                    data={item.data} // Cada gráfico usa su propia data
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderCustomizedLabel}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {item.data.map((entry, i) => (
+                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+
+              {/* Radio Buttons independientes en columnas de 4 */}
+              <div>
+                <Radio.Group
+                  onChange={(e) => item.setSelected(e.target.value)}
+                  value={item.selected}
+                >
+                  <Row gutter={[16, 16]}>
+                    {doctorChunks.map((group, colIndex) => (
+                      <Col key={colIndex}>
+                        {group.map((doctor) => (
+                          <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
+                            {doctor.nombre}
+                          </Radio>
+                        ))}
+                      </Col>
+                    ))}
+                  </Row>
+                </Radio.Group>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Asesores</h2>
+        <div style={{ display: 'flex', gap: '40px', marginTop: '-40px' }}>
+          {[{ data: kpisAsesoresOrdenes, selected: selectedAsesor, setSelected: setSelectedAsesor },
+          { data: kpisAsesoresFases, selected: selectedAsesorFase, setSelected: setSelectedAsesorFase },
+          { data: kpisAsesoresStatus, selected: selectedAsesorStatus, setSelected: setSelectedAsesorStatus }].map((item, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+
+              <ResponsiveContainer >
+                <PieChart>
+                  <Pie
+                    data={item.data} // Cada gráfico usa su propia data
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderCustomizedLabel}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {item.data.map((entry, i) => (
+                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+
+              <div>
+                <Radio.Group
+                  onChange={(e) => item.setSelected(e.target.value)}
+                  value={item.selected}
+                >
+                  <Row gutter={[16, 16]}>
+                    {asesoresChunk.map((group, colIndex) => (
+                      <Col key={colIndex}>
+                        {group.map((doctor) => (
+                          <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
+                            {doctor.nombre}
+                          </Radio>
+                        ))}
+                      </Col>
+                    ))}
+                  </Row>
+                </Radio.Group>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

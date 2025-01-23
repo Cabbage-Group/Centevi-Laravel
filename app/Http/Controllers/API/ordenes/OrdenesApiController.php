@@ -128,7 +128,8 @@ class OrdenesApiController extends Controller
         'primeras_fases.dias_transcurridos as dias_transcurridos',
         'primeras_fases.total_fases as total_fases',
         DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted"),
-        DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
+        DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual")
+        // DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
       );
     if (!empty($search)) {
       $ordenes->where(function ($query) use ($search) {
@@ -162,8 +163,16 @@ class OrdenesApiController extends Controller
       }
     }
     if (is_array($fase) && !empty($fase)) {
-      $ordenes->whereIn('ultimas_fases.fase_actual', $fase);
-    }
+      $ordenes->where(function ($query) use ($fase) {
+          if (in_array('Nuevo', $fase)) {
+              // Si busca "Nuevo", debe incluir NULL también
+              $query->whereNull('ultimas_fases.fase_actual')
+                  ->orWhereIn('ultimas_fases.fase_actual', $fase);
+          } else {
+              $query->whereIn('ultimas_fases.fase_actual', $fase);
+          }
+      });
+  }
 
     if (is_array($status) && !empty($status)) {
       // Filtrar por valores específicos de status (como Ok, Critico, etc.)

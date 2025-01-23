@@ -18,6 +18,7 @@ use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
+use App\Http\Controllers\API\email\EmailController;
 use App\Http\Controllers\API\kpis\KpisApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
+use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/usuarios-doctor', [UsuariosApiController::class, 'usuariosDoctor']);
@@ -300,6 +302,18 @@ Route::post('/api/kpis/asesores', [KpisApiController::class, 'VerKpisAsesores'])
 
 Route::post('/api/kpis/doctores', [KpisApiController::class, 'VerKpisDoctores']);
 
+Route::post('/api/kpis/doctor-ordenes', [KpisApiController::class, 'getDoctorOrdersStats']);
+
+Route::post('/api/kpis/fases-ordenes', [KpisApiController::class, 'getDoctorFases']);
+
+Route::post('/api/kpis/status-ordenes', [KpisApiController::class, 'getDoctorStatus']);
+
+Route::post('/api/kpis/asesor-ordenes', [KpisApiController::class, 'getAsesoresOrdersStats']);
+
+Route::post('/api/kpis/asesor-fases', [KpisApiController::class, 'getAsesoresFases']);
+
+Route::post('/api/kpis/asesor-status', [KpisApiController::class, 'getAsesorStatus']);
+
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);
 
 Route::put('/api/correciones-ordenes/{id}', [CorrecionesOrdenesController::class, 'updateCorreccionOrden']);
@@ -327,6 +341,13 @@ Route::post('/api/cont-correccion-orden', [ContactosCorreccionesOrdenesApiContro
 Route::delete('/api/migration', [OrdenesApiController::class, 'migrarNroOrdenes']);
 
 Route::get('/api/allordenes', [OrdenesApiController::class, 'getOrdenesConTotal']);
+
+Route::get('/preview-email', function () {
+  return View::make('emails.verify', ['code' => '123456']);
+});
+
+Route::post('/api/send-verification-email', [EmailController::class, 'sendVerificationEmail']);
+
 
 
 
