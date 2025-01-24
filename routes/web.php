@@ -18,8 +18,10 @@ use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
+use App\Http\Controllers\API\cristales\CristalesApiController;
 use App\Http\Controllers\API\email\EmailController;
 use App\Http\Controllers\API\kpis\KpisApiController;
+use App\Http\Controllers\API\materiales\MaterialesApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
@@ -34,6 +36,7 @@ use App\Http\Controllers\API\terapias\Terapias_Optometria_Pediatrica_ApiControll
 use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
+use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use Illuminate\Support\Facades\View;
 
@@ -314,6 +317,10 @@ Route::post('/api/kpis/asesor-fases', [KpisApiController::class, 'getAsesoresFas
 
 Route::post('/api/kpis/asesor-status', [KpisApiController::class, 'getAsesorStatus']);
 
+Route::get('/api/kpis/sucursales-consultas', [KpisApiController::class, 'getConsultasPorFecha']);
+
+Route::get('/api/kpis/doctores-consultas', [KpisApiController::class, 'getConsultasPorFechaDoctores']);
+
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);
 
 Route::put('/api/correciones-ordenes/{id}', [CorrecionesOrdenesController::class, 'updateCorreccionOrden']);
@@ -341,6 +348,32 @@ Route::post('/api/cont-correccion-orden', [ContactosCorreccionesOrdenesApiContro
 Route::delete('/api/migration', [OrdenesApiController::class, 'migrarNroOrdenes']);
 
 Route::get('/api/allordenes', [OrdenesApiController::class, 'getOrdenesConTotal']);
+
+Route::get('/api/cristales', [CristalesApiController::class, 'index']);
+
+Route::post('/api/cristales', [CristalesApiController::class, 'create']);
+
+Route::put('/api/cristales/{id}', [CristalesApiController::class, 'update']);
+
+Route::delete('/api/cristales/{id}', [CristalesApiController::class, 'delete']);
+
+Route::post('/api/cristales/data', [CristalesApiController::class, 'resetAndInsert']);
+
+Route::get('/api/materiales', [MaterialesApiController::class, 'index']);
+
+Route::post('/api/materiales', [MaterialesApiController::class, 'create']);
+
+Route::put('/api/materiales/{id}', [MaterialesApiController::class, 'update']);
+
+Route::delete('/api/materiales/{id}', [MaterialesApiController::class, 'delete']);
+
+Route::get('/api/tratamientos', [TratamientosApiController::class, 'index']);
+
+Route::post('/api/tratamientos', [TratamientosApiController::class, 'create']);
+
+Route::put('/api/tratamientos/{id}', [TratamientosApiController::class, 'update']);
+
+Route::delete('/api/tratamientos/{id}', [TratamientosApiController::class, 'delete']);
 
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);

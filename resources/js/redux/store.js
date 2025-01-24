@@ -78,6 +78,10 @@ import kpisSlice from './features/kpis/kpisSlice'
 import correcionesordenesSlice from './features/correciones-ordenes/correcionesOrdenesSlice'
 import correccionesFasesOrdenes from './features/correciones-ordenes/correccionesFasesOrdenesSlice'
 import emailSlice from './features/email/emailSlice'
+import cristalesSlice from './features/cristales/cristalesSlice'
+import materialesSlice from './features/materiales/materialesSlice'
+import tratamientosSlice from './features/tratamientos/tratamientosSlice'
+import kpisConsultasTerapiasSlice from './features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice'
 
 
 
@@ -176,7 +180,15 @@ const store = configureStore({
 
     correccionesFasesOrdenes: correccionesFasesOrdenes,
 
-    email: emailSlice
+    email: emailSlice,
+
+    cristales: cristalesSlice,
+    
+    materiales: materialesSlice,
+
+    tratamientos: tratamientosSlice,
+
+    kpisConsultasTerapias: kpisConsultasTerapiasSlice
 
 
   }

@@ -13,6 +13,9 @@ import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
+import { fetchMateriales } from '../../redux/features/materiales/materialesSlice';
+import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 
 const CreateOrden = () => {
 
@@ -24,6 +27,9 @@ const CreateOrden = () => {
   const { sucursales } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios)
+  const { cristales_options_selecteds } = useSelector((state) => state.cristales)
+  const { materiales_options_selecteds } = useSelector((state) => state.materiales)
+  const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [selectedMarca, setSelectedMarca] = useState(null);
   const [telefono, setTelefono] = useState('');
@@ -43,7 +49,7 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
-  console.log('nro_orden_auto:',nro_orden_auto)
+
 
   useEffect(() => {
     if (id && pacientes_options_selecteds.length > 0) {
@@ -200,6 +206,9 @@ const CreateOrden = () => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchUsuarios({}))
+    dispatch(fetchCristales())
+    dispatch(fetchMateriales())
+    dispatch(fetchTratamientos())
   }, []);
 
   const handleSubmit = async (values) => {
@@ -775,77 +784,9 @@ const CreateOrden = () => {
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChange}
-                                          options={[
-                                            { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
-                                            { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
-                                            { "id": 3, "codigo": "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                            { "id": 4, "codigo": "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
-                                            { "id": 5, "codigo": "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
-                                            { "id": 6, "codigo": "MPT06 | Monofocal + Transitions" },
-                                            { "id": 7, "codigo": "MPX07 | Monofocal + Transitions Xtractive" },
-                                            { "id": 8, "codigo": "MPP04 | Monofocal Polarizado (Lente de Sol Oscuro)" },
-                                            { "id": 9, "codigo": "MPE05 | Monofocal Polarizado con Espejado (Lente de Sol Oscuro)" },
-                                            { "id": 10, "codigo": "MTL08 | Monofocal Thin & Lite 1.67 Claros" },
-                                            { "id": 11, "codigo": "MTL09 | Monofocal Thin & Lite 1.67 + Fotocromático" },
-                                            { "id": 12, "codigo": "MHI07 | Monofocal Hi Index Super Thin & Lite 1.74 + Filtro Luz Azul sin AR" },
-                                            { "id": 13, "codigo": "MAF08 | Antifatigue (Relax) Claros + Filtro Luz Azul" },
-                                            { "id": 14, "codigo": "MLE09 | Monofocal Lenticular Claro" },
-                                            { "id": 15, "codigo": "MLT06 | Monofocal Lenticular + Transitions" },
-                                            { "id": 16, "codigo": "BFT2 | Bifocal Flap Top Claro Sencillo" },
-                                            { "id": 17, "codigo": "BFT3 | Bifocal Flap Top Claro + Filtro Luz Azul" },
-                                            { "id": 18, "codigo": "BFTF | Bifocal Flap Top + Fotocromático" },
-                                            { "id": 19, "codigo": "BFTA | Bifocal Flap Top + Fotocromático + Antirreflejo" },
-                                            { "id": 20, "codigo": "BFK01 | Bifocal Kriptop Claro Sencillo" },
-                                            { "id": 21, "codigo": "BKFA | Bifocal Kriptop + Filtro Luz Azul + Antirreflejo" },
-                                            { "id": 22, "codigo": "BKFA1 | Bifocal Kriptop + Filtro Luz Azul + Fotocromático + Antirreflejo" },
-                                            { "id": 23, "codigo": "BKL01 | Bifocal Kriptop Lenticular Claro" },
-                                            { "id": 24, "codigo": "BI001 | Bifocal Invisible Claro" },
-                                            { "id": 25, "codigo": "BIF01 | Bifocal Invisible + Filtro Luz Azul" },
-                                            { "id": 26, "codigo": "BIF02 | Bifocal Invisible + Fotocromático" },
-                                            { "id": 27, "codigo": "BIF03 | Bifocal Invisible + Fotocromático + Filtro Luz Azul" },
-                                            { "id": 28, "codigo": "BIAF1 | Bifocal Invisible + Fotocromático + Antirreflejo" },
-                                            { "id": 29, "codigo": "BBIF1 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) Claro" },
-                                            { "id": 30, "codigo": "BBIF2 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) + Fotocromático" },
-                                            { "id": 31, "codigo": "BTT01 | Trifocal Claro Sencillo (Solo vender a usuarios)" },
-                                            { "id": 32, "codigo": "CM01 | Control Miopia Claro Sencillo" },
-                                            { "id": 33, "codigo": "CM02 | Control Miopia + Filtro Luz Azul" },
-                                            { "id": 34, "codigo": "CM04 | Control Miopia + Transitions" },
-                                            { "id": 35, "codigo": "CM05 | Control Miopia THIN & LITE + Transitions" },
-                                            { "id": 36, "codigo": "CM06 | Control Miopia Polarizado (Lente Oscuro de Sol)" },
-                                            { "id": 37, "codigo": "MGSE | Multifocal Generico Claro Sencillo" },
-                                            { "id": 38, "codigo": "MGFL | Multifocal Generico + Filtro Luz Azul" },
-                                            { "id": 39, "codigo": "MFFT1 | Multifocal Solarmax + Fotocromatico" },
-                                            { "id": 40, "codigo": "MSFF | Multifocal Solarmax + Fotocromatico + Filtro Luz Azul" },
-                                            { "id": 41, "codigo": "MF01 | Multifocal 4NEW Claro sencillo (utilizar este código cuando lleva filtro terapéutico)" },
-                                            { "id": 42, "codigo": "MNTR | Multifocal 4NEW + Transition" },
-                                            { "id": 43, "codigo": "MFSS | Multifocal 4STARTER Sencillo" },
-                                            { "id": 44, "codigo": "MSTR | Multifocal 4STARTER + Transition" },
-                                            { "id": 45, "codigo": "MFPS | Multifocal Panorama Sencillo" },
-                                            { "id": 46, "codigo": "MPTR | Multifocal Panorama + Transition" },
-                                            { "id": 47, "codigo": "MFDS | Multifocal 4DIGILIFE Claro Sencillo" },
-                                            { "id": 48, "codigo": "MDTR | Multifocal 4DIGILIFE + Transition" },
-                                            { "id": 49, "codigo": "SP005 | Sobrepoder en Multifocal (ESF. +/- 8.50 CYL. +/- 3.00)" },
-                                            { "id": 50, "codigo": "PEM1 | Paquete económico monofocales claros sencillos" },
-                                            { "id": 51, "codigo": "PEML | Paquete económico Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                            { "id": 52, "codigo": "PEBK2 | Paquete económico Bifocal Kriptop Claro Sencillo" },
-                                            { "id": 53, "codigo": "PEBT3 | Paquete económico Bifocal Flap Top Claro Sencillo" },
-                                            { "id": 54, "codigo": "PEBI4 | Paquete económico Bifocal Invisible Claro Sencillo" },
-                                            { "id": 55, "codigo": "PEMO5 | Paquete económico Multifocal Claro Sencillo" },
-                                            { "id": 56, "codigo": "FTP01 | Filtro Terapéutico" },
-                                            { "id": 57, "codigo": "FUV1 | Filtro Luz Azul (UV 400)" },
-                                            { "id": 58, "codigo": "PM02 | Prismas" },
-                                            { "id": 59, "codigo": "RT03 | Remover Tinte" },
-                                            { "id": 60, "codigo": "SP04 | Sobrepoder (ESF. +/- 6 CYL: -3.25) Aplica para monofocales y bifocales" },
-                                            { "id": 61, "codigo": "TT05 | Tinte" },
-                                            { "id": 62, "codigo": "MAA6 | Montaje aro al aire" },
-                                            { "id": 63, "codigo": "MA10 | Montaje de aro" },
-                                            { "id": 64, "codigo": "RAR7 | Remover antirreflejo" },
-                                            { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
-                                            { "id": 66, "codigo": "TRANS | Transition" },
-                                            { "id": 67, "codigo": "FOT | Fotocromático" }
-                                          ].map(servicio => ({
-                                            value: servicio.id,
-                                            label: servicio.codigo
+                                          options={cristales_options_selecteds.map(servicio => ({
+                                            value: servicio.value,
+                                            label: servicio.label
                                           }))}
                                         >
                                         </Select>
@@ -933,26 +874,10 @@ const CreateOrden = () => {
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeMaterial}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (materialesSeleccionados.length < 2) {
-                                          //     materialesSeleccionados.push(val)
-                                          //     setMaterialesSeleccionados([...materialesSeleccionados])
-                                          //   }
-                                          // }}
-                                          options={[
-                                            { id: 1, codigo: "CR-39" },
-                                            { id: 2, codigo: "Policarbonato" },
-                                            { id: 3, codigo: "THIN & LITE" },
-                                            { id: 4, codigo: "SUPER THIN & LITE" },
-                                            { id: 5, codigo: "DRIVEWEAR" },
-                                            { id: 6, codigo: "POLIRIZADO" },
-                                            { id: 7, codigo: "POLICOLOR" },
-                                          ].map(servicio => ({
-                                            value: servicio.id,
-                                            label: servicio.codigo
+                                          onChange={handleSelectChangeMaterial}                                       
+                                          options={materiales_options_selecteds.map(servicio => ({
+                                            value: servicio.value,
+                                            label: servicio.label
                                           }))}
                                         >
                                         </Select>
@@ -973,12 +898,7 @@ const CreateOrden = () => {
                                                     style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                                   >
                                                     {servicio.servicio} :
-                                                    {/* {
-                                                   isLeftEyeMaterial
-                                                   ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
-                                                   : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
-                                                } */}
-
+                                                    
                                                   </div>
                                                   <div
                                                     style={{
@@ -1039,42 +959,9 @@ const CreateOrden = () => {
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChangeTratamientos}
-                                          options={[
-                                            { id: 1, codigo: "Transitions" },
-                                            { id: 2, codigo: "Antireflejo" },
-                                            { id: 3, codigo: "Espejado" },
-                                            { id: 4, codigo: "Degradante" },
-                                            { id: 5, codigo: "Color" },
-                                            { id: 6, codigo: "Fotocramático" },
-                                            { id: 7, codigo: "UV" },
-                                            { id: 8, codigo: "Tinte" },
-                                            { id: 9, codigo: "Uniforme" },
-                                            { id: 10, codigo: "Intensidad" },
-                                            { id: 11, codigo: "Filtro TERA chocolate claros rosado" },
-                                            { id: 12, codigo: "Filtro EP Azul claro" },
-                                            { id: 13, codigo: "Filtro Amarillo Claro 450" },
-                                            { id: 14, codigo: "Filtro Amarillo Fuerte 350" },
-                                            { id: 15, codigo: "Filtro Chocolate Oscuro EB 480" },
-                                            { id: 16, codigo: "Filtro Amarillo/ Naranja 510" },
-                                            { id: 17, codigo: "Filtro Naranja Claro 525" },
-                                            { id: 18, codigo: "Filtro Naranja Oscuro 550" },
-                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" },
-                                            { id: 20, codigo: "Fotocromático Gris" },
-                                            { id: 21, codigo: "Fotocromático Café" },
-                                            { id: 22, codigo: "Antirreflejo AR" },
-                                            { id: 23, codigo: "Polarizado Negro" },
-                                            { id: 24, codigo: "Polarizado Café" },
-                                            { id: 25, codigo: "Polarizado Gris + Espejado" },
-                                            { id: 26, codigo: "Polarizado Café + Espejado" },
-                                            { id: 27, codigo: "Tinte Uniforme" },
-                                            { id: 28, codigo: "Tinte Degradante" },
-                                            { id: 29, codigo: "Filtro UV" },
-                                            { id: 30, codigo: "Transitions Gris" },
-                                            { id: 31, codigo: "Transitions Café" }
-
-                                          ].map(servicio => ({
-                                            value: servicio.id,
-                                            label: servicio.codigo
+                                          options={tratamientos_options_selecteds.map(servicio => ({
+                                            value: servicio.value,
+                                            label: servicio.label
                                           }))}
                                         >
                                         </Select>

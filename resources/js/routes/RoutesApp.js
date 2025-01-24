@@ -77,6 +77,8 @@ import CorrecionOrden from '../admin/correciones-ordenes/CorrecionOrden.js';
 import VerUnaCorrecionOrden from '../admin/correciones-ordenes/VerUnaCorrecionOrdenes.js';
 import VerUnaCorrecionOrdenes from '../admin/correciones-ordenes/VerUnaCorrecionOrdenes.js';
 import Email from '../admin/email/SendEmail.js';
+import SegmentedTablesPage from '../admin/CaracteristicasCristales/VerCaracteristicasCristales.js';
+import VerKpisConsultasTerapias from '../admin/kpis/KpisConsultasTerapias/VerKpisConsultasTerapias.js';
 
 
 const RoutesApp = () => {
@@ -214,6 +216,8 @@ const RoutesApp = () => {
 
           <Route path="/ver-kpis" element={<Sidebar component={<VerKpis />} />} />
 
+          <Route path="/ver-kpis-consultas-terapias" element={<Sidebar component={<VerKpisConsultasTerapias />} />} />
+
           <Route path="/ver-correciones-ordenes" element={<Sidebar component={<VerCorrecionesOrdenes />} />} />
 
           <Route path="/ver-correcion-orden/:correccionOrderId" element={<Sidebar component={<VerUnaCorrecionOrdenes />} />} />
@@ -226,6 +230,8 @@ const RoutesApp = () => {
           <Route path="/diseño" element={<Sidebar component={<CorrecionOrden />} />} />
 
           <Route path="/email" element={<Sidebar component={<Email />} />} />
+
+          <Route path="/caracteristicas-cristales" element={<Sidebar component={<SegmentedTablesPage />} />} />
 
       
 
