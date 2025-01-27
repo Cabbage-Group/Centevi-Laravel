@@ -3,7 +3,20 @@
 namespace App\Http\Controllers\API\Kpis;
 
 use App\Http\Controllers\Controller;
+use App\Models\BajaVision;
+use App\Models\ConsultaGenerica;
+use App\Models\HistoriaClinica;
+use App\Models\OptometriaNeonatos;
+use App\Models\OptometriaPediatrica;
 use App\Models\Ordenes;
+use App\Models\OrtopticaAdultos;
+use App\Models\RefraccionGeneral;
+use App\Models\Sucursales;
+use App\Models\TerapiaBajaV;
+use App\Models\TerapiaOptometriaNeonatos;
+use App\Models\TerapiaOptometriaPediatrica;
+use App\Models\TerapiaOrtopticaAdultos;
+use App\Models\Usuarios;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,6 +27,7 @@ class KpisApiController extends Controller
   {
     $orderBy = $request->get('sortColumn', 'name'); // Campo para ordenar
     $orderDirection = $request->get('sortOrder', 'asc'); // Dirección (asc o desc)
+
 
     if (!in_array($orderDirection, ['asc', 'desc'])) {
       $orderDirection = 'asc';
@@ -323,7 +337,8 @@ class KpisApiController extends Controller
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
         'fo.ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
           CASE 
               WHEN fo.status = 1 THEN 
                   CASE 
@@ -441,7 +456,8 @@ class KpisApiController extends Controller
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
         'fo.ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
           CASE 
               WHEN fo.status = 1 THEN 
                   CASE 
@@ -590,7 +606,8 @@ class KpisApiController extends Controller
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
         'fo.ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
           CASE 
               WHEN fo.status = 1 THEN 
                   CASE 
@@ -709,7 +726,8 @@ class KpisApiController extends Controller
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
         'fo.ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
           CASE 
               WHEN fo.status = 1 THEN 
                   CASE 
@@ -778,6 +796,280 @@ class KpisApiController extends Controller
     ], 200);
   }
 
+  public function getConsultasPorFecha(Request $request)
+  {
+    // Obtener fechas o asignar valores predeterminados
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
 
+    // Obtener todas las sucursales
+    $sucursales = Sucursales::pluck('nombre', 'id_sucursal')->toArray();
 
+    // Consulta para contar las consultas de BajaVision
+    $bajaVisionQuery = BajaVision::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $terapiaBajaVQuery = TerapiaBajaV::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $terapiaOptometriaNeonatosVQuery = TerapiaOptometriaNeonatos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $terapiaOptometriaPediatricaQuery = TerapiaOptometriaPediatrica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $terapiaOrtopticaAdultosQuery = TerapiaOrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    // Consulta para contar las consultas de ConsultaGenerica
+    $consultaGenericaQuery = ConsultaGenerica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    // Consulta para contar las consultas de HistoriaClinica
+    $historiaClinicaQuery = HistoriaClinica::selectRaw('DATE_FORMAT(fecha_atencion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    // Consulta para contar las consultas de OptometriaNeonatos
+    $optometriaNeonatosQuery = OptometriaNeonatos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $refraccionGeneralQuery = RefraccionGeneral::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $ortopticaAdultosQuery = OrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    $optometriaPediatricaQuery = OptometriaPediatrica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
+      ->groupBy('name', 'sucursal');
+
+    // Aplicar filtro por fecha solo si se enviaron
+    if ($startDate && $endDate) {
+      $bajaVisionQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $consultaGenericaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $historiaClinicaQuery->whereBetween('fecha_atencion', [$startDate, $endDate]);
+      $optometriaNeonatosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $refraccionGeneralQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $ortopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $optometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaBajaVQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaOptometriaNeonatosVQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaOptometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaOrtopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+    }
+
+    // Unir todas las consultas usando UNION ALL
+    $unionQuery = DB::table(DB::raw("({$bajaVisionQuery->toSql()}) as baja"))
+      ->mergeBindings($bajaVisionQuery->getQuery())
+      ->unionAll(
+        DB::table(DB::raw("({$consultaGenericaQuery->toSql()}) as generica"))
+          ->mergeBindings($consultaGenericaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$historiaClinicaQuery->toSql()}) as historia"))
+          ->mergeBindings($historiaClinicaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$optometriaNeonatosQuery->toSql()}) as neonatos"))
+          ->mergeBindings($optometriaNeonatosQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$refraccionGeneralQuery->toSql()}) as refraccion_general"))
+          ->mergeBindings($refraccionGeneralQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$ortopticaAdultosQuery->toSql()}) as ortoptica_adultos"))
+          ->mergeBindings($ortopticaAdultosQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$optometriaPediatricaQuery->toSql()}) as optometria_pediatrica"))
+          ->mergeBindings($optometriaPediatricaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaBajaVQuery->toSql()}) as terapia_baja"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOptometriaNeonatosVQuery->toSql()}) as terapia_optometria_neonatos"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOptometriaPediatricaQuery->toSql()}) as terapia_optometria_pediatrica"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      );
+    ;
+
+    // Agrupar y sumar las consultas de todas las tablas
+    $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
+      ->mergeBindings($unionQuery)
+      ->selectRaw('name, sucursal, SUM(total) as total')
+      ->groupBy('name', 'sucursal')
+      ->orderBy('name', 'asc')
+      ->get();
+
+    // Organizar datos en el formato requerido
+    $result = [];
+    $groupedData = $consultas->groupBy('name');
+
+    foreach ($groupedData as $date => $entries) {
+      $dataItem = ['name' => $date];
+
+      // Inicializar sucursales en 0
+      foreach ($sucursales as $sucursal) {
+        $dataItem[$sucursal] = 0;
+      }
+
+      // Asignar los valores obtenidos de la consulta
+      foreach ($entries as $entry) {
+        if (isset($sucursales[$entry->sucursal])) {
+          $dataItem[$sucursales[$entry->sucursal]] = (int) $entry->total;
+        }
+      }
+
+      $result[] = $dataItem;
+    }
+
+    return response()->json(['data' => $result]);
+  }
+
+  public function getConsultasPorFechaDoctores(Request $request)
+  {
+    // Obtener fechas o asignar valores predeterminados
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    // Obtener todos los doctores
+    $doctores = Usuarios::where('perfil', 'doctor')->pluck('nombre', 'nombre')->toArray();
+
+    // Consulta para contar las consultas de BajaVision
+    $bajaVisionQuery = BajaVision::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $terapiaBajaVQuery = TerapiaBajaV::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $terapiaOptometriaNeonatosVQuery = TerapiaOptometriaNeonatos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $terapiaOptometriaPediatricaQuery = TerapiaOptometriaPediatrica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $terapiaOrtopticaAdultosQuery = TerapiaOrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    // Consulta para contar las consultas de ConsultaGenerica
+    $consultaGenericaQuery = ConsultaGenerica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    // Consulta para contar las consultas de HistoriaClinica
+    $historiaClinicaQuery = HistoriaClinica::selectRaw('DATE_FORMAT(fecha_atencion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    // Consulta para contar las consultas de OptometriaNeonatos
+    $optometriaNeonatosQuery = OptometriaNeonatos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $refraccionGeneralQuery = RefraccionGeneral::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $ortopticaAdultosQuery = OrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    $optometriaPediatricaQuery = OptometriaPediatrica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, doctor, COUNT(*) as total')
+      ->groupBy('name', 'doctor');
+
+    // Aplicar filtro por fecha solo si se enviaron
+    if ($startDate && $endDate) {
+      $bajaVisionQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $consultaGenericaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $historiaClinicaQuery->whereBetween('fecha_atencion', [$startDate, $endDate]);
+      $optometriaNeonatosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $refraccionGeneralQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $ortopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $optometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaBajaVQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaOptometriaNeonatosVQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaOptometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      $terapiaOrtopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+    }
+
+    // Unir todas las consultas usando UNION ALL
+    $unionQuery = DB::table(DB::raw("({$bajaVisionQuery->toSql()}) as baja"))
+      ->mergeBindings($bajaVisionQuery->getQuery())
+      ->unionAll(
+        DB::table(DB::raw("({$consultaGenericaQuery->toSql()}) as generica"))
+          ->mergeBindings($consultaGenericaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$historiaClinicaQuery->toSql()}) as historia"))
+          ->mergeBindings($historiaClinicaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$optometriaNeonatosQuery->toSql()}) as neonatos"))
+          ->mergeBindings($optometriaNeonatosQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$refraccionGeneralQuery->toSql()}) as refraccion_general"))
+          ->mergeBindings($refraccionGeneralQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$ortopticaAdultosQuery->toSql()}) as ortoptica_adultos"))
+          ->mergeBindings($ortopticaAdultosQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$optometriaPediatricaQuery->toSql()}) as optometria_pediatrica"))
+          ->mergeBindings($optometriaPediatricaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaBajaVQuery->toSql()}) as terapia_baja"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOptometriaNeonatosVQuery->toSql()}) as terapia_optometria_neonatos"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOptometriaPediatricaQuery->toSql()}) as terapia_optometria_pediatrica"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      );
+
+    // Agrupar y sumar las consultas de todas las tablas, y ordenar por la fecha (name)
+    $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
+      ->mergeBindings($unionQuery)
+      ->selectRaw('name, doctor, SUM(total) as total')
+      ->groupBy('name', 'doctor')
+      ->orderBy('name', 'asc') // Ordenar de menor a mayor fecha
+      ->get();
+
+    // Organizar datos en el formato requerido
+    $result = [];
+    $groupedData = $consultas->groupBy('name');
+
+    foreach ($groupedData as $date => $entries) {
+      $dataItem = ['name' => $date];
+
+      // Inicializar doctores en 0
+      foreach ($doctores as $doctor) {
+        $dataItem[$doctor] = 0;
+      }
+
+      // Asignar los valores obtenidos de la consulta
+      foreach ($entries as $entry) {
+        if (isset($doctores[$entry->doctor])) {
+          $dataItem[$entry->doctor] = (int) $entry->total;
+        }
+      }
+
+      $result[] = $dataItem;
+    }
+
+    return response()->json(['data' => $result]);
+  }
 }

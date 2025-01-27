@@ -70,6 +70,8 @@ const VerKpis = () => {
     endDate,
     startDateAsesores,
     endDateAsesores,
+    statusDoctoresStatus,
+    statusDoctoresFases
   } = useSelector((state) => state.kpis);
   const { sucursales } = useSelector((state) => state.sucursales);
   const {
@@ -91,13 +93,7 @@ const VerKpis = () => {
   const [lenteContactoFilterAsesores, setLenteContactoFilterAsesores] = useState([]);
   const [lenteContactoFilterDoctores, setLenteContactoFilterDoctores] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [selectedDoctorFase, setSelectedDoctorFase] = useState(null);
-  const [selectedDoctorStatus, setSelectedDoctorStatus] = useState(null);
   const [selectedAsesor, setSelectedAsesor] = useState(null);
-  const [selectedAsesorFase, setSelectedAsesorFase] = useState(null);
-  const [selectedAsesorStatus, setSelectedAsesorStatus] = useState(null);
-
-  console.log('asesores_activados:', asesores_activados)
 
   const chunkSize = 4;
   const doctorChunks = [];
@@ -108,7 +104,6 @@ const VerKpis = () => {
   for (let i = 0; i < asesores_activados.length; i += chunkSize) {
     asesoresChunk.push(asesores_activados.slice(i, i + chunkSize));
   }
-
 
   const handleLenteContactoChange = (value) => {
     setLenteContactoFilter(value);
@@ -198,71 +193,31 @@ const VerKpis = () => {
   }, [doctores_activados, selectedDoctor]);
 
   useEffect(() => {
-    if (doctores_activados.length > 0 && !selectedDoctorFase) {
-      setSelectedDoctorFase(doctores_activados[0].id_usuario);
-    }
-  }, [doctores_activados, selectedDoctorFase]);
-
-  useEffect(() => {
-    if (doctores_activados.length > 0 && !selectedDoctorStatus) {
-      setSelectedDoctorStatus(doctores_activados[0].id_usuario);
-    }
-  }, [doctores_activados, selectedDoctorStatus]);
-
-  useEffect(() => {
     if (asesores_activados.length > 0 && !selectedAsesor) {
       setSelectedAsesor(asesores_activados[0].id_usuario);
     }
   }, [asesores_activados, selectedAsesor]);
 
-  useEffect(() => {
-    if (asesores_activados.length > 0 && !selectedAsesorFase) {
-      setSelectedAsesorFase(asesores_activados[0].id_usuario);
-    }
-  }, [asesores_activados, selectedAsesorFase]);
-
-  useEffect(() => {
-    if (asesores_activados.length > 0 && !selectedAsesorStatus) {
-      setSelectedAsesorStatus(asesores_activados[0].id_usuario);
-    }
-  }, [asesores_activados, selectedAsesorStatus]);
 
   useEffect(() => {
     if (selectedDoctor) {
       dispatch(fetchKpisDoctoresOrdenes(selectedDoctor));
+      dispatch(fetchKpisDoctoresFases(selectedDoctor));
+      dispatch(fetchKpisDoctoresStatus(selectedDoctor));
     }
   }, [selectedDoctor, dispatch]);
 
-  useEffect(() => {
-    if (selectedDoctorFase) {
-      dispatch(fetchKpisDoctoresFases(selectedDoctorFase));
-    }
-  }, [selectedDoctorFase, dispatch]);
 
 
-  useEffect(() => {
-    if (selectedDoctorStatus) {
-      dispatch(fetchKpisDoctoresStatus(selectedDoctorStatus));
-    }
-  }, [selectedDoctorStatus, dispatch]);
 
   useEffect(() => {
     if (selectedAsesor) {
       dispatch(fetchKpisAsesoresOrdenes(selectedAsesor));
+      dispatch(fetchKpisAsesoresFases(selectedAsesor));
+      dispatch(fetchKpisAsesoresStatus(selectedAsesor));
     }
   }, [selectedAsesor, dispatch]);
 
-  useEffect(() => {
-    if (selectedAsesorFase) {
-      dispatch(fetchKpisAsesoresFases(selectedAsesorFase));
-    }
-  }, [selectedAsesorFase, dispatch]);
-
-  useEffect(() => {
-    if (selectedAsesorStatus) {
-      dispatch(fetchKpisAsesoresStatus(selectedAsesorStatus));
-    }
-  }, [selectedAsesorStatus, dispatch]);
 
   useEffect(() => {
     dispatch(fetchKpis({ startDate: localStartDate, endDate: localEndDate, lenteContacto: lenteContactoFilter }));
@@ -394,6 +349,8 @@ const VerKpis = () => {
     for (let i = 0; i < sucursales.length; i += 12) {
       chunkedSucursales.push(sucursales.slice(i, i + 12));
     }
+
+
 
     return (
       <div style={{ display: 'flex', gap: '20px' }}>
@@ -555,7 +512,6 @@ const VerKpis = () => {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     outline: 'none',
   });
-
 
   return (
     <div>
@@ -770,145 +726,112 @@ const VerKpis = () => {
           {renderLinesDoctores()}
         </LineChart>
       </ResponsiveContainer>
-      {/* <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <ResponsiveContainer width={300} height={300}>
-          <PieChart>
-            <Pie
-              data={kpisDoctoresOrdenes}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={renderCustomizedLabel}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {kpisDoctoresOrdenes.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        <div>
-          <Radio.Group
-            onChange={(e) => setSelectedDoctor(e.target.value)}
-            value={selectedDoctor}
-          >
-            <Row gutter={[16, 16]}>
-              {doctorChunks.map((group, colIndex) => (
-                <Col key={colIndex}>
-                  {group.map((doctor) => (
-                    <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
-                      {doctor.nombre}
-                    </Radio>
-                  ))}
-                </Col>
-              ))}
-            </Row>
-          </Radio.Group>
-        </div>
-      </div> */}
       <div>
         <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Doctores</h2>
-        <div style={{ display: 'flex', gap: '40px', marginTop: '40px' }}>
-          {[{ data: kpisDoctoresOrdenes, selected: selectedDoctor, setSelected: setSelectedDoctor },
-          { data: kpisDoctoresFases, selected: selectedDoctorFase, setSelected: setSelectedDoctorFase },
-          { data: kpisDoctoresStatus, selected: selectedDoctorStatus, setSelected: setSelectedDoctorStatus }].map((item, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
 
-              <ResponsiveContainer >
-                <PieChart>
-                  <Pie
-                    data={item.data} // Cada gráfico usa su propia data
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderCustomizedLabel}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {item.data.map((entry, i) => (
-                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+          <div style={{ display: 'flex', gap: '20px', flex: 4 }}>
+            {[{ data: kpisDoctoresOrdenes, selected: selectedDoctor, setSelected: setSelectedDoctor },
+            { data: kpisDoctoresFases, selected: selectedDoctor, setSelected: setSelectedDoctor },
+            { data: kpisDoctoresStatus, selected: selectedDoctor, setSelected: setSelectedDoctor }].map((item, index) => (
+              <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
 
-              {/* Radio Buttons independientes en columnas de 4 */}
-              <div>
-                <Radio.Group
-                  onChange={(e) => item.setSelected(e.target.value)}
-                  value={item.selected}
-                >
-                  <Row gutter={[16, 16]}>
-                    {doctorChunks.map((group, colIndex) => (
-                      <Col key={colIndex}>
-                        {group.map((doctor) => (
-                          <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
-                            {doctor.nombre}
-                          </Radio>
-                        ))}
-                      </Col>
-                    ))}
-                  </Row>
-                </Radio.Group>
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={item.data}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomizedLabel}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {item.data.map((entry, i) => (
+                        <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+
+
               </div>
-            </div>
-          ))}
+
+            ))}
+          </div>
+
+
+          {/* Radio Group fuera de la iteración */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Radio.Group onChange={(e) => setSelectedDoctor(e.target.value)} value={selectedDoctor}>
+              <Row gutter={[16, 16]}>
+                {doctorChunks.map((group, colIndex) => (
+                  <Col key={colIndex}>
+                    {group.map((doctor) => (
+                      <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
+                        {doctor.nombre}
+                      </Radio>
+                    ))}
+                  </Col>
+                ))}
+              </Row>
+            </Radio.Group>
+          </div>
         </div>
       </div>
+
       <div>
         <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Asesores</h2>
-        <div style={{ display: 'flex', gap: '40px', marginTop: '-40px' }}>
-          {[{ data: kpisAsesoresOrdenes, selected: selectedAsesor, setSelected: setSelectedAsesor },
-          { data: kpisAsesoresFases, selected: selectedAsesorFase, setSelected: setSelectedAsesorFase },
-          { data: kpisAsesoresStatus, selected: selectedAsesorStatus, setSelected: setSelectedAsesorStatus }].map((item, index) => (
-            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-
-              <ResponsiveContainer >
-                <PieChart>
-                  <Pie
-                    data={item.data} // Cada gráfico usa su propia data
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={renderCustomizedLabel}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {item.data.map((entry, i) => (
-                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-
-              <div>
-                <Radio.Group
-                  onChange={(e) => item.setSelected(e.target.value)}
-                  value={item.selected}
-                >
-                  <Row gutter={[16, 16]}>
-                    {asesoresChunk.map((group, colIndex) => (
-                      <Col key={colIndex}>
-                        {group.map((doctor) => (
-                          <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
-                            {doctor.nombre}
-                          </Radio>
-                        ))}
-                      </Col>
-                    ))}
-                  </Row>
-                </Radio.Group>
+        <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
+          <div style={{ display: 'flex', gap: '20px', flex: 1 }}>
+            {[{ data: kpisAsesoresOrdenes, selected: selectedAsesor, setSelected: setSelectedAsesor },
+            { data: kpisAsesoresFases, selected: selectedAsesor, setSelected: setSelectedAsesor },
+            { data: kpisAsesoresStatus, selected: selectedAsesor, setSelected: setSelectedAsesor }].map((item, index) => (
+              <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={item.data}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCustomizedLabel}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {item.data.map((entry, i) => (
+                        <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Radio Group fuera de la iteración */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Radio.Group onChange={(e) => setSelectedAsesor(e.target.value)} value={selectedAsesor}>
+              <Row gutter={[16, 16]}>
+                {asesoresChunk.map((group, colIndex) => (
+                  <Col key={colIndex}>
+                    {group.map((asesor) => (
+                      <Radio key={asesor.id_usuario} value={asesor.id_usuario} style={{ display: 'block' }}>
+                        {asesor.nombre}
+                      </Radio>
+                    ))}
+                  </Col>
+                ))}
+              </Row>
+            </Radio.Group>
+          </div>
         </div>
       </div>
+
     </div>
   );
 };
