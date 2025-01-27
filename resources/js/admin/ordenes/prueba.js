@@ -22,7 +22,8 @@ const CollapsibleTable = (
         statusFiltro,
         localEndDateFiltro,
         localStartDateFiltro,
-        localSearch
+        currentPageTable,
+        setCurrentPageTable
     }
 
 ) => {
@@ -48,14 +49,13 @@ const CollapsibleTable = (
     } = useSelector((state) => state.correcionesordenes);
     const [urlPdfOrden, setUrlPdfOrden] = useState(null)
     const [loadingPdf, setLoadingPdf] = useState(false)
-    const [currentPage, setCurrentPage] = useState(1);
+    const currentPage = currentPageTable;
     const [showContacto, setShowContacto] = useState(false);
     const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
 
-    console.log('localSearch:',localSearch)
     useEffect(() => {
         dispatch(fecthOrdenes({
-            page: currentPage,
+            page: currentPageTable,
             limit: 20,
             sortColumn,
             sortOrder,
@@ -72,7 +72,7 @@ const CollapsibleTable = (
 
         }));
     }, [dispatch,
-        currentPage,
+        currentPageTable,
         sortColumn,
         sortOrder,
         search,
@@ -92,7 +92,7 @@ const CollapsibleTable = (
     }, [dispatch, selectedOrdenId]);
 
     const handlePageChange = (page) => {
-        setCurrentPage(page);
+        setCurrentPageTable(page); // Esta función debe venir como prop del padre
     };
 
     const toggleorden = (index, ordenId) => {

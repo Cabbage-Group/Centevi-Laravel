@@ -93,8 +93,6 @@ const VerOrdenes = () => {
     metabyOrden
   } = useSelector((state) => state.correcionesordenes)
 
-  console.log('metabyOrden:', metabyOrden)
-
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
   const [showOrden, setShowOrden] = useState(false);
@@ -120,16 +118,6 @@ const VerOrdenes = () => {
     }
   }, [idOrden, dispatch]);
 
-  const handleSort = (newOrdenPor) => {
-    const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    dispatch(setOrden(newOrder));
-    dispatch(setOrdenPor(newOrdenPor));
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
     
@@ -152,62 +140,39 @@ const VerOrdenes = () => {
   const handleClearSearch = () => {
     setLocalSearch('');
   };
-  const handlePagoToggle = async (id_orden, estadoActual, nro_orden) => {
-    try {
-      const estado = parseInt(estadoActual);
-      let nuevoEstado;
-      console.log('estadoActual:', estadoActual)
-      if (estado === 0) {
-        console.log('entre a abonado')
-        nuevoEstado = 2;
-      } else if (estado === 2) {
-        console.log('entre a pagado')
-        nuevoEstado = 1;
-      } else {
-        console.log('entre a no pagado')
-        nuevoEstado = 0;
-      }
-
-      console.log('nuevoEstado:', nuevoEstado)
-      const payload = {
-        pagado: nuevoEstado,
-        nro_orden,
-      };
-      console.log('payload:', payload)
-      await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
-      dispatch(fecthOrdenes({ page: currentPage, limit: 20, sortOrder, sortColumn }));
-    } catch (err) {
-      console.error('Error al actualizar el estado de pagado:', err);
-    }
-  };
-
-
 
   const handleLenteContactoChange = (value) => {
     setLenteContactoFilter(value);
+    setCurrentPage(1)
   };
   const handleStatusChange = (value) => {
     setStatusFilter(value);
+    setCurrentPage(1)
   };
 
   const handlePagadoChange = (value) => {
     setPagadoFilter(value);
+    setCurrentPage(1)
   };
 
   const handleSucursalChange = (value) => {
     setSucursalFilter(value);
+    setCurrentPage(1)
   };
 
   const handleLaboratorioChange = (value) => {
     setLaboratorioFilter(value);
+    setCurrentPage(1)
   };
 
   const handleFaseChange = (value) => {
     setFaseFilter(value);
+    setCurrentPage(1)
   };
 
   const handleDateChange = () => {
     dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
+    setCurrentPage(1)
   };
 
 
@@ -463,8 +428,8 @@ const VerOrdenes = () => {
                        statusFiltro={statusFilter}
                        localEndDateFiltro={localEndDate}
                        localStartDateFiltro={localStartDate}
-                       localSearch= {localSearch}
-                 
+                       currentPageTable={currentPage}
+                       setCurrentPageTable={setCurrentPage}              
                     />
                 </div>
               </div>

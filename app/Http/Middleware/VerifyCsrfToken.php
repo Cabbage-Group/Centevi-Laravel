@@ -160,5 +160,13 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/send-verification-email',
 
+    'http://127.0.0.1:8000/api/cristales/*',
+
+    'http://127.0.0.1:8000/api/cristales/data',
+
+    'http://127.0.0.1:8000/api/materiales/*',
+
+    'http://127.0.0.1:8000/api/tratamientos/*',
+
   ];
 }
