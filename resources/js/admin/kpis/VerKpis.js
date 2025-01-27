@@ -244,7 +244,7 @@ const VerKpis = () => {
     if (selectedDoctorStatus) {
       dispatch(fetchKpisDoctoresStatus(selectedDoctorStatus));
     }
-  }, [selectedDoctorStatus,dispatch]);
+  }, [selectedDoctorStatus, dispatch]);
 
   useEffect(() => {
     if (selectedAsesor) {

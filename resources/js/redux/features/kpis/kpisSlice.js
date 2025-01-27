@@ -18,7 +18,7 @@ export const fetchKpis = createAsyncThunk(
         lenteContacto
       };
 
-      const response = await axios.post(`${API}/kpis`, requestBody); 
+      const response = await axios.post(`${API}/kpis`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -31,18 +31,18 @@ export const fetchKpis = createAsyncThunk(
 
 export const fetchKpisAsesores = createAsyncThunk(
   'kpis/fetchKpisAsesores',
-  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = ''  }) => {
+  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = '' }) => {
     try {
       const today = dayjs();
       const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
       const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
-      const requestBody = { 
-        sortOrder, 
+      const requestBody = {
+        sortOrder,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         lenteContacto
       };
-      const response = await axios.post(`${API}/kpis/asesores`, requestBody );
+      const response = await axios.post(`${API}/kpis/asesores`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -54,18 +54,18 @@ export const fetchKpisAsesores = createAsyncThunk(
 
 export const fetchKpisDoctores = createAsyncThunk(
   'kpis/fetchKpisDoctores',
-  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = ''  }) => {
+  async ({ sortOrder = 'asc', startDate = '', endDate = '', lenteContacto = '' }) => {
     try {
       const today = dayjs();
       const formattedEndDate = endDate ? `${endDate}-23:59` : today.format('YYYY-MM-DD-23:59');
-      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');     
-      const requestBody = { 
-        sortOrder, 
+      const formattedStartDate = startDate ? `${startDate}-00:00` : dayjs(formattedEndDate, 'YYYY-MM-DD-23:59').subtract(30, 'day').format('YYYY-MM-DD-00:00');
+      const requestBody = {
+        sortOrder,
         startDate: formattedStartDate,
         endDate: formattedEndDate,
         lenteContacto
       };
-      const response = await axios.post(`${API}/kpis/doctores`,  requestBody );
+      const response = await axios.post(`${API}/kpis/doctores`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -79,11 +79,11 @@ export const fetchKpisDoctoresOrdenes = createAsyncThunk(
   'kpis/fetchKpisDoctoresOrdenes',
   async (doctor) => {
     try {
-     
-      const requestBody = { 
+
+      const requestBody = {
         doctor
       };
-      const response = await axios.post(`${API}/kpis/doctor-ordenes`,  requestBody );
+      const response = await axios.post(`${API}/kpis/doctor-ordenes`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -97,11 +97,11 @@ export const fetchKpisDoctoresFases = createAsyncThunk(
   'kpis/fetchKpisDoctoresFases',
   async (doctor) => {
     try {
-     
-      const requestBody = { 
+
+      const requestBody = {
         doctor
       };
-      const response = await axios.post(`${API}/kpis/fases-ordenes`,  requestBody );
+      const response = await axios.post(`${API}/kpis/fases-ordenes`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -111,15 +111,15 @@ export const fetchKpisDoctoresFases = createAsyncThunk(
   }
 );
 
-export const fetchKpisDoctoresStatus= createAsyncThunk(
+export const fetchKpisDoctoresStatus = createAsyncThunk(
   'kpis/fetchKpisDoctoresStatus',
   async (doctor) => {
     try {
-     
-      const requestBody = { 
+
+      const requestBody = {
         doctor
       };
-      const response = await axios.post(`${API}/kpis/status-ordenes`,  requestBody );
+      const response = await axios.post(`${API}/kpis/status-ordenes`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -133,11 +133,11 @@ export const fetchKpisAsesoresOrdenes = createAsyncThunk(
   'kpis/fetchKpisAsesoresOrdenes',
   async (usuario) => {
     try {
-     
-      const requestBody = { 
+
+      const requestBody = {
         usuario
       };
-      const response = await axios.post(`${API}/kpis/asesor-ordenes`,  requestBody );
+      const response = await axios.post(`${API}/kpis/asesor-ordenes`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -151,11 +151,11 @@ export const fetchKpisAsesoresFases = createAsyncThunk(
   'kpis/fetchKpisAsesoresFases',
   async (usuario) => {
     try {
-     
-      const requestBody = { 
+
+      const requestBody = {
         usuario
       };
-      const response = await axios.post(`${API}/kpis/asesor-fases`,  requestBody );
+      const response = await axios.post(`${API}/kpis/asesor-fases`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -169,11 +169,11 @@ export const fetchKpisAsesoresStatus = createAsyncThunk(
   'kpis/fetchKpisAsesoresStatus',
   async (usuario) => {
     try {
-     
-      const requestBody = { 
+
+      const requestBody = {
         usuario
       };
-      const response = await axios.post(`${API}/kpis/asesor-status`,  requestBody );
+      const response = await axios.post(`${API}/kpis/asesor-status`, requestBody);
 
       return response.data;
     } catch (error) {
@@ -198,14 +198,14 @@ const kpisSlice = createSlice({
     kpisAsesoresOrdenes: [],
     kpisAsesoresFases: [],
     kpisAsesoresStatus: [],
-    statusDoctoresFases : 'idle',
-    statusDoctoresOrdenes : 'idle',
-    statusDoctoresStatus : 'idle',
-    statusAsesoresOrdenes : 'idle',
-    statusAsesoresFases : 'idle',
-    statusAsesoresStatus : 'idle',
-    statusAsesores : 'idle',
-    statusDoctores : 'idle',
+    statusDoctoresFases: 'idle',
+    statusDoctoresOrdenes: 'idle',
+    statusDoctoresStatus: 'idle',
+    statusAsesoresOrdenes: 'idle',
+    statusAsesoresFases: 'idle',
+    statusAsesoresStatus: 'idle',
+    statusAsesores: 'idle',
+    statusDoctores: 'idle',
     errorAsesores: null,
     errorDoctores: null,
     errorDoctoresOrdenes: null,
@@ -235,7 +235,7 @@ const kpisSlice = createSlice({
     setFechaRangeDoctores(state, action) {
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
-},
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -251,94 +251,94 @@ const kpisSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(fetchKpisAsesores.pending, (state) => {
-        state.statusAsesores  = 'loading';
+        state.statusAsesores = 'loading';
       })
       .addCase(fetchKpisAsesores.fulfilled, (state, action) => {
-        state.statusAsesores  = 'succeeded';
+        state.statusAsesores = 'succeeded';
         state.kpisAsesores = action.payload.data;
       })
       .addCase(fetchKpisAsesores.rejected, (state, action) => {
-        state.statusAsesores  = 'failed';
+        state.statusAsesores = 'failed';
         state.errorAsesores = action.error.message;
       })
       .addCase(fetchKpisDoctores.pending, (state) => {
-        state.statusDoctores  = 'loading';
+        state.statusDoctores = 'loading';
       })
       .addCase(fetchKpisDoctores.fulfilled, (state, action) => {
-        state.statusDoctores  = 'succeeded';
+        state.statusDoctores = 'succeeded';
         state.kpisDoctores = action.payload.data;
       })
       .addCase(fetchKpisDoctores.rejected, (state, action) => {
-        state.statusDoctores  = 'failed';
+        state.statusDoctores = 'failed';
         state.errorDoctores = action.error.message;
       })
       .addCase(fetchKpisDoctoresOrdenes.pending, (state) => {
-        state.statusDoctoresOrdenes  = 'loading';
+        state.statusDoctoresOrdenes = 'loading';
       })
       .addCase(fetchKpisDoctoresOrdenes.fulfilled, (state, action) => {
-        state.statusDoctoresOrdenes  = 'succeeded';
+        state.statusDoctoresOrdenes = 'succeeded';
         state.kpisDoctoresOrdenes = action.payload.data;
       })
       .addCase(fetchKpisDoctoresOrdenes.rejected, (state, action) => {
-        state.statusDoctoresOrdenes  = 'failed';
+        state.statusDoctoresOrdenes = 'failed';
         state.errorDoctoresOrdenes = action.error.message;
       })
       .addCase(fetchKpisDoctoresFases.pending, (state) => {
-        state.statusDoctoresFases  = 'loading';
+        state.statusDoctoresFases = 'loading';
       })
       .addCase(fetchKpisDoctoresFases.fulfilled, (state, action) => {
-        state.statusDoctoresFases  = 'succeeded';
+        state.statusDoctoresFases = 'succeeded';
         state.kpisDoctoresFases = action.payload.data;
       })
       .addCase(fetchKpisDoctoresFases.rejected, (state, action) => {
-        state.statusDoctoresFases  = 'failed';
+        state.statusDoctoresFases = 'failed';
         state.errorDoctoresFases = action.error.message;
       })
       .addCase(fetchKpisDoctoresStatus.pending, (state) => {
         state.statusDoctoresStatus = 'loading';
       })
       .addCase(fetchKpisDoctoresStatus.fulfilled, (state, action) => {
-        state.statusDoctoresStatus  = 'succeeded';
+        state.statusDoctoresStatus = 'succeeded';
         state.kpisDoctoresStatus = action.payload.data;
       })
       .addCase(fetchKpisDoctoresStatus.rejected, (state, action) => {
-        state.statusDoctoresStatus  = 'failed';
+        state.statusDoctoresStatus = 'failed';
         state.errorDoctoresStatus = action.error.message;
       })
       .addCase(fetchKpisAsesoresOrdenes.pending, (state) => {
-        state.statusAsesoresOrdenes  = 'loading';
+        state.statusAsesoresOrdenes = 'loading';
       })
       .addCase(fetchKpisAsesoresOrdenes.fulfilled, (state, action) => {
-        state.statusAsesoresOrdenes  = 'succeeded';
+        state.statusAsesoresOrdenes = 'succeeded';
         state.kpisAsesoresOrdenes = action.payload.data;
       })
       .addCase(fetchKpisAsesoresOrdenes.rejected, (state, action) => {
-        state.statusAsesoresOrdenes  = 'failed';
+        state.statusAsesoresOrdenes = 'failed';
         state.errorAsesoresOrdenes = action.error.message;
       })
       .addCase(fetchKpisAsesoresFases.pending, (state) => {
         state.statusAsesoresFases = 'loading';
       })
       .addCase(fetchKpisAsesoresFases.fulfilled, (state, action) => {
-        state.statusAsesoresFases  = 'succeeded';
+        state.statusAsesoresFases = 'succeeded';
         state.kpisAsesoresFases = action.payload.data;
       })
       .addCase(fetchKpisAsesoresFases.rejected, (state, action) => {
-        state.statusAsesoresFases  = 'failed';
+        state.statusAsesoresFases = 'failed';
         state.errorAsesoresFases = action.error.message;
       })
       .addCase(fetchKpisAsesoresStatus.pending, (state) => {
         state.statusAsesoresStatus = 'loading';
       })
       .addCase(fetchKpisAsesoresStatus.fulfilled, (state, action) => {
-        state.statusAsesoresStatus  = 'succeeded';
+        state.statusAsesoresStatus = 'succeeded';
         state.kpisAsesoresStatus = action.payload.data;
       })
       .addCase(fetchKpisAsesoresStatus.rejected, (state, action) => {
-        state.statusAsesoresStatus  = 'failed';
+        state.statusAsesoresStatus = 'failed';
         state.errorAsesoresStatus = action.error.message;
       });
-     
+
   },
 });
 

@@ -26,7 +26,7 @@ const DateRangeSeparate = ({ onApply, onReset }) => {
 
   const disabledEndDate = (current) => {
     if (!startDate || !current) return false;
-    const minDate = startDate.startOf("day"); 
+    const minDate = startDate.startOf("day");
     const maxDate = startDate.add(30, "day").endOf("day");
     return current.isBefore(minDate) || current.isAfter(maxDate);
   };

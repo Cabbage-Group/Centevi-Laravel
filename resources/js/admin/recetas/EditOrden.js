@@ -43,7 +43,7 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedMarca, setSelectedMarca] = useState(orden?.marca || pacienteOrden?.marca);
 
- 
+
   useEffect(() => {
     if (orden?.lente_contacto || pacienteOrden?.lente_contacto) {
       setLenteContacto(true);
@@ -51,7 +51,7 @@ const EditOrden = ({ fecha_solicitud }) => {
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [orden,pacienteOrden]);
+  }, [orden, pacienteOrden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
@@ -73,8 +73,8 @@ const EditOrden = ({ fecha_solicitud }) => {
     add_oi: orden?.add_oi || pacienteOrden?.add_oi,
     prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
     prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
-    distancia_od: orden?.distancia_od  || pacienteOrden?.distancia_od,
-    distancia_oi : orden?.distancia_oi || pacienteOrden?.distancia_oi,
+    distancia_od: orden?.distancia_od || pacienteOrden?.distancia_od,
+    distancia_oi: orden?.distancia_oi || pacienteOrden?.distancia_oi,
     altura_od: orden?.altura_od || pacienteOrden?.altura_od,
     altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
     tipo_cristal_od: '',
@@ -874,7 +874,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChange}
-                                      
+
                                           options={[
                                             { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
                                             { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
@@ -1032,7 +1032,7 @@ const EditOrden = ({ fecha_solicitud }) => {
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeMaterial}                                      
+                                          onChange={handleSelectChangeMaterial}
                                           options={[
                                             { id: 1, codigo: "CR-39" },
                                             { id: 2, codigo: "Policarbonato" },

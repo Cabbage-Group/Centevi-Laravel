@@ -9,19 +9,19 @@ use Illuminate\Queue\SerializesModels;
 
 class VerifyEmail extends Mailable
 {
-    use Queueable, SerializesModels;
+  use Queueable, SerializesModels;
 
-    public $code;
+  public $code;
 
-    public function __construct($code)
-    {
-        $this->code = $code;
-    }
+  public function __construct($code)
+  {
+    $this->code = $code;
+  }
 
-    public function build()
-    {
-        return $this->view('emails.verify')
-                    ->subject('Verificación de Email')
-                    ->with(['code' => $this->code]);
-    }
+  public function build()
+  {
+    return $this->view('emails.verify')
+      ->subject('Verificación de Email')
+      ->with(['code' => $this->code]);
+  }
 }

@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Mail;
 
 class EmailController extends Controller
 {
-    public function sendVerificationEmail(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
+  public function sendVerificationEmail(Request $request)
+  {
+    $request->validate(['email' => 'required|email']);
 
-        $code = rand(100000, 999999); // Genera un código aleatorio
+    $code = rand(100000, 999999); // Genera un código aleatorio
 
-        Mail::to($request->email)->send(new VerifyEmail($code));
+    Mail::to($request->email)->send(new VerifyEmail($code));
 
-        return response()->json(['message' => 'Correo enviado', 'code' => $code]);
-    }
+    return response()->json(['message' => 'Correo enviado', 'code' => $code]);
+  }
 }
