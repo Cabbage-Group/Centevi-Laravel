@@ -321,6 +321,8 @@ Route::get('/api/kpis/sucursales-consultas', [KpisApiController::class, 'getCons
 
 Route::get('/api/kpis/doctores-consultas', [KpisApiController::class, 'getConsultasPorFechaDoctores']);
 
+Route::post('/api/kpis/promedio-fases-ordenes', [KpisApiController::class, 'PromedioFasesOrdenes']);
+
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);
 
 Route::put('/api/correciones-ordenes/{id}', [CorrecionesOrdenesController::class, 'updateCorreccionOrden']);

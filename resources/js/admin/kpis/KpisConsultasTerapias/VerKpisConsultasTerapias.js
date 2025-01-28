@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, } from 'recharts';
 import { useDispatch, useSelector } from 'react-redux';
-import { Checkbox, Select, Radio, Row, Col } from 'antd';
-import { fetchKpisConsultasTerapias, fetchKpisConsultasTerapiasDoctores, setFechaRangeConsultasTerapias, setFechaRangeConsultasTerapiasDoctores } from '../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice';
+import { Checkbox} from 'antd';
+import { fetchKpisConsultasTerapias, fetchKpisConsultasTerapiasDoctores, fetchKpisPromedioFasesOrdenes, setFechaRangeConsultasTerapias, setFechaRangeConsultasTerapiasDoctores, setFechaRangePromedioFasesOrdenes } from '../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice';
 import DateRangeSeparate from '../../reportes/DateRange';
 import { fetchSucursales } from '../../../redux/features/sucursales/sucursalesSlice';
 import { fetchUsuarios } from '../../../redux/features/usuarios/usuariosSlice';
@@ -127,7 +127,7 @@ const VerKpisConsultasTerapias = () => {
     }, [dispatch, localStartDate, localEndDate]);
 
     useEffect(() => {
-        dispatch(fetchKpisConsultasTerapiasDoctores({ startDate: localStartDateDoctores, endDate: localEndDateDoctores}));
+        dispatch(fetchKpisConsultasTerapiasDoctores({ startDate: localStartDateDoctores, endDate: localEndDateDoctores }));
     }, [dispatch, localStartDateDoctores, localEndDateDoctores]);
 
     useEffect(() => {
@@ -136,8 +136,7 @@ const VerKpisConsultasTerapias = () => {
 
     useEffect(() => {
         dispatch(fetchUsuarios({}));
-      }, [dispatch]);
-    
+    }, [dispatch]);
 
     useEffect(() => {
         if (sucursales.length > 0) {
@@ -169,23 +168,23 @@ const VerKpisConsultasTerapias = () => {
         });
     };
 
-     const renderLinesDoctores = () => {
+    const renderLinesDoctores = () => {
         return usuarios_doctores_options_selecteds.map((doctor, index) => {
-          const lineColor = colors[index % colors.length];
-          if (activeLinesDoctores.includes(doctor.value)) {
-            return (
-              <Line
-                key={doctor.value}
-                type="monotone"
-                dataKey={doctor.label}
-                stroke={lineColor}
-                strokeWidth={2}
-              />
-            );
-          }
-          return null;
+            const lineColor = colors[index % colors.length];
+            if (activeLinesDoctores.includes(doctor.value)) {
+                return (
+                    <Line
+                        key={doctor.value}
+                        type="monotone"
+                        dataKey={doctor.label}
+                        stroke={lineColor}
+                        strokeWidth={2}
+                    />
+                );
+            }
+            return null;
         });
-      };
+    };
 
 
 
@@ -317,6 +316,7 @@ const VerKpisConsultasTerapias = () => {
         return null;
     };
 
+
     const buttonStyle = (color) => ({
         backgroundColor: color === 'green' ? '#4CAF50' : '#F44336',
         color: 'white',
@@ -384,11 +384,11 @@ const VerKpisConsultasTerapias = () => {
                 </label>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 
-                    <DateRangeSeparate 
-                        onApply={handleDateApplyDoctores} 
+                    <DateRangeSeparate
+                        onApply={handleDateApplyDoctores}
                         onReset={handleDateResetDoctores}
                         disableDateRangeLimit={true}
-                        isMonthPicker={true}    
+                        isMonthPicker={true}
                     />
                     <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
                         <button
@@ -423,6 +423,7 @@ const VerKpisConsultasTerapias = () => {
                 </LineChart>
             </ResponsiveContainer>
         </div>
+
     );
 };
 

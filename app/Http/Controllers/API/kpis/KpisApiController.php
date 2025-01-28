@@ -820,7 +820,7 @@ class KpisApiController extends Controller
 
         $terapiaOrtopticaAdultosQuery = TerapiaOrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
             ->groupBy('name', 'sucursal');
-            
+
         // Consulta para contar las consultas de ConsultaGenerica
         $consultaGenericaQuery = ConsultaGenerica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
             ->groupBy('name', 'sucursal');
@@ -1071,4 +1071,160 @@ class KpisApiController extends Controller
 
         return response()->json(['data' => $result]);
     }
+
+    public function PromedioFasesOrdenes(Request $request)
+    {
+        $sortColumn = $request->input('sortColumn', 'created_at');
+        $faseInicial = $request->input('faseInicial');
+        $faseFinal = $request->input('faseFinal');
+        $startDate = $request->input('startDate');  // Fecha inicial
+        $endDate = $request->input('endDate');      // Fecha final
+        $lenteContacto = $request->input('lente_contacto'); // Lente de contacto
+    
+        // Asegurar que se puede ordenar por created_at
+        $validSortColumns = ['id_orden', 'created_at', 'nro_order_id'];
+        if (!in_array($sortColumn, $validSortColumns)) {
+            $sortColumn = 'id_orden'; // Valor por defecto
+        }
+    
+        // Validar que las fases estén en el rango correcto
+        $faseInicial = is_numeric($faseInicial) ? max(1, min(4, intval($faseInicial))) : null;
+        $faseFinal = is_numeric($faseFinal) ? max(1, min(4, intval($faseFinal))) : null;
+    
+        // Subconsulta para obtener la fecha de la primera fase
+        $primeraFaseQuery = DB::table('fases_ordenes as fo')
+            ->select('fo.ordenes_id', 'fo.fecha_fase as fecha_primera_fase')
+            ->whereRaw('fo.id = (
+            SELECT MIN(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo.ordenes_id
+        )');
+    
+        // Subconsulta para obtener la fecha de la última fase con el número de fase
+        $ultimaFaseQuery = DB::table('fases_ordenes as fo')
+            ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+            ->select(
+                'fo.ordenes_id',
+                DB::raw(
+                    '
+                CASE 
+                    WHEN fo.status = 1 THEN 
+                        CASE 
+                            WHEN fo.tipo_fase_orden_id IS NULL THEN 
+                                (SELECT tipo_fase_orden 
+                                FROM tipos_fases_ordenes 
+                                ORDER BY id ASC LIMIT 1)
+                            WHEN fo.tipo_fase_orden_id = 4 THEN 
+                                tfo.tipo_fase_orden  
+                            ELSE 
+                                (SELECT tipo_fase_orden 
+                                FROM tipos_fases_ordenes 
+                                WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
+                        END
+                    ELSE 
+                        tfo.tipo_fase_orden
+                END as fase_actual'
+                ),
+                DB::raw(
+                    '
+                CASE 
+                    WHEN fo.status = 1 THEN 
+                        CASE 
+                            WHEN fo.tipo_fase_orden_id IS NULL THEN 1
+                            WHEN fo.tipo_fase_orden_id = 4 THEN 4
+                            ELSE fo.tipo_fase_orden_id + 1
+                        END
+                    ELSE fo.tipo_fase_orden_id
+                END as fase_actual_numero'
+                ),
+                'fo.laboratorio as laboratorio_ultima_fase',
+                'fo.observacion as observacion_ultima_fase',
+                'fo.fecha_fase as fecha_ultima_fase'
+            )
+            ->whereRaw('fo.id = (
+            SELECT MAX(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo.ordenes_id
+        )');
+    
+        // Consulta principal
+        $ordenesQuery = Ordenes::leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+            ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
+            ->select(
+                'ordenes.id_orden',
+                'ordenes.created_at',
+                'ordenes.nro_orden_id',
+                'ordenes.lente_contacto',
+                'ultimas_fases.fecha_ultima_fase',
+                'ultimas_fases.fase_actual_numero',
+                DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual"),
+                DB::raw("DATEDIFF(ultimas_fases.fecha_ultima_fase, ordenes.created_at) as tiempo_transcurrido")
+            );
+    
+        // Aplicar filtro por rango de fases si se proporcionaron los parámetros
+        if ($faseInicial !== null && $faseFinal !== null) {
+            $ordenesQuery->where(function ($query) use ($faseInicial, $faseFinal) {
+                $query->whereNull('ultimas_fases.fase_actual_numero')
+                    ->where(function ($q) use ($faseInicial, $faseFinal) {
+                        $q->where(DB::raw('1'), '>=', $faseInicial)
+                            ->where(DB::raw('1'), '<=', $faseFinal);
+                    })
+                    ->orWhere(function ($q) use ($faseInicial, $faseFinal) {
+                        $q->whereNotNull('ultimas_fases.fase_actual_numero')
+                            ->where('ultimas_fases.fase_actual_numero', '>=', $faseInicial)
+                            ->where('ultimas_fases.fase_actual_numero', '<=', $faseFinal);
+                    });
+            });
+        }
+    
+        // Filtrar por fecha en el rango proporcionado (si existe)
+        if ($startDate && $endDate) {
+            $ordenesQuery->whereBetween('ordenes.created_at', [
+                $startDate . ' 00:00:00',
+                $endDate . ' 23:59:59'
+            ]);
+        }
+    
+        // Filtrar por lente de contacto si se proporcionó el parámetro
+        if (!is_null($lenteContacto) && is_array($lenteContacto)) {
+            if (!empty($lenteContacto)) {
+                $ordenesQuery->whereIn('lente_contacto', $lenteContacto); // Filtrar si hay valores en el array
+            }
+            // Si $lenteContacto está vacío, no se aplica ningún filtro y devuelve todos los registros
+        } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
+            $ordenesQuery->where('lente_contacto', $lenteContacto);
+        }
+
+    
+        // Obtener los datos
+        $ordenes = $ordenesQuery->get();
+        $totalRegistros = $ordenes->count();
+    
+        // Calcular el tiempo promedio
+        $totalTiempo = $ordenes->sum('tiempo_transcurrido');
+        $promedioTiempo = $totalRegistros > 0 ? $totalTiempo / $totalRegistros : 0;
+        $promedioTiempoDias = floor($promedioTiempo); // Días completos
+        $restoHoras = ($promedioTiempo - $promedioTiempoDias) * 24; // Horas en decimal
+        $promedioTiempoHoras = floor($restoHoras); // Horas completas
+        $promedioTiempoMinutos = round(($restoHoras - $promedioTiempoHoras) * 60);
+    
+        return response()->json([
+            'data' => $ordenes,
+            'total' => $totalRegistros,
+           'tiempo_promedio' => [
+                'dias' => $promedioTiempoDias,
+                'horas' => $promedioTiempoHoras,
+                'minutos' => $promedioTiempoMinutos
+            ],
+            'fase_inicial' => $faseInicial,
+            'fase_final' => $faseFinal,
+            'respuesta' => true,
+            'status' => [
+                'code' => 200,
+                'message' => 'Órdenes retrieved successfully',
+            ],
+            'mensaje' => 'Órdenes obtenidas correctamente',
+        ], 200);
+    }
+    
 }
