@@ -349,9 +349,6 @@ const VerKpis = () => {
     for (let i = 0; i < sucursales.length; i += 12) {
       chunkedSucursales.push(sucursales.slice(i, i + 12));
     }
-
-    
-
     return (
       <div style={{ display: 'flex', gap: '20px' }}>
         {chunkedSucursales.map((chunk, chunkIndex) => (

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Kpis;
 use App\Http\Controllers\Controller;
 use App\Models\BajaVision;
 use App\Models\ConsultaGenerica;
+use App\Models\Cristales;
 use App\Models\HistoriaClinica;
 use App\Models\OptometriaNeonatos;
 use App\Models\OptometriaPediatrica;
@@ -1226,5 +1227,155 @@ class KpisApiController extends Controller
             'mensaje' => 'Órdenes obtenidas correctamente',
         ], 200);
     }
+
+    // public function countCrystalTypes(Request $request)
+    // {
+    //     // Obtener los parámetros startDate y endDate desde la solicitud
+    //     $startDate = $request->input('startDate', null);
+    //     $endDate = $request->input('endDate', null);
+    
+    //     // Primero obtenemos todos los códigos de cristales, excluyendo valores vacíos
+    //     $allCrystals = Cristales::whereNotNull('codigo')
+    //         ->where('codigo', '!=', '')
+    //         ->pluck('codigo')
+    //         ->toArray();
+        
+    //     // Construir la consulta con filtro por fechas si se pasan los parámetros
+    //     $crystalCountsQuery = Ordenes::selectRaw("
+    //             DATE(created_at) as order_date, 
+    //             TRIM(SUBSTRING_INDEX(
+    //                 COALESCE(NULLIF(tipo_cristal_od, ''), NULLIF(tipo_cristal_oi, '')), '|', 1
+    //             )) as crystal_code
+    //         ")
+    //         ->whereNotNull('tipo_cristal_od')
+    //         ->havingRaw('crystal_code != ""')
+    //         ->havingRaw('crystal_code IS NOT NULL')
+    //         ->groupBy('order_date', 'crystal_code');
+    
+
+            
+    //     if ($startDate) {
+    //         $crystalCountsQuery->whereDate('created_at', '<=', $startDate);
+    //     }
+    //     if ($endDate) {
+    //         $crystalCountsQuery->whereDate('created_at', '<=', $endDate);
+    //     }
+    
+    //     // Ejecutar la consulta
+    //     $crystalCounts = $crystalCountsQuery->get();
+
+    
+    //     // Agrupar por fecha y luego por tipo de cristal
+    //     $groupedData = $crystalCounts->groupBy('order_date')->map(function ($items) use ($allCrystals) {
+    //         $crystalsByDate = $items->groupBy('crystal_code')->map(function ($crystalItems) {
+    //             return $crystalItems->count();
+    //         });
+    
+    //         // Asegurar que todos los tipos de cristales estén presentes
+    //         foreach ($allCrystals as $crystal) {
+    //             if (!isset($crystalsByDate[$crystal])) {
+    //                 $crystalsByDate[$crystal] = 0;
+    //             }
+    //         }
+    
+    //         return $crystalsByDate;
+    //     });
+    
+    //     // Transformar los datos en el formato deseado
+    //     $data = $groupedData->map(function ($crystals, $date) {
+    //         return array_merge(['name' => $date], $crystals->toArray());
+    //     })->values();
+
+    //     $total = $data->count();
+    
+    //     return response()->json([
+    //         'data' => $data,
+    //         'total' => $total
+    //     ]);
+    // }
+
+    public function countCrystalTypes(Request $request)
+{
+    // Obtener parámetros de fecha si se envían
+    $startDate = $request->input('startDate');
+    $endDate = $request->input('endDate');
+
+    // Consulta base sin filtro de fechas si no se envían
+    $query = Ordenes::query();
+
+    if ($startDate && $endDate) {
+        $query->whereBetween('created_at', [$startDate, $endDate]);
+    }
+
+    // Obtener todas las fechas en el rango especificado o sin filtro si no se enviaron fechas
+    $fechas = $query->selectRaw('DATE(created_at) as fecha')
+        ->distinct()
+        ->orderBy('fecha', 'asc')
+        ->pluck('fecha');
+
+    // Obtener todos los códigos de cristales disponibles
+    $codigosCristales = Cristales::pluck('codigo');
+
+    // Inicializar total de órdenes
+    $totalOrdenes = 0;
+
+    // Construir el array de respuesta
+    $data = [];
+
+    foreach ($fechas as $fecha) {
+        // Obtener las órdenes creadas en esa fecha o todas si no hay filtro de fechas
+        $ordenesPorFecha = Ordenes::whereDate('created_at', $fecha)->get();
+
+        // Inicializar estructura con los códigos en 0
+        $conteoCristales = array_fill_keys($codigosCristales->toArray(), 0);
+
+        // Contar cuántas órdenes hay por cada tipo de cristal
+        foreach ($ordenesPorFecha as $orden) {
+            if ($orden->codigo_cristal) {
+                $conteoCristales[$orden->codigo_cristal] = ($conteoCristales[$orden->codigo_cristal] ?? 0) + 1;
+                $totalOrdenes++; // Contabilizar la orden en el total general
+            }
+        }
+
+        // Convertir la fecha al formato DD-MM-YY
+        $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha)->format('d-m-y');
+
+        // Construir la estructura final para la fecha
+        $data[] = array_merge(['name' => $formattedDate], $conteoCristales);
+    }
+
+    return response()->json([
+        'data' => $data,
+        'total' => $totalOrdenes
+    ], 200);
+}
+
+
+    
+    public function actualizarCristales()
+{
+    // Obtener todas las órdenes donde codigo_cristal sea NULL
+    $ordenes = Ordenes::whereNull('codigo_cristal')->get();
+
+    foreach ($ordenes as $orden) {
+        // Extraer el código antes del "|" de tipo_cristal_od y tipo_cristal_oi
+        $tipoCristalOD = $orden->tipo_cristal_od ? explode('|', $orden->tipo_cristal_od)[0] : null;
+        $tipoCristalOI = $orden->tipo_cristal_oi ? explode('|', $orden->tipo_cristal_oi)[0] : null;
+
+        // Buscar en cristales usando el código de tipo_cristal_od, si no encuentra, usa tipo_cristal_oi
+        $cristal = Cristales::where('codigo', $tipoCristalOD)->first() ?? Cristales::where('codigo', $tipoCristalOI)->first();
+
+        if ($cristal) {
+            // Actualizar la orden con el código del cristal encontrado
+            $orden->update(['codigo_cristal' => $cristal->codigo]);
+        }
+    }
+
+    return response()->json(['message' => 'Órdenes actualizadas correctamente'], 200);
+}
+
+
+    
+    
     
 }

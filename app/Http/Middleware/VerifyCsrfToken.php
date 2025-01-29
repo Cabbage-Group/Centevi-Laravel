@@ -142,6 +142,8 @@ class VerifyCsrfToken extends Middleware
     
     'http://127.0.0.1:8000/api/kpis/promedio-fases-ordenes',
 
+    'http://127.0.0.1:8000/api/kpis/tipo-cristales',
+
     'http://127.0.0.1:8000/api/correciones-ordenes/*',
 
     'http://127.0.0.1:8000/api/correciones-ordenes',
@@ -169,6 +171,12 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/materiales/*',
 
     'http://127.0.0.1:8000/api/tratamientos/*',
+
+    'http://127.0.0.1:8000/api/marcas',
+
+    'http://127.0.0.1:8000/api/marcas/*',
+
+    'http://127.0.0.1:8000/api/kpis/update-tipo-cristales',
 
   ];
 }
