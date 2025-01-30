@@ -18,6 +18,7 @@ class Ordenes extends Model
   // Atributos que son asignables en masa
   protected $fillable = [
     'nro_orden_id',
+    'codigo_cristal',
     'nro_orden',
     'id_paciente',
     'id_sucursal',
@@ -94,7 +95,6 @@ class Ordenes extends Model
         return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
     }
 
- 
   // protected static function boot()
   // {
   //     parent::boot();
