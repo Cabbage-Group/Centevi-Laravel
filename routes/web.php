@@ -326,6 +326,8 @@ Route::post('/api/kpis/promedio-fases-ordenes', [KpisApiController::class, 'Prom
 
 Route::post('/api/kpis/tipo-cristales', [KpisApiController::class, 'countCrystalTypes']);
 
+Route::post('/api/kpis/lente-ordenes', [KpisApiController::class, 'getOrdersGroupedByDate']);
+
 Route::post('/api/kpis/update-tipo-cristales', [KpisApiController::class, 'actualizarCristales']);
 
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);

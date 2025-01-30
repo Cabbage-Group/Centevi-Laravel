@@ -1228,72 +1228,6 @@ class KpisApiController extends Controller
         ], 200);
     }
 
-    // public function countCrystalTypes(Request $request)
-    // {
-    //     // Obtener los parámetros startDate y endDate desde la solicitud
-    //     $startDate = $request->input('startDate', null);
-    //     $endDate = $request->input('endDate', null);
-    
-    //     // Primero obtenemos todos los códigos de cristales, excluyendo valores vacíos
-    //     $allCrystals = Cristales::whereNotNull('codigo')
-    //         ->where('codigo', '!=', '')
-    //         ->pluck('codigo')
-    //         ->toArray();
-        
-    //     // Construir la consulta con filtro por fechas si se pasan los parámetros
-    //     $crystalCountsQuery = Ordenes::selectRaw("
-    //             DATE(created_at) as order_date, 
-    //             TRIM(SUBSTRING_INDEX(
-    //                 COALESCE(NULLIF(tipo_cristal_od, ''), NULLIF(tipo_cristal_oi, '')), '|', 1
-    //             )) as crystal_code
-    //         ")
-    //         ->whereNotNull('tipo_cristal_od')
-    //         ->havingRaw('crystal_code != ""')
-    //         ->havingRaw('crystal_code IS NOT NULL')
-    //         ->groupBy('order_date', 'crystal_code');
-    
-
-            
-    //     if ($startDate) {
-    //         $crystalCountsQuery->whereDate('created_at', '<=', $startDate);
-    //     }
-    //     if ($endDate) {
-    //         $crystalCountsQuery->whereDate('created_at', '<=', $endDate);
-    //     }
-    
-    //     // Ejecutar la consulta
-    //     $crystalCounts = $crystalCountsQuery->get();
-
-    
-    //     // Agrupar por fecha y luego por tipo de cristal
-    //     $groupedData = $crystalCounts->groupBy('order_date')->map(function ($items) use ($allCrystals) {
-    //         $crystalsByDate = $items->groupBy('crystal_code')->map(function ($crystalItems) {
-    //             return $crystalItems->count();
-    //         });
-    
-    //         // Asegurar que todos los tipos de cristales estén presentes
-    //         foreach ($allCrystals as $crystal) {
-    //             if (!isset($crystalsByDate[$crystal])) {
-    //                 $crystalsByDate[$crystal] = 0;
-    //             }
-    //         }
-    
-    //         return $crystalsByDate;
-    //     });
-    
-    //     // Transformar los datos en el formato deseado
-    //     $data = $groupedData->map(function ($crystals, $date) {
-    //         return array_merge(['name' => $date], $crystals->toArray());
-    //     })->values();
-
-    //     $total = $data->count();
-    
-    //     return response()->json([
-    //         'data' => $data,
-    //         'total' => $total
-    //     ]);
-    // }
-
     public function countCrystalTypes(Request $request)
 {
     // Obtener parámetros de fecha si se envían
@@ -1374,6 +1308,39 @@ class KpisApiController extends Controller
     return response()->json(['message' => 'Órdenes actualizadas correctamente'], 200);
 }
 
+public function getOrdersGroupedByDate(Request $request)
+{
+    // Obtener los parámetros startDate y endDate del request, si existen
+    $startDate = $request->input('startDate');
+    $endDate = $request->input('endDate');
+
+    // Crear la consulta base
+    $query = Ordenes::select(
+                DB::raw('DATE_FORMAT(created_at, "%d-%m-%y") as name'), 
+                DB::raw('SUM(CASE WHEN lente_contacto = "Lente contacto" THEN 1 ELSE 0 END) as lente_contacto'),
+                DB::raw('SUM(CASE WHEN lente_contacto = "Lente normal" THEN 0 ELSE 1 END) as lente_normal')
+            )
+            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%d-%m-%y")'))
+            ->orderBy(DB::raw('DATE_FORMAT(created_at, "%d-%m-%y")'));
+
+    // Filtrar por rango de fechas si los parámetros están presentes
+    if ($startDate) {
+        $query->where('created_at', '>=', $startDate);
+    }
+    if ($endDate) {
+        $query->where('created_at', '<=', $endDate);
+    }
+
+    // Ejecutar la consulta
+    $orders = $query->get();
+
+    // Formatear la respuesta
+    $response = [
+        'data' => $orders
+    ];
+
+    return response()->json($response);
+}
 
     
     

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchKpisPromedioFasesOrdenes, setFasesRangePromedioFasesOrdenes, setFechaRangePromedioFasesOrdenes } from "../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice";
 import { Button, Card, Checkbox, Col, Row, Select, Spin } from "antd";
 import DateRangeSeparate from "../../reportes/DateRange";
-import { fetchKpisOrdenesTipoCristal, setFechaRangeOrdenesTipoCristal } from "../../../redux/features/kpis/kpisOrdenes/kpisOrdenes";
+import { fetchKpisOrdenesLente, fetchKpisOrdenesTipoCristal, setFechaRangeOrdenesLente, setFechaRangeOrdenesTipoCristal } from "../../../redux/features/kpis/kpisOrdenes/kpisOrdenes";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { fetchCristales } from "../../../redux/features/cristales/cristalesSlice";
 
@@ -27,17 +27,19 @@ const VerKpisOrdenes = () => {
         faseInicial,
         faseFinal,
         statusPromedioFasesOrdenes } = useSelector((state) => state.kpisConsultasTerapias)
-    const { kpisOrdenesTipoCristal } = useSelector((state) => state.kpisOrdenes)
+    const { kpisOrdenesTipoCristal, kpisOrdenesLente } = useSelector((state) => state.kpisOrdenes)
     const { cristales } = useSelector((state) => state.cristales)
     const [localStartDateFasesOrdenes, setLocalStartDateFasesOrdenes] = useState();
     const [localEndDateFasesOrdenes, setLocalEndDateFasesOrdenes] = useState();
     const [lenteContactoFilter, setLenteContactoFilter] = useState([]);
     const [activeLines, setActiveLines] = useState([]);
+    const [activeLinesLente, setActiveLinesLente] = useState(["lente_contacto", "lente_normal"]);
     const [localStartDate, setLocalStartDate] = useState();
     const [localEndDate, setLocalEndDate] = useState();
-    console.log('cristales:', cristales)
-
-    console.log('kpisOrdenesTipoCristal:', kpisOrdenesTipoCristal)
+    const [localStartDateLente, setLocalStartDateLente] = useState();
+    const [localEndDateLente, setLocalEndDateLente] = useState();
+ 
+    console.log('kpisOrdenesLente:', kpisOrdenesLente)
 
     const faseMapping = {
         Nuevo: 1,
@@ -68,6 +70,17 @@ const VerKpisOrdenes = () => {
             }
         });
     };
+
+    const handleCheckboxChangeLente = (lineKey, checked) => {
+        setActiveLinesLente(prevActiveLines => {
+          if (checked) {
+            return [...prevActiveLines, lineKey];
+          } else {
+            return prevActiveLines.filter(line => line !== lineKey);
+          }
+        });
+      };
+
 
 
 
@@ -120,6 +133,20 @@ const VerKpisOrdenes = () => {
         dispatch(setFechaRangeOrdenesTipoCristal({ startDate: null, endDate: null }));
     };
 
+    const handleDateApplyLente = (newStartDate, newEndDate) => {
+        setLocalStartDateLente(newStartDate);
+        setLocalEndDateLente(newEndDate);
+
+        dispatch(setFechaRangeOrdenesLente({ startDate: newStartDate, endDate: newEndDate }));
+    };
+
+    const handleDateResetLente = () => {
+        setLocalStartDateLente(null);
+        setLocalEndDateLente(null);
+
+        dispatch(setFechaRangeOrdenesLente({ startDate: null, endDate: null }));
+    };
+
 
     useEffect(() => {
         dispatch(fetchKpisPromedioFasesOrdenes({
@@ -134,6 +161,10 @@ const VerKpisOrdenes = () => {
     useEffect(() => {
         dispatch(fetchKpisOrdenesTipoCristal({ startDate: localStartDate, endDate: localEndDate, }))
     }, [dispatch, localStartDate, localEndDate,])
+
+    useEffect(() => {
+        dispatch(fetchKpisOrdenesLente({ startDate: localStartDateLente, endDate: localEndDateLente, }))
+    }, [localStartDateLente,localEndDateLente])
 
     useEffect(() => {
         dispatch(fetchCristales())
@@ -204,6 +235,22 @@ const VerKpisOrdenes = () => {
         );
     };
 
+    const renderLegendLente = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px' }}>
+          <Checkbox
+            checked={activeLinesLente.includes("lente_contacto")}
+            onChange={(e) => handleCheckboxChangeLente("lente_contacto", e.target.checked)}
+          >
+            Lente Contacto
+          </Checkbox>
+          <Checkbox
+            checked={activeLinesLente.includes("lente_normal")}
+            onChange={(e) => handleCheckboxChangeLente("lente_normal", e.target.checked)}
+          >
+            Lente Normal
+          </Checkbox>
+        </div>
+      );
 
     const renderLines = () => {
         return cristales.map((cristal, index) => {
@@ -222,6 +269,18 @@ const VerKpisOrdenes = () => {
             return null;
         });
     };
+
+    const renderLinesLente = () => {
+        const lines = [];
+        if (activeLinesLente.includes("lente_contacto")) {
+          lines.push(<Line key="lente_contacto" type="monotone" dataKey="lente_contacto" stroke="#FF5733" />);
+        }
+        if (activeLinesLente.includes("lente_normal")) {
+          lines.push(<Line key="lente_normal" type="monotone" dataKey="lente_normal" stroke="#33FF57" />);
+        }
+        return lines;
+      };
+
 
     const customTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -256,6 +315,23 @@ const VerKpisOrdenes = () => {
         }
         return null;
     };
+
+    const customTooltipLente = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+          return (
+            <div style={{ backgroundColor: "#fff", padding: '10px', border: '1px solid #ccc' }}>
+              <p><strong>Fecha:</strong> {label}</p>
+              {payload.map((entry, index) => (
+                <div key={index}>
+                  <strong>{entry.name}:</strong> {entry.value}
+                </div>
+              ))}
+            </div>
+          );
+        }
+        return null;
+      };
+    
 
 
 
@@ -336,6 +412,27 @@ const VerKpisOrdenes = () => {
                         layout="vertical"
                     />
                     {renderLines()}
+                </LineChart>
+            </ResponsiveContainer>
+
+            <ResponsiveContainer width="100%" height={500}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <label>
+                        Buscar por Fecha:
+                    </label>
+
+                    <DateRangeSeparate onApply={handleDateApplyLente} onReset={handleDateResetLente} />
+                </div>
+                <LineChart
+                    data={kpisOrdenesLente}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip content={customTooltipLente} />
+                    <Legend content={renderLegendLente} verticalAlign="middle" align="right" layout="vertical" />
+                    {renderLinesLente()}
                 </LineChart>
             </ResponsiveContainer>
 

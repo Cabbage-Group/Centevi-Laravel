@@ -144,6 +144,8 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/kpis/tipo-cristales',
 
+    'http://127.0.0.1:8000/api/kpis/lente-ordenes',
+
     'http://127.0.0.1:8000/api/correciones-ordenes/*',
 
     'http://127.0.0.1:8000/api/correciones-ordenes',
