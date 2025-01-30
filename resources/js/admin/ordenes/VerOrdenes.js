@@ -44,9 +44,9 @@ const VerOrdenes = () => {
   };
 
   const toggleRow = (index) => {
-    setCollapsedRows(prevState => 
-      prevState.includes(index) 
-        ? prevState.filter(row => row !== index) 
+    setCollapsedRows(prevState =>
+      prevState.includes(index)
+        ? prevState.filter(row => row !== index)
         : [...prevState, index]
     );
   };
@@ -120,7 +120,7 @@ const VerOrdenes = () => {
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
-    
+
   };
 
   const formatDate = (dateString) => {
@@ -418,25 +418,25 @@ const VerOrdenes = () => {
                       </div>
                     </div>
                   </div>
-                    <CollapsibleTable
-                       search = {localSearch}
-                       pagadoFiltro={pagadoFilter}
-                       sucursalFiltro={sucursalFilter}
-                       laboratorioFiltro={laboratorioFilter}
-                       faseFiltro={faseFilter}
-                       lenteContactoFiltro={lenteContactoFilter}
-                       statusFiltro={statusFilter}
-                       localEndDateFiltro={localEndDate}
-                       localStartDateFiltro={localStartDate}
-                       currentPageTable={currentPage}
-                       setCurrentPageTable={setCurrentPage}              
-                    />
+                  <CollapsibleTable
+                    search={localSearch}
+                    pagadoFiltro={pagadoFilter}
+                    sucursalFiltro={sucursalFilter}
+                    laboratorioFiltro={laboratorioFilter}
+                    faseFiltro={faseFilter}
+                    lenteContactoFiltro={lenteContactoFilter}
+                    statusFiltro={statusFilter}
+                    localEndDateFiltro={localEndDate}
+                    localStartDateFiltro={localStartDate}
+                    currentPageTable={currentPage}
+                    setCurrentPageTable={setCurrentPage}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      
+
       </div>
       <Modal
         open={showOrden}

@@ -183,7 +183,7 @@ const store = configureStore({
     email: emailSlice,
 
     cristales: cristalesSlice,
-    
+
     materiales: materialesSlice,
 
     tratamientos: tratamientosSlice,

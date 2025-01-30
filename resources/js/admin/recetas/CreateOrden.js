@@ -874,7 +874,7 @@ const CreateOrden = () => {
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeMaterial}                                       
+                                          onChange={handleSelectChangeMaterial}
                                           options={materiales_options_selecteds.map(servicio => ({
                                             value: servicio.value,
                                             label: servicio.label
@@ -898,7 +898,7 @@ const CreateOrden = () => {
                                                     style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                                   >
                                                     {servicio.servicio} :
-                                                    
+
                                                   </div>
                                                   <div
                                                     style={{

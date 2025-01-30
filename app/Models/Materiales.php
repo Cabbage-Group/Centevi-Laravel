@@ -17,7 +17,4 @@ class Materiales extends Model
     'codigo',
     'nombre',
   ];
-
- 
-
 }

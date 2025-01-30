@@ -234,7 +234,7 @@ const RoutesApp = () => {
 
           <Route path="/caracteristicas-cristales" element={<Sidebar component={<SegmentedTablesPage />} />} />
 
-      
+
 
         </Route>
 
