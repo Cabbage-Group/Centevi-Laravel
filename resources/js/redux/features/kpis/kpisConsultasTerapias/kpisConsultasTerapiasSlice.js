@@ -92,7 +92,6 @@ export const fetchKpisPromedioFasesOrdenes = createAsyncThunk(
 
 
 const kpisSliceConsultasTerapias = createSlice({
-
   name: 'kpis',
   initialState: {
     kpisConsultasTerapias: [],
@@ -165,31 +164,6 @@ const kpisSliceConsultasTerapias = createSlice({
         state.errorPromedioFasesOrdenes = action.error.message;
       });
 
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchKpisConsultasTerapias.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchKpisConsultasTerapias.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.kpisConsultasTerapias = action.payload.data;
-      })
-      .addCase(fetchKpisConsultasTerapias.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(fetchKpisConsultasTerapiasDoctores.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchKpisConsultasTerapiasDoctores.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.kpisConsultasTerapiasDoctores = action.payload.data;
-      })
-      .addCase(fetchKpisConsultasTerapiasDoctores.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
   },
 });
 

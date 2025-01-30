@@ -210,19 +210,6 @@ const CristalesMaterialesTratamientos = () => {
             </Form.Item>
           )}
 
-          <Table
-            columns={columns}
-            dataSource={dataSource[selectedTable]}
-            rowKey="id"
-            className="dataTables_wrapper container-fluid dt-bootstrap4"
-            id="zero-config_wrapper"
-            pagination={{
-              showSizeChanger: false,
-              pageSize: 10,
-              hideOnSinglePage: true,
-            }}
-          />
-
           {(selectedTable === "MarcasLenteContacto") && (
             <>
               <Form.Item
