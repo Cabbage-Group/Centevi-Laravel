@@ -66,17 +66,49 @@ export const fetchKpisConsultasTerapiasDoctores = createAsyncThunk(
     }
   }
 );
+
+export const fetchKpisPromedioFasesOrdenes = createAsyncThunk(
+  'kpisConsultasTerapias/fetchKpisPromedioFasesOrdenes',
+  async ({ startDate = '', endDate = '', faseInicial, faseFinal, lenteContacto = '' }) => {
+    try {
+
+      const requestBody = {
+        startDate,
+        endDate,
+        faseInicial,
+        faseFinal,
+        lente_contacto: lenteContacto
+
+      };
+      const response = await axios.post(`${API}/kpis/promedio-fases-ordenes`, requestBody);
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching Kpis:', error.response.data);
+      throw error;
+    }
+  }
+);
+
+
 const kpisSliceConsultasTerapias = createSlice({
+
   name: 'kpis',
   initialState: {
     kpisConsultasTerapias: [],
     kpisConsultasTerapiasDoctores: [],
+    kpisPromedioFasesOrdenes: [],
+    tiempoPromedio: {},
     sortOrder: 'asc',
     status: 'idle',
+    statusPromedioFasesOrdenes: 'idle',
     error: null,
+    errorPromedioFasesOrdenes: null,
     search: '',
     startDate: null,
     endDate: null,
+    faseInicial: null,
+    faseFinal: null,
   },
   reducers: {
     setFechaRangeConsultasTerapias(state, action) {
@@ -87,6 +119,52 @@ const kpisSliceConsultasTerapias = createSlice({
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
     },
+    setFechaRangePromedioFasesOrdenes(state, action) {
+      state.startDate = action.payload.startDate;
+      state.endDate = action.payload.endDate;
+    },
+    setFasesRangePromedioFasesOrdenes(state, action) {
+      state.faseInicial = action.payload.faseInicial;
+      state.faseFinal = action.payload.faseFinal;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchKpisConsultasTerapias.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchKpisConsultasTerapias.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.kpisConsultasTerapias = action.payload.data;
+      })
+      .addCase(fetchKpisConsultasTerapias.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchKpisConsultasTerapiasDoctores.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchKpisConsultasTerapiasDoctores.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.kpisConsultasTerapiasDoctores = action.payload.data;
+      })
+      .addCase(fetchKpisConsultasTerapiasDoctores.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchKpisPromedioFasesOrdenes.pending, (state) => {
+        state.statusPromedioFasesOrdenes = 'loading';
+      })
+      .addCase(fetchKpisPromedioFasesOrdenes.fulfilled, (state, action) => {
+        state.statusPromedioFasesOrdenes = 'succeeded';
+        state.kpisPromedioFasesOrdenes = action.payload.data;
+        state.tiempoPromedio = action.payload.tiempo_promedio;
+      })
+      .addCase(fetchKpisPromedioFasesOrdenes.rejected, (state, action) => {
+        state.statusPromedioFasesOrdenes = 'failed';
+        state.errorPromedioFasesOrdenes = action.error.message;
+      });
+
   },
   extraReducers: (builder) => {
     builder
@@ -118,7 +196,9 @@ const kpisSliceConsultasTerapias = createSlice({
 export const {
   setSortOrder,
   setFechaRangeConsultasTerapias,
-  setFechaRangeConsultasTerapiasDoctores
+  setFechaRangeConsultasTerapiasDoctores,
+  setFechaRangePromedioFasesOrdenes,
+  setFasesRangePromedioFasesOrdenes
 } = kpisSliceConsultasTerapias.actions;
 export default kpisSliceConsultasTerapias.reducer;
 

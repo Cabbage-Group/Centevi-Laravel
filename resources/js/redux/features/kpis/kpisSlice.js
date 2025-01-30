@@ -183,9 +183,6 @@ export const fetchKpisAsesoresStatus = createAsyncThunk(
   }
 );
 
-
-
-
 const kpisSlice = createSlice({
   name: 'kpis',
   initialState: {
@@ -198,6 +195,8 @@ const kpisSlice = createSlice({
     kpisAsesoresOrdenes: [],
     kpisAsesoresFases: [],
     kpisAsesoresStatus: [],
+
+    statusPromedioFasesOrdenes: 'idle',
     statusDoctoresFases: 'idle',
     statusDoctoresOrdenes: 'idle',
     statusDoctoresStatus: 'idle',
@@ -206,6 +205,7 @@ const kpisSlice = createSlice({
     statusAsesoresStatus: 'idle',
     statusAsesores: 'idle',
     statusDoctores: 'idle',
+
     errorAsesores: null,
     errorDoctores: null,
     errorDoctoresOrdenes: null,
@@ -214,6 +214,7 @@ const kpisSlice = createSlice({
     errorAsesoresOrdenes: null,
     errorAsesoresFases: null,
     errorAsesoresStatus: null,
+    errorPromedioFasesOrdenes: null,
     sortOrder: 'asc',
     status: 'idle',
     error: null,
@@ -337,8 +338,7 @@ const kpisSlice = createSlice({
       .addCase(fetchKpisAsesoresStatus.rejected, (state, action) => {
         state.statusAsesoresStatus = 'failed';
         state.errorAsesoresStatus = action.error.message;
-      });
-
+      })
   },
 });
 

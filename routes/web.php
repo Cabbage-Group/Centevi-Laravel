@@ -21,6 +21,7 @@ use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
 use App\Http\Controllers\API\email\EmailController;
 use App\Http\Controllers\API\kpis\KpisApiController;
+use App\Http\Controllers\API\marcas\MarcasApiController;
 use App\Http\Controllers\API\materiales\MaterialesApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
@@ -321,6 +322,14 @@ Route::get('/api/kpis/sucursales-consultas', [KpisApiController::class, 'getCons
 
 Route::get('/api/kpis/doctores-consultas', [KpisApiController::class, 'getConsultasPorFechaDoctores']);
 
+Route::post('/api/kpis/promedio-fases-ordenes', [KpisApiController::class, 'PromedioFasesOrdenes']);
+
+Route::post('/api/kpis/tipo-cristales', [KpisApiController::class, 'countCrystalTypes']);
+
+Route::post('/api/kpis/lente-ordenes', [KpisApiController::class, 'getOrdersGroupedByDate']);
+
+Route::post('/api/kpis/update-tipo-cristales', [KpisApiController::class, 'actualizarCristales']);
+
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);
 
 Route::put('/api/correciones-ordenes/{id}', [CorrecionesOrdenesController::class, 'updateCorreccionOrden']);
@@ -374,6 +383,14 @@ Route::post('/api/tratamientos', [TratamientosApiController::class, 'create']);
 Route::put('/api/tratamientos/{id}', [TratamientosApiController::class, 'update']);
 
 Route::delete('/api/tratamientos/{id}', [TratamientosApiController::class, 'delete']);
+
+Route::get('/api/marcas', [MarcasApiController::class, 'index']);
+
+Route::post('/api/marcas', [MarcasApiController::class, 'create']);
+
+Route::delete('/api/marcas/{id}', [MarcasApiController::class, 'delete']);
+
+Route::put('/api/marcas/{id}', [MarcasApiController::class, 'update']);
 
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);

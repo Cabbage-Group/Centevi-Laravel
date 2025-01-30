@@ -18,6 +18,7 @@ class Ordenes extends Model
   // Atributos que son asignables en masa
   protected $fillable = [
     'nro_orden_id',
+    'codigo_cristal',
     'nro_orden',
     'id_paciente',
     'id_sucursal',

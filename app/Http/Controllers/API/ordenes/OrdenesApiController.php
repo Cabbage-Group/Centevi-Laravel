@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\TiposFasesOrdenes;
 use App\Models\FasesOrdenes;
 use App\Models\ContactoOrden;
+use App\Models\Cristales;
 use App\Models\NroOrden;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -226,126 +227,146 @@ class OrdenesApiController extends Controller
 
 
   public function createOrdenes(Request $request)
-  {
+{
     $validator = Validator::make($request->all(), [
-      "id_paciente" => 'nullable|integer',
-      'id_sucursal' => 'nullable|integer',
-      'elaborado_por' => 'nullable|integer',
-      'esfera_od' => 'nullable|string|max:255',
-      'esfera_oi' => 'nullable|string|max:255',
-      'cilindro_od' => 'nullable|string|max:255',
-      'cilindro_oi' => 'nullable|string|max:255',
-      'eje_od' => 'nullable|string|max:255',
-      'eje_oi' => 'nullable|string|max:255',
-      'add_od' => 'nullable|string|max:255',
-      'add_oi' => 'nullable|string|max:255',
-      'prisma_od' => 'nullable|string|max:255',
-      'prisma_oi' => 'nullable|string|max:255',
-      'distancia_od' => 'nullable|string|max:255',
-      'distancia_oi' => 'nullable|string|max:255',
-      'altura_od' => 'nullable|string|max:255',
-      'altura_oi' => 'nullable|string|max:255',
-      'tipo_cristal_od' => 'nullable|string|max:255',
-      'tipo_cristal_oi' => 'nullable|string|max:255',
-      'material_od' => 'nullable|string|max:255',
-      'material_oi' => 'nullable|string|max:255',
-      'tratamientos_od' => 'nullable|string|max:255',
-      'tratamientos_oi' => 'nullable|string|max:255',
-      'aro_centevi' => 'nullable|integer|min:0|max:1',
-      'aro_propio' => 'nullable|integer|min:0|max:1',
-      'codigo' => 'nullable|string|max:255',
-      'color' => 'nullable|string|max:255',
-      'marca' => 'nullable|string|max:255',
-      'tipo_aro' => 'nullable|string|max:255',
-      'doctor' => 'nullable|string|max:255',
-      'observaciones' => 'nullable|string|max:400',
-      'l_uno' => 'nullable|string|max:255',
-      'l_dos' => 'nullable|string|max:255',
-      'l_tres' => 'nullable|string|max:255',
-      'l_cuatro' => 'nullable|string|max:255',
-      'l_cinco' => 'nullable|string|max:255',
+        "id_paciente" => 'nullable|integer',
+        'id_sucursal' => 'nullable|integer',
+        'elaborado_por' => 'nullable|integer',
+        'esfera_od' => 'nullable|string|max:255',
+        'esfera_oi' => 'nullable|string|max:255',
+        'cilindro_od' => 'nullable|string|max:255',
+        'cilindro_oi' => 'nullable|string|max:255',
+        'eje_od' => 'nullable|string|max:255',
+        'eje_oi' => 'nullable|string|max:255',
+        'add_od' => 'nullable|string|max:255',
+        'add_oi' => 'nullable|string|max:255',
+        'prisma_od' => 'nullable|string|max:255',
+        'prisma_oi' => 'nullable|string|max:255',
+        'distancia_od' => 'nullable|string|max:255',
+        'distancia_oi' => 'nullable|string|max:255',
+        'altura_od' => 'nullable|string|max:255',
+        'altura_oi' => 'nullable|string|max:255',
+        'tipo_cristal_od' => 'nullable|string|max:255',
+        'tipo_cristal_oi' => 'nullable|string|max:255',
+        'material_od' => 'nullable|string|max:255',
+        'material_oi' => 'nullable|string|max:255',
+        'tratamientos_od' => 'nullable|string|max:255',
+        'tratamientos_oi' => 'nullable|string|max:255',
+        'aro_centevi' => 'nullable|integer|min:0|max:1',
+        'aro_propio' => 'nullable|integer|min:0|max:1',
+        'codigo' => 'nullable|string|max:255',
+        'color' => 'nullable|string|max:255',
+        'marca' => 'nullable|string|max:255',
+        'tipo_aro' => 'nullable|string|max:255',
+        'doctor' => 'nullable|string|max:255',
+        'observaciones' => 'nullable|string|max:400',
+        'l_uno' => 'nullable|string|max:255',
+        'l_dos' => 'nullable|string|max:255',
+        'l_tres' => 'nullable|string|max:255',
+        'l_cuatro' => 'nullable|string|max:255',
+        'l_cinco' => 'nullable|string|max:255',
     ]);
 
     if ($validator->fails()) {
-      return response()->json([
-        'respuesta' => false,
-        'mensaje' => 'Validation errors',
-        'data' => $validator->errors(),
-        'mensaje_dev' => "Oops, validation errors occurred."
-      ], 400);
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Validation errors',
+            'data' => $validator->errors(),
+            'mensaje_dev' => "Oops, validation errors occurred."
+        ], 400);
     }
 
     try {
-      DB::beginTransaction();
+        DB::beginTransaction();
 
-      // Crear un nuevo nro_orden
-      $nroOrden = NroOrden::create([]);
+        // Crear un nuevo nro_orden
+        $nroOrden = NroOrden::create([]);
 
-      // Definir valores predeterminados
-      $defaults = [
-        'elaborado_por' => 0,
-        'esfera_od' => '',
-        'esfera_oi' => '',
-        'cilindro_od' => '',
-        'cilindro_oi' => '',
-        'eje_od' => '',
-        'eje_oi' => '',
-        'add_od' => '',
-        'add_oi' => '',
-        'prisma_od' => '',
-        'prisma_oi' => '',
-        'distancia_od' => '',
-        'distancia_oi' => '',
-        'altura_od' => '',
-        'altura_oi' => '',
-        'tipo_cristal_od' => '',
-        'tipo_cristal_oi' => '',
-        'material_od' => '',
-        'material_oi' => '',
-        'tratamientos_od' => '',
-        'tratamientos_oi' => '',
-        'aro_centevi' => 0,
-        'aro_propio' => 0,
-        'codigo' => '',
-        'color' => '',
-        'marca' => '',
-        'tipo_aro' => '',
-        'doctor' => '',
-        'observaciones' => '',
-        'l_uno' => '',
-        'l_dos' => '',
-        'l_tres' => '',
-        'l_cuatro' => '',
-        'l_cinco' => '',
-        'pagado' => 2,
-        'lente_contacto' => 0,
-        'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
-      ];
+        // Definir valores predeterminados
+        $defaults = [
+            'elaborado_por' => 0,
+            'esfera_od' => '',
+            'esfera_oi' => '',
+            'cilindro_od' => '',
+            'cilindro_oi' => '',
+            'eje_od' => '',
+            'eje_oi' => '',
+            'add_od' => '',
+            'add_oi' => '',
+            'prisma_od' => '',
+            'prisma_oi' => '',
+            'distancia_od' => '',
+            'distancia_oi' => '',
+            'altura_od' => '',
+            'altura_oi' => '',
+            'tipo_cristal_od' => '',
+            'tipo_cristal_oi' => '',
+            'material_od' => '',
+            'material_oi' => '',
+            'tratamientos_od' => '',
+            'tratamientos_oi' => '',
+            'aro_centevi' => 0,
+            'aro_propio' => 0,
+            'codigo' => '',
+            'color' => '',
+            'marca' => '',
+            'tipo_aro' => '',
+            'doctor' => '',
+            'observaciones' => '',
+            'l_uno' => '',
+            'l_dos' => '',
+            'l_tres' => '',
+            'l_cuatro' => '',
+            'l_cinco' => '',
+            'pagado' => 2,
+            'lente_contacto' => 0,
+            'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
+        ];
 
-      $data = array_merge($defaults, $request->all());
+        // Extraer los códigos de los cristales
+        $tipoCristalOd = $request->input('tipo_cristal_od');
+        $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-      // Crear la orden en la base de datos
-      $orden = Ordenes::create($data);
+        // Asignar el cristal según la prioridad
+        $cristalCodigo = null;
+        if ($tipoCristalOd) {
+            $cristalCodigo = explode(' | ', $tipoCristalOd)[0]; // Tomar el código antes del "|"
+        } elseif ($tipoCristalOi) {
+            $cristalCodigo = explode(' | ', $tipoCristalOi)[0]; // Tomar el código antes del "|"
+        }
 
-      DB::commit();
+        $cristal = null;
+        if ($cristalCodigo) {
+            $cristal = Cristales::where('codigo', $cristalCodigo)->first(); // Buscar cristal por código
+        }
 
-      return response()->json([
-        'respuesta' => true,
-        'mensaje' => 'Orden registrada correctamente',
-        'data' => [$orden],
-        'mensaje_dev' => null
-      ], 201);
+        // Asignar el ID del cristal si se encuentra
+        $cristalId = $cristal ? $cristal->id : null;
+        $data = array_merge($defaults, $request->all(), ['cristal_id' => $cristalId]);
+
+        // Crear la orden en la base de datos
+        $orden = Ordenes::create($data);
+
+        DB::commit();
+
+        return response()->json([
+            'respuesta' => true,
+            'mensaje' => 'Orden registrada correctamente',
+            'data' => [$orden],
+            'mensaje_dev' => null
+        ], 201);
     } catch (\Exception $e) {
-      DB::rollBack();
+        DB::rollBack();
 
-      return response()->json([
-        'respuesta' => false,
-        'mensaje' => 'Error al registrar la orden',
-        'mensaje_dev' => $e->getMessage()
-      ], 500);
+        return response()->json([
+            'respuesta' => false,
+            'mensaje' => 'Error al registrar la orden',
+            'mensaje_dev' => $e->getMessage()
+        ], 500);
     }
-  }
+}
 
+  
 
   public function updateOrden(Request $request, $id_orden)
   {

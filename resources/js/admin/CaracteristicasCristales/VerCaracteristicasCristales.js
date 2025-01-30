@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Segmented, Table, Button, Modal, Form, Input, message } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Segmented, Table, Button, Modal, Form, Input, message, Select } from "antd";
+import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import {
   createCristales,
   deleteCristales,
@@ -20,28 +20,37 @@ import {
   fetchTratamientos,
   updateTratamientos
 } from "../../redux/features/tratamientos/tratamientosSlice";
+import { createMarcas, deleteMarcas, fetchMarcas, updateMarcas } from "../../redux/features/marcas/marcasSlice";
 
 const CristalesMaterialesTratamientos = () => {
   const dispatch = useDispatch();
   const [selectedTable, setSelectedTable] = useState("Cristales");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterLenteContacto, setFilterLenteContacto] = useState(0);
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
+
+  console.log('editingItem:', editingItem)
+
+  const [isLenteContacto, setIsLenteContacto] = useState(false);
 
   const { cristales } = useSelector((state) => state.cristales);
   const { materiales } = useSelector((state) => state.materiales);
   const { tratamientos } = useSelector((state) => state.tratamientos);
+  const { marcas_lente_contacto, marcas_lente_normal } = useSelector((state) => state.marcas)
 
   useEffect(() => {
     dispatch(fetchCristales());
     dispatch(fetchMateriales());
     dispatch(fetchTratamientos());
+    dispatch(fetchMarcas())
   }, [dispatch]);
 
   // Manejo del modal
   const showModal = (record = null) => {
+    console.log('record:', record)
     setEditingItem(record);
-    form.setFieldsValue(record || { codigo: "", nombre: "" });
+    form.setFieldsValue(record || { codigo: "", nombre: "", lente_contacto: "" });
     setIsModalOpen(true);
   };
 
@@ -51,6 +60,10 @@ const CristalesMaterialesTratamientos = () => {
     form.resetFields();
   };
 
+  const toggleLenteContacto = () => {
+    setIsLenteContacto((prev) => !prev);
+  };
+
   const handleSave = () => {
     form.validateFields().then(values => {
       if (editingItem) {
@@ -58,11 +71,15 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "Cristales") dispatch(updateCristales({ id: editingItem.id, ...values }));
         if (selectedTable === "Materiales") dispatch(updateMateriales({ id: editingItem.id, ...values }));
         if (selectedTable === "Tratamientos") dispatch(updateTratamientos({ id: editingItem.id, ...values }));
+        if (selectedTable === "MarcasLenteContacto") dispatch(updateMarcas({ id: editingItem.id, ...values }))
+        if (selectedTable === "MarcasLenteNormal") dispatch(updateMarcas({ id: editingItem.id, ...values }))
         message.success("Actualizado correctamente!");
       } else {
         if (selectedTable === "Cristales") dispatch(createCristales(values));
         if (selectedTable === "Materiales") dispatch(createMateriales(values));
         if (selectedTable === "Tratamientos") dispatch(createTratamientos(values));
+        if (selectedTable === "MarcasLenteContacto") dispatch(createMarcas(values));
+        if (selectedTable === "MarcasLenteNormal") dispatch(createMarcas(values));
         message.success("Creado correctamente!");
       }
       handleCancel();
@@ -79,16 +96,28 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "Cristales") dispatch(deleteCristales(id));
         if (selectedTable === "Materiales") dispatch(deleteMateriales(id));
         if (selectedTable === "Tratamientos") dispatch(deleteTratamientos(id));
+        if (selectedTable === "MarcasLenteContacto") dispatch(deleteMarcas(id))
+        if (selectedTable === "MarcasLenteNormal") dispatch(deleteMarcas(id))
         message.success("Eliminado correctamente!");
       }
     });
   };
 
-  // Configuración de columnas
   const columns = [
     { title: "ID", dataIndex: "id", key: "id" },
     ...(selectedTable === "Cristales"
       ? [{ title: "Código", dataIndex: "codigo", key: "codigo" }]
+      : []),
+    ...(selectedTable === "MarcasLenteContacto" || selectedTable === "MarcasLenteNormal"
+      ? [
+        { title: "Código", dataIndex: "codigo", key: "codigo" },
+        {
+          title: "Lente de Contacto",
+          dataIndex: "lente_contacto",
+          key: "lente_contacto",
+          render: (value) => (value ? "Sí" : "No"),
+        }
+      ]
       : []),
     { title: "Nombre", dataIndex: "nombre", key: "nombre" },
     {
@@ -129,12 +158,15 @@ const CristalesMaterialesTratamientos = () => {
     Cristales: cristales || [],
     Materiales: materiales || [],
     Tratamientos: tratamientos || [],
+    MarcasLenteContacto: marcas_lente_contacto || [],
+    MarcasLenteNormal: marcas_lente_normal || [],
   };
+
 
   return (
     <div style={{ padding: "20px" }}>
       <Segmented
-        options={["Cristales", "Materiales", "Tratamientos"]}
+        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal"]}
         value={selectedTable}
         onChange={setSelectedTable}
         style={{ marginBottom: 20 }}
@@ -178,6 +210,62 @@ const CristalesMaterialesTratamientos = () => {
             </Form.Item>
           )}
 
+          <Table
+            columns={columns}
+            dataSource={dataSource[selectedTable]}
+            rowKey="id"
+            className="dataTables_wrapper container-fluid dt-bootstrap4"
+            id="zero-config_wrapper"
+            pagination={{
+              showSizeChanger: false,
+              pageSize: 10,
+              hideOnSinglePage: true,
+            }}
+          />
+
+          {(selectedTable === "MarcasLenteContacto") && (
+            <>
+              <Form.Item
+                name="codigo"
+                label="Código"
+                rules={[{ required: true, message: "Campo obligatorio" }]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="lente_contacto"
+                label="Lente de Contacto"
+                rules={[{ required: true, message: "Campo obligatorio" }]}
+              >
+                <Select>
+                  <Select.Option value={1}>Sí</Select.Option>
+                </Select>
+              </Form.Item>
+            </>
+          )}
+
+          {(selectedTable === "MarcasLenteNormal") && (
+            <>
+              <Form.Item
+                name="codigo"
+                label="Código"
+                rules={[{ required: true, message: "Campo obligatorio" }]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="lente_contacto"
+                label="Lente Normal"
+                rules={[{ required: true, message: "Campo obligatorio" }]}
+              >
+                <Select>
+                  <Select.Option value={0}>No</Select.Option>
+                </Select>
+              </Form.Item>
+            </>
+          )}
           <Form.Item
             name="nombre"
             label="Nombre"

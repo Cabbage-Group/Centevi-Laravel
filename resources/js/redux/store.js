@@ -82,6 +82,8 @@ import cristalesSlice from './features/cristales/cristalesSlice'
 import materialesSlice from './features/materiales/materialesSlice'
 import tratamientosSlice from './features/tratamientos/tratamientosSlice'
 import kpisConsultasTerapiasSlice from './features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice'
+import kpisOrdenesSlice from './features/kpis/kpisOrdenes/kpisOrdenes'
+import marcasSlice from './features/marcas/marcasSlice'
 
 
 
@@ -188,7 +190,11 @@ const store = configureStore({
 
     tratamientos: tratamientosSlice,
 
-    kpisConsultasTerapias: kpisConsultasTerapiasSlice
+    kpisConsultasTerapias: kpisConsultasTerapiasSlice,
+
+    kpisOrdenes: kpisOrdenesSlice,
+
+    marcas: marcasSlice
 
 
   }
