@@ -80,6 +80,7 @@ import Email from '../admin/email/SendEmail.js';
 import SegmentedTablesPage from '../admin/CaracteristicasCristales/VerCaracteristicasCristales.js';
 import VerKpisConsultasTerapias from '../admin/kpis/KpisConsultasTerapias/VerKpisConsultasTerapias.js';
 import VerKpisOrdenes from '../admin/kpis/KpisOrdenes/VerKpisOrdenes.js';
+import VerKpisTipoLente from '../admin/kpis/KpisTiposLente/VerKpisTipoLente.js';
 
 
 const RoutesApp = () => {
@@ -220,6 +221,8 @@ const RoutesApp = () => {
           <Route path="/ver-kpis-consultas-terapias" element={<Sidebar component={<VerKpisConsultasTerapias />} />} />
 
           <Route path="/ver-kpis-ordenes" element={<Sidebar component={<VerKpisOrdenes />} />} />
+
+          <Route path="/ver-kpis-tipos-lente" element={<Sidebar component={<VerKpisTipoLente />} />} />
 
           <Route path="/ver-correciones-ordenes" element={<Sidebar component={<VerCorrecionesOrdenes />} />} />
 

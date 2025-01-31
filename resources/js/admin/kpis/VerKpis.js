@@ -71,7 +71,7 @@ const VerKpis = () => {
     startDateAsesores,
     endDateAsesores,
     statusDoctoresStatus,
-    statusDoctoresFases 
+    statusDoctoresFases
   } = useSelector((state) => state.kpis);
   const { sucursales } = useSelector((state) => state.sucursales);
   const {
@@ -509,7 +509,7 @@ const VerKpis = () => {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     outline: 'none',
   });
-  
+
   return (
     <div>
       <ResponsiveContainer width="100%" height={300} >
@@ -517,7 +517,6 @@ const VerKpis = () => {
           Buscar por Fecha Sucursales:
         </label>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-
           <DateRangeSeparate onApply={handleDateApply} onReset={handleDateReset} />
           <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
             <label>
@@ -726,13 +725,13 @@ const VerKpis = () => {
       <div>
         <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Doctores</h2>
         <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
-  
+
           <div style={{ display: 'flex', gap: '20px', flex: 4 }}>
             {[{ data: kpisDoctoresOrdenes, selected: selectedDoctor, setSelected: setSelectedDoctor },
             { data: kpisDoctoresFases, selected: selectedDoctor, setSelected: setSelectedDoctor },
             { data: kpisDoctoresStatus, selected: selectedDoctor, setSelected: setSelectedDoctor }].map((item, index) => (
               <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-               
+
                 <ResponsiveContainer>
                   <PieChart>
                     <Pie
@@ -752,13 +751,13 @@ const VerKpis = () => {
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
-                
-                
+
+
               </div>
-              
+
             ))}
           </div>
-       
+
 
           {/* Radio Group fuera de la iteración */}
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\cristales;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cristales;
+use App\Models\Ordenes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -173,4 +174,6 @@ class CristalesApiController extends Controller
 
         return response()->json(['message' => 'Datos actualizados correctamente'], 200);
     }
+
+   
 }
