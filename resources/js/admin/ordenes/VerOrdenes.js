@@ -31,11 +31,14 @@ const VerOrdenes = () => {
   const statusOrden = useSelector((state) => state.fasesOrdenes.statusOrden);
   const fechaInicio = useSelector((state) => state.fasesOrdenes.fechaInicio);
   const fechaFin = useSelector((state) => state.fasesOrdenes.fechaFin);
+  const { total } = useSelector((state) => state.ordenes);
   const [idOrden, setIdOrden] = useState()
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [activeKey, setActiveKey] = useState([]);
   const [collapsedRows, setCollapsedRows] = useState([]);
+
+  console.log('total:', total)
 
   const toggleCollapse = (key) => {
     setActiveKey((prev) =>
@@ -44,9 +47,9 @@ const VerOrdenes = () => {
   };
 
   const toggleRow = (index) => {
-    setCollapsedRows(prevState => 
-      prevState.includes(index) 
-        ? prevState.filter(row => row !== index) 
+    setCollapsedRows(prevState =>
+      prevState.includes(index)
+        ? prevState.filter(row => row !== index)
         : [...prevState, index]
     );
   };
@@ -120,7 +123,7 @@ const VerOrdenes = () => {
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
-    
+
   };
 
   const formatDate = (dateString) => {
@@ -208,7 +211,15 @@ const VerOrdenes = () => {
 
     <div className="row layout-top-spacing">
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-        <div className="widget-content-area br-4">
+        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center" style={{ marginBottom: '5px' }}>
+          <div className="card" style={{ width: '10rem', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="card-body" style={{ display: 'flex', alignItems: 'center' }}>
+              <h5 className="card-title" style={{ marginRight: '8px' }}>Total de Órdenes:</h5>
+              <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>{total}</span>
+            </div>
+          </div>
+        </div>
+        <div className="widget-content-area br-4" style={{ marginTop: '-70px' }}>
           <div className="widget-one">
             <div
               className="row layout-top-spacing"
@@ -418,25 +429,25 @@ const VerOrdenes = () => {
                       </div>
                     </div>
                   </div>
-                    <CollapsibleTable
-                       search = {localSearch}
-                       pagadoFiltro={pagadoFilter}
-                       sucursalFiltro={sucursalFilter}
-                       laboratorioFiltro={laboratorioFilter}
-                       faseFiltro={faseFilter}
-                       lenteContactoFiltro={lenteContactoFilter}
-                       statusFiltro={statusFilter}
-                       localEndDateFiltro={localEndDate}
-                       localStartDateFiltro={localStartDate}
-                       currentPageTable={currentPage}
-                       setCurrentPageTable={setCurrentPage}              
-                    />
+                  <CollapsibleTable
+                    search={localSearch}
+                    pagadoFiltro={pagadoFilter}
+                    sucursalFiltro={sucursalFilter}
+                    laboratorioFiltro={laboratorioFilter}
+                    faseFiltro={faseFilter}
+                    lenteContactoFiltro={lenteContactoFilter}
+                    statusFiltro={statusFilter}
+                    localEndDateFiltro={localEndDate}
+                    localStartDateFiltro={localStartDate}
+                    currentPageTable={currentPage}
+                    setCurrentPageTable={setCurrentPage}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      
+
       </div>
       <Modal
         open={showOrden}
