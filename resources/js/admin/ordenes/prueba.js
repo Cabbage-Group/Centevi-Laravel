@@ -12,7 +12,7 @@ import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes';
 
 const CollapsibleTable = (
-     {
+    {
         search,
         pagadoFiltro,
         sucursalFiltro,
@@ -43,7 +43,7 @@ const CollapsibleTable = (
         sortColumn,
         sortOrder
     } = useSelector((state) => state.ordenes);
-    const { 
+    const {
         correcionesbyOrden,
         contactoCorreccionOrden
     } = useSelector((state) => state.correcionesordenes);
@@ -68,7 +68,7 @@ const CollapsibleTable = (
             lenteContacto: lenteContactoFiltro,
             fase: faseFiltro,
             laboratorio: laboratorioFiltro,
-          
+
 
         }));
     }, [dispatch,
@@ -97,13 +97,13 @@ const CollapsibleTable = (
 
     const toggleorden = (index, ordenId) => {
         setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
-    
+
         if (collapsedordens !== index) {
             setSelectedOrdenId(ordenId);
-            dispatch(fetchCorreccionesByOrdenId(ordenId)); 
+            dispatch(fetchCorreccionesByOrdenId(ordenId));
         }
     };
-    
+
 
     const handlePagoToggle = async (id_orden, estadoActual) => {
         try {
@@ -202,7 +202,7 @@ const CollapsibleTable = (
                     status: statusFiltro,
                     lenteContacto: lenteContactoFiltro,
                     fase: faseFiltro,
-                    laboratorio: laboratorioFiltro,                     
+                    laboratorio: laboratorioFiltro,
                 }));
 
                 Swal.fire(
@@ -232,10 +232,10 @@ const CollapsibleTable = (
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
             });
-    
+
             if (result.isConfirmed) {
-                await dispatch(deleteCorreccionesOrdenes(id_orden));   
-                setCollapsedordens(prevState => (prevState === index ? null : prevState));            
+                await dispatch(deleteCorreccionesOrdenes(id_orden));
+                setCollapsedordens(prevState => (prevState === index ? null : prevState));
                 dispatch(fecthOrdenes({
                     page: currentPage,
                     limit: 20,
@@ -249,11 +249,11 @@ const CollapsibleTable = (
                     status: statusFiltro,
                     lenteContacto: lenteContactoFiltro,
                     fase: faseFiltro,
-                    laboratorio: laboratorioFiltro,                     
+                    laboratorio: laboratorioFiltro,
                 }));
 
                 // dispatch(fetchCorreccionesByOrdenId(id_orden));
-    
+
                 Swal.fire(
                     'Eliminado!',
                     'La corrección ha sido eliminada.',
@@ -268,7 +268,7 @@ const CollapsibleTable = (
             );
         }
     };
-    
+
 
 
     const handleVerContacto = async (id_orden) => {
@@ -352,12 +352,12 @@ const CollapsibleTable = (
                                 <React.Fragment key={orden?.id_orden}>
                                     <tr>
                                         <td>
-                                        {orden?.correccion ? (
+                                            {orden?.correccion ? (
                                                 <span
                                                     style={{ cursor: 'pointer' }}
                                                     onClick={() => toggleorden(index, orden?.id_orden)}
                                                 >
-                                                     {collapsedordens === index ? '▲' : '▼'}
+                                                    {collapsedordens === index ? '▲' : '▼'}
                                                 </span>
                                             ) : null}
 
@@ -399,7 +399,10 @@ const CollapsibleTable = (
                                         <td>{`${orden.paciente?.nombres} ${orden?.paciente?.apellidos}`}</td>
                                         <td>{orden?.paciente?.celular}</td>
                                         <td>{orden?.laboratorio}</td>
-                                        <td>{orden?.fase_actual}</td>
+                                        <td>
+                                            <div>{orden?.fase_actual}</div>
+                                            <div>{orden?.elaborado_por_fase}</div>
+                                        </td>
                                         <td>
                                             <Tooltip title={orden?.status ?? ""}>
                                                 <span
@@ -437,7 +440,7 @@ const CollapsibleTable = (
                                                         lenteContactoFiltro,
                                                         statusFiltro,
                                                         localStartDateFiltro,
-                                                        localEndDateFiltro                                                                                                     
+                                                        localEndDateFiltro
                                                     }}
                                                     data-target="#modalEditarSucursal"
                                                     data-toggle="modal"
@@ -526,7 +529,7 @@ const CollapsibleTable = (
                                                             ?.filter(
                                                                 (correcion) => correcion.ordenes_id === orden.id_orden
                                                             )
-                                                            .map((correcion,idx) => (
+                                                            .map((correcion, idx) => (
                                                                 <tr key={correcion.id}>
 
                                                                     <td style={{ width: columnWidths.nroOrden }}> {correcion.nro_orden_id}-C{idx + 1}</td>
@@ -597,8 +600,8 @@ const CollapsibleTable = (
                                                                                     lenteContactoFiltro,
                                                                                     statusFiltro,
                                                                                     localStartDateFiltro,
-                                                                                    localEndDateFiltro 
-                                                                                  
+                                                                                    localEndDateFiltro
+
                                                                                 }}
                                                                                 data-target="#modalEditarSucursal"
                                                                                 data-toggle="modal"
@@ -652,7 +655,7 @@ const CollapsibleTable = (
                                                                                 <WhatsAppOutlined />
                                                                             </button>
                                                                             <button
-                                                                                onClick={() => handleEliminarCorrecionOrden(correcion.id,index)}
+                                                                                onClick={() => handleEliminarCorrecionOrden(correcion.id, index)}
                                                                                 borrar_receta="185"
                                                                                 className="btn btn-danger btnEliminarReceta"
                                                                             >

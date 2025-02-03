@@ -20,6 +20,7 @@ class FasesOrdenes extends Model
     'observacion',
     'fecha_fase',
     'status',
+    'elaborado_por',
     'created_at',
     'updated_at',
   ];

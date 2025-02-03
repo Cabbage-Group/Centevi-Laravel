@@ -48,6 +48,7 @@ const fasesOrdenesSlice = createSlice({
         data: [],
         fasesOrdenes: [],
         nuevaData: [],
+        faseName: '',
         pagado: [],
         laboratorio: [],
         tipoLente: [],
@@ -62,6 +63,9 @@ const fasesOrdenesSlice = createSlice({
     reducers: {
         actualizarDatosFase: (state, action) => {
             state.nuevaData = action.payload;
+        },
+        faseName: (state, action) => {
+            state.faseName = action.payload;
         },
         setPagadoFilter: (state, action) => {
             state.pagado = action.payload;

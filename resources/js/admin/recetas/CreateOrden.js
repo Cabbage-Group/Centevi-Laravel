@@ -51,8 +51,6 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
-
-  console.log('marcas_options_selecteds',marcas_options_selecteds)
   useEffect(() => {
     if (id && pacientes_options_selecteds.length > 0) {
       setSelectedPaciente(Number(id));
