@@ -700,9 +700,9 @@ const Sidebar = (props) => {
                 }
 
 
-                {
+                {/* {
                   ValidarPermisos(
-                    "sidebar.recetas.caracteristicascristales",
+                    "sidebar.recetas.caracteristicascristales", */}
                     <li>
                       <Link to={"/caracteristicas-cristales"}>
                         <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
@@ -715,8 +715,8 @@ const Sidebar = (props) => {
                         </svg></span> Caracteristicas Cristales
                       </Link>
                     </li>
-                  )
-                }
+                  {/* ) */}
+                {/* } */}
 
               </ul>
             </div>
