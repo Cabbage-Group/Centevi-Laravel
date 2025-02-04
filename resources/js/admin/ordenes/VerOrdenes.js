@@ -1,25 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
-import Swal from 'sweetalert2';
-import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, setFechaRange, setOrden, setOrdenPor, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
-import PaginationOrdenes from './PaginationOrdenes';
-import dayjs from 'dayjs';
-import { Modal, Skeleton, Button, Tooltip, Select, Table, Space, Typography, Collapse } from 'antd';
-import {
-  EyeOutlined,
-  WhatsAppOutlined
-} from '@ant-design/icons';
+import {setFechaRange } from '../../redux/features/ordenes/ordenesSlice';
+import { Modal, Skeleton, Select, Table } from 'antd';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangePicker from '../reportes/DateRangePicker';
-import { DownOutlined, RightOutlined } from "@ant-design/icons";
 import { fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
-import CollapsedTable from './CollapsedTable';
 import CollapsibleTable from './prueba';
-
-const { Text } = Typography;
-const { Panel } = Collapse;
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -31,58 +18,19 @@ const VerOrdenes = () => {
   const statusOrden = useSelector((state) => state.fasesOrdenes.statusOrden);
   const fechaInicio = useSelector((state) => state.fasesOrdenes.fechaInicio);
   const fechaFin = useSelector((state) => state.fasesOrdenes.fechaFin);
+  const { total } = useSelector((state) => state.ordenes);
   const [idOrden, setIdOrden] = useState()
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [activeKey, setActiveKey] = useState([]);
   const [collapsedRows, setCollapsedRows] = useState([]);
 
-  const toggleCollapse = (key) => {
-    setActiveKey((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
-  };
-
-  const toggleRow = (index) => {
-    setCollapsedRows(prevState => 
-      prevState.includes(index) 
-        ? prevState.filter(row => row !== index) 
-        : [...prevState, index]
-    );
-  };
 
   const {
-    correcionesordenes,
-  } = useSelector((state) => state.correcionesordenes);
-
-  useEffect(() => {
-    dispatch(fecthCorrecionesOrdenes({
-      page: 1,
-      limit: 10,
-      sortColumn,
-      sortOrder,
-    }));
-  }, [dispatch,
-    sortColumn,
-    sortOrder]);
-
-
-  const {
-    ordenes,
-    status,
-    error,
-    meta,
     search,
-    totalPages,
-    startDate,
-    endDate,
     contactoOrden,
-    sortColumn,
-    sortOrder } = useSelector((state) => state.ordenes);
+ } = useSelector((state) => state.ordenes);
 
-  const handleSortCorreciones = (newOrdenPor) => {
-    const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-  };
 
   const {
     sucursales_option_selects
@@ -120,7 +68,7 @@ const VerOrdenes = () => {
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
-    
+
   };
 
   const formatDate = (dateString) => {
@@ -208,7 +156,15 @@ const VerOrdenes = () => {
 
     <div className="row layout-top-spacing">
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-        <div className="widget-content-area br-4">
+        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center" style={{ marginTop: '-40px' }}>
+          <div className="card" style={{ width: '10rem', height: '3rem', padding: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="card-body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem' }}>
+              <span style={{ fontSize: '1rem', fontWeight: 'bold', textAlign: 'center' }}>Órdenes: {total}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="widget-content-area br-4" style={{ marginTop: '-70px' }}>
           <div className="widget-one">
             <div
               className="row layout-top-spacing"
@@ -418,25 +374,25 @@ const VerOrdenes = () => {
                       </div>
                     </div>
                   </div>
-                    <CollapsibleTable
-                       search = {localSearch}
-                       pagadoFiltro={pagadoFilter}
-                       sucursalFiltro={sucursalFilter}
-                       laboratorioFiltro={laboratorioFilter}
-                       faseFiltro={faseFilter}
-                       lenteContactoFiltro={lenteContactoFilter}
-                       statusFiltro={statusFilter}
-                       localEndDateFiltro={localEndDate}
-                       localStartDateFiltro={localStartDate}
-                       currentPageTable={currentPage}
-                       setCurrentPageTable={setCurrentPage}              
-                    />
+                  <CollapsibleTable
+                    search={localSearch}
+                    pagadoFiltro={pagadoFilter}
+                    sucursalFiltro={sucursalFilter}
+                    laboratorioFiltro={laboratorioFilter}
+                    faseFiltro={faseFilter}
+                    lenteContactoFiltro={lenteContactoFilter}
+                    statusFiltro={statusFilter}
+                    localEndDateFiltro={localEndDate}
+                    localStartDateFiltro={localStartDate}
+                    currentPageTable={currentPage}
+                    setCurrentPageTable={setCurrentPage}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      
+
       </div>
       <Modal
         open={showOrden}

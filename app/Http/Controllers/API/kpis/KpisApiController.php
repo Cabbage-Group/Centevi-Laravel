@@ -1081,17 +1081,17 @@ class KpisApiController extends Controller
         $startDate = $request->input('startDate');  // Fecha inicial
         $endDate = $request->input('endDate');      // Fecha final
         $lenteContacto = $request->input('lente_contacto'); // Lente de contacto
-    
+
         // Asegurar que se puede ordenar por created_at
         $validSortColumns = ['id_orden', 'created_at', 'nro_order_id'];
         if (!in_array($sortColumn, $validSortColumns)) {
             $sortColumn = 'id_orden'; // Valor por defecto
         }
-    
+
         // Validar que las fases estén en el rango correcto
         $faseInicial = is_numeric($faseInicial) ? max(1, min(4, intval($faseInicial))) : null;
         $faseFinal = is_numeric($faseFinal) ? max(1, min(4, intval($faseFinal))) : null;
-    
+
         // Subconsulta para obtener la fecha de la primera fase
         $primeraFaseQuery = DB::table('fases_ordenes as fo')
             ->select('fo.ordenes_id', 'fo.fecha_fase as fecha_primera_fase')
@@ -1100,7 +1100,7 @@ class KpisApiController extends Controller
             FROM fases_ordenes 
             WHERE ordenes_id = fo.ordenes_id
         )');
-    
+
         // Subconsulta para obtener la fecha de la última fase con el número de fase
         $ultimaFaseQuery = DB::table('fases_ordenes as fo')
             ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
@@ -1147,7 +1147,7 @@ class KpisApiController extends Controller
             FROM fases_ordenes 
             WHERE ordenes_id = fo.ordenes_id
         )');
-    
+
         // Consulta principal
         $ordenesQuery = Ordenes::leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
             ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
@@ -1161,7 +1161,7 @@ class KpisApiController extends Controller
                 DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual"),
                 DB::raw("DATEDIFF(ultimas_fases.fecha_ultima_fase, ordenes.created_at) as tiempo_transcurrido")
             );
-    
+
         // Aplicar filtro por rango de fases si se proporcionaron los parámetros
         if ($faseInicial !== null && $faseFinal !== null) {
             $ordenesQuery->where(function ($query) use ($faseInicial, $faseFinal) {
@@ -1177,7 +1177,7 @@ class KpisApiController extends Controller
                     });
             });
         }
-    
+
         // Filtrar por fecha en el rango proporcionado (si existe)
         if ($startDate && $endDate) {
             $ordenesQuery->whereBetween('ordenes.created_at', [
@@ -1185,7 +1185,7 @@ class KpisApiController extends Controller
                 $endDate . ' 23:59:59'
             ]);
         }
-    
+
         // Filtrar por lente de contacto si se proporcionó el parámetro
         if (!is_null($lenteContacto) && is_array($lenteContacto)) {
             if (!empty($lenteContacto)) {
@@ -1196,11 +1196,11 @@ class KpisApiController extends Controller
             $ordenesQuery->where('lente_contacto', $lenteContacto);
         }
 
-    
+
         // Obtener los datos
         $ordenes = $ordenesQuery->get();
         $totalRegistros = $ordenes->count();
-    
+
         // Calcular el tiempo promedio
         $totalTiempo = $ordenes->sum('tiempo_transcurrido');
         $promedioTiempo = $totalRegistros > 0 ? $totalTiempo / $totalRegistros : 0;
@@ -1208,11 +1208,11 @@ class KpisApiController extends Controller
         $restoHoras = ($promedioTiempo - $promedioTiempoDias) * 24; // Horas en decimal
         $promedioTiempoHoras = floor($restoHoras); // Horas completas
         $promedioTiempoMinutos = round(($restoHoras - $promedioTiempoHoras) * 60);
-    
+
         return response()->json([
             'data' => $ordenes,
             'total' => $totalRegistros,
-           'tiempo_promedio' => [
+            'tiempo_promedio' => [
                 'dias' => $promedioTiempoDias,
                 'horas' => $promedioTiempoHoras,
                 'minutos' => $promedioTiempoMinutos
@@ -1229,120 +1229,338 @@ class KpisApiController extends Controller
     }
 
     public function countCrystalTypes(Request $request)
-{
-    // Obtener parámetros de fecha si se envían
-    $startDate = $request->input('startDate');
-    $endDate = $request->input('endDate');
+    {
+        // Obtener parámetros de fecha si se envían
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
 
-    // Consulta base sin filtro de fechas si no se envían
-    $query = Ordenes::query();
+        // Consulta base sin filtro de fechas si no se envían
+        $query = Ordenes::query();
 
-    if ($startDate && $endDate) {
-        $query->whereBetween('created_at', [$startDate, $endDate]);
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Obtener todas las fechas en el rango especificado o sin filtro si no se enviaron fechas
+        $fechas = $query->selectRaw('DATE(created_at) as fecha')
+            ->distinct()
+            ->orderBy('fecha', 'asc')
+            ->pluck('fecha');
+
+        // Obtener todos los códigos de cristales disponibles
+        $codigosCristales = Cristales::pluck('codigo');
+
+        // Inicializar total de órdenes
+        $totalOrdenes = 0;
+
+        // Construir el array de respuesta
+        $data = [];
+
+        foreach ($fechas as $fecha) {
+            // Obtener las órdenes creadas en esa fecha o todas si no hay filtro de fechas
+            $ordenesPorFecha = Ordenes::whereDate('created_at', $fecha)->get();
+
+            // Inicializar estructura con los códigos en 0
+            $conteoCristales = array_fill_keys($codigosCristales->toArray(), 0);
+
+            // Contar cuántas órdenes hay por cada tipo de cristal
+            foreach ($ordenesPorFecha as $orden) {
+                if ($orden->codigo_cristal) {
+                    $conteoCristales[$orden->codigo_cristal] = ($conteoCristales[$orden->codigo_cristal] ?? 0) + 1;
+                    $totalOrdenes++; // Contabilizar la orden en el total general
+                }
+            }
+
+            // Convertir la fecha al formato DD-MM-YY
+            $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha)->format('d-m-y');
+
+            // Construir la estructura final para la fecha
+            $data[] = array_merge(['name' => $formattedDate], $conteoCristales);
+        }
+
+        return response()->json([
+            'data' => $data,
+            'total' => $totalOrdenes
+        ], 200);
     }
 
-    // Obtener todas las fechas en el rango especificado o sin filtro si no se enviaron fechas
-    $fechas = $query->selectRaw('DATE(created_at) as fecha')
-        ->distinct()
-        ->orderBy('fecha', 'asc')
-        ->pluck('fecha');
 
-    // Obtener todos los códigos de cristales disponibles
-    $codigosCristales = Cristales::pluck('codigo');
 
-    // Inicializar total de órdenes
-    $totalOrdenes = 0;
+    public function actualizarCristales()
+    {
+        // Obtener todas las órdenes donde codigo_cristal sea NULL
+        $ordenes = Ordenes::whereNull('codigo_cristal')->get();
 
-    // Construir el array de respuesta
-    $data = [];
+        foreach ($ordenes as $orden) {
+            // Extraer el código antes del "|" de tipo_cristal_od y tipo_cristal_oi
+            $tipoCristalOD = $orden->tipo_cristal_od ? explode('|', $orden->tipo_cristal_od)[0] : null;
+            $tipoCristalOI = $orden->tipo_cristal_oi ? explode('|', $orden->tipo_cristal_oi)[0] : null;
 
-    foreach ($fechas as $fecha) {
-        // Obtener las órdenes creadas en esa fecha o todas si no hay filtro de fechas
-        $ordenesPorFecha = Ordenes::whereDate('created_at', $fecha)->get();
+            // Buscar en cristales usando el código de tipo_cristal_od, si no encuentra, usa tipo_cristal_oi
+            $cristal = Cristales::where('codigo', $tipoCristalOD)->first() ?? Cristales::where('codigo', $tipoCristalOI)->first();
 
-        // Inicializar estructura con los códigos en 0
-        $conteoCristales = array_fill_keys($codigosCristales->toArray(), 0);
-
-        // Contar cuántas órdenes hay por cada tipo de cristal
-        foreach ($ordenesPorFecha as $orden) {
-            if ($orden->codigo_cristal) {
-                $conteoCristales[$orden->codigo_cristal] = ($conteoCristales[$orden->codigo_cristal] ?? 0) + 1;
-                $totalOrdenes++; // Contabilizar la orden en el total general
+            if ($cristal) {
+                // Actualizar la orden con el código del cristal encontrado
+                $orden->update(['codigo_cristal' => $cristal->codigo]);
             }
         }
 
-        // Convertir la fecha al formato DD-MM-YY
-        $formattedDate = \Carbon\Carbon::createFromFormat('Y-m-d', $fecha)->format('d-m-y');
-
-        // Construir la estructura final para la fecha
-        $data[] = array_merge(['name' => $formattedDate], $conteoCristales);
+        return response()->json(['message' => 'Órdenes actualizadas correctamente'], 200);
     }
 
-    return response()->json([
-        'data' => $data,
-        'total' => $totalOrdenes
-    ], 200);
-}
+    public function getOrdersGroupedByDate(Request $request)
+    {
+        // Obtener los parámetros startDate y endDate del request, si existen
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
 
-
-    
-    public function actualizarCristales()
-{
-    // Obtener todas las órdenes donde codigo_cristal sea NULL
-    $ordenes = Ordenes::whereNull('codigo_cristal')->get();
-
-    foreach ($ordenes as $orden) {
-        // Extraer el código antes del "|" de tipo_cristal_od y tipo_cristal_oi
-        $tipoCristalOD = $orden->tipo_cristal_od ? explode('|', $orden->tipo_cristal_od)[0] : null;
-        $tipoCristalOI = $orden->tipo_cristal_oi ? explode('|', $orden->tipo_cristal_oi)[0] : null;
-
-        // Buscar en cristales usando el código de tipo_cristal_od, si no encuentra, usa tipo_cristal_oi
-        $cristal = Cristales::where('codigo', $tipoCristalOD)->first() ?? Cristales::where('codigo', $tipoCristalOI)->first();
-
-        if ($cristal) {
-            // Actualizar la orden con el código del cristal encontrado
-            $orden->update(['codigo_cristal' => $cristal->codigo]);
-        }
-    }
-
-    return response()->json(['message' => 'Órdenes actualizadas correctamente'], 200);
-}
-
-public function getOrdersGroupedByDate(Request $request)
-{
-    // Obtener los parámetros startDate y endDate del request, si existen
-    $startDate = $request->input('startDate');
-    $endDate = $request->input('endDate');
-
-    // Crear la consulta base
-    $query = Ordenes::select(
-                DB::raw('DATE_FORMAT(created_at, "%d-%m-%y") as name'), 
-                DB::raw('SUM(CASE WHEN lente_contacto = "Lente contacto" THEN 1 ELSE 0 END) as lente_contacto'),
-                DB::raw('SUM(CASE WHEN lente_contacto = "Lente normal" THEN 0 ELSE 1 END) as lente_normal')
-            )
+        // Crear la consulta base
+        $query = Ordenes::select(
+            DB::raw('DATE_FORMAT(created_at, "%d-%m-%y") as name'),
+            DB::raw('SUM(CASE WHEN lente_contacto = "Lente contacto" THEN 1 ELSE 0 END) as lente_contacto'),
+            DB::raw('SUM(CASE WHEN lente_contacto = "Lente normal" THEN 0 ELSE 1 END) as lente_normal')
+        )
             ->groupBy(DB::raw('DATE_FORMAT(created_at, "%d-%m-%y")'))
             ->orderBy(DB::raw('DATE_FORMAT(created_at, "%d-%m-%y")'));
 
-    // Filtrar por rango de fechas si los parámetros están presentes
-    if ($startDate) {
-        $query->where('created_at', '>=', $startDate);
+        // Filtrar por rango de fechas si los parámetros están presentes
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->where('created_at', '<=', $endDate);
+        }
+
+        // Ejecutar la consulta
+        $orders = $query->get();
+
+        // Formatear la respuesta
+        $response = [
+            'data' => $orders
+        ];
+
+        return response()->json($response);
     }
-    if ($endDate) {
-        $query->where('created_at', '<=', $endDate);
+
+    public function obtenerLentesPorSucursal(Request $request)
+    {
+        // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
+        $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
+        $endDate = $request->input('endDate', date('Y-m-d'));
+    
+        // Obtener el parámetro de sucursal, si se proporciona (puede ser un array)
+        $sucursalIds = $request->input('sucursalIds', []); // Debe ser un array de IDs
+    
+        // Verificar formato correcto (YYYY-MM-DD)
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+            return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
+        }
+    
+        // Asegurar que startDate no sea mayor que endDate
+        if ($startDate > $endDate) {
+            return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
+        }
+    
+        // Obtener sucursales ordenadas
+        $sucursales = Sucursales::orderBy('fecha_creacion');
+    
+        // Si se ha proporcionado un filtro por sucursal, aplicar el filtro
+        if (!empty($sucursalIds)) {
+            $sucursales = $sucursales->whereIn('id_sucursal', $sucursalIds); // Filtrar por múltiples sucursales
+        }
+    
+        // Obtener las sucursales filtradas
+        $sucursales = $sucursales->get();
+        $sucursalIds = $sucursales->pluck('id_sucursal')->filter()->map(fn($id) => (int) $id)->toArray();
+    
+        if (empty($sucursalIds)) {
+            return response()->json(['error' => 'No hay sucursales registradas'], 400);
+        }
+    
+        // Inicializar el array de resultados con las sucursales
+        $resultados = [];
+        foreach ($sucursales as $sucursal) {
+            $resultados[$sucursal->id_sucursal] = [
+                'name' => $sucursal->nombre,
+                'lente_contacto' => 0, // Lente contacto
+                'lente_normal' => 0  // Lente normal
+            ];
+        }
+    
+        // Consultar las órdenes en el rango de fechas y filtradas por sucursal
+        $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+            ->whereIn('id_sucursal', $sucursalIds) // Filtrar por sucursales múltiples
+            ->selectRaw('id_sucursal, lente_contacto, COUNT(*) as cantidad')
+            ->groupBy('id_sucursal', 'lente_contacto')
+            ->get();
+    
+        // Asignar cantidades a cada sucursal
+        foreach ($ordenes as $orden) {
+            if (isset($resultados[$orden->id_sucursal])) {
+                if ($orden->lente_contacto == 1) {
+                    $resultados[$orden->id_sucursal]['lente_contacto'] += $orden->cantidad;
+                } else {
+                    $resultados[$orden->id_sucursal]['lente_normal'] += $orden->cantidad;
+                }
+            }
+        }
+    
+        // Convertir resultados a un array de respuesta
+        $finalResults = array_values($resultados);
+    
+        return response()->json([
+            'data' => $finalResults
+        ]);
     }
 
-    // Ejecutar la consulta
-    $orders = $query->get();
+    public function obtenerLentesPorUsuario(Request $request)
+{
+    // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
+    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-d'));
 
-    // Formatear la respuesta
-    $response = [
-        'data' => $orders
-    ];
+    // Obtener el parámetro de usuarios (puede ser un array de IDs)
+    $usuarioIds = $request->input('usuarioIds', []); // Debe ser un array de IDs de usuarios
 
-    return response()->json($response);
+    // Verificar formato correcto (YYYY-MM-DD)
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+        return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
+    }
+
+    // Asegurar que startDate no sea mayor que endDate
+    if ($startDate > $endDate) {
+        return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
+    }
+
+    // Obtener usuarios ordenados
+    $usuarios = Usuarios::orderBy('id_usuario')
+        ->where('estado', 1);
+
+    // Si se ha proporcionado un filtro por usuario, aplicar el filtro
+    if (!empty($usuarioIds)) {
+        $usuarios = $usuarios->whereIn('id_usuario', $usuarioIds); // Filtrar por múltiples usuarios
+    }
+
+    // Obtener los usuarios filtrados
+    $usuarios = $usuarios->get();
+    $usuarioIds = $usuarios->pluck('id_usuario')->filter()->map(fn($id) => (int) $id)->toArray();
+
+    if (empty($usuarioIds)) {
+        return response()->json(['error' => 'No hay usuarios registrados'], 400);
+    }
+
+    // Inicializar el array de resultados con los usuarios
+    $resultados = [];
+    foreach ($usuarios as $usuario) {
+        $resultados[$usuario->id_usuario] = [
+            'name' => $usuario->nombre, // Usamos el nombre del usuario
+            'lente_contacto' => 0, // Lente contacto
+            'lente_normal' => 0  // Lente normal
+        ];
+    }
+
+    // Consultar las órdenes en el rango de fechas y filtradas por usuario (elaborado_por)
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+        ->whereIn('elaborado_por', $usuarioIds) // Filtrar por usuarios (elaborado_por)
+        ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
+        ->groupBy('elaborado_por', 'lente_contacto')
+        ->get();
+
+    // Asignar cantidades a cada usuario
+    foreach ($ordenes as $orden) {
+        if (isset($resultados[$orden->elaborado_por])) {
+            if ($orden->lente_contacto == 1) {
+                $resultados[$orden->elaborado_por]['lente_contacto'] += $orden->cantidad;
+            } else {
+                $resultados[$orden->elaborado_por]['lente_normal'] += $orden->cantidad;
+            }
+        }
+    }
+
+    // Convertir resultados a un array de respuesta
+    $finalResults = array_values($resultados);
+
+    return response()->json([
+        'data' => $finalResults
+    ]);
 }
 
+public function obtenerLentesPorDoctor(Request $request)
+{
+    // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
+    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-d'));
+
+    // Obtener el parámetro de doctores (puede ser un array de IDs)
+    $doctorIds = $request->input('doctorIds', []); // Debe ser un array de IDs de doctores
+
+    // Verificar formato correcto (YYYY-MM-DD)
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+        return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
+    }
+
+    // Asegurar que startDate no sea mayor que endDate
+    if ($startDate > $endDate) {
+        return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
+    }
+
+    // Obtener doctores filtrados por perfil = 'doctor' y estado = 1
+    $doctores = Usuarios::where('perfil', 'doctor')
+        ->where('estado', 1) // Filtrar solo doctores con estado = 1
+        ->orderBy('id_usuario');
+
+    // Si se ha proporcionado un filtro por doctor, aplicar el filtro
+    if (!empty($doctorIds)) {
+        $doctores = $doctores->whereIn('id_usuario', $doctorIds); // Filtrar por múltiples doctores
+    }
+
+    // Obtener los doctores filtrados
+    $doctores = $doctores->get();
+    $doctorIds = $doctores->pluck('id_usuario')->filter()->map(fn($id) => (int) $id)->toArray();
+
+    if (empty($doctorIds)) {
+        return response()->json(['error' => 'No hay doctores registrados o activos'], 400);
+    }
+
+    // Inicializar el array de resultados con los doctores
+    $resultados = [];
+    foreach ($doctores as $doctor) {
+        $resultados[$doctor->id_usuario] = [
+            'name' => $doctor->nombre, // Usamos el nombre del doctor
+            'lente_contacto' => 0, // Lente contacto
+            'lente_normal' => 0  // Lente normal
+        ];
+    }
+
+    // Consultar las órdenes en el rango de fechas y filtradas por doctor (elaborado_por)
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+        ->whereIn('elaborado_por', $doctorIds) // Filtrar por doctores (elaborado_por)
+        ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
+        ->groupBy('elaborado_por', 'lente_contacto')
+        ->get();
+
+    // Asignar cantidades a cada doctor
+    foreach ($ordenes as $orden) {
+        if (isset($resultados[$orden->elaborado_por])) {
+            if ($orden->lente_contacto == 1) {
+                $resultados[$orden->elaborado_por]['lente_contacto'] += $orden->cantidad;
+            } else {
+                $resultados[$orden->elaborado_por]['lente_normal'] += $orden->cantidad;
+            }
+        }
+    }
+
+    // Convertir resultados a un array de respuesta
+    $finalResults = array_values($resultados);
+
+    return response()->json([
+        'data' => $finalResults
+    ]);
+}
+
+
+
     
     
-    
+
 }

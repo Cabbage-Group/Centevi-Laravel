@@ -21,11 +21,13 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
   const location = useLocation();
+  const [elaboradoFase, setElaboradoFase] = useState('');
   const [laboratorio, setLaboratorio] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
   const { orden } = location.state || {};
   const { pacienteOrden } = location.state || {};
   const [celular, setCelular] = useState('');
+  const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
   );
@@ -99,7 +101,8 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
-          setFaseOrdenId(faseOrden.id)
+          setFaseOrdenId(faseOrden.id);
+          setElaboradoFase(faseOrden.elaborado_por);
         }
       }
     }
@@ -111,6 +114,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
       laboratorio: laboratorio,
       observacion: observaciones,
       fecha_fase: fechaActual,
+      elaborado_por: usuarioId,
     };
     dispatch(actualizarDatosFase(nuevaFase));
   }, [observaciones, fechaActual, tipoFaseId, dispatch]);

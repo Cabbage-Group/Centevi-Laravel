@@ -39,8 +39,6 @@ const VerKpisOrdenes = () => {
     const [localStartDateLente, setLocalStartDateLente] = useState();
     const [localEndDateLente, setLocalEndDateLente] = useState();
  
-    console.log('kpisOrdenesLente:', kpisOrdenesLente)
-
     const faseMapping = {
         Nuevo: 1,
         "En confeccion": 2,
@@ -350,6 +348,7 @@ const VerKpisOrdenes = () => {
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         outline: 'none',
     });
+    console.log('cristales:',cristales)
 
 
 
@@ -431,7 +430,11 @@ const VerKpisOrdenes = () => {
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip content={customTooltipLente} />
-                    <Legend content={renderLegendLente} verticalAlign="middle" align="right" layout="vertical" />
+                    <Legend 
+                        content={renderLegendLente} 
+                        verticalAlign="middle" 
+                        align="right" 
+                        layout="vertical" />
                     {renderLinesLente()}
                 </LineChart>
             </ResponsiveContainer>

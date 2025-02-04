@@ -79,6 +79,7 @@ class OrdenesApiController extends Controller
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->leftJoin('usuarios as u', 'fo.elaborado_por', '=', 'u.id_usuario')
       ->select(
         'fo.ordenes_id',
         DB::raw('
@@ -102,7 +103,9 @@ class OrdenesApiController extends Controller
         ),
         'fo.laboratorio as laboratorio_ultima_fase',
         'fo.observacion as observacion_ultima_fase',
-        'fo.fecha_fase as fecha_ultima_fase'
+        'fo.fecha_fase as fecha_ultima_fase',
+        'fo.elaborado_por',
+        'u.nombre as elaborado_por_nombre'
       )
       ->whereRaw('fo.id = (
         SELECT MAX(id) 
@@ -129,7 +132,8 @@ class OrdenesApiController extends Controller
         'primeras_fases.dias_transcurridos as dias_transcurridos',
         'primeras_fases.total_fases as total_fases',
         DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted"),
-        DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual")
+        DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual"),
+        'ultimas_fases.elaborado_por_nombre as elaborado_por_fase' 
         // DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
       );
     if (!empty($search)) {
@@ -513,96 +517,101 @@ class OrdenesApiController extends Controller
 
   public function createFasesOrdenes(Request $request)
   {
-    $validatedData = $request->validate([
-      'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
-      'ordenes_id' => 'required|integer',
-      'laboratorio' => 'nullable|string|max:45',
-      'fecha_fase' => 'nullable|string|max:45',
-      'observacion' => 'nullable|string|max:400',
-      'status' => 'nullable|integer|min:0|max:1',
-      'created_at' => 'nullable|date_format:Y-m-d H:i:s',
-    ]);
-
-    $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
-      ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
-      ->first();
-
-    if ($existingFase) {
-      $updated = $existingFase->update([
-        'laboratorio' => $validatedData['laboratorio'],
-        'observacion' => $validatedData['observacion'],
-        'fecha_fase' => $validatedData['fecha_fase'],
-        'status' => $validatedData['status'] ?? $existingFase->status,
-        'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
+      $validatedData = $request->validate([
+          'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
+          'ordenes_id' => 'required|integer',
+          'laboratorio' => 'nullable|string|max:45',
+          'fecha_fase' => 'nullable|string|max:45',
+          'observacion' => 'nullable|string|max:400',
+          'status' => 'nullable|integer|min:0|max:1',
+          'created_at' => 'nullable|date_format:Y-m-d H:i:s',
+          'elaborado_por' => 'required|integer', 
       ]);
-
-      if ($updated) {
-        return response()->json([
-          'message' => 'Fase de orden actualizada exitosamente',
-          'data' => $existingFase,
-        ], 200);
+  
+      $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
+          ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
+          ->first();
+  
+      if ($existingFase) {
+          $updated = $existingFase->update([
+              'laboratorio' => $validatedData['laboratorio'],
+              'observacion' => $validatedData['observacion'],
+              'fecha_fase' => $validatedData['fecha_fase'],
+              'status' => $validatedData['status'] ?? $existingFase->status,
+              'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
+              'elaborado_por' => $validatedData['elaborado_por'],
+          ]);
+  
+          if ($updated) {
+              return response()->json([
+                  'message' => 'Fase de orden actualizada exitosamente',
+                  'data' => $existingFase,
+              ], 200);
+          } else {
+              return response()->json([
+                  'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
+              ], 500);
+          }
       } else {
-        return response()->json([
-          'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-        ], 500);
+          try {
+              $faseOrden = FasesOrdenes::create(array_merge(
+                  $validatedData,
+                  ['created_at' => $validatedData['created_at'] ?? now()]
+              ));
+  
+              return response()->json([
+                  'message' => 'Fase de orden creada exitosamente',
+                  'data' => $faseOrden,
+              ], 201);
+          } catch (\Exception $e) {
+              return response()->json([
+                  'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
+                  'error' => $e->getMessage(),
+              ], 500);
+          }
       }
-    } else {
-      try {
-        $faseOrden = FasesOrdenes::create(array_merge(
-          $validatedData,
-          ['created_at' => $validatedData['created_at'] ?? now()]
-        ));
-
-        return response()->json([
-          'message' => 'Fase de orden creada exitosamente',
-          'data' => $faseOrden,
-        ], 201);
-      } catch (\Exception $e) {
-        return response()->json([
-          'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
-          'error' => $e->getMessage(),
-        ], 500);
-      }
-    }
   }
+  
 
   public function updateFasesOrdenes(Request $request, $id)
   {
-    // Validar los datos de entrada
-    $validatedData = $request->validate([
-      'tipo_fase_orden_id' => 'nullable|exists:tipos_fases_ordenes,id',
-      'ordenes_id' => 'nullable|integer',
-      'laboratorio' => 'nullable|string|max:45',
-      'fecha_fase' => 'nullable|string|max:45',
-      'observacion' => 'nullable|string|max:400',
-      'created_at' => 'nullable|date_format:Y-m-d H:i:s',
-      'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
-    ]);
-
-    // Buscar la fase de orden por ID
-    $faseOrden = FasesOrdenes::find($id);
-
-    if (!$faseOrden) {
-      return response()->json([
-        'message' => 'Fase de orden no encontrada.',
-      ], 404);
-    }
-
-    try {
-      // Actualizar los datos del registro
-      $faseOrden->update(array_filter($validatedData)); // array_filter elimina valores nulos
-
-      return response()->json([
-        'message' => 'Fase de orden actualizada exitosamente.',
-        'data' => $faseOrden,
-      ], 200);
-    } catch (\Exception $e) {
-      return response()->json([
-        'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-        'error' => $e->getMessage(),
-      ], 500);
-    }
+      // Validar los datos de entrada
+      $validatedData = $request->validate([
+          'tipo_fase_orden_id' => 'nullable|exists:tipos_fases_ordenes,id',
+          'ordenes_id' => 'nullable|integer',
+          'laboratorio' => 'nullable|string|max:45',
+          'fecha_fase' => 'nullable|string|max:45',
+          'observacion' => 'nullable|string|max:400',
+          'elaborado_por' => 'nullable|string|max:100', // Agregado
+          'created_at' => 'nullable|date_format:Y-m-d H:i:s',
+          'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
+      ]);
+  
+      // Buscar la fase de orden por ID
+      $faseOrden = FasesOrdenes::find($id);
+  
+      if (!$faseOrden) {
+          return response()->json([
+              'message' => 'Fase de orden no encontrada.',
+          ], 404);
+      }
+  
+      try {
+          // Actualizar los datos del registro
+          $faseOrden->update(array_filter($validatedData)); // array_filter elimina valores nulos
+  
+          return response()->json([
+              'message' => 'Fase de orden actualizada exitosamente.',
+              'data' => $faseOrden,
+          ], 200);
+      } catch (\Exception $e) {
+          return response()->json([
+              'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
+              'error' => $e->getMessage(),
+          ], 500);
+      }
   }
+  
 
 
   public function reportesOrdenes(Request $request)

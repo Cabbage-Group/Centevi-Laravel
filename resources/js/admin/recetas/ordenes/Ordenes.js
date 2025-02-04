@@ -5,10 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import {
-  LoadingOutlined,
-  SmileOutlined,
-  SolutionOutlined,
-  UserOutlined,
   FileAddOutlined,
   ImportOutlined,
   CheckCircleOutlined,
@@ -27,7 +23,8 @@ import { createContactoOrden } from '../../../redux/features/contacto-orden/Cont
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
 import EditOrden from '../EditOrden';
-import EditarCorrecionOrden from '../../correciones-ordenes/EditarCorrecionOrden';
+import EditarCorrecionOrden from '../../correciones-ordenes/EditarCorrecionorden';
+import { fetchUsuarios } from '../../../redux/features/usuarios/usuariosSlice';
 
 const Ordenes = () => {
 
@@ -50,13 +47,13 @@ const Ordenes = () => {
     pacienteOrden
   } = location.state || {}
 
-  console.log('pacienteOrden:',pacienteOrden)
-
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
   const { orderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
+  const [stepUsers, setStepUsers] = useState({});
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
+  const usuarios = useSelector((state) => state.usuarios.usuarios);
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at || pacienteOrden?.created_at);
   const [mensaje, setMensaje] = useState(
@@ -66,7 +63,7 @@ const Ordenes = () => {
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
   const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps );
+  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps);
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
 
@@ -121,6 +118,10 @@ const Ordenes = () => {
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
   }, []);
 
+  useEffect(() => {
+    dispatch(fetchUsuarios({}))
+  }, [])
+
 
   useEffect(() => {
   }, [nuevaData, orderId]);
@@ -135,9 +136,26 @@ const Ordenes = () => {
     }
   }, [])
 
+const getOrderPhasesByType = (orderId) => {
+  return tiposFasesOrdenes.map((tipoFase) => ({
+    tipoFase: tipoFase.tipo_fase_orden, // Suponiendo que tiene un campo "nombre"
+    fasesOrdenes: tipoFase.fases_ordenes
+      .filter((faseOrden) => faseOrden.ordenes_id === parseInt(orderId))
+      .map((faseOrden) => ({
+        ...faseOrden,
+        nombreUsuario: usuarios.find((user) => user.id_usuario === faseOrden.elaborado_por)?.nombre || 'Desconocido'
+      })),
+  }));
+};
+
+  
+  console.log('getOrderPhasesByType:', JSON.stringify(getOrderPhasesByType(86), null, 2));
+
+
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
       const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
+        console.log('tipoFase:',tipoFase.fases_ordenes)
         const hasCompleted = tipoFase.fases_ordenes.some(
           (faseOrden) =>
             faseOrden.ordenes_id === parseInt(orderId) &&
@@ -167,9 +185,33 @@ const Ordenes = () => {
     }
   }, [tiposFasesOrdenes, orderId, initialized]);
 
-  const itemsSteps = tiposFasesOrdenes?.map((fase) => {
+  // const itemsSteps = tiposFasesOrdenes?.map((fase) => {
+  //   let icon;
+  //   switch (fase.tipo_fase_orden.toLowerCase()) {
+  //     case 'nuevo':
+  //       icon = <FileAddOutlined />;
+  //       break;
+  //     case 'en confeccion':
+  //       icon = <ImportOutlined />;
+  //       break;
+  //     case 'listo':
+  //       icon = <CheckCircleOutlined />;
+  //       break;
+  //     case 'retirado':
+  //       icon = <LogoutOutlined />;
+  //       break;
+  //     default:
+  //       icon = <FileAddOutlined />;
+  //   }
+  //   return {
+  //     title: fase.tipo_fase_orden,
+  //     description: 'hola',
+  //     icon: icon,
+  //   };
+  // });
+  const itemsSteps = getOrderPhasesByType(orderId).map((fase) => {
     let icon;
-    switch (fase.tipo_fase_orden.toLowerCase()) {
+    switch (fase.tipoFase.toLowerCase()) {
       case 'nuevo':
         icon = <FileAddOutlined />;
         break;
@@ -185,11 +227,18 @@ const Ordenes = () => {
       default:
         icon = <FileAddOutlined />;
     }
+  
+    const nombresUsuarios = fase.fasesOrdenes
+      .map((faseOrden) => faseOrden.nombreUsuario)
+      .join(', '); 
+  
     return {
-      title: fase.tipo_fase_orden,
+      title: fase.tipoFase,
+      description: nombresUsuarios || 'Desconocido', // Si no hay nombre, muestra 'Desconocido'
       icon: icon,
     };
   });
+  
 
   const avanzarFase = async (avanzar = true, completar = false) => {
     const result = await Swal.fire({
@@ -215,6 +264,8 @@ const Ordenes = () => {
       if (completar || avanzar) {
         setNivelStep(nivelStep + 1);
       }
+
+      
 
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
       dispatch(fecthTiposFasesOrdenes(orderId));
@@ -243,9 +294,20 @@ const Ordenes = () => {
     }
   };
 
+  const usuario = usuarios.find(user => user.id_usuario === nuevaData.elaborado_por);
+
+  const getCurrentUser = () => {
+    const currentStepData = tiposFasesOrdenes[nivelStep]?.fases_ordenes?.find(
+      fase => fase.ordenes_id === parseInt(orderId)
+    );
+    
+    return usuarios.find(
+      user => user.id_usuario === currentStepData?.elaborado_por
+    );
+  };
+
   return (
     <div>
-
       <Row>
         <Tooltip title="Retroceder a tabla de órdenes">
           <Button
@@ -256,7 +318,6 @@ const Ordenes = () => {
           </Button>
         </Tooltip>
         <Col xxl={24} xl={24} md={24}>
-
           <div
             style={{
               background: 'white',
@@ -270,11 +331,8 @@ const Ordenes = () => {
               items={itemsSteps}
               current={nivelStep}
             />
-
+          
           </div>
-
-
-
           <div>
             {nivelStep === 4 && (
               <>
@@ -291,12 +349,13 @@ const Ordenes = () => {
                 >
                   Se completó todas las fases
                   <br />
+                 
                   <Link
                     to={`/crear-correciones-ordenes`}
                     className="btn btn-warning btnEditarReceta"
                     state={
-                      { 
-                        orden ,
+                      {
+                        orden,
                         pacienteOrden
                       }
                     }
@@ -396,9 +455,6 @@ const Ordenes = () => {
         </Col>
       </Row>
       <EditOrden fecha_solicitud={fechaSolicitud} />
-
-
-
     </div>
   )
 }
