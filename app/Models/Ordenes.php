@@ -69,7 +69,6 @@ class Ordenes extends Model
     'elaborado_por' => 'integer',
     'lente_contacto' => 'integer',
     'correccion' => 'integer',
-    'nro_orden_id' => 'integer',
   ];
 
   public function paciente()
@@ -96,7 +95,6 @@ class Ordenes extends Model
   {
     return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
   }
-
 
   // protected static function boot()
   // {

@@ -205,7 +205,6 @@ const kpisSlice = createSlice({
     statusAsesoresStatus: 'idle',
     statusAsesores: 'idle',
     statusDoctores: 'idle',
-
     errorAsesores: null,
     errorDoctores: null,
     errorDoctoresOrdenes: null,

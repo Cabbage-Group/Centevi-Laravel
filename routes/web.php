@@ -328,6 +328,12 @@ Route::post('/api/kpis/tipo-cristales', [KpisApiController::class, 'countCrystal
 
 Route::post('/api/kpis/lente-ordenes', [KpisApiController::class, 'getOrdersGroupedByDate']);
 
+Route::post('/api/kpis/lente-ordenes-sucursal', [KpisApiController::class, 'obtenerLentesPorSucursal']);
+
+Route::post('/api/kpis/lente-ordenes-asesores', [KpisApiController::class, 'obtenerLentesPorUsuario']);
+
+Route::post('/api/kpis/lente-ordenes-doctores', [KpisApiController::class, 'obtenerLentesPorDoctor']);
+
 Route::post('/api/kpis/update-tipo-cristales', [KpisApiController::class, 'actualizarCristales']);
 
 Route::get('/api/correciones-ordenes', [CorrecionesOrdenesController::class, 'VerCorrecionesOrdenes']);

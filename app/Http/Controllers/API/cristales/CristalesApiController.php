@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\cristales;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cristales;
+use App\Models\Ordenes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +14,20 @@ class CristalesApiController extends Controller
   public function index(Request $request)
   {
     try {
-      // Obtener todos los tipos de usuarios
       $cristales = Cristales::all();
+
+      // Verificar la codificación de los datos
+      foreach ($cristales as $cristal) {
+        foreach ($cristal->getAttributes() as $key => $value) {
+          if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+            return response()->json([
+              'success' => false,
+              'message' => "Caracteres mal codificados en el campo '$key'",
+              'data' => $value,
+            ], 500);
+          }
+        }
+      }
 
       return response()->json([
         'success' => true,
@@ -173,4 +186,6 @@ class CristalesApiController extends Controller
 
     return response()->json(['message' => 'Datos actualizados correctamente'], 200);
   }
+
+
 }

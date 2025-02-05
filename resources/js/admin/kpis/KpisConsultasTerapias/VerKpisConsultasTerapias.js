@@ -221,33 +221,57 @@ const VerKpisConsultasTerapias = () => {
 
 
     return (
-      <div style={{ display: 'flex', gap: '20px' }}>
-        {chunkedSucursales.map((chunk, chunkIndex) => (
-          <div key={chunkIndex} style={{
-            display: 'flex',
-            flexDirection: 'column', // Asegura que los elementos estén en columnas
-            gap: '8px',
-          }}>
-            {chunk.map((sucursal, index) => {
-              const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
-              return (
-                <div key={sucursal.id_sucursal} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
-                  <Checkbox
-                    checked={activeLines.includes(sucursal.id_sucursal)}
-                    onChange={(e) => handleCheckboxChange(sucursal.id_sucursal, e.target.checked)}
-                    style={{ marginRight: '5px' }}
-                  />
-                  <span
-                    style={{ color: lineColor, fontSize: '12px', width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                    title={sucursal.nombre} // Muestra el nombre completo cuando se pasa el mouse
-                  >
-                    {sucursal.nombre}
-                  </span>
-                </div>
-              );
-            })}
+      <div>
+        <div
+          style={{
+            marginBottom: '10px',
+            marginLeft: '10px'
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAll}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAll}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
           </div>
-        ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {chunkedSucursales.map((chunk, chunkIndex) => (
+            <div key={chunkIndex} style={{
+              display: 'flex',
+              flexDirection: 'column', // Asegura que los elementos estén en columnas
+              gap: '8px',
+            }}>
+              {chunk.map((sucursal, index) => {
+                const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
+                return (
+                  <div key={sucursal.id_sucursal} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
+                    <Checkbox
+                      checked={activeLines.includes(sucursal.id_sucursal)}
+                      onChange={(e) => handleCheckboxChange(sucursal.id_sucursal, e.target.checked)}
+                      style={{ marginRight: '5px' }}
+                    />
+                    <span
+                      style={{ color: lineColor, fontSize: '12px', width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      title={sucursal.nombre} // Muestra el nombre completo cuando se pasa el mouse
+                    >
+                      {sucursal.nombre}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -260,40 +284,63 @@ const VerKpisConsultasTerapias = () => {
     }
 
     return (
-      <div style={{ display: 'flex', gap: '20px' }}>
-        {chunkedDoctores.map((chunk, chunkIndex) => (
-          <div key={chunkIndex} style={{
-            display: 'flex',
-            flexDirection: 'column', // Asegura que los elementos estén en columnas
-            gap: '8px',
-          }}>
-            {chunk.map((doctor, index) => {
-              const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
-              return (
-                <div key={doctor.value} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
-                  <Checkbox
-                    checked={activeLinesDoctores.includes(doctor.value)}
-                    onChange={(e) => handleCheckboxChangeDoctores(doctor.value, e.target.checked)}
-                    style={{ marginRight: '5px' }}
-                  />
-                  <span
-                    style={{
-                      color: lineColor,
-                      fontSize: '12px',
-                      width: '150px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                    title={doctor.label} // Muestra el nombre completo cuando se pasa el mouse
-                  >
-                    {doctor.label}
-                  </span>
-                </div>
-              );
-            })}
+      <div>
+        <div
+          style={{
+            marginBottom: '10px',
+            marginLeft: '10px'
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAllDoctores}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAllDoctores}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
           </div>
-        ))}
+        </div>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {chunkedDoctores.map((chunk, chunkIndex) => (
+            <div key={chunkIndex} style={{
+              display: 'flex',
+              flexDirection: 'column', // Asegura que los elementos estén en columnas
+              gap: '8px',
+            }}>
+              {chunk.map((doctor, index) => {
+                const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
+                return (
+                  <div key={doctor.value} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
+                    <Checkbox
+                      checked={activeLinesDoctores.includes(doctor.value)}
+                      onChange={(e) => handleCheckboxChangeDoctores(doctor.value, e.target.checked)}
+                      style={{ marginRight: '5px' }}
+                    />
+                    <span
+                      style={{
+                        color: lineColor,
+                        fontSize: '12px',
+                        width: '150px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                      title={doctor.label} // Muestra el nombre completo cuando se pasa el mouse
+                    >
+                      {doctor.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -321,10 +368,10 @@ const VerKpisConsultasTerapias = () => {
     backgroundColor: color === 'green' ? '#4CAF50' : '#F44336',
     color: 'white',
     border: 'none',
-    padding: '10px 20px',
+    padding: '5px 10px',
     borderRadius: '5px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '11px',
     fontWeight: 'bold',
     transition: 'background-color 0.3s',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -333,95 +380,90 @@ const VerKpisConsultasTerapias = () => {
 
   return (
     <div>
-      <ResponsiveContainer width="100%" height={300} >
-        <label>
-          Buscar por Fecha Sucursales:
-        </label>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <div
+        style={{
+          background: 'white',
+          padding: '15px',
+          height: '450px',
+          borderRadius: '15px'
+        }}
+      >
+        <ResponsiveContainer width="100%" height={300} >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 
-          <DateRangeSeparate
-            onApply={handleDateApply}
-            onReset={handleDateReset}
-            disableDateRangeLimit={true}
-            isMonthPicker={true}
-          />
-          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
-            <button
-              onClick={handleSelectAll}
-              style={buttonStyle('green')}
-            >
-              Seleccionar Todo
-            </button>
-            <button
-              onClick={handleDeselectAll}
-              style={buttonStyle('red')}
-            >
-              Deseleccionar Todo
-            </button>
+            <DateRangeSeparate
+              onApply={handleDateApply}
+              onReset={handleDateReset}
+              disableDateRangeLimit={true}
+              isMonthPicker={true}
+              showOneLine={false}
+            />
+
+
           </div>
-        </div>
-        <LineChart
-          data={kpisConsultasTerapias}
-          margin={{ top: 20, right: 120, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip content={customTooltip} />
-          <Legend
-            content={renderLegend}
-            align="right"
-            verticalAlign="middle"
-            layout="vertical"
-          />
-          {renderLines()}
-        </LineChart>
-      </ResponsiveContainer>
+          <LineChart
+            data={kpisConsultasTerapias}
+            margin={{ top: 20, right: 120, left: 20, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip content={customTooltip} />
+            <Legend
+              content={renderLegend}
+              align="right"
+              verticalAlign="middle"
+              layout="vertical"
+            />
+            {renderLines()}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
-      <ResponsiveContainer width="100%" height={300} style={{ marginTop: '100px' }} >
-        <label >
-          Buscar por Fecha Doctores:
-        </label>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 
-          <DateRangeSeparate
-            onApply={handleDateApplyDoctores}
-            onReset={handleDateResetDoctores}
-            disableDateRangeLimit={true}
-            isMonthPicker={true}
-          />
-          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
-            <button
-              onClick={handleSelectAllDoctores}
-              style={buttonStyle('green')}
-            >
-              Seleccionar Todo
-            </button>
-            <button
-              onClick={handleDeselectAllDoctores}
-              style={buttonStyle('red')}
-            >
-              Deseleccionar Todo
-            </button>
+      <div
+        style={{
+          background: 'white',
+          padding: '15px',
+          height: '450px',
+          borderRadius: '15px',
+          marginTop: '15px',
+          position: 'relative'
+        }}
+      >
+        <ResponsiveContainer width="100%" height={300} >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
+            <DateRangeSeparate
+              onApply={handleDateApplyDoctores}
+              onReset={handleDateResetDoctores}
+              disableDateRangeLimit={true}
+              isMonthPicker={true}
+              showOneLine={false}
+            />
+
+
           </div>
-        </div>
-        <LineChart
-          data={kpisConsultasTerapiasDoctores}
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip content={customTooltip} />
-          <Legend
-            content={renderLegendDoctores}
-            align="right"
-            verticalAlign="middle"
-            layout="vertical"
-          />
-          {renderLinesDoctores()}
-        </LineChart>
-      </ResponsiveContainer>
+          <LineChart
+            data={kpisConsultasTerapiasDoctores}
+            margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip content={customTooltip} />
+            <Legend
+              content={renderLegendDoctores}
+              align="right"
+              verticalAlign="middle"
+              layout="vertical"
+            />
+            {renderLinesDoctores()}
+          </LineChart>
+        </ResponsiveContainer>
+
+      </div>
+
     </div>
 
   );

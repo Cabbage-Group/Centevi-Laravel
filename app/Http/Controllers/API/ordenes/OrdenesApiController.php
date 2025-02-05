@@ -79,6 +79,7 @@ class OrdenesApiController extends Controller
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->leftJoin('usuarios as u', 'fo.elaborado_por', '=', 'u.id_usuario')
       ->select(
         'fo.ordenes_id',
         DB::raw('
@@ -102,7 +103,9 @@ class OrdenesApiController extends Controller
         ),
         'fo.laboratorio as laboratorio_ultima_fase',
         'fo.observacion as observacion_ultima_fase',
-        'fo.fecha_fase as fecha_ultima_fase'
+        'fo.fecha_fase as fecha_ultima_fase',
+        'fo.elaborado_por',
+        'u.nombre as elaborado_por_nombre'
       )
       ->whereRaw('fo.id = (
         SELECT MAX(id) 
@@ -129,7 +132,8 @@ class OrdenesApiController extends Controller
         'primeras_fases.dias_transcurridos as dias_transcurridos',
         'primeras_fases.total_fases as total_fases',
         DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted"),
-        DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual")
+        DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual"),
+        'ultimas_fases.elaborado_por_nombre as elaborado_por_fase'
         // DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
       );
     if (!empty($search)) {
@@ -227,146 +231,146 @@ class OrdenesApiController extends Controller
 
 
   public function createOrdenes(Request $request)
-{
+  {
     $validator = Validator::make($request->all(), [
-        "id_paciente" => 'nullable|integer',
-        'id_sucursal' => 'nullable|integer',
-        'elaborado_por' => 'nullable|integer',
-        'esfera_od' => 'nullable|string|max:255',
-        'esfera_oi' => 'nullable|string|max:255',
-        'cilindro_od' => 'nullable|string|max:255',
-        'cilindro_oi' => 'nullable|string|max:255',
-        'eje_od' => 'nullable|string|max:255',
-        'eje_oi' => 'nullable|string|max:255',
-        'add_od' => 'nullable|string|max:255',
-        'add_oi' => 'nullable|string|max:255',
-        'prisma_od' => 'nullable|string|max:255',
-        'prisma_oi' => 'nullable|string|max:255',
-        'distancia_od' => 'nullable|string|max:255',
-        'distancia_oi' => 'nullable|string|max:255',
-        'altura_od' => 'nullable|string|max:255',
-        'altura_oi' => 'nullable|string|max:255',
-        'tipo_cristal_od' => 'nullable|string|max:255',
-        'tipo_cristal_oi' => 'nullable|string|max:255',
-        'material_od' => 'nullable|string|max:255',
-        'material_oi' => 'nullable|string|max:255',
-        'tratamientos_od' => 'nullable|string|max:255',
-        'tratamientos_oi' => 'nullable|string|max:255',
-        'aro_centevi' => 'nullable|integer|min:0|max:1',
-        'aro_propio' => 'nullable|integer|min:0|max:1',
-        'codigo' => 'nullable|string|max:255',
-        'color' => 'nullable|string|max:255',
-        'marca' => 'nullable|string|max:255',
-        'tipo_aro' => 'nullable|string|max:255',
-        'doctor' => 'nullable|string|max:255',
-        'observaciones' => 'nullable|string|max:400',
-        'l_uno' => 'nullable|string|max:255',
-        'l_dos' => 'nullable|string|max:255',
-        'l_tres' => 'nullable|string|max:255',
-        'l_cuatro' => 'nullable|string|max:255',
-        'l_cinco' => 'nullable|string|max:255',
+      "id_paciente" => 'nullable|integer',
+      'id_sucursal' => 'nullable|integer',
+      'elaborado_por' => 'nullable|integer',
+      'esfera_od' => 'nullable|string|max:255',
+      'esfera_oi' => 'nullable|string|max:255',
+      'cilindro_od' => 'nullable|string|max:255',
+      'cilindro_oi' => 'nullable|string|max:255',
+      'eje_od' => 'nullable|string|max:255',
+      'eje_oi' => 'nullable|string|max:255',
+      'add_od' => 'nullable|string|max:255',
+      'add_oi' => 'nullable|string|max:255',
+      'prisma_od' => 'nullable|string|max:255',
+      'prisma_oi' => 'nullable|string|max:255',
+      'distancia_od' => 'nullable|string|max:255',
+      'distancia_oi' => 'nullable|string|max:255',
+      'altura_od' => 'nullable|string|max:255',
+      'altura_oi' => 'nullable|string|max:255',
+      'tipo_cristal_od' => 'nullable|string|max:255',
+      'tipo_cristal_oi' => 'nullable|string|max:255',
+      'material_od' => 'nullable|string|max:255',
+      'material_oi' => 'nullable|string|max:255',
+      'tratamientos_od' => 'nullable|string|max:255',
+      'tratamientos_oi' => 'nullable|string|max:255',
+      'aro_centevi' => 'nullable|integer|min:0|max:1',
+      'aro_propio' => 'nullable|integer|min:0|max:1',
+      'codigo' => 'nullable|string|max:255',
+      'color' => 'nullable|string|max:255',
+      'marca' => 'nullable|string|max:255',
+      'tipo_aro' => 'nullable|string|max:255',
+      'doctor' => 'nullable|string|max:255',
+      'observaciones' => 'nullable|string|max:400',
+      'l_uno' => 'nullable|string|max:255',
+      'l_dos' => 'nullable|string|max:255',
+      'l_tres' => 'nullable|string|max:255',
+      'l_cuatro' => 'nullable|string|max:255',
+      'l_cinco' => 'nullable|string|max:255',
     ]);
 
     if ($validator->fails()) {
-        return response()->json([
-            'respuesta' => false,
-            'mensaje' => 'Validation errors',
-            'data' => $validator->errors(),
-            'mensaje_dev' => "Oops, validation errors occurred."
-        ], 400);
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Validation errors',
+        'data' => $validator->errors(),
+        'mensaje_dev' => "Oops, validation errors occurred."
+      ], 400);
     }
 
     try {
-        DB::beginTransaction();
+      DB::beginTransaction();
 
-        // Crear un nuevo nro_orden
-        $nroOrden = NroOrden::create([]);
+      // Crear un nuevo nro_orden
+      $nroOrden = NroOrden::create([]);
 
-        // Definir valores predeterminados
-        $defaults = [
-            'elaborado_por' => 0,
-            'esfera_od' => '',
-            'esfera_oi' => '',
-            'cilindro_od' => '',
-            'cilindro_oi' => '',
-            'eje_od' => '',
-            'eje_oi' => '',
-            'add_od' => '',
-            'add_oi' => '',
-            'prisma_od' => '',
-            'prisma_oi' => '',
-            'distancia_od' => '',
-            'distancia_oi' => '',
-            'altura_od' => '',
-            'altura_oi' => '',
-            'tipo_cristal_od' => '',
-            'tipo_cristal_oi' => '',
-            'material_od' => '',
-            'material_oi' => '',
-            'tratamientos_od' => '',
-            'tratamientos_oi' => '',
-            'aro_centevi' => 0,
-            'aro_propio' => 0,
-            'codigo' => '',
-            'color' => '',
-            'marca' => '',
-            'tipo_aro' => '',
-            'doctor' => '',
-            'observaciones' => '',
-            'l_uno' => '',
-            'l_dos' => '',
-            'l_tres' => '',
-            'l_cuatro' => '',
-            'l_cinco' => '',
-            'pagado' => 2,
-            'lente_contacto' => 0,
-            'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
-        ];
+      // Definir valores predeterminados
+      $defaults = [
+        'elaborado_por' => 0,
+        'esfera_od' => '',
+        'esfera_oi' => '',
+        'cilindro_od' => '',
+        'cilindro_oi' => '',
+        'eje_od' => '',
+        'eje_oi' => '',
+        'add_od' => '',
+        'add_oi' => '',
+        'prisma_od' => '',
+        'prisma_oi' => '',
+        'distancia_od' => '',
+        'distancia_oi' => '',
+        'altura_od' => '',
+        'altura_oi' => '',
+        'tipo_cristal_od' => '',
+        'tipo_cristal_oi' => '',
+        'material_od' => '',
+        'material_oi' => '',
+        'tratamientos_od' => '',
+        'tratamientos_oi' => '',
+        'aro_centevi' => 0,
+        'aro_propio' => 0,
+        'codigo' => '',
+        'color' => '',
+        'marca' => '',
+        'tipo_aro' => '',
+        'doctor' => '',
+        'observaciones' => '',
+        'l_uno' => '',
+        'l_dos' => '',
+        'l_tres' => '',
+        'l_cuatro' => '',
+        'l_cinco' => '',
+        'pagado' => 2,
+        'lente_contacto' => 0,
+        'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
+      ];
 
-        // Extraer los códigos de los cristales
-        $tipoCristalOd = $request->input('tipo_cristal_od');
-        $tipoCristalOi = $request->input('tipo_cristal_oi');
+      // Extraer los códigos de los cristales
+      $tipoCristalOd = $request->input('tipo_cristal_od');
+      $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-        // Asignar el cristal según la prioridad
-        $cristalCodigo = null;
-        if ($tipoCristalOd) {
-            $cristalCodigo = explode(' | ', $tipoCristalOd)[0]; // Tomar el código antes del "|"
-        } elseif ($tipoCristalOi) {
-            $cristalCodigo = explode(' | ', $tipoCristalOi)[0]; // Tomar el código antes del "|"
-        }
+      // Asignar el cristal según la prioridad
+      $cristalCodigo = null;
+      if ($tipoCristalOd) {
+        $cristalCodigo = explode(' | ', $tipoCristalOd)[0]; // Tomar el código antes del "|"
+      } elseif ($tipoCristalOi) {
+        $cristalCodigo = explode(' | ', $tipoCristalOi)[0]; // Tomar el código antes del "|"
+      }
 
-        $cristal = null;
-        if ($cristalCodigo) {
-            $cristal = Cristales::where('codigo', $cristalCodigo)->first(); // Buscar cristal por código
-        }
+      $cristal = null;
+      if ($cristalCodigo) {
+        $cristal = Cristales::where('codigo', $cristalCodigo)->first(); // Buscar cristal por código
+      }
 
-        // Asignar el ID del cristal si se encuentra
-        $cristalId = $cristal ? $cristal->id : null;
-        $data = array_merge($defaults, $request->all(), ['cristal_id' => $cristalId]);
+      // Asignar el ID del cristal si se encuentra
+      $cristalId = $cristal ? $cristal->id : null;
+      $data = array_merge($defaults, $request->all(), ['cristal_id' => $cristalId]);
 
-        // Crear la orden en la base de datos
-        $orden = Ordenes::create($data);
+      // Crear la orden en la base de datos
+      $orden = Ordenes::create($data);
 
-        DB::commit();
+      DB::commit();
 
-        return response()->json([
-            'respuesta' => true,
-            'mensaje' => 'Orden registrada correctamente',
-            'data' => [$orden],
-            'mensaje_dev' => null
-        ], 201);
+      return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Orden registrada correctamente',
+        'data' => [$orden],
+        'mensaje_dev' => null
+      ], 201);
     } catch (\Exception $e) {
-        DB::rollBack();
+      DB::rollBack();
 
-        return response()->json([
-            'respuesta' => false,
-            'mensaje' => 'Error al registrar la orden',
-            'mensaje_dev' => $e->getMessage()
-        ], 500);
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Error al registrar la orden',
+        'mensaje_dev' => $e->getMessage()
+      ], 500);
     }
-}
+  }
 
-  
+
 
   public function updateOrden(Request $request, $id_orden)
   {
@@ -521,6 +525,7 @@ class OrdenesApiController extends Controller
       'observacion' => 'nullable|string|max:400',
       'status' => 'nullable|integer|min:0|max:1',
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
+      'elaborado_por' => 'required|integer',
     ]);
 
     $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
@@ -534,6 +539,7 @@ class OrdenesApiController extends Controller
         'fecha_fase' => $validatedData['fecha_fase'],
         'status' => $validatedData['status'] ?? $existingFase->status,
         'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
+        'elaborado_por' => $validatedData['elaborado_por'],
       ]);
 
       if ($updated) {
@@ -566,6 +572,7 @@ class OrdenesApiController extends Controller
     }
   }
 
+
   public function updateFasesOrdenes(Request $request, $id)
   {
     // Validar los datos de entrada
@@ -575,6 +582,7 @@ class OrdenesApiController extends Controller
       'laboratorio' => 'nullable|string|max:45',
       'fecha_fase' => 'nullable|string|max:45',
       'observacion' => 'nullable|string|max:400',
+      'elaborado_por' => 'nullable|string|max:100', // Agregado
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
       'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
     ]);
@@ -603,6 +611,7 @@ class OrdenesApiController extends Controller
       ], 500);
     }
   }
+
 
 
   public function reportesOrdenes(Request $request)

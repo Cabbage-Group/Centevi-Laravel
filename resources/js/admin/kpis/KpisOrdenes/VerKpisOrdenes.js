@@ -22,35 +22,16 @@ const VerKpisOrdenes = () => {
   ];
 
   const dispatch = useDispatch();
-  const {
-    tiempoPromedio,
-    faseInicial,
-    faseFinal,
-    statusPromedioFasesOrdenes } = useSelector((state) => state.kpisConsultasTerapias)
+
   const { kpisOrdenesTipoCristal, kpisOrdenesLente } = useSelector((state) => state.kpisOrdenes)
   const { cristales } = useSelector((state) => state.cristales)
-  const [localStartDateFasesOrdenes, setLocalStartDateFasesOrdenes] = useState();
-  const [localEndDateFasesOrdenes, setLocalEndDateFasesOrdenes] = useState();
-  const [lenteContactoFilter, setLenteContactoFilter] = useState([]);
+
   const [activeLines, setActiveLines] = useState([]);
   const [activeLinesLente, setActiveLinesLente] = useState(["lente_contacto", "lente_normal"]);
   const [localStartDate, setLocalStartDate] = useState();
   const [localEndDate, setLocalEndDate] = useState();
   const [localStartDateLente, setLocalStartDateLente] = useState();
   const [localEndDateLente, setLocalEndDateLente] = useState();
-
-  console.log('kpisOrdenesLente:', kpisOrdenesLente)
-
-  const faseMapping = {
-    Nuevo: 1,
-    "En confeccion": 2,
-    Listo: 3,
-    Retirado: 4
-  };
-
-  const tiempo = tiempoPromedio
-    ? `${tiempoPromedio.dias} días, ${tiempoPromedio.horas} horas, ${tiempoPromedio.minutos} minutos`
-    : "No disponible";
 
   const handleSelectAll = () => {
     const allIds = cristales.map(cristal => cristal.id);
@@ -81,44 +62,6 @@ const VerKpisOrdenes = () => {
     });
   };
 
-
-
-
-  const handleFaseInicialChange = (value) => {
-    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: value, faseFinal: null }));
-  };
-
-  const handleFaseFinalChange = (value) => {
-    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial, faseFinal: value }));
-  };
-
-  const handleLimpiar = () => {
-    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: null, faseFinal: null }));
-  };
-
-  const getFasesDisponibles = (faseInicial) => {
-    const fases = ["Nuevo", "En confeccion", "Listo", "Retirado"];
-    return fases.slice(fases.indexOf(faseInicial) + 1);
-  };
-
-  const handleLenteContactoChange = (value) => {
-    setLenteContactoFilter(value);
-  };
-
-  const handleDateApplyPromedioFasesOrdenes = (newStartDate, newEndDate) => {
-    setLocalStartDateFasesOrdenes(newStartDate);
-    setLocalEndDateFasesOrdenes(newEndDate);
-
-    dispatch(setFechaRangePromedioFasesOrdenes({ startDate: newStartDate, endDate: newEndDate }));
-  };
-
-  const handleDateResetPromedioFasesOrdenes = () => {
-    setLocalStartDateFasesOrdenes(null);
-    setLocalEndDateFasesOrdenes(null);
-
-    dispatch(setFechaRangePromedioFasesOrdenes({ startDate: null, endDate: null }));
-  };
-
   const handleDateApply = (newStartDate, newEndDate) => {
     setLocalStartDate(newStartDate);
     setLocalEndDate(newEndDate);
@@ -146,17 +89,6 @@ const VerKpisOrdenes = () => {
 
     dispatch(setFechaRangeOrdenesLente({ startDate: null, endDate: null }));
   };
-
-
-  useEffect(() => {
-    dispatch(fetchKpisPromedioFasesOrdenes({
-      startDate: localStartDateFasesOrdenes,
-      endDate: localEndDateFasesOrdenes,
-      faseInicial: faseInicial ? faseMapping[faseInicial] : null,
-      faseFinal: faseFinal ? faseMapping[faseFinal] : null,
-      lenteContacto: lenteContactoFilter
-    }));
-  }, [dispatch, localStartDateFasesOrdenes, localEndDateFasesOrdenes, lenteContactoFilter, faseInicial, faseFinal]);
 
   useEffect(() => {
     dispatch(fetchKpisOrdenesTipoCristal({ startDate: localStartDate, endDate: localEndDate, }))
@@ -350,6 +282,7 @@ const VerKpisOrdenes = () => {
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     outline: 'none',
   });
+  console.log('cristales:', cristales)
 
 
 
@@ -431,106 +364,15 @@ const VerKpisOrdenes = () => {
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip content={customTooltipLente} />
-          <Legend content={renderLegendLente} verticalAlign="middle" align="right" layout="vertical" />
+          <Legend
+            content={renderLegendLente}
+            verticalAlign="middle"
+            align="right"
+            layout="vertical" />
           {renderLinesLente()}
         </LineChart>
       </ResponsiveContainer>
 
-      <div style={{ width: "100%", marginTop: "10px" }}>
-        <div style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "10px",
-          flexWrap: "wrap"
-        }}>
-
-          <div style={{ marginTop: "0px" }}>
-            <label>Buscar por Fecha:</label>
-            <DateRangeSeparate
-              onApply={handleDateApplyPromedioFasesOrdenes}
-              onReset={handleDateResetPromedioFasesOrdenes}
-            />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <label>Filtrar por Tipo de Lente:</label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona el tipo de lente"
-              onChange={handleLenteContactoChange}
-              value={lenteContactoFilter || undefined}
-              allowClear
-            >
-              <Select.Option value="1">
-                <img
-                  src="assets/img/recetas/lentesdecontacto.png"
-                  alt="Lente On"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente de Contacto
-              </Select.Option>
-              <Select.Option value="0">
-                <img
-                  src="assets/img/recetas/lentenormal.png"
-                  alt="Lente Off"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente Normal
-              </Select.Option>
-            </Select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <label>Fase Inicial:</label>
-            <Select
-              style={{ width: '200px' }}
-              placeholder="Selecciona una fase inicial"
-              value={faseInicial}
-              onChange={handleFaseInicialChange}
-            >
-              <Select.Option value="Nuevo">Nuevo</Select.Option>
-              <Select.Option value="En confeccion">En confección</Select.Option>
-              <Select.Option value="Listo">Listo</Select.Option>
-              <Select.Option value="Retirado">Retirado</Select.Option>
-            </Select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <label>Fase Final:</label>
-            <Select
-              style={{ width: '200px' }}
-              placeholder="Selecciona una fase final"
-              value={faseFinal}
-              onChange={handleFaseFinalChange}
-              disabled={!faseInicial}
-            >
-              {faseInicial && getFasesDisponibles(faseInicial).map(fase => (
-                <Select.Option key={fase} value={fase}>{fase}</Select.Option>
-              ))}
-            </Select>
-          </div>
-          <Button
-            onClick={handleLimpiar}
-            type="primary"
-            danger
-            disabled={!faseInicial && !faseFinal}
-            style={{ marginTop: '30px' }}
-          >
-            Limpiar
-          </Button>
-        </div>
-      </div>
-
-      {/* Card de tiempo promedio */}
-      <Row gutter={16}>
-        <Col span={8}>
-          <Card title="Tiempo Promedio" bordered={false} style={{ width: 300, marginTop: "20px" }}>
-            {statusPromedioFasesOrdenes === 'loading' ? (
-              <Spin size="large" />
-            ) : (
-              <h3>{tiempo}</h3>
-            )}
-          </Card>
-        </Col>
-      </Row>
     </div>
   );
 }

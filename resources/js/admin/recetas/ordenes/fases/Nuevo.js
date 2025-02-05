@@ -9,6 +9,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
+import { fetchUsuarios } from '../../../../redux/features/usuarios/usuariosSlice';
 
 const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const dispatch = useDispatch();
@@ -17,14 +18,17 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const [faseOrdenId, setFaseOrdenId] = useState();
   const [laboratorio, setLaboratorio] = useState('');
   const [observaciones, setObservaciones] = useState('');
+  const [elaboradoFase, setElaboradoFase] = useState('');
+  const usuarios = useSelector((state) => state.usuarios.usuarios);
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const location = useLocation();
   const { orderId } = useParams();
   const { orden } = location.state || {};
   const { pacienteOrden } = location.state || {};
+  const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [celular, setCelular] = useState('');
   const [mensaje, setMensaje] = useState(
-    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
   const { pacientes } = useSelector((state) => state.pacientes);
@@ -32,7 +36,6 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
   const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.sucursal?.ubicacion_maps);
   const idUsuario = localStorage.getItem('id_usuario');
-
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([
     { value: 'Centilab', label: 'Centilab' },
     { value: 'Ping', label: 'Ping' },
@@ -40,7 +43,6 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   ]);
 
   useEffect(() => {
-    // Cambiar las opciones del Select si lente_contacto es true
     if (orden?.lente_contacto || pacienteOrden?.lente_contacto) {
       setOpcionesLaboratorio([
         { value: 'Vista Pro', label: 'Vista Pro' },
@@ -101,11 +103,13 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
         );
 
         if (faseOrden) {
+          console.log('faseOrden:', faseOrden)
           setLaboratorio(faseOrden.laboratorio);
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
-          setFaseOrdenId(faseOrden.id)
+          setFaseOrdenId(faseOrden.id);
+          setElaboradoFase(faseOrden.elaborado_por);
         }
       }
     }
@@ -118,11 +122,14 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
         laboratorio: laboratorio,
         observacion: observaciones,
         fecha_fase: fechaActual,
+        elaborado_por: usuarioId,
         created_at: fechaCreacion,
       };
       dispatch(actualizarDatosFase(nuevaFase));
     }
   }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch, fechaCreacion]);
+
+
 
   const getColorForStatus = (status) => {
     const colors = {

@@ -51,8 +51,6 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
-
-  console.log('marcas_options_selecteds',marcas_options_selecteds)
   useEffect(() => {
     if (id && pacientes_options_selecteds.length > 0) {
       setSelectedPaciente(Number(id));
@@ -1586,34 +1584,35 @@ const CreateOrden = () => {
                                             <b>MARCA</b>
                                           </div>
                                           {isAroVisible ? (
-                                            <Select
-                                            name="marca"
-                                            placeholder="Selecciona la marca"
-                                            showSearch
-                                            style={{
-                                              width: "100%",
-                                              height: "48px",
-                                              color: "black",
-                                              fontWeight: "bold",
-                                            }}
-                                            onChange={(value) => {
-                                              console.log('value:', value)
-                                              setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
-                                              setFieldValue("marca", value); // También actualizar el campo de Formik
-                                            }}
-                                            filterOption={(input, option) =>
-                                              option.label.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                            options={marcas_lente_normal_options_selecteds.map(marca => ({
-                                              value: marca.value,
-                                              label: marca.label
-                                            }))}
-                                            />
-                                            // <Field
-                                            //   className="form-control"
-                                            //   name="marca"
-                                            //   style={{ marginLeft: '0px', height: '30px', display: 'block' }}
+                                            // MARCA SELECT
+                                            // <Select
+                                            // name="marca"
+                                            // placeholder="Selecciona la marca"
+                                            // showSearch
+                                            // style={{
+                                            //   width: "100%",
+                                            //   height: "48px",
+                                            //   color: "black",
+                                            //   fontWeight: "bold",
+                                            // }}
+                                            // onChange={(value) => {
+                                            //   console.log('value:', value)
+                                            //   setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
+                                            //   setFieldValue("marca", value); // También actualizar el campo de Formik
+                                            // }}
+                                            // filterOption={(input, option) =>
+                                            //   option.label.toLowerCase().includes(input.toLowerCase())
+                                            // }
+                                            // options={marcas_lente_normal_options_selecteds.map(marca => ({
+                                            //   value: marca.value,
+                                            //   label: marca.label
+                                            // }))}
                                             // />
+                                            <Field
+                                              className="form-control"
+                                              name="marca"
+                                              style={{ marginLeft: '0px', height: '30px', display: 'block' }}
+                                            />
                                           ) : (
                                             <Select
                                               name="marca"
@@ -1637,48 +1636,48 @@ const CreateOrden = () => {
                                                 value: marca.value,
                                                 label: marca.label
                                               }))}
-                                              // options={[
-                                              //   { value: 'L001 | Acuvue 2', label: 'L001 | Acuvue 2' },
-                                              //   { value: 'L002 | Acuvue Oasys Esferico ', label: 'L002 | Acuvue Oasys Esferico ' },
-                                              //   { value: 'L003 | Acuvue Oasys Astigmatismo', label: 'L003 | Acuvue Oasys Astigmatismo' },
-                                              //   { value: 'L004 | Acuvue Oasys Presbicia', label: 'L004 | Acuvue Oasys Presbicia' },
-                                              //   { value: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades', label: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades' },
-                                              //   { value: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades', label: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades' },
-                                              //   { value: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades', label: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades' },
-                                              //   { value: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ', label: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ' },
-                                              //   { value: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades', label: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades' },
-                                              //   { value: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)', label: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)' },
-                                              //   { value: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)', label: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)' },
-                                              //   { value: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)', label: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)' },
-                                              //   { value: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00', label: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00' },
-                                              //   { value: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)', label: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)' },
-                                              //   { value: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)', label: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)' },
-                                              //   { value: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)', label: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)' },
-                                              //   { value: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High', label: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High' },
-                                              //   { value: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)', label: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)' },
-                                              //   { value: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)', label: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)' },
-                                              //   { value: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)', label: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)' },
-                                              //   { value: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)', label: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)' },
-                                              //   { value: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High', label: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High' },
-                                              //   { value: 'L023 | Avaira Vitality Esferico ', label: 'L023 | Avaira Vitality Esferico ' },
-                                              //   { value: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ', label: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ' },
-                                              //   { value: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)', label: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)' },
-                                              //   { value: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)', label: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)' },
-                                              //   { value: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ', label: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ' },
-                                              //   { value: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)', label: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)' },
-                                              //   { value: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
-                                              //   { value: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50' },
-                                              //   { value: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)', label: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)' },
-                                              //   { value: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)', label: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)' },
-                                              //   { value: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
-                                              //   { value: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50' },
-                                              //   { value: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00', label: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00' },
-                                              //   { value: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00', label: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00' },
-                                              //   { value: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)', label: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)' },
-                                              //   { value: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)', label: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)' },
-                                              //   { value: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)', label: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)' },
-                                              //   { value: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00', label: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00' },
-                                              // ]}
+                                            // options={[
+                                            //   { value: 'L001 | Acuvue 2', label: 'L001 | Acuvue 2' },
+                                            //   { value: 'L002 | Acuvue Oasys Esferico ', label: 'L002 | Acuvue Oasys Esferico ' },
+                                            //   { value: 'L003 | Acuvue Oasys Astigmatismo', label: 'L003 | Acuvue Oasys Astigmatismo' },
+                                            //   { value: 'L004 | Acuvue Oasys Presbicia', label: 'L004 | Acuvue Oasys Presbicia' },
+                                            //   { value: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades', label: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades' },
+                                            //   { value: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades', label: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades' },
+                                            //   { value: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades', label: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades' },
+                                            //   { value: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ', label: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ' },
+                                            //   { value: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades', label: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades' },
+                                            //   { value: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)', label: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)' },
+                                            //   { value: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)', label: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)' },
+                                            //   { value: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)', label: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)' },
+                                            //   { value: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00', label: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00' },
+                                            //   { value: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)', label: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)' },
+                                            //   { value: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)', label: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)' },
+                                            //   { value: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)', label: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)' },
+                                            //   { value: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High', label: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High' },
+                                            //   { value: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)', label: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)' },
+                                            //   { value: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)', label: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)' },
+                                            //   { value: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)', label: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)' },
+                                            //   { value: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)', label: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)' },
+                                            //   { value: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High', label: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High' },
+                                            //   { value: 'L023 | Avaira Vitality Esferico ', label: 'L023 | Avaira Vitality Esferico ' },
+                                            //   { value: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ', label: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ' },
+                                            //   { value: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)', label: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)' },
+                                            //   { value: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)', label: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)' },
+                                            //   { value: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ', label: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ' },
+                                            //   { value: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)', label: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)' },
+                                            //   { value: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
+                                            //   { value: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50' },
+                                            //   { value: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)', label: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)' },
+                                            //   { value: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)', label: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)' },
+                                            //   { value: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
+                                            //   { value: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50' },
+                                            //   { value: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00', label: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00' },
+                                            //   { value: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00', label: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00' },
+                                            //   { value: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)', label: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)' },
+                                            //   { value: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)', label: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)' },
+                                            //   { value: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)', label: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)' },
+                                            //   { value: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00', label: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00' },
+                                            // ]}
                                             />
                                           )}
                                         </div>

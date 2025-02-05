@@ -15,7 +15,7 @@ export const fetchTratamientos = createAsyncThunk(
     }
   }
 );
-
+ 
 export const createTratamientos = createAsyncThunk(
   'tratamientos/createTratamientos',
   async (values) => {

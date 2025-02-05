@@ -17,4 +17,7 @@ class Tratamientos extends Model
     'codigo',
     'nombre',
   ];
+
+
+
 }

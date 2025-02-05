@@ -901,6 +901,7 @@ class KpisApiController extends Controller
         DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
           ->mergeBindings($terapiaBajaVQuery->getQuery())
       );
+    ;
 
     // Agrupar y sumar las consultas de todas las tablas
     $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
@@ -922,46 +923,11 @@ class KpisApiController extends Controller
         $dataItem[$sucursal] = 0;
       }
 
-      $terapiaOptometriaPediatricaQuery = TerapiaOptometriaPediatrica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      $terapiaOrtopticaAdultosQuery = TerapiaOrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      // Consulta para contar las consultas de ConsultaGenerica
-      $consultaGenericaQuery = ConsultaGenerica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      // Consulta para contar las consultas de HistoriaClinica
-      $historiaClinicaQuery = HistoriaClinica::selectRaw('DATE_FORMAT(fecha_atencion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      // Consulta para contar las consultas de OptometriaNeonatos
-      $optometriaNeonatosQuery = OptometriaNeonatos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      $refraccionGeneralQuery = RefraccionGeneral::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      $ortopticaAdultosQuery = OrtopticaAdultos::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      $optometriaPediatricaQuery = OptometriaPediatrica::selectRaw('DATE_FORMAT(fecha_creacion, "%Y-%m") as name, sucursal, COUNT(*) as total')
-        ->groupBy('name', 'sucursal');
-
-      // Aplicar filtro por fecha solo si se enviaron
-      if ($startDate && $endDate) {
-        $bajaVisionQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $consultaGenericaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $historiaClinicaQuery->whereBetween('fecha_atencion', [$startDate, $endDate]);
-        $optometriaNeonatosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $refraccionGeneralQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $ortopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $optometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $terapiaBajaVQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $terapiaOptometriaNeonatosVQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $terapiaOptometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
-        $terapiaOrtopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      // Asignar los valores obtenidos de la consulta
+      foreach ($entries as $entry) {
+        if (isset($sucursales[$entry->sucursal])) {
+          $dataItem[$sucursales[$entry->sucursal]] = (int) $entry->total;
+        }
       }
 
       $result[] = $dataItem;
@@ -1030,6 +996,82 @@ class KpisApiController extends Controller
       $terapiaOptometriaPediatricaQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
       $terapiaOrtopticaAdultosQuery->whereBetween('fecha_creacion', [$startDate, $endDate]);
     }
+
+    // Unir todas las consultas usando UNION ALL
+    $unionQuery = DB::table(DB::raw("({$bajaVisionQuery->toSql()}) as baja"))
+      ->mergeBindings($bajaVisionQuery->getQuery())
+      ->unionAll(
+        DB::table(DB::raw("({$consultaGenericaQuery->toSql()}) as generica"))
+          ->mergeBindings($consultaGenericaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$historiaClinicaQuery->toSql()}) as historia"))
+          ->mergeBindings($historiaClinicaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$optometriaNeonatosQuery->toSql()}) as neonatos"))
+          ->mergeBindings($optometriaNeonatosQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$refraccionGeneralQuery->toSql()}) as refraccion_general"))
+          ->mergeBindings($refraccionGeneralQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$ortopticaAdultosQuery->toSql()}) as ortoptica_adultos"))
+          ->mergeBindings($ortopticaAdultosQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$optometriaPediatricaQuery->toSql()}) as optometria_pediatrica"))
+          ->mergeBindings($optometriaPediatricaQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaBajaVQuery->toSql()}) as terapia_baja"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOptometriaNeonatosVQuery->toSql()}) as terapia_optometria_neonatos"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOptometriaPediatricaQuery->toSql()}) as terapia_optometria_pediatrica"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      )
+      ->unionAll(
+        DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
+          ->mergeBindings($terapiaBajaVQuery->getQuery())
+      );
+
+    // Agrupar y sumar las consultas de todas las tablas, y ordenar por la fecha (name)
+    $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
+      ->mergeBindings($unionQuery)
+      ->selectRaw('name, doctor, SUM(total) as total')
+      ->groupBy('name', 'doctor')
+      ->orderBy('name', 'asc') // Ordenar de menor a mayor fecha
+      ->get();
+
+    // Organizar datos en el formato requerido
+    $result = [];
+    $groupedData = $consultas->groupBy('name');
+
+    foreach ($groupedData as $date => $entries) {
+      $dataItem = ['name' => $date];
+
+      // Inicializar doctores en 0
+      foreach ($doctores as $doctor) {
+        $dataItem[$doctor] = 0;
+      }
+
+      // Asignar los valores obtenidos de la consulta
+      foreach ($entries as $entry) {
+        if (isset($doctores[$entry->doctor])) {
+          $dataItem[$entry->doctor] = (int) $entry->total;
+        }
+      }
+
+      $result[] = $dataItem;
+    }
+
+    return response()->json(['data' => $result]);
   }
 
   public function PromedioFasesOrdenes(Request $request)
@@ -1300,6 +1342,224 @@ class KpisApiController extends Controller
 
     return response()->json($response);
   }
+
+  public function obtenerLentesPorSucursal(Request $request)
+  {
+    // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
+    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-d'));
+
+    // Obtener el parámetro de sucursal, si se proporciona (puede ser un array)
+    $sucursalIds = $request->input('sucursalIds', []); // Debe ser un array de IDs
+
+    // Verificar formato correcto (YYYY-MM-DD)
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+      return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
+    }
+
+    // Asegurar que startDate no sea mayor que endDate
+    if ($startDate > $endDate) {
+      return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
+    }
+
+    // Obtener sucursales ordenadas
+    $sucursales = Sucursales::orderBy('fecha_creacion');
+
+    // Si se ha proporcionado un filtro por sucursal, aplicar el filtro
+    if (!empty($sucursalIds)) {
+      $sucursales = $sucursales->whereIn('id_sucursal', $sucursalIds); // Filtrar por múltiples sucursales
+    }
+
+    // Obtener las sucursales filtradas
+    $sucursales = $sucursales->get();
+    $sucursalIds = $sucursales->pluck('id_sucursal')->filter()->map(fn($id) => (int) $id)->toArray();
+
+    if (empty($sucursalIds)) {
+      return response()->json(['error' => 'No hay sucursales registradas'], 400);
+    }
+
+    // Inicializar el array de resultados con las sucursales
+    $resultados = [];
+    foreach ($sucursales as $sucursal) {
+      $resultados[$sucursal->id_sucursal] = [
+        'name' => $sucursal->nombre,
+        'lente_contacto' => 0, // Lente contacto
+        'lente_normal' => 0  // Lente normal
+      ];
+    }
+
+    // Consultar las órdenes en el rango de fechas y filtradas por sucursal
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+      ->whereIn('id_sucursal', $sucursalIds) // Filtrar por sucursales múltiples
+      ->selectRaw('id_sucursal, lente_contacto, COUNT(*) as cantidad')
+      ->groupBy('id_sucursal', 'lente_contacto')
+      ->get();
+
+    // Asignar cantidades a cada sucursal
+    foreach ($ordenes as $orden) {
+      if (isset($resultados[$orden->id_sucursal])) {
+        if ($orden->lente_contacto == 1) {
+          $resultados[$orden->id_sucursal]['lente_contacto'] += $orden->cantidad;
+        } else {
+          $resultados[$orden->id_sucursal]['lente_normal'] += $orden->cantidad;
+        }
+      }
+    }
+
+    // Convertir resultados a un array de respuesta
+    $finalResults = array_values($resultados);
+
+    return response()->json([
+      'data' => $finalResults
+    ]);
+  }
+
+  public function obtenerLentesPorUsuario(Request $request)
+  {
+    // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
+    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-d'));
+
+    // Obtener el parámetro de usuarios (puede ser un array de IDs)
+    $usuarioIds = $request->input('usuarioIds', []); // Debe ser un array de IDs de usuarios
+
+    // Verificar formato correcto (YYYY-MM-DD)
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+      return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
+    }
+
+    // Asegurar que startDate no sea mayor que endDate
+    if ($startDate > $endDate) {
+      return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
+    }
+
+    // Obtener usuarios ordenados
+    $usuarios = Usuarios::orderBy('id_usuario')
+      ->where('estado', 1);
+
+    // Si se ha proporcionado un filtro por usuario, aplicar el filtro
+    if (!empty($usuarioIds)) {
+      $usuarios = $usuarios->whereIn('id_usuario', $usuarioIds); // Filtrar por múltiples usuarios
+    }
+
+    // Obtener los usuarios filtrados
+    $usuarios = $usuarios->get();
+    $usuarioIds = $usuarios->pluck('id_usuario')->filter()->map(fn($id) => (int) $id)->toArray();
+
+    if (empty($usuarioIds)) {
+      return response()->json(['error' => 'No hay usuarios registrados'], 400);
+    }
+
+    // Inicializar el array de resultados con los usuarios
+    $resultados = [];
+    foreach ($usuarios as $usuario) {
+      $resultados[$usuario->id_usuario] = [
+        'name' => $usuario->nombre, // Usamos el nombre del usuario
+        'lente_contacto' => 0, // Lente contacto
+        'lente_normal' => 0  // Lente normal
+      ];
+    }
+
+    // Consultar las órdenes en el rango de fechas y filtradas por usuario (elaborado_por)
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+      ->whereIn('elaborado_por', $usuarioIds) // Filtrar por usuarios (elaborado_por)
+      ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
+      ->groupBy('elaborado_por', 'lente_contacto')
+      ->get();
+
+    // Asignar cantidades a cada usuario
+    foreach ($ordenes as $orden) {
+      if (isset($resultados[$orden->elaborado_por])) {
+        if ($orden->lente_contacto == 1) {
+          $resultados[$orden->elaborado_por]['lente_contacto'] += $orden->cantidad;
+        } else {
+          $resultados[$orden->elaborado_por]['lente_normal'] += $orden->cantidad;
+        }
+      }
+    }
+
+    // Convertir resultados a un array de respuesta
+    $finalResults = array_values($resultados);
+
+    return response()->json([
+      'data' => $finalResults
+    ]);
+  }
+
+  public function obtenerLentesPorDoctor(Request $request)
+  {
+    // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
+    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-d'));
+
+    // Obtener el parámetro de doctores (puede ser un array de IDs)
+    $doctorIds = $request->input('doctorIds', []); // Debe ser un array de IDs de doctores
+
+    // Verificar formato correcto (YYYY-MM-DD)
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+      return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
+    }
+
+    // Asegurar que startDate no sea mayor que endDate
+    if ($startDate > $endDate) {
+      return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
+    }
+
+    // Obtener doctores filtrados por perfil = 'doctor' y estado = 1
+    $doctores = Usuarios::where('perfil', 'doctor')
+      ->where('estado', 1) // Filtrar solo doctores con estado = 1
+      ->orderBy('id_usuario');
+
+    // Si se ha proporcionado un filtro por doctor, aplicar el filtro
+    if (!empty($doctorIds)) {
+      $doctores = $doctores->whereIn('id_usuario', $doctorIds); // Filtrar por múltiples doctores
+    }
+
+    // Obtener los doctores filtrados
+    $doctores = $doctores->get();
+    $doctorIds = $doctores->pluck('id_usuario')->filter()->map(fn($id) => (int) $id)->toArray();
+
+    if (empty($doctorIds)) {
+      return response()->json(['error' => 'No hay doctores registrados o activos'], 400);
+    }
+
+    // Inicializar el array de resultados con los doctores
+    $resultados = [];
+    foreach ($doctores as $doctor) {
+      $resultados[$doctor->id_usuario] = [
+        'name' => $doctor->nombre, // Usamos el nombre del doctor
+        'lente_contacto' => 0, // Lente contacto
+        'lente_normal' => 0  // Lente normal
+      ];
+    }
+
+    // Consultar las órdenes en el rango de fechas y filtradas por doctor (elaborado_por)
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+      ->whereIn('elaborado_por', $doctorIds) // Filtrar por doctores (elaborado_por)
+      ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
+      ->groupBy('elaborado_por', 'lente_contacto')
+      ->get();
+
+    // Asignar cantidades a cada doctor
+    foreach ($ordenes as $orden) {
+      if (isset($resultados[$orden->elaborado_por])) {
+        if ($orden->lente_contacto == 1) {
+          $resultados[$orden->elaborado_por]['lente_contacto'] += $orden->cantidad;
+        } else {
+          $resultados[$orden->elaborado_por]['lente_normal'] += $orden->cantidad;
+        }
+      }
+    }
+
+    // Convertir resultados a un array de respuesta
+    $finalResults = array_values($resultados);
+
+    return response()->json([
+      'data' => $finalResults
+    ]);
+  }
+
+
 
 
 

@@ -48,12 +48,13 @@ const CollapsibleTable = (
     correcionesbyOrden,
     contactoCorreccionOrden
   } = useSelector((state) => state.correcionesordenes);
+  const { permisos } = useSelector((state) => state.auth);
+
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
   const currentPage = currentPageTable;
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
-  const { permisos } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -341,6 +342,7 @@ const CollapsibleTable = (
     status: '5%',
     action: '10%'
   };
+
   return (
     <div
       className="dataTables_wrapper container-fluid dt-bootstrap4"
@@ -419,7 +421,10 @@ const CollapsibleTable = (
                     <td>{`${orden.paciente?.nombres} ${orden?.paciente?.apellidos}`}</td>
                     <td>{orden?.paciente?.celular}</td>
                     <td>{orden?.laboratorio}</td>
-                    <td>{orden?.fase_actual}</td>
+                    <td>
+                      <div>{orden?.fase_actual}</div>
+                      <div>{orden?.elaborado_por_fase}</div>
+                    </td>
                     <td>
                       <Tooltip title={orden?.status ?? ""}>
                         <span
@@ -510,6 +515,7 @@ const CollapsibleTable = (
                         >
                           <WhatsAppOutlined />
                         </button>
+
                         {
                           funPermisosObtenidosBoolean(permisos, 'sidebar.recetas.ordenes.eliminarorden')
                             ? <button
@@ -534,6 +540,7 @@ const CollapsibleTable = (
                             </button>
                             : null
                         }
+
 
                       </div>
                     </td>
