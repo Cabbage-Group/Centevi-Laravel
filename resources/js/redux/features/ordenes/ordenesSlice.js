@@ -123,7 +123,7 @@ const ordenesSlice = createSlice({
     data: [],
     ordenes: [],
     pacienteOrdenes: [],
-    contactoOrden  : [],
+    contactoOrden: [],
     ordenes_options_selecteds: [],
     nro_orden_auto: [],
     total: 0,
@@ -161,11 +161,11 @@ const ordenesSlice = createSlice({
         state.total = action.payload.meta.total
         state.ordenes_options_selecteds = action.payload.data.map((
           { id_orden, nro_orden_id, paciente, ...rest }) =>
-            paciente?.id_paciente && paciente?.nombres && paciente?.apellidos
+          paciente?.id_paciente && paciente?.nombres && paciente?.apellidos
             ? {
-                value: id_orden,
-                label: `Nro Orden: ${nro_orden_id} || Nombre: ${paciente.nombres.trim()} ${paciente.apellidos.trim()}`,
-                ...rest
+              value: id_orden,
+              label: `Nro Orden: ${nro_orden_id} || Nombre: ${paciente.nombres.trim()} ${paciente.apellidos.trim()}`,
+              ...rest
             } :
             { ...rest }
         );
@@ -180,7 +180,7 @@ const ordenesSlice = createSlice({
       .addCase(createOrdenes.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.ordenes.push(action.payload.data);
-        state.nro_orden_auto =  action.payload.data[0].nro_orden_id;
+        state.nro_orden_auto = action.payload.data[0].nro_orden_id;
       })
       .addCase(createOrdenes.rejected, (state, action) => {
         state.status = 'failed';

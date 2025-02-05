@@ -230,7 +230,7 @@ const RoutesApp = () => {
 
           <Route path="/crear-correciones-ordenes" element={<Sidebar component={<CreateCorrecionOrden />} />} />
 
-          
+
           <Route path="/correciones-ordenes/:correccionOrderId" element={<Sidebar component={<CorrecionOrden />} />} />
 
           <Route path="/diseño" element={<Sidebar component={<CorrecionOrden />} />} />
@@ -239,7 +239,7 @@ const RoutesApp = () => {
 
           <Route path="/caracteristicas-cristales" element={<Sidebar component={<SegmentedTablesPage />} />} />
 
-      
+
 
         </Route>
 

@@ -12,8 +12,20 @@ class TratamientosApiController extends Controller
   public function index(Request $request)
   {
     try {
-      // Obtener todos los tipos de usuarios
       $tratamientos = Tratamientos::all();
+
+      // Verificar la codificación de los datos
+      foreach ($tratamientos as $tratamiento) {
+        foreach ($tratamiento->getAttributes() as $key => $value) {
+          if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+            return response()->json([
+              'success' => false,
+              'message' => "Caracteres mal codificados en el campo '$key'",
+              'data' => $value,
+            ], 500);
+          }
+        }
+      }
 
       return response()->json([
         'success' => true,

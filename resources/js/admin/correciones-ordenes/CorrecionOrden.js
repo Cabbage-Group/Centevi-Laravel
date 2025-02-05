@@ -16,13 +16,13 @@ import {
 import Swal from 'sweetalert2';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import EditarCorrecionOrden from './EditarCorrecionorden';
 import { createCorreccionesFasesOrdenes } from '../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
 import CorreccionNuevo from './fases/CorreccionNuevo';
 import CorreccionEnConfeccion from './fases/CorreccionEnConfeccion';
 import CorreccionListo from './fases/CorreccionListo';
 import CorreccionRetirado from './fases/CorreccionRetirado';
 import { setFaseFilter, setFechaInicioFilter, setLaboratorioFilter, setPagadoFilter, setStatusFilter, setSucursalFilter, setTipoLenteFilter } from '../../redux/features/ordenes/fasesOrdenesSlice';
+import EditarCorrecionOrden from './EditarCorrecionOrden';
 
 const CorrecionOrden = () => {
 
@@ -48,7 +48,7 @@ const CorrecionOrden = () => {
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(correcion?.created_at);
   const [mensaje, setMensaje] = useState(
-    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
   const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.sucursal);
   const [nombrePaciente, setNombrePaciente] = useState('');

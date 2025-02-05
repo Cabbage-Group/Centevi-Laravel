@@ -29,6 +29,7 @@ class FasesOrdenes extends Model
     'ordenes_id' => 'integer', // Asegura que siempre sea tratado como un número entero
     'tipo_fase_orden_id' => 'integer', // Asegura que siempre sea tratado como un número entero
     'status' => 'integer', // Asegura que siempre sea tratado como un número entero
+    'elaborado_por' => 'integer', // Asegura que siempre sea tratado como un número entero
   ];
 
 
@@ -39,7 +40,7 @@ class FasesOrdenes extends Model
 
   public function contactosOrdenes()
   {
-      return $this->hasMany(ContactoOrden::class, 'fase_orden_id');
+    return $this->hasMany(ContactoOrden::class, 'fase_orden_id');
   }
 
 }

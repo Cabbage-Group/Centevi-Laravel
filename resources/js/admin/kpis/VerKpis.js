@@ -350,33 +350,57 @@ const VerKpis = () => {
       chunkedSucursales.push(sucursales.slice(i, i + 12));
     }
     return (
-      <div style={{ display: 'flex', gap: '20px' }}>
-        {chunkedSucursales.map((chunk, chunkIndex) => (
-          <div key={chunkIndex} style={{
-            display: 'flex',
-            flexDirection: 'column', // Asegura que los elementos estén en columnas
-            gap: '8px',
-          }}>
-            {chunk.map((sucursal, index) => {
-              const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
-              return (
-                <div key={sucursal.id_sucursal} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
-                  <Checkbox
-                    checked={activeLines.includes(sucursal.id_sucursal)}
-                    onChange={(e) => handleCheckboxChange(sucursal.id_sucursal, e.target.checked)}
-                    style={{ marginRight: '5px' }}
-                  />
-                  <span
-                    style={{ color: lineColor, fontSize: '12px', width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                    title={sucursal.nombre} // Muestra el nombre completo cuando se pasa el mouse
-                  >
-                    {sucursal.nombre}
-                  </span>
-                </div>
-              );
-            })}
+
+      <div>
+        <div
+          style={{
+            marginBottom: '10px',
+            marginLeft: '10px'
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAll}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAll}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
           </div>
-        ))}
+        </div>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {chunkedSucursales.map((chunk, chunkIndex) => (
+            <div key={chunkIndex} style={{
+              display: 'flex',
+              flexDirection: 'column', // Asegura que los elementos estén en columnas
+              gap: '8px',
+            }}>
+              {chunk.map((sucursal, index) => {
+                const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
+                return (
+                  <div key={sucursal.id_sucursal} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
+                    <Checkbox
+                      checked={activeLines.includes(sucursal.id_sucursal)}
+                      onChange={(e) => handleCheckboxChange(sucursal.id_sucursal, e.target.checked)}
+                      style={{ marginRight: '5px' }}
+                    />
+                    <span
+                      style={{ color: lineColor, fontSize: '12px', width: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      title={sucursal.nombre} // Muestra el nombre completo cuando se pasa el mouse
+                    >
+                      {sucursal.nombre}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
@@ -391,41 +415,67 @@ const VerKpis = () => {
     }
 
     return (
-      <div style={{ display: 'flex', gap: '20px' }}>
-        {chunkedDoctores.map((chunk, chunkIndex) => (
-          <div key={chunkIndex} style={{
-            display: 'flex',
-            flexDirection: 'column', // Asegura que los elementos estén en columnas
-            gap: '8px',
-          }}>
-            {chunk.map((doctor, index) => {
-              const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
-              return (
-                <div key={doctor.value} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
-                  <Checkbox
-                    checked={activeLinesDoctores.includes(doctor.value)}
-                    onChange={(e) => handleCheckboxChangeDoctores(doctor.value, e.target.checked)}
-                    style={{ marginRight: '5px' }}
-                  />
-                  <span
-                    style={{
-                      color: lineColor,
-                      fontSize: '12px',
-                      width: '150px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                    title={doctor.label} // Muestra el nombre completo cuando se pasa el mouse
-                  >
-                    {doctor.label}
-                  </span>
-                </div>
-              );
-            })}
+      <div>
+
+        <div
+          style={{
+            marginBottom: '10px',
+            marginLeft: '10px'
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAllDoctores}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAllDoctores}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
           </div>
-        ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {chunkedDoctores.map((chunk, chunkIndex) => (
+            <div key={chunkIndex} style={{
+              display: 'flex',
+              flexDirection: 'column', // Asegura que los elementos estén en columnas
+              gap: '8px',
+            }}>
+              {chunk.map((doctor, index) => {
+                const lineColor = colors[(chunkIndex * 12 + index) % colors.length];
+                return (
+                  <div key={doctor.value} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
+                    <Checkbox
+                      checked={activeLinesDoctores.includes(doctor.value)}
+                      onChange={(e) => handleCheckboxChangeDoctores(doctor.value, e.target.checked)}
+                      style={{ marginRight: '5px' }}
+                    />
+                    <span
+                      style={{
+                        color: lineColor,
+                        fontSize: '12px',
+                        width: '150px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                      title={doctor.label} // Muestra el nombre completo cuando se pasa el mouse
+                    >
+                      {doctor.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
+
     );
   };
 
@@ -440,41 +490,64 @@ const VerKpis = () => {
     }
 
     return (
-      <div style={{ display: 'flex', gap: '20px' }}>
-        {chunkedUsuarios.map((chunk, chunkIndex) => (
-          <div key={chunkIndex} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-          }}>
-            {chunk.map((usuario, index) => {
-              const lineColor = colors[(chunkIndex * 10 + index) % colors.length];
-              return (
-                <div key={usuario.id_usuario} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
-                  <Checkbox
-                    checked={activeLinesUsuarios.includes(usuario.id_usuario)}
-                    onChange={(e) => handleCheckboxChangeUsuarios(usuario.id_usuario, e.target.checked)}
-                    style={{ marginRight: '5px' }}
-                  />
-                  <span
-                    style={{
-                      color: lineColor,
-                      fontSize: '12px',
-                      width: '150px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                    title={usuario.nombre} // Muestra el nombre completo cuando se pasa el mouse
-                  >
-                    {usuario.nombre}
-                  </span>
-                </div>
-              );
-            })}
+      <div>
+        <div
+          style={{
+            marginBottom: '10px',
+            marginLeft: '10px'
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
+            <button
+              onClick={handleSelectAllAsesores}
+              style={buttonStyle('green')}
+            >
+              Seleccionar Todo
+            </button>
+            <button
+              onClick={handleDeselectAllAsesores}
+              style={buttonStyle('red')}
+            >
+              Deseleccionar Todo
+            </button>
           </div>
-        ))}
+        </div>
+        <div style={{ display: 'flex' }}>
+          {chunkedUsuarios.map((chunk, chunkIndex) => (
+            <div key={chunkIndex} style={{
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {chunk.map((usuario, index) => {
+                const lineColor = colors[(chunkIndex * 10 + index) % colors.length];
+                return (
+                  <div key={usuario.id_usuario} style={{ display: 'flex', alignItems: 'center', marginLeft: '40px' }}>
+                    <Checkbox
+                      checked={activeLinesUsuarios.includes(usuario.id_usuario)}
+                      onChange={(e) => handleCheckboxChangeUsuarios(usuario.id_usuario, e.target.checked)}
+                      style={{ marginRight: '5px' }}
+                    />
+                    <span
+                      style={{
+                        color: lineColor,
+                        fontSize: '12px',
+                        width: '150px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                      title={usuario.nombre} // Muestra el nombre completo cuando se pasa el mouse
+                    >
+                      {usuario.nombre}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
+
     );
   };
 
@@ -500,10 +573,10 @@ const VerKpis = () => {
     backgroundColor: color === 'green' ? '#4CAF50' : '#F44336',
     color: 'white',
     border: 'none',
-    padding: '10px 20px',
+    padding: '5px 10px',
     borderRadius: '5px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '11px',
     fontWeight: 'bold',
     transition: 'background-color 0.3s',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -512,321 +585,328 @@ const VerKpis = () => {
 
   return (
     <div>
-      <ResponsiveContainer width="100%" height={300} >
-        <label>
-          Buscar por Fecha Sucursales:
-        </label>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <DateRangeSeparate onApply={handleDateApply} onReset={handleDateReset} />
-          <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
-            <label>
-              Filtrar por Tipo de Lente:
-            </label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona el tipo de lente"
-              onChange={handleLenteContactoChange}
-              value={lenteContactoFilter || undefined}
-              allowClear
-            >
-              <Select.Option value="1">
-                <img
-                  src="assets/img/recetas/lentesdecontacto.png"
-                  alt="Lente On"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente de Contacto
-              </Select.Option>
-              <Select.Option value="0">
-                <img
-                  src="assets/img/recetas/lentenormal.png"
-                  alt="Lente Off"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente Normal
-              </Select.Option>
-            </Select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
-            <button
-              onClick={handleSelectAll}
-              style={buttonStyle('green')}
-            >
-              Seleccionar Todo
-            </button>
-            <button
-              onClick={handleDeselectAll}
-              style={buttonStyle('red')}
-            >
-              Deseleccionar Todo
-            </button>
-          </div>
-        </div>
-        <LineChart
-          data={kpis}
-          margin={{ top: 20, right: 120, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip content={customTooltip} />
-          <Legend
-            content={renderLegend}
-            align="right"
-            verticalAlign="middle"
-            layout="vertical"
-          />
-          {renderLines()}
-        </LineChart>
-      </ResponsiveContainer>
 
-      <ResponsiveContainer width="100%" height={300} style={{ marginTop: '100px' }}>
-        <label>
-          Buscar por Fecha Asesores:
-        </label>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <div
+        style={{
+          background: 'white',
+          borderRadius: '8px',
+          height: '430px',
+          padding: '15px',
+          marginBottom: '20px'
+        }}
+      >
 
-          <DateRangeSeparate onApply={handleDateApplyAsesores} onReset={handleDateResetAsesores} />
-          <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
-            <label>
-              Filtrar por Tipo de Lente Asesores:
-            </label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona el tipo de lente"
-              onChange={handleLenteContactoChangeAsesores}
-              value={lenteContactoFilterAsesores || undefined}
-              allowClear
-            >
-              <Select.Option value="1">
-                <img
-                  src="assets/img/recetas/lentesdecontacto.png"
-                  alt="Lente On"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente de Contacto
-              </Select.Option>
-              <Select.Option value="0">
-                <img
-                  src="assets/img/recetas/lentenormal.png"
-                  alt="Lente Off"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente Normal
-              </Select.Option>
-            </Select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
-            <button
-              onClick={handleSelectAllAsesores}
-              style={buttonStyle('green')}
-            >
-              Seleccionar Todo
-            </button>
-            <button
-              onClick={handleDeselectAllAsesores}
-              style={buttonStyle('red')}
-            >
-              Deseleccionar Todo
-            </button>
-          </div>
-        </div>
-        <LineChart
-          data={kpisAsesores}
-          margin={{ top: 20, right: 120, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip content={customTooltip} />
-          <Legend
-            content={renderLegendAsesores}
-            align="right"
-            verticalAlign="middle"
-            layout="vertical"
-          />
-          {renderLinesAsesores()}
-        </LineChart>
-      </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height={300} >
 
-      <ResponsiveContainer width="100%" height={300} style={{ marginTop: '100px' }} >
-        <label >
-          Buscar por Fecha Doctores:
-        </label>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-
-          <DateRangeSeparate onApply={handleDateApplyDoctores} onReset={handleDateResetDoctores} />
-          <div style={{ display: "flex", flexDirection: "column", marginTop: '-32px' }}>
-            <label>
-              Filtrar por Tipo de Lente Doctores:
-            </label>
-
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona el tipo de lente"
-              onChange={handleLenteContactoChangeDoctores}
-              value={lenteContactoFilterDoctores || undefined}
-              allowClear
-            >
-              <Select.Option value="1">
-                <img
-                  src="assets/img/recetas/lentesdecontacto.png"
-                  alt="Lente On"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente de Contacto
-              </Select.Option>
-              <Select.Option value="0">
-                <img
-                  src="assets/img/recetas/lentenormal.png"
-                  alt="Lente Off"
-                  style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                />
-                Lente Normal
-              </Select.Option>
-            </Select>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <DateRangeSeparate
+              onApply={handleDateApply} onReset={handleDateReset}
+              showOneLine={false}
+            />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label>
+                Filtrar por Tipo de Lente:
+              </label>
+              <Select
+                mode="multiple"
+                style={{ width: '200px' }}
+                placeholder="Selecciona el tipo de lente"
+                onChange={handleLenteContactoChange}
+                value={lenteContactoFilter || undefined}
+                allowClear
+              >
+                <Select.Option value="1">
+                  <img
+                    src="assets/img/recetas/lentesdecontacto.png"
+                    alt="Lente On"
+                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                  />
+                  Lente de Contacto
+                </Select.Option>
+                <Select.Option value="0">
+                  <img
+                    src="assets/img/recetas/lentenormal.png"
+                    alt="Lente Off"
+                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                  />
+                  Lente Normal
+                </Select.Option>
+              </Select>
+            </div>
 
           </div>
-          <div style={{ display: "flex", flexDirection: "row", gap: "15px", marginTop: '-32px' }}>
-            <button
-              onClick={handleSelectAllDoctores}
-              style={buttonStyle('green')}
-            >
-              Seleccionar Todo
-            </button>
-            <button
-              onClick={handleDeselectAllDoctores}
-              style={buttonStyle('red')}
-            >
-              Deseleccionar Todo
-            </button>
-          </div>
-        </div>
-        <LineChart
-          data={kpisDoctores}
-          margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip content={customTooltip} />
-          <Legend
-            content={renderLegendDoctores}
-            align="right"
-            verticalAlign="middle"
-            layout="vertical"
-          />
-          {renderLinesDoctores()}
-        </LineChart>
-      </ResponsiveContainer>
-      <div>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Doctores</h2>
-        <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
-
-          <div style={{ display: 'flex', gap: '20px', flex: 4 }}>
-            {[{ data: kpisDoctoresOrdenes, selected: selectedDoctor, setSelected: setSelectedDoctor },
-            { data: kpisDoctoresFases, selected: selectedDoctor, setSelected: setSelectedDoctor },
-            { data: kpisDoctoresStatus, selected: selectedDoctor, setSelected: setSelectedDoctor }].map((item, index) => (
-              <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie
-                      data={item.data}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={renderCustomizedLabel}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {item.data.map((entry, i) => (
-                        <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-
-
-              </div>
-
-            ))}
-          </div>
-
-
-          {/* Radio Group fuera de la iteración */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Radio.Group onChange={(e) => setSelectedDoctor(e.target.value)} value={selectedDoctor}>
-              <Row gutter={[16, 16]}>
-                {doctorChunks.map((group, colIndex) => (
-                  <Col key={colIndex}>
-                    {group.map((doctor) => (
-                      <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
-                        {doctor.nombre}
-                      </Radio>
-                    ))}
-                  </Col>
-                ))}
-              </Row>
-            </Radio.Group>
-          </div>
-        </div>
+          <LineChart
+            data={kpis}
+            margin={{ top: 20, right: 0, left: 20, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip content={customTooltip} />
+            <Legend
+              content={renderLegend}
+              align="right"
+              verticalAlign="middle"
+              layout="vertical"
+            />
+            {renderLines()}
+          </LineChart>
+        </ResponsiveContainer>
       </div>
 
-      <div>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Asesores</h2>
-        <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
-          <div style={{ display: 'flex', gap: '20px', flex: 1 }}>
-            {[{ data: kpisAsesoresOrdenes, selected: selectedAsesor, setSelected: setSelectedAsesor },
-            { data: kpisAsesoresFases, selected: selectedAsesor, setSelected: setSelectedAsesor },
-            { data: kpisAsesoresStatus, selected: selectedAsesor, setSelected: setSelectedAsesor }].map((item, index) => (
-              <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie
-                      data={item.data}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={renderCustomizedLabel}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {item.data.map((entry, i) => (
-                        <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            ))}
-          </div>
 
-          {/* Radio Group fuera de la iteración */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Radio.Group onChange={(e) => setSelectedAsesor(e.target.value)} value={selectedAsesor}>
-              <Row gutter={[16, 16]}>
-                {asesoresChunk.map((group, colIndex) => (
-                  <Col key={colIndex}>
-                    {group.map((asesor) => (
-                      <Radio key={asesor.id_usuario} value={asesor.id_usuario} style={{ display: 'block' }}>
-                        {asesor.nombre}
-                      </Radio>
-                    ))}
-                  </Col>
-                ))}
-              </Row>
-            </Radio.Group>
+      <div
+        style={{
+          background: 'white',
+          borderRadius: '8px',
+          height: '430px',
+          padding: '15px',
+          marginBottom: '20px'
+        }}
+      >
+
+        <ResponsiveContainer width="100%" height={300}>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
+            <DateRangeSeparate
+              onApply={handleDateApplyAsesores} onReset={handleDateResetAsesores}
+              showOneLine={false}
+            />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label>
+                Filtrar por Tipo de Lente Asesores:
+              </label>
+              <Select
+                mode="multiple"
+                style={{ width: '200px' }}
+                placeholder="Selecciona el tipo de lente"
+                onChange={handleLenteContactoChangeAsesores}
+                value={lenteContactoFilterAsesores || undefined}
+                allowClear
+              >
+                <Select.Option value="1">
+                  <img
+                    src="assets/img/recetas/lentesdecontacto.png"
+                    alt="Lente On"
+                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                  />
+                  Lente de Contacto
+                </Select.Option>
+                <Select.Option value="0">
+                  <img
+                    src="assets/img/recetas/lentenormal.png"
+                    alt="Lente Off"
+                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                  />
+                  Lente Normal
+                </Select.Option>
+              </Select>
+            </div>
+
           </div>
-        </div>
+          <LineChart
+            data={kpisAsesores}
+            margin={{ top: 20, right: 0, left: 20, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip content={customTooltip} />
+            <Legend
+              content={renderLegendAsesores}
+              align="right"
+              verticalAlign="middle"
+              layout="vertical"
+            />
+            {renderLinesAsesores()}
+          </LineChart>
+        </ResponsiveContainer>
       </div>
+
+      <div
+        style={{
+          background: 'white',
+          borderRadius: '8px',
+          height: '430px',
+          padding: '15px'
+        }}
+      >
+        <ResponsiveContainer width="100%" height={300}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
+            <DateRangeSeparate
+              onApply={handleDateApplyDoctores} onReset={handleDateResetDoctores}
+              showOneLine={false}
+            />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label>
+                Filtrar por Tipo de Lente Doctores:
+              </label>
+
+              <Select
+                mode="multiple"
+                style={{ width: '200px' }}
+                placeholder="Selecciona el tipo de lente"
+                onChange={handleLenteContactoChangeDoctores}
+                value={lenteContactoFilterDoctores || undefined}
+                allowClear
+              >
+                <Select.Option value="1">
+                  <img
+                    src="assets/img/recetas/lentesdecontacto.png"
+                    alt="Lente On"
+                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                  />
+                  Lente de Contacto
+                </Select.Option>
+                <Select.Option value="0">
+                  <img
+                    src="assets/img/recetas/lentenormal.png"
+                    alt="Lente Off"
+                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
+                  />
+                  Lente Normal
+                </Select.Option>
+              </Select>
+
+            </div>
+
+          </div>
+          <LineChart
+            data={kpisDoctores}
+            margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip content={customTooltip} />
+            <Legend
+              content={renderLegendDoctores}
+              align="right"
+              verticalAlign="middle"
+              layout="vertical"
+            />
+            {renderLinesDoctores()}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+
+
+      {
+        // mostrarKpiPies == false
+        false == false
+          ? null
+          : <>
+            <div>
+              <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Doctores</h2>
+              <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
+
+                <div style={{ display: 'flex', gap: '20px', flex: 4 }}>
+                  {[{ data: kpisDoctoresOrdenes, selected: selectedDoctor, setSelected: setSelectedDoctor },
+                  { data: kpisDoctoresFases, selected: selectedDoctor, setSelected: setSelectedDoctor },
+                  { data: kpisDoctoresStatus, selected: selectedDoctor, setSelected: setSelectedDoctor }].map((item, index) => (
+                    <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+
+                      <ResponsiveContainer>
+                        <PieChart>
+                          <Pie
+                            data={item.data}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={renderCustomizedLabel}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {item.data.map((entry, i) => (
+                              <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+
+
+                    </div>
+
+                  ))}
+                </div>
+
+
+                {/* Radio Group fuera de la iteración */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Radio.Group onChange={(e) => setSelectedDoctor(e.target.value)} value={selectedDoctor}>
+                    <Row gutter={[16, 16]}>
+                      {doctorChunks.map((group, colIndex) => (
+                        <Col key={colIndex}>
+                          {group.map((doctor) => (
+                            <Radio key={doctor.id_usuario} value={doctor.id_usuario} style={{ display: 'block' }}>
+                              {doctor.nombre}
+                            </Radio>
+                          ))}
+                        </Col>
+                      ))}
+                    </Row>
+                  </Radio.Group>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 style={{ textAlign: 'center', marginBottom: '20px', marginTop: '60px' }}>Gráfico por Asesores</h2>
+              <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px', flex: 1 }}>
+                  {[{ data: kpisAsesoresOrdenes, selected: selectedAsesor, setSelected: setSelectedAsesor },
+                  { data: kpisAsesoresFases, selected: selectedAsesor, setSelected: setSelectedAsesor },
+                  { data: kpisAsesoresStatus, selected: selectedAsesor, setSelected: setSelectedAsesor }].map((item, index) => (
+                    <div key={index} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                      <ResponsiveContainer>
+                        <PieChart>
+                          <Pie
+                            data={item.data}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={renderCustomizedLabel}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {item.data.map((entry, i) => (
+                              <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Radio Group fuera de la iteración */}
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Radio.Group onChange={(e) => setSelectedAsesor(e.target.value)} value={selectedAsesor}>
+                    <Row gutter={[16, 16]}>
+                      {asesoresChunk.map((group, colIndex) => (
+                        <Col key={colIndex}>
+                          {group.map((asesor) => (
+                            <Radio key={asesor.id_usuario} value={asesor.id_usuario} style={{ display: 'block' }}>
+                              {asesor.nombre}
+                            </Radio>
+                          ))}
+                        </Col>
+                      ))}
+                    </Row>
+                  </Radio.Group>
+                </div>
+              </div>
+            </div>
+          </>
+      }
+
 
     </div>
   );

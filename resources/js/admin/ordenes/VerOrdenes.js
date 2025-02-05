@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import {setFechaRange } from '../../redux/features/ordenes/ordenesSlice';
+import { setFechaRange } from '../../redux/features/ordenes/ordenesSlice';
 import { Modal, Skeleton, Select, Table } from 'antd';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangePicker from '../reportes/DateRangePicker';
@@ -29,7 +29,7 @@ const VerOrdenes = () => {
   const {
     search,
     contactoOrden,
- } = useSelector((state) => state.ordenes);
+  } = useSelector((state) => state.ordenes);
 
 
   const {

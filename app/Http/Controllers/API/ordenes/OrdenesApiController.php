@@ -35,7 +35,7 @@ class OrdenesApiController extends Controller
     $fase = $request->input('fase', []);
 
     // Asegurarse de que se puede ordenar por created_at
-    $validSortColumns = ['id_orden', 'created_at', 'nro_order_id']; 
+    $validSortColumns = ['id_orden', 'created_at', 'nro_order_id'];
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'id_orden'; // Valor por defecto
     }
@@ -133,7 +133,7 @@ class OrdenesApiController extends Controller
         'primeras_fases.total_fases as total_fases',
         DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted"),
         DB::raw("COALESCE(ultimas_fases.fase_actual, 'Nuevo') as fase_actual"),
-        'ultimas_fases.elaborado_por_nombre as elaborado_por_fase' 
+        'ultimas_fases.elaborado_por_nombre as elaborado_por_fase'
         // DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual')
       );
     if (!empty($search)) {
@@ -169,15 +169,15 @@ class OrdenesApiController extends Controller
     }
     if (is_array($fase) && !empty($fase)) {
       $ordenes->where(function ($query) use ($fase) {
-          if (in_array('Nuevo', $fase)) {
-              // Si busca "Nuevo", debe incluir NULL también
-              $query->whereNull('ultimas_fases.fase_actual')
-                  ->orWhereIn('ultimas_fases.fase_actual', $fase);
-          } else {
-              $query->whereIn('ultimas_fases.fase_actual', $fase);
-          }
+        if (in_array('Nuevo', $fase)) {
+          // Si busca "Nuevo", debe incluir NULL también
+          $query->whereNull('ultimas_fases.fase_actual')
+            ->orWhereIn('ultimas_fases.fase_actual', $fase);
+        } else {
+          $query->whereIn('ultimas_fases.fase_actual', $fase);
+        }
       });
-  }
+    }
 
     if (is_array($status) && !empty($status)) {
       // Filtrar por valores específicos de status (como Ok, Critico, etc.)
@@ -231,146 +231,146 @@ class OrdenesApiController extends Controller
 
 
   public function createOrdenes(Request $request)
-{
+  {
     $validator = Validator::make($request->all(), [
-        "id_paciente" => 'nullable|integer',
-        'id_sucursal' => 'nullable|integer',
-        'elaborado_por' => 'nullable|integer',
-        'esfera_od' => 'nullable|string|max:255',
-        'esfera_oi' => 'nullable|string|max:255',
-        'cilindro_od' => 'nullable|string|max:255',
-        'cilindro_oi' => 'nullable|string|max:255',
-        'eje_od' => 'nullable|string|max:255',
-        'eje_oi' => 'nullable|string|max:255',
-        'add_od' => 'nullable|string|max:255',
-        'add_oi' => 'nullable|string|max:255',
-        'prisma_od' => 'nullable|string|max:255',
-        'prisma_oi' => 'nullable|string|max:255',
-        'distancia_od' => 'nullable|string|max:255',
-        'distancia_oi' => 'nullable|string|max:255',
-        'altura_od' => 'nullable|string|max:255',
-        'altura_oi' => 'nullable|string|max:255',
-        'tipo_cristal_od' => 'nullable|string|max:255',
-        'tipo_cristal_oi' => 'nullable|string|max:255',
-        'material_od' => 'nullable|string|max:255',
-        'material_oi' => 'nullable|string|max:255',
-        'tratamientos_od' => 'nullable|string|max:255',
-        'tratamientos_oi' => 'nullable|string|max:255',
-        'aro_centevi' => 'nullable|integer|min:0|max:1',
-        'aro_propio' => 'nullable|integer|min:0|max:1',
-        'codigo' => 'nullable|string|max:255',
-        'color' => 'nullable|string|max:255',
-        'marca' => 'nullable|string|max:255',
-        'tipo_aro' => 'nullable|string|max:255',
-        'doctor' => 'nullable|string|max:255',
-        'observaciones' => 'nullable|string|max:400',
-        'l_uno' => 'nullable|string|max:255',
-        'l_dos' => 'nullable|string|max:255',
-        'l_tres' => 'nullable|string|max:255',
-        'l_cuatro' => 'nullable|string|max:255',
-        'l_cinco' => 'nullable|string|max:255',
+      "id_paciente" => 'nullable|integer',
+      'id_sucursal' => 'nullable|integer',
+      'elaborado_por' => 'nullable|integer',
+      'esfera_od' => 'nullable|string|max:255',
+      'esfera_oi' => 'nullable|string|max:255',
+      'cilindro_od' => 'nullable|string|max:255',
+      'cilindro_oi' => 'nullable|string|max:255',
+      'eje_od' => 'nullable|string|max:255',
+      'eje_oi' => 'nullable|string|max:255',
+      'add_od' => 'nullable|string|max:255',
+      'add_oi' => 'nullable|string|max:255',
+      'prisma_od' => 'nullable|string|max:255',
+      'prisma_oi' => 'nullable|string|max:255',
+      'distancia_od' => 'nullable|string|max:255',
+      'distancia_oi' => 'nullable|string|max:255',
+      'altura_od' => 'nullable|string|max:255',
+      'altura_oi' => 'nullable|string|max:255',
+      'tipo_cristal_od' => 'nullable|string|max:255',
+      'tipo_cristal_oi' => 'nullable|string|max:255',
+      'material_od' => 'nullable|string|max:255',
+      'material_oi' => 'nullable|string|max:255',
+      'tratamientos_od' => 'nullable|string|max:255',
+      'tratamientos_oi' => 'nullable|string|max:255',
+      'aro_centevi' => 'nullable|integer|min:0|max:1',
+      'aro_propio' => 'nullable|integer|min:0|max:1',
+      'codigo' => 'nullable|string|max:255',
+      'color' => 'nullable|string|max:255',
+      'marca' => 'nullable|string|max:255',
+      'tipo_aro' => 'nullable|string|max:255',
+      'doctor' => 'nullable|string|max:255',
+      'observaciones' => 'nullable|string|max:400',
+      'l_uno' => 'nullable|string|max:255',
+      'l_dos' => 'nullable|string|max:255',
+      'l_tres' => 'nullable|string|max:255',
+      'l_cuatro' => 'nullable|string|max:255',
+      'l_cinco' => 'nullable|string|max:255',
     ]);
 
     if ($validator->fails()) {
-        return response()->json([
-            'respuesta' => false,
-            'mensaje' => 'Validation errors',
-            'data' => $validator->errors(),
-            'mensaje_dev' => "Oops, validation errors occurred."
-        ], 400);
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Validation errors',
+        'data' => $validator->errors(),
+        'mensaje_dev' => "Oops, validation errors occurred."
+      ], 400);
     }
 
     try {
-        DB::beginTransaction();
+      DB::beginTransaction();
 
-        // Crear un nuevo nro_orden
-        $nroOrden = NroOrden::create([]);
+      // Crear un nuevo nro_orden
+      $nroOrden = NroOrden::create([]);
 
-        // Definir valores predeterminados
-        $defaults = [
-            'elaborado_por' => 0,
-            'esfera_od' => '',
-            'esfera_oi' => '',
-            'cilindro_od' => '',
-            'cilindro_oi' => '',
-            'eje_od' => '',
-            'eje_oi' => '',
-            'add_od' => '',
-            'add_oi' => '',
-            'prisma_od' => '',
-            'prisma_oi' => '',
-            'distancia_od' => '',
-            'distancia_oi' => '',
-            'altura_od' => '',
-            'altura_oi' => '',
-            'tipo_cristal_od' => '',
-            'tipo_cristal_oi' => '',
-            'material_od' => '',
-            'material_oi' => '',
-            'tratamientos_od' => '',
-            'tratamientos_oi' => '',
-            'aro_centevi' => 0,
-            'aro_propio' => 0,
-            'codigo' => '',
-            'color' => '',
-            'marca' => '',
-            'tipo_aro' => '',
-            'doctor' => '',
-            'observaciones' => '',
-            'l_uno' => '',
-            'l_dos' => '',
-            'l_tres' => '',
-            'l_cuatro' => '',
-            'l_cinco' => '',
-            'pagado' => 0,
-            'lente_contacto' => 0,
-            'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
-        ];
+      // Definir valores predeterminados
+      $defaults = [
+        'elaborado_por' => 0,
+        'esfera_od' => '',
+        'esfera_oi' => '',
+        'cilindro_od' => '',
+        'cilindro_oi' => '',
+        'eje_od' => '',
+        'eje_oi' => '',
+        'add_od' => '',
+        'add_oi' => '',
+        'prisma_od' => '',
+        'prisma_oi' => '',
+        'distancia_od' => '',
+        'distancia_oi' => '',
+        'altura_od' => '',
+        'altura_oi' => '',
+        'tipo_cristal_od' => '',
+        'tipo_cristal_oi' => '',
+        'material_od' => '',
+        'material_oi' => '',
+        'tratamientos_od' => '',
+        'tratamientos_oi' => '',
+        'aro_centevi' => 0,
+        'aro_propio' => 0,
+        'codigo' => '',
+        'color' => '',
+        'marca' => '',
+        'tipo_aro' => '',
+        'doctor' => '',
+        'observaciones' => '',
+        'l_uno' => '',
+        'l_dos' => '',
+        'l_tres' => '',
+        'l_cuatro' => '',
+        'l_cinco' => '',
+        'pagado' => 2,
+        'lente_contacto' => 0,
+        'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
+      ];
 
-        // Extraer los códigos de los cristales
-        $tipoCristalOd = $request->input('tipo_cristal_od');
-        $tipoCristalOi = $request->input('tipo_cristal_oi');
+      // Extraer los códigos de los cristales
+      $tipoCristalOd = $request->input('tipo_cristal_od');
+      $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-        // Asignar el cristal según la prioridad
-        $cristalCodigo = null;
-        if ($tipoCristalOd) {
-            $cristalCodigo = explode(' | ', $tipoCristalOd)[0]; // Tomar el código antes del "|"
-        } elseif ($tipoCristalOi) {
-            $cristalCodigo = explode(' | ', $tipoCristalOi)[0]; // Tomar el código antes del "|"
-        }
+      // Asignar el cristal según la prioridad
+      $cristalCodigo = null;
+      if ($tipoCristalOd) {
+        $cristalCodigo = explode(' | ', $tipoCristalOd)[0]; // Tomar el código antes del "|"
+      } elseif ($tipoCristalOi) {
+        $cristalCodigo = explode(' | ', $tipoCristalOi)[0]; // Tomar el código antes del "|"
+      }
 
-        $cristal = null;
-        if ($cristalCodigo) {
-            $cristal = Cristales::where('codigo', $cristalCodigo)->first(); // Buscar cristal por código
-        }
+      $cristal = null;
+      if ($cristalCodigo) {
+        $cristal = Cristales::where('codigo', $cristalCodigo)->first(); // Buscar cristal por código
+      }
 
-        // Asignar el ID del cristal si se encuentra
-        $cristalId = $cristal ? $cristal->id : null;
-        $data = array_merge($defaults, $request->all(), ['cristal_id' => $cristalId]);
+      // Asignar el ID del cristal si se encuentra
+      $cristalId = $cristal ? $cristal->id : null;
+      $data = array_merge($defaults, $request->all(), ['cristal_id' => $cristalId]);
 
-        // Crear la orden en la base de datos
-        $orden = Ordenes::create($data);
+      // Crear la orden en la base de datos
+      $orden = Ordenes::create($data);
 
-        DB::commit();
+      DB::commit();
 
-        return response()->json([
-            'respuesta' => true,
-            'mensaje' => 'Orden registrada correctamente',
-            'data' => [$orden],
-            'mensaje_dev' => null
-        ], 201);
+      return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Orden registrada correctamente',
+        'data' => [$orden],
+        'mensaje_dev' => null
+      ], 201);
     } catch (\Exception $e) {
-        DB::rollBack();
+      DB::rollBack();
 
-        return response()->json([
-            'respuesta' => false,
-            'mensaje' => 'Error al registrar la orden',
-            'mensaje_dev' => $e->getMessage()
-        ], 500);
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Error al registrar la orden',
+        'mensaje_dev' => $e->getMessage()
+      ], 500);
     }
-}
+  }
 
-  
+
 
   public function updateOrden(Request $request, $id_orden)
   {
@@ -517,101 +517,101 @@ class OrdenesApiController extends Controller
 
   public function createFasesOrdenes(Request $request)
   {
-      $validatedData = $request->validate([
-          'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
-          'ordenes_id' => 'required|integer',
-          'laboratorio' => 'nullable|string|max:45',
-          'fecha_fase' => 'nullable|string|max:45',
-          'observacion' => 'nullable|string|max:400',
-          'status' => 'nullable|integer|min:0|max:1',
-          'created_at' => 'nullable|date_format:Y-m-d H:i:s',
-          'elaborado_por' => 'required|integer', 
+    $validatedData = $request->validate([
+      'tipo_fase_orden_id' => 'required|exists:tipos_fases_ordenes,id',
+      'ordenes_id' => 'required|integer',
+      'laboratorio' => 'nullable|string|max:45',
+      'fecha_fase' => 'nullable|string|max:45',
+      'observacion' => 'nullable|string|max:400',
+      'status' => 'nullable|integer|min:0|max:1',
+      'created_at' => 'nullable|date_format:Y-m-d H:i:s',
+      'elaborado_por' => 'required|integer',
+    ]);
+
+    $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
+      ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
+      ->first();
+
+    if ($existingFase) {
+      $updated = $existingFase->update([
+        'laboratorio' => $validatedData['laboratorio'],
+        'observacion' => $validatedData['observacion'],
+        'fecha_fase' => $validatedData['fecha_fase'],
+        'status' => $validatedData['status'] ?? $existingFase->status,
+        'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
+        'elaborado_por' => $validatedData['elaborado_por'],
       ]);
-  
-      $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
-          ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
-          ->first();
-  
-      if ($existingFase) {
-          $updated = $existingFase->update([
-              'laboratorio' => $validatedData['laboratorio'],
-              'observacion' => $validatedData['observacion'],
-              'fecha_fase' => $validatedData['fecha_fase'],
-              'status' => $validatedData['status'] ?? $existingFase->status,
-              'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
-              'elaborado_por' => $validatedData['elaborado_por'],
-          ]);
-  
-          if ($updated) {
-              return response()->json([
-                  'message' => 'Fase de orden actualizada exitosamente',
-                  'data' => $existingFase,
-              ], 200);
-          } else {
-              return response()->json([
-                  'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-              ], 500);
-          }
+
+      if ($updated) {
+        return response()->json([
+          'message' => 'Fase de orden actualizada exitosamente',
+          'data' => $existingFase,
+        ], 200);
       } else {
-          try {
-              $faseOrden = FasesOrdenes::create(array_merge(
-                  $validatedData,
-                  ['created_at' => $validatedData['created_at'] ?? now()]
-              ));
-  
-              return response()->json([
-                  'message' => 'Fase de orden creada exitosamente',
-                  'data' => $faseOrden,
-              ], 201);
-          } catch (\Exception $e) {
-              return response()->json([
-                  'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
-                  'error' => $e->getMessage(),
-              ], 500);
-          }
+        return response()->json([
+          'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
+        ], 500);
       }
+    } else {
+      try {
+        $faseOrden = FasesOrdenes::create(array_merge(
+          $validatedData,
+          ['created_at' => $validatedData['created_at'] ?? now()]
+        ));
+
+        return response()->json([
+          'message' => 'Fase de orden creada exitosamente',
+          'data' => $faseOrden,
+        ], 201);
+      } catch (\Exception $e) {
+        return response()->json([
+          'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
+          'error' => $e->getMessage(),
+        ], 500);
+      }
+    }
   }
-  
+
 
   public function updateFasesOrdenes(Request $request, $id)
   {
-      // Validar los datos de entrada
-      $validatedData = $request->validate([
-          'tipo_fase_orden_id' => 'nullable|exists:tipos_fases_ordenes,id',
-          'ordenes_id' => 'nullable|integer',
-          'laboratorio' => 'nullable|string|max:45',
-          'fecha_fase' => 'nullable|string|max:45',
-          'observacion' => 'nullable|string|max:400',
-          'elaborado_por' => 'nullable|string|max:100', // Agregado
-          'created_at' => 'nullable|date_format:Y-m-d H:i:s',
-          'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
-      ]);
-  
-      // Buscar la fase de orden por ID
-      $faseOrden = FasesOrdenes::find($id);
-  
-      if (!$faseOrden) {
-          return response()->json([
-              'message' => 'Fase de orden no encontrada.',
-          ], 404);
-      }
-  
-      try {
-          // Actualizar los datos del registro
-          $faseOrden->update(array_filter($validatedData)); // array_filter elimina valores nulos
-  
-          return response()->json([
-              'message' => 'Fase de orden actualizada exitosamente.',
-              'data' => $faseOrden,
-          ], 200);
-      } catch (\Exception $e) {
-          return response()->json([
-              'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-              'error' => $e->getMessage(),
-          ], 500);
-      }
+    // Validar los datos de entrada
+    $validatedData = $request->validate([
+      'tipo_fase_orden_id' => 'nullable|exists:tipos_fases_ordenes,id',
+      'ordenes_id' => 'nullable|integer',
+      'laboratorio' => 'nullable|string|max:45',
+      'fecha_fase' => 'nullable|string|max:45',
+      'observacion' => 'nullable|string|max:400',
+      'elaborado_por' => 'nullable|string|max:100', // Agregado
+      'created_at' => 'nullable|date_format:Y-m-d H:i:s',
+      'updated_at' => 'nullable|date_format:Y-m-d H:i:s',
+    ]);
+
+    // Buscar la fase de orden por ID
+    $faseOrden = FasesOrdenes::find($id);
+
+    if (!$faseOrden) {
+      return response()->json([
+        'message' => 'Fase de orden no encontrada.',
+      ], 404);
+    }
+
+    try {
+      // Actualizar los datos del registro
+      $faseOrden->update(array_filter($validatedData)); // array_filter elimina valores nulos
+
+      return response()->json([
+        'message' => 'Fase de orden actualizada exitosamente.',
+        'data' => $faseOrden,
+      ], 200);
+    } catch (\Exception $e) {
+      return response()->json([
+        'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
+        'error' => $e->getMessage(),
+      ], 500);
+    }
   }
-  
+
 
 
   public function reportesOrdenes(Request $request)
@@ -630,15 +630,18 @@ class OrdenesApiController extends Controller
     $doctor = $request->input('doctor', '');
     $asesor = $request->input('asesor', '');
 
-    $validSortColumns = ['id_orden', 
-    'created_at_formatted', 
-    'laboratorio', 'status', 
-    'lente_contacto', 
-    'doctor', 
-    'pagado',
-    'nro_orden_id',
-    'tipo_cristal_od_codigo', 
-    'tipo_cristal_oi_codigo'];
+    $validSortColumns = [
+      'id_orden',
+      'created_at_formatted',
+      'laboratorio',
+      'status',
+      'lente_contacto',
+      'doctor',
+      'pagado',
+      'nro_orden_id',
+      'tipo_cristal_od_codigo',
+      'tipo_cristal_oi_codigo'
+    ];
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'id_orden';
     }
@@ -650,11 +653,12 @@ class OrdenesApiController extends Controller
         DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
       )
       ->groupBy('ordenes_id');
-    
+
     $contadorFasesQueryCorrecciones = DB::table('fases_correcciones_ordenes')
-      ->select('correccion_ordenes_id', 
-          DB::raw('COUNT(*) as total_fases'),
-          DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+      ->select(
+        'correccion_ordenes_id',
+        DB::raw('COUNT(*) as total_fases'),
+        DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
       )
       ->groupBy('correccion_ordenes_id');
 
@@ -697,10 +701,10 @@ class OrdenesApiController extends Controller
 
     // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
-    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-    ->select(
-      'fo.ordenes_id',
-      DB::raw('
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->select(
+        'fo.ordenes_id',
+        DB::raw('
           CASE 
               WHEN fo.status = 1 THEN 
                   CASE 
@@ -718,21 +722,21 @@ class OrdenesApiController extends Controller
               ELSE 
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
-      ),
-      'fo.laboratorio as laboratorio_ultima_fase',
-      'fo.observacion as observacion_ultima_fase',
-      'fo.fecha_fase as fecha_ultima_fase'
-    )
-    ->whereRaw('fo.id = (
+        ),
+        'fo.laboratorio as laboratorio_ultima_fase',
+        'fo.observacion as observacion_ultima_fase',
+        'fo.fecha_fase as fecha_ultima_fase'
+      )
+      ->whereRaw('fo.id = (
       SELECT MAX(id) 
       FROM fases_ordenes 
       WHERE ordenes_id = fo.ordenes_id
   )');
 
-  $primeraFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
-    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
-    ->leftJoinSub($contadorFasesQueryCorrecciones, 'contador_fases', 'fo.correccion_ordenes_id', '=', 'contador_fases.correccion_ordenes_id')
-    ->select(
+    $primeraFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
+      ->leftJoinSub($contadorFasesQueryCorrecciones, 'contador_fases', 'fo.correccion_ordenes_id', '=', 'contador_fases.correccion_ordenes_id')
+      ->select(
         'fo.correccion_ordenes_id',
         'fo.laboratorio as laboratorio_primera_fase',
         'fo.observacion as observacion_primera_fase',
@@ -747,17 +751,17 @@ class OrdenesApiController extends Controller
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
                 ELSE "sin_status"
             END as status_primera_fase')
-    )
-    ->whereRaw('fo.id = (
+      )
+      ->whereRaw('fo.id = (
         SELECT MIN(id) 
         FROM fases_correcciones_ordenes 
         WHERE correccion_ordenes_id = fo.correccion_ordenes_id 
         AND tipo_fase_correccion_orden_id = 1
     )');
 
-$ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
-    ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
-    ->select(
+    $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
+      ->select(
         'fo.correccion_ordenes_id',
         DB::raw('
             CASE 
@@ -777,8 +781,8 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
         'fo.laboratorio as laboratorio_ultima_fase',
         'fo.observacion as observacion_ultima_fase',
         'fo.fecha_fase as fecha_ultima_fase'
-    )
-    ->whereRaw('fo.id = (
+      )
+      ->whereRaw('fo.id = (
         SELECT MAX(id) 
         FROM fases_correcciones_ordenes 
         WHERE correccion_ordenes_id = fo.correccion_ordenes_id
@@ -787,35 +791,35 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre',
-      'correciones' => function($query) use ($primeraFaseCorreccionQuery, $ultimaFaseCorreccionQuery) {
+      'correciones' => function ($query) use ($primeraFaseCorreccionQuery, $ultimaFaseCorreccionQuery) {
         $query->select(
-            'correciones_ordenes.*',
-            'usuarios.nombre as elaborado_por_nombre',
-            'ordenes.nro_orden_id',
-            'ordenes.lente_contacto',
-            'sucursales.nombre as nombre_sucursal',
-            'primeras_fases.laboratorio_primera_fase as laboratorio',
-            'primeras_fases.observacion_primera_fase as observacion',
-            'primeras_fases.fecha_primera_fase as fecha_fase',
-            'primeras_fases.status_primera_fase as status',
-            'primeras_fases.dias_transcurridos',
-            'primeras_fases.total_fases',
-            DB::raw("CASE WHEN ordenes.pagado = 1 THEN 'Sí' ELSE 'No' END AS pagado_nombre"),
-            DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_od, " | ", 1) as tipo_cristal_od_codigo'),
-            DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
-            DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
-            DB::raw("CONCAT(
+          'correciones_ordenes.*',
+          'usuarios.nombre as elaborado_por_nombre',
+          'ordenes.nro_orden_id',
+          'ordenes.lente_contacto',
+          'sucursales.nombre as nombre_sucursal',
+          'primeras_fases.laboratorio_primera_fase as laboratorio',
+          'primeras_fases.observacion_primera_fase as observacion',
+          'primeras_fases.fecha_primera_fase as fecha_fase',
+          'primeras_fases.status_primera_fase as status',
+          'primeras_fases.dias_transcurridos',
+          'primeras_fases.total_fases',
+          DB::raw("CASE WHEN ordenes.pagado = 1 THEN 'Sí' ELSE 'No' END AS pagado_nombre"),
+          DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_od, " | ", 1) as tipo_cristal_od_codigo'),
+          DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
+          DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
+          DB::raw("CONCAT(
                 ordenes.nro_orden_id, 
                 '-C', 
                 ROW_NUMBER() OVER (PARTITION BY correciones_ordenes.ordenes_id ORDER BY correciones_ordenes.created_at)
             ) as correcion_format")
         )
-        ->join('ordenes', 'correciones_ordenes.ordenes_id', '=', 'ordenes.id_orden')
-        ->join('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
-        ->join('usuarios', 'correciones_ordenes.elaborado_por', '=', 'usuarios.id_usuario')
-        ->leftJoinSub($primeraFaseCorreccionQuery, 'primeras_fases', 'correciones_ordenes.id', '=', 'primeras_fases.correccion_ordenes_id')
-        ->leftJoinSub($ultimaFaseCorreccionQuery, 'ultimas_fases', 'correciones_ordenes.id', '=', 'ultimas_fases.correccion_ordenes_id');
-    }
+          ->join('ordenes', 'correciones_ordenes.ordenes_id', '=', 'ordenes.id_orden')
+          ->join('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+          ->join('usuarios', 'correciones_ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+          ->leftJoinSub($primeraFaseCorreccionQuery, 'primeras_fases', 'correciones_ordenes.id', '=', 'primeras_fases.correccion_ordenes_id')
+          ->leftJoinSub($ultimaFaseCorreccionQuery, 'ultimas_fases', 'correciones_ordenes.id', '=', 'ultimas_fases.correccion_ordenes_id');
+      }
     ])
       ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
@@ -838,9 +842,9 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
         DB::raw('COALESCE(primeras_fases.laboratorio_primera_fase, "") as laboratorio'),
         DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
         DB::raw("CASE WHEN pagado = 1 THEN 'Sí' ELSE 'No' END AS pagado_nombre"),
-        DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted") 
+        DB::raw("DATE_FORMAT(ordenes.created_at, '%d-%m-%Y') as created_at_formatted")
       );
-      
+
     if (!empty($search)) {
       $ordenes->where(function ($query) use ($search) {
         $query->where('ordenes.id_orden', 'like', "%{$search}%")
@@ -928,7 +932,7 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
 
     $dataexport = $ordenes->orderBy($sortColumn, $sortOrder)->get();
 
-    
+
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
 
@@ -974,7 +978,7 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
     $search = $request->input('search', '');
 
     // Validate sort column
-    $validSortColumns = ['id_orden', 'created_at', 'nro_orden','nro_orden_id'];
+    $validSortColumns = ['id_orden', 'created_at', 'nro_orden', 'nro_orden_id'];
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'created_at';
     }
@@ -1061,7 +1065,7 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
           ->orWhere('usuarios.nombre', 'like', "%{$search}%")
           ->orWhere('ordenes.doctor', 'like', "%{$search}%")
           ->orWhere('ultimas_fases.fase_actual', 'like', "%{$search}%");
-          
+
       });
     }
 
@@ -1166,49 +1170,49 @@ $ultimaFaseCorreccionQuery = DB::table('fases_correcciones_ordenes as fo')
 
   public function migrarNroOrdenes()
   {
-      try {
-          DB::beginTransaction();
-  
-          // 1. Eliminar todos los registros de la tabla nro_ordenes
-          DB::table('nro_ordenes')->delete();
-  
-          // 2. Insertar los valores únicos de nro_orden desde la tabla ordenes en nro_ordenes
-          DB::table('nro_ordenes')->insertUsing(
-              ['id'],
-              DB::table('ordenes')->select('nro_orden')->distinct()
-          );
-  
-          // 3. Actualizar el campo nro_orden_id en la tabla ordenes
-          DB::table('ordenes')->update([
-              'nro_orden_id' => DB::raw("(SELECT id FROM nro_ordenes WHERE nro_ordenes.id = ordenes.nro_orden)")
-          ]);
-  
-          DB::commit();
-  
-          return response()->json([
-              'message' => 'Migración completada exitosamente.'
-          ], 200);
-      } catch (\Exception $e) {
-          DB::rollBack();
-          return response()->json([
-              'message' => 'Error al migrar los nro_ordenes.',
-              'error' => $e->getMessage()
-          ], 500);
-      }
+    try {
+      DB::beginTransaction();
+
+      // 1. Eliminar todos los registros de la tabla nro_ordenes
+      DB::table('nro_ordenes')->delete();
+
+      // 2. Insertar los valores únicos de nro_orden desde la tabla ordenes en nro_ordenes
+      DB::table('nro_ordenes')->insertUsing(
+        ['id'],
+        DB::table('ordenes')->select('nro_orden')->distinct()
+      );
+
+      // 3. Actualizar el campo nro_orden_id en la tabla ordenes
+      DB::table('ordenes')->update([
+        'nro_orden_id' => DB::raw("(SELECT id FROM nro_ordenes WHERE nro_ordenes.id = ordenes.nro_orden)")
+      ]);
+
+      DB::commit();
+
+      return response()->json([
+        'message' => 'Migración completada exitosamente.'
+      ], 200);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json([
+        'message' => 'Error al migrar los nro_ordenes.',
+        'error' => $e->getMessage()
+      ], 500);
+    }
   }
 
   public function getOrdenesConTotal()
-{
+  {
     $ordenes = Ordenes::all();
     $total = Ordenes::count();
 
     return response()->json([
-        'respuesta' => true,
-        'mensaje' => 'Órdenes obtenidas correctamente',
-        'total' => $total,
-        'data' => $ordenes
+      'respuesta' => true,
+      'mensaje' => 'Órdenes obtenidas correctamente',
+      'total' => $total,
+      'data' => $ordenes
     ], 200);
-}
+  }
 
 
 

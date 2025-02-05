@@ -18,6 +18,6 @@ class Materiales extends Model
     'nombre',
   ];
 
- 
+
 
 }

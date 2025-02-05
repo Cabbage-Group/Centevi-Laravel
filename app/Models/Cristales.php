@@ -18,6 +18,6 @@ class Cristales extends Model
     'nombre',
   ];
 
-
+ 
 
 }

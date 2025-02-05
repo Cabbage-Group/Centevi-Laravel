@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { DatePicker, Button, ConfigProvider } from "antd";
+import { DatePicker, Button, ConfigProvider, Col, Row } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import locale from "antd/es/locale/es_ES";
 
 dayjs.locale("es");
 
-const DateRangeSeparate = ({ onApply, onReset, disableDateRangeLimit, isMonthPicker }) => {
+const DateRangeSeparate = ({
+  onApply, onReset, disableDateRangeLimit, isMonthPicker,
+  showOneLine = true
+}) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -32,64 +35,90 @@ const DateRangeSeparate = ({ onApply, onReset, disableDateRangeLimit, isMonthPic
   };
 
   return (
-    <ConfigProvider locale={locale}>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {/* Condicionalmente renderizar DatePicker o MonthPicker */}
-        {isMonthPicker ? (
-          <DatePicker.MonthPicker
-            value={startDate}
-            onChange={(date) => {
-              setStartDate(date);
-              if (endDate && (date.add(1, "month").isBefore(endDate) || endDate.isBefore(date))) {
-                setEndDate(null);
-              }
-            }}
-            placeholder="Seleccionar mes de inicio"
-            format="YYYY-MM"
-            locale="es"
-          />
-        ) : (
-          <DatePicker
-            value={startDate}
-            onChange={(date) => {
-              setStartDate(date);
-              if (endDate && (date.add(30, "day").isBefore(endDate) || endDate.isBefore(date))) {
-                setEndDate(null);
-              }
-            }}
-            placeholder="Seleccionar fecha de inicio"
-            format="YYYY-MM-DD"
-            locale="es"
-          />
-        )}
-        
-        {isMonthPicker ? (
-          <DatePicker.MonthPicker
-            value={endDate}
-            onChange={(date) => setEndDate(date)}
-            placeholder="Seleccionar mes de fin"
-            format="YYYY-MM"
-            locale="es"
-            disabled={!startDate}
-          />
-        ) : (
-          <DatePicker
-            value={endDate}
-            onChange={(date) => setEndDate(date)}
-            placeholder="Seleccionar fecha de fin"
-            format="YYYY-MM-DD"
-            locale="es"
-            disabled={!startDate}
-            disabledDate={disabledEndDate}
-          />
-        )}
-        
-        <Button onClick={handleClear}>Limpiar</Button>
-        <Button onClick={handleApply} type="primary" disabled={!startDate || !endDate}>
-          Aplicar
-        </Button>
-      </div>
-    </ConfigProvider>
+    <div>
+      <label>Buscar por Fecha:</label>
+      <Row
+        gutter={[16, 16]}
+      >
+        <Col
+          xxl={16} xl={16} md={16}
+        >
+          <ConfigProvider locale={locale}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
+              <Row
+                gutter={[16, 16]}
+              >
+                <Col
+                  xxl={showOneLine ? 24 : 12} xl={showOneLine ? 24 : 12} md={showOneLine ? 24 : 12}
+                >
+                  {isMonthPicker ? (
+                    <DatePicker.MonthPicker
+                      value={startDate}
+                      onChange={(date) => {
+                        setStartDate(date);
+                        if (endDate && (date.add(1, "month").isBefore(endDate) || endDate.isBefore(date))) {
+                          setEndDate(null);
+                        }
+                      }}
+                      placeholder="Seleccionar mes de inicio"
+                      format="YYYY-MM"
+                      locale="es"
+                    />
+                  ) : (
+                    <DatePicker
+                      value={startDate}
+                      onChange={(date) => {
+                        setStartDate(date);
+                        if (endDate && (date.add(30, "day").isBefore(endDate) || endDate.isBefore(date))) {
+                          setEndDate(null);
+                        }
+                      }}
+                      placeholder="Seleccionar fecha de inicio"
+                      format="YYYY-MM-DD"
+                      locale="es"
+                    />
+                  )}
+                </Col>
+
+                <Col xxl={showOneLine ? 24 : 12} xl={showOneLine ? 24 : 12} md={showOneLine ? 24 : 12}>
+
+                  {isMonthPicker ? (
+                    <DatePicker.MonthPicker
+                      value={endDate}
+                      onChange={(date) => setEndDate(date)}
+                      placeholder="Seleccionar mes de fin"
+                      format="YYYY-MM"
+                      locale="es"
+                      disabled={!startDate}
+                    />
+                  ) : (
+                    <DatePicker
+                      value={endDate}
+                      onChange={(date) => setEndDate(date)}
+                      placeholder="Seleccionar fecha de fin"
+                      format="YYYY-MM-DD"
+                      locale="es"
+                      disabled={!startDate}
+                      disabledDate={disabledEndDate}
+                    />
+                  )}
+                </Col>
+              </Row>
+
+            </div>
+          </ConfigProvider>
+        </Col>
+        <Col xxl={8} xl={8} md={8}>
+          <Button onClick={handleClear}>Limpiar</Button>
+          <Button onClick={handleApply} type="primary" disabled={!startDate || !endDate}>
+            Aplicar
+          </Button>
+        </Col>
+      </Row>
+    </div>
+
+
   );
 };
 

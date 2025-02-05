@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Materiales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+ 
 class MaterialesApiController extends Controller
 {
   public function index(Request $request)

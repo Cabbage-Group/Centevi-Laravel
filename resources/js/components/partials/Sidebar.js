@@ -677,7 +677,7 @@ const Sidebar = (props) => {
                   )
                 }
 
-{
+                {
                   ValidarPermisos(
                     "sidebar.recetas.correcionesordenes",
                     <li>
@@ -695,18 +695,18 @@ const Sidebar = (props) => {
                   )
                 }
 
-                    <li>
-                      <Link to={"/caracteristicas-cristales"}>
-                        <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                          height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                          className="feather feather-git-commit">
-                          <circle cx="12" cy="12" r="4" />
-                          <line x1="1.05" y1="12" x2="7" y2="12" />
-                          <line x1="17.01" y1="12" x2="22.96" y2="12" />
-                        </svg></span> Caracteristicas Cristales
-                      </Link>
-                    </li>
+                <li>
+                  <Link to={"/caracteristicas-cristales"}>
+                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      className="feather feather-git-commit">
+                      <circle cx="12" cy="12" r="4" />
+                      <line x1="1.05" y1="12" x2="7" y2="12" />
+                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                    </svg></span> Caracteristicas Cristales
+                  </Link>
+                </li>
 
 
 
@@ -764,31 +764,7 @@ const Sidebar = (props) => {
                       <circle cx="12" cy="12" r="4" />
                       <line x1="1.05" y1="12" x2="7" y2="12" />
                       <line x1="17.01" y1="12" x2="22.96" y2="12" />
-                    </svg></span> Ver Kpis
-                  </Link>
-                </li>
-                <li>
-                  <Link to={"/ver-kpis-consultas-terapias"}>
-                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                      className="feather feather-git-commit">
-                      <circle cx="12" cy="12" r="4" />
-                      <line x1="1.05" y1="12" x2="7" y2="12" />
-                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
-                    </svg></span> Ver Kpis Consultas y Terapias
-                  </Link>
-                </li>
-                <li>
-                  <Link to={"/ver-kpis-ordenes"}>
-                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                      className="feather feather-git-commit">
-                      <circle cx="12" cy="12" r="4" />
-                      <line x1="1.05" y1="12" x2="7" y2="12" />
-                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
-                    </svg></span> Ver Kpis Ordenes
+                    </svg></span> Ordenes
                   </Link>
                 </li>
                 <li>
@@ -800,13 +776,38 @@ const Sidebar = (props) => {
                       <circle cx="12" cy="12" r="4" />
                       <line x1="1.05" y1="12" x2="7" y2="12" />
                       <line x1="17.01" y1="12" x2="22.96" y2="12" />
-                    </svg></span> Ver Kpis Tipos Lente
+                    </svg></span> Ordenes T. Lente
                   </Link>
                 </li>
+                <li>
+                  <Link to={"/ver-kpis-consultas-terapias"}>
+                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      className="feather feather-git-commit">
+                      <circle cx="12" cy="12" r="4" />
+                      <line x1="1.05" y1="12" x2="7" y2="12" />
+                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                    </svg></span> Consultas y Terapias
+                  </Link>
+                </li>
+                {/* <li>
+                  <Link to={"/ver-kpis-ordenes"}>
+                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      className="feather feather-git-commit">
+                      <circle cx="12" cy="12" r="4" />
+                      <line x1="1.05" y1="12" x2="7" y2="12" />
+                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                    </svg></span> Ver Kpis Ordenes
+                  </Link>
+                </li> */}
+
               </ul>
             </div>
 
-            
+
 
             <div className="ps__rail-x" style={{ left: 0, bottom: 0, }}>
               <div className="ps__thumb-x" tabIndex="0" style={{ left: 0, width: 0, }}></div>

@@ -19,6 +19,9 @@ class Marcas extends Model
     'lente_contacto'
   ];
 
- 
+  protected $casts = [
+    'lente_contacto' => 'integer'
+  ];
+
 
 }

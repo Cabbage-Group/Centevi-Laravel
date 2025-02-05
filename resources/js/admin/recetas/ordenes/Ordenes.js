@@ -23,7 +23,6 @@ import { createContactoOrden } from '../../../redux/features/contacto-orden/Cont
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
 import EditOrden from '../EditOrden';
-import EditarCorrecionOrden from '../../correciones-ordenes/EditarCorrecionorden';
 import { fetchUsuarios } from '../../../redux/features/usuarios/usuariosSlice';
 
 const Ordenes = () => {
@@ -57,7 +56,7 @@ const Ordenes = () => {
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at || pacienteOrden?.created_at);
   const [mensaje, setMensaje] = useState(
-    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} están listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm.  sábados de 8:00 am a 12:00 pm. La esperamos,Saludos'
+    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
   const [celular, setCelular] = useState('');
   const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
@@ -136,26 +135,26 @@ const Ordenes = () => {
     }
   }, [])
 
-const getOrderPhasesByType = (orderId) => {
-  return tiposFasesOrdenes.map((tipoFase) => ({
-    tipoFase: tipoFase.tipo_fase_orden, // Suponiendo que tiene un campo "nombre"
-    fasesOrdenes: tipoFase.fases_ordenes
-      .filter((faseOrden) => faseOrden.ordenes_id === parseInt(orderId))
-      .map((faseOrden) => ({
-        ...faseOrden,
-        nombreUsuario: usuarios.find((user) => user.id_usuario === faseOrden.elaborado_por)?.nombre || 'Desconocido'
-      })),
-  }));
-};
+  const getOrderPhasesByType = (orderId) => {
+    return tiposFasesOrdenes.map((tipoFase) => ({
+      tipoFase: tipoFase.tipo_fase_orden, // Suponiendo que tiene un campo "nombre"
+      fasesOrdenes: tipoFase.fases_ordenes
+        .filter((faseOrden) => faseOrden.ordenes_id === parseInt(orderId))
+        .map((faseOrden) => ({
+          ...faseOrden,
+          nombreUsuario: usuarios.find((user) => user.id_usuario === faseOrden.elaborado_por)?.nombre || 'Desconocido'
+        })),
+    }));
+  };
 
-  
+
   console.log('getOrderPhasesByType:', JSON.stringify(getOrderPhasesByType(86), null, 2));
 
 
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
       const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        console.log('tipoFase:',tipoFase.fases_ordenes)
+        console.log('tipoFase:', tipoFase.fases_ordenes)
         const hasCompleted = tipoFase.fases_ordenes.some(
           (faseOrden) =>
             faseOrden.ordenes_id === parseInt(orderId) &&
@@ -227,18 +226,18 @@ const getOrderPhasesByType = (orderId) => {
       default:
         icon = <FileAddOutlined />;
     }
-  
+
     const nombresUsuarios = fase.fasesOrdenes
       .map((faseOrden) => faseOrden.nombreUsuario)
-      .join(', '); 
-  
+      .join(', ');
+
     return {
       title: fase.tipoFase,
       description: nombresUsuarios || 'Desconocido', // Si no hay nombre, muestra 'Desconocido'
       icon: icon,
     };
   });
-  
+
 
   const avanzarFase = async (avanzar = true, completar = false) => {
     const result = await Swal.fire({
@@ -265,7 +264,7 @@ const getOrderPhasesByType = (orderId) => {
         setNivelStep(nivelStep + 1);
       }
 
-      
+
 
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
       dispatch(fecthTiposFasesOrdenes(orderId));
@@ -300,7 +299,7 @@ const getOrderPhasesByType = (orderId) => {
     const currentStepData = tiposFasesOrdenes[nivelStep]?.fases_ordenes?.find(
       fase => fase.ordenes_id === parseInt(orderId)
     );
-    
+
     return usuarios.find(
       user => user.id_usuario === currentStepData?.elaborado_por
     );
@@ -331,7 +330,7 @@ const getOrderPhasesByType = (orderId) => {
               items={itemsSteps}
               current={nivelStep}
             />
-          
+
           </div>
           <div>
             {nivelStep === 4 && (
@@ -349,7 +348,7 @@ const getOrderPhasesByType = (orderId) => {
                 >
                   Se completó todas las fases
                   <br />
-                 
+
                   <Link
                     to={`/crear-correciones-ordenes`}
                     className="btn btn-warning btnEditarReceta"

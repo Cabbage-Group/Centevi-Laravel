@@ -18,6 +18,6 @@ class Tratamientos extends Model
     'nombre',
   ];
 
- 
+
 
 }
