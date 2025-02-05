@@ -112,6 +112,10 @@
         border: 1px solid gray;
         padding: 3px 3px;
       }
+
+      .table-informacion .cell-no-border{
+        border-bottom: 1px solid white;
+      }
     </style>
 </head>
 <body>
@@ -146,9 +150,15 @@
         <th>Cilindro</th>
         <th>Eje</th>
         <th>ADD</th>
-        <th>PRISMA</th>
-        <th>DISTANCIA PUPILAR*</th>
-        <th>ALTURA</th>
+        @if($lente_contacto)
+          <th>Tipo de lente de contacto</th>
+          <th>Curva Base</th>
+          <th>Diametro</th>
+        @else
+          <th>PRISMA</th>
+          <th>DISTANCIA PUPILAR*</th>
+          <th>ALTURA</th>
+        @endif
       </tr>
       <tr class="row-table" style="font-family:'DejaVu Sans', sans-serif">
         <th>OD</th>
@@ -167,7 +177,7 @@
         <th>{{$eje_oi}}</th>
         <th>{{$add_oi}}</th>
         <th style="font-family:'DejaVu Sans', sans-serif">{{$prisma_oi}}</th>
-        <th>{{$distancia_oi}}</th>
+        <th class="{{ !$lente_contacto ? 'cell-no-border' : '' }}">{{$distancia_oi}}</th>
         <th>{{$altura_oi}}</th>
       </tr>
     </table>
