@@ -21,6 +21,7 @@ import {
   updateTratamientos
 } from "../../redux/features/tratamientos/tratamientosSlice";
 import { createMarcas, deleteMarcas, fetchMarcas, updateMarcas } from "../../redux/features/marcas/marcasSlice";
+import { createTiposAros, deleteTiposAros, fetchTiposAros, updateTiposAros } from "../../redux/features/tipos-aros/tiposArosSlice";
 
 const CristalesMaterialesTratamientos = () => {
   const dispatch = useDispatch();
@@ -37,13 +38,15 @@ const CristalesMaterialesTratamientos = () => {
   const { cristales } = useSelector((state) => state.cristales);
   const { materiales } = useSelector((state) => state.materiales);
   const { tratamientos } = useSelector((state) => state.tratamientos);
+  const { tiposAros } = useSelector((state) => state.tiposAros)
   const { marcas_lente_contacto, marcas_lente_normal } = useSelector((state) => state.marcas)
 
   useEffect(() => {
     dispatch(fetchCristales());
     dispatch(fetchMateriales());
     dispatch(fetchTratamientos());
-    dispatch(fetchMarcas())
+    dispatch(fetchMarcas());
+    dispatch(fetchTiposAros());
   }, [dispatch]);
 
   // Manejo del modal
@@ -60,10 +63,6 @@ const CristalesMaterialesTratamientos = () => {
     form.resetFields();
   };
 
-  const toggleLenteContacto = () => {
-    setIsLenteContacto((prev) => !prev);
-  };
-
   const handleSave = () => {
     form.validateFields().then(values => {
       if (editingItem) {
@@ -71,8 +70,9 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "Cristales") dispatch(updateCristales({ id: editingItem.id, ...values }));
         if (selectedTable === "Materiales") dispatch(updateMateriales({ id: editingItem.id, ...values }));
         if (selectedTable === "Tratamientos") dispatch(updateTratamientos({ id: editingItem.id, ...values }));
-        if (selectedTable === "MarcasLenteContacto") dispatch(updateMarcas({ id: editingItem.id, ...values }))
-        if (selectedTable === "MarcasLenteNormal") dispatch(updateMarcas({ id: editingItem.id, ...values }))
+        if (selectedTable === "MarcasLenteContacto") dispatch(updateMarcas({ id: editingItem.id, ...values }));
+        if (selectedTable === "MarcasLenteNormal") dispatch(updateMarcas({ id: editingItem.id, ...values }));
+        if (selectedTable === "TiposAros") dispatch(updateTiposAros({ id: editingItem.id, ...values }))
         message.success("Actualizado correctamente!");
       } else {
         if (selectedTable === "Cristales") dispatch(createCristales(values));
@@ -80,6 +80,7 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "Tratamientos") dispatch(createTratamientos(values));
         if (selectedTable === "MarcasLenteContacto") dispatch(createMarcas(values));
         if (selectedTable === "MarcasLenteNormal") dispatch(createMarcas(values));
+        if (selectedTable === "TiposAros") dispatch(createTiposAros(values));
         message.success("Creado correctamente!");
       }
       handleCancel();
@@ -96,8 +97,9 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "Cristales") dispatch(deleteCristales(id));
         if (selectedTable === "Materiales") dispatch(deleteMateriales(id));
         if (selectedTable === "Tratamientos") dispatch(deleteTratamientos(id));
-        if (selectedTable === "MarcasLenteContacto") dispatch(deleteMarcas(id))
-        if (selectedTable === "MarcasLenteNormal") dispatch(deleteMarcas(id))
+        if (selectedTable === "MarcasLenteContacto") dispatch(deleteMarcas(id));
+        if (selectedTable === "MarcasLenteNormal") dispatch(deleteMarcas(id));
+        if (selectedTable === "TiposAros") dispatch(deleteTiposAros(id));
         message.success("Eliminado correctamente!");
       }
     });
@@ -160,13 +162,14 @@ const CristalesMaterialesTratamientos = () => {
     Tratamientos: tratamientos || [],
     MarcasLenteContacto: marcas_lente_contacto || [],
     MarcasLenteNormal: marcas_lente_normal || [],
+    TiposAros: tiposAros || []
   };
 
 
   return (
     <div style={{ padding: "20px" }}>
       <Segmented
-        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal"]}
+        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal", "TiposAros"]}
         value={selectedTable}
         onChange={setSelectedTable}
         style={{ marginBottom: 20 }}

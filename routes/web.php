@@ -37,6 +37,7 @@ use App\Http\Controllers\API\terapias\Terapias_Optometria_Pediatrica_ApiControll
 use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
+use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use Illuminate\Support\Facades\View;
@@ -397,6 +398,14 @@ Route::post('/api/marcas', [MarcasApiController::class, 'create']);
 Route::delete('/api/marcas/{id}', [MarcasApiController::class, 'delete']);
 
 Route::put('/api/marcas/{id}', [MarcasApiController::class, 'update']);
+
+Route::get('/api/tipos-aros', [TiposArosApiController::class, 'index']);
+
+Route::post('/api/tipos-aros', [TiposArosApiController::class, 'create']);
+
+Route::delete('/api/tipos-aros/{id}', [TiposArosApiController::class, 'delete']);
+
+Route::put('/api/tipos-aros/{id}', [TiposArosApiController::class, 'update']);
 
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);

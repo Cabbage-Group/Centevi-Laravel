@@ -17,6 +17,7 @@ import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
 import { fetchMateriales } from '../../redux/features/materiales/materialesSlice';
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
+import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 
 const CreateOrden = () => {
 
@@ -31,6 +32,7 @@ const CreateOrden = () => {
   const { cristales_options_selecteds } = useSelector((state) => state.cristales)
   const { materiales_options_selecteds } = useSelector((state) => state.materiales)
   const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
+  const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
   const { marcas_options_selecteds, marcas_lente_normal_options_selecteds } = useSelector((state) => state.marcas)
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [selectedMarca, setSelectedMarca] = useState(null);
@@ -50,6 +52,8 @@ const CreateOrden = () => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
+
+  console.log('tipo_aro_options_selecteds:',tipo_aro_options_selecteds)
 
   useEffect(() => {
     if (id && pacientes_options_selecteds.length > 0) {
@@ -209,6 +213,7 @@ const CreateOrden = () => {
     dispatch(fetchCristales())
     dispatch(fetchMateriales())
     dispatch(fetchTratamientos())
+    dispatch(fetchTiposAros())
     dispatch(fetchMarcas())
   }, []);
 
@@ -1805,7 +1810,7 @@ const CreateOrden = () => {
                                                       showSearch
                                                       placeholder="Selecciona el tipo de aro"
                                                       value={tipoAro}
-                                                      options={tipoAroOptions}
+                                                      options={tipo_aro_options_selecteds}
                                                       style={{
                                                         width: "100%",
                                                         height: "40px",
@@ -1813,7 +1818,7 @@ const CreateOrden = () => {
                                                         fontWeight: "bold",
                                                       }}
                                                       onChange={(value) => {
-                                                        const selectedOption = tipoAroOptions.find(option => option.value === value);
+                                                        const selectedOption = tipo_aro_options_selecteds.find(option => option.value === value);
                                                         if (selectedOption) {
                                                           setTipoAro(selectedOption.label);
                                                           setFieldValue("tipo_aro", selectedOption.label);
