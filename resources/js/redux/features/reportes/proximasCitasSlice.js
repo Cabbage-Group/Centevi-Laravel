@@ -3,31 +3,43 @@ import axios from 'axios';
 import API from '../../../config/config';
 import moment from 'moment';
 
-
 const getCurrentDate = () => moment().format('YYYY-MM-DD');
-
 
 export const fetchProximasCitas = createAsyncThunk(
   'proximasCitas/fetchProximasCitas',
   async ({
     page = 1,
-    limit = 10,
+    limit = 20,
     orden = 'asc',
     ordenPor = 'PROXIMA_FECHA',
     startDate = '',
     endDate = '',
     search = '',
-    // doctor = null 
+    sucursales = [],
+    doctores = [],
+    hubo_contacto = [],
+    el_Contacto = []
+
   }) => {
     try {
       const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-      const params = { page, limit, orden, ordenPor, fecha, search };
-      // if (doctor) {
-      //   params.doctor = doctor;
-      // }
-
-      const response = await axios.get(`${API}/proximascitas`, { params })
+    
+      const response = await axios.post(`${API}/proximascitas`, 
+        { 
+          page,
+          limit,
+          orden,
+          ordenPor,
+          startDate,
+          endDate,
+          search,
+          fecha,
+          sucursales,
+          doctores,
+          hubo_contacto,
+          el_Contacto
+        },);
       return response.data
     } catch (error) {
       console.error('Error fetching pacientesProximasCitas:', error.response?.data || error.message);

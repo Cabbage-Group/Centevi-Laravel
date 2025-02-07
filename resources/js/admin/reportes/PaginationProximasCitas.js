@@ -3,8 +3,8 @@ import React from 'react';
 const PaginationProximasCitas= ({ onPageChange, meta }) => {
     const totalPages = Math.ceil(meta.total / meta.limit);
     const pageNumbers = [];
-    const maxPageNumbersToShow = 2;
-    const leftSide = maxPageNumbersToShow / 2;
+    const maxPageNumbersToShow = 5;
+    const leftSide = maxPageNumbersToShow / 5;
     const rightSide = maxPageNumbersToShow - leftSide;
 
     let startPage = Math.max(1, meta.page - leftSide);

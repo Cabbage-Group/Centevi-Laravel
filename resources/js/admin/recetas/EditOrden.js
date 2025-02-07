@@ -52,6 +52,7 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedMarca, setSelectedMarca] = useState(orden?.marca || pacienteOrden?.marca);
+  const [isLinkEnabled, setIsLinkEnabled] = useState(false);
 
 
   useEffect(() => {
@@ -458,17 +459,39 @@ const EditOrden = ({ fecha_solicitud }) => {
                             <Form
                             >
                               <div className="form-row" style={{ marginBottom: "2rem" }}>
-
-                                <div className="col-md-4" >
-                                  <img
-                                    alt="logo"
-                                    className="navbar-logo"
-                                    src="vistas/img/centevi-logo-in.png"
-                                    style={{
-                                      height: '80px'
-                                    }}
-                                  />
+                                <div className="col-md-4">
+                                  <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    width: '100%' // Ensure the container takes full width
+                                  }}>
+                                    <img
+                                      alt="logo"
+                                      className="navbar-logo d-block" // Added d-block to ensure image is block-level
+                                      src="vistas/img/centevi-logo-in.png"
+                                      style={{
+                                        height: '80px',
+                                        marginBottom: '15px',
+                                        width: 'auto' // Preserve aspect ratio
+                                      }}
+                                    />
+                                    <Link
+                                      to={selectedPaciente ? `/historia-paciente/${selectedPaciente}` : '#'}
+                                      style={{
+                                        pointerEvents: selectedPaciente ? 'auto' : 'none',
+                                        opacity: selectedPaciente ? 1 : 0.5,
+                                        cursor: selectedPaciente ? 'pointer' : 'not-allowed',
+                                        display: 'block', // Make link block-level
+                                        width: '100%', // Take full width of parent
+                                        textAlign: 'center' // Center the button
+                                      }}
+                                    >
+                                      <a className="btn btn-success">Ir a la Historia del paciente</a>
+                                    </Link>
+                                  </div>
                                 </div>
+
                                 <div className="col-md-4">
                                   <h4>
                                     Fecha de solicitud
@@ -524,9 +547,6 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     </button>
                                   </div>
                                 </div>
-
-
-
                                 <div className="form-group col-md-4" >
                                   <label htmlFor="pacientes">Pacientes*</label>
                                   <Select
