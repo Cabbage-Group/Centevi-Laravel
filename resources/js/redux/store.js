@@ -85,6 +85,7 @@ import kpisConsultasTerapiasSlice from './features/kpis/kpisConsultasTerapias/kp
 import kpisOrdenesSlice from './features/kpis/kpisOrdenes/kpisOrdenes'
 import marcasSlice from './features/marcas/marcasSlice'
 import kpisTipoLenteSlice from './features/kpis/kpisTiposLente/kpisTiposLente';
+import tiposArosSlice from './features/tipos-aros/tiposArosSlice'
 
 
 
@@ -198,7 +199,9 @@ const store = configureStore({
 
     marcas: marcasSlice,
 
-    kpisTipoLente: kpisTipoLenteSlice
+    kpisTipoLente: kpisTipoLenteSlice,
+
+    tiposAros: tiposArosSlice
 
 
   }

@@ -41,9 +41,13 @@ class KpisApiController extends Controller
     try {
       $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
       $endDate = $endDate ? Carbon::createFromFormat('Y-m-d-H:i', $endDate) : null;
+      
     } catch (\Exception $e) {
       return response()->json(['error' => 'Invalid date format'], 400);
     }
+
+
+
 
 
     $sucursales = DB::table('sucursales')->select('id_sucursal', 'nombre')->get();
@@ -1346,9 +1350,10 @@ class KpisApiController extends Controller
   public function obtenerLentesPorSucursal(Request $request)
   {
     // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
-    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
-    $endDate = $request->input('endDate', date('Y-m-d'));
+    $startDate = $request->input('startDate', date('Y-m-01', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-t'));
 
+   
     // Obtener el parámetro de sucursal, si se proporciona (puede ser un array)
     $sucursalIds = $request->input('sucursalIds', []); // Debe ser un array de IDs
 
@@ -1389,7 +1394,7 @@ class KpisApiController extends Controller
     }
 
     // Consultar las órdenes en el rango de fechas y filtradas por sucursal
-    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
       ->whereIn('id_sucursal', $sucursalIds) // Filtrar por sucursales múltiples
       ->selectRaw('id_sucursal, lente_contacto, COUNT(*) as cantidad')
       ->groupBy('id_sucursal', 'lente_contacto')
@@ -1406,6 +1411,8 @@ class KpisApiController extends Controller
       }
     }
 
+  
+
     // Convertir resultados a un array de respuesta
     $finalResults = array_values($resultados);
 
@@ -1417,8 +1424,8 @@ class KpisApiController extends Controller
   public function obtenerLentesPorUsuario(Request $request)
   {
     // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
-    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
-    $endDate = $request->input('endDate', date('Y-m-d'));
+    $startDate = $request->input('startDate', date('Y-m-01', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-t'));
 
     // Obtener el parámetro de usuarios (puede ser un array de IDs)
     $usuarioIds = $request->input('usuarioIds', []); // Debe ser un array de IDs de usuarios
@@ -1461,7 +1468,7 @@ class KpisApiController extends Controller
     }
 
     // Consultar las órdenes en el rango de fechas y filtradas por usuario (elaborado_por)
-    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
       ->whereIn('elaborado_por', $usuarioIds) // Filtrar por usuarios (elaborado_por)
       ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
       ->groupBy('elaborado_por', 'lente_contacto')
@@ -1489,8 +1496,10 @@ class KpisApiController extends Controller
   public function obtenerLentesPorDoctor(Request $request)
   {
     // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
-    $startDate = $request->input('startDate', date('Y-m-d', strtotime('-12 months')));
-    $endDate = $request->input('endDate', date('Y-m-d'));
+    $startDate = $request->input('startDate', date('Y-m-01', strtotime('-12 months')));
+    $endDate = $request->input('endDate', date('Y-m-t'));
+
+  
 
     // Obtener el parámetro de doctores (puede ser un array de IDs)
     $doctorIds = $request->input('doctorIds', []); // Debe ser un array de IDs de doctores
@@ -1534,7 +1543,7 @@ class KpisApiController extends Controller
     }
 
     // Consultar las órdenes en el rango de fechas y filtradas por doctor (elaborado_por)
-    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate])
+    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
       ->whereIn('elaborado_por', $doctorIds) // Filtrar por doctores (elaborado_por)
       ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
       ->groupBy('elaborado_por', 'lente_contacto')

@@ -65,10 +65,10 @@ const VerKpisTipoLente = () => {
 
   const handleDateReset = () => {
     const newEndDate = new Date();
-    const newStartDate = new Date(newEndDate);
-    newStartDate.setMonth(newEndDate.getMonth() - 12);
+    const newStartDate = new Date(newEndDate.getFullYear(), newEndDate.getMonth() - 12, 1);
+    const lastDayOfCurrentMonth = new Date(newEndDate.getFullYear(), newEndDate.getMonth() + 1, 0);
     const startDateFormatted = newStartDate.toISOString().split('T')[0];
-    const endDateFormatted = newEndDate.toISOString().split('T')[0];
+    const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
 
     setLocalStartDate(startDateFormatted);
     setLocalEndDate(endDateFormatted);
@@ -100,10 +100,10 @@ const VerKpisTipoLente = () => {
 
   const handleDateResetAsesores = () => {
     const newEndDate = new Date();
-    const newStartDate = new Date(newEndDate);
-    newStartDate.setMonth(newEndDate.getMonth() - 12);
+    const newStartDate = new Date(newEndDate.getFullYear(), newEndDate.getMonth() - 12, 1);
+    const lastDayOfCurrentMonth = new Date(newEndDate.getFullYear(), newEndDate.getMonth() + 1, 0);
     const startDateFormatted = newStartDate.toISOString().split('T')[0];
-    const endDateFormatted = newEndDate.toISOString().split('T')[0];
+    const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
 
     setLocalStartDateAsesores(startDateFormatted);
     setLocalEndDateAsesores(endDateFormatted);
@@ -121,11 +121,13 @@ const VerKpisTipoLente = () => {
 
   const handleDateResetDoctores = () => {
     const newEndDate = new Date();
-    const newStartDate = new Date(newEndDate);
-    newStartDate.setMonth(newEndDate.getMonth() - 12);
+    const newStartDate = new Date(newEndDate.getFullYear(), newEndDate.getMonth() - 12, 1);
+
+    const lastDayOfCurrentMonth = new Date(newEndDate.getFullYear(), newEndDate.getMonth() + 1, 0);
 
     const startDateFormatted = newStartDate.toISOString().split('T')[0];
-    const endDateFormatted = newEndDate.toISOString().split('T')[0];
+    const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
+
 
     setLocalStartDateDoctores(startDateFormatted);
     setLocalEndDateDoctores(endDateFormatted);
@@ -134,7 +136,6 @@ const VerKpisTipoLente = () => {
       endDate: endDateFormatted
     }));
   };
-
 
 
 
@@ -583,10 +584,6 @@ const VerKpisTipoLente = () => {
           </div>
         </Col>
       </Row>
-
-
-
-
     </ResponsiveContainer>
 
   );

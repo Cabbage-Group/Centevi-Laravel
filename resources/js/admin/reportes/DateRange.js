@@ -7,24 +7,34 @@ import locale from "antd/es/locale/es_ES";
 dayjs.locale("es");
 
 const DateRangeSeparate = ({
-  onApply, onReset, disableDateRangeLimit, isMonthPicker,
-  showOneLine = true
+  onApply,
+  onReset,
+  disableDateRangeLimit,
+  isMonthPicker,
+  showOneLine = true,
 }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  const handleApply = () => {
-    if (startDate && endDate) {
-      const formattedStartDate = startDate.format("YYYY-MM-DD");
-      const formattedEndDate = endDate.format("YYYY-MM-DD");
-      onApply?.(formattedStartDate, formattedEndDate);
+  const handleStartDateChange = (date) => {
+    if (!date) {
+      setStartDate(null);
+      setEndDate(null);
+      return;
     }
+    const newStartDate = date.startOf("month");
+    setStartDate(newStartDate);
+    setEndDate(null);
   };
 
-  const handleClear = () => {
-    setStartDate(null);
-    setEndDate(null);
-    onReset?.();
+  const handleEndDateChange = (date) => {
+    if (!date) {
+      setEndDate(null);
+      return;
+    }
+    const newEndDate = date.endOf("month");
+    setEndDate(newEndDate);
+    onApply?.(startDate.format("YYYY-MM-DD"), newEndDate.format("YYYY-MM-DD"));
   };
 
   const disabledEndDate = (current) => {
@@ -37,30 +47,16 @@ const DateRangeSeparate = ({
   return (
     <div>
       <label>Buscar por Fecha:</label>
-      <Row
-        gutter={[16, 16]}
-      >
-        <Col
-          xxl={16} xl={16} md={16}
-        >
+      <Row gutter={[16, 16]}>
+        <Col xxl={16} xl={16} md={16}>
           <ConfigProvider locale={locale}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-
-              <Row
-                gutter={[16, 16]}
-              >
-                <Col
-                  xxl={showOneLine ? 24 : 12} xl={showOneLine ? 24 : 12} md={showOneLine ? 24 : 12}
-                >
+              <Row gutter={[16, 16]}>
+                <Col xxl={showOneLine ? 24 : 12} xl={showOneLine ? 24 : 12} md={showOneLine ? 24 : 12}>
                   {isMonthPicker ? (
                     <DatePicker.MonthPicker
                       value={startDate}
-                      onChange={(date) => {
-                        setStartDate(date);
-                        if (endDate && (date.add(1, "month").isBefore(endDate) || endDate.isBefore(date))) {
-                          setEndDate(null);
-                        }
-                      }}
+                      onChange={handleStartDateChange}
                       placeholder="Seleccionar mes de inicio"
                       format="YYYY-MM"
                       locale="es"
@@ -68,25 +64,18 @@ const DateRangeSeparate = ({
                   ) : (
                     <DatePicker
                       value={startDate}
-                      onChange={(date) => {
-                        setStartDate(date);
-                        if (endDate && (date.add(30, "day").isBefore(endDate) || endDate.isBefore(date))) {
-                          setEndDate(null);
-                        }
-                      }}
+                      onChange={handleStartDateChange}
                       placeholder="Seleccionar fecha de inicio"
                       format="YYYY-MM-DD"
                       locale="es"
                     />
                   )}
                 </Col>
-
                 <Col xxl={showOneLine ? 24 : 12} xl={showOneLine ? 24 : 12} md={showOneLine ? 24 : 12}>
-
                   {isMonthPicker ? (
                     <DatePicker.MonthPicker
                       value={endDate}
-                      onChange={(date) => setEndDate(date)}
+                      onChange={handleEndDateChange}
                       placeholder="Seleccionar mes de fin"
                       format="YYYY-MM"
                       locale="es"
@@ -95,7 +84,7 @@ const DateRangeSeparate = ({
                   ) : (
                     <DatePicker
                       value={endDate}
-                      onChange={(date) => setEndDate(date)}
+                      onChange={handleEndDateChange}
                       placeholder="Seleccionar fecha de fin"
                       format="YYYY-MM-DD"
                       locale="es"
@@ -105,20 +94,18 @@ const DateRangeSeparate = ({
                   )}
                 </Col>
               </Row>
-
             </div>
           </ConfigProvider>
         </Col>
-        <Col xxl={8} xl={8} md={8}>
-          <Button onClick={handleClear}>Limpiar</Button>
-          <Button onClick={handleApply} type="primary" disabled={!startDate || !endDate}>
-            Aplicar
-          </Button>
-        </Col>
+
+          <Button onClick={() => {
+            setStartDate(null);
+            setEndDate(null);
+            onReset?.();
+          }}>Limpiar</Button>
+    
       </Row>
     </div>
-
-
   );
 };
 
