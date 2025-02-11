@@ -41,7 +41,7 @@ class KpisApiController extends Controller
     try {
       $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
       $endDate = $endDate ? Carbon::createFromFormat('Y-m-d-H:i', $endDate) : null;
-      
+
     } catch (\Exception $e) {
       return response()->json(['error' => 'Invalid date format'], 400);
     }
@@ -1353,7 +1353,7 @@ class KpisApiController extends Controller
     $startDate = $request->input('startDate', date('Y-m-01', strtotime('-12 months')));
     $endDate = $request->input('endDate', date('Y-m-t'));
 
-   
+
     // Obtener el parámetro de sucursal, si se proporciona (puede ser un array)
     $sucursalIds = $request->input('sucursalIds', []); // Debe ser un array de IDs
 
@@ -1411,7 +1411,7 @@ class KpisApiController extends Controller
       }
     }
 
-  
+
 
     // Convertir resultados a un array de respuesta
     $finalResults = array_values($resultados);
@@ -1499,7 +1499,7 @@ class KpisApiController extends Controller
     $startDate = $request->input('startDate', date('Y-m-01', strtotime('-12 months')));
     $endDate = $request->input('endDate', date('Y-m-t'));
 
-  
+
 
     // Obtener el parámetro de doctores (puede ser un array de IDs)
     $doctorIds = $request->input('doctorIds', []); // Debe ser un array de IDs de doctores

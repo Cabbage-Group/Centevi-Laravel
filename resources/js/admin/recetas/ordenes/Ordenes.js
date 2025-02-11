@@ -137,7 +137,7 @@ const Ordenes = () => {
 
   const getOrderPhasesByType = (orderId) => {
     return tiposFasesOrdenes.map((tipoFase) => ({
-      tipoFase: tipoFase.tipo_fase_orden, 
+      tipoFase: tipoFase.tipo_fase_orden,
       fasesOrdenes: tipoFase.fases_ordenes
         .filter((faseOrden) => faseOrden.ordenes_id === parseInt(orderId))
         .map((faseOrden) => ({
@@ -148,7 +148,7 @@ const Ordenes = () => {
   };
 
 
- 
+
 
 
   useEffect(() => {

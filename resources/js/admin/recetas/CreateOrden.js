@@ -53,7 +53,7 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
-  console.log('tipo_aro_options_selecteds:',tipo_aro_options_selecteds)
+  console.log('tipo_aro_options_selecteds:', tipo_aro_options_selecteds)
 
   useEffect(() => {
     if (id && pacientes_options_selecteds.length > 0) {

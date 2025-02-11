@@ -16,5 +16,5 @@ class TiposAros extends Model
   protected $fillable = [
     'nombre'
   ];
-  
+
 }

@@ -77,7 +77,7 @@ const tiposArosSlice = createSlice({
         state.status = 'succeeded';
         state.tiposAros = action.payload.data;
         state.tipo_aro_options_selecteds = action.payload.data
-          .filter(({ id,nombre }) => id  && nombre)
+          .filter(({ id, nombre }) => id && nombre)
           .map(({ id, nombre, ...rest }) => ({
             value: id,
             label: `${nombre}`,
@@ -109,7 +109,7 @@ const tiposArosSlice = createSlice({
         if (index !== -1) {
           state.tiposAros[index] = action.payload.data;
         }
-                         
+
       })
       .addCase(updateTiposAros.rejected, (state, action) => {
         state.status = 'failed';

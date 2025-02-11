@@ -98,12 +98,12 @@ const DateRangeSeparate = ({
           </ConfigProvider>
         </Col>
 
-          <Button onClick={() => {
-            setStartDate(null);
-            setEndDate(null);
-            onReset?.();
-          }}>Limpiar</Button>
-    
+        <Button onClick={() => {
+          setStartDate(null);
+          setEndDate(null);
+          onReset?.();
+        }}>Limpiar</Button>
+
       </Row>
     </div>
   );
