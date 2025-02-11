@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, } from 'recharts';
 import { useDispatch, useSelector } from 'react-redux';
-import { Checkbox } from 'antd';
-import { fetchKpisConsultasTerapias, fetchKpisConsultasTerapiasDoctores, fetchKpisPromedioFasesOrdenes, setFechaRangeConsultasTerapias, setFechaRangeConsultasTerapiasDoctores, setFechaRangePromedioFasesOrdenes } from '../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice';
+import { Checkbox, Select } from 'antd';
+import { fetchKpisConsultasPorDoctores, fetchKpisConsultasTerapias, fetchKpisConsultasTerapiasDoctores, fetchKpisTerapiasConsultasDoctor, fetchKpisTerapiasConsultasSucursales, fetchKpisTerapiasPorDoctores, setFechaRangeConsultasPorDoctores, setFechaRangeConsultasTerapias, setFechaRangeConsultasTerapiasDoctores, setFechaRangeTerapiasConsultasCYTDoctores, setFechaRangeTerapiasConsultasCYTSucursal } from '../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice';
 import DateRangeSeparate from '../../reportes/DateRange';
 import { fetchSucursales } from '../../../redux/features/sucursales/sucursalesSlice';
 import { fetchUsuarios } from '../../../redux/features/usuarios/usuariosSlice';
+import KpisConsultasTerapiasDoctores from './kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores';
+import KpisConsultasTerapiasSucursales from './kpisConsultasTerapiasSucursales/KpisConsultasTerapiasSucursales';
 
 
 const VerKpisConsultasTerapias = () => {
@@ -19,43 +21,6 @@ const VerKpisConsultasTerapias = () => {
     '#E74C3C',
     '#34495E',
   ];
-
-  const data = [
-    { name: "Group A", value: 16 },
-    { name: "Group B", value: 4 },
-
-  ];
-
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-
-  const RADIAN = Math.PI / 180;
-  const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-    index
-  }) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
   const dispatch = useDispatch();
 
   const {
@@ -65,7 +30,8 @@ const VerKpisConsultasTerapias = () => {
     endDate
   } = useSelector((state) => state.kpisConsultasTerapias)
   const {
-    usuarios_doctores_options_selecteds
+    usuarios_doctores_options_selecteds,
+    doctores_activados
   } = useSelector((state) => state.usuarios);
   const { sucursales } = useSelector((state) => state.sucursales);
   const [localStartDate, setLocalStartDate] = useState(startDate);
@@ -74,6 +40,9 @@ const VerKpisConsultasTerapias = () => {
   const [localEndDateDoctores, setLocalEndDateDoctores] = useState();
   const [activeLines, setActiveLines] = useState([]);
   const [activeLinesDoctores, setActiveLinesDoctores] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+
 
   const handleSelectAll = () => {
     const allIds = sucursales.map(sucursal => sucursal.id_sucursal);
@@ -130,13 +99,14 @@ const VerKpisConsultasTerapias = () => {
     dispatch(fetchKpisConsultasTerapiasDoctores({ startDate: localStartDateDoctores, endDate: localEndDateDoctores }));
   }, [dispatch, localStartDateDoctores, localEndDateDoctores]);
 
+
   useEffect(() => {
     dispatch(fetchSucursales({}));
   }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchUsuarios({}));
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     if (sucursales.length > 0) {
@@ -186,9 +156,6 @@ const VerKpisConsultasTerapias = () => {
     });
   };
 
-
-
-
   const handleCheckboxChange = (sucursalId, checked) => {
     setActiveLines(prevState => {
       if (checked) {
@@ -209,17 +176,11 @@ const VerKpisConsultasTerapias = () => {
     });
   };
 
-
-
   const renderLegend = () => {
-    // Dividir las sucursales en bloques de 9 elementos
     const chunkedSucursales = [];
     for (let i = 0; i < sucursales.length; i += 12) {
       chunkedSucursales.push(sucursales.slice(i, i + 12));
     }
-
-
-
     return (
       <div>
         <div
@@ -277,7 +238,6 @@ const VerKpisConsultasTerapias = () => {
   };
 
   const renderLegendDoctores = () => {
-    // Dividir los doctores en columnas de 7 elementos
     const chunkedDoctores = [];
     for (let i = 0; i < usuarios_doctores_options_selecteds.length; i += 12) {
       chunkedDoctores.push(usuarios_doctores_options_selecteds.slice(i, i + 12));
@@ -344,6 +304,17 @@ const VerKpisConsultasTerapias = () => {
       </div>
     );
   };
+
+
+
+
+  useEffect(() => {
+    if (doctores_activados.length > 0 && !selectedDoctor) {
+      setSelectedDoctor(doctores_activados[0].id_usuario);
+    }
+  }, [doctores_activados, selectedDoctor]);
+
+
 
   const customTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -464,6 +435,12 @@ const VerKpisConsultasTerapias = () => {
 
       </div>
 
+      <KpisConsultasTerapiasDoctores 
+        doctores_activados = {doctores_activados}  
+      />
+      <KpisConsultasTerapiasSucursales
+        sucursales = {sucursales}
+      />
     </div>
 
   );

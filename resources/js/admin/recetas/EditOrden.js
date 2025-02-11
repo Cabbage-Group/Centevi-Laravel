@@ -21,7 +21,10 @@ import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 
 
-const EditOrden = ({ fecha_solicitud }) => {
+const EditOrden = (
+   {fecha_solicitud}
+ 
+) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -53,7 +56,6 @@ const EditOrden = ({ fecha_solicitud }) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedMarca, setSelectedMarca] = useState(orden?.marca || pacienteOrden?.marca);
   const [isLinkEnabled, setIsLinkEnabled] = useState(false);
-
 
   useEffect(() => {
     if (orden?.lente_contacto || pacienteOrden?.lente_contacto) {
@@ -553,8 +555,8 @@ const EditOrden = ({ fecha_solicitud }) => {
                                     showSearch
                                     value={selectedPaciente}
                                     onChange={(value) => {
-                                      setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
-                                      setFieldValue("id_paciente", value); // También actualizar el campo de Formik
+                                      setSelectedPaciente(value); 
+                                      setFieldValue("id_paciente", value); 
                                     }}
                                     placeholder="Seleccione el paciente"
                                     filterOption={(input, option) => {

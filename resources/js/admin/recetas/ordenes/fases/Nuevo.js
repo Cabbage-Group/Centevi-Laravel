@@ -103,7 +103,6 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
         );
 
         if (faseOrden) {
-          console.log('faseOrden:', faseOrden)
           setLaboratorio(faseOrden.laboratorio);
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
@@ -206,7 +205,6 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   }
 
   const handleContactarPaciente = async () => {
-    // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
       tipo_fase_orden_id: tipoFaseId,
@@ -215,19 +213,16 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
     };
 
     try {
-      // Llamar a la API
       await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
-      // Abrir enlace de WhatsApp
       window.open(generateWhatsAppLink(), '_blank');
     } catch (error) {
       console.error('Error al crear contacto:', error);
     }
   };
 
-
-
+  
 
   return (
     <div>

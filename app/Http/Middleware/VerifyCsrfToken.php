@@ -190,5 +190,19 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/kpis/update-tipo-cristales',
 
+    'http://127.0.0.1:8000/api/kpis/terapias-consultas-doctor',
+
+    'http://127.0.0.1:8000/api/kpis/terapias-consultas-sucursales',
+
+    'http://127.0.0.1:8000/api/kpis/consultas-doctores',
+
+    'http://127.0.0.1:8000/api/kpis/terapias-doctores',
+
+    'http://127.0.0.1:8000/api/kpis/consultas-sucursales',
+
+    'http://127.0.0.1:8000/api/kpis/terapias-sucursales',
+
+    'http://127.0.0.1:8000/api/kpis/terapias-consultas-consulta-sucursal',
+
   ];
 }

@@ -196,6 +196,8 @@ Route::get('/api/documentos/{idPaciente}', [DocumentosPacientesApiController::cl
 
 
 
+
+
 Route::delete('/api/documentos/{idDocumento}', [DocumentosPacientesApiController::class, 'destroy']);
 
 
@@ -406,6 +408,20 @@ Route::post('/api/tipos-aros', [TiposArosApiController::class, 'create']);
 Route::delete('/api/tipos-aros/{id}', [TiposArosApiController::class, 'delete']);
 
 Route::put('/api/tipos-aros/{id}', [TiposArosApiController::class, 'update']);
+
+Route::post('/api/kpis/terapias-consultas-doctor', [KpisApiController::class, 'getConsultasYTerapiasPorDoctor']);
+
+Route::post('/api/kpis/terapias-consultas-sucursales', [KpisApiController::class, 'getConsultasYTerapiasPorSucursal']);
+
+Route::post('/api/kpis/consultas-doctores', [KpisApiController::class, 'getConsultasYTerapiasPorConsultaDoctor']);
+
+Route::post('/api/kpis/terapias-doctores', [KpisApiController::class, 'getConsultasYTerapiasPorTerapiaDoctor']);
+
+Route::post('/api/kpis/consultas-sucursales', [KpisApiController::class, 'getConsultasYTerapiasPorConsultaSucursal']);
+
+Route::post('/api/kpis/terapias-sucursales', [KpisApiController::class, 'getConsultasYTerapiasPorTerapiaSucursal']);
+
+Route::post('/api/kpis/terapias-consultas-consulta-sucursal', [KpisApiController::class, 'getConsultasYTerapiasPorConsultaSucursal']);
 
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);
