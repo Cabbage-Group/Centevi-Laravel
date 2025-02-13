@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DateRangeSeparate from "../../../reportes/DateRange";
 import { useDispatch, useSelector } from "react-redux";
-import { Checkbox, Select } from 'antd';
+import { Checkbox, Col, Row, Select } from 'antd';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, } from 'recharts';
 import { fetchKpisConsultasPorDoctores, fetchKpisTerapiasPorDoctores, setFechaRangeConsultasPorDoctores, setFechaRangeTerapiasPorDoctores } from "../../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice";
 
@@ -28,7 +28,7 @@ const KpisConsultasTerapiasDoctores = (
   const [terapiasFilter, setTerapiasFilter] = useState([]);
 
   useEffect(() => {
-    if (doctores_activados.length > 0) {
+    if (doctores_activados?.length > 0) {
       setActiveLinesConsultasPorDoctores(doctores_activados.map((doctor) => doctor.id_usuario));
       setActiveLinesTerapiasPorDoctores(doctores_activados.map((doctor) => doctor.id_usuario))
     }
@@ -147,7 +147,7 @@ const KpisConsultasTerapiasDoctores = (
 
   const renderLegendConsultasPorDoctores = () => (
     <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
-      {doctores_activados.map((doctor) => (
+      {doctores_activados?.map((doctor) => (
         <div key={doctor.id_usuario} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
@@ -181,27 +181,32 @@ const KpisConsultasTerapiasDoctores = (
       "#F39C12",
     ];
 
-    doctores_activados.forEach((doctor, index) => {
-      if (activeLinesConsultasPorDoctores.includes(doctor.id_usuario)) {
-        const doctorColor = doctorColors[index % doctorColors.length];
-        lines.push(
-          <Bar
-            key={doctor.id_usuario}
-            dataKey={doctor.nombre}
-            stackId="a"
-            fill={doctorColor}
-            barSize={70}
-          />
-        );
-      }
-    });
+    {
+      doctores_activados?.length > 0
+        ? doctores_activados.forEach((doctor, index) => {
+          if (activeLinesConsultasPorDoctores.includes(doctor.id_usuario)) {
+            const doctorColor = doctorColors[index % doctorColors.length];
+            lines.push(
+              <Bar
+                key={doctor.id_usuario}
+                dataKey={doctor.nombre}
+                stackId="a"
+                fill={doctorColor}
+                barSize={70}
+              />
+            );
+          }
+        })
+        : null
+    }
+
 
     return lines;
   };
 
   const renderLegendTerapiasPorDoctores = () => (
     <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
-      {doctores_activados.map((doctor) => (
+      {doctores_activados?.map((doctor) => (
         <div key={doctor.id_usuario} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
@@ -235,20 +240,23 @@ const KpisConsultasTerapiasDoctores = (
       "#F39C12",
     ];
 
-    doctores_activados.forEach((doctor, index) => {
-      if (activeLinesTerapiasPorDoctores.includes(doctor.id_usuario)) {
-        const doctorColor = doctorColors[index % doctorColors.length];
-        lines.push(
-          <Bar
-            key={doctor.id_usuario}
-            dataKey={doctor.nombre}
-            stackId="a"
-            fill={doctorColor}
-            barSize={70}
-          />
-        );
-      }
-    });
+    if (doctores_activados && doctores_activados.lenght > 0) {
+      doctores_activados?.forEach((doctor, index) => {
+        if (activeLinesTerapiasPorDoctores.includes(doctor.id_usuario)) {
+          const doctorColor = doctorColors[index % doctorColors.length];
+          lines.push(
+            <Bar
+              key={doctor.id_usuario}
+              dataKey={doctor.nombre}
+              stackId="a"
+              fill={doctorColor}
+              barSize={70}
+            />
+          );
+        }
+      });
+    }
+
 
     return lines;
   };
@@ -282,138 +290,152 @@ const KpisConsultasTerapiasDoctores = (
 
   return (
     <div>
-      <div
-        style={{
-          background: 'white',
-          padding: '15px',
-          height: '600px',
-          borderRadius: '15px',
-          marginTop: '15px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <DateRangeSeparate
-            onApply={handleDateApplyConsultasPorDoctores}
-            onReset={handleDateResetConsultasPorDoctores}
-            isMonthPicker={true}
-          />
+
+      <Row gutter={[16, 16]}>
+
+        {/* <Col xxl={12} xl={12} md={12}>
+          <div style={{ color: 'black', fontWeight: 'bold' }}>Reporteria de Consultas de doctores</div>
           <div
             style={{
-              display: "flex", flexDirection: "column", marginTop: '-32px',
-              borderLeft: '1px solid gray',
-              paddingLeft: '12px'
+              background: 'white',
+              padding: '15px',
+              height: '600px',
+              borderRadius: '15px',
+              marginTop: '15px',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-            <label>Filtrar por Consultas:</label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona las consultas"
-              onChange={handleChangeConsultas}
-              value={consultasFilter || undefined}
-              allowClear
-              direction="vertical"
-              options={opcionesConsultas}
-            >
-            </Select>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={kpisConsultasPorDoctores}
-              margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
-              isAnimationActive={false}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                interval={0}
-                tickFormatter={truncateXAxisConsultasPorDoctores}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <DateRangeSeparate
+                onApply={handleDateApplyConsultasPorDoctores}
+                onReset={handleDateResetConsultasPorDoctores}
+                isMonthPicker={true}
               />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} />
-              <Legend
-                verticalAlign="top"
-                align="center"
-                content={renderLegendConsultasPorDoctores}
-              />
-              {renderLinesConsultasPorDoctores()}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div >
+              <div
+                style={{
+                  display: "flex", flexDirection: "column", marginTop: '-32px',
+                  borderLeft: '1px solid gray',
+                  paddingLeft: '12px'
+                }}
+              >
+                <label>Filtrar por Consultas:</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: '200px' }}
+                  placeholder="Selecciona las consultas"
+                  onChange={handleChangeConsultas}
+                  value={consultasFilter || undefined}
+                  allowClear
+                  direction="vertical"
+                  options={opcionesConsultas}
+                >
+                </Select>
+              </div>
+            </div>
 
-      <div
-        style={{
-          background: 'white',
-          padding: '15px',
-          height: '600px',
-          borderRadius: '15px',
-          marginTop: '15px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <DateRangeSeparate
-            onApply={handleDateApplyTerapiasPorDoctores}
-            onReset={handleDateResetTerapiasPorDoctores}
-            isMonthPicker={true}
-          />
+            <div style={{ flex: 1, }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={kpisConsultasPorDoctores}
+                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                  isAnimationActive={false}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                    interval={0}
+                    tickFormatter={truncateXAxisConsultasPorDoctores}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} />
+                  <Legend
+                    verticalAlign="top"
+                    align="center"
+                    content={renderLegendConsultasPorDoctores}
+                  />
+                  {renderLinesConsultasPorDoctores()}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div >
+        </Col> */}
+
+
+        <Col xxl={12} xl={12} md={12}>
+          <div style={{ color: 'black', fontWeight: 'bold' }}>Reporteria de Terapias de doctores</div>
           <div
             style={{
-              display: "flex", flexDirection: "column", marginTop: '-32px',
-              borderLeft: '1px solid gray',
-              paddingLeft: '12px'
+              background: 'white',
+              padding: '15px',
+              height: '600px',
+              borderRadius: '15px',
+              marginTop: '15px',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
-
-            <label>Filtrar por Terapias:</label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona las terapias"
-              onChange={handleChangeTerapias}
-              value={terapiasFilter || undefined}
-              allowClear
-              direction="vertical"
-              options={opcionesTerapias}
-            >
-            </Select>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={kpisTerapiasPorDoctores}
-              margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
-              isAnimationActive={false}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                interval={0}
-                tickFormatter={truncateXAxisTerapiasPorDoctores}
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <DateRangeSeparate
+                onApply={handleDateApplyTerapiasPorDoctores}
+                onReset={handleDateResetTerapiasPorDoctores}
+                isMonthPicker={true}
               />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} />
-              <Legend
-                verticalAlign="top"
-                align="center"
-                content={renderLegendTerapiasPorDoctores}
-              />
-              {renderLinesTerapiasPorDoctores()}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div >
+              <div
+                style={{
+                  display: "flex", flexDirection: "column", marginTop: '-32px',
+                  borderLeft: '1px solid gray',
+                  paddingLeft: '12px'
+                }}
+              >
+
+                <label>Filtrar por Terapias:</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: '200px' }}
+                  placeholder="Selecciona las terapias"
+                  onChange={handleChangeTerapias}
+                  value={terapiasFilter || undefined}
+                  allowClear
+                  direction="vertical"
+                  options={opcionesTerapias}
+                >
+                </Select>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={kpisTerapiasPorDoctores}
+                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                  isAnimationActive={false}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                    interval={0}
+                    tickFormatter={truncateXAxisTerapiasPorDoctores}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} />
+                  <Legend
+                    verticalAlign="top"
+                    align="center"
+                    content={renderLegendTerapiasPorDoctores}
+                  />
+                  {renderLinesTerapiasPorDoctores()}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div >
+        </Col>
+      </Row>
+
+
+
     </div>
   );
 };

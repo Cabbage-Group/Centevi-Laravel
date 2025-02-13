@@ -461,23 +461,17 @@ const EditOrden = (
                             <Form
                             >
                               <div className="form-row" style={{ marginBottom: "2rem" }}>
-                                <div className="col-md-4">
+                                <div
+                                  className="col-md-4"
+                                  style={{
+                                    position: 'relative'
+                                  }}
+                                >
                                   <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    width: '100%' // Ensure the container takes full width
+                                    position: "absolute",
+                                    bottom: "10px",
+                                    left: "0"
                                   }}>
-                                    <img
-                                      alt="logo"
-                                      className="navbar-logo d-block" // Added d-block to ensure image is block-level
-                                      src="vistas/img/centevi-logo-in.png"
-                                      style={{
-                                        height: '80px',
-                                        marginBottom: '15px',
-                                        width: 'auto' // Preserve aspect ratio
-                                      }}
-                                    />
                                     <Link
                                       to={selectedPaciente ? `/historia-paciente/${selectedPaciente}` : '#'}
                                       style={{

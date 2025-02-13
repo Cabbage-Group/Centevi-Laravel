@@ -384,7 +384,7 @@ const CreateCorrecionOrden = () => {
                                   <img
                                     alt="logo"
                                     className="navbar-logo"
-                                    src="vistas/img/centevi-logo-in.png"
+                                    src="img/centevi.png"
                                     style={{
                                       height: '80px'
                                     }}

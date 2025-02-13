@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import DateRangeSeparate from "../../reportes/DateRange";
-import { Checkbox, Select } from "antd";
+import { Checkbox, Col, Row, Select, Divider } from "antd";
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, } from 'recharts';
 import { fetchKpisTerapiasConsultasDoctor, fetchKpisTerapiasConsultasSucursales, setFechaRangeTerapiasConsultasCYTDoctores, setFechaRangeTerapiasConsultasCYTSucursal, setFechaRangeTerapiasPorDoctores } from "../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
+import KpisConsultasTerapiasDoctores from "../KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores";
+import KpisConsultasTerapiasSucursales from "../KpisConsultasTerapias/kpisConsultasTerapiasSucursales/KpisConsultasTerapiasSucursales";
 
 const VerKpisConsultasYTerapias = () => {
 
@@ -231,144 +233,184 @@ const VerKpisConsultasYTerapias = () => {
 
   return (
     <div>
-      <div
-        style={{
-          background: 'white',
-          padding: '15px',
-          height: '600px',
-          borderRadius: '15px',
-          display: 'flex',
-          flexDirection: 'column',
-          marginTop: '15px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: "center", gap: "10px" }}>
-          <DateRangeSeparate
-            onApply={handleDateApplyCYTSucursales}
-            onReset={handleDateResetCYTSucursales}
-            isMonthPicker={true}
-          />
+      <div style={{ color: 'black', fontWeight: 'bold' }}>Reporteria de Consultas & Terapias</div>
+      <Row gutter={[16, 16]}>
+        <Col xxl={12} xl={12} md={12}>
           <div
             style={{
-              display: "flex", flexDirection: "column", marginTop: '-32px',
-              borderLeft: '1px solid gray',
-              paddingLeft: '12px'
+              background: 'white',
+              padding: '15px',
+              height: '600px',
+              borderRadius: '15px',
+              display: 'flex',
+              flexDirection: 'column',
+              marginTop: '15px',
+              position: 'relative'
             }}
           >
-            <label>Filtrar por Sucursal:</label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona la sucursal"
-              onChange={handleChangeCYTSucursales}
-              value={cytsucursalFilter || undefined}
-              allowClear
+            <div
+              style={{
+                position: 'absolute', background: 'orange', paddingLeft: '10px', paddingRight: '10px', paddingTop: '2px', paddingBottom: '2px',
+                bottom: '10px', right: '20px', fontSize: '10px', color: 'white', borderRadius: '8px'
+              }}
             >
-              {sucursales.map(sucursal => (
-                <Select.Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
-                  {sucursal.nombre}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-        </div>
+              Sucursales
+            </div>
 
-        <div style={{ flex: 1 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={kpisTerapiasConsultasSucursales}
-              margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
-              isAnimationActive={false}
-            >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                interval={0}
-                tickFormatter={truncateXAxisCYTSucursales}
+            <div style={{ display: 'flex', alignItems: "center", gap: "10px" }}>
+              <DateRangeSeparate
+                onApply={handleDateApplyCYTSucursales}
+                onReset={handleDateResetCYTSucursales}
+                isMonthPicker={true}
               />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
-              <Legend
-                verticalAlign="top"
-                align="center"
-                content={renderLegendCYTSucursales}
-              />
-              {renderLinesCYTSucursales()}
+              <div
+                style={{
+                  display: "flex", flexDirection: "column", marginTop: '-32px',
+                  borderLeft: '1px solid gray',
+                  paddingLeft: '12px'
+                }}
+              >
+                <label>Filtrar por Sucursal:</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: '200px' }}
+                  placeholder="Selecciona la sucursal"
+                  onChange={handleChangeCYTSucursales}
+                  value={cytsucursalFilter || undefined}
+                  allowClear
+                >
+                  {sucursales.map(sucursal => (
+                    <Select.Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                      {sucursal.nombre}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            </div>
 
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </ div>
+            <div style={{ flex: 1 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={kpisTerapiasConsultasSucursales}
+                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                  isAnimationActive={false}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                    interval={0}
+                    tickFormatter={truncateXAxisCYTSucursales}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
+                  <Legend
+                    verticalAlign="top"
+                    align="center"
+                    content={renderLegendCYTSucursales}
+                  />
+                  {renderLinesCYTSucursales()}
 
-      <div
-        style={{
-          background: 'white',
-          padding: '15px',
-          height: '600px',
-          borderRadius: '15px',
-          marginTop: '15px',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <DateRangeSeparate
-            onApply={handleDateApplyCYTDoctores}
-            onReset={handleDateResetCYTDoctores}
-            isMonthPicker={true}
-          />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </ div>
+        </Col>
+        <Col xxl={12} xl={12} md={12}>
           <div
             style={{
-              display: "flex", flexDirection: "column", marginTop: '-32px',
-              borderLeft: '1px solid gray',
-              paddingLeft: '12px'
+              background: 'white',
+              padding: '15px',
+              height: '600px',
+              borderRadius: '15px',
+              marginTop: '15px',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative'
             }}
           >
-            <label>Filtrar por Doctor:</label>
-            <Select
-              mode="multiple"
-              style={{ width: '200px' }}
-              placeholder="Selecciona el doctor"
-              onChange={handleChangeCYTDoctores}
-              value={cytdoctorFilter || undefined}
-              allowClear
-            >
-              {doctores_activados.map(doctor => (
-                <Select.Option key={doctor.id_usuario} value={doctor.nombre}>
-                  {doctor.nombre}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-        </div>
 
-        <div style={{ flex: 1, }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={kpisTerapiasConsultasDoctor}
-              margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
-              isAnimationActive={false} // Desactiva la animación para hover
+            <div
+              style={{
+                position: 'absolute', background: 'orange', paddingLeft: '10px', paddingRight: '10px', paddingTop: '2px', paddingBottom: '2px',
+                bottom: '10px', right: '20px', fontSize: '10px', color: 'white', borderRadius: '8px'
+              }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                interval={0}
-                tickFormatter={truncateXAxisCYTDoctores}
+              Doctores
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <DateRangeSeparate
+                onApply={handleDateApplyCYTDoctores}
+                onReset={handleDateResetCYTDoctores}
+                isMonthPicker={true}
               />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
-              <Legend
-                verticalAlign="top"
-                align="center"
-                content={renderLegendCYTDoctores}
-              />
-              {renderLinesCYTDoctores()}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+              <div
+                style={{
+                  display: "flex", flexDirection: "column", marginTop: '-32px',
+                  borderLeft: '1px solid gray',
+                  paddingLeft: '12px'
+                }}
+              >
+                <label>Filtrar por Doctor:</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: '200px' }}
+                  placeholder="Selecciona el doctor"
+                  onChange={handleChangeCYTDoctores}
+                  value={cytdoctorFilter || undefined}
+                  allowClear
+                >
+                  {doctores_activados.map(doctor => (
+                    <Select.Option key={doctor.id_usuario} value={doctor.nombre}>
+                      {doctor.nombre}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+
+            <div style={{ flex: 1, }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={kpisTerapiasConsultasDoctor}
+                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                  isAnimationActive={false} // Desactiva la animación para hover
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                    interval={0}
+                    tickFormatter={truncateXAxisCYTDoctores}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
+                  <Legend
+                    verticalAlign="top"
+                    align="center"
+                    content={renderLegendCYTDoctores}
+                  />
+                  {renderLinesCYTDoctores()}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </Col>
+      </Row>
+      <Divider />
+
+
+      <KpisConsultasTerapiasDoctores
+        doctores_activados={doctores_activados}
+      />
+
+      {/* 
+      <Divider />
+
+      <KpisConsultasTerapiasSucursales
+        sucursales = {sucursales}
+      /> */}
+
     </div>
 
 

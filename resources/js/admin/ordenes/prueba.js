@@ -4,7 +4,7 @@ import {
   EyeOutlined,
   WhatsAppOutlined
 } from '@ant-design/icons';
-import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf } from '../../redux/features/ordenes/ordenesSlice';
 import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import { Modal, Tooltip, Skeleton, Table } from 'antd';
 import { Link } from 'react-router-dom';
@@ -74,7 +74,8 @@ const CollapsibleTable = (
 
 
     }));
-  }, [dispatch,
+  }, [
+    dispatch,
     currentPageTable,
     sortColumn,
     sortOrder,
@@ -86,7 +87,8 @@ const CollapsibleTable = (
     faseFiltro,
     laboratorioFiltro,
     startDate,
-    endDate]);
+    endDate
+  ]);
 
   useEffect(() => {
     if (selectedOrdenId) {
@@ -156,6 +158,36 @@ const CollapsibleTable = (
       setLoadingPdf(true)
       setShowOrden(true)
       const url = await dispatch(verOrdenPdf(id_orden))
+      if (url) {
+        setUrlPdfOrden(url.payload)
+      } else {
+        Swal.fire(
+          'Error',
+          'Hubo un problema al visualizar la orden.',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.log(error)
+      Swal.fire(
+        'Error',
+        'Hubo un problema al visualizar la orden.',
+        'error'
+      );
+      setLoadingPdf(false)
+    }
+    setLoadingPdf(false)
+  }
+
+  const handleVerCorrecion = async (id_correcion, numero_correcion) => {
+
+    try {
+      setLoadingPdf(true)
+      setShowOrden(true)
+      console.log("empezar");
+
+      const url = await dispatch(verCorrecionPdf({ id_correcion, numero_correcion }))
+      console.log("empezar2");
       if (url) {
         setUrlPdfOrden(url.payload)
       } else {
@@ -272,8 +304,6 @@ const CollapsibleTable = (
     }
   };
 
-
-
   const handleVerContacto = async (id_orden) => {
     const rpta = await dispatch(fetchContactoOrdenesDelPaciente(id_orden))
     if (rpta) {
@@ -330,6 +360,7 @@ const CollapsibleTable = (
 
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
   }
+
   const columnWidths = {
     nroOrden: '10%',
     pagado: '10%',
@@ -416,7 +447,7 @@ const CollapsibleTable = (
                             : 'Cortesia'}
                       </button>
                     </td>
-                    <td>{orden?.created_at_formatted}</td>
+                    <td onClick={() => console.log(orden)} >{orden?.created_at_formatted}</td>
                     <td >{orden?.sucursal?.nombre}</td>
                     <td>{`${orden.paciente?.nombres} ${orden?.paciente?.apellidos}`}</td>
                     <td>{orden?.paciente?.celular}</td>
@@ -560,7 +591,9 @@ const CollapsibleTable = (
                               .map((correcion, idx) => (
                                 <tr key={correcion.id}>
 
-                                  <td style={{ width: columnWidths.nroOrden }}> {correcion.nro_orden_id}-C{idx + 1}</td>
+                                  <td style={{ width: columnWidths.nroOrden }}>
+                                    {correcion.nro_orden_id}-C{idx + 1}
+                                  </td>
                                   <td style={{ width: columnWidths.pagado }} >
                                     <button
                                       className={`btn btn-xs ${parseInt(orden.pagado) === 1
@@ -587,7 +620,7 @@ const CollapsibleTable = (
                                       year: 'numeric',
                                     })}
                                   </td>
-                                  <td style={{ width: columnWidths.sucursal }}>{correcion.sucursal}</td>
+                                  <td onClick={() => console.log(correcion)} style={{ width: columnWidths.sucursal }}>{correcion.sucursal}</td>
                                   <td style={{ width: columnWidths.paciente }}>{correcion.paciente_nombre_completo}</td>
                                   <td style={{ width: columnWidths.celular }}>{correcion.celular}</td>
                                   <td style={{ width: columnWidths.laboratorio }}>{correcion.laboratorio}</td>
@@ -667,8 +700,9 @@ const CollapsibleTable = (
 
                                         <EyeOutlined />
                                       </Link>
+
                                       <button
-                                        onClick={() => handleVerOrden(correcion.ordenes_id)}
+                                        onClick={() => handleVerCorrecion(correcion.id, correcion.nro_orden_id + "-C" + (parseFloat(idx) + 1))}
                                         className="btn btn-primary"
                                       >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">

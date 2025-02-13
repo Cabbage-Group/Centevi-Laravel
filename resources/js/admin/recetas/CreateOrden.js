@@ -350,7 +350,8 @@ const CreateOrden = () => {
                                   <img
                                     alt="logo"
                                     className="navbar-logo"
-                                    src="vistas/img/centevi-logo-in.png"
+                                    src="img/centevi.png"
+                                    // src={public_path('img/centevi.png')}
                                     style={{
                                       height: '80px'
                                     }}
@@ -1619,7 +1620,7 @@ const CreateOrden = () => {
                                                 option.label.toLowerCase().includes(input.toLowerCase())
                                               }
                                               options={marcas_options_selecteds.map(marca => ({
-                                                value: marca.value,
+                                                value: marca.label,
                                                 label: marca.label
                                               }))}
                                             // options={[

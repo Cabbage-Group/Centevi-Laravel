@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Models\CorrecionesOrdenes;
 
 class OrdenesApiController extends Controller
 {
@@ -229,7 +230,6 @@ class OrdenesApiController extends Controller
     ], 200);
   }
 
-
   public function createOrdenes(Request $request)
   {
     $validator = Validator::make($request->all(), [
@@ -370,8 +370,6 @@ class OrdenesApiController extends Controller
     }
   }
 
-
-
   public function updateOrden(Request $request, $id_orden)
   {
     $orden = Ordenes::find($id_orden);
@@ -477,7 +475,6 @@ class OrdenesApiController extends Controller
     }
   }
 
-
   public function tipoFasesOrdenes()
   {
 
@@ -577,8 +574,6 @@ class OrdenesApiController extends Controller
     }
   }
 
-
-
   public function updateFasesOrdenes(Request $request, $id)
   {
     // Validar los datos de entrada
@@ -617,8 +612,6 @@ class OrdenesApiController extends Controller
       ], 500);
     }
   }
-
-
 
   public function reportesOrdenes(Request $request)
   {
@@ -1177,6 +1170,74 @@ class OrdenesApiController extends Controller
     return $pdf->stream('orden.pdf', [
       'Content-Type' => 'application/pdf',
       'Content-Disposition' => 'inline; filename="orden_' . $id_orden . '.pdf"'
+    ]);
+  }
+
+  public function verCorrecionPdf($id_correcion, $numero_correcion)
+  {
+
+    $orden = CorrecionesOrdenes::join(
+      'ordenes',
+      'ordenes.id_orden',
+      'correciones_ordenes.ordenes_id'
+    )
+      ->join('sucursales', 'sucursales.id_sucursal', 'ordenes.id_sucursal')
+      ->join('pacientes', 'pacientes.id_paciente', 'ordenes.id_paciente')
+      ->select(
+        'correciones_ordenes.*',
+        'sucursales.nombre',
+        'pacientes.nombres',
+        'pacientes.apellidos',
+      )
+      ->where('correciones_ordenes.id', $id_correcion)
+      ->first();
+    $data = [
+      'fecha_solicitud' => $orden['created_at'],
+      'nro_orden' => $numero_correcion,
+      'lenteContacto' => false,
+      'esfera_od' => $orden['esfera_od'],
+      'cilindro_od' => $orden['cilindro_od'],
+      'eje_od' => $orden['eje_od'],
+      'add_od' => $orden['add_od'],
+      'prisma_od' => $orden['prisma_od'],
+      'distancia_od' => $orden['distancia_od'],
+      'altura_od' => $orden['altura_od'],
+      'esfera_oi' => $orden['esfera_oi'],
+      'cilindro_oi' => $orden['cilindro_oi'],
+      'eje_oi' => $orden['eje_oi'],
+      'add_oi' => $orden['add_oi'],
+      'prisma_oi' => $orden['prisma_oi'],
+      'distancia_oi' => $orden['distancia_oi'],
+      'altura_oi' => $orden['altura_oi'],
+      'material_od' => $orden['material_od'],
+      'material_oi' => $orden['material_oi'],
+      'tipo_cristal_od' => $orden['tipo_cristal_od'],
+      'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+      'l_uno' => $orden['l_uno'] ?? "-",
+      'l_dos' => $orden['l_dos'] ?? "-",
+      'l_tres' => $orden['l_tres'] ?? "-",
+      'l_cuatro' => $orden['l_cuatro'] ?? "-",
+      'l_cinco' => $orden['l_cinco'] ?? "-",
+      'color' => $orden['color'] ?? "_",
+      'codigo' => $orden['codigo'] ?? "_",
+      'marca' => $orden['marca'] ?? "_",
+      'tipo_aro' => $orden['tipo_aro'] ?? "_",
+      'observaciones' => $orden['observaciones'] ?? "_",
+      'aro_centevi' => $orden['aro_centevi'],
+      'aro_propio' => $orden['aro_propio'],
+      'lente_contacto' => $orden['ordenes.lente_contacto'],
+      'tratamientos_oi' => $orden['tratamientos_oi'],
+      'tratamientos_od' => $orden['tratamientos_od'],
+      'sucursal' => $orden['nombre'] ?? '',
+      'nombres_apellidos_paciente' => ($orden['nombres'] ? explode(' ', trim($orden['nombres']))[0] : '')
+        . ' '
+        . ($orden['apellidos'] ? explode(' ', trim($orden['apellidos']))[0] : '')
+    ];
+
+    $pdf = Pdf::loadView('pdf/ordenPdf', $data);
+    return $pdf->stream('orden.pdf', [
+      'Content-Type' => 'application/pdf',
+      'Content-Disposition' => 'inline; filename="orden_' . $id_correcion . '.pdf"'
     ]);
   }
 

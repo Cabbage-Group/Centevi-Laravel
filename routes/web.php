@@ -280,6 +280,8 @@ Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
 Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden']);
 
 Route::get('/api/ordenes/pdf/{id}', [OrdenesApiController::class, 'verOrdenPdf']);
+Route::get('/api/ordenes/correcion/pdf/{id}/{numero_correcion}', [OrdenesApiController::class, 'verCorrecionPdf']);
+
 Route::get('/api/ordenes/contacto-orden/{id}', [OrdenesApiController::class, 'verContactoOrden']);
 
 Route::get('/api/tipos-fases-ordenes/{idOrden}', [OrdenesApiController::class, 'tipoFasesOrdenes']);

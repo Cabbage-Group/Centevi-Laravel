@@ -783,7 +783,7 @@ const Sidebar = (props) => {
                     </svg></span> Ordenes T. Lente
                   </Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link to={"/ver-kpis-consultas-terapias"}>
                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
                       height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -794,9 +794,9 @@ const Sidebar = (props) => {
                       <line x1="17.01" y1="12" x2="22.96" y2="12" />
                     </svg></span> Consultas y Terapias
                   </Link>
-                </li>
+                </li> */}
                 <li>
-                  <Link to={"/ver-kpis-consultas-terapias"}>
+                  <Link to={"/kpis-consultas-terapias"}>
                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
                       height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"

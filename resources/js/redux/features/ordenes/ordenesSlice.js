@@ -85,6 +85,26 @@ export const verOrdenPdf = createAsyncThunk(
   }
 );
 
+export const verCorrecionPdf = createAsyncThunk(
+  'ordenes/coreccion/viewPdf',
+  async ({ id_correcion, numero_correcion }, { rejectWithValue }) => {
+
+    let urlPdf = null
+    try {
+      const response = await axios.get(`${API}/ordenes/correcion/pdf/${id_correcion}/${numero_correcion}`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      urlPdf = url
+    } catch (error) {
+      console.error('Error al visualizar la orden:', error.response?.data)
+      return rejectWithValue(error.response?.data || 'Error al obtener PDF')
+    }
+    return urlPdf
+  }
+);
+
 
 export const updateOrden = createAsyncThunk(
   'ordenes/updateOrdenes',
