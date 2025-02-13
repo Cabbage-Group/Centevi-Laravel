@@ -8,13 +8,15 @@ import ExportButton from './exportButton';
 import { transformDataForProximasCitas } from '../../../utils/dataTransform';
 import { BookTwoTone } from '@ant-design/icons';
 import Swal from 'sweetalert2';
-import { Button, Col, Divider, Input, Modal, Row, List } from 'antd';
+import { Button, Col, Divider, Input, Modal, Row, List, Select } from 'antd';
 import moment from 'moment';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 const ProximasCitas = () => {
   const dispatch = useDispatch();
-
+  const { doctores_activados, usuarios_activados } = useSelector((state) => state.usuarios)
   const {
     proximasCitas,
     status,
@@ -39,10 +41,14 @@ const ProximasCitas = () => {
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [txtNotas, setTxtNotas] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState(nombreUsuario);
+  const [sucursalFilter, setSucursalFilter] = useState([]);
+  const [doctoresFilter, setDoctoresFilter] = useState([]);
+  const [seContactoFilter, setSeContactoFilter] = useState([]);
+  const [elContactoFilter, setElContactoFilter] = useState([]);
 
   useEffect(() => {
     dispatch(fetchPacientes({}));
+    dispatch(fetchUsuarios({}))
   }, []);
 
   useEffect(() => {
@@ -54,14 +60,35 @@ const ProximasCitas = () => {
       startDate,
       endDate,
       search: localSearch,
+      sucursales: sucursalFilter,
+      doctores: doctoresFilter,
+      hubo_contacto: seContactoFilter,
+      el_Contacto: elContactoFilter
+
 
     };
     dispatch(fetchProximasCitas(fetchParams));
     dispatch(fetchServicios());
-  }, [dispatch, localSearch, currentPage, startDate, endDate, orden, ordenPor]);
+  }, [dispatch,
+    localSearch,
+    currentPage,
+    startDate,
+    endDate,
+    orden,
+    ordenPor,
+    sucursalFilter,
+    doctoresFilter,
+    seContactoFilter,
+    elContactoFilter]);
 
-  console.log('fetchServicios:', servicios)
-  console.log('proximasCitas:', proximasCitas)
+  const {
+    sucursales_option_selects
+  } = useSelector((state) => state.sucursales);
+
+  useEffect(() => {
+    dispatch(fetchSucursales({}))
+  }, [dispatch])
+
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
   };
@@ -84,6 +111,28 @@ const ProximasCitas = () => {
     dispatch(setOrdenPor(newOrdenPor));
   };
 
+  const handleSucursalChange = (value) => {
+    setSucursalFilter(value);
+    setCurrentPage(1)
+  };
+
+  const handleDoctoresChange = (value) => {
+    setDoctoresFilter(value);
+    setCurrentPage(1)
+  };
+
+  const handleSeContactoChange = (value) => {
+    setSeContactoFilter(value);
+    setCurrentPage(1)
+  };
+
+  const handleElContactoChange = (value) => {
+    setElContactoFilter(value);
+    setCurrentPage(1)
+  };
+
+
+
   const serviciosMap = servicios.reduce((acc, servicio) => {
     acc[servicio.id] = servicio.servicio;
     return acc;
@@ -104,8 +153,6 @@ const ProximasCitas = () => {
     : [];
 
   const handleContactoClick = (proximaCita) => {
-
-    console.log('Datos de la cita:', proximaCita);
     Swal.fire({
       title: '¿Contactaste con este paciente?',
       text: '¡Acepta solo si tuviste la oportunidad de comunicarte con este paciente!',
@@ -113,6 +160,9 @@ const ProximasCitas = () => {
       showCancelButton: true,
       confirmButtonText: 'Sí, lo contacté',
       cancelButtonText: 'No',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
 
@@ -206,10 +256,14 @@ const ProximasCitas = () => {
                     startDate={localStartDate}
                     endDate={localEndDate}
                     onChange={(start, end) => {
+                      console.log('start:', start)
                       setLocalStartDate(start);
                       setLocalEndDate(end);
                     }}
                     onApply={handleDateChange}
+                    onReset={() => {
+                      dispatch(setFechaRange({ startDate: '', endDate: '' }));
+                    }}
                   />
                 </div>
                 <div
@@ -222,14 +276,11 @@ const ProximasCitas = () => {
                     fileName="proximas_citas.xlsx"
                   />
                 </div>
-                <div className="col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3">
-                  <div
-                    className="dataTables_filter"
-                    id="html5-extension_filter"
-                  >
-                    <label>
+                <div className="d-flex flex-column">
+                  <div className="dataTables_filter" id="html5-extension_filter">
+                    <label style={{ width: '100%', position: 'relative' }}>
                       <input
-                        style={{ marginTop: '50px' }}
+                        style={{ marginTop: '50px', width: '200px', paddingRight: '30px' }}
                         aria-controls="html5-extension"
                         className="form-control"
                         placeholder="Search..."
@@ -271,6 +322,105 @@ const ProximasCitas = () => {
                     </label>
                   </div>
                 </div>
+                <div style={{ width: "100%", marginLeft: "20px" }}>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, 1fr)",
+                      gap: "20px",
+                    }}
+                  >
+                    {/* Primera Columna (2 Select) */}
+                    <div>
+                      <div style={{ marginBottom: "20px" }}>
+                        <label
+                          className="font-weight-bold"
+                          style={{ display: "inline-block", marginBottom: "8px" }}
+                        >
+                          Filtrar por Sucursal:
+                        </label>
+                        <Select
+                          mode="multiple"
+                          style={{ width: "100%", minWidth: "200px" }}
+                          placeholder="Seleccione la sucursal"
+                          onChange={handleSucursalChange}
+                          value={sucursalFilter}
+                          allowClear
+                        >
+                          {sucursales_option_selects.map((sucursal) => (
+                            <Option key={sucursal.value} value={sucursal.value}>
+                              {sucursal.label}
+                            </Option>
+                          ))}
+                        </Select>
+                      </div>
+
+                      <div style={{ marginBottom: "20px" }}>
+                        <label className="mb-2 font-weight-bold d-block">Filtrar por Doctores:</label>
+                        <Select
+                          mode="multiple"
+                          style={{ width: '100%' }}
+                          placeholder="Seleccione los doctores"
+                          onChange={handleDoctoresChange}
+                          value={doctoresFilter}
+                          allowClear
+                        >
+                          {doctores_activados.map((doctor) => (
+                            <Option key={doctor.id_usuario} value={doctor.nombre}>
+                              {doctor.nombre}
+                            </Option>
+                          ))}
+                        </Select>
+
+                      </div>
+                    </div>
+
+                    {/* Segunda Columna (1 Select) */}
+                    <div>
+                      <div style={{ marginBottom: "20px" }}>
+                        <label className="mb-2 font-weight-bold d-block">
+                          Filtrar por Se contacto:
+                        </label>
+                        <Select
+                          mode="multiple"
+                          style={{ width: "100%" }}
+                          placeholder="Seleccione la sucursal"
+                          onChange={handleSeContactoChange}
+                          value={seContactoFilter}
+                          allowClear
+                        >
+                          <Select.Option value="1">Sí</Select.Option>
+                          <Select.Option value="0">No</Select.Option>
+                        </Select>
+                      </div>
+                      <div style={{ marginBottom: "20px" }}>
+                        <label
+                          className="font-weight-bold"
+                          style={{ display: "inline-block", marginBottom: "8px", marginRight: "2px" }}
+                        >
+                          Filtrar por El que contacto:
+                        </label>
+
+                        <Select
+                          mode="multiple"
+                          style={{ width: "100%", minWidth: "300px" }}
+                          placeholder="Seleccione la sucursal"
+                          onChange={handleElContactoChange}
+                          value={elContactoFilter}
+                          allowClear
+                        >
+                          {usuarios_activados.map((usuario) => (
+                            <Option key={usuario.id_usuario} value={usuario.nombre}>
+                              {usuario.nombre}
+                            </Option>
+                          ))}
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
               </div>
               <div className="table-responsive">
                 <div
@@ -619,7 +769,7 @@ const ProximasCitas = () => {
           }}
         >click</Button> */}
       </Modal>
-    </div>
+    </div >
   )
 }
 

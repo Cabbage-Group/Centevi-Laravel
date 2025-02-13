@@ -528,49 +528,55 @@ class OrdenesApiController extends Controller
       'elaborado_por' => 'required|integer',
     ]);
 
-    $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
-      ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
-      ->first();
+    DB::beginTransaction();
 
-    if ($existingFase) {
-      $updated = $existingFase->update([
-        'laboratorio' => $validatedData['laboratorio'],
-        'observacion' => $validatedData['observacion'],
-        'fecha_fase' => $validatedData['fecha_fase'],
-        'status' => $validatedData['status'] ?? $existingFase->status,
-        'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
-        'elaborado_por' => $validatedData['elaborado_por'],
-      ]);
+    try {
+      $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
+        ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
+        ->first();
 
-      if ($updated) {
+      if ($existingFase) {
+        $updated = $existingFase->update([
+          'laboratorio' => $validatedData['laboratorio'],
+          'observacion' => $validatedData['observacion'],
+          'fecha_fase' => $validatedData['fecha_fase'],
+          'status' => $validatedData['status'] ?? $existingFase->status,
+          'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
+          'elaborado_por' => $validatedData['elaborado_por'],
+        ]);
+
+        if ($updated && isset($validatedData['status']) && $validatedData['status'] == 0) {
+          FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
+            ->where('tipo_fase_orden_id', '>', $validatedData['tipo_fase_orden_id'])
+            ->delete();
+        }
+
+        DB::commit();
         return response()->json([
           'message' => 'Fase de orden actualizada exitosamente',
           'data' => $existingFase,
         ], 200);
       } else {
-        return response()->json([
-          'message' => 'Error al actualizar la fase de orden. Inténtalo nuevamente.',
-        ], 500);
-      }
-    } else {
-      try {
         $faseOrden = FasesOrdenes::create(array_merge(
           $validatedData,
           ['created_at' => $validatedData['created_at'] ?? now()]
         ));
 
+        DB::commit();
         return response()->json([
           'message' => 'Fase de orden creada exitosamente',
           'data' => $faseOrden,
         ], 201);
-      } catch (\Exception $e) {
-        return response()->json([
-          'message' => 'Error al crear la fase de orden. Inténtalo nuevamente.',
-          'error' => $e->getMessage(),
-        ], 500);
       }
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json([
+        'message' => 'Error al procesar la fase de orden.',
+        'error' => $e->getMessage(),
+      ], 500);
     }
   }
+
 
 
   public function updateFasesOrdenes(Request $request, $id)

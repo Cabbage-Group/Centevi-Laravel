@@ -81,6 +81,8 @@ import SegmentedTablesPage from '../admin/CaracteristicasCristales/VerCaracteris
 import VerKpisConsultasTerapias from '../admin/kpis/KpisConsultasTerapias/VerKpisConsultasTerapias.js';
 import VerKpisOrdenes from '../admin/kpis/KpisOrdenes/VerKpisOrdenes.js';
 import VerKpisTipoLente from '../admin/kpis/KpisTiposLente/VerKpisTipoLente.js';
+import VerKpisConsultasYTerapias from '../admin/kpis/kpisConsultasYTerapias/VerKpisConsultasYTerapias.js';
+import KpisConsultasTerapiasDoctores from '../admin/kpis/KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores.js';
 
 
 const RoutesApp = () => {
@@ -239,6 +241,10 @@ const RoutesApp = () => {
 
 
           <Route path="/caracteristicas-cristales" element={<Sidebar component={<SegmentedTablesPage />} />} />
+
+          <Route path="/kpis-consultas-terapias" element={<Sidebar component={<VerKpisConsultasYTerapias />} />} />
+
+          <Route path="/kpis-consultas-doctores" element={<Sidebar component={<KpisConsultasTerapiasDoctores />} />} />
 
 
 

@@ -60,6 +60,7 @@ export const transformDataForProximasCitas = (data) => {
     Doctor: proximaCita.DOCTOR,
     Se_Contacto: proximaCita.CONTACTO === 1 ? 'Sí' : 'No',
     Se_Agendo: proximaCita.SE_AGENDO === 1 ? 'Sí' : 'No',
+    Nota_Contacto: proximaCita.NOTA_CONTACTO
   }));
 };
 
@@ -143,7 +144,7 @@ export const transformDataForReporteOrdenes = (data) => {
         });
       });
     } else {
-      console.log('transformedData',transformedData)
+      console.log('transformedData', transformedData)
       transformedData.push(ordenTransformada);
     }
   });

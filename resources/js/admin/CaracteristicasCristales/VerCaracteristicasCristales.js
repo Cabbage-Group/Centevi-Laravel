@@ -31,7 +31,6 @@ const CristalesMaterialesTratamientos = () => {
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
 
-  console.log('editingItem:', editingItem)
 
   const [isLenteContacto, setIsLenteContacto] = useState(false);
 

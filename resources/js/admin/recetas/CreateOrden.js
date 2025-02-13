@@ -25,6 +25,7 @@ const CreateOrden = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = location.state || {};
+  const parsedId = Number.isNaN(Number(id)) ? null : Number(id);
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
@@ -34,7 +35,7 @@ const CreateOrden = () => {
   const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
   const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
   const { marcas_options_selecteds, marcas_lente_normal_options_selecteds } = useSelector((state) => state.marcas)
-  const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [selectedPaciente, setSelectedPaciente] = useState(parsedId || null);
   const [selectedMarca, setSelectedMarca] = useState(null);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
@@ -53,16 +54,8 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
 
-  console.log('tipo_aro_options_selecteds:', tipo_aro_options_selecteds)
-
-  useEffect(() => {
-    if (id && pacientes_options_selecteds.length > 0) {
-      setSelectedPaciente(Number(id));
-    }
-  }, [id, pacientes_options_selecteds]);
-
   const initialValues = {
-    id_paciente: "  ",
+    id_paciente: parsedId || "",
     id_sucursal: "",
     esfera_od: "",
     esfera_oi: "",
@@ -98,16 +91,6 @@ const CreateOrden = () => {
     l_cinco: "",
     isRowVisible: isAroVisible,
   };
-
-  const tipoAroOptions = [
-    { label: 'Pasta Completo', value: 1 },
-    { label: 'Pasta Semi al Aire', value: 2 },
-    { label: 'Metal Completo', value: 3 },
-    { label: 'Metal Semi al Aire', value: 4 },
-    { label: 'Al Aire', value: 5 },
-    { label: 'Seguridad', value: 6 },
-  ];
-
 
   const validationSchema = Yup.object().shape({
     id_paciente: Yup.number().nullable()
@@ -188,7 +171,6 @@ const CreateOrden = () => {
 
   useEffect(() => {
     if (selectedPaciente) {
-      // Buscar el paciente seleccionado en la lista de pacientes
       const pacienteSeleccionado = pacientes.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
@@ -224,7 +206,6 @@ const CreateOrden = () => {
     const transformedValues = {
       ...values,
       id_paciente: selectedPaciente,
-
       ...(serviciosRealizadosSubmit.length === 1
         ? (!isLeftEye
           ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] }
@@ -432,8 +413,8 @@ const CreateOrden = () => {
                                     value={pacientes_options_selecteds.length > 0 ? selectedPaciente : undefined}
                                     onChange={(value) => {
                                       console.log('value:', value)
-                                      setSelectedPaciente(value); // Actualizar el estado con el paciente seleccionado
-                                      setFieldValue("id_paciente", value); // También actualizar el campo de Formik
+                                      setSelectedPaciente(value);
+                                      setFieldValue("id_paciente", value);
                                     }}
                                     placeholder="Seleccione el paciente"
                                     loading={pacientes_options_selecteds.length === 0}

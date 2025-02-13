@@ -184,30 +184,6 @@ const Ordenes = () => {
     }
   }, [tiposFasesOrdenes, orderId, initialized]);
 
-  // const itemsSteps = tiposFasesOrdenes?.map((fase) => {
-  //   let icon;
-  //   switch (fase.tipo_fase_orden.toLowerCase()) {
-  //     case 'nuevo':
-  //       icon = <FileAddOutlined />;
-  //       break;
-  //     case 'en confeccion':
-  //       icon = <ImportOutlined />;
-  //       break;
-  //     case 'listo':
-  //       icon = <CheckCircleOutlined />;
-  //       break;
-  //     case 'retirado':
-  //       icon = <LogoutOutlined />;
-  //       break;
-  //     default:
-  //       icon = <FileAddOutlined />;
-  //   }
-  //   return {
-  //     title: fase.tipo_fase_orden,
-  //     description: 'hola',
-  //     icon: icon,
-  //   };
-  // });
   const itemsSteps = getOrderPhasesByType(orderId).map((fase) => {
     let icon;
     switch (fase.tipoFase.toLowerCase()) {
@@ -231,15 +207,36 @@ const Ordenes = () => {
       .map((faseOrden) => faseOrden.nombreUsuario)
       .join(', ');
 
+    const fechaFase = fase.fasesOrdenes
+      .map((faseOrden) => faseOrden.created_at.split(' ')[0])
+      .join(', ');
+
     return {
       title: fase.tipoFase,
-      description: nombresUsuarios || 'Desconocido', // Si no hay nombre, muestra 'Desconocido'
+      description: (
+        <>
+          <div>{nombresUsuarios || 'Desconocido'}</div>
+          <div style={{ fontSize: '12px', color: '#888' }}>{fechaFase || ''}</div>
+        </>
+      ),
       icon: icon,
     };
   });
 
 
+
+
   const avanzarFase = async (avanzar = true, completar = false) => {
+    if (nuevaData.tipo_fase_orden_id === 1 && !nuevaData.laboratorio) {
+      await Swal.fire({
+        title: 'Error',
+        text: 'Debe seleccionar un laboratorio antes de continuar.',
+        icon: 'error',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
+
     const result = await Swal.fire({
       title: completar ? '¿Estás seguro de completar la fase?' : '¿Estás seguro de guardar la fase?',
       text: completar ? "¡Confirmarás la fase como completada!" : "¡Confirmarás los cambios en los datos!",
@@ -264,16 +261,18 @@ const Ordenes = () => {
         setNivelStep(nivelStep + 1);
       }
 
-
-
       dispatch(createFasesOrdenes(nuevaDataConOrderId));
       dispatch(fecthTiposFasesOrdenes(orderId));
 
-      await Swal.fire(completar ? 'Completado!' : 'Guardado!',
+      await Swal.fire(
+        completar ? 'Completado!' : 'Guardado!',
         completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
-        'success');
+        'success'
+      );
     }
   };
+
+
 
   const handleContactarPaciente = async () => {
     const newContactoOrdenData = {
@@ -293,17 +292,8 @@ const Ordenes = () => {
     }
   };
 
-  const usuario = usuarios.find(user => user.id_usuario === nuevaData.elaborado_por);
 
-  const getCurrentUser = () => {
-    const currentStepData = tiposFasesOrdenes[nivelStep]?.fases_ordenes?.find(
-      fase => fase.ordenes_id === parseInt(orderId)
-    );
 
-    return usuarios.find(
-      user => user.id_usuario === currentStepData?.elaborado_por
-    );
-  };
 
   return (
     <div>
@@ -453,7 +443,10 @@ const Ordenes = () => {
 
         </Col>
       </Row>
-      <EditOrden fecha_solicitud={fechaSolicitud} />
+      <EditOrden
+        fecha_solicitud={fechaSolicitud}
+        pacientes={pacientes}
+      />
     </div>
   )
 }

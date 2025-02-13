@@ -273,7 +273,8 @@
       <div style="font-size:12px; width:100%; color:#888ea8; font-weight:700">MARCA</div>
       <buton class="boton-item-white"
       style="font-size:12px;white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
-      {{$marca}}</buton>
+      {{$marca}}
+      </buton>
     </div>
 
     <div style="width:1%; display:inline-block;"></div>
@@ -321,14 +322,16 @@
       <div style="font-size:12px; margin-bottom:5px; color:#888ea8; font-weight:700">CÓDIGO</div>
       <buton class="boton-item-white"
         style="font-size:12px;white-space: normal; word-wrap: break-word; {{$codigo == '_' ? 'color:white' : ''}}">
-        {{$codigo}}</buton>
+        {{$codigo}}
+      </buton>
       </div>
       <div style="width:1%; display:inline-block"></div>
       <div style="width:24%; display: inline-block;">
       <div style="font-size:12px; margin-bottom:5px; width:100%; color:#888ea8; font-weight:700">MARCA</div>
       <buton class="boton-item-white"
         style="font-size:12px;white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
-        {{$marca}}</buton>
+        {{$marca}}
+      </buton>
       </div>
     </div>
     <div style="width:100%; display:inline-block; margin-top:20px;">

@@ -17,6 +17,7 @@ use App\Models\TerapiaBajaV;
 use App\Models\TerapiaOptometriaNeonatos;
 use App\Models\TerapiaOptometriaPediatrica;
 use App\Models\TerapiaOrtopticaAdultos;
+use App\Models\TerapiasOptometriaPediatrica;
 use App\Models\Usuarios;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -41,7 +42,6 @@ class KpisApiController extends Controller
     try {
       $startDate = $startDate ? Carbon::createFromFormat('Y-m-d-H:i', $startDate) : null;
       $endDate = $endDate ? Carbon::createFromFormat('Y-m-d-H:i', $endDate) : null;
-
     } catch (\Exception $e) {
       return response()->json(['error' => 'Invalid date format'], 400);
     }
@@ -1568,9 +1568,425 @@ class KpisApiController extends Controller
     ]);
   }
 
+  public function getConsultasYTerapiasPorDoctor(Request $request)
+  {
+    // Filtrar por fechas (si se proporcionan)
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    // Filtrar por doctores (si se proporcionan)
+    $doctores = $request->has('doctores') && !empty($request->doctores) ? $request->doctores :
+      Usuarios::where('perfil', 'doctor')->where('estado', 1)->pluck('nombre')->toArray();
+
+    // Consultas por doctor, incluyendo el filtro por fechas si se proporciona
+    $consultasQuery = ConsultaGenerica::whereIn('doctor', $doctores)
+      ->when($startDate, function ($query) use ($startDate) {
+        return $query->where('fecha_creacion', '>=', $startDate);
+      })
+      ->when($endDate, function ($query) use ($endDate) {
+        return $query->where('fecha_creacion', '<=', $endDate);
+      })
+      ->selectRaw('doctor, COUNT(*) as total')
+      ->groupBy('doctor');
 
 
 
+    $optometriaQuery = OptometriaNeonatos::whereIn('doctor', $doctores)
+      ->when($startDate, function ($query) use ($startDate) {
+        return $query->where('fecha_creacion', '>=', $startDate);
+      })
+      ->when($endDate, function ($query) use ($endDate) {
+        return $query->where('fecha_creacion', '<=', $endDate);
+      })
+      ->selectRaw('doctor, COUNT(*) as total')
+      ->groupBy('doctor');
+
+    $refraccionGeneralQuery = RefraccionGeneral::whereIn('doctor', $doctores)
+      ->when($startDate, function ($query) use ($startDate) {
+        return $query->where('fecha_creacion', '>=', $startDate);
+      })
+      ->when($endDate, function ($query) use ($endDate) {
+        return $query->where('fecha_creacion', '<=', $endDate);
+      })
+      ->selectRaw('doctor, COUNT(*) as total')
+      ->groupBy('doctor');
+
+    // Consultas para terapias
+    $terapiaBajaVisionQuery = TerapiaBajaV::whereIn('doctor', $doctores)
+      ->when($startDate, function ($query) use ($startDate) {
+        return $query->where('fecha_creacion', '>=', $startDate);
+      })
+      ->when($endDate, function ($query) use ($endDate) {
+        return $query->where('fecha_creacion', '<=', $endDate);
+      })
+      ->selectRaw('doctor, COUNT(*) as total')
+      ->groupBy('doctor');
+
+    $terapiaOptometriaQuery = TerapiaOptometriaNeonatos::whereIn('doctor', $doctores)
+      ->when($startDate, function ($query) use ($startDate) {
+        return $query->where('fecha_creacion', '>=', $startDate);
+      })
+      ->when($endDate, function ($query) use ($endDate) {
+        return $query->where('fecha_creacion', '<=', $endDate);
+      })
+      ->selectRaw('doctor, COUNT(*) as total')
+      ->groupBy('doctor');
+
+    $terapiaOrtopticaQuery = TerapiaOrtopticaAdultos::whereIn('doctor', $doctores)
+      ->when($startDate, function ($query) use ($startDate) {
+        return $query->where('fecha_creacion', '>=', $startDate);
+      })
+      ->when($endDate, function ($query) use ($endDate) {
+        return $query->where('fecha_creacion', '<=', $endDate);
+      })
+      ->selectRaw('doctor, COUNT(*) as total')
+      ->groupBy('doctor');
+
+    // Unir solo consultas
+    $consultasUnion = DB::table(DB::raw("({$consultasQuery->toSql()}) as consultas"))
+      ->mergeBindings($consultasQuery->getQuery())
+      ->unionAll(DB::table(DB::raw("({$optometriaQuery->toSql()}) as optometria"))->mergeBindings($optometriaQuery->getQuery()))
+      ->unionAll(DB::table(DB::raw("({$refraccionGeneralQuery->toSql()}) as refraccion"))->mergeBindings($refraccionGeneralQuery->getQuery()));
+
+    // Unir solo terapias
+    $terapiasUnion = DB::table(DB::raw("({$terapiaBajaVisionQuery->toSql()}) as terapia_baja"))
+      ->mergeBindings($terapiaBajaVisionQuery->getQuery())
+      ->unionAll(DB::table(DB::raw("({$terapiaOptometriaQuery->toSql()}) as terapia_optometria"))->mergeBindings($terapiaOptometriaQuery->getQuery()))
+      ->unionAll(DB::table(DB::raw("({$terapiaOrtopticaQuery->toSql()}) as terapia_ortoptica"))->mergeBindings($terapiaOrtopticaQuery->getQuery()));
+
+    // Obtener los resultados agrupados por doctor
+    $consultas = DB::table(DB::raw("({$consultasUnion->toSql()}) as all_consultas"))
+      ->mergeBindings($consultasUnion)
+      ->selectRaw('doctor, SUM(total) as consultas')
+      ->groupBy('doctor')
+      ->get();
+
+    $terapias = DB::table(DB::raw("({$terapiasUnion->toSql()}) as all_terapias"))
+      ->mergeBindings($terapiasUnion)
+      ->selectRaw('doctor, SUM(total) as terapia')
+      ->groupBy('doctor')
+      ->get();
+
+    // Combinar los resultados en un solo array
+    $resultado = [];
+
+    foreach ($doctores as $doctor) {
+      $resultado[$doctor] = [
+        'name' => $doctor,
+        'consultas' => 0, // Inicializar en 0 para evitar valores nulos
+        'terapia' => 0,
+      ];
+    }
+
+    foreach ($consultas as $consulta) {
+      if (isset($resultado[$consulta->doctor])) {
+        $resultado[$consulta->doctor]['consultas'] = (int) $consulta->consultas;
+      }
+    }
+
+    foreach ($terapias as $terapia) {
+      if (isset($resultado[$terapia->doctor])) {
+        $resultado[$terapia->doctor]['terapia'] = (int) $terapia->terapia;
+      }
+    }
+
+    return response()->json(['data' => array_values($resultado)]);
+  }
 
 
+  public function getConsultasYTerapiasPorSucursal(Request $request)
+  {
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    $sucursalesIds = $request->has('sucursales') ? $request->input('sucursales') : [];
+
+    $sucursales = Sucursales::pluck('nombre', 'id_sucursal');
+
+    $sucursalesIds = count($sucursalesIds) > 0 ? $sucursalesIds : $sucursales->keys()->toArray();
+
+    $applyDateFilter = function ($query) use ($startDate, $endDate) {
+      if ($startDate && $endDate) {
+        return $query->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      }
+      return $query;
+    };
+
+    // Consultas agrupadas por sucursal
+    $consultasQuery = $applyDateFilter(ConsultaGenerica::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    $optometriaQuery = $applyDateFilter(OptometriaNeonatos::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    $refraccionGeneralQuery = $applyDateFilter(RefraccionGeneral::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    // Terapias agrupadas por sucursal
+    $terapiaBajaVisionQuery = $applyDateFilter(TerapiaBajaV::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    $terapiaOptometriaQuery = $applyDateFilter(TerapiaOptometriaNeonatos::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    $terapiaOrtopticaQuery = $applyDateFilter(TerapiaOrtopticaAdultos::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    // Unir solo consultas
+    $consultasUnion = DB::table(DB::raw("({$consultasQuery->toSql()}) as consultas"))
+      ->mergeBindings($consultasQuery->getQuery())
+      ->unionAll(DB::table(DB::raw("({$optometriaQuery->toSql()}) as optometria"))->mergeBindings($optometriaQuery->getQuery()))
+      ->unionAll(DB::table(DB::raw("({$refraccionGeneralQuery->toSql()}) as refraccion"))->mergeBindings($refraccionGeneralQuery->getQuery()));
+
+    // Unir solo terapias
+    $terapiasUnion = DB::table(DB::raw("({$terapiaBajaVisionQuery->toSql()}) as terapia_baja"))
+      ->mergeBindings($terapiaBajaVisionQuery->getQuery())
+      ->unionAll(DB::table(DB::raw("({$terapiaOptometriaQuery->toSql()}) as terapia_optometria"))->mergeBindings($terapiaOptometriaQuery->getQuery()))
+      ->unionAll(DB::table(DB::raw("({$terapiaOrtopticaQuery->toSql()}) as terapia_ortoptica"))->mergeBindings($terapiaOrtopticaQuery->getQuery()));
+
+    // Obtener los resultados agrupados por sucursal
+    $consultas = DB::table(DB::raw("({$consultasUnion->toSql()}) as all_consultas"))
+      ->mergeBindings($consultasUnion)
+      ->selectRaw('sucursal, SUM(total) as consultas')
+      ->groupBy('sucursal')
+      ->get();
+
+    $terapias = DB::table(DB::raw("({$terapiasUnion->toSql()}) as all_terapias"))
+      ->mergeBindings($terapiasUnion)
+      ->selectRaw('sucursal, SUM(total) as terapia')
+      ->groupBy('sucursal')
+      ->get();
+
+    // Combinar los resultados en un solo array
+    $resultado = [];
+
+    foreach ($sucursales as $id => $nombre) {
+      if (in_array($id, $sucursalesIds)) {
+        $resultado[$id] = [
+          'name' => $nombre,
+          'consultas' => 0, // Inicializar en 0 para evitar valores nulos
+          'terapia' => 0,
+        ];
+      }
+    }
+
+    foreach ($consultas as $consulta) {
+      if (isset($resultado[$consulta->sucursal])) {
+        $resultado[$consulta->sucursal]['consultas'] = (int) $consulta->consultas;
+      }
+    }
+
+    foreach ($terapias as $terapia) {
+      if (isset($resultado[$terapia->sucursal])) {
+        $resultado[$terapia->sucursal]['terapia'] = (int) $terapia->terapia;
+      }
+    }
+
+    return response()->json(['data' => array_values($resultado)]);
+  }
+
+
+
+  public function getConsultasYTerapiasPorConsultaDoctor(Request $request)
+  {
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    $doctores = $request->has('doctores') && !empty($request->doctores) ? $request->doctores :
+      Usuarios::where('perfil', 'doctor')->where('estado', 1)->pluck('nombre')->toArray();
+
+    $consultasFiltrar = $request->has('consultas') ? $request->input('consultas') : [];
+
+    $queries = [
+      'baja_vision' => BajaVision::whereIn('doctor', $doctores),
+      'consulta_generica' => ConsultaGenerica::whereIn('doctor', $doctores),
+      'optometria_neonatos' => OptometriaNeonatos::whereIn('doctor', $doctores),
+      'refraccion_general' => RefraccionGeneral::whereIn('doctor', $doctores),
+      'ortoptica_adultos' => OrtopticaAdultos::whereIn('doctor', $doctores),
+      'optometria_pediatrica' => OptometriaNeonatos::whereIn('doctor', $doctores)
+    ];
+
+    $resultados = [];
+
+    foreach ($queries as $nombre => $query) {
+
+      if (!empty($consultasFiltrar) && !in_array($nombre, $consultasFiltrar)) {
+        continue;
+      }
+
+      $datos = $query
+        ->when($startDate, fn($q) => $q->where('fecha_creacion', '>=', $startDate))
+        ->when($endDate, fn($q) => $q->where('fecha_creacion', '<=', $endDate))
+        ->selectRaw('doctor, COUNT(*) as total')
+        ->groupBy('doctor')
+        ->get();
+
+      $item = ['name' => $nombre];
+      foreach ($datos as $dato) {
+        $item[$dato->doctor] = (int) $dato->total;
+      }
+      $resultados[] = $item;
+    }
+
+    return response()->json(['data' => $resultados]);
+  }
+
+  public function getConsultasYTerapiasPorTerapiaDoctor(Request $request)
+  {
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    $doctores = $request->has('doctores') && !empty($request->doctores) ? $request->doctores :
+      Usuarios::where('perfil', 'doctor')->where('estado', 1)->pluck('nombre')->toArray();
+
+    $terapiasFiltrar = $request->has('terapias') ? $request->input('terapias') : [];
+
+    $queries = [
+      'terapia_baja_vision' => TerapiaBajaV::whereIn('doctor', $doctores),
+      'terapia_optometria_neonatos' => TerapiaOptometriaNeonatos::whereIn('doctor', $doctores),
+      'terapia_ortoptica_adultos' => TerapiaOrtopticaAdultos::whereIn('doctor', $doctores),
+      'terapia_optometria_pediatrica' => TerapiaOptometriaPediatrica::whereIn('doctor', $doctores)
+    ];
+
+    $resultados = [];
+
+    foreach ($queries as $nombre => $query) {
+
+      if (!empty($terapiasFiltrar) && !in_array($nombre, $terapiasFiltrar)) {
+        continue;
+      }
+
+      $datos = $query
+        ->when($startDate, fn($q) => $q->where('fecha_creacion', '>=', $startDate))
+        ->when($endDate, fn($q) => $q->where('fecha_creacion', '<=', $endDate))
+        ->selectRaw('doctor, COUNT(*) as total')
+        ->groupBy('doctor')
+        ->get();
+
+      $item = ['name' => $nombre];
+      foreach ($datos as $dato) {
+        $item[$dato->doctor] = (int) $dato->total;
+      }
+      $resultados[] = $item;
+    }
+
+    return response()->json(['data' => $resultados]);
+  }
+
+  public function getConsultasYTerapiasPorConsultaSucursal(Request $request)
+  {
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    $sucursalesIds = $request->has('sucursales') ? $request->input('sucursales') : [];
+    $sucursales = Sucursales::pluck('nombre', 'id_sucursal');
+    $sucursalesIds = count($sucursalesIds) > 0 ? $sucursalesIds : $sucursales->keys()->toArray();
+
+    $consultasFiltrar = $request->has('consultas') ? $request->input('consultas') : [];
+
+    $applyDateFilter = function ($query) use ($startDate, $endDate) {
+      if ($startDate && $endDate) {
+        return $query->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      }
+      return $query;
+    };
+
+    $models = [
+      'baja_vision' => BajaVision::class,
+      'consulta_generica' => ConsultaGenerica::class,
+      'optometria_neonatos' => OptometriaNeonatos::class,
+      'refraccion_general' => RefraccionGeneral::class,
+      'ortoptica_adultos' => OrtopticaAdultos::class,
+      'optometria_pediatrica' => OptometriaPediatrica::class
+    ];
+
+    $resultados = [];
+
+    foreach ($models as $key => $model) {
+
+      if (!empty($consultasFiltrar) && !in_array($key, $consultasFiltrar)) {
+        continue;
+      }
+
+      $query = $applyDateFilter($model::selectRaw('sucursal, COUNT(*) as total'))
+        ->whereIn('sucursal', $sucursalesIds)
+        ->groupBy('sucursal')
+        ->get();
+
+      $resultado = ['name' => $key];
+
+      foreach ($sucursales as $id => $nombre) {
+        $resultado[$nombre] = 0; // Inicializar todas las sucursales en 0
+      }
+
+      foreach ($query as $item) {
+        $resultado[$sucursales[$item->sucursal] ?? $item->sucursal] = (int) $item->total;
+      }
+
+      $resultados[] = $resultado;
+    }
+
+    return response()->json(['data' => $resultados]);
+  }
+
+  public function getConsultasYTerapiasPorTerapiaSucursal(Request $request)
+  {
+    $startDate = $request->has('startDate') ? Carbon::parse($request->startDate)->startOfMonth() : null;
+    $endDate = $request->has('endDate') ? Carbon::parse($request->endDate)->endOfMonth() : null;
+
+    $sucursalesIds = $request->has('sucursales') ? $request->input('sucursales') : [];
+    $sucursales = Sucursales::pluck('nombre', 'id_sucursal');
+    $sucursalesIds = count($sucursalesIds) > 0 ? $sucursalesIds : $sucursales->keys()->toArray();
+
+    // Nuevo filtro: nombres de terapias a incluir
+    $terapiasFiltrar = $request->has('terapias') ? $request->input('terapias') : [];
+
+    $applyDateFilter = function ($query) use ($startDate, $endDate) {
+      if ($startDate && $endDate) {
+        return $query->whereBetween('fecha_creacion', [$startDate, $endDate]);
+      }
+      return $query;
+    };
+
+    $models = [
+      'terapia_baja_vision' => TerapiaBajaV::class,
+      'terapia_optometria_neonatos' => TerapiaOptometriaNeonatos::class,
+      'terapia_ortoptica_adultos' => TerapiaOrtopticaAdultos::class,
+      'terapia_optometria_pediatrica' => TerapiaOptometriaPediatrica::class
+    ];
+
+    $resultados = [];
+
+    foreach ($models as $key => $model) {
+      // Aplica el filtro para incluir solo las terapias especificadas
+      if (!empty($terapiasFiltrar) && !in_array($key, $terapiasFiltrar)) {
+        continue;
+      }
+
+      $query = $applyDateFilter($model::selectRaw('sucursal, COUNT(*) as total'))
+        ->whereIn('sucursal', $sucursalesIds)
+        ->groupBy('sucursal')
+        ->get();
+
+      $resultado = ['name' => $key];
+
+      foreach ($sucursales as $id => $nombre) {
+        $resultado[$nombre] = 0; // Inicializar todas las sucursales en 0
+      }
+
+      foreach ($query as $item) {
+        $resultado[$sucursales[$item->sucursal] ?? $item->sucursal] = (int) $item->total;
+      }
+
+      $resultados[] = $resultado;
+    }
+
+    return response()->json(['data' => $resultados]);
+  }
 }
