@@ -224,7 +224,7 @@ const RoutesApp = () => {
 
           <Route path="/ver-kpis-ordenes" element={<Sidebar component={<VerKpisOrdenes />} />} />
 
-          <Route path="/ver-kpis-tipos-lente" element={<Sidebar component={<VerKpisTipoLente />} />} />
+          <Route path="/kpis-tipos-lente" element={<Sidebar component={<VerKpisTipoLente />} />} />
 
           <Route path="/ver-correciones-ordenes" element={<Sidebar component={<VerCorrecionesOrdenes />} />} />
 
