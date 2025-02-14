@@ -83,7 +83,8 @@ class OrdenesApiController extends Controller
       ->leftJoin('usuarios as u', 'fo.elaborado_por', '=', 'u.id_usuario')
       ->select(
         'fo.ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
             CASE 
                 WHEN fo.status = 1 THEN 
                     CASE 
@@ -155,7 +156,6 @@ class OrdenesApiController extends Controller
                 WHEN ultimas_fases.fase_actual IS NULL THEN 'Nuevo'
                 ELSE ultimas_fases.fase_actual 
                 END LIKE ?", ["%{$search}%"]);
-
       });
     }
 
@@ -258,7 +258,7 @@ class OrdenesApiController extends Controller
       'tratamientos_oi' => 'nullable|string|max:255',
       'aro_centevi' => 'nullable|integer|min:0|max:1',
       'aro_propio' => 'nullable|integer|min:0|max:1',
-      'codigo' => 'nullable|string|max:255',
+      'codigo_cristal' => 'nullable|string|max:255',
       'color' => 'nullable|string|max:255',
       'marca' => 'nullable|string|max:255',
       'tipo_aro' => 'nullable|string|max:255',
@@ -283,10 +283,8 @@ class OrdenesApiController extends Controller
     try {
       DB::beginTransaction();
 
-      // Crear un nuevo nro_orden
       $nroOrden = NroOrden::create([]);
 
-      // Definir valores predeterminados
       $defaults = [
         'elaborado_por' => 0,
         'esfera_od' => '',
@@ -311,7 +309,7 @@ class OrdenesApiController extends Controller
         'tratamientos_oi' => '',
         'aro_centevi' => 0,
         'aro_propio' => 0,
-        'codigo' => '',
+        'codigo_cristal' => '',
         'color' => '',
         'marca' => '',
         'tipo_aro' => '',
@@ -324,31 +322,16 @@ class OrdenesApiController extends Controller
         'l_cinco' => '',
         'pagado' => 2,
         'lente_contacto' => 0,
-        'nro_orden_id' => $nroOrden->id, // Asignamos el ID recién creado
+        'nro_orden_id' => $nroOrden->id,
       ];
 
-      // Extraer los códigos de los cristales
       $tipoCristalOd = $request->input('tipo_cristal_od');
       $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-      // Asignar el cristal según la prioridad
-      $cristalCodigo = null;
-      if ($tipoCristalOd) {
-        $cristalCodigo = explode(' | ', $tipoCristalOd)[0]; // Tomar el código antes del "|"
-      } elseif ($tipoCristalOi) {
-        $cristalCodigo = explode(' | ', $tipoCristalOi)[0]; // Tomar el código antes del "|"
-      }
+      $codigoCristal = $tipoCristalOd ? explode(' | ', $tipoCristalOd)[0] : ($tipoCristalOi ? explode(' | ', $tipoCristalOi)[0] : null);
 
-      $cristal = null;
-      if ($cristalCodigo) {
-        $cristal = Cristales::where('codigo', $cristalCodigo)->first(); // Buscar cristal por código
-      }
+      $data = array_merge($defaults, $request->all(), ['codigo_cristal' => $codigoCristal]);
 
-      // Asignar el ID del cristal si se encuentra
-      $cristalId = $cristal ? $cristal->id : null;
-      $data = array_merge($defaults, $request->all(), ['cristal_id' => $cristalId]);
-
-      // Crear la orden en la base de datos
       $orden = Ordenes::create($data);
 
       DB::commit();
@@ -369,6 +352,7 @@ class OrdenesApiController extends Controller
       ], 500);
     }
   }
+
 
   public function updateOrden(Request $request, $id_orden)
   {
@@ -404,6 +388,8 @@ class OrdenesApiController extends Controller
       'material_oi' => 'nullable|string|max:255',
       'tratamientos_od' => 'nullable|string|max:255',
       'tratamientos_oi' => 'nullable|string|max:255',
+      'tipo_cristal_od' => 'nullable|string|max:255',
+      'tipo_cristal_oi' => 'nullable|string|max:255',
       'aro_centevi' => 'nullable|integer|min:0|max:1',
       'aro_propio' => 'nullable|integer|min:0|max:1',
       'codigo' => 'nullable|string|max:255',
@@ -427,24 +413,37 @@ class OrdenesApiController extends Controller
       ], 400);
     }
 
-    $orden = Ordenes::find($id_orden);
+    try {
+      DB::beginTransaction();
 
-    if (!$orden) {
+      // Extraer los valores de tipo_cristal_od y tipo_cristal_oi
+      $tipoCristalOd = $request->input('tipo_cristal_od', $orden->tipo_cristal_od);
+      $tipoCristalOi = $request->input('tipo_cristal_oi', $orden->tipo_cristal_oi);
+
+      // Obtener el código del cristal preferentemente de tipo_cristal_od, si no, de tipo_cristal_oi
+      $codigoCristal = $tipoCristalOd ? explode(' | ', $tipoCristalOd)[0] : ($tipoCristalOi ? explode(' | ', $tipoCristalOi)[0] : $orden->codigo_cristal);
+
+      // Actualizar los datos
+      $orden->update(array_merge($request->all(), ['codigo_cristal' => $codigoCristal]));
+
+      DB::commit();
+
+      return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Orden actualizada correctamente',
+        'data' => $orden,
+      ], 200);
+    } catch (\Exception $e) {
+      DB::rollBack();
+
       return response()->json([
         'respuesta' => false,
-        'mensaje' => 'Orden no encontrada',
-      ], 404);
+        'mensaje' => 'Error al actualizar la orden',
+        'mensaje_dev' => $e->getMessage(),
+      ], 500);
     }
-
-    $orden->update($request->all());
-
-
-    return response()->json([
-      'respuesta' => true,
-      'mensaje' => 'Orden actualizada correctamente',
-      'data' => $orden,
-    ], 200);
   }
+
 
   public function deleteOrden($id_orden)
   {
@@ -703,7 +702,8 @@ class OrdenesApiController extends Controller
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
         'fo.ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
           CASE 
               WHEN fo.status = 1 THEN 
                   CASE 
@@ -762,7 +762,8 @@ class OrdenesApiController extends Controller
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_correccion_orden_id', '=', 'tfo.id')
       ->select(
         'fo.correccion_ordenes_id',
-        DB::raw('
+        DB::raw(
+          '
             CASE 
                 WHEN fo.status = 1 THEN 
                     CASE 
@@ -1064,7 +1065,6 @@ class OrdenesApiController extends Controller
           ->orWhere('usuarios.nombre', 'like', "%{$search}%")
           ->orWhere('ordenes.doctor', 'like', "%{$search}%")
           ->orWhere('ultimas_fases.fase_actual', 'like', "%{$search}%");
-
       });
     }
 
@@ -1286,8 +1286,4 @@ class OrdenesApiController extends Controller
       'data' => $ordenes
     ], 200);
   }
-
-
-
 }
-

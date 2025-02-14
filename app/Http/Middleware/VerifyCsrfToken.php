@@ -204,5 +204,7 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/kpis/terapias-consultas-consulta-sucursal',
 
+    'http://127.0.0.1:8000/api/kpis/tipo-cristal-esfera-cilindro-ordenes',
+
   ];
 }

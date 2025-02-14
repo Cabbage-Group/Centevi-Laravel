@@ -425,6 +425,8 @@ Route::post('/api/kpis/terapias-sucursales', [KpisApiController::class, 'getCons
 
 Route::post('/api/kpis/terapias-consultas-consulta-sucursal', [KpisApiController::class, 'getConsultasYTerapiasPorConsultaSucursal']);
 
+Route::post('/api/kpis/tipo-cristal-esfera-cilindro-ordenes', [KpisApiController::class, 'getEstadisticasTipoCristalCiliEsf']);
+
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);
 });

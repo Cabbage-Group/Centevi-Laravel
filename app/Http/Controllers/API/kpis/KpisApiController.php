@@ -904,8 +904,7 @@ class KpisApiController extends Controller
       ->unionAll(
         DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
           ->mergeBindings($terapiaBajaVQuery->getQuery())
-      );
-    ;
+      );;
 
     // Agrupar y sumar las consultas de todas las tablas
     $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
@@ -1988,5 +1987,53 @@ class KpisApiController extends Controller
     }
 
     return response()->json(['data' => $resultados]);
+  }
+
+
+
+
+
+  public function getEstadisticasTipoCristalCiliEsf(Request $request)
+  {
+    $startDate = $request->input('startDate');
+    $endDate = $request->input('endDate');
+    $nameFilter = $request->input('name');
+    $limit = $request->input('limit', 10); 
+    
+    $query = DB::table('ordenes')
+      ->select(
+        DB::raw("CONCAT(codigo_cristal, '+', esfera_od, '+', cilindro_od) AS name"),
+        DB::raw('COUNT(*) AS total')
+      )
+      ->whereNotNull('codigo_cristal')
+      ->whereNotNull('esfera_od')
+      ->whereNotNull('cilindro_od');
+
+    if ($startDate && $endDate) {
+      $query->whereBetween('created_at', [$startDate, $endDate]);
+    }
+
+    if ($nameFilter) {
+      if (!is_array($nameFilter)) {
+        $nameFilter = [$nameFilter]; 
+      }
+
+      $query->where(function ($q) use ($nameFilter) {
+        foreach ($nameFilter as $name) {
+          $q->orWhereRaw("CONCAT(codigo_cristal, '+', esfera_od, '+', cilindro_od) LIKE ?", ["%$name%"]);
+        }
+      });
+    }
+
+    $query->groupBy('codigo_cristal', 'esfera_od', 'cilindro_od')
+      ->orderByDesc('total')  
+      ->limit($limit); 
+
+
+    $result = $query->get();
+
+    return response()->json([
+      'data' => $result
+    ]);
   }
 }

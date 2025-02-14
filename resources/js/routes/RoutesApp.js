@@ -83,6 +83,7 @@ import VerKpisOrdenes from '../admin/kpis/KpisOrdenes/VerKpisOrdenes.js';
 import VerKpisTipoLente from '../admin/kpis/KpisTiposLente/VerKpisTipoLente.js';
 import VerKpisConsultasYTerapias from '../admin/kpis/kpisConsultasYTerapias/VerKpisConsultasYTerapias.js';
 import KpisConsultasTerapiasDoctores from '../admin/kpis/KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores.js';
+import KpisTiposCristales from '../admin/kpis/KpisTiposCristales/KpiTipoCristales.js';
 
 
 const RoutesApp = () => {
@@ -232,6 +233,7 @@ const RoutesApp = () => {
 
           <Route path="/crear-correciones-ordenes" element={<Sidebar component={<CreateCorrecionOrden />} />} />
 
+          <Route path="/kpis-tipos-cristales" element={<Sidebar component={<KpisTiposCristales />} />} />
 
           <Route path="/correciones-ordenes/:correccionOrderId" element={<Sidebar component={<CorrecionOrden />} />} />
 
