@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ComposedChart, Area, Line, } from 'recharts';
 import DateRangeSeparate from "../../reportes/DateRange";
 import { fetchKpisTiposCristales, fetchKpisTiposCristalesNoLimits, setFechaRangeTiposCristales, setFechaRangeTiposCristalesNoLimits } from "../../../redux/features/kpis/kpisTiposCristales/kpisTiposCristalesSlice";
 import { Col, Select, Row } from "antd";
+import KpisTiposCristalesVertical from "./KpisTipoCristalesVertical";
 
 const KpisTiposCristales = () => {
     const dispatch = useDispatch();
@@ -277,6 +278,8 @@ const KpisTiposCristales = () => {
                             </div>
                         </ div>
                     </Col>
+
+                  <KpisTiposCristalesVertical/>
                 </Row>
             </div>
         </div>
