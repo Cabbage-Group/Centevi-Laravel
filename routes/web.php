@@ -427,6 +427,10 @@ Route::post('/api/kpis/terapias-consultas-consulta-sucursal', [KpisApiController
 
 Route::post('/api/kpis/tipo-cristal-esfera-cilindro-ordenes', [KpisApiController::class, 'getEstadisticasTipoCristalCiliEsf']);
 
+Route::get('/api/ordenes/pdf/size/{id}', [OrdenesApiController::class, 'verOrdenPdfSize']);
+
+Route::get('/api/ordenes/pdf/small/{id}', [OrdenesApiController::class, 'verOrdenPdfSmall']);
+
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);
 });

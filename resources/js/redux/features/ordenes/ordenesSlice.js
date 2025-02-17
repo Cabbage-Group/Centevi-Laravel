@@ -105,6 +105,44 @@ export const verCorrecionPdf = createAsyncThunk(
   }
 );
 
+export const verOrdenPdfSize = createAsyncThunk(
+  'ordenes/viewPdf',
+  async (id_orden, { rejectWithValue }) => {
+    let urlPdf = null
+    try {
+      const response = await axios.get(`${API}/ordenes/pdf/size/${id_orden}`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      urlPdf = url
+    } catch (error) {
+      console.error('Error al visualizar la orden:', error.response?.data)
+      return rejectWithValue(error.response?.data || 'Error al obtener PDF')
+    }
+    return urlPdf
+  }
+);
+
+export const verOrdenPdfSmall = createAsyncThunk(
+  'ordenes/viewPdf',
+  async (id_orden, { rejectWithValue }) => {
+    let urlPdf = null
+    try {
+      const response = await axios.get(`${API}/ordenes/pdf/small/${id_orden}`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      urlPdf = url
+    } catch (error) {
+      console.error('Error al visualizar la orden:', error.response?.data)
+      return rejectWithValue(error.response?.data || 'Error al obtener PDF')
+    }
+    return urlPdf
+  }
+);
+
 
 export const updateOrden = createAsyncThunk(
   'ordenes/updateOrdenes',
@@ -137,6 +175,7 @@ export const fetchContactoOrdenesDelPaciente = createAsyncThunk(
 );
 
 
+
 const ordenesSlice = createSlice({
   name: 'ordenes',
   initialState: {
@@ -146,6 +185,7 @@ const ordenesSlice = createSlice({
     contactoOrden: [],
     ordenes_options_selecteds: [],
     nro_orden_auto: [],
+    OrderId: null,
     total: 0,
     meta: {},
     status: 'idle',
@@ -167,6 +207,15 @@ const ordenesSlice = createSlice({
     setFechaRange(state, action) {
       state.startDate = action.payload.startDate;
       state.endDate = action.payload.endDate;
+    },
+    setOrderId: (state, action) => {
+      console.log('action:',action)
+      console.log('state:',state)
+      console.log('state.OrderId:',state.OrderId)
+      state.OrderId = action.payload;
+    },
+    clearOrderId: (state) => {
+      state.OrderId = null;
     },
   },
   extraReducers: (builder) => {
@@ -253,5 +302,7 @@ export const {
   setOrden,
   setOrdenPor,
   setFechaRange,
+  setOrderId,
+  clearOrderId,
   setSearch } = ordenesSlice.actions;
 export default ordenesSlice.reducer;
