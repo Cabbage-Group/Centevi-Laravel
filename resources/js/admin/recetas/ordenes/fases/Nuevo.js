@@ -59,6 +59,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
     }
   }, [orden?.lente_contacto, pacienteOrden?.lente_contacto]);
 
+  console.log('tipoFaseId:',tipoFaseId)
 
   useEffect(() => {
     if (orderId) {
@@ -115,7 +116,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
   }, [tiposFasesOrdenes, orderId, tipoFaseId]);
 
   useEffect(() => {
-    if (laboratorio && observaciones !== null) {
+    if (laboratorio) {
       const nuevaFase = {
         tipo_fase_orden_id: tipoFaseId,
         laboratorio: laboratorio,

@@ -147,14 +147,9 @@ const Ordenes = () => {
     }));
   };
 
-
-
-
-
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
       const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        console.log('tipoFase:', tipoFase.fases_ordenes)
         const hasCompleted = tipoFase.fases_ordenes.some(
           (faseOrden) =>
             faseOrden.ordenes_id === parseInt(orderId) &&
@@ -224,7 +219,7 @@ const Ordenes = () => {
   });
 
 
-
+  console.log('nuevaData:',nuevaData)
 
   const avanzarFase = async (avanzar = true, completar = false) => {
     if (nuevaData.tipo_fase_orden_id === 1 && !nuevaData.laboratorio) {

@@ -46,9 +46,10 @@ class OrdenesApiController extends Controller
       ->select(
         'ordenes_id',
         DB::raw('COUNT(*) as total_fases'),
-        DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+        DB::raw('SUM(1) as fases_completadas') 
       )
       ->groupBy('ordenes_id');
+
 
     // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
@@ -694,10 +695,6 @@ class OrdenesApiController extends Controller
             WHERE ordenes_id = fo.ordenes_id 
             AND tipo_fase_orden_id = 1
         )');
-
-
-
-    // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
