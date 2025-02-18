@@ -209,9 +209,9 @@ const ordenesSlice = createSlice({
       state.endDate = action.payload.endDate;
     },
     setOrderId: (state, action) => {
-      console.log('action:',action)
-      console.log('state:',state)
-      console.log('state.OrderId:',state.OrderId)
+      console.log('action:', action)
+      console.log('state:', state)
+      console.log('state.OrderId:', state.OrderId)
       state.OrderId = action.payload;
     },
     clearOrderId: (state) => {

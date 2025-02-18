@@ -904,7 +904,8 @@ class KpisApiController extends Controller
       ->unionAll(
         DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
           ->mergeBindings($terapiaBajaVQuery->getQuery())
-      );;
+      );
+    ;
 
     // Agrupar y sumar las consultas de todas las tablas
     $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
@@ -1998,8 +1999,8 @@ class KpisApiController extends Controller
     $startDate = $request->input('startDate');
     $endDate = $request->input('endDate');
     $nameFilter = $request->input('name');
-    $limit = $request->input('limit', 10); 
-    
+    $limit = $request->input('limit', 10);
+
     $query = DB::table('ordenes')
       ->select(
         DB::raw("CONCAT(codigo_cristal, '+', esfera_od, '+', cilindro_od) AS name"),
@@ -2015,7 +2016,7 @@ class KpisApiController extends Controller
 
     if ($nameFilter) {
       if (!is_array($nameFilter)) {
-        $nameFilter = [$nameFilter]; 
+        $nameFilter = [$nameFilter];
       }
 
       $query->where(function ($q) use ($nameFilter) {
@@ -2026,8 +2027,8 @@ class KpisApiController extends Controller
     }
 
     $query->groupBy('codigo_cristal', 'esfera_od', 'cilindro_od')
-      ->orderByDesc('total')  
-      ->limit($limit); 
+      ->orderByDesc('total')
+      ->limit($limit);
 
 
     $result = $query->get();
