@@ -43,4 +43,13 @@ class FasesOrdenes extends Model
     return $this->hasMany(ContactoOrden::class, 'fase_orden_id');
   }
 
+  public function orden()
+  {
+    return $this->belongsTo(Ordenes::class, 'ordenes_id', 'id_orden');
+  }
+
+  public function usuario()
+  {
+    return $this->belongsTo(Usuarios::class, 'elaborado_por', 'id_usuario');
+  }
 }

@@ -34,7 +34,7 @@ export const fetchCorreccionesByOrdenId = createAsyncThunk(
     'correcionesordenes/fetchCorreccionesByOrdenId',
     async (orden_id) => {
         try {
-            const response = await axios.get(`${API}/correciones-ordenes/${orden_id}`);
+            const response = await axios.get(`${API}/obtener-correcciones-ordenes/${orden_id}`);
             return response.data;
         } catch (error) {
             console.error('Error fetching correcciones for orden:', error.response?.data || error.message);
@@ -85,24 +85,37 @@ export const fetchContactoCorreccionesOrdenesDelPaciente = createAsyncThunk(
 export const verOrdenCorrecionPdf = createAsyncThunk(
     'ordenes-correciones/viewPdf',
     async (id_orden, { rejectWithValue }) => {
-      let urlPdf = null
-      try {
-        const response = await axios.get(`${API}/correciones-ordenes/pdf/${id_orden}`, {
-          responseType: 'blob',
-        })
-        console.log("response")
-        console.log(response)
-        const blob = new Blob([response.data], { type: 'application/pdf' })
-        const url = window.URL.createObjectURL(blob)
-        urlPdf = url
-      } catch (error) {
-        console.error('Error al visualizar la orden:', error.response?.data)
-        return rejectWithValue(error.response?.data || 'Error al obtener PDF')
-      }
-      return urlPdf
+        let urlPdf = null
+        try {
+            const response = await axios.get(`${API}/correciones-ordenes/pdf/${id_orden}`, {
+                responseType: 'blob',
+            })
+            console.log("response")
+            console.log(response)
+            const blob = new Blob([response.data], { type: 'application/pdf' })
+            const url = window.URL.createObjectURL(blob)
+            urlPdf = url
+        } catch (error) {
+            console.error('Error al visualizar la orden:', error.response?.data)
+            return rejectWithValue(error.response?.data || 'Error al obtener PDF')
+        }
+        return urlPdf
     }
-  );
-  
+);
+
+export const fetchCorreccionOrden = createAsyncThunk(
+    'ordenes/fetchCorreccionOrden',
+    async ( id_correccion , { rejectWithValue }) => {
+        try {
+            const response = await axios.get(`${API}/obtener-correccion/${id_correccion}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response ? error.response.data : error.message);
+        }
+    }
+);
+
+
 
 const correcionesordenesSlice = createSlice({
     name: 'correcionesordenes',
@@ -111,10 +124,13 @@ const correcionesordenesSlice = createSlice({
         correciones_ordenes_options_selecteds: [],
         correcionesbyOrden: [],
         contactoCorreccionOrden: [],
+        correcionOrden: {},
         metabyOrden: {},
         meta: {},
         status: 'idle',
+        statusCorreccionOrden: 'idle',
         error: null,
+        errorCorreccionOrden: null,
         sortOrder: 'desc',
         sortColumn: 'created_at',
     },
@@ -191,9 +207,20 @@ const correcionesordenesSlice = createSlice({
             })
             .addCase(fetchContactoCorreccionesOrdenesDelPaciente.fulfilled, (state, action) => {
                 state.contactoCorreccionOrden = action.payload.data;
+            })
+            .addCase(fetchCorreccionOrden.pending, (state) => {
+                state.statusCorreccionOrden = 'loading';
+            })
+            .addCase(fetchCorreccionOrden.fulfilled, (state, action) => {
+                state.statusCorreccionOrden = 'succeeded';
+                state.correcionOrden = action.payload.data;;
+            })
+            .addCase(fetchCorreccionOrden.rejected, (state, action) => {
+                state.statusCorreccionOrden = 'failed';
+                state.errorCorreccionOrden = action.error.message;
             });
 
-},
+    },
 });
 
 export const {

@@ -20,6 +20,211 @@ use App\Models\CorrecionesOrdenes;
 class OrdenesApiController extends Controller
 {
 
+  public function obtenerOrdenes(Request $request)
+  {
+    // Parámetros de búsqueda, paginación y ordenamiento
+    $search = $request->input('search', '');
+    $limit = $request->input('limit', 20);
+    $page = $request->input('page', 1);
+    $sortColumn = $request->input('sortColumn', 'id_orden');
+    $sortOrder = $request->input('sortOrder', 'asc');
+    $lenteContacto = $request->input('lenteContacto', []);
+    $estados = $request->input('estados', []);
+    $pagado = $request->input('pagado', []);
+    $sucursal = $request->input('sucursal', []);
+    $laboratorio = $request->input('laboratorio', []);
+    $fase = $request->input('fase', []);
+    $fecha = $request->input('fecha', '');
+
+
+    // Columnas permitidas para ordenar
+    $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
+    if (!in_array($sortColumn, $validColumns)) {
+      $sortColumn = 'id_orden';
+    }
+    $sortOrder = $sortOrder === 'desc' ? 'desc' : 'asc';
+
+    // Query con búsqueda dinámica, filtro por lente_contacto y ordenamiento
+    $query = Ordenes::with([
+      'paciente:id_paciente,nombres,celular,apellidos',
+      'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
+      'fasesOrdenes.tipoFaseOrden',
+      'fasesOrdenes.usuario',
+      'correciones'
+    ]);
+
+    if (!empty($search)) {
+      $query->where(function ($q) use ($search) {
+        $q->where('id_orden', 'like', "%$search%")
+          ->orWhere('nro_orden_id', 'like', "%$search%")
+          ->orWhere('created_at', 'like', "%$search%")
+          ->orWhereHas('paciente', function ($q) use ($search) {
+            $q->whereRaw("REPLACE(TRIM(CONCAT(nombres, ' ', apellidos)), '  ', ' ') LIKE ?", ["%$search%"])
+              ->orWhereRaw("REPLACE(TRIM(CONCAT(apellidos, ' ', nombres)), '  ', ' ') LIKE ?", ["%$search%"])
+              ->orWhere('celular', 'like', "%$search%");
+          })
+          ->orWhereHas('sucursal', function ($q) use ($search) {
+            $q->where('nombre', 'like', "%$search%");
+          });
+      });
+    }
+
+
+    if (!empty($fecha)) {
+      $fechas = explode(' - ', $fecha);
+      if (count($fechas) === 2) {
+        $fechaInicio = trim($fechas[0]);
+        $fechaFin = trim($fechas[1]);
+
+        if (strtotime($fechaInicio) && strtotime($fechaFin)) {
+          $query->whereBetween('created_at', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
+        }
+      }
+    }
+
+    // Filtro por lente_contacto (0, 1 o ambos)
+    if (!empty($lenteContacto)) {
+      $query->whereIn('lente_contacto', (array) $lenteContacto);
+    }
+
+    if (!empty($pagado)) {
+      $query->whereIn('pagado', (array) $pagado);
+    }
+
+    if (!empty($sucursal)) {
+      $query->whereIn('id_sucursal', (array) $sucursal);
+    }
+
+    if (!empty($laboratorio)) {
+      $query->whereHas('fasesOrdenes', function ($q) use ($laboratorio) {
+        $q->whereIn('laboratorio', (array) $laboratorio);
+      });
+    }
+
+    $ordenes = $query->orderBy($sortColumn, $sortOrder)->get();
+
+    $ordenes = $ordenes->map(function ($orden) {
+      // Obtener la última fase basada en el mayor `tipo_fase_orden_id`
+      $ultimaFase = $orden->fasesOrdenes->sortByDesc('tipo_fase_orden_id')->first();
+
+      $estado = 'Sin estado';
+      $siguienteFase = "Nuevo";
+
+      if (!$ultimaFase) {
+        $siguienteFase = "Nuevo";
+      } else {
+        $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
+
+        if ($ultimaFase->tipo_fase_orden_id == 4) {
+          $estado = 'Completado';
+        } elseif ($diasDiferencia <= 6) {
+          $estado = 'OK';
+        } elseif ($diasDiferencia == 7) {
+          $estado = 'Advertencia';
+        } else {
+          $estado = 'Crítico';
+        }
+
+        if ($ultimaFase->tipo_fase_orden_id == 4) {
+          $siguienteFase = "Retirado";
+        } elseif ($ultimaFase->tipo_fase_orden_id == 3) {
+          $siguienteFase = "Listo";
+        } elseif ($ultimaFase->tipo_fase_orden_id == 1 && $ultimaFase->status == 0) {
+          $siguienteFase = "Nuevo";
+        } else {
+          $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_orden_id < 3)
+            ? $ultimaFase->tipo_fase_orden_id + 1
+            : $ultimaFase->tipo_fase_orden_id;
+
+          $siguienteFase = TiposFasesOrdenes::where('id', $nuevoTipoFase)
+            ->value('tipo_fase_orden') ?? "Finalizado";
+        }
+      }
+
+      return [
+        'id_orden' => $orden->id_orden,
+        'nro_orden_id' => $orden->nro_orden_id,
+        'pagado' => $orden->pagado,
+        'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
+        'laboratorio' => $orden->fasesOrdenes->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
+        'tipo_fase_orden' => $siguienteFase,
+        'elaborado_por_fase' => $ultimaFase->usuario->nombre ?? null,
+        'siguiente_fase' => $siguienteFase,
+        'id_paciente' => $orden->paciente->id_paciente,
+        'nombres' => $orden->paciente->nombres,
+        'apellidos' => $orden->paciente->apellidos,
+        'celular' => $orden->paciente->celular,
+        'sucursal' => $orden->sucursal->nombre,
+        'lente_contacto' => $orden->lente_contacto,
+        'correcciones' => $orden->correciones->count(),
+        'estado' => $estado,
+        'esfera_od' => $orden['esfera_od'],
+        'cilindro_od' => $orden['cilindro_od'],
+        'eje_od' => $orden['eje_od'],
+        'add_od' => $orden['add_od'],
+        'prisma_od' => $orden['prisma_od'],
+        'distancia_od' => $orden['distancia_od'],
+        'altura_od' => $orden['altura_od'],
+        'esfera_oi' => $orden['esfera_oi'],
+        'cilindro_oi' => $orden['cilindro_oi'],
+        'eje_oi' => $orden['eje_oi'],
+        'add_oi' => $orden['add_oi'],
+        'prisma_oi' => $orden['prisma_oi'],
+        'distancia_oi' => $orden['distancia_oi'],
+        'altura_oi' => $orden['altura_oi'],
+        'material_od' => $orden['material_od'],
+        'material_oi' => $orden['material_oi'],
+        'tipo_cristal_od' => $orden['tipo_cristal_od'],
+        'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+        'l_uno' => $orden['l_uno'] ?? "-",
+        'l_dos' => $orden['l_dos'] ?? "-",
+        'l_tres' => $orden['l_tres'] ?? "-",
+        'l_cuatro' => $orden['l_cuatro'] ?? "-",
+        'l_cinco' => $orden['l_cinco'] ?? "-",
+        'color' => $orden['color'] ?? "_",
+        'codigo' => $orden['codigo'] ?? "_",
+        'marca' => $orden['marca'] ?? "_",
+        'tipo_aro' => $orden['tipo_aro'] ?? "_",
+        'observaciones' => $orden['observaciones'] ?? "_",
+        'aro_centevi' => $orden['aro_centevi'],
+        'aro_propio' => $orden['aro_propio'],
+        'lente_contacto' => $orden['lente_contacto'],
+        'tratamientos_oi' => $orden['tratamientos_oi'],
+        'tratamientos_od' => $orden['tratamientos_od'],
+      ];
+    });
+
+
+
+    if (!empty($fase)) { {
+        $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $fase)->values();
+      };
+    }
+
+    if (!empty($estados)) {
+      $ordenes = $ordenes->whereIn('estado', (array) $estados)->values();
+    }
+
+    $total = $ordenes->count();
+
+    $ordenesPaginadas = $ordenes->slice(($page - 1) * $limit, $limit)->values();
+
+    return response()->json([
+      'data' => $ordenesPaginadas,
+      'meta' => [
+        'total' => $total,
+        'limit' => $limit,
+        'page' => $page,
+        'last_page' => ceil($total / $limit),
+        'sortColumn' => $sortColumn,
+        'sortOrder' => $sortOrder,
+        'search' => $search,
+        'lenteContacto' => $lenteContacto,
+        'estados' => $estados,
+      ]
+    ]);
+  }
+
   public function ordenes(Request $request)
   {
     $limit = $request->input('limit', 10);
@@ -35,26 +240,27 @@ class OrdenesApiController extends Controller
     $laboratorio = $request->input('laboratorio', []);
     $fase = $request->input('fase', []);
 
-    // Asegurarse de que se puede ordenar por created_at
     $validSortColumns = ['id_orden', 'created_at', 'nro_order_id'];
     if (!in_array($sortColumn, $validSortColumns)) {
-      $sortColumn = 'id_orden'; // Valor por defecto
+      $sortColumn = 'id_orden';
     }
 
-    // Subconsulta para contar el número total de fases para cada orden
     $contadorFasesQuery = DB::table('fases_ordenes')
       ->select(
         'ordenes_id',
         DB::raw('COUNT(*) as total_fases'),
-        DB::raw('SUM(1) as fases_completadas') 
+        DB::raw('SUM(1) as fases_completadas')
       )
       ->groupBy('ordenes_id');
 
-
-    // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+      ->leftJoin('fases_ordenes as fase4', function ($join) {
+        $join->on('fo.ordenes_id', '=', 'fase4.ordenes_id')
+          ->where('fase4.tipo_fase_orden_id', 4)
+          ->where('fase4.status', 1);
+      })
       ->select(
         'fo.ordenes_id',
         'fo.laboratorio as laboratorio_primera_fase',
@@ -63,13 +269,15 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
-                WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
-                ELSE "sin_status"
-            END as status_primera_fase')
+        DB::raw("CASE 
+        WHEN contador_fases.total_fases = 4 
+            AND contador_fases.fases_completadas = 4 
+            AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
+        ELSE 'sin_status'
+    END as status_primera_fase")
       )
       ->whereRaw('fo.id = (
             SELECT MIN(id) 
@@ -78,7 +286,6 @@ class OrdenesApiController extends Controller
             AND tipo_fase_orden_id = 1
         )');
 
-    // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->leftJoin('usuarios as u', 'fo.elaborado_por', '=', 'u.id_usuario')
@@ -115,7 +322,7 @@ class OrdenesApiController extends Controller
         FROM fases_ordenes 
         WHERE ordenes_id = fo.ordenes_id
     )');
-    // Consulta principal
+
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
@@ -230,6 +437,11 @@ class OrdenesApiController extends Controller
       'mensaje' => 'Órdenes obtenidas correctamente',
     ], 200);
   }
+
+
+
+
+
 
   public function createOrdenes(Request $request)
   {
@@ -475,10 +687,29 @@ class OrdenesApiController extends Controller
     }
   }
 
-  public function tipoFasesOrdenes()
-  {
+  // public function tipoFasesOrdenes()
+  // {
 
-    $tiposFases = TiposFasesOrdenes::with(['fasesOrdenes', 'fasesCorreccionesOrdenes'])->get();
+  //   $tiposFases = TiposFasesOrdenes::with(['fasesOrdenes', 'fasesCorreccionesOrdenes'])->get();
+  //   return response()->json([
+  //     'data' => $tiposFases,
+  //     'status' => [
+  //       'code' => 200
+  //     ],
+  //   ]);
+  // }
+
+  public function tipoFasesOrdenes($idOrden)
+  {
+    $tiposFases = TiposFasesOrdenes::with([
+      'fasesOrdenes' => function ($query) use ($idOrden) {
+        $query->where('ordenes_id', $idOrden);
+      },
+      'fasesCorreccionesOrdenes' => function ($query) use ($idOrden) {
+        $query->where('correccion_ordenes_id', $idOrden);
+      }
+    ])->get();
+
     return response()->json([
       'data' => $tiposFases,
       'status' => [
@@ -486,6 +717,7 @@ class OrdenesApiController extends Controller
       ],
     ]);
   }
+
 
   public function createTiposFasesOrdenes(Request $request)
   {
@@ -503,7 +735,7 @@ class OrdenesApiController extends Controller
 
   public function fasesOrdenes()
   {
-    $fasesOrdenes = FasesOrdenes::with('tipoFaseOrden')->get(); // Incluye la relación con tipoFaseOrden
+    $fasesOrdenes = FasesOrdenes::with('tipoFaseOrden')->get();
     return response()->json([
       'data' => $fasesOrdenes,
       'status' => [
@@ -649,7 +881,7 @@ class OrdenesApiController extends Controller
       ->select(
         'ordenes_id',
         DB::raw('COUNT(*) as total_fases'),
-        DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+        DB::raw('SUM(1) as fases_completadas')
       )
       ->groupBy('ordenes_id');
 
@@ -657,14 +889,18 @@ class OrdenesApiController extends Controller
       ->select(
         'correccion_ordenes_id',
         DB::raw('COUNT(*) as total_fases'),
-        DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as fases_completadas')
+        DB::raw('SUM(1) as fases_completadas')
       )
       ->groupBy('correccion_ordenes_id');
 
-    // Subconsulta para obtener el primer dato
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+      ->leftJoin('fases_ordenes as fase4', function ($join) {
+        $join->on('fo.ordenes_id', '=', 'fase4.ordenes_id')
+          ->where('fase4.tipo_fase_orden_id', 4)
+          ->where('fase4.status', 1);
+      })
       ->select(
         'fo.ordenes_id',
         'fo.laboratorio as laboratorio_primera_fase',
@@ -673,13 +909,15 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
-                WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
-                ELSE "sin_status"
-            END as status_primera_fase'),
+        DB::raw("CASE 
+        WHEN contador_fases.total_fases = 4 
+            AND contador_fases.fases_completadas = 4 
+            AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
+        ELSE 'sin_status'
+    END as status_primera_fase"),
         DB::raw('CASE 
             WHEN contador_fases.total_fases = 4 THEN 0
             WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 1
@@ -954,7 +1192,7 @@ class OrdenesApiController extends Controller
 
   public function ordenesDelPaciente(Request $request, $id_paciente)
   {
-    // Validate that the patient ID is numeric and exists
+    // Validar que el paciente existe
     $pacienteExists = DB::table('pacientes')->where('id_paciente', $id_paciente)->exists();
 
     if (!$pacienteExists) {
@@ -968,13 +1206,13 @@ class OrdenesApiController extends Controller
       ], 404);
     }
 
+    // Obtener parámetros de la consulta
     $limit = $request->input('limit', 10);
     $page = $request->input('page', 1);
     $sortColumn = $request->input('sortColumn', 'created_at');
     $sortOrder = $request->input('sortOrder', 'desc');
-    $search = $request->input('search', '');
+    $nroOrdenId = $request->query('nro_orden_id');
 
-    // Validate sort column
     $validSortColumns = ['id_orden', 'created_at', 'nro_orden', 'nro_orden_id'];
     if (!in_array($sortColumn, $validSortColumns)) {
       $sortColumn = 'created_at';
@@ -1008,33 +1246,31 @@ class OrdenesApiController extends Controller
             WHERE ordenes_id = fo.ordenes_id 
             AND tipo_fase_orden_id = 1
         )');
-
-    // Subconsulta para obtener la última fase
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
       ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
       ->select(
         'fo.ordenes_id',
         DB::raw('
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
-                           ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
-                          tfo.tipo_fase_orden
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
-                           WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
-                  END as fase_actual'),
+                CASE 
+                    WHEN fo.tipo_fase_orden_id IS NULL THEN 
+                        (SELECT tipo_fase_orden 
+                         FROM tipos_fases_ordenes 
+                         ORDER BY id ASC LIMIT 1)
+                    WHEN fo.tipo_fase_orden_id = 4 THEN 
+                        tfo.tipo_fase_orden
+                    ELSE 
+                        (SELECT tipo_fase_orden 
+                         FROM tipos_fases_ordenes 
+                         WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
+                END as fase_actual'),
         'fo.laboratorio as laboratorio_ultima_fase',
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-              SELECT MAX(id) 
-              FROM fases_ordenes 
-              WHERE ordenes_id = fo.ordenes_id
-          )');
+            SELECT MAX(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo.ordenes_id
+        )');
 
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
@@ -1043,31 +1279,17 @@ class OrdenesApiController extends Controller
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
       ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
-      ->where('ordenes.id_paciente', $id_paciente)
-      ->select(
-        'ordenes.*',
-        'usuarios.nombre as elaborado_por_nombre',
-        'primeras_fases.status_primera_fase as status',
-        DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
-        DB::raw('COALESCE(ultimas_fases.laboratorio_ultima_fase, "") as laboratorio_ultima_fase'),
-        DB::raw('COALESCE(ultimas_fases.fecha_ultima_fase, "") as fecha_ultima_fase')
-      );
+      ->where('ordenes.id_paciente', $id_paciente);
 
-    // Aplicar búsqueda si se proporciona
-    if (!empty($search)) {
-      $ordenes->where(function ($query) use ($search) {
-        $query->where('ordenes.id_orden', 'like', "%{$search}%")
-          ->orWhere('ordenes.nro_orden', 'like', "%{$search}%")
-          ->orWhere('ordenes.nro_orden_id', 'like', "%{$search}%")
-          ->orWhere('usuarios.nombre', 'like', "%{$search}%")
-          ->orWhere('ordenes.doctor', 'like', "%{$search}%")
-          ->orWhere('ultimas_fases.fase_actual', 'like', "%{$search}%");
-      });
+    if (!empty($nroOrdenId)) {
+      $ordenes->where('ordenes.nro_orden_id', $nroOrdenId);
     }
 
+    // Paginar y ordenar la consulta
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
 
+    // Retornar respuesta JSON
     return response()->json([
       'data' => $paginatedData->items(),
       'meta' => [
@@ -1083,6 +1305,278 @@ class OrdenesApiController extends Controller
       'mensaje' => 'Órdenes del paciente obtenidas correctamente',
     ], 200);
   }
+
+  // public function obtenerOrdenPaciente($id_paciente, $nroOrdenId)
+  // {
+  //   $pacienteExists = DB::table('pacientes')->where('id_paciente', $id_paciente)->exists();
+
+  //   if (!$pacienteExists) {
+  //     return response()->json([
+  //       'respuesta' => false,
+  //       'mensaje' => 'Paciente no encontrado',
+  //       'status' => [
+  //         'code' => 404,
+  //         'message' => 'Patient not found'
+  //       ]
+  //     ], 404);
+  //   }
+
+  //   $contadorFasesQuery = DB::table('fases_ordenes')
+  //     ->select(
+  //       'ordenes_id',
+  //       DB::raw('COUNT(*) as total_fases'),
+  //       DB::raw('SUM(1) as fases_completadas')
+  //     )
+  //     ->groupBy('ordenes_id');
+
+  //   $primeraFaseQuery = DB::table('fases_ordenes as fo')
+  //     ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+  //     ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+  //     ->leftJoin('fases_ordenes as fase4', function ($join) {
+  //       $join->on('fo.ordenes_id', '=', 'fase4.ordenes_id')
+  //         ->where('fase4.tipo_fase_orden_id', 4)
+  //         ->where('fase4.status', 1);
+  //     })
+  //     ->select(
+  //       'fo.ordenes_id',
+  //       'fo.laboratorio as laboratorio_primera_fase',
+  //       'fo.observacion as observacion_primera_fase',
+  //       'fo.fecha_fase as fecha_primera_fase',
+  //       'contador_fases.total_fases',
+  //       'contador_fases.fases_completadas',
+  //       DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
+  //       DB::raw("CASE 
+  //                     WHEN contador_fases.total_fases = 4 
+  //                         AND contador_fases.fases_completadas = 4 
+  //                         AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
+  //                     WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
+  //                     WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
+  //                     WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
+  //                     ELSE 'sin_status'
+  //                 END as status_primera_fase")
+  //     )
+  //     ->whereRaw('fo.id = (
+  //                 SELECT MIN(id) 
+  //                 FROM fases_ordenes 
+  //                 WHERE ordenes_id = fo.ordenes_id 
+  //                 AND tipo_fase_orden_id = 1
+  //             )');
+
+  //   $orden = DB::table('ordenes')
+  //     ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+  //     ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
+  //     ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+  //     ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+  //     ->select(
+  //       'ordenes.*',
+  //       'primeras_fases.*',
+  //       'pacientes.nombres as paciente_nombres',
+  //       'pacientes.apellidos as paciente_apellidos',
+  //       'pacientes.celular as paciente_celular',
+  //       'sucursales.nombre as sucursal_nombre',
+  //       'sucursales.ubicacion_maps as sucursal_ubicacion',
+  //       'usuarios.nombre as elaborado_por'
+  //     )
+  //     ->where('ordenes.id_paciente', $id_paciente)
+  //     ->where('ordenes.nro_orden_id', $nroOrdenId)
+  //     ->first();
+
+  //   if (!$orden) {
+  //     return response()->json([
+  //       'respuesta' => false,
+  //       'mensaje' => 'Orden no encontrada para el paciente',
+  //       'status' => [
+  //         'code' => 404,
+  //         'message' => 'Order not found'
+  //       ]
+  //     ], 404);
+  //   }
+
+  //   return response()->json([
+  //     'respuesta' => true,
+  //     'data' => $orden,
+  //     'status' => [
+  //       'code' => 200,
+  //       'message' => 'Order retrieved successfully'
+  //     ],
+  //     'mensaje' => 'Orden obtenida correctamente'
+  //   ], 200);
+  // }
+
+  public function obtenerOrdenPaciente($id_paciente, $nroOrdenId)
+  {
+    $pacienteExists = DB::table('pacientes')->where('id_paciente', $id_paciente)->exists();
+
+    if (!$pacienteExists) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Paciente no encontrado',
+        'status' => [
+          'code' => 404,
+          'message' => 'Patient not found'
+        ]
+      ], 404);
+    }
+
+    $contadorFasesQuery = DB::table('fases_ordenes')
+      ->select(
+        'ordenes_id',
+        DB::raw('COUNT(*) as total_fases'),
+        DB::raw('SUM(1) as fases_completadas')
+      )
+      ->groupBy('ordenes_id');
+
+    // Subconsulta para obtener la última fase activa
+    $ultimaFaseQuery = DB::table('fases_ordenes as fo2')
+      ->select(
+        'fo2.ordenes_id',
+        DB::raw('
+                CASE 
+                    WHEN fo2.status = 0 THEN (
+                        SELECT tipo_fase_orden_id 
+                        FROM fases_ordenes 
+                        WHERE ordenes_id = fo2.ordenes_id 
+                        AND id < fo2.id 
+                        ORDER BY id DESC 
+                        LIMIT 1
+                    )
+                    ELSE fo2.tipo_fase_orden_id 
+                END as ultima_fase_tipo_id
+            '),
+        DB::raw('
+                CASE 
+                    WHEN fo2.status = 0 THEN (
+                        CASE 
+                            WHEN (
+                                SELECT tipo_fase_orden_id 
+                                FROM fases_ordenes 
+                                WHERE ordenes_id = fo2.ordenes_id 
+                                AND id < fo2.id 
+                                ORDER BY id DESC 
+                                LIMIT 1
+                            ) IS NULL THEN \'Nuevo\'
+                            WHEN (
+                                SELECT tipo_fase_orden_id 
+                                FROM fases_ordenes 
+                                WHERE ordenes_id = fo2.ordenes_id 
+                                AND id < fo2.id 
+                                ORDER BY id DESC 
+                                LIMIT 1
+                            ) = 1 THEN \'En Confección\'
+                            WHEN (
+                                SELECT tipo_fase_orden_id 
+                                FROM fases_ordenes 
+                                WHERE ordenes_id = fo2.ordenes_id 
+                                AND id < fo2.id 
+                                ORDER BY id DESC 
+                                LIMIT 1
+                            ) = 2 THEN \'Listo\'
+                            WHEN (
+                                SELECT tipo_fase_orden_id 
+                                FROM fases_ordenes 
+                                WHERE ordenes_id = fo2.ordenes_id 
+                                AND id < fo2.id 
+                                ORDER BY id DESC 
+                                LIMIT 1
+                            ) = 3 THEN \'Retirado\'
+                            ELSE \'Desconocido\'
+                        END
+                    )
+                    ELSE (
+                        CASE 
+                            WHEN fo2.tipo_fase_orden_id IS NULL THEN \'Nuevo\'
+                            WHEN fo2.tipo_fase_orden_id = 1 THEN \'En Confección\'
+                            WHEN fo2.tipo_fase_orden_id = 2 THEN \'Listo\'
+                            WHEN fo2.tipo_fase_orden_id = 3 THEN \'Retirado\'
+                            ELSE \'Desconocido\'
+                        END
+                    )
+                END as ultima_fase_nombre
+            ')
+      )
+      ->whereRaw('fo2.id = (
+            SELECT MAX(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo2.ordenes_id
+        )');
+
+    $primeraFaseQuery = DB::table('fases_ordenes as fo')
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+      ->leftJoin('fases_ordenes as fase4', function ($join) {
+        $join->on('fo.ordenes_id', '=', 'fase4.ordenes_id')
+          ->where('fase4.tipo_fase_orden_id', 4)
+          ->where('fase4.status', 1);
+      })
+      ->select(
+        'fo.ordenes_id',
+        'fo.laboratorio as laboratorio_primera_fase',
+        'fo.observacion as observacion_primera_fase',
+        'fo.fecha_fase as fecha_primera_fase',
+        'contador_fases.total_fases',
+        'contador_fases.fases_completadas',
+        DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
+        DB::raw("CASE 
+                WHEN contador_fases.total_fases = 4 
+                    AND contador_fases.fases_completadas = 4 
+                    AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
+                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
+                ELSE 'sin_status'
+            END as status_primera_fase")
+      )
+      ->whereRaw('fo.id = (
+            SELECT MIN(id) 
+            FROM fases_ordenes 
+            WHERE ordenes_id = fo.ordenes_id 
+            AND tipo_fase_orden_id = 1
+        )');
+
+    $orden = DB::table('ordenes')
+      ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
+      ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
+      ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+      ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+      ->leftJoinSub($ultimaFaseQuery, 'ultima_fase', 'ordenes.id_orden', '=', 'ultima_fase.ordenes_id')
+      ->select(
+        'ordenes.*',
+        'primeras_fases.*',
+        DB::raw("COALESCE(ultima_fase.ultima_fase_tipo_id, 0) as ultima_fase_tipo_id"),
+        DB::raw("COALESCE(ultima_fase.ultima_fase_nombre, 'Nuevo') as ultima_fase_nombre"),
+        'pacientes.nombres as paciente_nombres',
+        'pacientes.apellidos as paciente_apellidos',
+        'pacientes.celular as paciente_celular',
+        'sucursales.nombre as sucursal_nombre',
+        'sucursales.ubicacion_maps as sucursal_ubicacion',
+        'usuarios.nombre as elaborado_por'
+      )
+      ->where('ordenes.id_paciente', $id_paciente)
+      ->where('ordenes.nro_orden_id', $nroOrdenId)
+      ->first();
+
+    if (!$orden) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Orden no encontrada para el paciente',
+        'status' => [
+          'code' => 404,
+          'message' => 'Order not found'
+        ]
+      ], 404);
+    }
+
+    return response()->json([
+      'respuesta' => true,
+      'data' => $orden,
+      'status' => [
+        'code' => 200,
+        'message' => 'Order retrieved successfully'
+      ],
+      'mensaje' => 'Orden obtenida correctamente'
+    ], 200);
+  }
+
 
   public function verContactoOrden($id_orden)
   {

@@ -16,20 +16,18 @@ import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
-const VerOrden = ({ fecha_solicitud }) => {
+const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = useParams();
-  const { orden } = location.state || {};
-  const { pacienteOrden } = location.state || {};
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal || pacienteOrden?.id_sucursal);
+  const [selectedPaciente, setSelectedPaciente] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState('');
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
   const [cedula, setCedula] = useState('');
@@ -41,68 +39,69 @@ const VerOrden = ({ fecha_solicitud }) => {
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
+  const [selectedMarca, setSelectedMarca] = useState('');
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
+  const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
+  const [aroCentevi, setAroCentevi] = useState(false);
+  const [tipoAro, setTipoAro] = useState('');
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
+
 
   useEffect(() => {
-    if (orden?.lente_contacto) {
+    if (pacienteOrden?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [orden]);
-
-  const generateWhatsAppLink = () => {
-    const telefonoFormateado = telefono.replace(/\D/g, '');
-    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
-    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
-
-    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
-  };
+  }, [pacienteOrden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
     setIsLeftEye(hasRightEye);
   }, [serviciosRealizados]);
 
-  const initialValues = {
-    nro_orden: orden?.nro_orden || pacienteOrden?.nro_orden,
-    nro_orden_id: orden.nro_orden_id || pacienteOrden.nro_orden_id,
-    id_paciente: orden?.id_paciente || pacienteOrden?.id_paciente,
-    id_sucursal: orden?.id_sucursal || pacienteOrden?.id_sucursal,
-    esfera_od: orden?.esfera_od || pacienteOrden?.esfera_od,
-    esfera_oi: orden?.esfera_oi || pacienteOrden?.esfera_oi,
-    cilindro_od: orden?.cilindro_od || pacienteOrden?.cilindro_od,
-    cilindro_oi: orden?.cilindro_oi || pacienteOrden?.cilindro_oi,
-    eje_od: orden?.eje_od || pacienteOrden?.eje_od,
-    eje_oi: orden?.eje_oi || pacienteOrden?.eje_oi,
-    add_od: orden?.add_od || pacienteOrden?.add_od,
-    add_oi: orden?.add_oi || pacienteOrden?.add_oi,
-    prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
-    prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
-    distancia_od: orden?.distancia_od + (orden?.distancia_oi ? '/' + orden?.distancia_oi : '') || pacienteOrden?.distancia_od + (pacienteOrden?.distancia_oi ? '/' + pacienteOrden?.distancia_oi : ''),
-    altura_od: orden?.altura_od || pacienteOrden?.altura_od,
-    altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
-    tipo_cristal_od: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-    tipo_cristal_oi: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-    material_od: orden?.material_od || pacienteOrden?.material_od,
-    material_oi: orden?.material_oi || pacienteOrden?.material_oi,
-    tratamientos_od: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
-    tratamientos_oi: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
-    aro_centevi: orden?.aro_centevi || pacienteOrden?.aro_centevi,
-    aro_propio: orden?.aro_propio || pacienteOrden?.aro_propio,
-    codigo: orden?.codigo || pacienteOrden?.codigo,
-    color: orden?.color || pacienteOrden?.color,
-    marca: orden?.marca || pacienteOrden?.marca,
-    tipo_aro: orden?.tipo_aro || pacienteOrden?.tipo_aro,
-    observaciones: orden?.observaciones || pacienteOrden?.observaciones,
-    doctor: orden?.doctor || pacienteOrden?.doctor,
-    l_uno: orden?.l_uno || pacienteOrden?.l_uno,
-    l_dos: orden?.l_dos || pacienteOrden?.l_dos,
-    l_tres: orden?.l_tres || pacienteOrden?.l_tres,
-    l_cuatro: orden?.l_cuatro || pacienteOrden?.l_cuatro,
-    l_cinco: orden?.l_cinco || pacienteOrden?.l_cinco,
+  const [formValues, setFormValues] = useState({
+    nro_orden: '',
+    nro_orden_id: '',
+    id_paciente: '',
+    id_sucursal: '',
+    esfera_od: '',
+    esfera_oi: '',
+    cilindro_od: '',
+    cilindro_oi: '',
+    eje_od: '',
+    eje_oi: '',
+    add_od: '',
+    add_oi: '',
+    prisma_od: '',
+    prisma_oi: '',
+    distancia_od: '',
+    distancia_oi: '',
+    altura_od: '',
+    altura_oi: '',
+    tipo_cristal_od: '',
+    tipo_cristal_oi: '',
+    material_od: '',
+    material_oi: '',
+    tratamientos_od: '',
+    tratamientos_oi: '',
+    aro_centevi: '',
+    aro_propio: '',
+    codigo: '',
+    color: '',
+    marca: '',
+    tipo_aro: '',
+    observaciones: '',
+    doctor: '',
+    l_uno: '',
+    l_dos: '',
+    l_tres: '',
+    l_cuatro: '',
+    l_cinco: '',
     isRowVisible: isAroVisible,
-  };
+  });
 
   const tipoAroOptions = [
     { label: 'Pasta Completo', value: 1 },
@@ -112,7 +111,88 @@ const VerOrden = ({ fecha_solicitud }) => {
     { label: 'Al Aire', value: 5 },
     { label: 'Seguridad', value: 6 },
   ];
-
+  useEffect(() => {
+    if (pacienteOrden) {
+      setSelectedPaciente(pacienteOrden?.id_paciente);
+      setSelectedSucursal(pacienteOrden?.id_sucursal);
+      setDoctorSeleccionado(pacienteOrden?.doctor);
+      setTipoAro(pacienteOrden?.tipo_aro);
+      setSelectedMarca(pacienteOrden?.marca);
+      setServiciosRealizados([
+        pacienteOrden?.tipo_cristal_od
+          ? { value: pacienteOrden.tipo_cristal_od, label: pacienteOrden.tipo_cristal_od, ojo: "Ojo Derecho" }
+          : null,
+        pacienteOrden?.tipo_cristal_oi
+          ? { value: pacienteOrden.tipo_cristal_oi, label: pacienteOrden.tipo_cristal_oi, ojo: "Ojo Izquierdo" }
+          : null,
+      ].filter(Boolean));
+      setMaterialesSeleccionados([
+        pacienteOrden?.material_od ? {
+          value: pacienteOrden?.material_od,
+          label: pacienteOrden?.material_od,
+          ojo: "Ojo Derecho"
+        } : null,
+        pacienteOrden?.material_oi ? {
+          value: pacienteOrden?.material_oi,
+          label: pacienteOrden?.material_oi,
+          ojo: "Ojo Izquierdo"
+        } : null,
+      ].filter(Boolean));
+      setTratamientosFiltros([
+        pacienteOrden?.tratamientos_od ? {
+          value: pacienteOrden?.tratamientos_od,
+          label: pacienteOrden?.tratamientos_od,
+          ojo: "Ojo Derecho"
+        } : null,
+        pacienteOrden?.tratamientos_oi ? {
+          value: pacienteOrden?.tratamientos_oi,
+          label: pacienteOrden?.tratamientos_oi,
+          ojo: "Ojo Izquierdo"
+        } : null,
+      ].filter(Boolean));
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        nro_orden: pacienteOrden.nro_orden || '',
+        nro_orden_id: pacienteOrden.nro_orden_id || '',
+        id_paciente: pacienteOrden.id_paciente || '',
+        id_sucursal: pacienteOrden.id_sucursal || '',
+        esfera_od: pacienteOrden.esfera_od || '',
+        esfera_oi: pacienteOrden.esfera_oi || '',
+        cilindro_od: pacienteOrden.cilindro_od || '',
+        cilindro_oi: pacienteOrden.cilindro_oi || '',
+        eje_od: pacienteOrden.eje_od || '',
+        eje_oi: pacienteOrden.eje_oi || '',
+        add_od: pacienteOrden.add_od || '',
+        add_oi: pacienteOrden.add_oi || '',
+        prisma_od: pacienteOrden.prisma_od || '',
+        prisma_oi: pacienteOrden.prisma_oi || '',
+        distancia_od: pacienteOrden.distancia_od || '',
+        distancia_oi: pacienteOrden.distancia_oi || '',
+        altura_od: pacienteOrden.altura_od || '',
+        altura_oi: pacienteOrden.altura_oi || '',
+        tipo_cristal_od: pacienteOrden.tipo_cristal_od,
+        tipo_cristal_oi: '',
+        material_od: '',
+        material_oi: '',
+        tratamientos_od: '',
+        tratamientos_oi: '',
+        aro_centevi: pacienteOrden.aro_centevi || '',
+        aro_propio: pacienteOrden.aro_propio || '',
+        codigo: pacienteOrden.codigo || '',
+        color: pacienteOrden.color || '',
+        marca: pacienteOrden.marca || '',
+        tipo_aro: pacienteOrden.tipo_aro || '',
+        observaciones: pacienteOrden.observaciones || '',
+        doctor: pacienteOrden.doctor || '',
+        l_uno: pacienteOrden.l_uno || '',
+        l_dos: pacienteOrden.l_dos || '',
+        l_tres: pacienteOrden.l_tres || '',
+        l_cuatro: pacienteOrden.l_cuatro || '',
+        l_cinco: pacienteOrden.l_cinco || '',
+        isRowVisible: isAroVisible,
+      }));
+    }
+  }, [pacienteOrden, isAroVisible]);
 
   const validationSchema = Yup.object().shape({
     nro_orden: Yup.number()
@@ -143,45 +223,7 @@ const VerOrden = ({ fecha_solicitud }) => {
       .required("Seleccione un doctor"),
   });
 
-  const [serviciosRealizados, setServiciosRealizados] = useState([
-    orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od ? {
-      value: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-      label: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-      ojo: "Ojo Derecho"
-    } : null,
-    orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi ? {
-      value: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi,
-      label: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden?.material_od || pacienteOrden?.material_od ? {
-      value: orden?.material_od || pacienteOrden?.material_od,
-      label: orden?.material_od || pacienteOrden?.material_od,
-      ojo: "Ojo Derecho"
-    } : null,
-    orden?.material_oi || pacienteOrden?.material_oi ? {
-      value: orden?.material_oi || pacienteOrden?.material_oi,
-      label: orden?.material_oi || pacienteOrden?.material_oi,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    orden?.tratamientos_od || pacienteOrden?.tratamientos_od ? {
-      value: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
-      label: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
-      ojo: "Ojo Derecho"
-    } : null,
-    orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi ? {
-      value: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
-      label: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [aroCentevi, setAroCentevi] = useState(false);
-  const [tipoAro, setTipoAro] = useState(orden?.tipo_aro || pacienteOrden?.tipo_aro);
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden?.doctor || pacienteOrden?.doctor)
+
 
   const handleSelectChange = (value, option) => {
     const newEntry = {
@@ -244,10 +286,10 @@ const VerOrden = ({ fecha_solicitud }) => {
   };
 
   useEffect(() => {
-    if (orden?.aro_centevi !== undefined || pacienteOrden?.aro_centevi !== undefined) {
-      setAroCentevi(orden?.aro_centevi === 1 || pacienteOrden?.aro_centevi === 1);
+    if (pacienteOrden?.aro_centevi !== undefined) {
+      setAroCentevi(pacienteOrden?.aro_centevi === 1);
     }
-  }, [orden, pacienteOrden]);
+  }, [pacienteOrden]);
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -380,37 +422,6 @@ const VerOrden = ({ fecha_solicitud }) => {
     }
   };
 
-  const handleLenteContactoChange = () => {
-    const newLenteContactoState = !lenteContacto;
-    const action = newLenteContactoState ? 'Cambiar a lente contacto' : 'Cambiar a lente normal';
-    Swal.fire({
-      title: `¿Estás seguro de ${action.toLowerCase()}?`,
-      text: `Esto cambiará al modo ${newLenteContactoState ? 'lente de contacto' : 'lente normal'}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: `Sí, ${action.toLowerCase()}`,
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setIsRowVisible(!isRowVisible);
-        setIsImageVisible(!isImageVisible);
-        setLenteContacto(newLenteContactoState);
-        setIsAroVisible(!isAroVisible);
-
-        if (!isRowVisible) {
-          setTipoAro(null);
-        }
-        Swal.fire(
-          `${action.charAt(0).toUpperCase() + action.slice(1)}!`,
-          `El valor de lente de contacto ha sido actualizado.`,
-          'success'
-        );
-      }
-    });
-  };
-
-
-
   return (
     <div className="admin-data-content" data-select2-id="15">
       <div className="row layout-top-spacing">
@@ -427,7 +438,9 @@ const VerOrden = ({ fecha_solicitud }) => {
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
                         <Formik
-                          initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
+                          initialValues={formValues}
+                          enableReinitialize
+                          // initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >
@@ -1951,7 +1964,7 @@ const VerOrden = ({ fecha_solicitud }) => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={orden?.elaborado_por_nombre}
+                                                    value={pacienteOrden?.elaborado_por}
                                                     disabled />
                                                 </div>
                                               </Col>

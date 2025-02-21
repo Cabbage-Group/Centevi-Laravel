@@ -16,27 +16,40 @@ import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
+import { fetchOrdenDelPaciente } from '../../../redux/features/ordenes/ordenesSlice';
 
 const VerUnaOrden = () => {
 
   const dispatch = useDispatch();
-  const location = useLocation();
-  const { orden } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
-  const { orderId } = useParams();
+  const { orderId, nroOrden, idPaciente } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
-  const [fechaSolicitud, setFechaSolicitud] = useState(orden?.created_at);
+  const [fechaSolicitud, setFechaSolicitud] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
+  const { pacienteOrden } = useSelector((state) => state.ordenes);
 
+  console.log('pacienteOrden:', pacienteOrden)
+
+  useEffect(() => {
+    if (pacienteOrden) {
+      setFechaSolicitud(pacienteOrden?.created_at)
+    }
+  }, [pacienteOrden])
 
 
   useEffect(() => {
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
   }, []);
+
+  useEffect(() => {
+    if (idPaciente && nroOrden) {
+      dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden }));
+    }
+  }, [idPaciente, nroOrden, dispatch]);
 
 
   useEffect(() => {
@@ -50,39 +63,38 @@ const VerUnaOrden = () => {
 
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && orderId && !initialized) {
-      const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        const hasCompleted = tipoFase.fases_ordenes.some(
-          (faseOrden) =>
-            faseOrden.ordenes_id === parseInt(orderId) &&
-            faseOrden.tipo_fase_orden_id === tipoFase.id &&
-            faseOrden.status === 1
+      const lastPhase = tiposFasesOrdenes
+        .flatMap(tipoFase => tipoFase.fases_ordenes)
+        .filter(faseOrden => faseOrden.ordenes_id === parseInt(orderId))
+        .reduce((maxFase, currentFase) =>
+          currentFase.tipo_fase_orden_id > maxFase.tipo_fase_orden_id ? currentFase : maxFase,
+          { tipo_fase_orden_id: 0, status: 0 }
         );
 
-        const hasPending = tipoFase.fases_ordenes.some(
-          (faseOrden) =>
-            faseOrden.ordenes_id === parseInt(orderId) &&
-            faseOrden.tipo_fase_orden_id === tipoFase.id &&
-            faseOrden.status === 0
-        );
+      console.log('Última fase creada:', lastPhase);
 
-        if (hasCompleted) {
-          return index;
-        } else if (hasPending) {
-          return lastStep;
-        }
+      let newStep = 0;
 
-        return lastStep;
-      }, -1);
+      if (lastPhase.tipo_fase_orden_id === 1) {
+        newStep = lastPhase.status === 1 ? 1 : 0;
+      } else if (lastPhase.tipo_fase_orden_id === 2) {
+        newStep = lastPhase.status === 1 ? 2 : 1;
+      } else if (lastPhase.tipo_fase_orden_id === 3) {
+        newStep = 2;
+      } else if (lastPhase.tipo_fase_orden_id === 4) {
+        newStep = 3;
+      }
 
-      const nextPhase = lastCompletedStep + 1;
-      setCurrentPhase(nextPhase);
-      setNivelStep(lastCompletedStep + 1);
+      console.log('Nuevo step:', newStep);
+      setNivelStep(newStep);
       setInitialized(true);
-
-      console.log("Último paso calculado:", lastCompletedStep);
     }
-  }, [tiposFasesOrdenes, orderId, initialized]);
+  }, [tiposFasesOrdenes, orderId])
 
+
+  useEffect(() => {
+    setInitialized(false);
+  }, [orderId]);
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
     let icon;
@@ -129,21 +141,6 @@ const VerUnaOrden = () => {
 
           </div>
           <div>
-            {nivelStep === 4 && (
-              <div
-                style={{
-                  background: '#e6ffed',
-                  border: '1px solid #b7eb8f',
-                  color: '#389e0d',
-                  padding: '15px',
-                  margin: '10px',
-                  borderRadius: '5px',
-                  textAlign: 'center',
-                }}
-              >
-                Se completó todas las fases
-              </div>
-            )}
             <div
               style={{
                 background: 'white',
@@ -239,6 +236,7 @@ const VerUnaOrden = () => {
       </Row>
 
       <VerOrden
+        pacienteOrden={pacienteOrden}
         fecha_solicitud={fechaSolicitud}
       >
       </VerOrden>

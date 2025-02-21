@@ -16,19 +16,20 @@ import CorreccionEnConfeccion from './fases/CorreccionEnConfeccion';
 import CorreccionListo from './fases/CorreccionListo';
 import CorreccionRetirado from './fases/CorreccionRetirado';
 import VerCorreccionOrdenes from './VerCorreccionOrdenes';
+import { fetchCorreccionOrden } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 
 const VerUnaCorrecionOrdenes = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { correcion } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.fasesOrdenes.nuevaDataCorrecciones);
   const { correccionOrderId } = useParams();
+  const { correcionOrden } = useSelector((state) => state.correcionesordenes);
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
-  const [fechaSolicitud, setFechaSolicitud] = useState(correcion?.created_at);
+  const [fechaSolicitud, setFechaSolicitud] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
 
@@ -48,37 +49,42 @@ const VerUnaCorrecionOrdenes = () => {
   }, [])
 
   useEffect(() => {
+    dispatch(fetchCorreccionOrden(correccionOrderId))
+  }, [correccionOrderId])
+
+  useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && correccionOrderId && !initialized) {
-      const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        const hasCompleted = tipoFase.fases_correcciones_ordenes.some(
-          (faseOrden) =>
-            faseOrden.correccion_ordenes_id === parseInt(correccionOrderId) &&
-            faseOrden.tipo_fase_correccion_orden_id === tipoFase.id &&
-            faseOrden.status === 1
+      const lastPhase = tiposFasesOrdenes
+        .flatMap(tipoFase => tipoFase.fases_correcciones_ordenes)
+        .filter(faseOrden => faseOrden.correccion_ordenes_id === parseInt(correccionOrderId))
+        .reduce((maxFase, currentFase) =>
+          currentFase.tipo_fase_correccion_orden_id > maxFase.tipo_fase_correccion_orden_id ? currentFase : maxFase,
+          { tipo_fase_correccion_orden_id: 0, status: 0 }
         );
 
-        const hasPending = tipoFase.fases_correcciones_ordenes.some(
-          (faseOrden) =>
-            faseOrden.correccion_ordenes_id === parseInt(correccionOrderId) &&
-            faseOrden.tipo_fase_correccion_orden_id === tipoFase.id &&
-            faseOrden.status === 0
-        );
+      console.log('Última fase creada:', lastPhase);
 
-        if (hasCompleted) {
-          return index;
-        } else if (hasPending) {
-          return lastStep;
-        }
+      let newStep = 0;
 
-        return lastStep;
-      }, -1);
-
-      const nextPhase = lastCompletedStep + 1;
-      setCurrentPhase(nextPhase);
-      setNivelStep(lastCompletedStep + 1);
+      if (lastPhase.tipo_fase_correccion_orden_id === 1) {
+        newStep = lastPhase.status === 1 ? 1 : 0;
+      } else if (lastPhase.tipo_fase_correccion_orden_id === 2) {
+        newStep = lastPhase.status === 1 ? 2 : 1;
+      } else if (lastPhase.tipo_fase_correccion_orden_id === 3) {
+        newStep = 2;
+      } else if (lastPhase.tipo_fase_correccion_orden_id === 4) {
+        newStep = 3;
+      }
+      setCurrentPhase(newStep);
+      setNivelStep(newStep);
       setInitialized(true);
     }
-  }, [tiposFasesOrdenes, correccionOrderId, initialized]);
+  }, [tiposFasesOrdenes, correccionOrderId])
+
+
+  useEffect(() => {
+    setInitialized(false);
+  }, [correccionOrderId]);
 
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
@@ -157,6 +163,7 @@ const VerUnaCorrecionOrdenes = () => {
                   <CorreccionNuevo
                     tipoFaseId={currentTipoFase?.id}
                     isDisabled={isButtonDisabled}
+                    correcionOrden={correcionOrden}
 
                   />
 
@@ -166,18 +173,21 @@ const VerUnaCorrecionOrdenes = () => {
                     lab={nuevaDataCorrecciones?.laboratorio}
                     isDisabled={isButtonDisabled}
                     fecha={nuevaDataCorrecciones?.fecha_fase}
+                    correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 2 ? (
                   <CorreccionListo
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
                     lab={nuevaDataCorrecciones?.laboratorio}
+                    correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 3 ? (
                   <CorreccionRetirado
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
                     lab={nuevaDataCorrecciones?.laboratorio}
+                    correcionOrden={correcionOrden}
                   />
                 ) : <div></div>
               }
@@ -236,6 +246,7 @@ const VerUnaCorrecionOrdenes = () => {
       </Row>
 
       <VerCorreccionOrdenes
+        correcionOrden={correcionOrden}
         fecha_solicitud={fechaSolicitud}
       >
       </VerCorreccionOrdenes>

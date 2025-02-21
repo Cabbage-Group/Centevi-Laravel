@@ -51,6 +51,7 @@ const CollapsibleTable = (
     sortOrder
   } = useSelector((state) => state.ordenes);
   const OrdenId = useSelector((state) => state.ordenes.OrderId)
+  console.log('OrdenId1:',OrdenId)
   const {
     correcionesbyOrden,
     contactoCorreccionOrden
@@ -63,7 +64,7 @@ const CollapsibleTable = (
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
 
-  console.log('OrdenId', OrdenId);
+  console.log('correcionesbyOrden:',correcionesbyOrden)
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -76,12 +77,10 @@ const CollapsibleTable = (
       endDate,
       pagado: pagadoFiltro,
       sucursal: sucursalFiltro,
-      status: statusFiltro,
+      estados: statusFiltro,
       lenteContacto: lenteContactoFiltro,
       fase: faseFiltro,
       laboratorio: laboratorioFiltro,
-
-
     }));
   }, [
     dispatch,
@@ -101,23 +100,25 @@ const CollapsibleTable = (
 
   useEffect(() => {
     if (selectedOrdenId) {
-      dispatch(fetchCorreccionesByOrdenId(selectedOrdenId)); // Llamar a la API con el ID de la orden
+      dispatch(fetchCorreccionesByOrdenId(selectedOrdenId));
     }
   }, [dispatch, selectedOrdenId]);
 
   const handlePageChange = (page) => {
-    setCurrentPageTable(page); // Esta función debe venir como prop del padre
+    setCurrentPageTable(page); 
   };
 
   const toggleorden = (index, ordenId) => {
     setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
 
     if (collapsedordens !== index) {
+      console.log('collapsedordens1:',collapsedordens)
       setSelectedOrdenId(ordenId);
       dispatch(fetchCorreccionesByOrdenId(ordenId));
     }
   };
 
+  console.log('collapsedordens2:',collapsedordens)
 
   const handlePagoToggle = async (id_orden, estadoActual) => {
     try {
@@ -146,7 +147,7 @@ const CollapsibleTable = (
         endDate,
         pagado: pagadoFiltro,
         sucursal: sucursalFiltro,
-        status: statusFiltro,
+        estados: statusFiltro,
         lenteContacto: lenteContactoFiltro,
         fase: faseFiltro,
         laboratorio: laboratorioFiltro,
@@ -466,7 +467,7 @@ const CollapsibleTable = (
                 <React.Fragment key={orden?.id_orden}>
                   <tr>
                     <td>
-                      {orden?.correccion ? (
+                      {orden?.correcciones ? (
                         <span
                           style={{ cursor: 'pointer' }}
                           onClick={() => toggleorden(index, orden?.id_orden)}
@@ -509,17 +510,17 @@ const CollapsibleTable = (
                             : 'Cortesia'}
                       </button>
                     </td>
-                    <td onClick={() => console.log(orden)} >{orden?.created_at_formatted}</td>
-                    <td >{orden?.sucursal?.nombre}</td>
-                    <td>{`${orden.paciente?.nombres} ${orden?.paciente?.apellidos}`}</td>
-                    <td>{orden?.paciente?.celular}</td>
+                    <td onClick={() => console.log(orden)} >{orden?.created_at}</td>
+                    <td >{orden?.sucursal}</td>
+                    <td>{`${orden.nombres} ${orden?.apellidos}`}</td>
+                    <td>{orden?.celular}</td>
                     <td>{orden?.laboratorio}</td>
                     <td>
-                      <div>{orden?.fase_actual}</div>
+                      <div>{orden?.tipo_fase_orden}</div>
                       <div>{orden?.elaborado_por_fase}</div>
                     </td>
                     <td>
-                      <Tooltip title={orden?.status ?? ""}>
+                      <Tooltip title={orden?.estado ?? ""}>
                         <span
                           style={{
                             display: 'inline-block',
@@ -527,13 +528,13 @@ const CollapsibleTable = (
                             height: '12px',
                             borderRadius: '50%',
                             backgroundColor:
-                              orden?.status === 'Ok'
+                              orden?.estado === 'OK'
                                 ? 'green'
-                                : orden?.status === 'Advertencia'
+                                : orden?.estado === 'Advertencia'
                                   ? 'yellow'
-                                  : orden?.status === 'Critico'
+                                  : orden?.estado === 'Crítico'
                                     ? 'red'
-                                    : orden?.status === 'Completado'
+                                    : orden?.estado === 'Completado'
                                       ? 'blue'
                                       : 'gray',
                           }}
@@ -544,10 +545,9 @@ const CollapsibleTable = (
                       <div className="btn-group">
 
                         <Link
-                          to={`/orden-receta/${orden.id_orden}`}
-                          className="btn btn-warning btnEditarReceta"
+                          to={`/orden-receta/${orden?.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
+                          className="btn btn-warning btnEditarReceta"                     
                           state={{
-                            orden,
                             pagadoFiltro,
                             sucursalFiltro,
                             laboratorioFiltro,
@@ -577,10 +577,9 @@ const CollapsibleTable = (
                           </svg>
                         </Link>
                         <Link
-                          to={`/ver-orden/${orden.id_orden}`}
+                          to={`/ver-orden/${orden.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
                           className="btn btn-info"
                           style={{ display: 'flex', alignItems: 'center' }}
-                          state={{ orden }}
                         >
 
                           <path
@@ -653,8 +652,6 @@ const CollapsibleTable = (
                             </button>
                             : null
                         }
-
-
                       </div>
                     </td>
 
@@ -668,10 +665,10 @@ const CollapsibleTable = (
                           <tbody>
                             {correcionesbyOrden
                               ?.filter(
-                                (correcion) => correcion.ordenes_id === orden.id_orden
+                                (correcion) => correcion.orden_id === orden.id_orden
                               )
                               .map((correcion, idx) => (
-                                <tr key={correcion.id}>
+                                <tr key={correcion.correccion_id}>
 
                                   <td style={{ width: columnWidths.nroOrden }}>
                                     {correcion.nro_orden_id}-C{idx + 1}
@@ -696,19 +693,15 @@ const CollapsibleTable = (
                                     </button>
                                   </td>
                                   <td style={{ width: columnWidths.fecha }}>
-                                    {new Date(correcion.created_at).toLocaleDateString('es-ES', {
-                                      day: '2-digit',
-                                      month: '2-digit',
-                                      year: 'numeric',
-                                    })}
+                                    {correcion.created_at}
                                   </td>
                                   <td onClick={() => console.log(correcion)} style={{ width: columnWidths.sucursal }}>{correcion.sucursal}</td>
                                   <td style={{ width: columnWidths.paciente }}>{correcion.paciente_nombre_completo}</td>
                                   <td style={{ width: columnWidths.celular }}>{correcion.celular}</td>
                                   <td style={{ width: columnWidths.laboratorio }}>{correcion.laboratorio}</td>
                                   <td style={{ width: columnWidths.fase }}>{correcion.fase_actual}</td>
-                                  <td style={{ width: columnWidths.status }}>
-                                    <Tooltip title={correcion?.status ?? ""}>
+                                  <td style={{ width: columnWidths.estado }}>
+                                    <Tooltip title={correcion?.estado ?? ""}>
                                       <span
                                         style={{
                                           display: 'inline-block',
@@ -716,13 +709,13 @@ const CollapsibleTable = (
                                           height: '12px',
                                           borderRadius: '50%',
                                           backgroundColor:
-                                            correcion?.status === 'Ok'
+                                            correcion?.estado === 'Ok'
                                               ? 'green'
-                                              : correcion?.status === 'Advertencia'
+                                              : correcion?.estado === 'Advertencia'
                                                 ? 'yellow'
-                                                : correcion?.status === 'Critico'
+                                                : correcion?.estado === 'Critico'
                                                   ? 'red'
-                                                  : correcion?.status === 'Completado'
+                                                  : correcion?.estado === 'Completado'
                                                     ? 'blue'
                                                     : 'gray',
                                         }}
@@ -733,7 +726,7 @@ const CollapsibleTable = (
                                     <div className="btn-group">
 
                                       <Link
-                                        to={`/correciones-ordenes/${correcion.id}`}
+                                        to={`/correciones-ordenes/${correcion.correccion_id}`}
                                         className="btn btn-warning btnEditarReceta"
                                         state={{
                                           correcion,
@@ -767,10 +760,9 @@ const CollapsibleTable = (
                                         </svg>
                                       </Link>
                                       <Link
-                                        to={`/ver-correcion-orden/${correcion.id}`}
+                                        to={`/ver-correcion-orden/${correcion.correccion_id}`}
                                         className="btn btn-info"
                                         style={{ display: 'flex', alignItems: 'center' }}
-                                        state={{ correcion }}
                                       >
 
                                         <path
@@ -784,7 +776,7 @@ const CollapsibleTable = (
                                       </Link>
 
                                       <button
-                                        onClick={() => handleVerCorrecion(correcion.id, correcion.nro_orden_id + "-C" + (parseFloat(idx) + 1))}
+                                        onClick={() => handleVerCorrecion(correcion.correccion_id, correcion.nro_orden_id + "-C" + (parseFloat(idx) + 1))}
                                         className="btn btn-primary"
                                       >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">
@@ -793,7 +785,7 @@ const CollapsibleTable = (
                                         </svg>
                                       </button>
                                       <button
-                                        onClick={() => handleVerContactoCorreccion(correcion.id)}
+                                        onClick={() => handleVerContactoCorreccion(correcion.correccion_id)}
                                         className="btn btn-info"
                                         style={{ display: 'flex', alignItems: 'center', background: 'green' }}
                                       >
@@ -802,7 +794,7 @@ const CollapsibleTable = (
                                       {
                                         funPermisosObtenidosBoolean(permisos, 'sidebar.recetas.ordenes.eliminarorden')
                                           ? <button
-                                            onClick={() => handleEliminarCorrecionOrden(correcion.id, index)}
+                                            onClick={() => handleEliminarCorrecionOrden(correcion.correccion_id, index)}
                                             borrar_receta="185"
                                             className="btn btn-danger btnEliminarReceta"
                                           >

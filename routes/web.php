@@ -299,6 +299,8 @@ Route::get('/api/reporte-ordenes', [OrdenesApiController::class, 'reportesOrdene
 
 Route::get('/api/ordenes/{id}', [OrdenesApiController::class, 'ordenesDelPaciente']);
 
+Route::get('/api/paciente/orden/{id_paciente}/{nro_orden}', [OrdenesApiController::class, 'obtenerOrdenPaciente']);
+
 Route::post('/api/whatsapp-link', [WhatsappApiController::class, 'getWhatsAppLink']);
 
 Route::get('/api/contacto-orden', [ContactosOrdenesApiController::class, 'index']);
@@ -437,10 +439,13 @@ Route::get('/preview-email', function () {
 
 Route::post('/api/send-verification-email', [EmailController::class, 'sendVerificationEmail']);
 
+Route::post('/api/obtener-ordenes', [OrdenesApiController::class, 'obtenerOrdenes']);
 
 
+Route::get('/api/obtener-correcciones-ordenes/{id_orden}', [CorrecionesOrdenesController::class, 'ObtenerCorrecionesOrdenes']);
+
+Route::get('/api/obtener-correccion/{id_correccion}', [CorrecionesOrdenesController::class, 'obtenerCorreccion']);
 
 Route::get('/{any}', function () {
   return view('app');
 })->where('any', '.*');
-

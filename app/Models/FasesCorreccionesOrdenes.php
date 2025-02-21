@@ -36,4 +36,8 @@ class FasesCorreccionesOrdenes extends Model
     return $this->belongsTo(TiposFasesOrdenes::class, 'tipo_fase_correccion_orden_id');
   }
 
+  public function correcionOrden()
+  {
+    return $this->belongsTo(CorrecionesOrdenes::class, 'correccion_ordenes_id', 'id');
+  }
 }

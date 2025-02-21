@@ -96,6 +96,11 @@ class Ordenes extends Model
     return $this->hasOne(NroOrden::class, 'nro_orden_id', 'id');
   }
 
+  public function fasesOrdenes()
+  {
+    return $this->hasMany(FasesOrdenes::class, 'ordenes_id', 'id_orden');
+  }
+
   // protected static function boot()
   // {
   //     parent::boot();

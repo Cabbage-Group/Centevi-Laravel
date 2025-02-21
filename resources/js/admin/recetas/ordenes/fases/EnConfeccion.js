@@ -9,10 +9,9 @@ import {
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
-import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import VecesContacto from '../../VecesContacto';
 
-const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
+const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -20,23 +19,20 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
-  const location = useLocation();
   const [elaboradoFase, setElaboradoFase] = useState('');
   const [laboratorio, setLaboratorio] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
-  const { orden } = location.state || {};
-  const { pacienteOrden } = location.state || {};
   const [celular, setCelular] = useState('');
   const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
-  const { pacientes } = useSelector((state) => state.pacientes);
+  const [selectedPaciente, setSelectedPaciente] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.sucursal.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState('');
+  const [ubicacionMaps, setUbicacionMaps] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
     if (orderId) {
@@ -45,12 +41,17 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   }, []);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
+    if (pacienteOrden) {
+      setSelectedPaciente(pacienteOrden?.id_paciente)
+      setSelectedSucursal(pacienteOrden?.sucursal_nombre)
+      setUbicacionMaps(pacienteOrden?.sucursal_ubicacion)
+      setStatus(pacienteOrden?.status_primera_fase)
+    }
+  }, [pacienteOrden])
 
   useEffect(() => {
     if (selectedPaciente) {
-      const pacienteSeleccionado = pacientes.find(
+      const pacienteSeleccionado = pacientesData.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       if (pacienteSeleccionado) {
@@ -63,7 +64,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
     } else {
       setCelular('');
     }
-  }, [selectedPaciente, pacientes]);
+  }, [selectedPaciente, pacientesData]);
 
 
 
@@ -117,7 +118,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
       elaborado_por: usuarioId,
     };
     dispatch(actualizarDatosFase(nuevaFase));
-  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
+  }, [observaciones, fechaActual, tipoFaseId, dispatch, status]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -129,7 +130,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-  const statusToDisplay = orden?.status || pacienteOrden?.status;
+
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -173,7 +174,7 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
+      ordenes_id: orderId,
       tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
@@ -242,11 +243,11 @@ const EnConfeccion = ({ tipoFaseId, lab, fecha_fase, isDisabled }) => {
                 width: '15px',
                 height: '15px',
                 borderRadius: '100%',
-                backgroundColor: getColorForStatus(statusToDisplay),
+                backgroundColor: getColorForStatus(status),
                 marginRight: '5px',
               }}
             ></div>
-            <span>{statusToDisplay || 'Sin estado'}</span>
+            <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContacto id_orden={orderId} />

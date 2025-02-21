@@ -14,7 +14,7 @@ import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correci
 import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 
-const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
+const CorreccionListo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -23,17 +23,16 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
   const [observaciones, setObservaciones] = useState('');
   const { correccionOrderId } = useParams();
-  const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
-  const { correcion } = location.state || {};
-  const [celular, setCelular] = useState(correcion?.celular);
+  const [celular, setCelular] = useState('');
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
-  const [nombrePaciente, setNombrePaciente] = useState(correcion?.paciente_nombre_completo);
-  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal);
-  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.ubicacion_maps);
+  const [nombrePaciente, setNombrePaciente] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState('');
+  const [ubicacionMaps, setUbicacionMaps] = useState('');
+  const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -43,11 +42,16 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
     }
   }, [])
 
-  // useEffect(() => {
-  //   dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  // }, []);
+  useEffect(() => {
+    if (correcionOrden) {
+      setSelectedSucursal(correcionOrden?.sucursal)
+      setUbicacionMaps(correcionOrden?.ubicacion)
+      setNombrePaciente(correcionOrden?.paciente_nombre_completo)
+      setCelular(correcionOrden?.celular)
+      setStatus(correcionOrden?.estado)
+    }
+  }, [correcionOrden])
 
- 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFase2 = tiposFasesOrdenes.find(fase =>
@@ -102,8 +106,6 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
     return colors[status] || 'gray';
   };
 
-  const statusToDisplay =  correcion?.status;
-
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
     let mensajePersonalizado = mensaje
@@ -131,7 +133,7 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
 
   }, [observaciones, fechaActual, tipoFaseId, dispatch]);
 
- 
+
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -159,7 +161,7 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      correccion_ordenes_id: correcion?.id,
+      correccion_ordenes_id: correcionOrden?.correccion_id,
       tipo_fase_cr_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
@@ -229,11 +231,11 @@ const CorreccionListo = ({ tipoFaseId, isDisabled }) => {
                 width: '15px',
                 height: '15px',
                 borderRadius: '100%',
-                backgroundColor: getColorForStatus(statusToDisplay),
+                backgroundColor: getColorForStatus(status),
                 marginRight: '5px',
               }}
             ></div>
-            <span>{statusToDisplay || 'Sin estado'}</span>
+            <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContactoCorrecciones id={correccionOrderId} />

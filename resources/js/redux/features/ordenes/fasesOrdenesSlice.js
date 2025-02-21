@@ -28,7 +28,6 @@ export const updateFasesOrdenes = createAsyncThunk(
   'fasesOrdenes/updateFasesOrdenes',
   async ({ id, data }) => {
     try {
-      console.log('data:', data)
       const response = await axios.put(`${API}/fases-ordenes/${id}`, data);
 
       return response.data;
@@ -38,9 +37,6 @@ export const updateFasesOrdenes = createAsyncThunk(
     }
   }
 );
-
-
-
 
 const fasesOrdenesSlice = createSlice({
   name: 'fasesOrdenes',

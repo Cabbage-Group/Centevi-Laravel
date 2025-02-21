@@ -272,7 +272,7 @@ const HistoriaPaciente = () => {
       };
       console.log('payload:', payload)
       await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
-       dispatch(fetchOrdenesDelPaciente(id));
+      dispatch(fetchOrdenesDelPaciente(id));
 
     } catch (err) {
       console.error('Error al actualizar el estado de pagado:', err);
@@ -620,13 +620,6 @@ const HistoriaPaciente = () => {
                         </div>
                       </div>
                     </div>
-                    {/* <Button
-                    onClick={()=>{
-                      console.log('pacienteOrdenes:',pacienteOrdenes)
-                      console.log('id:',id)
-                    }}>
-                      Aqui
-                    </Button> */}
                     <div className="widget-content widget-content-area"
                       style={{
                         width: '92%',
@@ -2297,17 +2290,17 @@ const HistoriaPaciente = () => {
                                           className={`btn btn-xs ${parseInt(pacienteOrden.pagado) === 1
                                             ? 'btn-success'
                                             : parseInt(pacienteOrden.pagado) === 2
-                                                ? 'btn-warning'
-                                                : 'btn-danger'
+                                              ? 'btn-warning'
+                                              : 'btn-danger'
                                             }`}
                                           onClick={() => handlePagoToggle(pacienteOrden.id_orden, parseInt(pacienteOrden.pagado))}
                                           style={{ minWidth: '100px' }}
                                         >
                                           {parseInt(pacienteOrden.pagado) === 1
-                                                    ? 'pagado'
-                                                    : parseInt(pacienteOrden.pagado) === 2
-                                                        ? 'abonado'
-                                                        : 'Cortesia'}
+                                            ? 'pagado'
+                                            : parseInt(pacienteOrden.pagado) === 2
+                                              ? 'abonado'
+                                              : 'Cortesia'}
                                         </button>
                                       </td>
                                       <td>{moment(pacienteOrden.created_at).format('DD/MM/YYYY')}</td>
@@ -2324,8 +2317,7 @@ const HistoriaPaciente = () => {
                                         </button>
                                         <div>
                                           <Link
-                                            to={`/orden-receta/${pacienteOrden.id_orden}`}
-                                            state={{ pacienteOrden }}
+                                            to={`/orden-receta/${pacienteOrden.id_orden}/${pacienteOrden.nro_orden_id}/${pacienteOrden.id_paciente}`}
                                           >
                                             <button
                                               className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"

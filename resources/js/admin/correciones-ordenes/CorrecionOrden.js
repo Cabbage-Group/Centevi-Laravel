@@ -23,14 +23,16 @@ import CorreccionListo from './fases/CorreccionListo';
 import CorreccionRetirado from './fases/CorreccionRetirado';
 import { setFaseFilter, setFechaInicioFilter, setLaboratorioFilter, setPagadoFilter, setStatusFilter, setSucursalFilter, setTipoLenteFilter } from '../../redux/features/ordenes/fasesOrdenesSlice';
 import EditarCorrecionOrden from './EditarCorrecionOrden';
+import { fetchCorreccionOrden } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
+import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos';
 
 const CorrecionOrden = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigate = useNavigate();  
-  const { 
-    correcion,
+  const navigate = useNavigate();
+  const {
     pagadoFiltro,
     sucursalFiltro,
     laboratorioFiltro,
@@ -42,22 +44,37 @@ const CorrecionOrden = () => {
   } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.correccionesFasesOrdenes.nuevaDataCorrecciones);
+  const { correcionOrden } = useSelector((state) => state.correcionesordenes);
   const { correccionOrderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
-  const [fechaSolicitud, setFechaSolicitud] = useState(correcion?.created_at);
+  const [fechaSolicitud, setFechaSolicitud] = useState('');
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
-  const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.sucursal);
+  const [ubicacionMaps, setUbicacionMaps] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
+  const { permisos } = useSelector((state) => state.auth);
+  const { pacientes } = useSelector((state) => state.pacientes);
 
- 
+
+
+  useEffect(() => {
+    if (correcionOrden) {
+      setNombrePaciente(correcionOrden?.paciente_nombre_completo)
+      setUbicacionMaps(correcionOrden?.sucursal_ubicacion)
+      setFechaSolicitud(correcionOrden?.created_at)
+    }
+  }, [correcionOrden])
+
+  useEffect(() => {
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+  }, []);
 
   const retroceder = () => {
-    navigate(`/ordenes`);  // Aquí defines la URL y pasas pagadoFilter
+    navigate(`/ordenes`);
   };
 
   const generateWhatsAppLink = () => {
@@ -74,23 +91,25 @@ const CorrecionOrden = () => {
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
-
+  useEffect(() => {
+    dispatch(fetchCorreccionOrden(correccionOrderId))
+  }, [correccionOrderId])
 
   useEffect(() => {
   }, [nuevaDataCorrecciones, correccionOrderId]);
 
-  useEffect(() =>{
-      dispatch(setPagadoFilter(pagadoFiltro))
-      dispatch(setLaboratorioFilter(laboratorioFiltro))
-      dispatch(setTipoLenteFilter(lenteContactoFiltro))
-      dispatch(setFaseFilter(faseFiltro))
-      dispatch(setSucursalFilter(sucursalFiltro))
-      dispatch(setStatusFilter(statusFiltro))
-      dispatch(setFechaInicioFilter(localStartDateFiltro))
-      dispatch(setFechaInicioFilter(localEndDateFiltro))
+  useEffect(() => {
+    dispatch(setPagadoFilter(pagadoFiltro))
+    dispatch(setLaboratorioFilter(laboratorioFiltro))
+    dispatch(setTipoLenteFilter(lenteContactoFiltro))
+    dispatch(setFaseFilter(faseFiltro))
+    dispatch(setSucursalFilter(sucursalFiltro))
+    dispatch(setStatusFilter(statusFiltro))
+    dispatch(setFechaInicioFilter(localStartDateFiltro))
+    dispatch(setFechaInicioFilter(localEndDateFiltro))
   })
 
- 
+
 
   useEffect(() => {
     if (correccionOrderId) {
@@ -98,37 +117,41 @@ const CorrecionOrden = () => {
     }
   }, [])
 
+
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && correccionOrderId && !initialized) {
-      const lastCompletedStep = tiposFasesOrdenes.reduce((lastStep, tipoFase, index) => {
-        const hasCompleted = tipoFase.fases_correcciones_ordenes.some(
-          (faseOrden) =>
-            faseOrden.correccion_ordenes_id === parseInt(correccionOrderId) &&
-            faseOrden.tipo_fase_correccion_orden_id === tipoFase.id &&
-            faseOrden.status === 1
+      const lastPhase = tiposFasesOrdenes
+        .flatMap(tipoFase => tipoFase.fases_correcciones_ordenes)
+        .filter(faseOrden => faseOrden.correccion_ordenes_id === parseInt(correccionOrderId))
+        .reduce((maxFase, currentFase) =>
+          currentFase.tipo_fase_correccion_orden_id > maxFase.tipo_fase_correccion_orden_id ? currentFase : maxFase,
+          { tipo_fase_correccion_orden_id: 0, status: 0 }
         );
 
-        const hasPending = tipoFase.fases_correcciones_ordenes.some(
-          (faseOrden) =>
-            faseOrden.correccion_ordenes_id === parseInt(correccionOrderId) &&
-            faseOrden.tipo_fase_correccion_orden_id === tipoFase.id &&
-            faseOrden.status === 0
-        );
+      console.log('Última fase creada:', lastPhase);
 
-        if (hasCompleted) {
-          return index;
-        } else if (hasPending) {
-          return lastStep;
-        }
+      let newStep = 0;
 
-        return lastStep;
-      }, -1);
+      if (lastPhase.tipo_fase_correccion_orden_id === 1) {
+        newStep = lastPhase.status === 1 ? 1 : 0;
+      } else if (lastPhase.tipo_fase_correccion_orden_id === 2) {
+        newStep = lastPhase.status === 1 ? 2 : 1;
+      } else if (lastPhase.tipo_fase_correccion_orden_id === 3) {
+        newStep = 2;
+      } else if (lastPhase.tipo_fase_correccion_orden_id === 4) {
+        newStep = 3;
+      }
 
-      setNivelStep(lastCompletedStep + 1);
+      console.log('Nuevo step:', newStep);
+      setNivelStep(newStep);
       setInitialized(true);
-
     }
-  }, [tiposFasesOrdenes, correccionOrderId, initialized]);
+  }, [tiposFasesOrdenes, correccionOrderId])
+
+  useEffect(() => {
+    setInitialized(false);
+  }, [correccionOrderId]);
+
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
     let icon;
@@ -155,6 +178,67 @@ const CorrecionOrden = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 1 && !nuevaDataCorrecciones.laboratorio) {
+      await Swal.fire({
+        title: 'Error',
+        text: 'Debe seleccionar un laboratorio antes de continuar.',
+        icon: 'error',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
+
+    if (completar && nivelStep === 2) {
+      if (!funPermisosObtenidosBoolean(permisos, "ordenes.correcion.fase.retirado")) {
+        await Swal.fire({
+          title: 'Acceso denegado',
+          text: 'No tiene permisos suficientes para completar esta fase.',
+          icon: 'error',
+          confirmButtonText: 'Entendido'
+        });
+        return;
+      }
+
+      if (correcionOrden?.pagado === "2") {
+        const { value: nuevoEstado } = await Swal.fire({
+          title: 'Actualizar estado de pago',
+          text: 'El estado actual es "Abonado". Debe cambiarlo antes de continuar.',
+          icon: 'warning',
+          input: 'radio',
+          inputOptions: {
+            0: 'Cortesía',
+            1: 'Pagado'
+          },
+          inputValidator: (value) => {
+            if (!value) {
+              return 'Debe seleccionar una opción antes de continuar';
+            }
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Actualizar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33'
+        });
+
+        if (!nuevoEstado) {
+          return;
+        }
+
+        const pagado = {
+          pagado: nuevoEstado
+        }
+
+        await dispatch(updateOrden({ id_orden: correcionOrden.orden_id, data: pagado }));
+
+        await Swal.fire(
+          'Actualizado!',
+          'El estado de pago ha sido actualizado correctamente.',
+          'success'
+        );
+      }
+    }
+
     const result = await Swal.fire({
       title: completar ? '¿Estás seguro de completar la fase?' : '¿Estás seguro de guardar la fase?',
       text: completar ? "¡Confirmarás la fase como completada!" : "¡Confirmarás los cambios en los datos!",
@@ -180,7 +264,19 @@ const CorrecionOrden = () => {
       }
 
       dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId));
+
+      if (completar && nivelStep === 2) {
+        const siguienteFase = {
+          ...nuevaDataConOrderId,
+          status: 1,
+          observacion: '',
+          tipo_fase_correccion_orden_id: nuevaDataCorrecciones.tipo_fase_correccion_orden_id + 1,
+        };
+
+        dispatch(createCorreccionesFasesOrdenes(siguienteFase));
+      }
       dispatch(fecthTiposFasesOrdenes(correccionOrderId));
+      dispatch(fetchCorreccionOrden(correccionOrderId));
 
       await Swal.fire(completar ? 'Completado!' : 'Guardado!',
         completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
@@ -190,7 +286,7 @@ const CorrecionOrden = () => {
 
   const handleContactarPaciente = async () => {
     const newContactoOrdenData = {
-      correccion_ordenes_id: correcion?.id,
+      correccion_ordenes_id: correcionOrden?.correccion_id,
       tipo_fase_cr_orden_id: 4,
       usuario_id: idUsuario,
       cantidad: 1
@@ -208,18 +304,18 @@ const CorrecionOrden = () => {
 
   return (
     <div>
-      
+
       <Row>
-      <Tooltip title="Retroceder a tabla de órdenes">
-              <Button 
-                onClick={retroceder} 
-                icon={<ArrowLeftOutlined />} 
-                style={{ display: 'flex', alignItems: 'center' ,marginLeft: '10px',}}
-              >
-              </Button>
-            </Tooltip>
+        <Tooltip title="Retroceder a tabla de órdenes">
+          <Button
+            onClick={retroceder}
+            icon={<ArrowLeftOutlined />}
+            style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', }}
+          >
+          </Button>
+        </Tooltip>
         <Col xxl={24} xl={24} md={24}>
-        
+
           <div
             style={{
               background: 'white',
@@ -270,6 +366,8 @@ const CorrecionOrden = () => {
                   <CorreccionNuevo
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
+                    pacientesData={pacientes}
+                    correcionOrden={correcionOrden}
 
                   />
 
@@ -278,16 +376,22 @@ const CorrecionOrden = () => {
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     fecha={nuevaDataCorrecciones.fecha_fase}
+                    pacientesData={pacientes}
+                    correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 2 ? (
                   <CorreccionListo
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
+                    pacientesData={pacientes}
+                    correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 3 ? (
                   <CorreccionRetirado
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
+                    pacientesData={pacientes}
+                    correcionOrden={correcionOrden}
                   />
                 ) : <div></div>
               }
@@ -307,13 +411,21 @@ const CorrecionOrden = () => {
                     Anterior
                   </Button>
                 )}
-                
-                <Button onClick={() => avanzarFase(false, false)} type='default'>
-                  Guardar Fase
-                </Button>
-                <Button onClick={() => avanzarFase(false, true)} type='primary'>
-                  Completar Fase
-                </Button>
+
+                {nivelStep < 3 ? (
+                  <>
+                    <Button onClick={() => avanzarFase(false, false)} type="default">
+                      Guardar Fase
+                    </Button>
+                    <Button onClick={() => avanzarFase(false, true)} type="primary">
+                      Completar Fase
+                    </Button>
+                  </>
+                ) : nivelStep === 3 ? (
+                  <Button onClick={() => avanzarFase(false, true)} type="primary">
+                    Completar Fase
+                  </Button>
+                ) : null}
                 {nivelStep === 4 && (
                   <Button
                     onClick={handleContactarPaciente}
@@ -328,10 +440,10 @@ const CorrecionOrden = () => {
 
         </Col>
       </Row>
-      <EditarCorrecionOrden fecha_solicitud={fechaSolicitud} />
-
-
-
+      <EditarCorrecionOrden
+        correcionOrden={correcionOrden}
+        fecha_solicitud={fechaSolicitud}
+      />
     </div>
   )
 }
