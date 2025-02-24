@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Tooltip, Button } from 'antd'
 import moment from 'moment';
@@ -12,7 +12,7 @@ import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSl
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
 
-const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
+const Retirado = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -23,22 +23,20 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
   const [observaciones, setObservaciones] = useState('');
   const [elaboradoFase, setElaboradoFase] = useState('');
   const { orderId } = useParams();
-  const location = useLocation();
-  const { orden } = location.state || {};
-  const { pacienteOrden } = location.state || {};
   const [laboratorio, setLaboratorio] = useState('');
   const [celular, setCelular] = useState('');
   const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
-  const { pacientes } = useSelector((state) => state.pacientes);
+  const [selectedPaciente, setSelectedPaciente] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.sucursal?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState('');
+  const [ubicacionMaps, setUbicacionMaps] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
+  const [status, setStatus] = useState('');
 
+  console.log('tipoFaseId:', tipoFaseId)
 
   useEffect(() => {
     if (orderId) {
@@ -47,12 +45,17 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
   }, [])
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
+    if (pacienteOrden) {
+      setSelectedPaciente(pacienteOrden?.id_paciente)
+      setSelectedSucursal(pacienteOrden?.sucursal_nombre)
+      setUbicacionMaps(pacienteOrden?.sucursal_ubicacion)
+      setStatus(pacienteOrden?.status_primera_fase)
+    }
+  }, [pacienteOrden])
 
   useEffect(() => {
     if (selectedPaciente) {
-      const pacienteSeleccionado = pacientes.find(
+      const pacienteSeleccionado = pacientesData.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       if (pacienteSeleccionado) {
@@ -65,7 +68,7 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
     } else {
       setCelular('');
     }
-  }, [selectedPaciente, pacientes]);
+  }, [selectedPaciente, pacientesData]);
 
 
   useEffect(() => {
@@ -83,8 +86,6 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseListo(faseOrden2.fecha_fase)
-
-
 
         }
       }
@@ -125,8 +126,6 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
     };
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
-
-  const statusToDisplay = orden?.status_final || orden?.status || pacienteOrden?.status;
 
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
@@ -182,20 +181,17 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
   }
 
   const handleContactarPaciente = async () => {
-    // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
+      ordenes_id: orderId,
       tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
     };
 
     try {
-      // Llamar a la API
       await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
-      // Abrir enlace de WhatsApp
       window.open(generateWhatsAppLink(), '_blank');
     } catch (error) {
       console.error('Error al crear contacto:', error);
@@ -204,34 +200,57 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
 
   return (
     <div>
-      <Row
-        style={{ marginBottom: '20px' }}
-        gutter={[16, 16]}
-      >
-        <Col xxl={12} xl={12} md={12}>
-          <label htmlFor="inputAddress">
-            Observaciones
-          </label>
+      <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
+        <Col span={24}>
+          <div
+            style={{
+              background: '#e6ffed',
+              border: '1px solid #b7eb8f',
+              color: '#389e0d',
+              padding: '15px',
+              borderRadius: '5px',
+              textAlign: 'center',
+            }}
+          >
+            Se completó todas las fases
+            <br />
+            <Link
+              to={isDisabled ? '#' : `/crear-correciones-ordenes`}
+              className="btn btn-warning btnEditarReceta"
+              state={{ pacienteOrden }}
+              style={{
+                display: 'inline-block',
+                marginTop: '10px',
+                padding: '10px 20px',
+                backgroundColor: '#ffc107',
+                color: '#000',
+                borderRadius: '5px',
+                textDecoration: 'none',
+              }}
+
+            >
+              Corregir orden
+            </Link>
+          </div>
+        </Col>
+
+        <Col xxl={12} xl={12} md={12} style={{ marginTop: '20px' }}>
+          <label htmlFor="inputAddress">Observaciones</label>
           <Input.TextArea
             rows="5"
             onChange={(e) => setObservaciones(e.target.value)}
             value={observaciones}
           />
         </Col>
-        <Col
-          xxl={12} xl={12} md={12}
-          style={{
-            textAlign: 'right'
-          }}
-        >
-          <label htmlFor="inputAddress">
-            Fecha de la fase Retirado
-          </label>
+        <Col xxl={12} xl={12} md={12} style={{ textAlign: 'right' }}>
+          <label htmlFor="inputAddress">Fecha de la fase Retirado</label>
           <div>
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{
-                  marginRight: '10px', cursor: 'pointer', fontSize: '18px'
+                  marginRight: '10px',
+                  cursor: 'pointer',
+                  fontSize: '18px',
                 }}
                 onClick={isDisabled ? null : () => actualizarFecha()}
               />
@@ -239,9 +258,7 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
             {fechaActual}
           </div>
           <Divider />
-          <label htmlFor="inputAddress">
-            Fecha de la fase listo
-          </label>
+          <label htmlFor="inputAddress">Fecha de la fase listo</label>
           <div>
             {fechaFaseListo ? moment(fechaFaseListo).format('YYYY-MM-DD HH:mm:ss') : ""}
           </div>
@@ -253,19 +270,15 @@ const Retirado = ({ tipoFaseId, lab, isDisabled }) => {
                 width: '15px',
                 height: '15px',
                 borderRadius: '100%',
-                backgroundColor: getColorForStatus(statusToDisplay),
+                backgroundColor: getColorForStatus(status),
                 marginRight: '5px',
               }}
             ></div>
-            <span>{statusToDisplay || 'Sin estado'}</span>
+            <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContacto id_orden={orderId} />
-            <Button
-              style={{ marginLeft: '10px' }}
-              onClick={handleContactarPaciente}
-              disabled={isDisabled}
-            >
+            <Button style={{ marginLeft: '10px' }} onClick={handleContactarPaciente} disabled={isDisabled}>
               Contactar al paciente
             </Button>
           </div>

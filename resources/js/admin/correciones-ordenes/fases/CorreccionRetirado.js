@@ -8,13 +8,10 @@ import {
 } from '@ant-design/icons';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
-import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
-import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
-import VecesContacto from '../../recetas/VecesContacto';
 import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 
-const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
+const CorreccionRetirado = ({ tipoFaseId, isDisabled, correcionOrden }) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -31,11 +28,12 @@ const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
- 
+
   const { pacientes } = useSelector((state) => state.pacientes);
   const [nombrePaciente, setNombrePaciente] = useState(correcion?.paciente_nombre_completo);
   const [selectedSucursal, setSelectedSucursal] = useState(correcion?.sucursal);
   const [ubicacionMaps, setUbicacionMaps] = useState(correcion?.ubicacion_maps);
+  const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
 
 
@@ -45,11 +43,15 @@ const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
     }
   }, [])
 
-  // useEffect(() => {
-  //   dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  // }, []);
-
- 
+  useEffect(() => {
+    if (correcionOrden) {
+      setSelectedSucursal(correcionOrden?.sucursal)
+      setUbicacionMaps(correcionOrden?.ubicacion)
+      setNombrePaciente(correcionOrden?.paciente_nombre_completo)
+      setCelular(correcionOrden?.celular)
+      setStatus(correcionOrden?.estado)
+    }
+  }, [correcionOrden])
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -107,8 +109,6 @@ const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-  const statusToDisplay =  correcion?.status;
-
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
     let mensajePersonalizado = mensaje
@@ -162,9 +162,8 @@ const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
   }
 
   const handleContactarPaciente = async () => {
-    // Datos para la API
     const newContactoOrdenData = {
-      correccion_ordenes_id: correcion?.id,
+      correccion_ordenes_id: correcionOrden?.correccion_id,
       tipo_fase_cr_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
@@ -233,11 +232,11 @@ const CorreccionRetirado = ({ tipoFaseId,isDisabled }) => {
                 width: '15px',
                 height: '15px',
                 borderRadius: '100%',
-                backgroundColor: getColorForStatus(statusToDisplay),
+                backgroundColor: getColorForStatus(status),
                 marginRight: '5px',
               }}
             ></div>
-            <span>{statusToDisplay || 'Sin estado'}</span>
+            <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContactoCorrecciones id={correccionOrderId} />

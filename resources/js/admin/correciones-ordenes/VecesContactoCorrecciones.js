@@ -6,17 +6,13 @@ import {
 } from '@ant-design/icons';
 import { fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 
-const VecesContactoCorrecciones = ({ id }) => {
+const VecesContactoCorrecciones = ({ id, correcionOrden }) => {
 
   const dispatch = useDispatch();
   const [showContacto, setShowContacto] = useState(false);
   const {
     contactoCorreccionOrden
   } = useSelector((state) => state.correcionesordenes);
-
-  useEffect(() => {
-    dispatch(fecthCorrecionesOrdenes({}));
-  }, [dispatch]);
 
   const formatDate = (dateString) => {
     if (!dateString) return ''

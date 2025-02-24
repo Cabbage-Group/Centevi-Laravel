@@ -26,6 +26,7 @@ const tiposFasesOrdenesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fecthTiposFasesOrdenes.fulfilled, (state, action) => {
+        console.log('ction.payload.data:',action.payload.data)
         state.status = 'succeeded';
         state.tiposFasesOrdenes = action.payload.data;
       })

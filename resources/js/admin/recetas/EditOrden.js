@@ -2,16 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { createOrdenes, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
-import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
+import { Col, Input, Row, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
-import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
-import { useLocation } from 'react-router-dom';
 import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
@@ -21,18 +18,12 @@ import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 
 
-const EditOrden = (
-  { fecha_solicitud }
-
-) => {
+const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const { orderId } = useParams();
-  const { orden } = location.state || {};
-  const { pacienteOrden } = location.state || {};
-  const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
+  const { pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
@@ -41,10 +32,9 @@ const EditOrden = (
   const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
   const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
   const { marcas_options_selecteds } = useSelector((state) => state.marcas)
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.id_sucursal || pacienteOrden?.id_sucursal);
+  const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [selectedSucursal, setSelectedSucursal] = useState('');
   const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
   const [cedula, setCedula] = useState('');
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
@@ -54,75 +44,155 @@ const EditOrden = (
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedMarca, setSelectedMarca] = useState(orden?.marca || pacienteOrden?.marca);
-  const [isLinkEnabled, setIsLinkEnabled] = useState(false);
+  const [selectedMarca, setSelectedMarca] = useState('');
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
+  const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
+  const [aroCentevi, setAroCentevi] = useState(false);
+  const [tipoAro, setTipoAro] = useState('');
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
 
   useEffect(() => {
-    if (orden?.lente_contacto || pacienteOrden?.lente_contacto) {
+    if (pacienteOrden?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [orden, pacienteOrden]);
+  }, [pacienteOrden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
     setIsLeftEye(hasRightEye);
   }, [serviciosRealizados]);
 
-  const initialValues = {
-    nro_orden: orden?.nro_orden || pacienteOrden?.nro_orden,
-    nro_orden_id: orden?.nro_orden_id || pacienteOrden?.nro_orden_id,
-    id_paciente: orden?.id_paciente || pacienteOrden?.id_paciente,
-    id_sucursal: orden?.id_sucursal || pacienteOrden?.id_sucursal,
-    esfera_od: orden?.esfera_od || pacienteOrden?.esfera_od,
-    esfera_oi: orden?.esfera_oi || pacienteOrden?.esfera_oi,
-    cilindro_od: orden?.cilindro_od || pacienteOrden?.cilindro_od,
-    cilindro_oi: orden?.cilindro_oi || pacienteOrden?.cilindro_oi,
-    eje_od: orden?.eje_od || pacienteOrden?.eje_od,
-    eje_oi: orden?.eje_oi || pacienteOrden?.eje_oi,
-    add_od: orden?.add_od || pacienteOrden?.add_od,
-    add_oi: orden?.add_oi || pacienteOrden?.add_oi,
-    prisma_od: orden?.prisma_od || pacienteOrden?.prisma_od,
-    prisma_oi: orden?.prisma_oi || pacienteOrden?.prisma_oi,
-    distancia_od: orden?.distancia_od || pacienteOrden?.distancia_od,
-    distancia_oi: orden?.distancia_oi || pacienteOrden?.distancia_oi,
-    altura_od: orden?.altura_od || pacienteOrden?.altura_od,
-    altura_oi: orden?.altura_oi || pacienteOrden?.altura_oi,
+  const [formValues, setFormValues] = useState({
+    nro_orden: '',
+    nro_orden_id: '',
+    id_paciente: '',
+    id_sucursal: '',
+    esfera_od: '',
+    esfera_oi: '',
+    cilindro_od: '',
+    cilindro_oi: '',
+    eje_od: '',
+    eje_oi: '',
+    add_od: '',
+    add_oi: '',
+    prisma_od: '',
+    prisma_oi: '',
+    distancia_od: '',
+    distancia_oi: '',
+    altura_od: '',
+    altura_oi: '',
     tipo_cristal_od: '',
     tipo_cristal_oi: '',
     material_od: '',
     material_oi: '',
     tratamientos_od: '',
     tratamientos_oi: '',
-    aro_centevi: orden?.aro_centevi || pacienteOrden?.aro_centevi,
-    aro_propio: orden?.aro_propio || pacienteOrden?.aro_propio,
-    codigo: orden?.codigo || pacienteOrden?.codigo,
-    color: orden?.color || pacienteOrden?.color,
-    marca: orden?.marca || pacienteOrden?.marca,
-    tipo_aro: orden?.tipo_aro || pacienteOrden?.tipo_aro,
-    observaciones: orden?.observaciones || pacienteOrden?.observaciones,
-    doctor: orden?.doctor || pacienteOrden?.doctor,
-    l_uno: orden?.l_uno || pacienteOrden?.l_uno,
-    l_dos: orden?.l_dos || pacienteOrden?.l_dos,
-    l_tres: orden?.l_tres || pacienteOrden?.l_tres,
-    l_cuatro: orden?.l_cuatro || pacienteOrden?.l_cuatro,
-    l_cinco: orden?.l_cinco || pacienteOrden?.l_cinco,
+    aro_centevi: '',
+    aro_propio: '',
+    codigo: '',
+    color: '',
+    marca: '',
+    tipo_aro: '',
+    observaciones: '',
+    doctor: '',
+    l_uno: '',
+    l_dos: '',
+    l_tres: '',
+    l_cuatro: '',
+    l_cinco: '',
     isRowVisible: isAroVisible,
-  };
+  });
 
-
-
-  const tipoAroOptions = [
-    { label: 'Pasta Completo', value: 1 },
-    { label: 'Pasta Semi al Aire', value: 2 },
-    { label: 'Metal Completo', value: 3 },
-    { label: 'Metal Semi al Aire', value: 4 },
-    { label: 'Al Aire', value: 5 },
-    { label: 'Seguridad', value: 6 },
-  ];
-
+  useEffect(() => {
+    if (pacienteOrden) {
+      setSelectedPaciente(pacienteOrden?.id_paciente);
+      setSelectedSucursal(pacienteOrden?.id_sucursal);
+      setDoctorSeleccionado(pacienteOrden?.doctor);
+      setTipoAro(pacienteOrden?.tipo_aro);
+      setSelectedMarca(pacienteOrden?.marca);
+      setServiciosRealizados([
+        pacienteOrden?.tipo_cristal_od ? { 
+          value: pacienteOrden.tipo_cristal_od, 
+          label: pacienteOrden.tipo_cristal_od, 
+          ojo: "Ojo Derecho" }
+          : null,
+        pacienteOrden?.tipo_cristal_oi ? 
+        { value: pacienteOrden.tipo_cristal_oi, 
+          label: pacienteOrden.tipo_cristal_oi, 
+          ojo: "Ojo Izquierdo" }
+          : null,
+      ].filter(Boolean));
+      setMaterialesSeleccionados([
+        pacienteOrden?.material_od ? {
+          value: pacienteOrden?.material_od,
+          label: pacienteOrden?.material_od,
+          ojo: "Ojo Derecho"
+        } : null,
+        pacienteOrden?.material_oi ? {
+          value: pacienteOrden?.material_oi,
+          label: pacienteOrden?.material_oi,
+          ojo: "Ojo Izquierdo"
+        } : null,
+      ].filter(Boolean));
+      setTratamientosFiltros([
+        pacienteOrden?.tratamientos_od ? {
+          value: pacienteOrden?.tratamientos_od,
+          label: pacienteOrden?.tratamientos_od,
+          ojo: "Ojo Derecho"
+        } : null,
+        pacienteOrden?.tratamientos_oi ? {
+          value: pacienteOrden?.tratamientos_oi,
+          label: pacienteOrden?.tratamientos_oi,
+          ojo: "Ojo Izquierdo"
+        } : null,
+      ].filter(Boolean));
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        nro_orden: pacienteOrden.nro_orden || '',
+        nro_orden_id: pacienteOrden.nro_orden_id || '',
+        id_paciente: pacienteOrden.id_paciente || '',
+        id_sucursal: pacienteOrden.id_sucursal || '',
+        esfera_od: pacienteOrden.esfera_od || '',
+        esfera_oi: pacienteOrden.esfera_oi || '',
+        cilindro_od: pacienteOrden.cilindro_od || '',
+        cilindro_oi: pacienteOrden.cilindro_oi || '',
+        eje_od: pacienteOrden.eje_od || '',
+        eje_oi: pacienteOrden.eje_oi || '',
+        add_od: pacienteOrden.add_od || '',
+        add_oi: pacienteOrden.add_oi || '',
+        prisma_od: pacienteOrden.prisma_od || '',
+        prisma_oi: pacienteOrden.prisma_oi || '',
+        distancia_od: pacienteOrden.distancia_od || '',
+        distancia_oi: pacienteOrden.distancia_oi || '',
+        altura_od: pacienteOrden.altura_od || '',
+        altura_oi: pacienteOrden.altura_oi || '',
+        tipo_cristal_od: '',
+        tipo_cristal_oi: '',
+        material_od: '',
+        material_oi: '',
+        tratamientos_od: '',
+        tratamientos_oi: '',
+        aro_centevi: pacienteOrden.aro_centevi || '',
+        aro_propio: pacienteOrden.aro_propio || '',
+        codigo: pacienteOrden.codigo || '',
+        color: pacienteOrden.color || '',
+        marca: pacienteOrden.marca || '',
+        tipo_aro: pacienteOrden.tipo_aro || '',
+        observaciones: pacienteOrden.observaciones || '',
+        doctor: pacienteOrden.doctor || '',
+        l_uno: pacienteOrden.l_uno || '',
+        l_dos: pacienteOrden.l_dos || '',
+        l_tres: pacienteOrden.l_tres || '',
+        l_cuatro: pacienteOrden.l_cuatro || '',
+        l_cinco: pacienteOrden.l_cinco || '',
+        isRowVisible: isAroVisible,
+      }));
+    }
+  }, [pacienteOrden, isAroVisible]);
 
   const validationSchema = Yup.object().shape({
     id_paciente: Yup.number().nullable()
@@ -148,45 +218,7 @@ const EditOrden = (
       .required("Seleccione un doctor"),
   });
 
-  const [serviciosRealizados, setServiciosRealizados] = useState([
-    orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od ? {
-      value: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-      label: orden?.tipo_cristal_od || pacienteOrden?.tipo_cristal_od,
-      ojo: "Ojo Derecho"
-    } : null,
-    orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi ? {
-      value: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi,
-      label: orden?.tipo_cristal_oi || pacienteOrden?.tipo_cristal_oi,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden?.material_od || pacienteOrden?.material_od ? {
-      value: orden?.material_od || pacienteOrden?.material_od,
-      label: orden?.material_od || pacienteOrden?.material_od,
-      ojo: "Ojo Derecho"
-    } : null,
-    orden?.material_oi || pacienteOrden?.material_oi ? {
-      value: orden?.material_oi || pacienteOrden?.material_oi,
-      label: orden?.material_oi || pacienteOrden?.material_oi,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    orden?.tratamientos_od || pacienteOrden?.tratamientos_od ? {
-      value: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
-      label: orden?.tratamientos_od || pacienteOrden?.tratamientos_od,
-      ojo: "Ojo Derecho"
-    } : null,
-    orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi ? {
-      value: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
-      label: orden?.tratamientos_oi || pacienteOrden?.tratamientos_oi,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [aroCentevi, setAroCentevi] = useState(false);
-  const [tipoAro, setTipoAro] = useState(orden?.tipo_aro || pacienteOrden?.tipo_aro);
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden?.doctor || pacienteOrden?.doctor)
+
 
   const toggleEye = () => {
     setIsLeftEye(!isLeftEye);
@@ -263,15 +295,14 @@ const EditOrden = (
   };
 
   useEffect(() => {
-    if (orden?.aro_centevi !== undefined || pacienteOrden?.aro_centevi !== undefined) {
-      setAroCentevi(orden?.aro_centevi === 1 || pacienteOrden?.aro_centevi === 1);
+    if (pacienteOrden?.aro_centevi !== undefined) {
+      setAroCentevi(pacienteOrden?.aro_centevi === 1);
     }
-  }, [orden, pacienteOrden]);
+  }, [pacienteOrden]);
 
   useEffect(() => {
     if (selectedPaciente) {
-      // Buscar el paciente seleccionado en la lista de pacientes
-      const pacienteSeleccionado = pacientes.find(
+      const pacienteSeleccionado = pacientesData.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       if (pacienteSeleccionado) {
@@ -286,14 +317,12 @@ const EditOrden = (
       setTelefono('');
       setCedula('');
     }
-  }, [selectedPaciente, pacientes]);
+  }, [selectedPaciente, pacientesData]);
 
 
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-    dispatch(fetchUsuarios({}))
     dispatch(fetchCristales())
     dispatch(fetchMateriales())
     dispatch(fetchTratamientos())
@@ -391,8 +420,8 @@ const EditOrden = (
     if (result.meta.requestStatus === 'fulfilled') {
       Swal.fire({
         icon: 'success',
-        title: 'Orden Actualizada',
-        text: 'La orden se ha actualizado exitosamente.',
+        title: 'pacienteOrden Actualizada',
+        text: 'La pacienteOrden se ha actualizado exitosamente.',
       }).then(() => {
         navigate(-1);
       });
@@ -400,7 +429,7 @@ const EditOrden = (
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Hubo un problema al actualizar la receta. Por favor, intenta de nuevo. Nro de Orden ya existente',
+        text: 'Hubo un problema al actualizar la receta. Por favor, intenta de nuevo. Nro de pacienteOrden ya existente',
       });
     }
   };
@@ -452,7 +481,9 @@ const EditOrden = (
                       <div className="widget-content widget-content-area" >
 
                         <Formik
-                          initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
+                          initialValues={formValues}
+                          enableReinitialize
+                          // initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >
@@ -499,7 +530,7 @@ const EditOrden = (
                                   </p>
                                 </div>
                                 <div class="col-md-2"  >
-                                  <h4>Nro. Orden*</h4>
+                                  <h4>Nro. pacienteOrden*</h4>
                                   <Input
                                     name="nro_orden_id"
                                     value={values.nro_orden_id}
@@ -508,7 +539,7 @@ const EditOrden = (
                                       setFieldValue("nro_orden_id", onlyNumbers);
                                     }}
                                     disabled
-                                    placeholder="Ingrese el número de orden"
+                                    placeholder="Ingrese el número de pacienteOrden"
                                     style={{
                                       color: "red",
                                       fontWeight: "bold",
@@ -728,7 +759,6 @@ const EditOrden = (
                                             <Field
                                               className="form-control"
                                               name="esfera_od"
-
                                               as="input"
                                             />
                                           </td>
@@ -1084,15 +1114,7 @@ const EditOrden = (
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeTratamientos}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
-                                          //     tratamientosFiltros.push(val)
-                                          //     setTratamientosFiltros([...tratamientosFiltros])
-                                          //   }
-                                          // }}
+                                          onChange={handleSelectChangeTratamientos}                                    
                                           options={tratamientos_options_selecteds.map(servicio => ({
                                             value: servicio.value,
                                             label: servicio.label
@@ -1730,8 +1752,8 @@ const EditOrden = (
                                               }}
                                               onChange={(value) => {
                                                 console.log('value:', value)
-                                                setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
-                                                setFieldValue("marca", value); // También actualizar el campo de Formik
+                                                setSelectedMarca(value);
+                                                setFieldValue("marca", value);
                                               }}
                                               filterOption={(input, option) =>
                                                 option.label.toLowerCase().includes(input.toLowerCase())
@@ -1744,124 +1766,14 @@ const EditOrden = (
                                           )}
                                         </div>
                                       </Col>
-                                      {/* <Col xxl={4} xl={4} md={4}>
-                                        <div
-                                          style={{
-                                            // display: 'flex'
-                                          }}
-                                        >
-                                          <div style={{ marginTop: '-15px' }}>
-                                            <b>MARCA</b>
-                                          </div>
-                                          <Field
-                                            className="form-control"
-                                            name="marca"
-                                            style={{
-                                              marginLeft: '0px', height: '30px'
-                                            }}
-                                          />
-                                        </div>
-                                      </Col> */}
-
-
-
+                                
                                       <Col xxl={24} xl={24} md={24}>
                                         <Row
                                           gutter={[16, 16]}
                                         >
                                           <Col xxl={12} xl={12} md={12}>
                                             <Row>
-                                              {/* <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>METAL COMPLETO</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>PASTA COMPLETO</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>METAL SEMI - AIRE</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>PASTA SEMI - AIRE</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>AL AIRE</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>SEGURIDAD</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col> */}
+                                            
                                               {isAroVisible && (
                                                 <Col xxl={24} xl={24} md={24}>
                                                   <div
@@ -1870,18 +1782,7 @@ const EditOrden = (
                                                       marginBottom: '10px'
                                                     }}
                                                   >
-                                                    {/* <label className="new-control new-radio radio-classic-primary">
-                                                    <b>MARCA</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label> */}
-
-                                                    {/* <Input /> */}
+                                                 
                                                     <b>TIPO DE ARO*:</b>
                                                     <Select
                                                       showSearch
@@ -1946,7 +1847,7 @@ const EditOrden = (
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={orden?.elaborado_por_nombre}
+                                                    value={pacienteOrden?.elaborado_por}
                                                     disabled />
                                                 </div>
                                               </Col>

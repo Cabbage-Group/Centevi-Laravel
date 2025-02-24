@@ -2,15 +2,53 @@ import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/too
 import axios from 'axios';
 import API from '../../../config/config.js';
 
+// export const fecthOrdenes = createAsyncThunk(
+//   'ordenes/fecthordenes',
+//   async ({
+//     page = '',
+//     limit = 10000000000000,
+//     sortOrder = 'desc',
+//     sortColumn = 'created_at',
+//     search = '',
+//     status = '',
+//     lenteContacto = '',
+//     pagado = '',
+//     sucursal = '',
+//     laboratorio = '',
+//     fase = '',
+//     startDate = '',
+//     endDate = '',
+//   }) => {
+//     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
+
+//     const response = await axios.post(`${API}/verOrdenes`,
+//       {
+//         page,
+//         limit,
+//         sortOrder,
+//         sortColumn,
+//         search,
+//         fecha,
+//         pagado,
+//         sucursal,
+//         status,
+//         lenteContacto,
+//         laboratorio,
+//         fase
+//       },);
+//     return response.data;
+//   }
+// );
+
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
   async ({
     page = '',
-    limit = 10000000000000,
+    limit = 20,
     sortOrder = 'desc',
     sortColumn = 'created_at',
     search = '',
-    status = '',
+    estados = '',
     lenteContacto = '',
     pagado = '',
     sucursal = '',
@@ -21,7 +59,7 @@ export const fecthOrdenes = createAsyncThunk(
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
-    const response = await axios.post(`${API}/verOrdenes`,
+    const response = await axios.post(`${API}/obtener-ordenes`,
       {
         page,
         limit,
@@ -31,7 +69,7 @@ export const fecthOrdenes = createAsyncThunk(
         fecha,
         pagado,
         sucursal,
-        status,
+        estados,
         lenteContacto,
         laboratorio,
         fase
@@ -39,6 +77,7 @@ export const fecthOrdenes = createAsyncThunk(
     return response.data;
   }
 );
+
 
 export const createOrdenes = createAsyncThunk(
   'ordenes/createOrdenes',
@@ -166,6 +205,20 @@ export const fetchOrdenesDelPaciente = createAsyncThunk(
     return response.data;
   }
 );
+
+export const fetchOrdenDelPaciente = createAsyncThunk(
+  'ordenes/fetchOrdenDelPaciente',
+  async ({ id_paciente, nro_orden_id }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API}/paciente/orden/${id_paciente}/${nro_orden_id}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response ? error.response.data : error.message);
+    }
+  }
+);
+
+
 export const fetchContactoOrdenesDelPaciente = createAsyncThunk(
   'ordenes/fetchContactoOrdenesDelPaciente',
   async (id_paciente) => {
@@ -182,6 +235,8 @@ const ordenesSlice = createSlice({
     data: [],
     ordenes: [],
     pacienteOrdenes: [],
+    pacienteOrden: {},
+    OrderIDPaciente: null,
     contactoOrden: [],
     ordenes_options_selecteds: [],
     nro_orden_auto: [],
@@ -189,8 +244,12 @@ const ordenesSlice = createSlice({
     total: 0,
     meta: {},
     status: 'idle',
+    statusPacienteOrdenes: 'idle',
+    statusPacienteOrden: 'idle',
     search: '',
     error: null,
+    errorPacienteOrdenes: null,
+    errorPacienteOrden: null,
     sortOrder: 'desc',
     sortColumn: 'created_at',
   },
@@ -209,9 +268,6 @@ const ordenesSlice = createSlice({
       state.endDate = action.payload.endDate;
     },
     setOrderId: (state, action) => {
-      console.log('action:', action)
-      console.log('state:', state)
-      console.log('state.OrderId:', state.OrderId)
       state.OrderId = action.payload;
     },
     clearOrderId: (state) => {
@@ -229,11 +285,11 @@ const ordenesSlice = createSlice({
         state.meta = action.payload.meta;
         state.total = action.payload.meta.total
         state.ordenes_options_selecteds = action.payload.data.map((
-          { id_orden, nro_orden_id, paciente, ...rest }) =>
-          paciente?.id_paciente && paciente?.nombres && paciente?.apellidos
+          { ordenes_id, nro_orden_id, nombres, apellidos, id_paciente, ...rest }) =>
+            id_paciente && nombres && apellidos
             ? {
-              value: id_orden,
-              label: `Nro Orden: ${nro_orden_id} || Nombre: ${paciente.nombres.trim()} ${paciente.apellidos.trim()}`,
+              value: ordenes_id,
+              label: `Nro Orden: ${nro_orden_id} || Nombre: ${nombres.trim()} ${apellidos.trim()}`,
               ...rest
             } :
             { ...rest }
@@ -281,19 +337,30 @@ const ordenesSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(fetchOrdenesDelPaciente.pending, (state) => {
-        state.status = 'loading';
+        state.statusPacienteOrdenes = 'loading';
       })
       .addCase(fetchOrdenesDelPaciente.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.statusPacienteOrdenes = 'succeeded';
         state.pacienteOrdenes = action.payload.data;
         state.meta = action.payload.meta;
       })
+      .addCase(fetchOrdenesDelPaciente.rejected, (state, action) => {
+        state.statusPacienteOrdenes = 'failed';
+        state.errorPacienteOrdenes = action.error.message;
+      })
+      .addCase(fetchOrdenDelPaciente.pending, (state) => {
+        state.statusPacienteOrden = 'loading';
+      })
+      .addCase(fetchOrdenDelPaciente.fulfilled, (state, action) => {
+        state.statusPacienteOrden = 'succeeded';
+        state.pacienteOrden = action.payload.data;
+      })
+      .addCase(fetchOrdenDelPaciente.rejected, (state, action) => {
+        state.statusPacienteOrden = 'failed';
+        state.errorPacienteOrden = action.error.message;
+      })
       .addCase(fetchContactoOrdenesDelPaciente.fulfilled, (state, action) => {
         state.contactoOrden = action.payload.data;
-      })
-      .addCase(fetchOrdenesDelPaciente.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
       });
   },
 });

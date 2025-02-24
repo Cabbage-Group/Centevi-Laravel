@@ -116,30 +116,30 @@ export const transformDataForReporteOrdenes = (data) => {
   data.forEach(rpOrden => {
     const ordenTransformada = {
       Tipo_Lente: rpOrden.lente_contacto === 1 ? "Si" : "No",
-      Tipo_Cristal: rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo || "",
-      Status: rpOrden.status ?? "Sin estado",
-      Fecha_Orden: rpOrden.created_at_formatted,
+      Tipo_Cristal: rpOrden?.codigo_cristal || "",
+      Estado: rpOrden.estado ?? "Sin estado",
+      Fecha_Orden: rpOrden.created_at,
       Nro_orden: rpOrden.nro_orden_id,
-      Pagado: rpOrden.pagado_nombre,
-      Sucursal: rpOrden.sucursal.nombre,
+      Pagado: rpOrden.pagado,
+      Sucursal: rpOrden.sucursal,
       Doctor: rpOrden.doctor,
-      Asesor: rpOrden.elaborado_por_nombre,
+      Asesor: rpOrden.asesor,
       Laboratorio: rpOrden.laboratorio,
     };
 
-    if (rpOrden.correciones && rpOrden.correciones.length > 0) {
+    if (rpOrden.correcciones && rpOrden.correcciones.length > 0) {
       transformedData.push(ordenTransformada);
-      rpOrden.correciones.forEach(correccion => {
+      rpOrden.correcciones.forEach((correccion, index) => {
         transformedData.push({
-          Tipo_Lente: correccion.lente_contacto === 1 ? "Si" : "No",
-          Tipo_Cristal: correccion?.tipo_cristal_od_codigo || correccion?.tipo_cristal_oi_codigo || "",
-          Status: correccion.status ?? "Sin estado",
-          Fecha_Orden: moment(correccion.created_at).format('DD-MM-YYYY'),
-          Nro_orden: correccion.correcion_format,
-          Pagado: correccion.pagado_nombre,
-          Sucursal: correccion.nombre_sucursal ?? "Sin sucursal",
+          Tipo_Lente: correccion.lente_contacto,
+          Tipo_Cristal: correccion?.codigo_cristal || "",
+          Estado: correccion.estado ?? "Sin estado",
+          Fecha_Orden: correccion.fecha,
+          Nro_orden: `${correccion.nro_orden_id}-C${index + 1}`, 
+          Pagado: correccion.pagado,
+          Sucursal: correccion.sucursal,
           Doctor: correccion.doctor,
-          Asesor: correccion.elaborado_por_nombre,
+          Asesor: correccion.asesor,
           Laboratorio: correccion.laboratorio,
         });
       });

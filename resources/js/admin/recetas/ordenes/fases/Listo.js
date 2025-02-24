@@ -12,7 +12,7 @@ import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSl
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
 
-const Listo = ({ tipoFaseId, lab, isDisabled }) => {
+const Listo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -25,20 +25,17 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
   const [laboratorio, setLaboratorio] = useState('');
   const [elaboradoFase, setElaboradoFase] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
-  const { orden } = location.state || {};
-  const { pacienteOrden } = location.state || {};
   const [celular, setCelular] = useState('');
   const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
-  const [selectedPaciente, setSelectedPaciente] = useState(orden?.id_paciente || pacienteOrden?.id_paciente);
-  const { pacientes } = useSelector((state) => state.pacientes);
+  const [selectedPaciente, setSelectedPaciente] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState(orden?.sucursal?.nombre || pacienteOrden?.nombre);
-  const [ubicacionMaps, setUbicacionMaps] = useState(orden?.sucursal?.ubicacion_maps || pacienteOrden?.ubicacion_maps);
+  const [selectedSucursal, setSelectedSucursal] = useState();
+  const [ubicacionMaps, setUbicacionMaps] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
-
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
     if (orderId) {
@@ -47,12 +44,17 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
   }, [])
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
+    if (pacienteOrden) {
+      setSelectedPaciente(pacienteOrden?.id_paciente)
+      setSelectedSucursal(pacienteOrden?.sucursal_nombre)
+      setUbicacionMaps(pacienteOrden?.sucursal_ubicacion)
+      setStatus(pacienteOrden?.status_primera_fase)
+    }
+  }, [pacienteOrden])
 
   useEffect(() => {
     if (selectedPaciente) {
-      const pacienteSeleccionado = pacientes.find(
+      const pacienteSeleccionado = pacientesData.find(
         (paciente) => paciente.id_paciente === selectedPaciente
       );
       if (pacienteSeleccionado) {
@@ -65,7 +67,7 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
     } else {
       setCelular('');
     }
-  }, [selectedPaciente, pacientes]);
+  }, [selectedPaciente, pacientesData]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -122,8 +124,6 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
     return colors[status] || 'gray';
   };
 
-  const statusToDisplay = orden?.status_final || orden?.status || pacienteOrden?.status;
-
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
     let mensajePersonalizado = mensaje
@@ -150,7 +150,7 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
     };
     dispatch(actualizarDatosFase(nuevaFase));
 
-  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
+  }, [observaciones, fechaActual, tipoFaseId, dispatch, status]);
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -178,7 +178,7 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
   const handleContactarPaciente = async () => {
     // Datos para la API
     const newContactoOrdenData = {
-      ordenes_id: orden?.id_orden || pacienteOrden?.id_orden,
+      ordenes_id: orderId,
       tipo_fase_orden_id: tipoFaseId,
       usuario_id: idUsuario,
       cantidad: 1
@@ -248,11 +248,11 @@ const Listo = ({ tipoFaseId, lab, isDisabled }) => {
                 width: '15px',
                 height: '15px',
                 borderRadius: '100%',
-                backgroundColor: getColorForStatus(statusToDisplay),
+                backgroundColor: getColorForStatus(status),
                 marginRight: '5px',
               }}
             ></div>
-            <span>{statusToDisplay || 'Sin estado'}</span>
+            <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContacto id_orden={orderId} />

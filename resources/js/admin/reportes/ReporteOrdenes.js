@@ -4,10 +4,8 @@ import DateRangePicker from './DateRangePicker';
 import ExportButton from './exportButton';
 import { transformDataForReporteOrdenes } from '../../../utils/dataTransform';
 import { Button, Col, Card, Row, Tooltip } from 'antd';
-import { fecthReportesOrdenes, setSortOrder, setSortColumn, setFechaRange, fecthStatusTotals, fecthLenteContactoTotals, fecthLaboratorioTotals, fecthPagadoTotals, fetchBranchTotals, fetchDoctoresTotals, fetchAsesoresTotals } from '../../redux/features/reportes/reporteOrdenesSlice';
+import { fetchReportesOrdenes, setSortOrder, setSortColumn, setFechaRange } from '../../redux/features/reportes/reporteOrdenesSlice';
 import PaginationReportesOrdenes from './PaginationReportesOrdenes';
-import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
-import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import moment from 'moment';
 
 
@@ -20,10 +18,15 @@ const ReporteOrdenes = () => {
   const [localEndDate, setLocalEndDate] = useState(endDate);
   const [localStartDate, setLocalStartDate] = useState(startDate);
   const [localSearch, setLocalSearch] = useState(search);
-  const { usuarios_doctores_options_selecteds, usuarios_activados } = useSelector((state) => state.usuarios)
-  const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const {
     reportesOrdenes,
+    estados,
+    lentes,
+    laboratorios,
+    pagos,
+    doctores,
+    sucursales,
+    asesores,
     sortColumn,
     sortOrder,
     meta,
@@ -36,9 +39,8 @@ const ReporteOrdenes = () => {
     error
   } = useSelector((state) => state.reportesOrdenes);
 
-
   useEffect(() => {
-    dispatch(fecthReportesOrdenes({
+    dispatch(fetchReportesOrdenes({
       page: currentPage,
       limit: 20,
       sortOrder,
@@ -57,65 +59,7 @@ const ReporteOrdenes = () => {
     endDate
   ]);
 
-  useEffect(() => {
-    dispatch(fecthStatusTotals({}))
-    dispatch(fecthLenteContactoTotals({}))
-    dispatch(fecthLaboratorioTotals({}))
-    dispatch(fecthPagadoTotals({}))
-    dispatch(fetchSucursales({}))
-    dispatch(fetchUsuarios({}))
-  }, [dispatch])
-
-  useEffect(() => {
-    if (sucursales_option_selects.length > 0) {
-      const sucursalIds = sucursales_option_selects.map(sucursal => sucursal.value);
-      const sucursalNames = sucursales_option_selects.map(sucursal => sucursal.label);
-      dispatch(fetchBranchTotals(
-        {
-          sucursales: sucursalIds,
-          sucursalesNames: sucursalNames
-        }
-      ));
-    }
-  }, [dispatch, sucursales_option_selects]);
-
-  useEffect(() => {
-    if (usuarios_doctores_options_selecteds.length > 0) {
-      const doctoresIds = usuarios_doctores_options_selecteds.map(doctor => doctor.value);
-      const doctoresNames = usuarios_doctores_options_selecteds.map(doctor => doctor.label);
-      dispatch(fetchDoctoresTotals(
-        {
-          doctores: doctoresIds,
-          doctoresNames: doctoresNames
-        }
-      ));
-    }
-  }, [dispatch, usuarios_doctores_options_selecteds]);
-
-  useEffect(() => {
-    if (usuarios_activados.length > 0) {
-      const asesoressIds = usuarios_activados.map(asesor => asesor.id_usuario);
-      const asesoresNames = usuarios_activados.map(asesor => asesor.nombre);
-      dispatch(fetchAsesoresTotals(
-        {
-          asesores: asesoressIds,
-          asesoresNames: asesoresNames
-        }
-      ));
-    }
-  }, [dispatch, usuarios_activados]);
-
-  console.log('usuarios_activados:', usuarios_activados)
-
-  const statusTotals = useSelector((state) => state.reportesOrdenes.statusTotals);
-  const lenteContactoTotals = useSelector((state) => state.reportesOrdenes.lenteContactoTotals);
-  const laboratoriosTotals = useSelector((state) => state.reportesOrdenes.laboratoriosTotals);
-  const pagadoTotals = useSelector((state) => state.reportesOrdenes.pagadoTotals);
-  const branchTotals = useSelector((state) => state.reportesOrdenes.branchTotals);
-  const doctoresTotals = useSelector((state) => state.reportesOrdenes.doctoresTotals);
-  const asesoresTotals = useSelector((state) => state.reportesOrdenes.asesoresTotals);
-
-  console.log('asesoresTotals:', asesoresTotals)
+  console.log('dataexport', dataexport)
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -152,7 +96,6 @@ const ReporteOrdenes = () => {
     setVisibleCountAsesor((prev) => prev + 4);
   };
 
-
   return (
     <div className="row layout-top-spacing">
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
@@ -187,7 +130,7 @@ const ReporteOrdenes = () => {
                               backgroundColor: 'green',
                               marginRight: '8px'
                             }}></span>
-                            : {statusTotals?.Ok}
+                            : {estados?.OK}
                           </p>
                         </Tooltip>
                         <Tooltip title="Advertencia">
@@ -200,7 +143,7 @@ const ReporteOrdenes = () => {
                               backgroundColor: 'yellow',
                               marginRight: '8px'
                             }}></span>
-                            : {statusTotals?.Advertencia}
+                            : {estados?.Advertencia}
                           </p>
                         </Tooltip>
                       </div>
@@ -215,7 +158,7 @@ const ReporteOrdenes = () => {
                               backgroundColor: 'red',
                               marginRight: '8px'
                             }}></span>
-                            : {statusTotals?.Critico}
+                            : {estados?.Crítico}
                           </p>
                         </Tooltip>
                         <Tooltip title="Completado">
@@ -228,7 +171,7 @@ const ReporteOrdenes = () => {
                               backgroundColor: 'blue',
                               marginRight: '8px'
                             }}></span>
-                            : {statusTotals?.Completado}
+                            : {estados?.Completado}
                           </p>
                         </Tooltip>
                       </div>
@@ -244,7 +187,7 @@ const ReporteOrdenes = () => {
                         alt="Lente de contacto"
                         style={{ width: '20px', height: '20px', marginRight: '8px' }}
                       />
-                      : {lenteContactoTotals?.['1']}
+                      : {lentes?.contacto}
                     </p>
                     <p>
                       <img
@@ -252,7 +195,7 @@ const ReporteOrdenes = () => {
                         alt="Lente de contacto"
                         style={{ width: '20px', height: '20px', marginRight: '8px' }}
                       />
-                      : {lenteContactoTotals?.['0']}
+                      : {lentes?.normales}
                     </p>
                   </Card>
                 </div>
@@ -261,17 +204,17 @@ const ReporteOrdenes = () => {
                   <Card title="Resumen Laboratorio" bordered={false} hoverable>
                     <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                       <div style={{ width: '33%' }}>
-                        <p>Ping: {laboratoriosTotals?.Ping}</p>
-                        <p>Optilab: {laboratoriosTotals?.Optilab}</p>
-                        <p>Centilab: {laboratoriosTotals?.Centilab}</p>
+                        <p>Ping: {laboratorios?.Ping}</p>
+                        <p>Optilab: {laboratorios?.Optilab}</p>
+                        <p>Centilab: {laboratorios?.Centilab}</p>
                       </div>
                       <div style={{ width: '33%' }}>
-                        <p>Vista Pro: {laboratoriosTotals?.['Vista Pro']}</p>
-                        <p>Haseth J&J: {laboratoriosTotals?.['Haseth J&J']}</p>
+                        <p>Vista Pro: {laboratorios?.['Vista Pro']}</p>
+                        <p>Haseth J&J: {laboratorios?.['Haseth J&J']}</p>
                       </div>
                       <div style={{ width: '33%' }}>
-                        <p>Alcon: {laboratoriosTotals?.Alcon}</p>
-                        <p>B+L: {laboratoriosTotals?.['B+L']}</p>
+                        <p>Alcon: {laboratorios?.Alcon}</p>
+                        <p>B+L: {laboratorios?.['B+L'] || 0} </p>
                       </div>
                     </div>
                   </Card>
@@ -279,9 +222,9 @@ const ReporteOrdenes = () => {
 
                 <div className="col-md-4" >
                   <Card title="Resumen de Pagos" bordered={false} hoverable>
-                    <p>Pagado: {pagadoTotals?.['1']}</p>
-                    <p>Abonado: {pagadoTotals?.['2']}</p>
-                    <p>Cortesia: {pagadoTotals?.['0']}</p>
+                    <p>Pagado: {pagos?.Pagado}</p>
+                    <p>Abonado: {pagos?.Cortesía}</p>
+                    <p>Cortesia: {pagos?.Abonado}</p>
                   </Card>
                 </div>
                 <div className="col-md-4" style={{ marginTop: '20px' }}>
@@ -294,24 +237,24 @@ const ReporteOrdenes = () => {
                       overflowY: 'auto',
                     }}
                   >
-                    {doctoresTotals &&
-                      Object.entries(doctoresTotals)
+                    {doctores &&
+                      Object.entries(doctores)
                         .slice(0, visibleCount)
                         .map(([doctorId, total]) => {
-                          const truncatedBranchId =
-                            doctorId.length > 10 ? doctorId.substring(0, 40) + '...' : doctorId;
-
+                          const truncatedBranchId = doctorId.length > 60;
+                          const displayedBranchId = truncatedBranchId
+                            ? doctorId.substring(0, 60) + '...'
+                            : doctorId;
                           return (
                             <Tooltip title={`${doctorId}: ${total}`} key={doctorId}>
                               <p>
-                                {truncatedBranchId}: {total}
+                                {displayedBranchId}: {total}
                               </p>
                             </Tooltip>
                           );
                         })}
-
                     <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                      {visibleCount < Object.keys(doctoresTotals || {}).length ? (
+                      {visibleCount < Object.keys(doctores || {}).length ? (
                         <Button type="link" onClick={handleLoadMore}>
                           Cargar más
                         </Button>
@@ -337,11 +280,10 @@ const ReporteOrdenes = () => {
                       overflowY: 'auto',
                     }}
                   >
-                    {branchTotals &&
-                      Object.entries(branchTotals)
+                    {sucursales &&
+                      Object.entries(sucursales)
                         .slice(0, visibleCountSucursal)
                         .map(([branchId, total]) => {
-                          // Solo agregar puntos suspensivos si el texto es truncado
                           const isTruncated = branchId.length > 60;
                           const displayedBranchId = isTruncated
                             ? branchId.substring(0, 60) + '...'
@@ -357,7 +299,7 @@ const ReporteOrdenes = () => {
                         })}
 
                     <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                      {visibleCountSucursal < Object.keys(branchTotals || {}).length ? (
+                      {visibleCountSucursal < Object.keys(sucursales || {}).length ? (
                         <Button type="link" onClick={handleLoadMoreSucursal}>
                           Cargar más
                         </Button>
@@ -383,8 +325,8 @@ const ReporteOrdenes = () => {
                       overflowY: 'auto',
                     }}
                   >
-                    {asesoresTotals &&
-                      Object.entries(asesoresTotals)
+                    {asesores &&
+                      Object.entries(asesores)
                         .slice(0, visibleCountAsesor)
                         .map(([branchId, total]) => {
                           // Solo agregar puntos suspensivos si el texto es truncado
@@ -403,7 +345,7 @@ const ReporteOrdenes = () => {
                         })}
 
                     <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                      {visibleCountAsesor < Object.keys(asesoresTotals || {}).length ? (
+                      {visibleCountAsesor < Object.keys(asesores || {}).length ? (
                         <Button type="link" onClick={handleLoadMoreAsesor}>
                           Cargar más
                         </Button>
@@ -511,72 +453,7 @@ const ReporteOrdenes = () => {
                   <div className="dt--top-section">
                     <div className="row">
                       <div className="col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center">
-                        {/* <div className="dt-buttons">
-                          <ExportButton
-                            dataexport={dataexport}
-                            transformData={transformDataForReporteOrdenes}
-                            fileName="reporte_ordenes.xlsx"
-                          />
-                        </div> */}
                       </div>
-                      {/* <div className="col-sm-12 col-md-6 d-flex justify-content-md-center justify-content-start mt-md-0 mt-3">
-                        <div
-                          className="dataTables_filter"
-                          id="html5-extension_filter"
-                        >
-                          <label>
-                            <svg
-                              className="feather feather-search"
-                              fill="none"
-                              height="24"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                              width="24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle
-                                cx="11"
-                                cy="11"
-                                r="8"
-                              />
-                              <line
-                                x1="21"
-                                x2="16.65"
-                                y1="21"
-                                y2="16.65"
-                              />
-                            </svg>
-                            <input
-                              aria-controls="html5-extension"
-                              className="form-control"
-                              placeholder="Search..."
-                              type="search"
-                              value={localSearch}
-                              onChange={handleSearchChange}
-                            />
-                            {localSearch && (
-                              <button
-                                onClick={handleClearSearch}
-                                style={{
-                                  position: 'absolute',
-                                  right: '25px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                &#x2715; { }
-                              </button>
-                            )}
-                          </label>
-                        </div>
-
-                      </div> */}
                     </div>
 
                   </div>
@@ -744,9 +621,9 @@ const ReporteOrdenes = () => {
                                       />
                                     )}
                                     </td>
-                                    <td>{rpOrden?.tipo_cristal_od_codigo || rpOrden?.tipo_cristal_oi_codigo}</td>
+                                    <td>{rpOrden?.codigo_cristal}</td>
                                     <td>
-                                      <Tooltip title={rpOrden?.status ?? ""}>
+                                      <Tooltip title={rpOrden?.estado ?? ""}>
                                         <span
                                           style={{
                                             display: 'inline-block',
@@ -754,32 +631,32 @@ const ReporteOrdenes = () => {
                                             height: '12px',
                                             borderRadius: '50%',
                                             backgroundColor:
-                                              rpOrden?.status === 'Ok'
+                                              rpOrden?.estado === 'OK'
                                                 ? 'green'
-                                                : rpOrden?.status === 'Advertencia'
+                                                : rpOrden?.estado === 'Advertencia'
                                                   ? 'yellow'
-                                                  : rpOrden?.status === 'Critico'
+                                                  : rpOrden?.estado === 'Critico'
                                                     ? 'red'
-                                                    : rpOrden?.status === 'Completado'
+                                                    : rpOrden?.estado === 'Completado'
                                                       ? 'blue'
                                                       : 'gray',
                                           }}
                                         ></span>{" "}
                                       </Tooltip>
                                     </td>
-                                    <td>{rpOrden?.created_at_formatted}</td>
+                                    <td>{rpOrden?.created_at}</td>
                                     <td>{rpOrden?.nro_orden_id}</td>
-                                    <td>{rpOrden?.pagado_nombre}</td>
-                                    <td>{rpOrden?.sucursal?.nombre}</td>
+                                    <td>{rpOrden?.pagado}</td>
+                                    <td>{rpOrden?.sucursal}</td>
                                     <td>{rpOrden?.doctor}</td>
-                                    <td>{rpOrden?.elaborado_por_nombre}</td>
+                                    <td>{rpOrden?.asesor}</td>
                                     <td>{rpOrden?.laboratorio}</td>
                                   </tr>
 
                                   {/* Fila para las correcciones */}
                                   {
-                                    rpOrden.correciones && rpOrden.correciones.length > 0 &&
-                                    rpOrden.correciones.map((correccion, index) => (
+                                    rpOrden.correcciones && rpOrden.correcciones.length > 0 &&
+                                    rpOrden.correcciones.map((correccion, index) => (
                                       <tr key={`correccion-${rpOrden.id_orden}-${index}`}>
                                         <td>{correccion.lente_contacto ? (
                                           <img
@@ -795,9 +672,9 @@ const ReporteOrdenes = () => {
                                           />
                                         )}
                                         </td>
-                                        <td>{correccion.tipo_cristal_od_codigo || correccion.tipo_cristal_oi_codigo}</td>
+                                        <td>{correccion.codigo_cristal}</td>
                                         <td>
-                                          <Tooltip title={correccion.status ?? ""}>
+                                          <Tooltip title={correccion.estado ?? ""}>
                                             <span
                                               style={{
                                                 display: 'inline-block',
@@ -805,11 +682,11 @@ const ReporteOrdenes = () => {
                                                 height: '12px',
                                                 borderRadius: '50%',
                                                 backgroundColor:
-                                                  correccion.status === 'Ok'
+                                                  correccion.status === 'OK'
                                                     ? 'green'
                                                     : correccion.status === 'Advertencia'
                                                       ? 'yellow'
-                                                      : correccion.status === 'Critico'
+                                                      : correccion.status === 'Crítico'
                                                         ? 'red'
                                                         : correccion.status === 'Completado'
                                                           ? 'blue'
@@ -818,12 +695,12 @@ const ReporteOrdenes = () => {
                                             ></span>{" "}
                                           </Tooltip>
                                         </td>
-                                        <td>{moment(correccion.created_at).format('DD-MM-YYYY')}</td>
-                                        <td>{correccion.correcion_format}</td>
-                                        <td>{correccion.pagado_nombre}</td>
-                                        <td>{correccion.nombre_sucursal}</td>
+                                        <td>{correccion.fecha}</td>
+                                        <td>{`${correccion.nro_orden_id}-C${index + 1}`}</td>
+                                        <td>{correccion.pagado}</td>
+                                        <td>{correccion.sucursal}</td>
                                         <td>{correccion.doctor}</td>
-                                        <td>{correccion.elaborado_por_nombre}</td>
+                                        <td>{correccion.asesor}</td>
                                         <td>{correccion.laboratorio}</td>
                                       </tr>
                                     ))
@@ -833,9 +710,6 @@ const ReporteOrdenes = () => {
                             })
                           }
                         </tbody>
-
-
-
                       </table>)}
                     <PaginationReportesOrdenes
                       meta={meta}

@@ -17,6 +17,7 @@ import { createCorrecionesOrdenes, fecthCorrecionesOrdenes } from '../../redux/f
 import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
 import { fetchMateriales } from '../../redux/features/materiales/materialesSlice';
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
+import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 
 const CreateCorrecionOrden = () => {
 
@@ -24,8 +25,8 @@ const CreateCorrecionOrden = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = location.state || {};
-  const { orden } = location.state || {};
-  const [selectedOrden, setSelectedOrden] = useState(orden?.id_orden);
+  const { pacienteOrden } = location.state || {};
+  const [selectedOrden, setSelectedOrden] = useState(pacienteOrden?.id_orden);
   const { pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios)
@@ -33,22 +34,22 @@ const CreateCorrecionOrden = () => {
   const { materiales_options_selecteds } = useSelector((state) => state.materiales)
   const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
   const [selectedPaciente, setSelectedPaciente] = useState(null);
-  const [selectedMarca, setSelectedMarca] = useState(orden?.marca);
+  const [selectedMarca, setSelectedMarca] = useState(pacienteOrden?.marca);
   const [lenteContacto, setLenteContacto] = useState(false);
   const [isRowVisible, setIsRowVisible] = useState(true);
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [aroCentevi, setAroCentevi] = useState(false);
-
+  const { marcas_options_selecteds } = useSelector((state) => state.marcas)
 
   useEffect(() => {
-    if (orden?.lente_contacto) {
+    if (pacienteOrden?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [orden]);
+  }, [pacienteOrden]);
 
 
   useEffect(() => {
@@ -57,18 +58,13 @@ const CreateCorrecionOrden = () => {
     }
   }, [id, pacientes_options_selecteds]);
 
-  const {
-    ordenes_options_selecteds
-  } = useSelector((state) => state.ordenes);
-
-
-
   useEffect(() => {
     dispatch(fetchUsuarios({}))
     dispatch(fecthOrdenes({}))
     dispatch(fetchCristales())
     dispatch(fetchMateriales())
     dispatch(fetchTratamientos())
+    dispatch(fetchMarcas())
   }, []);
 
   useEffect(() => {
@@ -76,49 +72,49 @@ const CreateCorrecionOrden = () => {
   }, []);
 
   useEffect(() => {
-    if (orden?.aro_centevi !== undefined) {
-      setAroCentevi(orden?.aro_centevi === 1);
+    if (pacienteOrden?.aro_centevi !== undefined) {
+      setAroCentevi(pacienteOrden?.aro_centevi === 1);
     }
-  }, [orden]);
+  }, [pacienteOrden]);
 
 
   const initialValues = {
-    ordenes_id: orden?.id_orden,
-    nro_orden_id: orden?.nro_orden_id,
-    esfera_od: orden?.esfera_od,
-    esfera_oi: orden?.esfera_oi,
-    cilindro_od: orden?.cilindro_od,
-    cilindro_oi: orden?.cilindro_oi,
-    eje_od: orden?.eje_od,
-    eje_oi: orden?.eje_oi,
-    add_od: orden?.add_od,
-    add_oi: orden?.add_oi,
-    prisma_od: orden?.prisma_od,
-    prisma_oi: orden?.prisma_oi,
-    distancia_od: orden?.distancia_od,
-    distancia_oi: orden?.distancia_oi,
-    altura_od: orden?.altura_od,
-    altura_oi: orden?.altura_oi,
+    ordenes_id: pacienteOrden?.id_orden,
+    nro_orden_id: pacienteOrden?.nro_orden_id,
+    esfera_od: pacienteOrden?.esfera_od,
+    esfera_oi: pacienteOrden?.esfera_oi,
+    cilindro_od: pacienteOrden?.cilindro_od,
+    cilindro_oi: pacienteOrden?.cilindro_oi,
+    eje_od: pacienteOrden?.eje_od,
+    eje_oi: pacienteOrden?.eje_oi,
+    add_od: pacienteOrden?.add_od,
+    add_oi: pacienteOrden?.add_oi,
+    prisma_od: pacienteOrden?.prisma_od,
+    prisma_oi: pacienteOrden?.prisma_oi,
+    distancia_od: pacienteOrden?.distancia_od,
+    distancia_oi: pacienteOrden?.distancia_oi,
+    altura_od: pacienteOrden?.altura_od,
+    altura_oi: pacienteOrden?.altura_oi,
     tipo_cristal_od: "",
     tipo_cristal_oi: "",
     material_od: "",
     material_oi: "",
     tratamientos_od: "",
     tratamientos_oi: "",
-    aro_centevi: orden?.aro_centevi,
-    aro_propio: orden?.aro_propio,
-    codigo: orden?.codigo,
-    color: orden?.color,
-    marca: orden?.marca,
-    tipo_aro: orden?.tipo_aro,
-    observaciones: orden?.observaciones,
-    doctor: orden?.doctor,
-    l_uno: orden?.l_uno,
-    l_dos: orden?.l_dos,
-    l_tres: orden?.l_tres,
-    l_cuatro: orden?.l_cuatro,
-    l_cinco: orden?.l_cinco,
-    pagado: orden?.pagado,
+    aro_centevi: pacienteOrden?.aro_centevi,
+    aro_propio: pacienteOrden?.aro_propio,
+    codigo: pacienteOrden?.codigo,
+    color: pacienteOrden?.color,
+    marca: pacienteOrden?.marca,
+    tipo_aro: pacienteOrden?.tipo_aro,
+    observaciones: pacienteOrden?.observaciones,
+    doctor: pacienteOrden?.doctor,
+    l_uno: pacienteOrden?.l_uno,
+    l_dos: pacienteOrden?.l_dos,
+    l_tres: pacienteOrden?.l_tres,
+    l_cuatro: pacienteOrden?.l_cuatro,
+    l_cinco: pacienteOrden?.l_cinco,
+    pagado: pacienteOrden?.pagado,
     isRowVisible: isAroVisible,
   };
 
@@ -147,43 +143,43 @@ const CreateCorrecionOrden = () => {
   });
 
   const [serviciosRealizados, setServiciosRealizados] = useState([
-    orden?.tipo_cristal_od ? {
-      value: orden?.tipo_cristal_od,
-      label: orden?.tipo_cristal_od,
+    pacienteOrden?.tipo_cristal_od ? {
+      value: pacienteOrden?.tipo_cristal_od,
+      label: pacienteOrden?.tipo_cristal_od,
       ojo: "Ojo Derecho"
     } : null,
-    orden?.tipo_cristal_oi ? {
-      value: orden?.tipo_cristal_oi,
-      label: orden?.tipo_cristal_oi,
+    pacienteOrden?.tipo_cristal_oi ? {
+      value: pacienteOrden?.tipo_cristal_oi,
+      label: pacienteOrden?.tipo_cristal_oi,
       ojo: "Ojo Izquierdo"
     } : null,
   ].filter(Boolean));
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    orden?.material_od ? {
-      value: orden?.material_od,
-      label: orden?.material_od,
+    pacienteOrden?.material_od ? {
+      value: pacienteOrden?.material_od,
+      label: pacienteOrden?.material_od,
       ojo: "Ojo Derecho"
     } : null,
-    orden?.material_oi ? {
-      value: orden?.material_oi,
-      label: orden?.material_oi,
+    pacienteOrden?.material_oi ? {
+      value: pacienteOrden?.material_oi,
+      label: pacienteOrden?.material_oi,
       ojo: "Ojo Izquierdo"
     } : null,
   ].filter(Boolean));
   const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    orden?.tratamientos_od ? {
-      value: orden?.tratamientos_od,
-      label: orden?.tratamientos_od,
+    pacienteOrden?.tratamientos_od ? {
+      value: pacienteOrden?.tratamientos_od,
+      label: pacienteOrden?.tratamientos_od,
       ojo: "Ojo Derecho"
     } : null,
-    orden?.tratamientos_oi ? {
-      value: orden?.tratamientos_oi,
-      label: orden?.tratamientos_oi,
+    pacienteOrden?.tratamientos_oi ? {
+      value: pacienteOrden?.tratamientos_oi,
+      label: pacienteOrden?.tratamientos_oi,
       ojo: "Ojo Izquierdo"
     } : null,
   ].filter(Boolean));
-  const [tipoAro, setTipoAro] = useState(orden?.tipo_aro);
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(orden?.doctor)
+  const [tipoAro, setTipoAro] = useState(pacienteOrden?.tipo_aro);
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState(pacienteOrden?.doctor)
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
@@ -402,33 +398,14 @@ const CreateCorrecionOrden = () => {
                                 </div>
                                 <div className="form-group col-md-4" >
                                   <label htmlFor="pacientes">Orden*</label>
-                                  <Select
-                                    showSearch
-                                    value={ordenes_options_selecteds.length > 0 ? selectedOrden : undefined}
-                                    onChange={(value) => {
-                                      console.log('value:', value)
-                                      setSelectedOrden(value); // Actualizar el estado con el paciente seleccionado
-                                      setFieldValue("nro_orden_id", value); // También actualizar el campo de Formik
-                                    }}
-                                    placeholder="Seleccione el orden"
-                                    loading={ordenes_options_selecteds.length === 0}
-                                    filterOption={(input, option) => {
-                                      const searchTerms = input.toLowerCase().split(' ');
-                                      return searchTerms.every(term =>
-                                        (option?.label ?? '').toLowerCase().includes(term)
-                                      );
-                                    }}
-                                    options={ordenes_options_selecteds}
-                                    style={{
-                                      width: "100%",
-                                      height: "48px",
-                                      color: "black",
-                                      fontWeight: "bold",
-                                    }}
-                                  />
-
-                                  <ErrorMessage name="ordenes_id" component="div" className="text-danger" />
-
+                                  <td>
+                                    <Field
+                                      className="form-control"
+                                      name="ordenes_id"
+                                      disabled
+                                      as="input"
+                                    />
+                                  </td>
                                 </div>
                               </div>
                               <div
@@ -1073,54 +1050,16 @@ const CreateCorrecionOrden = () => {
                                               }}
                                               onChange={(value) => {
                                                 console.log('value:', value)
-                                                setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
-                                                setFieldValue("marca", value); // También actualizar el campo de Formik
+                                                setSelectedMarca(value); 
+                                                setFieldValue("marca", value); 
                                               }}
                                               filterOption={(input, option) =>
                                                 option.label.toLowerCase().includes(input.toLowerCase())
                                               }
-                                              options={[
-                                                { value: 'L001 | Acuvue 2', label: 'L001 | Acuvue 2' },
-                                                { value: 'L002 | Acuvue Oasys Esferico ', label: 'L002 | Acuvue Oasys Esferico ' },
-                                                { value: 'L003 | Acuvue Oasys Astigmatismo', label: 'L003 | Acuvue Oasys Astigmatismo' },
-                                                { value: 'L004 | Acuvue Oasys Presbicia', label: 'L004 | Acuvue Oasys Presbicia' },
-                                                { value: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades', label: 'L005 | One Day Moist Desechables Diarios Caja 30 unidades' },
-                                                { value: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades', label: 'L006 | One Day Moist Desechables Diarios Caja 90 unidades' },
-                                                { value: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades', label: 'L007 | One Day Moist Desechables Diarios Astigmatismo Caja 30 unidades' },
-                                                { value: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ', label: 'L008 | Oasys One Day Desechables Diarios (Hydraluxe) Caja 30 unidades ' },
-                                                { value: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades', label: 'L009 | Oasys One Day Desechables Diario (Hydraluxe) Caja 90 unidades' },
-                                                { value: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)', label: 'L010 | Soflens 38 Esférico CB: 8.7 Dia. 14.00 (Rango: -9.00 a +4.00)' },
-                                                { value: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)', label: 'L011 | Soflens 59 Esferico CB: 8.6 Dia: 14.2 (Rango: -9.00 a +6.00)' },
-                                                { value: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)', label: 'L012 | Lunare Lentes de Contacto Cosmético (Sin Receta 2 unidades)' },
-                                                { value: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00', label: 'L013 | Lunare Lentes de Contacto Cosmético (Con Receta 1 unidad) Receta: Plano hasta -6.00' },
-                                                { value: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)', label: 'L014 | Soflens Torico CB: 8.5 Dia: 14.5 (Rango: -9.00 a +6.00) (Cyl: hasta 2.75)' },
-                                                { value: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)', label: 'L015 | Purevision 2 Esferico  (HiSi) CB: 8.6 Dia: 14.0 (Rango: -12.00 a +6.00)' },
-                                                { value: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)', label: 'L016 | Purevision 2 Torico (HiSi) CB: 8.9 (Rango: -9.00 a +6.00) (Cyl: hasta 2.25)' },
-                                                { value: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High', label: 'L017 | Purevision Multifocal CB: 8.6 Dia: 14.0 (Rango: -10.00 a +6.00) Low/High' },
-                                                { value: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)', label: 'L018 | Freshlook Cosmético (Rango: -8.00 a +6.00)' },
-                                                { value: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)', label: 'L019 | Air Optix Colors (HiSi) (Rango: -8.00 a +6.00)' },
-                                                { value: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)', label: 'L020 | Air Optix Hydraglyde Esférico (Rango: -12.00 a +8.00)' },
-                                                { value: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)', label: 'L021 | Air Optix Astigmatismo (Rango: -10.00 a +6.00) (Cyl hasta -2.25)' },
-                                                { value: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High', label: 'L022 | Air Optix Multifocal (Rango: -10.00 a +6.00) Low, Med, High' },
-                                                { value: 'L023 | Avaira Vitality Esferico ', label: 'L023 | Avaira Vitality Esferico ' },
-                                                { value: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ', label: 'L024 | Avaira Vitality Torico CB: 8.5 Dia: 14.5 (Plano a -6.00) (Cyl: hasta 1.75) ' },
-                                                { value: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)', label: 'L025 | Biomedics 55 Esferico CB: 8.6/8.9 Dia: 14.2 (-0.25 a -10.00)  CB:8.8 Dia. 14.2 (+0.25 a +6.00)' },
-                                                { value: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)', label: 'L026 | Biomedics Torico CB: 8.7 Dia: 14.5 (+6.00 a -9.00) (Cyl hasta 2.25)' },
-                                                { value: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ', label: 'L027 | Biofinity Sphere CB: 8.6 Dia: 14.0 ' },
-                                                { value: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)', label: 'L028 | Biofinity Torico CB: 8.7 Dia: 14.5 (+8.00 a -10.00) (Cyl: hasta 2.25)' },
-                                                { value: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L029 | Biofinity Torico XR CB: 8.7 Dia: 14.5(+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
-                                                { value: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L030 | Biofinity Multifocal CB: 8.6 Dia: 14.0 (+6.00 a -8.00) Add: +1.00 a +2.50' },
-                                                { value: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)', label: 'L031 | Proclear Sphere CB: 8.6 Dia: 14.2 (+20.00 a -20.00)' },
-                                                { value: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)', label: 'L032 | Proclear Torico CB: 8.8/8.4 Dia: 14.4 (+6.00 a -8.00) (Cyl: hasta -2.25)' },
-                                                { value: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)', label: 'L033 | Proclear Torico XR CB: 8.8/8.4 Dia: 14.4 (+10.00 a -10.00) (Cyl: 2.75 a 5.75)' },
-                                                { value: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50', label: 'L034 | Proclear Multifocal CB: 8.7 Dia: 14.4 (+6.00 a -8.00) Add: +1.00 a +2.50' },
-                                                { value: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00', label: 'L035 | Proclear Multifocal XR CB: 8.7 Dia: 14.4 (+20.00 a -20.00) Add: +3.00 a +4.00' },
-                                                { value: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00', label: 'L036 | Proclear Multifocal Torico CB: 8.8/8.4 Dia: 14.4 (+20.00 a -20.00) (Cyl: hasta 5.75)  Add: +1.00 a +4.00' },
-                                                { value: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)', label: 'L037 | Reemplazo Anual Hydrasoft Sphere (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.00 a -30.00)' },
-                                                { value: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)', label: 'L038 | Reemplazo Anual Hydrasoft Aphakic (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+10.25 a +30.00)' },
-                                                { value: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)', label: 'L039 | Reemplazo Anual Hydrasoft Toric (CB: 8.3/8.6 Dia:14.2) (CB: 8.9/9.2 Dia:15.00) (+30.00 a -30.00) (Cyl: -0.50 a -10.00)' },
-                                                { value: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00', label: 'L040 | Biofinity Sphere XR CB: 8.6 Dia: 14.00' },
-                                              ]}
+                                              options={marcas_options_selecteds.map(marca => ({
+                                                value: marca.label,
+                                                label: marca.label
+                                              }))}
                                             />
                                           )}
                                         </div>

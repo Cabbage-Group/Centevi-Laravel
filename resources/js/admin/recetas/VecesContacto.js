@@ -14,10 +14,6 @@ const VecesContacto = ({ id_orden }) => {
     contactoOrden
   } = useSelector((state) => state.ordenes);
 
-  useEffect(() => {
-    dispatch(fecthOrdenes({}));
-  }, [dispatch]);
-
   const formatDate = (dateString) => {
     if (!dateString) return ''
     const date = new Date(dateString);

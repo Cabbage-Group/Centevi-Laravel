@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CorrecionesOrdenes extends Model
-{       
+{
   use HasFactory;
 
   // Nombre de la tabla
@@ -58,9 +58,23 @@ class CorrecionesOrdenes extends Model
   ];
 
   public function orden()
-    {
-        return $this->belongsTo(Ordenes::class, 'ordenes_id', 'id_orden');
-    }
+  {
+    return $this->belongsTo(Ordenes::class, 'ordenes_id', 'id_orden');
+  }
+
+
+  public function faseCorreccionOrden()
+  {
+    return $this->hasMany(FasesCorreccionesOrdenes::class, 'correccion_ordenes_id', 'id');
+  }
+
+  public function usuario()
+  {
+    return $this->belongsTo(Usuarios::class, 'elaborado_por', 'id_usuario');
+  }
+
+
+
 
   // public function getNroOrdenCorreccionAttribute()
   //   {
@@ -77,17 +91,17 @@ class CorrecionesOrdenes extends Model
   //       return "{$this->orden->nro_orden}-C{$index}";
   //   }
 
-//   public function getNroOrdenCorreccionAttribute()
-// {
-//     $orden = $this->orden;
-//     if (!$orden) return null;
+  //   public function getNroOrdenCorreccionAttribute()
+  // {
+  //     $orden = $this->orden;
+  //     if (!$orden) return null;
 
-//     // Obtener el índice de esta corrección dentro de todas las correcciones de la orden
-//     $index = $this->orden->correciones->search(function ($correccion) {
-//         return $correccion->id === $this->id;
-//     });
+  //     // Obtener el índice de esta corrección dentro de todas las correcciones de la orden
+  //     $index = $this->orden->correciones->search(function ($correccion) {
+  //         return $correccion->id === $this->id;
+  //     });
 
-//     return "{$orden->nro_orden}-C" . ($index + 1);
-// }
+  //     return "{$orden->nro_orden}-C" . ($index + 1);
+  // }
 
 }

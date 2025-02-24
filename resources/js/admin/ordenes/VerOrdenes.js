@@ -68,6 +68,7 @@ const VerOrdenes = () => {
 
   const handleSearchChange = (event) => {
     setLocalSearch(event.target.value);
+    setCurrentPage(1)
 
   };
 
@@ -330,9 +331,9 @@ const VerOrdenes = () => {
                                 value={statusFilter || ''}
                                 allowClear
                               >
-                                <Select.Option value="Ok">Ok</Select.Option>
+                                <Select.Option value="OK">OK</Select.Option>
                                 <Select.Option value="Advertencia">Advertencia</Select.Option>
-                                <Select.Option value="Critico">Critico</Select.Option>
+                                <Select.Option value="Crítico">Crítico</Select.Option>
                                 <Select.Option value="Completado">Completado</Select.Option>
                               </Select>
                             </div>
@@ -350,7 +351,7 @@ const VerOrdenes = () => {
                               >
                                 <Select.Option value="Nuevo">Nuevo</Select.Option>
                                 <Select.Option value="Listo">Listo</Select.Option>
-                                <Select.Option value="En confeccion">En confeccion</Select.Option>
+                                <Select.Option value="En Confección">En confeccion</Select.Option>
                                 <Select.Option value="Retirado">Retirado</Select.Option>
                               </Select>
                             </div>

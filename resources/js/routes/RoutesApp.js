@@ -179,11 +179,11 @@ const RoutesApp = () => {
           <Route path="/ordenes" element={<Sidebar component={<VerOrdenes />} />} />
 
           <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
-          <Route path="/orden-receta/:orderId" element={<Sidebar component={<Ordenes />} />} />
+          <Route path="/orden-receta/:orderId/:nroOrden/:idPaciente" element={<Sidebar component={<Ordenes />} />} />
           <Route path="/create-orden" element={<Sidebar component={<CreateOrden />} />} />
           <Route path="/select-receta/:id_receta" element={<Sidebar component={<SelectReceta />} />} />
           <Route path="/editar-receta/:id_receta" element={<Sidebar component={<EditarReceta />} />} />
-          <Route path="/ver-orden/:orderId" element={<Sidebar component={<VerUnaOrden />} />} />
+          <Route path="/ver-orden/:orderId/:nroOrden/:idPaciente" element={<Sidebar component={<VerUnaOrden />} />} />
 
 
           <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />

@@ -16,20 +16,18 @@ import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
-const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
+const VerCorreccionOrdenes = ({ fecha_solicitud, correcionOrden }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = useParams();
-  const { correcion } = location.state || {};
-  const { pacienteOrden } = location.state || {};
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
-  const [selectedPaciente, setSelectedPaciente] = useState(correcion?.id_paciente);
-  const [selectedSucursal, setSelectedSucursal] = useState(correcion?.id_sucursal);
+  const [selectedPaciente, setSelectedPaciente] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState('');
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
   const [cedula, setCedula] = useState('');
@@ -41,67 +39,148 @@ const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
+  const [selectedMarca, setSelectedMarca] = useState('');
+  const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
+  const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
+  const [aroCentevi, setAroCentevi] = useState(false);
+  const [tipoAro, setTipoAro] = useState('');
+  const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
 
+  console.log('fecha_solicitud:',fecha_solicitud)
   useEffect(() => {
-    if (correcion?.lente_contacto) {
+    if (correcionOrden?.lente_contacto) {
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
     }
-  }, [correcion]);
-
-  const generateWhatsAppLink = () => {
-    const telefonoFormateado = telefono.replace(/\D/g, '');
-    let mensajePersonalizado = mensaje.replace('{nombre}', nombrePaciente);
-    mensajePersonalizado = mensajePersonalizado.replace('{sucursal}', selectedSucursal);
-
-    return `https://wa.me/${telefonoFormateado}?text=${encodeURIComponent(mensajePersonalizado)}`;
-  };
+  }, [correcionOrden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
     setIsLeftEye(hasRightEye);
   }, [serviciosRealizados]);
 
-  const initialValues = {
-    nro_orden: correcion?.nro_orden ,
-    id_paciente: correcion?.id_paciente ,
-    id_sucursal: correcion?.id_sucursal ,
-    esfera_od: correcion?.esfera_od,
-    esfera_oi: correcion?.esfera_oi ,
-    cilindro_od: correcion?.cilindro_od ,
-    cilindro_oi: correcion?.cilindro_oi ,
-    eje_od: correcion?.eje_od ,
-    eje_oi: correcion?.eje_oi ,
-    add_od: correcion?.add_od ,
-    add_oi: correcion?.add_oi ,
-    prisma_od: correcion?.prisma_od ,
-    prisma_oi: correcion?.prisma_oi ,
-    distancia_od: correcion?.distancia_od ,
-    altura_od: correcion?.altura_od ,
-    altura_oi: correcion?.altura_oi ,
-    tipo_cristal_od: correcion?.tipo_cristal_od ,
-    tipo_cristal_oi: correcion?.tipo_cristal_od ,
-    material_od: correcion?.material_od ,
-    material_oi: correcion?.material_oi ,
-    tratamientos_od: correcion?.tratamientos_od ,
-    tratamientos_oi: correcion?.tratamientos_oi ,
-    aro_centevi: correcion?.aro_centevi ,
-    aro_propio: correcion?.aro_propio ,
-    codigo: correcion?.codigo ,
-    color: correcion?.color ,
-    marca: correcion?.marca ,
-    tipo_aro: correcion?.tipo_aro ,
-    observaciones: correcion?.observaciones ,
-    doctor: correcion?.doctor ,
-    l_uno: correcion?.l_uno ,
-    l_dos: correcion?.l_dos ,
-    l_tres: correcion?.l_tres ,
-    l_cuatro: correcion?.l_cuatro ,
-    l_cinco: correcion?.l_cinco ,
+  const [formValues, setFormValues] = useState({
+    esfera_od: '',
+    esfera_oi: '',
+    cilindro_od: '',
+    cilindro_oi: '',
+    eje_od: '',
+    eje_oi: '',
+    add_od: '',
+    add_oi: '',
+    prisma_od: '',
+    prisma_oi: '',
+    distancia_od: '',
+    distancia_oi: '',
+    altura_od: '',
+    altura_oi: '',
+    tipo_cristal_od: "",
+    tipo_cristal_oi: "",
+    material_od: "",
+    material_oi: "",
+    tratamientos_od: "",
+    tratamientos_oi: "",
+    aro_centevi: '',
+    aro_propio: '',
+    codigo: '',
+    color: '',
+    marca: '',
+    tipo_aro: '',
+    observaciones: '',
+    doctor: '',
+    l_uno: '',
+    l_dos: '',
+    l_tres: '',
+    l_cuatro: '',
+    l_cinco: '',
     isRowVisible: isAroVisible,
-  };
+  });
+
+
+  useEffect(() => {
+    if (correcionOrden) {
+      setDoctorSeleccionado(correcionOrden?.doctor);
+      setTipoAro(correcionOrden?.tipo_aro);
+      setSelectedMarca(correcionOrden?.marca);
+      setServiciosRealizados([
+        correcionOrden?.tipo_cristal_od
+          ? { value: correcionOrden.tipo_cristal_od, label: correcionOrden.tipo_cristal_od, ojo: "Ojo Derecho" }
+          : null,
+        correcionOrden?.tipo_cristal_oi
+          ? { value: correcionOrden.tipo_cristal_oi, label: correcionOrden.tipo_cristal_oi, ojo: "Ojo Izquierdo" }
+          : null,
+      ].filter(Boolean));
+      setMaterialesSeleccionados([
+        correcionOrden?.material_od ? {
+          value: correcionOrden?.material_od,
+          label: correcionOrden?.material_od,
+          ojo: "Ojo Derecho"
+        } : null,
+        correcionOrden?.material_oi ? {
+          value: correcionOrden?.material_oi,
+          label: correcionOrden?.material_oi,
+          ojo: "Ojo Izquierdo"
+        } : null,
+      ].filter(Boolean));
+      setTratamientosFiltros([
+        correcionOrden?.tratamientos_od ? {
+          value: correcionOrden?.tratamientos_od,
+          label: correcionOrden?.tratamientos_od,
+          ojo: "Ojo Derecho"
+        } : null,
+        correcionOrden?.tratamientos_oi ? {
+          value: correcionOrden?.tratamientos_oi,
+          label: correcionOrden?.tratamientos_oi,
+          ojo: "Ojo Izquierdo"
+        } : null,
+      ].filter(Boolean));
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        nro_orden: correcionOrden.nro_orden || '',
+        nro_orden_id: correcionOrden.nro_orden_id || '',
+        id_paciente: correcionOrden.id_paciente || '',
+        id_sucursal: correcionOrden.id_sucursal || '',
+        esfera_od: correcionOrden?.esfera_od || '',
+        esfera_oi: correcionOrden.esfera_oi || '',
+        cilindro_od: correcionOrden.cilindro_od || '',
+        cilindro_oi: correcionOrden.cilindro_oi || '',
+        eje_od: correcionOrden.eje_od || '',
+        eje_oi: correcionOrden.eje_oi || '',
+        add_od: correcionOrden.add_od || '',
+        add_oi: correcionOrden.add_oi || '',
+        prisma_od: correcionOrden.prisma_od || '',
+        prisma_oi: correcionOrden.prisma_oi || '',
+        distancia_od: correcionOrden.distancia_od || '',
+        distancia_oi: correcionOrden.distancia_oi || '',
+        altura_od: correcionOrden.altura_od || '',
+        altura_oi: correcionOrden.altura_oi || '',
+        tipo_cristal_od: correcionOrden.tipo_cristal_od,
+        tipo_cristal_oi: '',
+        material_od: '',
+        material_oi: '',
+        tratamientos_od: '',
+        tratamientos_oi: '',
+        aro_centevi: correcionOrden.aro_centevi || '',
+        aro_propio: correcionOrden.aro_propio || '',
+        codigo: correcionOrden.codigo || '',
+        color: correcionOrden.color || '',
+        marca: correcionOrden.marca || '',
+        tipo_aro: correcionOrden.tipo_aro || '',
+        observaciones: correcionOrden.observaciones || '',
+        doctor: correcionOrden.doctor || '',
+        l_uno: correcionOrden.l_uno || '',
+        l_dos: correcionOrden.l_dos || '',
+        l_tres: correcionOrden.l_tres || '',
+        l_cuatro: correcionOrden.l_cuatro || '',
+        l_cinco: correcionOrden.l_cinco || '',
+        isRowVisible: isAroVisible,
+      }));
+    }
+  }, [correcionOrden, isAroVisible]);
+
 
   const tipoAroOptions = [
     { label: 'Pasta Completo', value: 1 },
@@ -141,46 +220,6 @@ const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
       .nullable()
       .required("Seleccione un doctor"),
   });
-
-  const [serviciosRealizados, setServiciosRealizados] = useState([
-    correcion?.tipo_cristal_od  ? {
-      value: correcion?.tipo_cristal_od ,
-      label: correcion?.tipo_cristal_od ,
-      ojo: "Ojo Derecho"
-    } : null,
-    correcion?.tipo_cristal_oi ? {
-      value: correcion?.tipo_cristal_oi ,
-      label: correcion?.tipo_cristal_oi ,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [materialesSeleccionados, setMaterialesSeleccionados] = useState([
-    correcion?.material_od  ? {
-      value: correcion?.material_od ,
-      label: correcion?.material_od ,
-      ojo: "Ojo Derecho"
-    } : null,
-    correcion?.material_oi  ? {
-      value: correcion?.material_oi ,
-      label: correcion?.material_oi ,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [tratamientosFiltros, setTratamientosFiltros] = useState([
-    correcion?.tratamientos_od  ? {
-      value: correcion?.tratamientos_od ,
-      label: correcion?.tratamientos_od ,
-      ojo: "Ojo Derecho"
-    } : null,
-    correcion?.tratamientos_oi ? {
-      value: correcion?.tratamientos_oi ,
-      label: correcion?.tratamientos_oi ,
-      ojo: "Ojo Izquierdo"
-    } : null,
-  ].filter(Boolean));
-  const [aroCentevi, setAroCentevi] = useState(false);
-  const [tipoAro, setTipoAro] = useState(correcion?.tipo_aro );
-  const [doctorSeleccionado, setDoctorSeleccionado] = useState(correcion?.doctor)
 
   const handleSelectChange = (value, option) => {
     const newEntry = {
@@ -243,10 +282,10 @@ const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
   };
 
   useEffect(() => {
-    if (correcion?.aro_centevi !== undefined ) {
-      setAroCentevi(correcion?.aro_centevi === 1 );
+    if (correcionOrden?.aro_centevi !== undefined) {
+      setAroCentevi(correcionOrden?.aro_centevi === 1);
     }
-  }, [correcion, pacienteOrden]);
+  }, [correcionOrden]);
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -426,7 +465,8 @@ const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
                         <Formik
-                          initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
+                          initialValues={formValues}
+                          enableReinitialize
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
                         >
@@ -452,10 +492,10 @@ const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
+                                      {fecha_solicitud}
                                     </b>
                                   </p>
-                                </div>                                                                                                                                                                          
+                                </div>
                               </div>
                               <div
                                 className="form-row"
@@ -1810,7 +1850,7 @@ const VerCorreccionOrdenes = ({ fecha_solicitud }) => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={correcion?.elaborado_por_nombre}
+                                                    value={correcionOrden?.elaborado_por_nombre}
                                                     disabled />
                                                 </div>
                                               </Col>
