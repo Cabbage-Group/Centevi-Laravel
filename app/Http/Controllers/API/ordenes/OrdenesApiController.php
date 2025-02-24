@@ -46,7 +46,7 @@ class OrdenesApiController extends Controller
       ->select(
         'ordenes_id',
         DB::raw('COUNT(*) as total_fases'),
-        DB::raw('SUM(1) as fases_completadas') 
+        DB::raw('SUM(1) as fases_completadas')
       )
       ->groupBy('ordenes_id');
 

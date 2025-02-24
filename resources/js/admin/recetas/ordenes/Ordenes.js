@@ -219,7 +219,7 @@ const Ordenes = () => {
   });
 
 
-  console.log('nuevaData:',nuevaData)
+  console.log('nuevaData:', nuevaData)
 
   const avanzarFase = async (avanzar = true, completar = false) => {
     if (nuevaData.tipo_fase_orden_id === 1 && !nuevaData.laboratorio) {

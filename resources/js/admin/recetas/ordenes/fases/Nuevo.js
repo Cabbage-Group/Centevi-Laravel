@@ -59,7 +59,7 @@ const Nuevo = ({ tipoFaseId, isDisabled }) => {
     }
   }, [orden?.lente_contacto, pacienteOrden?.lente_contacto]);
 
-  console.log('tipoFaseId:',tipoFaseId)
+  console.log('tipoFaseId:', tipoFaseId)
 
   useEffect(() => {
     if (orderId) {
