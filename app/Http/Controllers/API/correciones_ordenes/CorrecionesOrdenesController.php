@@ -326,11 +326,12 @@ class CorrecionesOrdenesController extends Controller
 
     ];
 
-    $data = array_map(function ($value) {
-      return $value === null ? '' : $value;
-    }, $request->all());
+    $tipoCristalOd = $request->input('tipo_cristal_od');
+    $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-    $data = array_merge($defaults, $data);
+    $codigoCristal = $tipoCristalOd ? explode(' | ', $tipoCristalOd)[0] : ($tipoCristalOi ? explode(' | ', $tipoCristalOi)[0] : null);
+
+    $data = array_merge($defaults, $request->all(), ['codigo_cristal' => $codigoCristal]);
 
     $correccion = CorrecionesOrdenes::create($data);
 
@@ -807,7 +808,8 @@ class CorrecionesOrdenesController extends Controller
     $correccion = CorrecionesOrdenes::with([
       'orden.paciente',
       'orden.sucursal',
-      'faseCorreccionOrden'
+      'faseCorreccionOrden.usuario',
+      'usuario'
     ])->find($id_correccion);
 
     // Si no existe la corrección, devolver un error 404
@@ -816,6 +818,12 @@ class CorrecionesOrdenesController extends Controller
     }
 
     $ultimaFase = $correccion->faseCorreccionOrden->sortByDesc('tipo_fase_correccion_orden_id')->first();
+
+    $elaboradoPorNombre = $correccion->usuario ? $correccion->usuario->nombre : null;
+
+    
+    $elaboradoPorFase = $ultimaFase && $ultimaFase->usuario ? $ultimaFase->usuario->nombre : null;
+
     $estado = 'Sin estado';
 
     if ($ultimaFase) {
@@ -850,7 +858,8 @@ class CorrecionesOrdenesController extends Controller
         'celular' => $correccion->orden ? $correccion->orden->paciente->celular : null,
         'laboratorio' => $correccion->faseCorreccionOrden->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
         'estado' => $estado,
-        'elaborado_por' => $correccion->elaborado_por,
+        'elaborado_por_nombre' => $elaboradoPorNombre,
+        'elaborado_por_fase' => $elaboradoPorFase, 
         'esfera_od' => $correccion->esfera_od,
         'esfera_oi' => $correccion->esfera_oi,
         'cilindro_od' => $correccion->cilindro_od,

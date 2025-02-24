@@ -260,7 +260,10 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
             <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContactoCorrecciones id={correccionOrderId} />
+            <VecesContactoCorrecciones 
+              correcionOrden={correcionOrden}
+              id={correccionOrderId} 
+            />
             <Button
               style={{ marginLeft: '10px' }}
               onClick={handleContactarPaciente}

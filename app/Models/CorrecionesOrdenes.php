@@ -68,7 +68,13 @@ class CorrecionesOrdenes extends Model
     return $this->hasMany(FasesCorreccionesOrdenes::class, 'correccion_ordenes_id', 'id');
   }
 
-  
+  public function usuario()
+  {
+    return $this->belongsTo(Usuarios::class, 'elaborado_por', 'id_usuario');
+  }
+
+
+
 
   // public function getNroOrdenCorreccionAttribute()
   //   {

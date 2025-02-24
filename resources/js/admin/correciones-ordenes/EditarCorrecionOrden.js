@@ -2,25 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { Formik, Field, ErrorMessage, Form } from 'formik';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
-import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
-import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
-import { useLocation } from 'react-router-dom';
 import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { updateCorreccionOrden } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
+import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
+import { fetchMateriales } from '../../redux/features/materiales/materialesSlice';
+import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
+import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 
 const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
   const { correccionOrderId } = useParams();
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
@@ -35,20 +34,21 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedMarca, setSelectedMarca] = useState('');
+  const [selectedAsesor, setSelectedAsesor] = useState('');
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
   const [aroCentevi, setAroCentevi] = useState(false);
   const [tipoAro, setTipoAro] = useState('');
   const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
-  const { marcas_options_selecteds, marcas_lente_normal_options_selecteds } = useSelector((state) => state.marcas)
-
-
-  console.log('correcionOrden?.marca:',correcionOrden?.marca)
+  const { marcas_options_selecteds } = useSelector((state) => state.marcas)
+  const { cristales_options_selecteds } = useSelector((state) => state.cristales)
+  const { materiales_options_selecteds } = useSelector((state) => state.materiales)
+  const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
+  const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
 
   useEffect(() => {
     if (correcionOrden?.lente_contacto) {
-      console.log('entre aqui')
       setLenteContacto(true);
       setIsRowVisible(false);
       setIsImageVisible(false);
@@ -63,7 +63,11 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
 
   useEffect(() => {
     dispatch(fetchMarcas())
-  },[])
+    dispatch(fetchTratamientos())
+    dispatch(fetchCristales())
+    dispatch(fetchMateriales())
+    dispatch(fetchTiposAros())
+  }, [])
 
   const [formValues, setFormValues] = useState({
     esfera_od: '',
@@ -107,6 +111,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       setDoctorSeleccionado(correcionOrden?.doctor);
       setTipoAro(correcionOrden?.tipo_aro);
       setSelectedMarca(correcionOrden?.marca);
+      setSelectedAsesor(correcionOrden?.elaborado_por_nombre);
       setServiciosRealizados([
         correcionOrden?.tipo_cristal_od
           ? { value: correcionOrden.tipo_cristal_od, label: correcionOrden.tipo_cristal_od, ojo: "Ojo Derecho" }
@@ -159,7 +164,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
         distancia_oi: correcionOrden.distancia_oi || '',
         altura_od: correcionOrden.altura_od || '',
         altura_oi: correcionOrden.altura_oi || '',
-        tipo_cristal_od: correcionOrden.tipo_cristal_od,
+        tipo_cristal_od: '',
         tipo_cristal_oi: '',
         material_od: '',
         material_oi: '',
@@ -183,16 +188,6 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
     }
   }, [correcionOrden, isAroVisible]);
 
-  const tipoAroOptions = [
-    { label: 'Pasta Completo', value: 1 },
-    { label: 'Pasta Semi al Aire', value: 2 },
-    { label: 'Metal Completo', value: 3 },
-    { label: 'Metal Semi al Aire', value: 4 },
-    { label: 'Al Aire', value: 5 },
-    { label: 'Seguridad', value: 6 },
-  ];
-
-
   const validationSchema = Yup.object().shape({
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
@@ -209,8 +204,6 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       .nullable()
       .required("Seleccione un doctor"),
   });
-
-
 
   const toggleEye = () => {
     setIsLeftEye(!isLeftEye);
@@ -291,13 +284,6 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       setAroCentevi(correcionOrden?.aro_centevi === 1);
     }
   }, [correcionOrden]);
-
-
-  useEffect(() => {
-    // dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    // dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-    // dispatch(fetchUsuarios({}))
-  }, []);
 
   const handleSubmit = async (values) => {
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
@@ -446,7 +432,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
+                                      {fecha_solicitud}
                                     </b>
                                   </p>
                                 </div>
@@ -720,77 +706,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           optionFilterProp="label"
                                           onChange={handleSelectChange}
 
-                                          options={[
-                                            { "id": 1, "codigo": "MP01 | Monofocal Claro Sencillo" },
-                                            { "id": 2, "codigo": "MPAR | Monofocal + Antirreflejo" },
-                                            { "id": 3, "codigo": "MPL02 | Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                            { "id": 4, "codigo": "MCAF1 | Monofocal + Antirreflejo + Fotocromático" },
-                                            { "id": 5, "codigo": "MCAF | Monofocal + Antirreflejo + Fotocromático + Filtro Luz Azul" },
-                                            { "id": 6, "codigo": "MPT06 | Monofocal + Transitions" },
-                                            { "id": 7, "codigo": "MPX07 | Monofocal + Transitions Xtractive" },
-                                            { "id": 8, "codigo": "MPP04 | Monofocal Polarizado (Lente de Sol Oscuro)" },
-                                            { "id": 9, "codigo": "MPE05 | Monofocal Polarizado con Espejado (Lente de Sol Oscuro)" },
-                                            { "id": 10, "codigo": "MTL08 | Monofocal Thin & Lite 1.67 Claros" },
-                                            { "id": 11, "codigo": "MTL09 | Monofocal Thin & Lite 1.67 + Fotocromático" },
-                                            { "id": 12, "codigo": "MHI07 | Monofocal Hi Index Super Thin & Lite 1.74 + Filtro Luz Azul sin AR" },
-                                            { "id": 13, "codigo": "MAF08 | Antifatigue (Relax) Claros + Filtro Luz Azul" },
-                                            { "id": 14, "codigo": "MLE09 | Monofocal Lenticular Claro" },
-                                            { "id": 15, "codigo": "MLT06 | Monofocal Lenticular + Transitions" },
-                                            { "id": 16, "codigo": "BFT2 | Bifocal Flap Top Claro Sencillo" },
-                                            { "id": 17, "codigo": "BFT3 | Bifocal Flap Top Claro + Filtro Luz Azul" },
-                                            { "id": 18, "codigo": "BFTF | Bifocal Flap Top + Fotocromático" },
-                                            { "id": 19, "codigo": "BFTA | Bifocal Flap Top + Fotocromático + Antirreflejo" },
-                                            { "id": 20, "codigo": "BFK01 | Bifocal Kriptop Claro Sencillo" },
-                                            { "id": 21, "codigo": "BKFA | Bifocal Kriptop + Filtro Luz Azul + Antirreflejo" },
-                                            { "id": 22, "codigo": "BKFA1 | Bifocal Kriptop + Filtro Luz Azul + Fotocromático + Antirreflejo" },
-                                            { "id": 23, "codigo": "BKL01 | Bifocal Kriptop Lenticular Claro" },
-                                            { "id": 24, "codigo": "BI001 | Bifocal Invisible Claro" },
-                                            { "id": 25, "codigo": "BIF01 | Bifocal Invisible + Filtro Luz Azul" },
-                                            { "id": 26, "codigo": "BIF02 | Bifocal Invisible + Fotocromático" },
-                                            { "id": 27, "codigo": "BIF03 | Bifocal Invisible + Fotocromático + Filtro Luz Azul" },
-                                            { "id": 28, "codigo": "BIAF1 | Bifocal Invisible + Fotocromático + Antirreflejo" },
-                                            { "id": 29, "codigo": "BBIF1 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) Claro" },
-                                            { "id": 30, "codigo": "BBIF2 | Bifocal BiFREE (Bifocal Invisible Avanzado Digital) + Fotocromático" },
-                                            { "id": 31, "codigo": "BTT01 | Trifocal Claro Sencillo (Solo vender a usuarios)" },
-                                            { "id": 32, "codigo": "CM01 | Control Miopia Claro Sencillo" },
-                                            { "id": 33, "codigo": "CM02 | Control Miopia + Filtro Luz Azul" },
-                                            { "id": 34, "codigo": "CM04 | Control Miopia + Transitions" },
-                                            { "id": 35, "codigo": "CM05 | Control Miopia THIN & LITE + Transitions" },
-                                            { "id": 36, "codigo": "CM06 | Control Miopia Polarizado (Lente Oscuro de Sol)" },
-                                            { "id": 37, "codigo": "MGSE | Multifocal Generico Claro Sencillo" },
-                                            { "id": 38, "codigo": "MGFL | Multifocal Generico + Filtro Luz Azul" },
-                                            { "id": 39, "codigo": "MFFT1 | Multifocal Solarmax + Fotocromatico" },
-                                            { "id": 40, "codigo": "MSFF | Multifocal Solarmax + Fotocromatico + Filtro Luz Azul" },
-                                            { "id": 41, "codigo": "MF01 | Multifocal 4NEW Claro sencillo (utilizar este código cuando lleva filtro terapéutico)" },
-                                            { "id": 42, "codigo": "MNTR | Multifocal 4NEW + Transition" },
-                                            { "id": 43, "codigo": "MFSS | Multifocal 4STARTER Sencillo" },
-                                            { "id": 44, "codigo": "MSTR | Multifocal 4STARTER + Transition" },
-                                            { "id": 45, "codigo": "MFPS | Multifocal Panorama Sencillo" },
-                                            { "id": 46, "codigo": "MPTR | Multifocal Panorama + Transition" },
-                                            { "id": 47, "codigo": "MFDS | Multifocal 4DIGILIFE Claro Sencillo" },
-                                            { "id": 48, "codigo": "MDTR | Multifocal 4DIGILIFE + Transition" },
-                                            { "id": 49, "codigo": "SP005 | Sobrepoder en Multifocal (ESF. +/- 8.50 CYL. +/- 3.00)" },
-                                            { "id": 50, "codigo": "PEM1 | Paquete económico monofocales claros sencillos" },
-                                            { "id": 51, "codigo": "PEML | Paquete económico Monofocal + Antirreflejo + Filtro Luz Azul" },
-                                            { "id": 52, "codigo": "PEBK2 | Paquete económico Bifocal Kriptop Claro Sencillo" },
-                                            { "id": 53, "codigo": "PEBT3 | Paquete económico Bifocal Flap Top Claro Sencillo" },
-                                            { "id": 54, "codigo": "PEBI4 | Paquete económico Bifocal Invisible Claro Sencillo" },
-                                            { "id": 55, "codigo": "PEMO5 | Paquete económico Multifocal Claro Sencillo" },
-                                            { "id": 56, "codigo": "FTP01 | Filtro Terapéutico" },
-                                            { "id": 57, "codigo": "FUV1 | Filtro Luz Azul (UV 400)" },
-                                            { "id": 58, "codigo": "PM02 | Prismas" },
-                                            { "id": 59, "codigo": "RT03 | Remover Tinte" },
-                                            { "id": 60, "codigo": "SP04 | Sobrepoder (ESF. +/- 6 CYL: -3.25) Aplica para monofocales y bifocales" },
-                                            { "id": 61, "codigo": "TT05 | Tinte" },
-                                            { "id": 62, "codigo": "MAA6 | Montaje aro al aire" },
-                                            { "id": 63, "codigo": "MA10 | Montaje de aro" },
-                                            { "id": 64, "codigo": "RAR7 | Remover antirreflejo" },
-                                            { "id": 65, "codigo": "AR009 | Antirreflejo Standard el par (Se cobra adicional)" },
-                                            { "id": 66, "codigo": "TRANS | Transition" },
-                                            { "id": 67, "codigo": "FOT | Fotocromático" }
-                                          ].map(servicio => ({
-                                            value: servicio.id,
-                                            label: servicio.codigo
+                                          options={cristales_options_selecteds.map(servicio => ({
+                                            value: servicio.value,
+                                            label: servicio.label
                                           }))}
                                         >
                                         </Select>
@@ -874,25 +792,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChangeMaterial}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!materialesSeleccionados.find(servicio => servicio.value == value) && materialesSeleccionados.length < 2) {
-                                          //     materialesSeleccionados.push(val)
-                                          //     setMaterialesSeleccionados([...materialesSeleccionados])
-                                          //   }
-                                          // }}
-                                          options={[
-                                            { id: 1, codigo: "CR-39" },
-                                            { id: 2, codigo: "Policarbonato" },
-                                            { id: 3, codigo: "THIN & LITE" },
-                                            { id: 4, codigo: "SUPER THIN & LITE" },
-                                            { id: 5, codigo: "DRIVEWEAR" },
-                                            { id: 6, codigo: "POLIRIZADO" },
-                                            { id: 7, codigo: "POLICOLOR" },
-                                          ].map(servicio => ({
-                                            value: servicio.id,
-                                            label: servicio.codigo
+                                          options={materiales_options_selecteds.map(servicio => ({
+                                            value: servicio.value,
+                                            label: servicio.label
                                           }))}
                                         >
                                         </Select>
@@ -979,49 +881,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           }}
                                           optionFilterProp="label"
                                           onChange={handleSelectChangeTratamientos}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
-                                          //     tratamientosFiltros.push(val)
-                                          //     setTratamientosFiltros([...tratamientosFiltros])
-                                          //   }
-                                          // }}
-                                          options={[
-                                            { id: 1, codigo: "Transitions" },
-                                            { id: 2, codigo: "Antireflejo" },
-                                            { id: 3, codigo: "Espejado" },
-                                            { id: 4, codigo: "Degradante" },
-                                            { id: 5, codigo: "Color" },
-                                            { id: 6, codigo: "Fotocramático" },
-                                            { id: 7, codigo: "UV" },
-                                            { id: 8, codigo: "Tinte" },
-                                            { id: 9, codigo: "Uniforme" },
-                                            { id: 10, codigo: "Intensidad" },
-                                            { id: 11, codigo: "Filtro TERA chocolate claros rosado" },
-                                            { id: 12, codigo: "Filtro EP Azul claro" },
-                                            { id: 13, codigo: "Filtro Amarillo Claro 450" },
-                                            { id: 14, codigo: "Filtro Amarillo Fuerte 350" },
-                                            { id: 15, codigo: "Filtro Chocolate Oscuro EB 480" },
-                                            { id: 16, codigo: "Filtro Amarillo/ Naranja 510" },
-                                            { id: 17, codigo: "Filtro Naranja Claro 525" },
-                                            { id: 18, codigo: "Filtro Naranja Oscuro 550" },
-                                            { id: 19, codigo: "Filtro Rojo Oscuro 60" },
-                                            { id: 20, codigo: "Fotocromático Gris" },
-                                            { id: 21, codigo: "Fotocromático Café" },
-                                            { id: 22, codigo: "Antirreflejo AR" },
-                                            { id: 23, codigo: "Polarizado Negro" },
-                                            { id: 24, codigo: "Polarizado Café" },
-                                            { id: 25, codigo: "Polarizado Gris + Espejado" },
-                                            { id: 26, codigo: "Polarizado Café + Espejado" },
-                                            { id: 27, codigo: "Tinte Uniforme" },
-                                            { id: 28, codigo: "Tinte Degradante" },
-                                            { id: 29, codigo: "Filtro UV" },
-                                            { id: 30, codigo: "Transitions Gris" },
-                                            { id: 31, codigo: "Transitions Café" }
-                                          ].map(servicio => ({
-                                            value: servicio.id,
-                                            label: servicio.codigo
+                                          options={tratamientos_options_selecteds.map(servicio => ({
+                                            value: servicio.value,
+                                            label: servicio.label
                                           }))}
                                         >
                                         </Select>
@@ -1245,26 +1107,6 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           )}
                                         </div>
                                       </Col>
-                                      {/* <Col xxl={4} xl={4} md={4}>
-                                          <div
-                                            style={{
-                                              // display: 'flex'
-                                            }}
-                                          >
-                                            <div style={{ marginTop: '-15px' }}>
-                                              <b>MARCA</b>
-                                            </div>
-                                            <Field
-                                              className="form-control"
-                                              name="marca"
-                                              style={{
-                                                marginLeft: '0px', height: '30px'
-                                              }}
-                                            />
-                                          </div>
-                                        </Col> */}
-
-
 
                                       <Col xxl={24} xl={24} md={24}>
                                         <Row
@@ -1287,7 +1129,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                                       showSearch
                                                       placeholder="Selecciona el tipo de aro"
                                                       value={tipoAro}
-                                                      options={tipoAroOptions}
+                                                      options={tipo_aro_options_selecteds}
                                                       style={{
                                                         width: "100%",
                                                         height: "40px",
@@ -1295,12 +1137,15 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                                         fontWeight: "bold",
                                                       }}
                                                       onChange={(value) => {
-                                                        const selectedOption = tipoAroOptions.find(option => option.value === value);
+                                                        const selectedOption = tipo_aro_options_selecteds.find(option => option.value === value);
                                                         if (selectedOption) {
                                                           setTipoAro(selectedOption.label);
                                                           setFieldValue("tipo_aro", selectedOption.label);
                                                         }
                                                       }}
+                                                      filterOption={(input, option) =>
+                                                        option.label.toLowerCase().includes(input.toLowerCase())
+                                                      }
                                                     />
                                                     <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
                                                   </div>
@@ -1343,7 +1188,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={correcionOrden?.elaborado_por_nombre}
+                                                    value={selectedAsesor}
                                                     disabled />
                                                 </div>
                                               </Col>

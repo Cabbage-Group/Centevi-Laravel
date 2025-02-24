@@ -42,7 +42,6 @@ const CreateCorrecionOrden = () => {
   const [aroCentevi, setAroCentevi] = useState(false);
   const { marcas_options_selecteds } = useSelector((state) => state.marcas)
 
-  console.log('marcas_options_selecteds:', marcas_options_selecteds)
   useEffect(() => {
     if (pacienteOrden?.lente_contacto) {
       setLenteContacto(true);

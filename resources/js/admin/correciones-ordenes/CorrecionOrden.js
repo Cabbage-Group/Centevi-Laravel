@@ -4,10 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import {
-  LoadingOutlined,
-  SmileOutlined,
-  SolutionOutlined,
-  UserOutlined,
   FileAddOutlined,
   ImportOutlined,
   CheckCircleOutlined,
@@ -26,9 +22,10 @@ import EditarCorrecionOrden from './EditarCorrecionOrden';
 import { fetchCorreccionOrden } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos';
+import { updateOrden } from '../../redux/features/ordenes/ordenesSlice';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 
 const CorrecionOrden = () => {
-
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -57,9 +54,6 @@ const CorrecionOrden = () => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const { permisos } = useSelector((state) => state.auth);
-  const { pacientes } = useSelector((state) => state.pacientes);
-
-
 
   useEffect(() => {
     if (correcionOrden) {
@@ -69,28 +63,12 @@ const CorrecionOrden = () => {
     }
   }, [correcionOrden])
 
+
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-  }, []);
-
-  const retroceder = () => {
-    navigate(`/ordenes`);
-  };
-
-  const generateWhatsAppLink = () => {
-    const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
-    let mensajePersonalizado = mensaje
-      .replace('{nombre}', nombrePaciente)
-      .replace('{sucursal}', selectedSucursal);
-
-    if (ubicacionMaps) {
-      mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
-    }
-    const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
+    dispatch(fetchUsuarios({}))
+  }, [])
 
 
-    return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
-  };
   useEffect(() => {
     dispatch(fetchCorreccionOrden(correccionOrderId))
   }, [correccionOrderId])
@@ -109,14 +87,11 @@ const CorrecionOrden = () => {
     dispatch(setFechaInicioFilter(localEndDateFiltro))
   })
 
-
-
   useEffect(() => {
     if (correccionOrderId) {
       dispatch(fecthTiposFasesOrdenes(correccionOrderId));
     }
   }, [])
-
 
   useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && correccionOrderId && !initialized) {
@@ -152,6 +127,24 @@ const CorrecionOrden = () => {
     setInitialized(false);
   }, [correccionOrderId]);
 
+  const retroceder = () => {
+    navigate(`/ordenes`);
+  };
+
+  const generateWhatsAppLink = () => {
+    const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
+    let mensajePersonalizado = mensaje
+      .replace('{nombre}', nombrePaciente)
+      .replace('{sucursal}', selectedSucursal);
+
+    if (ubicacionMaps) {
+      mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
+    }
+    const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
+
+
+    return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
+  };
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
     let icon;
@@ -366,7 +359,6 @@ const CorrecionOrden = () => {
                   <CorreccionNuevo
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
-                    pacientesData={pacientes}
                     correcionOrden={correcionOrden}
 
                   />
@@ -376,21 +368,18 @@ const CorrecionOrden = () => {
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     fecha={nuevaDataCorrecciones.fecha_fase}
-                    pacientesData={pacientes}
                     correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 2 ? (
                   <CorreccionListo
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
-                    pacientesData={pacientes}
                     correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 3 ? (
                   <CorreccionRetirado
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
-                    pacientesData={pacientes}
                     correcionOrden={correcionOrden}
                   />
                 ) : <div></div>

@@ -52,8 +52,6 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
   const [tipoAro, setTipoAro] = useState('');
   const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
 
-  console.log('pacienteOrden?.marca:',pacienteOrden?.marca)
-
   useEffect(() => {
     if (pacienteOrden?.lente_contacto) {
       setLenteContacto(true);
@@ -117,11 +115,15 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
       setTipoAro(pacienteOrden?.tipo_aro);
       setSelectedMarca(pacienteOrden?.marca);
       setServiciosRealizados([
-        pacienteOrden?.tipo_cristal_od
-          ? { value: pacienteOrden.tipo_cristal_od, label: pacienteOrden.tipo_cristal_od, ojo: "Ojo Derecho" }
+        pacienteOrden?.tipo_cristal_od ? { 
+          value: pacienteOrden.tipo_cristal_od, 
+          label: pacienteOrden.tipo_cristal_od, 
+          ojo: "Ojo Derecho" }
           : null,
-        pacienteOrden?.tipo_cristal_oi
-          ? { value: pacienteOrden.tipo_cristal_oi, label: pacienteOrden.tipo_cristal_oi, ojo: "Ojo Izquierdo" }
+        pacienteOrden?.tipo_cristal_oi ? 
+        { value: pacienteOrden.tipo_cristal_oi, 
+          label: pacienteOrden.tipo_cristal_oi, 
+          ojo: "Ojo Izquierdo" }
           : null,
       ].filter(Boolean));
       setMaterialesSeleccionados([
@@ -168,7 +170,7 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
         distancia_oi: pacienteOrden.distancia_oi || '',
         altura_od: pacienteOrden.altura_od || '',
         altura_oi: pacienteOrden.altura_oi || '',
-        tipo_cristal_od: pacienteOrden.tipo_cristal_od,
+        tipo_cristal_od: '',
         tipo_cristal_oi: '',
         material_od: '',
         material_oi: '',
@@ -1112,15 +1114,7 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeTratamientos}
-                                          // onChange={(value, val) => {
-                                          //   // setFieldValue('servicios_realizados_historias_clinicas', value);
-
-                                          //   if (!tratamientosFiltros.find(servicio => servicio.value == value) && tratamientosFiltros.length < 2) {
-                                          //     tratamientosFiltros.push(val)
-                                          //     setTratamientosFiltros([...tratamientosFiltros])
-                                          //   }
-                                          // }}
+                                          onChange={handleSelectChangeTratamientos}                                    
                                           options={tratamientos_options_selecteds.map(servicio => ({
                                             value: servicio.value,
                                             label: servicio.label

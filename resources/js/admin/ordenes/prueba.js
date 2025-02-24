@@ -51,7 +51,6 @@ const CollapsibleTable = (
     sortOrder
   } = useSelector((state) => state.ordenes);
   const OrdenId = useSelector((state) => state.ordenes.OrderId)
-  console.log('OrdenId1:',OrdenId)
   const {
     correcionesbyOrden,
     contactoCorreccionOrden
@@ -63,8 +62,6 @@ const CollapsibleTable = (
   const currentPage = currentPageTable;
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
-
-  console.log('correcionesbyOrden:',correcionesbyOrden)
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -102,7 +99,7 @@ const CollapsibleTable = (
     if (selectedOrdenId) {
       dispatch(fetchCorreccionesByOrdenId(selectedOrdenId));
     }
-  }, [dispatch, selectedOrdenId]);
+  }, [selectedOrdenId]);
 
   const handlePageChange = (page) => {
     setCurrentPageTable(page); 
@@ -117,8 +114,6 @@ const CollapsibleTable = (
       dispatch(fetchCorreccionesByOrdenId(ordenId));
     }
   };
-
-  console.log('collapsedordens2:',collapsedordens)
 
   const handlePagoToggle = async (id_orden, estadoActual) => {
     try {
@@ -709,7 +704,7 @@ const CollapsibleTable = (
                                           height: '12px',
                                           borderRadius: '50%',
                                           backgroundColor:
-                                            correcion?.estado === 'Ok'
+                                            correcion?.estado === 'OK'
                                               ? 'green'
                                               : correcion?.estado === 'Advertencia'
                                                 ? 'yellow'
@@ -728,8 +723,7 @@ const CollapsibleTable = (
                                       <Link
                                         to={`/correciones-ordenes/${correcion.correccion_id}`}
                                         className="btn btn-warning btnEditarReceta"
-                                        state={{
-                                          correcion,
+                                        state={{                                  
                                           pagadoFiltro,
                                           sucursalFiltro,
                                           laboratorioFiltro,
@@ -738,7 +732,6 @@ const CollapsibleTable = (
                                           statusFiltro,
                                           localStartDateFiltro,
                                           localEndDateFiltro
-
                                         }}
                                         data-target="#modalEditarSucursal"
                                         data-toggle="modal"

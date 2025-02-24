@@ -36,8 +36,6 @@ const VerCorrecionesOrdenes = () => {
         totalPages,
         sortColumn,
         sortOrder } = useSelector((state) => state.correcionesordenes);
-    console.log('totalPages:',totalPages)
-    console.log('meta:',meta)
     const {
         contactoOrden,
      } = useSelector((state) => state.ordenes);
@@ -67,10 +65,6 @@ const VerCorrecionesOrdenes = () => {
         currentPage,
         sortColumn,
         sortOrder]);
-
-    // useEffect(() => {
-    //     dispatch(fetchSucursales({}))
-    // }, [dispatch])
 
     const handleSort = (newOrdenPor) => {
         const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -208,198 +202,7 @@ const VerCorrecionesOrdenes = () => {
                         >
                             <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                                 <div className="widget-content widget-content-area br-6">
-                                    <div style={{ width: '100%' }}>                                     
-                                        {/* 
-                    <div className="d-flex justify-content-between">
-                      <div className="d-flex flex-column" style={{ width: '30%' }}>
-                        <div className="mb-4">
-                          <label style={{ position: 'relative', width: '100%', display: 'block' }}>
-                            <div style={{ position: 'absolute', right: '8px', top: '7px' }}>
-                              <svg
-                                className="feather feather-search"
-                                fill="none"
-                                height="24"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                viewBox="0 0 24 24"
-                                width="24"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <circle cx="11" cy="11" r="8" />
-                                <line x1="21" x2="16.65" y1="21" y2="16.65" />
-                              </svg>
-                            </div>
-                            <input
-                              aria-controls="html5-extension"
-                              className="form-control"
-                              placeholder="Search..."
-                              type="search"
-                              value={localSearch}
-                              onChange={handleSearchChange}
-                            />
-                            {localSearch && (
-                              <button
-                                onClick={handleClearSearch}
-                                style={{
-                                  position: 'absolute',
-                                  right: '25px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                &#x2715;
-                              </button>
-                            )}
-                          </label>
-                        </div>
-                        <div>
-                          <label className="mb-2">Buscar por Fecha:</label>
-                          <DateRangePicker
-                            startDate={localStartDate}
-                            endDate={localEndDate}
-                            onChange={(start, end) => {
-                              console.log('start:',start)
-                              console.log('end:',end)
-                              setLocalStartDate(start);
-                              setLocalEndDate(end);
-                            }}
-                            skipReset={true}
-                            onApply={handleDateChange}
-                            onReset={() => {
-                              dispatch(setFechaRange({ startDate: '', endDate: '' }));
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div style={{ width: '65%' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-                          <div>
-                          <div>
-                            <div className="mb-4">
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Laboratorio:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Filtrar por Laboratorio"
-                                onChange={handleLaboratorioChange}
-                                value={laboratorioFilter || undefined}
-                                allowClear
-                              >
-                                <Select.Option value="Ping">Ping</Select.Option>
-                                <Select.Option value="Centilab">Centilab</Select.Option>
-                                <Select.Option value="Optilab">Optilab</Select.Option>
-                                <Select.Option value="Vista Pro">Vista Pro</Select.Option>
-                                <Select.Option value="Haseth J&J">Haseth J&J</Select.Option>
-                                <Select.Option value="Alcon">Alcon</Select.Option>
-                                <Select.Option value="B+L">B+L</Select.Option>
-                              </Select>
-                            </div>  
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Sucursal:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Seleccione la sucursal"
-                                onChange={handleSucursalChange}
-                                value={sucursalFilter}
-                                allowClear
-                              >
-                                {sucursales_option_selects.map((sucursal) => (
-                                  <Option key={sucursal.value} value={sucursal.value}>
-                                    {sucursal.label}
-                                  </Option>
-                                ))}
-                              </Select>
-                            </div>                        
-                          </div>
-                          <div>
-                          <div className="mb-4">
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Tipo de lente:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Selecciona el tipo de lente"
-                                onChange={handleLenteContactoChange}
-                                value={lenteContactoFilter || undefined}
-                                allowClear
-                              >
-                                <Select.Option value="1">
-                                  <div style={{ width: '30px', height: '30px' }}>
-                                    <img
-                                      src="assets/img/recetas/lentesdecontacto.png"
-                                      alt="Lente On"
-                                      style={{ width: '50%', height: '50%' }}
-                                    />
-                                  </div>
-                                </Select.Option>
-                                <Select.Option value="0">
-                                  <div style={{ width: '30px', height: '30px' }}>
-                                    <img
-                                      src="assets/img/recetas/lentenormal.png"
-                                      alt="Lente Off"
-                                      style={{ width: '50%', height: '50%' }}
-                                    />
-                                  </div>
-                                </Select.Option>
-                              </Select>
-                            </div>
-                            <div>
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Status:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Filtrar por Status"
-                                onChange={handleStatusChange}
-                                value={statusFilter || ''}
-                                allowClear
-                              >
-                                <Select.Option value="Ok">Ok</Select.Option>
-                                <Select.Option value="Advertencia">Advertencia</Select.Option>
-                                <Select.Option value="Critico">Critico</Select.Option>
-                                <Select.Option value="Completado">Completado</Select.Option>
-                              </Select>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="mb-4">
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Fase:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Filtrar por Fase"
-                                onChange={handleFaseChange}
-                                value={faseFilter || undefined}
-                                allowClear
-                              >
-                                <Select.Option value="Nuevo">Nuevo</Select.Option>
-                                <Select.Option value="Listo">Listo</Select.Option>
-                                <Select.Option value="En confeccion">En confeccion</Select.Option>
-                                <Select.Option value="Retirado">Retirado</Select.Option>
-                              </Select>
-                            </div>
-                            <div>
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Pago:</label>
-                              <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="Seleccione estado de pago"
-                                onChange={handlePagadoChange}
-                                value={pagadoFilter || ''}
-                                allowClear
-                              >
-                                <Select.Option value="0">Sin Pago</Select.Option>
-                                <Select.Option value="2">Abonado</Select.Option>
-                                <Select.Option value="1">Pagado</Select.Option>
-                              </Select>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div> */}
+                                    <div style={{ width: '100%' }}>                                                         
                                     </div>
                                     <div
                                         className="dataTables_wrapper container-fluid dt-bootstrap4"

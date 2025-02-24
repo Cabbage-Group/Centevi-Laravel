@@ -21,7 +21,6 @@ import { fetchCorreccionOrden } from '../../redux/features/correciones-ordenes/c
 const VerUnaCorrecionOrdenes = () => {
 
   const dispatch = useDispatch();
-  const location = useLocation();
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.fasesOrdenes.nuevaDataCorrecciones);
   const { correccionOrderId } = useParams();
@@ -38,6 +37,11 @@ const VerUnaCorrecionOrdenes = () => {
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
   }, []);
 
+  useEffect(() => {
+    if (correcionOrden) {
+      setFechaSolicitud(correcionOrden?.created_at)
+    }
+  }, [correcionOrden])
 
   useEffect(() => {
   }, [nuevaDataCorrecciones, correccionOrderId]);

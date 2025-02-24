@@ -22,6 +22,7 @@ class FasesCorreccionesOrdenes extends Model
     'status',
     'created_at',
     'updated_at',
+    'elaborado_por'
   ];
 
   protected $casts = [
@@ -39,5 +40,10 @@ class FasesCorreccionesOrdenes extends Model
   public function correcionOrden()
   {
     return $this->belongsTo(CorrecionesOrdenes::class, 'correccion_ordenes_id', 'id');
+  }
+
+  public function usuario()
+  {
+    return $this->belongsTo(Usuarios::class, 'elaborado_por', 'id_usuario');
   }
 }

@@ -47,7 +47,7 @@ const VerCorreccionOrdenes = ({ fecha_solicitud, correcionOrden }) => {
   const [tipoAro, setTipoAro] = useState('');
   const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
 
-
+  console.log('fecha_solicitud:',fecha_solicitud)
   useEffect(() => {
     if (correcionOrden?.lente_contacto) {
       setLenteContacto(true);
@@ -492,7 +492,7 @@ const VerCorreccionOrdenes = ({ fecha_solicitud, correcionOrden }) => {
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
+                                      {fecha_solicitud}
                                     </b>
                                   </p>
                                 </div>
@@ -1850,7 +1850,7 @@ const VerCorreccionOrdenes = ({ fecha_solicitud, correcionOrden }) => {
                                                 >
                                                   <b>ELABORADO POR</b>
                                                   <Input
-                                                    value={correcionOrden?.elaborado_por}
+                                                    value={correcionOrden?.elaborado_por_nombre}
                                                     disabled />
                                                 </div>
                                               </Col>
