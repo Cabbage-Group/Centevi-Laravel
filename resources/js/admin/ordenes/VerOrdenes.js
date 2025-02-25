@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { setFechaRange } from '../../redux/features/ordenes/ordenesSlice';
-import { Modal, Skeleton, Select, Table } from 'antd';
+import { Modal, Skeleton, Select, Table, Button } from 'antd';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangePicker from '../reportes/DateRangePicker';
 import { fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
-import CollapsibleTable from './prueba';
+import CollapsibleTable from './TableOrdenesCorrecciones';
+import TableOrdenesCorrecciones from './TableOrdenesCorrecciones';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -18,14 +19,29 @@ const VerOrdenes = () => {
   const statusOrden = useSelector((state) => state.fasesOrdenes.statusOrden);
   const fechaInicio = useSelector((state) => state.fasesOrdenes.fechaInicio);
   const fechaFin = useSelector((state) => state.fasesOrdenes.fechaFin);
+  const faseCorreccion = useSelector((state) => state.fasesOrdenes.faseCorreccion);
+  const laboratorioCorreccion = useSelector((state) => state.fasesOrdenes.laboratorioCorreccion);
+  const lenteContactoCorreccion = useSelector((state) => state.fasesOrdenes.lenteContactoCorreccion);
+  const sucursalCorreccion = useSelector((state) => state.fasesOrdenes.sucursalCorreccion);
+  const statusCorreccion = useSelector((state) => state.fasesOrdenes.statusCorreccion);
+  const pagadoCorreccion = useSelector((state) => state.fasesOrdenes.pagadoCorreccion);
+  const changeOrden = useSelector((state) => state.fasesOrdenes.changeOrden);
   const { total } = useSelector((state) => state.ordenes);
   const [idOrden, setIdOrden] = useState()
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalData, setModalData] = useState(null);
-  const [activeKey, setActiveKey] = useState([]);
-  const [collapsedRows, setCollapsedRows] = useState([]);
+  const [correctionsFilterFase, setCorrectionsFilterFase] = useState(faseCorreccion || []);
+  const [correctionsFilterLaboratorio, setCorrectionsFilterLaboratorio] = useState(laboratorioCorreccion || []);
+  const [correctionsFilterSucursal, setCorrectionsFilterSucursal] = useState(sucursalCorreccion || []);
+  const [correctionsFilterStatus, setCorrectionsFilterStatus] = useState(statusCorreccion || []);
+  const [correctionsFilterPagado, setCorrectionsFilterPagado] = useState(pagadoCorreccion || []);
+  const [correctionsFilterLenteContacto, setCorrectionsFilterLenteContacto] = useState(lenteContactoCorreccion || []);
+  const [isCorrections, setIsCorrections] = useState(changeOrden);
 
-
+  console.log('faseCorreccion:', faseCorreccion)
+  const handleToggleCorrections = () => {
+    setIsCorrections(!isCorrections);
+  };
   const {
     search,
     contactoOrden,
@@ -119,16 +135,58 @@ const VerOrdenes = () => {
     setCurrentPage(1)
   };
 
+  const handleCorrectionsChangeFase = (values) => {
+    console.log('entre')
+    setCorrectionsFilterFase(values);
+  };
+
+  const handleCorrectionsChangeLaboratorio = (values) => {
+    setCorrectionsFilterLaboratorio(values);
+  };
+
+  const handleCorrectionsChangeSucursal = (values) => {
+    setCorrectionsFilterSucursal(values);
+  };
+
+  const handleCorrectionsChangeStatus = (values) => {
+    setCorrectionsFilterStatus(values);
+  };
+
+  const handleCorrectionsChangePagado = (values) => {
+    setCorrectionsFilterPagado(values);
+  };
+
+  const handleCorrectionsChangeLenteContacto = (values) => {
+    setCorrectionsFilterLenteContacto(values);
+  };
+
   const handleDateChange = () => {
     dispatch(setFechaRange({ startDate: localStartDate, endDate: localEndDate }));
     setCurrentPage(1)
   };
 
-
   const handleCancel = () => {
     setIsModalVisible(false);
     setModalData(null);
   };
+
+  const handleClearOrders = () => {
+    setPagadoFilter([]);
+    setSucursalFilter([]);
+    setLaboratorioFilter([]);
+    setFaseFilter([]);
+    setLenteContactoFilter([]);
+    setStatusFilter([]);
+  }
+
+  const handleClearCorrections = () => {
+    setCorrectionsFilterFase([]);
+    setCorrectionsFilterLaboratorio([]);
+    setCorrectionsFilterSucursal([]);
+    setCorrectionsFilterStatus([]);
+    setCorrectionsFilterPagado([]);
+    setCorrectionsFilterLenteContacto([]);
+  }
 
   const columns = React.useMemo(() => {
 
@@ -174,16 +232,25 @@ const VerOrdenes = () => {
               <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                 <div className="widget-content widget-content-area br-6">
                   <div style={{ width: '100%' }}>
-                    <div className="mb-4">
+                    <div className="d-flex justify-content-between mb-4">
                       <Link
                         to={"/create-orden"}
                         className="btn btn-success"
-                        style={{ height: '37px' }}
-                      >
+                        style={{ height: '37px' }}>
                         Agregar Orden
                       </Link>
+                      <div className="d-flex gap-2">
+                        <button className="btn btn-warning" onClick={handleClearOrders}>
+                          Limpiar Órdenes
+                        </button>
+                        <button className="btn btn-danger" onClick={handleClearCorrections}>
+                          Limpiar Correcciones
+                        </button>
+                        <button className="btn btn-success" onClick={handleToggleCorrections}>
+                          {isCorrections ? "Filtrar por Fase" : "Filtrar Correcciones por Fase"}
+                        </button>
+                      </div>
                     </div>
-
                     <div className="d-flex justify-content-between">
                       <div className="d-flex flex-column" style={{ width: '30%' }}>
                         <div className="mb-4">
@@ -237,8 +304,6 @@ const VerOrdenes = () => {
                             startDate={localStartDate}
                             endDate={localEndDate}
                             onChange={(start, end) => {
-                              console.log('start:', start)
-                              console.log('end:', end)
                               setLocalStartDate(start);
                               setLocalEndDate(end);
                             }}
@@ -255,13 +320,15 @@ const VerOrdenes = () => {
                           <div>
                             <div>
                               <div className="mb-4">
-                                <label className="mb-2 font-weight-bold d-block">Filtrar por Laboratorio:</label>
+                                <label className="mb-2 font-weight-bold d-block">
+                                  {isCorrections ? "Filtrar Correcciones Laboratorio:" : "Filtrar Ordenes por Laboratorio:"}
+                                </label>
                                 <Select
                                   mode="multiple"
                                   style={{ width: '100%' }}
                                   placeholder="Filtrar por Laboratorio"
-                                  onChange={handleLaboratorioChange}
-                                  value={laboratorioFilter || undefined}
+                                  onChange={isCorrections ? handleCorrectionsChangeLaboratorio : handleLaboratorioChange}
+                                  value={isCorrections ? correctionsFilterLaboratorio : laboratorioFilter}
                                   allowClear
                                 >
                                   <Select.Option value="Ping">Ping</Select.Option>
@@ -273,13 +340,15 @@ const VerOrdenes = () => {
                                   <Select.Option value="B+L">B+L</Select.Option>
                                 </Select>
                               </div>
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Sucursal:</label>
+                              <label className="mb-2 font-weight-bold d-block">
+                                {isCorrections ? "Filtrar Correcciones por Sucursal:" : "Filtrar Ordenes por Sucursal:"}
+                              </label>
                               <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
                                 placeholder="Seleccione la sucursal"
-                                onChange={handleSucursalChange}
-                                value={sucursalFilter}
+                                onChange={isCorrections ? handleCorrectionsChangeSucursal : handleSucursalChange}
+                                value={isCorrections ? correctionsFilterSucursal : sucursalFilter}
                                 allowClear
                               >
                                 {sucursales_option_selects.map((sucursal) => (
@@ -292,13 +361,15 @@ const VerOrdenes = () => {
                           </div>
                           <div>
                             <div className="mb-4">
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Tipo de lente:</label>
+                              <label className="mb-2 font-weight-bold d-block">
+                                {isCorrections ? "Filtrar Correcciones Tipo de lente:" : "Filtrar Ordenes por Tipo de lente:"}
+                              </label>
                               <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
                                 placeholder="Selecciona el tipo de lente"
-                                onChange={handleLenteContactoChange}
-                                value={lenteContactoFilter || undefined}
+                                onChange={isCorrections ? handleCorrectionsChangeLenteContacto : handleLenteContactoChange}
+                                value={isCorrections ? correctionsFilterLenteContacto : lenteContactoFilter}
                                 allowClear
                               >
                                 <Select.Option value="1">
@@ -322,13 +393,15 @@ const VerOrdenes = () => {
                               </Select>
                             </div>
                             <div>
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Status:</label>
+                              <label className="mb-2 font-weight-bold d-block">
+                                {isCorrections ? "Filtrar Correcciones por Status:" : "Filtrar Ordenes por Status:"}
+                              </label>
                               <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
                                 placeholder="Filtrar por Status"
-                                onChange={handleStatusChange}
-                                value={statusFilter || ''}
+                                onChange={isCorrections ? handleCorrectionsChangeStatus : handleStatusChange}
+                                value={isCorrections ? correctionsFilterStatus : statusFilter}
                                 allowClear
                               >
                                 <Select.Option value="OK">OK</Select.Option>
@@ -340,13 +413,15 @@ const VerOrdenes = () => {
                           </div>
                           <div>
                             <div className="mb-4">
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Fase:</label>
+                              <label className="mb-2 font-weight-bold d-block">
+                                {isCorrections ? "Filtrar Correcciones por Fase:" : "Filtrar Ordenes por Fase:"}
+                              </label>
                               <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
                                 placeholder="Filtrar por Fase"
-                                onChange={handleFaseChange}
-                                value={faseFilter || undefined}
+                                onChange={isCorrections ? handleCorrectionsChangeFase : handleFaseChange}
+                                value={isCorrections ? correctionsFilterFase : faseFilter}
                                 allowClear
                               >
                                 <Select.Option value="Nuevo">Nuevo</Select.Option>
@@ -356,13 +431,15 @@ const VerOrdenes = () => {
                               </Select>
                             </div>
                             <div>
-                              <label className="mb-2 font-weight-bold d-block">Filtrar por Pago:</label>
+                              <label className="mb-2 font-weight-bold d-block">
+                                {isCorrections ? "Filtrar Correcciones por Pago:" : "Filtrar Ordenes por Pago:"}
+                              </label>
                               <Select
                                 mode="multiple"
                                 style={{ width: '100%' }}
                                 placeholder="Seleccione estado de pago"
-                                onChange={handlePagadoChange}
-                                value={pagadoFilter || ''}
+                                onChange={isCorrections ? handleCorrectionsChangePagado : handlePagadoChange}
+                                value={isCorrections ? correctionsFilterPagado : pagadoFilter}
                                 allowClear
                               >
                                 <Select.Option value="0">Cortesia</Select.Option>
@@ -375,12 +452,19 @@ const VerOrdenes = () => {
                       </div>
                     </div>
                   </div>
-                  <CollapsibleTable
+                  <TableOrdenesCorrecciones
                     search={localSearch}
                     pagadoFiltro={pagadoFilter}
                     sucursalFiltro={sucursalFilter}
                     laboratorioFiltro={laboratorioFilter}
                     faseFiltro={faseFilter}
+                    isCorrections={isCorrections}
+                    correctionsFiltroFase={isCorrections ? correctionsFilterFase : undefined}
+                    correctionsFiltroLaboratorio={isCorrections ? correctionsFilterLaboratorio : undefined}
+                    correctionsFiltroSucursal={isCorrections ? correctionsFilterSucursal : undefined}
+                    correctionsFiltroStatus={isCorrections ? correctionsFilterStatus : undefined}
+                    correctionsFiltroPagado={isCorrections ? correctionsFilterPagado : undefined}
+                    correctionsFiltroLenteContacto={isCorrections ? correctionsFilterLenteContacto : undefined}
                     lenteContactoFiltro={lenteContactoFilter}
                     statusFiltro={statusFilter}
                     localEndDateFiltro={localEndDate}
@@ -494,7 +578,7 @@ const VerOrdenes = () => {
         />
       </Modal>
 
-    </div>
+    </div >
   )
 }
 

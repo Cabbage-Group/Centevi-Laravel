@@ -4,15 +4,15 @@ import {
   EyeOutlined,
   WhatsAppOutlined
 } from '@ant-design/icons';
-import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall } from '../../redux/features/ordenes/ordenesSlice';
-import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
+import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall } from '../../redux/features/ordenes/ordenesSlice.js';
+import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
 import { Modal, Tooltip, Skeleton, Table } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import PaginationOrdenes from './PaginationOrdenes';
+import PaginationOrdenes from './PaginationOrdenes.js';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 
-const CollapsibleTable = (
+const TableOrdenesCorrecciones = (
   {
     search,
     pagadoFiltro,
@@ -24,11 +24,18 @@ const CollapsibleTable = (
     localEndDateFiltro,
     localStartDateFiltro,
     currentPageTable,
-    setCurrentPageTable
+    setCurrentPageTable,
+    correctionsFiltroFase,
+    correctionsFiltroLaboratorio,
+    correctionsFiltroSucursal,
+    correctionsFiltroStatus,
+    correctionsFiltroPagado,
+    correctionsFiltroLenteContacto,
+    isCorrections
   }
 
 ) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
   const [collapsedordens, setCollapsedordens] = useState();
   const [selectedOrdenId, setSelectedOrdenId] = useState(null);
   const [showOrden, setShowOrden] = useState(false);
@@ -62,6 +69,8 @@ const CollapsibleTable = (
   const currentPage = currentPageTable;
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
+
+  console.log('correctionsFiltroFase:', correctionsFiltroFase)
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -97,21 +106,38 @@ const CollapsibleTable = (
 
   useEffect(() => {
     if (selectedOrdenId) {
-      dispatch(fetchCorreccionesByOrdenId(selectedOrdenId));
+      dispatch(fetchCorreccionesByOrdenId({
+        orden_id: selectedOrdenId,
+        laboratorio: Array.isArray(correctionsFiltroLaboratorio) && correctionsFiltroLaboratorio.length > 0 ? correctionsFiltroLaboratorio : '',
+        lenteContacto: Array.isArray(correctionsFiltroLenteContacto) && correctionsFiltroLenteContacto.length > 0 ? correctionsFiltroLenteContacto : '',
+        fase: Array.isArray(correctionsFiltroFase) && correctionsFiltroFase.length > 0 ? correctionsFiltroFase : '',
+        sucursales: Array.isArray(correctionsFiltroSucursal) && correctionsFiltroSucursal.length > 0 ? correctionsFiltroSucursal : '',
+        estados: Array.isArray(correctionsFiltroStatus) && correctionsFiltroStatus.length > 0 ? correctionsFiltroStatus : '',
+        pagado: Array.isArray(correctionsFiltroPagado) && correctionsFiltroPagado.length > 0 ? correctionsFiltroPagado : '',
+      }));
     }
-  }, [selectedOrdenId]);
+  }, [
+    selectedOrdenId,
+    correctionsFiltroFase,
+    correctionsFiltroLaboratorio,
+    correctionsFiltroSucursal,
+    correctionsFiltroStatus,
+    correctionsFiltroPagado,
+    correctionsFiltroLenteContacto
+  ]);
 
   const handlePageChange = (page) => {
-    setCurrentPageTable(page); 
+    setCurrentPageTable(page);
   };
 
   const toggleorden = (index, ordenId) => {
     setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
 
     if (collapsedordens !== index) {
-      console.log('collapsedordens1:',collapsedordens)
       setSelectedOrdenId(ordenId);
-      dispatch(fetchCorreccionesByOrdenId(ordenId));
+      dispatch(fetchCorreccionesByOrdenId({
+        orden_id: ordenId
+      }));
     }
   };
 
@@ -444,7 +470,6 @@ const CollapsibleTable = (
           <table className="table dt-table-hover tablaSucursal dataTable">
             <thead>
               <tr >
-
                 <th style={{ width: columnWidths.nroOrden }}>Número de Orden</th>
                 <th style={{ width: columnWidths.pagado }}>Pagado</th>
                 <th style={{ width: columnWidths.fecha }}>Fecha de Creación</th>
@@ -541,7 +566,7 @@ const CollapsibleTable = (
 
                         <Link
                           to={`/orden-receta/${orden?.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
-                          className="btn btn-warning btnEditarReceta"                     
+                          className="btn btn-warning btnEditarReceta"
                           state={{
                             pagadoFiltro,
                             sucursalFiltro,
@@ -550,7 +575,14 @@ const CollapsibleTable = (
                             lenteContactoFiltro,
                             statusFiltro,
                             localStartDateFiltro,
-                            localEndDateFiltro
+                            localEndDateFiltro,
+                            correctionsFiltroFase,
+                            correctionsFiltroLaboratorio,
+                            correctionsFiltroSucursal,
+                            correctionsFiltroStatus,
+                            correctionsFiltroPagado,
+                            correctionsFiltroLenteContacto,
+                            isCorrections
                           }}
                           data-target="#modalEditarSucursal"
                           data-toggle="modal"
@@ -708,7 +740,7 @@ const CollapsibleTable = (
                                               ? 'green'
                                               : correcion?.estado === 'Advertencia'
                                                 ? 'yellow'
-                                                : correcion?.estado === 'Critico'
+                                                : correcion?.estado === 'Crítico'
                                                   ? 'red'
                                                   : correcion?.estado === 'Completado'
                                                     ? 'blue'
@@ -723,7 +755,7 @@ const CollapsibleTable = (
                                       <Link
                                         to={`/correciones-ordenes/${correcion.correccion_id}`}
                                         className="btn btn-warning btnEditarReceta"
-                                        state={{                                  
+                                        state={{
                                           pagadoFiltro,
                                           sucursalFiltro,
                                           laboratorioFiltro,
@@ -731,7 +763,15 @@ const CollapsibleTable = (
                                           lenteContactoFiltro,
                                           statusFiltro,
                                           localStartDateFiltro,
-                                          localEndDateFiltro
+                                          localEndDateFiltro,
+                                          correctionsFiltroFase,
+                                          correctionsFiltroLaboratorio,
+                                          correctionsFiltroSucursal,
+                                          correctionsFiltroStatus,
+                                          correctionsFiltroPagado,
+                                          correctionsFiltroLenteContacto,
+                                          isCorrections
+
                                         }}
                                         data-target="#modalEditarSucursal"
                                         data-toggle="modal"
@@ -1132,4 +1172,4 @@ const CollapsibleTable = (
   );
 };
 
-export default CollapsibleTable;
+export default TableOrdenesCorrecciones;

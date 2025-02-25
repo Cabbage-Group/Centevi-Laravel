@@ -17,7 +17,7 @@ import Retirado from './fases/Retirado';
 import Swal from 'sweetalert2';
 import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { createFasesOrdenes, setFaseFilter, setFechaFinFilter, setFechaInicioFilter, setLaboratorioFilter, setPagadoFilter, setStatusFilter, setSucursalFilter, setTipoLenteFilter } from '../../../redux/features/ordenes/fasesOrdenesSlice';
+import { createFasesOrdenes, setChangeOrden, setFaseCorreccionFilter, setFaseFilter, setFechaFinFilter, setFechaInicioFilter, setLaboratorioCorreccionFilter, setLaboratorioFilter, setLenteContactoCorreccionFilter, setPagadoCorreccionFilter, setPagadoFilter, setStatusCorreccionFilter, setStatusFilter, setSucursalCorreccionFilter, setSucursalFilter, setTipoLenteFilter } from '../../../redux/features/ordenes/fasesOrdenesSlice';
 import { createContactoOrden } from '../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import EditOrden from '../EditOrden';
@@ -61,9 +61,15 @@ const Ordenes = () => {
     lenteContactoFiltro,
     statusFiltro,
     localStartDateFiltro,
-    localEndDateFiltro
-  } = location.state || {};
-
+    localEndDateFiltro,
+    isCorrections,
+    correctionsFiltroFase,
+    correctionsFiltroLaboratorio,
+    correctionsFiltroSucursal,
+    correctionsFiltroStatus,
+    correctionsFiltroPagado,
+    correctionsFiltroLenteContacto
+  } = location.state || {}
 
   useEffect(() => {
     if (pacienteOrden) {
@@ -123,6 +129,27 @@ const Ordenes = () => {
     }
     if (localEndDateFiltro !== undefined) {
       dispatch(setFechaFinFilter(localEndDateFiltro));
+    }
+    if (correctionsFiltroFase !== undefined) {
+      dispatch(setFaseCorreccionFilter(correctionsFiltroFase));
+    }
+    if (correctionsFiltroLaboratorio !== undefined) {
+      dispatch(setLaboratorioCorreccionFilter(correctionsFiltroLaboratorio));
+    }
+    if (correctionsFiltroSucursal !== undefined) {
+      dispatch(setSucursalCorreccionFilter(correctionsFiltroSucursal));
+    }
+    if (correctionsFiltroStatus !== undefined) {
+      dispatch(setStatusCorreccionFilter(correctionsFiltroStatus));
+    }
+    if (correctionsFiltroPagado !== undefined) {
+      dispatch(setPagadoCorreccionFilter(correctionsFiltroPagado));
+    }
+    if (correctionsFiltroLenteContacto !== undefined) {
+      dispatch(setLenteContactoCorreccionFilter(correctionsFiltroLenteContacto));
+    }
+    if (isCorrections !== false) {
+      dispatch(setChangeOrden(isCorrections));
     }
   },);
 

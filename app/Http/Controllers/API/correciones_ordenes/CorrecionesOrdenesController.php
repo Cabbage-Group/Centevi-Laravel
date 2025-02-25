@@ -14,14 +14,15 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
+
 class CorrecionesOrdenesController extends Controller
 {
   public function VerCorrecionesOrdenes(Request $request)
   {
-    $limit = $request->input('limit', 10); // Límite de registros por página
-    $page = $request->input('page', 1); // Página actual
-    $sortColumn = $request->input('sortColumn', 'created_at'); // Columna para ordenar
-    $sortOrder = $request->input('sortOrder', 'asc'); // Orden (ascendente o descendente)
+    $limit = $request->input('limit', 10);
+    $page = $request->input('page', 1);
+    $sortColumn = $request->input('sortColumn', 'created_at');
+    $sortOrder = $request->input('sortOrder', 'asc');
 
     $validSortColumns = ['created_at'];
     if (!in_array($sortColumn, $validSortColumns)) {
@@ -140,8 +141,16 @@ class CorrecionesOrdenesController extends Controller
 
   public function ObtenerCorrecionesOrdenes(Request $request, $id_orden)
   {
+
+    $fase = $request->input('fase', []);
+    $laboratorio = $request->input('laboratorio', []);
+    $lenteContacto = $request->input('lenteContacto', []);
+    $sucursales = $request->input('sucursales', []);
+    $estados = $request->input('estados', []);
+    $pagado = $request->input('pagado', null);
+
     $query = CorrecionesOrdenes::with([
-      'orden:id_orden,pagado,nro_orden_id,id_sucursal,id_paciente',
+      'orden:id_orden,pagado,nro_orden_id,id_sucursal,id_paciente,lente_contacto',
       'faseCorreccionOrden.tipoFaseCorreccionOrden',
       'orden.sucursal',
       'orden.paciente'
@@ -149,6 +158,24 @@ class CorrecionesOrdenesController extends Controller
       ->whereHas('orden', function ($q) use ($id_orden) {
         $q->where('id_orden', $id_orden);
       });
+
+    // if (!empty($lenteContacto)) {
+    //   $query->whereHas('orden', function ($q) use ($lenteContacto) {
+    //     $q->whereIn('lente_contacto', (array) $lenteContacto);
+    //   });
+    // }
+
+    // if (!empty($sucursales)) {
+    //   $query->whereHas('orden.sucursal', function ($q) use ($sucursales) {
+    //     $q->whereIn('id_sucursal', (array) $sucursales);
+    //   });
+    // }
+
+    // if (!empty($pagado)) {
+    //   $query->whereHas('orden', function ($q) use ($pagado) {
+    //     $q->whereIn('pagado', (array) $pagado);
+    //   });
+    // }
 
     $ordenes = $query->get();
 
@@ -173,14 +200,14 @@ class CorrecionesOrdenesController extends Controller
         $siguienteFase = "Nuevo";
       } else {
         $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
-
+      
         if ($ultimaFase->tipo_fase_correccion_orden_id == 4) {
           $estado = 'Completado';
         } elseif ($diasDiferencia <= 6) {
           $estado = 'OK';
         } elseif ($diasDiferencia == 7) {
           $estado = 'Advertencia';
-        } else {
+        } elseif ($diasDiferencia >= 8) {
           $estado = 'Crítico';
         }
 
@@ -204,7 +231,9 @@ class CorrecionesOrdenesController extends Controller
         'correccion_id' => $orden->id,
         'orden_id' => $orden->orden ? $orden->orden->id_orden : null,
         'pagado' => $orden->orden ? $orden->orden->pagado : 0,
+        'lente_contacto' => $orden->orden ?  $orden->orden->lente_contacto : null,
         'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
+        'id_sucursal' => $orden->orden ? $orden->orden->sucursal->id_sucursal : null,
         'sucursal' => $orden->orden ? $orden->orden->sucursal->nombre : null,
         'nro_orden_id' => $orden->orden ? $orden->orden->nro_orden_id : null,
         'nombres' => $orden->orden ? $orden->orden->paciente->nombres : null,
@@ -215,22 +244,41 @@ class CorrecionesOrdenesController extends Controller
         'siguiente_fase' => $siguienteFase,
         'paciente_nombre_completo' => $orden->orden ? trim($orden->orden->paciente->nombres . ' ' . $orden->orden->paciente->apellidos) : null,
         'estado' => $estado,
+        'fecha' => $diasDiferencia
       ];
     });
 
-    if ($request->filled('fase')) {
-      $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $request->fase)->values();
+    if (!empty($fase)) {
+      $ordenes = $ordenes->whereIn('fase_actual', (array) $fase)->values();
     }
 
-    if ($request->filled('estados')) {
-      $ordenes = $ordenes->whereIn('estado', (array) $request->estados)->values();
+    if (!empty($laboratorio)) {
+      $ordenes = $ordenes->whereIn('laboratorio', (array) $laboratorio)->values();
+    }
+
+    if (!empty($estados)) {
+      $ordenes = $ordenes->whereIn('estado', (array) $estados)->values();
+    }
+
+    if (!empty($sucursales)) {
+      $ordenes = $ordenes->whereIn('id_sucursal', (array) $sucursales)->values();
+    }
+
+
+    if (!empty($pagado)) {
+      $ordenes = $ordenes->whereIn('pagado', (array) $pagado)->values();
+    }
+
+    if (!empty($lenteContacto)) {
+      $ordenes = $ordenes->whereIn('lente_contacto', (array) $lenteContacto)->values();
     }
 
     return response()->json([
       'data' => $ordenes,
       'meta' => [
         'total' => $ordenes->count()
-      ]
+      ],
+      'fase' => $fase
     ]);
   }
 
@@ -339,7 +387,7 @@ class CorrecionesOrdenesController extends Controller
 
     return response()->json([
       'success' => true,
-      'data' => $correccion,
+      'data' => $correccion
     ], 201);
   }
 
@@ -821,7 +869,7 @@ class CorrecionesOrdenesController extends Controller
 
     $elaboradoPorNombre = $correccion->usuario ? $correccion->usuario->nombre : null;
 
-    
+
     $elaboradoPorFase = $ultimaFase && $ultimaFase->usuario ? $ultimaFase->usuario->nombre : null;
 
     $estado = 'Sin estado';
@@ -859,7 +907,7 @@ class CorrecionesOrdenesController extends Controller
         'laboratorio' => $correccion->faseCorreccionOrden->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
         'estado' => $estado,
         'elaborado_por_nombre' => $elaboradoPorNombre,
-        'elaborado_por_fase' => $elaboradoPorFase, 
+        'elaborado_por_fase' => $elaboradoPorFase,
         'esfera_od' => $correccion->esfera_od,
         'esfera_oi' => $correccion->esfera_oi,
         'cilindro_od' => $correccion->cilindro_od,

@@ -17,7 +17,7 @@ import CorreccionNuevo from './fases/CorreccionNuevo';
 import CorreccionEnConfeccion from './fases/CorreccionEnConfeccion';
 import CorreccionListo from './fases/CorreccionListo';
 import CorreccionRetirado from './fases/CorreccionRetirado';
-import { setFaseFilter, setFechaInicioFilter, setLaboratorioFilter, setPagadoFilter, setStatusFilter, setSucursalFilter, setTipoLenteFilter } from '../../redux/features/ordenes/fasesOrdenesSlice';
+import { setChangeOrden, setFaseCorreccionFilter, setFaseFilter, setFechaInicioFilter, setLaboratorioCorreccionFilter, setLaboratorioFilter, setLenteContactoCorreccionFilter, setPagadoCorreccionFilter, setPagadoFilter, setStatusCorreccionFilter, setStatusFilter, setSucursalCorreccionFilter, setSucursalFilter, setTipoLenteFilter } from '../../redux/features/ordenes/fasesOrdenesSlice';
 import EditarCorrecionOrden from './EditarCorrecionOrden';
 import { fetchCorreccionOrden } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
@@ -37,7 +37,14 @@ const CorrecionOrden = () => {
     lenteContactoFiltro,
     statusFiltro,
     localStartDateFiltro,
-    localEndDateFiltro
+    localEndDateFiltro,
+    correctionsFiltroFase,
+    correctionsFiltroLaboratorio,
+    correctionsFiltroSucursal,
+    correctionsFiltroStatus,
+    correctionsFiltroPagado,
+    correctionsFiltroLenteContacto,
+    isCorrections
   } = location.state || {};
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.correccionesFasesOrdenes.nuevaDataCorrecciones);
@@ -77,14 +84,51 @@ const CorrecionOrden = () => {
   }, [nuevaDataCorrecciones, correccionOrderId]);
 
   useEffect(() => {
-    dispatch(setPagadoFilter(pagadoFiltro))
-    dispatch(setLaboratorioFilter(laboratorioFiltro))
-    dispatch(setTipoLenteFilter(lenteContactoFiltro))
-    dispatch(setFaseFilter(faseFiltro))
-    dispatch(setSucursalFilter(sucursalFiltro))
-    dispatch(setStatusFilter(statusFiltro))
-    dispatch(setFechaInicioFilter(localStartDateFiltro))
-    dispatch(setFechaInicioFilter(localEndDateFiltro))
+    if (pagadoFiltro !== undefined) {
+      dispatch(setPagadoFilter(pagadoFiltro))
+    }
+    if (laboratorioFiltro !== undefined) {
+      dispatch(setLaboratorioFilter(laboratorioFiltro))
+    }
+    if (lenteContactoFiltro !== undefined) {
+      dispatch(setTipoLenteFilter(lenteContactoFiltro))
+    }
+    if (faseFiltro !== undefined) {
+      dispatch(setFaseFilter(faseFiltro))
+    }
+    if (sucursalFiltro !== undefined) {
+      dispatch(setSucursalFilter(sucursalFiltro))
+    }
+    if (statusFiltro !== undefined) {
+      dispatch(setStatusFilter(statusFiltro))
+    }
+    if (localStartDateFiltro !== undefined) {
+      dispatch(setFechaInicioFilter(localStartDateFiltro))
+    }
+    if (localEndDateFiltro !== undefined) {
+      dispatch(setFechaInicioFilter(localEndDateFiltro))
+    }
+    if (correctionsFiltroFase !== undefined) {
+      dispatch(setFaseCorreccionFilter(correctionsFiltroFase));
+    }
+    if (correctionsFiltroLaboratorio !== undefined) {
+      dispatch(setLaboratorioCorreccionFilter(correctionsFiltroLaboratorio));
+    }
+    if (correctionsFiltroSucursal !== undefined) {
+      dispatch(setSucursalCorreccionFilter(correctionsFiltroSucursal));
+    }
+    if (correctionsFiltroStatus !== undefined) {
+      dispatch(setStatusCorreccionFilter(correctionsFiltroStatus));
+    }
+    if (correctionsFiltroPagado !== undefined) {
+      dispatch(setPagadoCorreccionFilter(correctionsFiltroPagado));
+    }
+    if (correctionsFiltroLenteContacto !== undefined) {
+      dispatch(setLenteContactoCorreccionFilter(correctionsFiltroLenteContacto));
+    }
+    if (isCorrections !== false) {
+      dispatch(setChangeOrden(isCorrections));
+    }
   })
 
   useEffect(() => {
