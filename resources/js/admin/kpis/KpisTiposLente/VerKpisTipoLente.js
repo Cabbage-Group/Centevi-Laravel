@@ -411,7 +411,7 @@ const VerKpisTipoLente = () => {
                 <BarChart
                   data={kpisTipoLenteAsesores}
                   margin={{ top: 20, right: 50, left: 20, bottom: 50 }}
-                  isAnimationActive={false} // Desactiva la animación de hover
+                  isAnimationActive={false} 
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
@@ -560,7 +560,7 @@ const VerKpisTipoLente = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={kpisTipoLenteDoctores}
-                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                  margin={{ top: 20, right: 50, left: 20, bottom: 5 }}
                   isAnimationActive={false} // Desactiva la animación para hover
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />

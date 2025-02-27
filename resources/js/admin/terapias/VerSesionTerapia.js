@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSesionTerapia } from '../../redux/features/terapias/VerSesionTerapiaSlice.js';
+import { clearSesionTerapiaBajaVision, fetchSesionTerapia } from '../../redux/features/terapias/VerSesionTerapiaSlice.js';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
 import { useParams, Link } from 'react-router-dom';
 
@@ -9,23 +9,24 @@ const VerSesionTerapia = () => {
     const dispatch = useDispatch();
     const { id_paciente, id_terapia, id_sesion } = useParams();
     const { sucursales } = useSelector((state) => state.sucursales);
-    const { paciente, terapia, status } = useSelector((state) => state.verSesionTerapia);
+    const { paciente, terapia, sesion } = useSelector((state) => state.verSesionTerapia);
 
     useEffect(() => {
-        if (id_paciente && id_terapia) {
-            dispatch(fetchSesionTerapia({ id_paciente, id_terapia, id_sesion }));
-            dispatch(fetchSucursales({ page: 1, limit: 100 }));
-        }
+        dispatch(fetchSesionTerapia({ id_paciente, id_terapia, id_sesion }));
+        return () => {
+            dispatch(clearSesionTerapiaBajaVision());
+        };
     }, [dispatch, id_paciente, id_terapia, id_sesion]);
 
-    let sesion = {};
-    try {
-        sesion = terapia ? JSON.parse(terapia.sesion) : {};
-    } catch (error) {
-        console.error('Error parsing JSON:', error);
-    }
+    useEffect(() => {
+        dispatch(fetchSucursales({ page: 1, limit: 100 }));
+    }, [dispatch]);
 
     const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === terapia?.sucursal);
+
+    const getSafeValue = (value) => {
+        return value ? value.trim() : '';
+    };
 
     return (
         <div className="row layout-top-spacing">
@@ -91,7 +92,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.actividad_1?.trim() : ''}
+                                                                value={getSafeValue(sesion?.actividad_1)}
                                                                 name="actividad_1"
                                                                 readOnly
                                                                 rows="4"
@@ -104,7 +105,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.resultado_1?.trim() : ''}
+                                                                value={getSafeValue(sesion?.resultado_1)}
                                                                 name="resultado_1"
                                                                 readOnly
                                                                 rows="4"
@@ -119,7 +120,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.actividad_2?.trim() : ''}
+                                                                value={getSafeValue(sesion?.actividad_2)}
                                                                 name="actividad_2"
                                                                 readOnly
                                                                 rows="4"
@@ -132,7 +133,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.resultado_2?.trim() : ''}
+                                                                value={getSafeValue(sesion?.resultado_2)}
                                                                 name="resultado_2"
                                                                 readOnly
                                                                 rows="4"
@@ -147,7 +148,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.actividad_3?.trim() : ''}
+                                                                value={getSafeValue(sesion?.actividad_3)}
                                                                 name="actividad_3"
                                                                 readOnly
                                                                 rows="4"
@@ -160,7 +161,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.resultado_3?.trim() : ''}
+                                                                value={getSafeValue(sesion?.resultado_3)}
                                                                 name="resultado_3"
                                                                 readOnly
                                                                 rows="4"
@@ -175,7 +176,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.actividad_4?.trim() : ''}
+                                                                value={getSafeValue(sesion?.actividad_4)}
                                                                 name="actividad_4"
                                                                 readOnly
                                                                 rows="4"
@@ -188,7 +189,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="800"
-                                                                value={sesion ? sesion.resultado_4?.trim() : ''}
+                                                                value={getSafeValue(sesion?.resultado_4)}
                                                                 name="resultado_4"
                                                                 readOnly
                                                                 rows="4"
@@ -204,7 +205,7 @@ const VerSesionTerapia = () => {
                                                             <textarea
                                                                 className="form-control textarea"
                                                                 maxLength="300"
-                                                                value={sesion ? sesion.actividad_casa?.trim() : ''}
+                                                                value={getSafeValue(sesion?.actividad_casa)}
                                                                 name="actividad_casa"
                                                                 readOnly
                                                                 rows="3"
