@@ -64,6 +64,8 @@ class Ordenes extends Model
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'nro_orden' => 'integer',
+    'ordenes_id' => 'integer',
+    'pagado' => 'integer',
     'id_paciente' => 'integer',
     'id_sucursal' => 'integer',
     'elaborado_por' => 'integer',

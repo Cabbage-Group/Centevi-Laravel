@@ -280,7 +280,7 @@ const Ordenes = () => {
           icon: 'warning',
           input: 'radio',
           inputOptions: {
-            0: 'Cortesía',
+            0: 'Cortesia',
             1: 'Pagado'
           },
           inputValidator: (value) => {
@@ -315,13 +315,13 @@ const Ordenes = () => {
 
 
     const result = await Swal.fire({
-      title: completar ? '¿Estás seguro de completar la fase?' : '¿Estás seguro de guardar la fase?',
-      text: completar ? "¡Confirmarás la fase como completada!" : "¡Confirmarás los cambios en los datos!",
+      title: completar ? 'Estás seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
+      text: completar ? "Confirmarás la fase como completada!" : "Confirmarás los cambios en los datos!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, ' + (completar ? 'completar' : 'guardar'),
+      confirmButtonText: 'Si, ' + (completar ? 'completar' : 'guardar'),
       cancelButtonText: 'Cancelar',
     });
 

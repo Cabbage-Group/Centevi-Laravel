@@ -2144,6 +2144,15 @@ class OrdenesApiController extends Controller
       ->where('ordenes.nro_orden_id', $nroOrdenId)
       ->first();
 
+    if ($orden) {
+        $orden = collect($orden)->map(function ($value, $key) {
+            if (in_array($key, ['nro_orden', 'ordenes_id', 'pagado', 'id_paciente', 'id_sucursal', 'lente_contacto', 'correccion'])) {
+                return (int) $value;
+            }
+            return $value;
+        })->toArray();
+    }
+    
     if (!$orden) {
       return response()->json([
         'respuesta' => false,
