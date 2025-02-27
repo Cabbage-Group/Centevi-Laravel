@@ -32,9 +32,26 @@ export const createCorrecionesOrdenes = createAsyncThunk(
 
 export const fetchCorreccionesByOrdenId = createAsyncThunk(
     'correcionesordenes/fetchCorreccionesByOrdenId',
-    async (orden_id) => {
+    async (
+        {
+            orden_id,
+            laboratorio,
+            lenteContacto,
+            fase,
+            sucursales,
+            estados,
+            pagado
+        }) => {
         try {
-            const response = await axios.get(`${API}/obtener-correcciones-ordenes/${orden_id}`);
+            const response = await axios.post(`${API}/obtener-correcciones-ordenes/${orden_id}`, {
+                laboratorio,
+                lenteContacto,
+                fase,
+                sucursales,
+                estados,
+                pagado
+            });
+
             return response.data;
         } catch (error) {
             console.error('Error fetching correcciones for orden:', error.response?.data || error.message);
@@ -105,7 +122,7 @@ export const verOrdenCorrecionPdf = createAsyncThunk(
 
 export const fetchCorreccionOrden = createAsyncThunk(
     'ordenes/fetchCorreccionOrden',
-    async ( id_correccion , { rejectWithValue }) => {
+    async (id_correccion, { rejectWithValue }) => {
         try {
             const response = await axios.get(`${API}/obtener-correccion/${id_correccion}`);
             return response.data;

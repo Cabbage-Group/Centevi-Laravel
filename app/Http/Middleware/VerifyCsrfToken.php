@@ -208,6 +208,8 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/obtener-ordenes',
 
+    'http://127.0.0.1:8000/api/obtener-correcciones-ordenes/*',
+
 
   ];
 }

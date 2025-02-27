@@ -442,7 +442,7 @@ Route::post('/api/send-verification-email', [EmailController::class, 'sendVerifi
 Route::post('/api/obtener-ordenes', [OrdenesApiController::class, 'obtenerOrdenes']);
 
 
-Route::get('/api/obtener-correcciones-ordenes/{id_orden}', [CorrecionesOrdenesController::class, 'ObtenerCorrecionesOrdenes']);
+Route::post('/api/obtener-correcciones-ordenes/{id_orden}', [CorrecionesOrdenesController::class, 'ObtenerCorrecionesOrdenes']);
 
 Route::get('/api/obtener-correccion/{id_correccion}', [CorrecionesOrdenesController::class, 'obtenerCorreccion']);
 

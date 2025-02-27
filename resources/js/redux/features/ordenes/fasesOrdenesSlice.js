@@ -53,6 +53,13 @@ const fasesOrdenesSlice = createSlice({
     statusOrden: [],
     fechaInicio: '',
     fechaFin: '',
+    faseCorreccion: [],
+    laboratorioCorreccion: [],
+    lenteContactoCorreccion: [],
+    sucursalCorreccion: [],
+    statusCorreccion: [],
+    pagadoCorreccion: [],
+    changeOrden: false,
     status: 'idle',
     error: null,
   },
@@ -86,6 +93,27 @@ const fasesOrdenesSlice = createSlice({
     },
     setFechaFinFilter: (state, action) => {
       state.fechaFin = action.payload;
+    },
+    setFaseCorreccionFilter: (state, action) => {
+      state.faseCorreccion = action.payload;
+    },
+    setLaboratorioCorreccionFilter: (state, action) => {
+      state.laboratorioCorreccion = action.payload;
+    },
+    setLenteContactoCorreccionFilter: (state, action) => {
+      state.lenteContactoCorreccion = action.payload;
+    },
+    setSucursalCorreccionFilter: (state, action) => {
+      state.sucursalCorreccion = action.payload;
+    },
+    setStatusCorreccionFilter: (state, action) => {
+      state.statusCorreccion = action.payload;
+    },
+    setPagadoCorreccionFilter: (state, action) => {
+      state.pagadoCorreccion = action.payload;
+    },
+    setChangeOrden: (state, action) => {
+      state.changeOrden = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -138,7 +166,14 @@ export const {
   setSucursalFilter,
   setStatusFilter,
   setFechaInicioFilter,
-  setFechaFinFilter
+  setFechaFinFilter,
+  setFaseCorreccionFilter,
+  setLaboratorioCorreccionFilter,
+  setLenteContactoCorreccionFilter,
+  setSucursalCorreccionFilter,
+  setStatusCorreccionFilter,
+  setPagadoCorreccionFilter,
+  setChangeOrden
 } = fasesOrdenesSlice.actions;
 
 export default fasesOrdenesSlice.reducer;
