@@ -84,6 +84,9 @@ import VerKpisTipoLente from '../admin/kpis/KpisTiposLente/VerKpisTipoLente.js';
 import VerKpisConsultasYTerapias from '../admin/kpis/kpisConsultasYTerapias/VerKpisConsultasYTerapias.js';
 import KpisConsultasTerapiasDoctores from '../admin/kpis/KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores.js';
 import KpisTiposCristales from '../admin/kpis/KpisTiposCristales/KpiTipoCristales.js';
+import VerAgenda from '../admin/agenda/VerAgenda.js';
+import VerChat from '../admin/chat/VerChat.js';
+import WhatsAppChat from '../admin/chat/VerChat.js';
 
 
 const RoutesApp = () => {
@@ -248,7 +251,9 @@ const RoutesApp = () => {
 
           <Route path="/kpis-consultas-doctores" element={<Sidebar component={<KpisConsultasTerapiasDoctores />} />} />
 
+          <Route path="/ver-agenda" element={<Sidebar component={<VerAgenda />} />} />
 
+          <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat/>} />} />
 
         </Route>
 
