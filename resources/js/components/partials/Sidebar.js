@@ -259,6 +259,44 @@ const Sidebar = (props) => {
                 </a>
               </li>
 
+              <li className="menu">
+                <a href="#agenda" data-active="false" className="menu-toggle">
+                  <div className="base-menu">
+                    <div className="base-icons">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                        strokeLinejoin="round" className="feather feather-box">
+                        <path
+                          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                        </path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                      </svg>
+                    </div>
+                    <span>Agenda</span>
+                  </div>
+                </a>
+              </li>
+
+              <li className="menu">
+                <a href="#chat" data-active="false" className="menu-toggle">
+                  <div className="base-menu">
+                    <div className="base-icons">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                        strokeLinejoin="round" className="feather feather-box">
+                        <path
+                          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                        </path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                        <line x1="12" y1="22.08" x2="12" y2="12" />
+                      </svg>
+                    </div>
+                    <span>Chat</span>
+                  </div>
+                </a>
+              </li>
+
 
               <div className="ps__rail-x" style={{ left: 0, bottom: 0, }}>
                 <div className="ps__thumb-x" tabIndex="0" style={{ left: 0, width: 0, }}></div>
@@ -753,6 +791,7 @@ const Sidebar = (props) => {
               </ul>
             </div>
 
+
             <div className="submenu" id="ver-kpis">
               <ul className="submenu-list" data-parent-element="#uiKit">
                 {
@@ -823,6 +862,8 @@ const Sidebar = (props) => {
                     </svg></span> Tipos de Cristales
                   </Link>
                 </li>
+
+
                 {/* <li>
                   <Link to={"/ver-kpis-consultas-terapias"}>
                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
@@ -849,6 +890,40 @@ const Sidebar = (props) => {
                   </Link>
                 </li> */}
 
+              </ul>
+            </div>
+
+            <div className="submenu" id="agenda">
+              <ul className="submenu-list" data-parent-element="#uiKit">
+                <li>
+                  <Link to={"/ver-agenda"}>
+                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      className="feather feather-git-commit">
+                      <circle cx="12" cy="12" r="4" />
+                      <line x1="1.05" y1="12" x2="7" y2="12" />
+                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                    </svg></span> Ver agenda
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="submenu" id="chat">
+              <ul className="submenu-list" data-parent-element="#uiKit">
+                <li>
+                  <Link to={"/ver-chat"}>
+                    <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      className="feather feather-git-commit">
+                      <circle cx="12" cy="12" r="4" />
+                      <line x1="1.05" y1="12" x2="7" y2="12" />
+                      <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                    </svg></span> Ver Chat
+                  </Link>
+                </li>
               </ul>
             </div>
 

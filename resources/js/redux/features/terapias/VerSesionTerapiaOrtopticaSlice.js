@@ -18,7 +18,15 @@ const SesionTerapiaOrtopticaSlice = createSlice({
         status: 'idle',
         error: null
     },
-    reducers: {},
+    reducers: {
+        clearSesionTerapiaOrtoptica: (state) => {
+            state.paciente = null;
+            state.terapia = null;
+            state.sesion = null;
+            state.status = 'idle';
+            state.error = null;
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchSesionTerapiaOrtoptica.pending, (state) => {
@@ -28,6 +36,7 @@ const SesionTerapiaOrtopticaSlice = createSlice({
                 state.status = 'succeeded';
                 state.paciente = action.payload.data.paciente;
                 state.terapia = action.payload.data.terapia;
+                state.sesion = JSON.parse(action.payload.data.terapia.sesion);
             })
             .addCase(fetchSesionTerapiaOrtoptica.rejected, (state, action) => {
                 state.status = 'failed';
@@ -35,5 +44,5 @@ const SesionTerapiaOrtopticaSlice = createSlice({
             });
     }
 });
-
+export const { clearSesionTerapiaOrtoptica } = SesionTerapiaOrtopticaSlice.actions;
 export default SesionTerapiaOrtopticaSlice.reducer;

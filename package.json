@@ -24,6 +24,10 @@
         "sass-loader": "^11.0.1"
     },
     "dependencies": {
+        "@fullcalendar/daygrid": "^6.1.15",
+        "@fullcalendar/interaction": "^6.1.15",
+        "@fullcalendar/react": "^6.1.15",
+        "@fullcalendar/timegrid": "^6.1.15",
         "@reduxjs/toolkit": "^2.2.6",
         "antd": "^5.19.3",
         "formik": "^2.4.6",
