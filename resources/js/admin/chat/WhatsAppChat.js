@@ -1,20 +1,30 @@
 import { useState, useEffect, useRef } from "react";
-import { Row, Col, Input, Avatar, List, Typography, Badge, Divider, Layout } from "antd";
+import { Row, Col, Input, Avatar, List, Button, Radio, Typography, Badge, Layout, Modal, Popconfirm, DatePicker, Tooltip, FloatButton } from "antd";
 import {
     SendOutlined,
     SearchOutlined,
     EllipsisOutlined,
-    PaperClipOutlined,
-    SmileOutlined,
+    CalendarOutlined,
     CheckOutlined,
-    UserOutlined
+
 } from '@ant-design/icons';
+import { DeleteOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
 
+dayjs.locale("es");
+
 const WhatsAppChat = () => {
+
     const [activeChat, setActiveChat] = useState(0);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [eventBadge, setEventBadge] = useState("Trabajo");
+    const [eventDates, setEventDates] = useState([dayjs(), dayjs().add(1, "day")]);
+    const [eventDescription, setEventDescription] = useState("");
+    const [eventTitle, setEventTitle] = useState("");
     const [conversations, setConversations] = useState([
         {
             id: 0,
@@ -22,6 +32,8 @@ const WhatsAppChat = () => {
             status: "en línea",
             avatar: "M",
             unread: 2,
+            calendar: 4,
+            lastTimeCalendar: "2024-05-10 06:05:30",
             lastTime: "12:30",
             lastMessage: "¿Cómo estás hoy?",
             messages: [
@@ -36,6 +48,8 @@ const WhatsAppChat = () => {
             status: "escribiendo...",
             avatar: "J",
             unread: 0,
+            calendar: 8,
+            lastTimeCalendar: "2024-10-11 13:10:30",
             lastTime: "Ayer",
             lastMessage: "Vale, hablamos luego",
             messages: [
@@ -50,6 +64,8 @@ const WhatsAppChat = () => {
             status: "5 participantes",
             avatar: "F",
             unread: 5,
+            calendar: 10,
+            lastTimeCalendar: "2025-01-13 18:10:30",
             lastTime: "09:45",
             lastMessage: "Mamá: ¿Quién puede ir a comprar?",
             messages: [
@@ -267,94 +283,173 @@ const WhatsAppChat = () => {
         return colors[index % colors.length];
     };
 
+    const resetForm = () => {
+        setEventTitle("");
+        // setEventDescription("");
+        // setEventDates([dayjs(), dayjs().add(1, "day")]);
+        // setEventBadge("Trabajo");
+        // setCurrentEventId(null);
+        setIsEditMode(false);
+    };
 
+    const openNewEventModal = () => {
+        setIsEditMode(false);
+        // setCurrentEventId(null);
+        // setEventTitle("");
+        // setEventDescription("");
+        // setEventDates([dayjs(), dayjs().add(1, "day")]);
+        // setEventBadge("Trabajo");
+        setIsModalOpen(true);
+    };
+
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
 
     return (
+
         <Row className="h-screen">
             {/* Left side - Conversations */}
             <Col span={8} className="border-r">
                 <Layout className="h-full flex flex-col">
                     {/* Conversations Header */}
                     <Header
-                        style={{ background: "#075E54", padding: "0 16px", height: "60px" }}
-                        className="flex justify-between items-center"
+                        style={{ background: "#111B21", padding: "0 20px", height: "64px" }}
+                        className="flex justify-between items-center shadow-md"
                     >
                         <div className="flex items-center">
-                            <Avatar style={{ backgroundColor: "#128C7E" }} icon={<UserOutlined />} />
-                            <span className="text-white ml-3 font-medium">Chat Web</span>
+                            <span className="text-white font-extrabold text-2xl tracking-wide"
+                                style={{
+                                    fontSize: "24px",
+                                    fontWeight: "bold",
+                                    color: "white",
+                                    letterSpacing: "1px"
+                                }}
+                            >
+                                Chats
+                            </span>
                         </div>
-                        <div className="flex gap-5 text-white">
-                            <SearchOutlined style={{ fontSize: "18px" }} />
-                            <EllipsisOutlined style={{ fontSize: "18px" }} />
+                        <div className="flex gap-6 text-white">
+                            <SearchOutlined style={{ fontSize: "20px", cursor: "pointer", transition: "0.3s" }} className="hover:text-gray-400" />
+                            <EllipsisOutlined style={{ fontSize: "20px", cursor: "pointer", transition: "0.3s" }} className="hover:text-gray-400" />
                         </div>
                     </Header>
 
+
                     {/* Search Bar */}
-                    <div style={{ padding: "8px", background: "#F6F6F6" }}>
+                    <div style={{ padding: "8px", background: "#111B21" }}>
                         <Input
-                            prefix={<SearchOutlined style={{ color: "#919191" }} />}
+                            prefix={<SearchOutlined
+                                style={{ color: "#919191" }}
+                            />}
                             placeholder="Buscar o empezar un nuevo chat"
-                            style={{ borderRadius: "20px", backgroundColor: "white" }}
+                            className="custom-input"
+                            style={{
+                                borderRadius: "20px",
+                                padding: "8px 12px",
+                                background: "#202C33",
+                                color: "white",
+                                border: "none",
+                            }}
                         />
                     </div>
 
+
+
                     {/* Conversations List con Scroll Interno */}
                     <Content
-                        className="flex-1 bg-gray-100 custom-scroll"
+                        className="flex-1 custom-scroll"
                         style={{
                             overflowY: "auto",
-                            maxHeight: "calc(100vh - 120px)", // Ajustamos para evitar que la lista crezca demasiado
+                            maxHeight: "744px",
+                            backgroundColor: "#111B21",
                         }}
                     >
                         <List
                             dataSource={conversations}
                             renderItem={(item, index) => (
                                 <List.Item
-                                    className={`cursor-pointer px-3 py-2 ${activeChat === index ? "bg-gray-200" : "hover:bg-gray-100"
-                                        }`}
+                                    className={`cursor-pointer px-3 py-2 transition-colors`}
+                                    style={{
+                                        backgroundColor: activeChat === index ? "#202C33" : "#111B21",
+                                        cursor: "pointer",
+                                    }}
                                     onClick={() => setActiveChat(index)}
+                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#202C33")}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = activeChat === index ? "#202C33" : "#111B21")}
                                 >
                                     <div className="w-full" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "12px" }}>
                                         <Avatar style={{ backgroundColor: getAvatarColor(index) }} size={48}>
                                             {item.avatar}
                                         </Avatar>
                                         <div>
-                                            <Text strong>{item.name}</Text>
-                                            <Text type="secondary" style={{ fontSize: "13px", display: "block", maxWidth: "80%" }} ellipsis>
+                                            <Text strong style={{ color: "#E9EDEF" }}>{item.name}</Text>
+                                            <Text type="secondary" style={{ fontSize: "13px", display: "block", maxWidth: "80%", color: "#8696A0" }} ellipsis>
                                                 {item.lastMessage}
                                             </Text>
                                         </div>
                                     </div>
-                                    <div className="flex-1 flex flex-col border-b border-gray-100 pb-2">
+                                    <div className="flex-1 flex flex-col border-b border-gray-400 pb-2">
                                         <div className="flex justify-between items-center">
-                                            <Text type="secondary" style={{ fontSize: "12px" }}>
+                                            <Text type="secondary" style={{ fontSize: "12px", color: "#8696A0" }}>
                                                 {item.lastTime}
                                             </Text>
                                         </div>
-                                        <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-3">
                                             {item.unread > 0 && (
-                                                <Badge count={item.unread} style={{ backgroundColor: "#25D366" }} />
+                                                <Badge
+                                                    count={item.unread}
+                                                    style={{
+                                                        backgroundColor: "#00A884",
+                                                        color: "#000",
+                                                        boxShadow: "none",
+                                                    }}
+                                                />
+                                            )}
+                                            {item.calendar > 0 && (
+                                                <Tooltip title={item.calendar}>
+                                                    <Badge
+                                                        count={
+                                                            <CalendarOutlined
+                                                                style={{ color: "white" }}
+                                                            />
+                                                        }
+                                                        style={{
+                                                            backgroundColor: "#00A884",
+                                                            color: "#000",
+                                                            boxShadow: "none",
+                                                            borderRadius: "50%",
+                                                            width: "24px",
+                                                            height: "24px",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            marginLeft: "4px",
+                                                        }}
+                                                    />
+                                                </Tooltip>
                                             )}
                                         </div>
                                     </div>
-
                                 </List.Item>
                             )}
-
                         />
                     </Content>
+
                     <style jsx>{`
     .custom-scroll::-webkit-scrollbar {
         width: 6px;
+         height: 2px;
     }
-    .custom-scroll::-webkit-scrollbar-thumb {
-        background-color: rgba(90, 81, 81, 0.3);
-        border-radius: 6px;
-    }
-    .custom-scroll::-webkit-scrollbar-track {
-        background: transparent;
+   input::placeholder, 
+    textarea::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
     }
 `}</style>
+
                 </Layout>
             </Col>
 
@@ -364,32 +459,40 @@ const WhatsAppChat = () => {
                 <Layout className="h-full flex flex-col">
                     {/* Chat Header */}
                     <Header
-                        style={{ background: "#075E54", padding: "0 16px", height: "60px" }}
-                        className="flex justify-between items-center"
+                        style={{ background: "#202C33", padding: "0 14px", position: "relative", display: "flex", alignItems: "center", justifyContent: "space-between" }}
                     >
-                        <div className="flex items-center">
+                        <div style={{ display: "table" }}>
                             <Avatar
-                                style={{ backgroundColor: getAvatarColor(activeChat) }}
+                                style={{ backgroundColor: getAvatarColor(activeChat), verticalAlign: "middle" }}
                                 size={40}
                             >
-                                {conversations[activeChat].avatar}
+                                {conversations[activeChat]?.avatar}
                             </Avatar>
-                            <div className="ml-3">
-                                <div className="text-white font-medium">{conversations[activeChat].name}</div>
-                                <div className="text-xs text-gray-300">{conversations[activeChat].status}</div>
+                            <div style={{ display: "table-cell", verticalAlign: "middle", paddingLeft: "10px" }}>
+                                <div style={{ color: "white", fontWeight: "500", whiteSpace: "nowrap" }}>
+                                    {conversations[activeChat]?.name}
+                                </div>
                             </div>
                         </div>
-                        <div className="flex gap-5 text-white">
-                            <SearchOutlined style={{ fontSize: "18px" }} />
-                            <EllipsisOutlined style={{ fontSize: "18px" }} />
-                        </div>
+
+                        {conversations[activeChat]?.lastTimeCalendar && (
+                            <Button
+                                type="primary"
+                                style={{ background: "#00A682", border: "none", borderRadius: "20px", display: "flex", alignItems: "center", gap: "8px" }}
+                            >
+                                <CalendarOutlined style={{ color: "white", fontSize: "16px" }} />
+                                <span style={{ color: "white", fontWeight: "500" }}>{conversations[activeChat]?.lastTimeCalendar}</span>
+                            </Button>
+                        )}
                     </Header>
+
+
 
                     <div
                         style={{
                             flexGrow: 1,
                             overflowY: "auto",
-                            height: "calc(100vh - 100px)",
+                            height: "calc(90vh - 125px)",
                             background: "#E5DDD5",
                             backgroundImage: "url('/img/fondo_whatsapp.jpg')",
                             backgroundRepeat: "repeat",
@@ -424,25 +527,40 @@ const WhatsAppChat = () => {
                                         }}
                                     >
                                         <div
-                                            className="relative px-3 py-2 rounded-lg shadow-sm flex items-center"
+                                            className="relative px-2 py-1 rounded-lg shadow-sm"
                                             style={{
-                                                backgroundColor: msg.sender === "user" ? "#DCF8C6" : "#FFFFFF",
-                                                color: "#333",
+                                                backgroundColor: msg.sender === "user" ? "#005C4B" : "#202C33",
+                                                color: "#FFFFFF",
                                                 maxWidth: "75%",
-                                                wordWrap: "break-word",
                                                 textAlign: "left",
                                                 borderRadius: "8px",
-                                                boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.2)",
+                                                boxShadow: "0px 1px 2px rgba(150, 35, 35, 0.2)",
+                                                display: "flex",
+                                                alignItems: "flex-end",
                                             }}
                                         >
-                                            <div className="flex-1">
-                                                {msg.text} {msg.time} {" "}
-                                                {msg.sender === "user" && (
-                                                    <span style={{ color: "#4FC3F7" }}>
-                                                        <CheckOutlined style={{ fontSize: "12px" }} />
-                                                        <CheckOutlined style={{ fontSize: "12px", marginLeft: "-4px" }} />
-                                                    </span>
-                                                )}
+                                            <div style={{ wordBreak: "break-word" }}>{msg.text}</div>
+
+                                            {/* Contenedor de la hora y los check */}
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    justifyContent: "flex-end",
+                                                    alignSelf: "flex-end",
+                                                    marginLeft: "5px",
+                                                    marginBottom: "-2px",
+                                                }}
+                                            >
+                                                <span
+                                                    className="text-xs"
+                                                    style={{
+                                                        fontSize: "10px",
+                                                        whiteSpace: "nowrap",
+                                                        color: "rgba(255, 255, 255, 0.6)",
+                                                    }}
+                                                >
+                                                    {msg.time} {new Date().getHours() >= 12 ? "p.m." : "a.m."}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -450,6 +568,7 @@ const WhatsAppChat = () => {
                                 <div ref={messageEndRef} />
                             </div>
                         </Content>
+
                     </div>
 
                     <style jsx>{`
@@ -463,36 +582,52 @@ const WhatsAppChat = () => {
             .custom-scroll::-webkit-scrollbar-track {
                 background: transparent;
             }
+                
         `}</style>
-
-
-
-
 
                     {/* Input Area - Footer Fijo */}
                     <Footer
                         style={{
-                            padding: "10px 16px",
-                            background: "#EDEDED",
-                            position: "sticky",
-                            bottom: 0,
-                            width: "100%",
+                            padding: "8px 12px",
+                            background: "#202C33",
+                            position: "fixed",
+                            bottom: "38px",
+                            width: "56.4%", 
                         }}
                     >
                         <Row gutter={8} align="middle">
-
+                            <Col>
+                                <div
+                                    onClick={openNewEventModal}
+                                    style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        borderRadius: "50%",
+                                        backgroundColor: "#128C7E",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <CalendarOutlined style={{ color: "white" }} />
+                                </div>
+                            </Col>
                             <Col flex="auto">
                                 <Input
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyPress={handleKeyPress}
                                     placeholder="Escribe un mensaje"
+                                    className="custom-input"
                                     style={{
                                         borderRadius: "20px",
                                         padding: "8px 12px",
-                                        backgroundColor: "white",
+                                        backgroundColor: "#2A3942", // Color más oscuro para mejor contraste
+                                        color: "white", // Texto en blanco para mejor visibilidad
+                                        border: "none",
                                     }}
-                                    bordered
+                                    bordered={false} // Oculta el borde
                                 />
                             </Col>
                             <Col>
@@ -514,10 +649,88 @@ const WhatsAppChat = () => {
                                 </div>
                             </Col>
                         </Row>
+
+
+                        <style jsx>{`   
+   input::placeholder, 
+    textarea::placeholder {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+`}</style>
+
                     </Footer>
+
                 </Layout>
             </Col>
+            <Modal
+                title={isEditMode ? "Editar Evento" : "Crear Evento"}
+                open={isModalOpen}
+                onCancel={() => {
+                    setIsModalOpen(false);
+                    resetForm();
+                }}
+                footer={[
+                    isEditMode && (
+                        <Popconfirm
+                            key="delete"
+                            title="¿Está seguro de eliminar este evento?"
+                            // onConfirm={handleDeleteEvent}
+                            okText="Sí"
+                            cancelText="No"
+                        >
+                            <Button danger icon={<DeleteOutlined />}>
+                                Eliminar
+                            </Button>
+                        </Popconfirm>
+                    ),
+                    <Button
+                        key="cancel"
+                        onClick={() => {
+                            setIsModalOpen(false);
+                            resetForm();
+                        }}
+                    >
+                        Cancelar
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                    // onClick={handleCreateOrUpdateEvent}
+                    >
+                        {isEditMode ? "Actualizar" : "Crear"}
+                    </Button>,
+                ]}
+            >
+                <Input
+                    placeholder="Título del Evento"
+                    value={eventTitle}
+                    onChange={(e) => setEventTitle(e.target.value)}
+                    style={{ marginBottom: "10px" }}
+                />
+                <Input.TextArea
+                    placeholder="Descripción del Evento"
+                    value={eventDescription}
+                    onChange={(e) => setEventDescription(e.target.value)}
+                    style={{ marginBottom: "10px" }}
+                />
+                <DatePicker.RangePicker
+                    showTime
+                    value={[eventDates[0], eventDates[1]]}
+                    onChange={(dates) => setEventDates(dates)}
+                    style={{ marginBottom: "10px", width: "100%" }}
+                    placeholder={["Fecha inicio", "Fecha fin"]}
+                />
+                <Radio.Group
+                    value={eventBadge}
+                    onChange={(e) => setEventBadge(e.target.value)}
+                >
+                    <Radio value="Trabajo">Trabajo</Radio>
+                    <Radio value="Personal">Personal</Radio>
+                    <Radio value="Importante">Importante</Radio>
+                </Radio.Group>
+            </Modal>
         </Row >
+
     );
 };
 
