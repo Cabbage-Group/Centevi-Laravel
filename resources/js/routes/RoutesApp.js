@@ -85,8 +85,7 @@ import VerKpisConsultasYTerapias from '../admin/kpis/kpisConsultasYTerapias/VerK
 import KpisConsultasTerapiasDoctores from '../admin/kpis/KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores.js';
 import KpisTiposCristales from '../admin/kpis/KpisTiposCristales/KpiTipoCristales.js';
 import VerAgenda from '../admin/agenda/VerAgenda.js';
-import VerChat from '../admin/chat/VerChat.js';
-import WhatsAppChat from '../admin/chat/VerChat.js';
+import WhatsAppChat from '../admin/chat/WhatsAppChat.js';
 
 
 const RoutesApp = () => {

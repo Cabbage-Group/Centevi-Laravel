@@ -278,7 +278,7 @@ const Sidebar = (props) => {
                 </a>
               </li>
 
-              <li className="menu">
+              <li className="menu" style={{ position: 'relative' }}>
                 <a href="#chat" data-active="false" className="menu-toggle">
                   <div className="base-menu">
                     <div className="base-icons">
@@ -295,6 +295,25 @@ const Sidebar = (props) => {
                     <span>Chat</span>
                   </div>
                 </a>
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '5px',
+                    right: '5px',
+                    background: '#46c60f',
+                    color: 'white',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  22
+                </span>
               </li>
 
 
