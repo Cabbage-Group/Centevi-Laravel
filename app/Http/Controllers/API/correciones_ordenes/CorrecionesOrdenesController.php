@@ -244,7 +244,7 @@ class CorrecionesOrdenesController extends Controller
         'siguiente_fase' => $siguienteFase,
         'paciente_nombre_completo' => $orden->orden ? trim($orden->orden->paciente->nombres . ' ' . $orden->orden->paciente->apellidos) : null,
         'estado' => $estado,
-        'fecha' => $diasDiferencia
+        'fecha' => $diasDiferencia && 0
       ];
     });
 

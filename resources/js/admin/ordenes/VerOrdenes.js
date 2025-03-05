@@ -240,14 +240,29 @@ const VerOrdenes = () => {
                         Agregar Orden
                       </Link>
                       <div className="d-flex gap-2">
-                        <button className="btn btn-warning" onClick={handleClearOrders}>
-                          Limpiar Órdenes
-                        </button>
-                        <button className="btn btn-danger" onClick={handleClearCorrections}>
-                          Limpiar Correcciones
-                        </button>
                         <button className="btn btn-success" onClick={handleToggleCorrections}>
                           {isCorrections ? "Filtrar por Fase" : "Filtrar Correcciones por Fase"}
+                        </button>
+                        <button
+                          onClick={handleClearOrders}
+                          className={
+                            pagadoFilter.length > 0 ||
+                              sucursalFilter.length > 0 ||
+                              laboratorioFilter.length > 0 ||
+                              faseFilter.length > 0 ||
+                              lenteContactoFilter.length > 0 ||
+                              statusFilter.length > 0
+                              ? "btn btn-warning"
+                              : "btn"
+                          }
+                        >
+                          Limpiar Ordenes
+                        </button>
+                        <button
+                          onClick={handleClearCorrections}
+                          className="btn"
+                        >
+                          Limpiar Correcciones
                         </button>
                       </div>
                     </div>
