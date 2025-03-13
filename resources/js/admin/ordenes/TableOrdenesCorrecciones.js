@@ -6,11 +6,14 @@ import {
 } from '@ant-design/icons';
 import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall } from '../../redux/features/ordenes/ordenesSlice.js';
 import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
-import { Modal, Tooltip, Skeleton, Table } from 'antd';
+import { Modal, Tooltip, Skeleton, Table, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes.js';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
+import '../../../css/tables/TableOrdenes.css'
+
+const { Paragraph, Text } = Typography;
 
 const TableOrdenesCorrecciones = (
   {
@@ -131,10 +134,20 @@ const TableOrdenesCorrecciones = (
   };
 
   const toggleorden = (index, ordenId) => {
+    console.log("index: -------------------------------");
+    console.log(index);
+    console.log(ordenId);
+    console.log("index: -------------------------------");
+
     setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
 
     if (collapsedordens !== index) {
       setSelectedOrdenId(ordenId);
+
+      console.log("ordenId: -------------------------------");
+      console.log(ordenId);
+      console.log("ordenId: -------------------------------");
+
       dispatch(fetchCorreccionesByOrdenId({
         orden_id: ordenId
       }));
@@ -448,14 +461,14 @@ const TableOrdenesCorrecciones = (
   const columnWidths = {
     nroOrden: '10%',
     pagado: '10%',
-    fecha: '12%',
+    fecha: '10%',
     sucursal: '12%',
     paciente: '15%',
     celular: '8%',
     laboratorio: '10%',
     fase: '8%',
     status: '5%',
-    action: '10%'
+    action: '12%'
   };
 
   return (
@@ -467,19 +480,19 @@ const TableOrdenesCorrecciones = (
         {status === 'loading' && <p>Loading...</p>}
         {status === 'failed' && <p>Error: {error}</p>}
         {status === 'succeeded' && (
-          <table className="table dt-table-hover tablaSucursal dataTable">
+          <table className="table dt-table-hover tablaSucursal dataTable table-ordenes">
             <thead>
               <tr >
-                <th style={{ width: columnWidths.nroOrden }}>Número de Orden</th>
+                <th style={{ width: columnWidths.nroOrden }}>N° de Orden</th>
                 <th style={{ width: columnWidths.pagado }}>Pagado</th>
-                <th style={{ width: columnWidths.fecha }}>Fecha de Creación</th>
+                <th style={{ width: columnWidths.fecha }}>Fec. de Creación</th>
                 <th style={{ width: columnWidths.sucursal }}>Sucursal</th>
                 <th style={{ width: columnWidths.paciente }}>Paciente</th>
                 <th style={{ width: columnWidths.celular }}>Celular</th>
                 <th style={{ width: columnWidths.laboratorio }}>Laboratorio</th>
                 <th style={{ width: columnWidths.fase }}>Fase</th>
                 <th style={{ width: columnWidths.status }}>Status</th>
-                <th style={{ width: columnWidths.action }}>Action</th>
+                <th style={{ width: columnWidths.action }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -512,8 +525,8 @@ const TableOrdenesCorrecciones = (
                       )}
                     </td>
                     <td>
-                      <button
-                        className={`btn btn-xs ${parseInt(orden.pagado) === 1
+                      <div
+                        className={`cursor-pointer text-center align-content-center ${parseInt(orden.pagado) === 1
                           ? 'btn-success'
                           : parseInt(orden.pagado) === 2
                             ? 'btn-warning'
@@ -521,18 +534,35 @@ const TableOrdenesCorrecciones = (
                           }`}
                         // onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado))}
                         onClick={() => confirmPagoToggle(orden.id_orden, parseInt(orden.pagado))}
-                        style={{ minWidth: '100px' }}
+                        style={{ minWidth: '70px', height: '25px', borderRadius: '4px', cursor: 'pointer', width: '80px' }}
                       >
                         {parseInt(orden.pagado) === 1
                           ? 'pagado'
                           : parseInt(orden.pagado) === 2
                             ? 'abonado'
                             : 'Cortesia'}
-                      </button>
+                      </div>
                     </td>
                     <td onClick={() => console.log(orden)} >{orden?.created_at}</td>
-                    <td >{orden?.sucursal}</td>
-                    <td>{`${orden.nombres} ${orden?.apellidos}`}</td>
+                    <td>{orden?.sucursal?.replace("CENTEVI", "").trim()}</td>
+                    <td>
+                      <Text
+                        ellipsis={true}
+                        style={{ width: "180px" }}
+                        title={`${orden.nombres} ${orden?.apellidos}`}
+                      >
+                        <span
+                          style={{
+                            color: "#515365",
+                            fontSize: "13px",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {`${orden?.nombres} ${orden?.apellidos?.split(" ")[0]}`}
+                        </span>
+                      </Text>
+
+                    </td>
                     <td>{orden?.celular}</td>
                     <td>{orden?.laboratorio}</td>
                     <td>
@@ -566,7 +596,7 @@ const TableOrdenesCorrecciones = (
 
                         <Link
                           to={`/orden-receta/${orden?.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
-                          className="btn btn-warning btnEditarReceta"
+                          className="btn-warning btnEditarReceta btnAccionesOrdenes"
                           state={{
                             pagadoFiltro,
                             sucursalFiltro,
@@ -605,37 +635,35 @@ const TableOrdenesCorrecciones = (
                         </Link>
                         <Link
                           to={`/ver-orden/${orden.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
-                          className="btn btn-info"
-                          style={{ display: 'flex', alignItems: 'center' }}
+                          className="btn-info btnAccionesOrdenes"
                         >
-
-                          <path
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            strokeLinecap="modalEditarSucursal"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                          />
-
-                          <EyeOutlined />
+                          <EyeOutlined style={{ marginTop: "2.2px" }} />
                         </Link>
                         <button
                           onClick={() => {
                             dispatch(setOrderId(orden.id_orden))
                             handleVerOrden(orden.id_orden)
                           }}
-                          className="btn btn-primary"
+                          className="btn-primary btnAccionesOrdenes"
+                          style={{ position: 'relative' }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16"
+                            style={{
+                              marginLeft: "-4px"
+                            }}
+                          >
                             <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1" />
                             <path d="M4.603 12.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-2.227 7.3 7.3 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a11 11 0 0 0 .98 1.686 5.8 5.8 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.86.86 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.7 5.7 0 0 1-.911-.95 11.6 11.6 0 0 0-1.997.406 11.3 11.3 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.8.8 0 0 1-.58.029m1.379-1.901q-.25.115-.459.238c-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361q.016.032.026.044l.035-.012c.137-.056.355-.235.635-.572a8 8 0 0 0 .45-.606m1.64-1.33a13 13 0 0 1 1.01-.193 12 12 0 0 1-.51-.858 21 21 0 0 1-.5 1.05zm2.446.45q.226.244.435.41c.24.19.407.253.498.256a.1.1 0 0 0 .07-.015.3.3 0 0 0 .094-.125.44.44 0 0 0 .059-.2.1.1 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a4 4 0 0 0-.612-.053zM8.078 5.8a7 7 0 0 0 .2-.828q.046-.282.038-.465a.6.6 0 0 0-.032-.198.5.5 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822q.036.167.09.346z" />
                           </svg>
                         </button>
+
                         <button
                           onClick={() => handleVerOrdenSmall(orden.id_orden)}
-                          className="btn"
+                          className="btnAccionesOrdenes"
                           style={{ background: '#EFF5FF' }}
                         >
-                          <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <svg style={{ marginLeft: "-4px" }} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.1211 2.87868C16.2424 2 14.8282 2 11.9998 2C9.17134 2 7.75712 2 6.87844 2.87868C6.38608 3.37105 6.16961 4.03157 6.07444 5.01484C6.63368 4.99996 7.25183 4.99998 7.92943 5H16.0706C16.748 4.99998 17.366 4.99996 17.9251 5.01483C17.8299 4.03156 17.6135 3.37105 17.1211 2.87868Z" fill="#1C274C" />
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M18 14.5C18 17.3284 18 20.2426 17.1213 21.1213C16.2426 22 14.8284 22 12 22C9.17158 22 7.75736 22 6.87868 21.1213C6 20.2426 6 17.3284 6 14.5H18ZM15.75 16.75C15.75 17.1642 15.4142 17.5 15 17.5H9C8.58579 17.5 8.25 17.1642 8.25 16.75C8.25 16.3358 8.58579 16 9 16H15C15.4142 16 15.75 16.3358 15.75 16.75ZM13.75 19.75C13.75 20.1642 13.4142 20.5 13 20.5H9C8.58579 20.5 8.25 20.1642 8.25 19.75C8.25 19.3358 8.58579 19 9 19H13C13.4142 19 13.75 19.3358 13.75 19.75Z" fill="#1C274C" />
                             <g opacity="0.5">
@@ -649,7 +677,7 @@ const TableOrdenesCorrecciones = (
                         </button>
                         <button
                           onClick={() => handleVerContacto(orden.id_orden)}
-                          className="btn btn-info"
+                          className="btn-info btnAccionesOrdenes"
                           style={{ display: 'flex', alignItems: 'center', background: 'green' }}
                         >
                           <WhatsAppOutlined />
@@ -657,10 +685,11 @@ const TableOrdenesCorrecciones = (
 
                         {
                           funPermisosObtenidosBoolean(permisos, 'sidebar.recetas.ordenes.eliminarorden')
-                            ? <button
+                            ?
+                            <button
                               onClick={() => handleEliminarOrden(orden.id_orden)}
                               borrar_receta="185"
-                              className="btn btn-danger btnEliminarReceta"
+                              className="btn-danger btnEliminarReceta btnAccionesOrdenes"
                             >
                               <svg
                                 className="h-6 w-6"
@@ -668,6 +697,10 @@ const TableOrdenesCorrecciones = (
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg"
+                                style={{
+                                  marginLeft: "-3px",
+                                  marginTop: "-1px"
+                                }}
                               >
                                 <path
                                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
@@ -701,8 +734,8 @@ const TableOrdenesCorrecciones = (
                                     {correcion.nro_orden_id}-C{idx + 1}
                                   </td>
                                   <td style={{ width: columnWidths.pagado }} >
-                                    <button
-                                      className={`btn btn-xs ${parseInt(orden.pagado) === 1
+                                    <div
+                                      className={`cursor-pointer text-center align-content-center ${parseInt(orden.pagado) === 1
                                         ? 'btn-success'
                                         : parseInt(orden.pagado) === 2
                                           ? 'btn-warning'
@@ -710,14 +743,14 @@ const TableOrdenesCorrecciones = (
                                         }`}
                                       // onClick={() => handlePagoToggle(orden.id_orden, parseInt(orden.pagado), orden.nro_orden)}
                                       onAbort={async () => confirmPagoToggle(orden.id_orden, parseInt(orden.pagado), orden.nro_orden)}
-                                      style={{ minWidth: '50px' }}
+                                      style={{ minWidth: '70px', height: '25px', borderRadius: '4px', cursor: 'pointer' }}
                                     >
                                       {parseInt(orden.pagado) === 1
                                         ? 'pagado'
                                         : parseInt(orden.pagado) === 2
                                           ? 'abonado'
                                           : 'Cortesia'}
-                                    </button>
+                                    </div>
                                   </td>
                                   <td style={{ width: columnWidths.fecha }}>
                                     {correcion.created_at}
@@ -754,7 +787,7 @@ const TableOrdenesCorrecciones = (
 
                                       <Link
                                         to={`/correciones-ordenes/${correcion.correccion_id}`}
-                                        className="btn btn-warning btnEditarReceta"
+                                        className="btn-warning btnEditarReceta btnAccionesOrdenes"
                                         state={{
                                           pagadoFiltro,
                                           sucursalFiltro,
@@ -794,32 +827,30 @@ const TableOrdenesCorrecciones = (
                                       </Link>
                                       <Link
                                         to={`/ver-correcion-orden/${correcion.correccion_id}`}
-                                        className="btn btn-info"
+                                        className="btn-info btnAccionesOrdenes"
                                         style={{ display: 'flex', alignItems: 'center' }}
                                       >
-
-                                        <path
-                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                          strokeLinecap="modalEditarSucursal"
-                                          strokeLinejoin="round"
-                                          strokeWidth="2"
-                                        />
-
-                                        <EyeOutlined />
+                                        <EyeOutlined style={{ marginTop: "2.2px" }} />
                                       </Link>
 
                                       <button
                                         onClick={() => handleVerCorrecion(correcion.correccion_id, correcion.nro_orden_id + "-C" + (parseFloat(idx) + 1))}
-                                        className="btn btn-primary"
+                                        className="btn-primary btnAccionesOrdenes"
+                                        style={{ position: 'relative' }}
                                       >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16"
+                                          style={{
+                                            marginLeft: "-4px"
+                                          }}
+                                        >
                                           <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1" />
                                           <path d="M4.603 12.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-2.227 7.3 7.3 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a11 11 0 0 0 .98 1.686 5.8 5.8 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.86.86 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.7 5.7 0 0 1-.911-.95 11.6 11.6 0 0 0-1.997.406 11.3 11.3 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.8.8 0 0 1-.58.029m1.379-1.901q-.25.115-.459.238c-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361q.016.032.026.044l.035-.012c.137-.056.355-.235.635-.572a8 8 0 0 0 .45-.606m1.64-1.33a13 13 0 0 1 1.01-.193 12 12 0 0 1-.51-.858 21 21 0 0 1-.5 1.05zm2.446.45q.226.244.435.41c.24.19.407.253.498.256a.1.1 0 0 0 .07-.015.3.3 0 0 0 .094-.125.44.44 0 0 0 .059-.2.1.1 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a4 4 0 0 0-.612-.053zM8.078 5.8a7 7 0 0 0 .2-.828q.046-.282.038-.465a.6.6 0 0 0-.032-.198.5.5 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822q.036.167.09.346z" />
                                         </svg>
                                       </button>
                                       <button
                                         onClick={() => handleVerContactoCorreccion(correcion.correccion_id)}
-                                        className="btn btn-info"
+                                        className="btn-info btnAccionesOrdenes"
                                         style={{ display: 'flex', alignItems: 'center', background: 'green' }}
                                       >
                                         <WhatsAppOutlined />
@@ -829,7 +860,7 @@ const TableOrdenesCorrecciones = (
                                           ? <button
                                             onClick={() => handleEliminarCorrecionOrden(correcion.correccion_id, index)}
                                             borrar_receta="185"
-                                            className="btn btn-danger btnEliminarReceta"
+                                            className="btn-danger btnEliminarReceta btnAccionesOrdenes"
                                           >
                                             <svg
                                               className="h-6 w-6"
@@ -837,6 +868,10 @@ const TableOrdenesCorrecciones = (
                                               stroke="currentColor"
                                               viewBox="0 0 24 24"
                                               xmlns="http://www.w3.org/2000/svg"
+                                              style={{
+                                                marginLeft: "-3px",
+                                                marginTop: "-1px"
+                                              }}
                                             >
                                               <path
                                                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"

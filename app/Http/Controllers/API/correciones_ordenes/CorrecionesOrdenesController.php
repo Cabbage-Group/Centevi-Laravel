@@ -196,6 +196,7 @@ class CorrecionesOrdenesController extends Controller
       $estado = 'Sin estado';
       $siguienteFase = "Nuevo";
 
+      $diasDiferencia = now();
       if (!$ultimaFase) {
         $siguienteFase = "Nuevo";
       } else {

@@ -619,7 +619,7 @@ code {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1028;
+  z-index: 1;
   height: 100%;
   transition: 0.3s ease all;
   border-top-right-radius: 30px;
