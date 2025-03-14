@@ -25,4 +25,9 @@ class Servicio extends Model
   {
     return $this->hasMany(ServiciosProximosHistoriasClinicas::class, 'servicios_id');
   }
+
+  public function serviciosBajaVision()
+  {
+    return $this->hasMany(ServiciosProximosBajaVision::class, 'servicios_id');
+  }
 }

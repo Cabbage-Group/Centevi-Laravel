@@ -16,6 +16,7 @@ use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
+use App\Http\Controllers\API\agenda\AgendaApiController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
@@ -447,6 +448,16 @@ Route::post('/api/obtener-correcciones-ordenes/{id_orden}', [CorrecionesOrdenesC
 Route::get('/api/obtener-correccion/{id_correccion}', [CorrecionesOrdenesController::class, 'obtenerCorreccion']);
 
 Route::get('/api/reporte-ordenes', [OrdenesApiController::class, 'reporteOrdenes']);
+
+Route::get('/api/ver-eventos', [AgendaApiController::class, 'getEvents']);
+
+Route::get('/api/menciones/pacientes', [PacientesApiController::class, 'buscarPacientes']);
+
+Route::post('/api/proximas-citas/generar', [AgendaApiController::class, 'generarDataProximasCitas']);
+
+Route::get('/api/proximas-citas', [AgendaApiController::class, 'index']);
+
+Route::get('/api/proximos-servicios/baja-vision', [ServiciosApiController::class, 'getServiciosProximos']);
 
 Route::get('/{any}', function () {
   return view('app');

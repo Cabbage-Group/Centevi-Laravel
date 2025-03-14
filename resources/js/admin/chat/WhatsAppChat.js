@@ -10,6 +10,12 @@ import {
 } from '@ant-design/icons';
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
+import { MentionsInput, Mention } from "react-mentions";
+import { Link } from "react-router-dom";
+import { fetchPacientes, fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
+
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
@@ -18,6 +24,7 @@ dayjs.locale("es");
 
 const WhatsAppChat = () => {
 
+  const dispatch = useDispatch();
   const [activeChat, setActiveChat] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +32,14 @@ const WhatsAppChat = () => {
   const [eventDates, setEventDates] = useState([dayjs(), dayjs().add(1, "day")]);
   const [eventDescription, setEventDescription] = useState("");
   const [eventTitle, setEventTitle] = useState("");
+  const [search, setSearch] = useState("");
+  const {
+    doctores_menciones
+  } = useSelector((state) => state.usuarios);
+
+  const {
+    pacientes_menciones
+  } = useSelector((state) => state.pacientes);
   const [conversations, setConversations] = useState([
     {
       id: 0,
@@ -216,6 +231,32 @@ const WhatsAppChat = () => {
     }
   ]);
 
+  useEffect(() => {
+    dispatch(fetchUsuarios({}))
+  }, [])
+
+  useEffect(() => {
+    if (search.length >= 2) {
+      console.log('search22:',search)
+      dispatch(fetchPacientesMenciones(search));
+    }
+  }, [search, dispatch]);
+
+  const allMenciones = [
+    ...doctores_menciones.map((doc) => ({
+      id: doc.id.toString(),
+      display: doc.nombre,
+      type: "doctor",
+    })),
+    ...pacientes_menciones.map((pac) => ({
+      id: pac.id.toString(),
+      display: pac.nombre,
+      type: "paciente",
+    })),
+  ];
+
+  
+
   const [input, setInput] = useState("");
   const messageEndRef = useRef(null);
 
@@ -226,6 +267,37 @@ const WhatsAppChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [conversations[activeChat].messages]);
+
+  const formatMessage = (message) => {
+    return message.split(/(@\[[^\]]+\]\(\d+\))/g).map((part, index) => {
+      const mentionMatch = part.match(/@\[(.*?)\]\((\d+)\)/);
+
+      if (mentionMatch) {
+        const name = mentionMatch[1];
+        const id = mentionMatch[2];
+
+        const isDoctor = doctores_menciones.some((doc) => doc.id.toString() === id);
+        const route = isDoctor ? `/doctor/${id}` : `/paciente/${id}`;
+        return (
+          <Link
+            key={index}
+            to={isDoctor ? `/doctores/${id}` : `/historia-paciente/${id}`}
+            style={{
+              color: isDoctor ? "#128C7E" : "#ff4500",
+              fontWeight: "bold",
+              textDecoration: "none",
+            }}
+          >
+            @{name}
+          </Link>
+        );
+      }
+
+      return part;
+    });
+  };
+
+  console.log('search:', search)
 
   const sendMessage = () => {
     if (input.trim() === "") return;
@@ -542,7 +614,7 @@ const WhatsAppChat = () => {
                         alignItems: "flex-end",
                       }}
                     >
-                      <div style={{ wordBreak: "break-word" }}>{msg.text}</div>
+                      <div style={{ wordBreak: "break-word" }}> {formatMessage(msg.text)}</div>
 
                       {/* Contenedor de la hora y los check */}
                       <div
@@ -618,21 +690,51 @@ const WhatsAppChat = () => {
                 </div>
               </Col>
               <Col flex="auto">
-                <Input
+                <MentionsInput
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setInput(value);
+            
+                    const match = value.match(/@(\w{2,})$/);
+                    if (match) {
+                      setSearch(match[1]); 
+                    } else {
+                      setSearch(""); 
+                    }
+                  }}
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe un mensaje"
-                  // className="custom-input"
                   style={{
-                    borderRadius: "20px",
-                    padding: "8px 12px",
-                    backgroundColor: "#EAEAEA",
-                    color: "black",
-                    border: "none",
+                    control: {
+                      borderRadius: "20px",
+                      padding: "4px 10px",
+                      backgroundColor: "#EAEAEA",
+                      color: "black",
+                      border: "none",
+                      width: "100%",
+                      fontSize: "14px",
+                    },
+                    highlighter: {
+                      padding: "4px 10px",
+                    },
+                    input: {
+                      padding: "4px 10px",
+                      border: "none",
+                      outline: "none",
+                    },
                   }}
-                  bordered={false} // Oculta el borde
-                />
+                >
+                  <Mention
+                    trigger="@"
+                    data={allMenciones} 
+                    renderSuggestion={(suggestion, search, highlightedDisplay, index) => (
+                      <div style={{ padding: "5px", cursor: "pointer" }}>
+                        {suggestion.display} {suggestion.type === "doctor" ? "🩺" : "🏥"}
+                      </div>
+                    )}
+                  />
+                </MentionsInput>
               </Col>
               <Col>
                 <div

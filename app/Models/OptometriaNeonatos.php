@@ -64,6 +64,11 @@ class OptometriaNeonatos extends Model
     return $this->hasMany(ServiciosProximosOptometriaNeonatos::class, 'optometriaNeonatos_id');
   }
 
+  public function proximaCita()
+  {
+    return $this->morphOne(ProximasCitas::class, 'origen', 'origen_tabla', 'origen_id');
+  }
+  
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'sucursal' => 'integer',
