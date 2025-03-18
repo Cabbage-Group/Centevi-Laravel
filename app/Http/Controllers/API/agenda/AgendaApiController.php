@@ -16,42 +16,27 @@ use Carbon\Carbon;
 
 class AgendaApiController extends Controller
 {
-    // public function getEvents()
-    // {
-    //     // Obtener todas las consultas con una fecha programada
-    //     $consultas = BajaVision::whereNotNull('fecha_proxima_consulta')->get();
 
-    //     // Formatear los eventos para FullCalendar
-    //     $events = $consultas->map(function ($conszulta) {
-    //         return [
-    //             'id' => $consulta->id_consulta,
-    //             'title' => $consulta->doctor,
-    //             'start' => $consulta->fecha_proxima_consulta->format('Y-m-d'),
-    //             'badge' => $this->getSucursalNombre($consulta->sucursal), 
-    //         ];
-    //     });
-
-    //     return response()->json($events);
-    // }
-
-    // private function getSucursalNombre($id)
-    // {
-    //     $sucursal = Sucursales::find($id);
-    //     return $sucursal ? $sucursal->nombre : 'Desconocido';
-    // }
-
-    public function index(Request $request)
+    public function verEventosAgenda(Request $request)
     {
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
+        $sucursales = $request->input('sucursales', []);
 
         $query = ProximasCitas::with(['paciente:id_paciente,nombres,nro_cedula', 'sucursal:id_sucursal,nombre'])
             ->whereMonth('fecha_hora', $month)
-            ->whereYear('fecha_hora', $year)
-            ->get();
+            ->whereYear('fecha_hora', $year);
+
+        if (!empty($sucursales)) {
+            if (in_array('otros', $sucursales)) {
+                $query->whereNotIn('sucursal_id', [3, 4, 7]);
+            } else {
+                $query->whereIn('sucursal_id', $sucursales);
+            }
+        }
 
         return response()->json([
-            "data" => $query
+            "data" => $query->get()
         ]);
     }
 

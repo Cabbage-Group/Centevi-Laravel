@@ -4,22 +4,30 @@ import API from '../../../config/config';
 
 export const fetchProximasCitasAgenda = createAsyncThunk(
     'proximasCitasAgenda/fetchProximasCitasAgenda',
-    async ({ month, year},{ rejectWithValue }) => {
+    async ({ month, year, sucursales = [] }, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API}/proximas-citas`, {
-                params: { month, year }, // Enviar los filtros a la API
+            const response = await axios.post(`${API}/proximas-citas`, {
+                month,
+                year,
+                sucursales
             });
-            const citasData = response.data.data || []; // Asegura que sea un array
+            const citasData = response.data.data || [];
 
-            console.log('citasData:', citasData);
-            console.log('Es array:', Array.isArray(citasData));
+            const sucursalColors = {
+                "CENTEVI El Dorado": "red",
+                "CENTEVI Consultorios Medicos Paitilla": "green",
+                "CENTEVI Centro Médico San Judas Tadeo": "#1677FF",
+                "Otros": "purple"
+            };
 
             return citasData.map(cita => ({
                 id: cita.id || `sin-id-${Math.random().toString(36).substr(2, 9)}`,
-                title: `${cita.origen_tabla?.toUpperCase() || 'SIN TABLA'} - Paciente: ${cita.paciente?.nombres || 'Sin Nombre'}`,
+                title: cita.paciente?.nombres || 'Sin Nombre',
                 start: cita.fecha_hora || new Date().toISOString(),
                 end: cita.fecha_hora || new Date().toISOString(),
-                badge: cita.tipo || 'Desconocido',
+                backgroundColor: sucursalColors[cita.sucursal?.nombre] || "purple",
+                borderColor: sucursalColors[cita.sucursal?.nombre] || "purple",
+                badge: cita?.sucursal?.nombre || 'Desconocido',
                 extendedProps: {
                     origen_id: cita.origen_id || 'Sin ID',
                     origen_tabla: cita.origen_tabla || 'Desconocido',
@@ -41,12 +49,14 @@ export const fetchProximasCitasAgenda = createAsyncThunk(
 );
 
 
+
 const proximasCitasAgendaSlice = createSlice({
     name: 'proximasCitasAgenda',
     initialState: {
         proximasCitasAgenda: [],
         loading: false,
         error: null,
+        currentView: 'dayGridMonth'
     },
     reducers: {
         addOrUpdateEvent: (state, action) => {
@@ -54,13 +64,15 @@ const proximasCitasAgendaSlice = createSlice({
                 (event) => event.id === action.payload.id
             );
             if (index !== -1) {
-                // Actualiza el evento existente
                 state.proximasCitasAgenda[index] = action.payload;
             } else {
-                // Agrega un nuevo evento
+
                 state.proximasCitasAgenda.push(action.payload);
             }
         },
+        setCurrentViewAgenda: (state, action) => {
+            state.currentView = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -69,15 +81,53 @@ const proximasCitasAgendaSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchProximasCitasAgenda.fulfilled, (state, action) => {
-                console.log('action.payload:', action.payload)
                 state.loading = false;
-                state.proximasCitasAgenda = action.payload;
+                const groupedEvents = {};
+
+                action.payload.forEach((event) => {
+                    const eventDate = new Date(event.start);
+
+                    const eventKey = state.currentView === 'dayGridMonth'
+                        ? eventDate.toDateString()
+                        : eventDate.getTime();
+
+                    if (!groupedEvents[eventKey]) {
+                        groupedEvents[eventKey] = [];
+                    }
+                    groupedEvents[eventKey].push(event);
+                });
+
+                const finalEvents = [];
+                const maxVisibleEvents = state.currentView === 'dayGridMonth' ? 5 :
+                    state.currentView === 'timeGridWeek' ? 2 :
+                        state.currentView === 'timeGridDay' ? 7 : 5;
+
+                Object.values(groupedEvents).forEach((eventsAtSameTime) => {
+                    if (eventsAtSameTime.length > maxVisibleEvents) {
+                        const displayedEvents = eventsAtSameTime.slice(0, maxVisibleEvents);
+                        const hiddenEvents = eventsAtSameTime.slice(maxVisibleEvents);
+
+                        const lastEventIndex = displayedEvents.length - 1;
+                        displayedEvents[lastEventIndex].extendedProps = {
+                            isMoreEvents: true,
+                            hiddenEvents: hiddenEvents
+                        };
+
+                        finalEvents.push(...displayedEvents);
+                    } else {
+                        finalEvents.push(...eventsAtSameTime);
+                    }
+                });
+
+                state.proximasCitasAgenda = finalEvents;
             })
+
+
             .addCase(fetchProximasCitasAgenda.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || 'Error desconocido';
             });
     }
 });
-export const { addOrUpdateEvent } = proximasCitasAgendaSlice.actions;
+export const { addOrUpdateEvent, setCurrentViewAgenda } = proximasCitasAgendaSlice.actions;
 export default proximasCitasAgendaSlice.reducer;

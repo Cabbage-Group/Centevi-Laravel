@@ -1,17 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
-import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col } from "antd";
+import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col, List } from "antd";
 import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import BotonesFiltroAgenda from "./components/BotonesFiltroAgenda";
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchServicios, fetchServiciosProximosAgenda } from "../../redux/features/servicios/serviciosSlice";
-import { addOrUpdateEvent, fetchProximasCitasAgenda } from "../../redux/features/proximas_citas/ProximasCitasAgendaSlice";
+import { addOrUpdateEvent, fetchProximasCitasAgenda, setCurrentViewAgenda } from "../../redux/features/proximas_citas/ProximasCitasAgendaSlice";
+import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
 
 
 dayjs.locale("es");
@@ -54,40 +55,58 @@ const VerAgenda = () => {
   const [eventBadge, setEventBadge] = useState("");
   const [tableName, setTableName] = useState("")
   const [consultaId, setConsultaId] = useState()
-  // const [currentView, setCurrentView] = useState("dayGridMonth");
-  const [currentView, setCurrentView] = useState("timeGridWeek");
+  const [currentView, setCurrentView] = useState("timeGridDay");
   const [currentEventId, setCurrentEventId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentDate, setCurrentDate] = useState(dayjs().format("MMMM YYYY"));
   const [currentDateAgenda, setCurrentDateAgenda] = useState(new Date());
+  const [groupedEvents, setGroupedEvents] = useState([]);
+  const [isGroupedModalOpen, setIsGroupedModalOpen] = useState(false);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const [selectedSucursales, setSelectedSucursales] = useState([]);
+
+  // const [month, setMonth] = useState(currentDateAgenda.getMonth() + 1);
+  // const [year, setYear] = useState(currentDateAgenda.getFullYear());
   const calendarRef = useRef(null);
+
 
   const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
 
   const { proximasCitasAgenda } = useSelector((state) => state.proximasCitasAgenda);
 
-  console.log('serviciosProximos_options:', serviciosProximos_options)
+  const { sucursales_with_colors } = useSelector((state) => state.sucursales);
 
-  // useEffect(() => {
-  //   dispatch(fetchServiciosProximosAgenda({
-  //     consulta_nombre: "optometriageneral",
-  //     consulta_id: 1500
-  //   }))
-  // }, [])
+
+
+
+  useEffect(() => {
+    dispatch(fetchSucursales({}))
+  }, [])
+
+  console.log('sucursales_with_colors:', sucursales_with_colors)
 
   useEffect(() => {
     const month = currentDateAgenda.getMonth() + 1;
     const year = currentDateAgenda.getFullYear();
-    dispatch(fetchProximasCitasAgenda({ month, year }));
-  }, [currentDateAgenda, dispatch]);
+    dispatch(fetchProximasCitasAgenda({ month, year, sucursales: selectedSucursales }));
+  }, [currentView, currentDateAgenda, selectedSucursales, dispatch]);
 
   const handleDateChange = (dateInfo) => {
-    const newDate = new Date(dateInfo.start);
+    const { view } = dateInfo;
+    let newDate = new Date(view.currentStart);
+    console.log('newDate:', newDate)
     if (currentDateAgenda.getMonth() !== newDate.getMonth() || currentDateAgenda.getFullYear() !== newDate.getFullYear()) {
-      console.log('entre')
       setCurrentDateAgenda(newDate);
     }
   };
+
+
+  const handleSucursalChange = (id) => {
+    setSelectedSucursales((prev) =>
+      prev.includes(id) ? prev.filter((sucursalId) => sucursalId !== id) : [...prev, id]
+    );
+  };
+
 
   const handleDateClick = (info) => {
     setIsEditMode(false);
@@ -100,26 +119,49 @@ const VerAgenda = () => {
   };
 
   const handleEventClick = (info) => {
-    const clickedEvent = proximasCitasAgenda.find(
-      (event) => event.id.toString() === info.event.id.toString()
+    const eventId = Number(info.event.id);
+
+    // if (info.extendedProps?.isMoreEvents) {
+    //   setGroupedEvents(info.extendedProps.hiddenEvents);
+    //   setIsGroupedModalOpen(true);
+    // } else {
+    //   console.log("Evento normal seleccionado:", info);
+    // }
+
+
+    let clickedEvent = proximasCitasAgenda.find(
+      (event) => Number(event.id) === eventId
     );
+
+    if (!clickedEvent) {
+      proximasCitasAgenda.forEach(event => {
+        if (event.extendedProps?.hiddenEvents) {
+          const foundInHidden = event.extendedProps.hiddenEvents.find(
+            (hiddenEvent) => Number(hiddenEvent.id) === eventId
+          );
+          if (foundInHidden) {
+            clickedEvent = foundInHidden;
+          }
+        }
+      });
+    }
+
     if (clickedEvent) {
       setIsEditMode(true);
       setCurrentEventId(clickedEvent.id);
       setEventTitle(clickedEvent.extendedProps.paciente);
       setNroCedula(clickedEvent.extendedProps.nro_cedula);
-      setDoctor(clickedEvent.extendedProps.doctor)
-      setSucursal(clickedEvent.extendedProps.sucursal)
+      setDoctor(clickedEvent.extendedProps.doctor);
+      setSucursal(clickedEvent.extendedProps.sucursal);
       setTableName(clickedEvent.extendedProps.origen_tabla);
       setConsultaId(clickedEvent.extendedProps.origen_id);
       setEventDescription(clickedEvent.extendedProps.comentarios || "");
-      setEventDates([
-        dayjs(clickedEvent.start)
-      ]);
+      setEventDates([dayjs(clickedEvent.start)]);
       setEventBadge(clickedEvent.badge || "");
       setIsModalOpen(true);
     }
   };
+
 
   useEffect(() => {
     if (tableName && consultaId) {
@@ -142,41 +184,6 @@ const VerAgenda = () => {
     setIsModalOpen(true);
   };
 
-
-  // HANDLE PARA RANGE DATE PICKER
-  // const handleCreateOrUpdateEvent = () => {
-  //   if (!eventTitle.trim()) return;
-
-  //   if (isEditMode && currentEventId) {
-  //     setEvents(events.map(event =>
-  //       event.id === currentEventId
-  //         ? {
-  //           ...event,
-  //           title: eventTitle,
-  //           start: eventDates[0].format("YYYY-MM-DD HH:mm"),
-  //           end: eventDates[1].format("YYYY-MM-DD HH:mm"),
-  //           description: eventDescription,
-  //           badge: eventBadge,
-  //         }
-  //         : event
-  //     ));
-  //   } else {
-  //     setEvents([
-  //       ...events,
-  //       {
-  //         id: Date.now().toString(),
-  //         title: eventTitle,
-  //         start: eventDates[0].format("YYYY-MM-DD HH:mm"),
-  //         end: eventDates[1].format("YYYY-MM-DD HH:mm"),
-  //         description: eventDescription,
-  //         badge: eventBadge,
-  //       },
-  //     ]);
-  //   }
-
-  //   setIsModalOpen(false);
-  //   resetForm();
-  // };
 
   const handleCreateOrUpdateEvent = () => {
     if (!eventTitle.trim()) return;
@@ -213,9 +220,11 @@ const VerAgenda = () => {
   };
 
   const changeView = (viewName) => {
+
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.changeView(viewName);
+      dispatch(setCurrentViewAgenda(viewName));
       setCurrentView(viewName);
     }
   };
@@ -249,10 +258,21 @@ const VerAgenda = () => {
     // { "name": "Consultorio Town Center Costa del Este", "color": "#88A04B" },
   ]
 
-
   useEffect(() => {
     dispatch(fetchServicios());
   }, []);
+
+  const handleShowMore = (hiddenEvents, event) => {
+    event.stopPropagation();
+
+    setModalPosition({
+      top: event.clientY,
+      left: event.clientX,
+    });
+
+    setGroupedEvents(hiddenEvents);
+    setIsGroupedModalOpen(true);
+  };
 
   return (
     <div
@@ -305,9 +325,14 @@ const VerAgenda = () => {
           }}
         >
           <Row gutter={[8, 2]}>
-            {categories.map((category) => (
-              <Col xxl={24} xl={24} md={24} >
-                <div key={category.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {sucursales_with_colors?.map((category) => (
+              <Col key={category.id} xxl={24} xl={24} md={24}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedSucursales.includes(category.id)}
+                    onChange={() => handleSucursalChange(category.id)}
+                  />
                   <div
                     style={{
                       width: 12,
@@ -322,7 +347,7 @@ const VerAgenda = () => {
             ))}
           </Row>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "15px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "70px" }}>
           <Space>
             <Button onClick={goToPrev} icon={<LeftOutlined />} />
             <Button onClick={goToNext} icon={<RightOutlined />} />
@@ -364,6 +389,7 @@ const VerAgenda = () => {
           dateClick={handleDateClick}
           eventClick={handleEventClick}
           events={proximasCitasAgenda}
+          eventDisplay="block"
           datesSet={handleDateChange}
           buttonText={{
             today: "Hoy",
@@ -386,37 +412,45 @@ const VerAgenda = () => {
             hour12: false,
             meridiem: 'short',
           }}
-          eventContent={(eventInfo) => {
-            const eventData = proximasCitasAgenda.find((e) => String(e.id) === String(eventInfo.event.id));
 
-            console.log('eventData:', eventData)
-            const badgeColor =
-              eventData && eventData.badge === "CENTEVI El Dorado"
-                ? "#ff4d4f"
-                : eventData && eventData.badge === "CENTEVI Centro Médico San Judas Tadeo"
-                  ? "#52c41a"
-                  : "#1890ff";
+          height="auto"
+          eventContent={(info) => {
+            const { hiddenEvents } = info.event.extendedProps;
+            const doctorName = info.event.extendedProps?.doctor || "No asignado";
+            const eventTime = info.timeText;
 
             return (
-              <div
-                style={{
-                  backgroundColor: badgeColor,
-                  color: "white",
-                  padding: "2px 4px",
-                  borderRadius: "3px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  width: "100%",
-                  height: "100%",
-                }}
-              >
-                {eventInfo.event.extendedProps.paciente}
+              <div>
+                <b>{eventTime} - {info.event.title}</b><br />
+                <small>{doctorName}</small>
+
+                {hiddenEvents && hiddenEvents.length > 0 && (
+                  <span
+                    style={{
+                      color: "black",
+                      cursor: "pointer",
+                      position: "absolute",
+                      bottom: "0px",
+                      right: "0px",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      backgroundColor: "white",
+                      padding: "2px 4px",
+                      borderRadius: "4px",
+                      whiteSpace: "nowrap"
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShowMore(hiddenEvents, e);
+                    }}
+                  >
+                    +{hiddenEvents.length} más
+                  </span>
+                )}
               </div>
             );
           }}
         />
-
       </div>
 
       <Modal
@@ -631,6 +665,50 @@ const VerAgenda = () => {
           </div>
         </div>
       </Modal>
+
+      <Modal
+        title="Eventos agrupados"
+        open={isGroupedModalOpen}
+        onCancel={() => setIsGroupedModalOpen(false)}
+        footer={null}
+        width={250}
+        style={{
+          position: "absolute",
+          top: modalPosition.top,
+          left: modalPosition.left,
+        }}
+      >
+        <List
+          dataSource={groupedEvents}
+          renderItem={(event) => (
+            <List.Item
+              style={{
+                cursor: "pointer",
+                padding: "6px",
+                marginBottom: "6px",
+                backgroundColor: event.backgroundColor,
+                borderLeft: `3px solid ${event.borderColor}`,
+                borderRadius: "6px",
+                color: "white",
+                fontSize: "12px", 
+              }}
+              onClick={() => {
+                setIsGroupedModalOpen(false);
+                handleEventClick({ event: { id: event.id } });
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                <strong style={{ fontSize: "11px" }}>{dayjs(event.start).format("HH:mm")}- {event.title}</strong>
+                <span style={{ fontSize: "10px", opacity: 0.7 }}>{event.extendedProps.doctor}</span>
+              </div>
+            </List.Item>
+          )}
+        />
+
+      </Modal>
+
+
+
     </div>
   );
 };

@@ -455,7 +455,7 @@ Route::get('/api/menciones/pacientes', [PacientesApiController::class, 'buscarPa
 
 Route::post('/api/proximas-citas/generar', [AgendaApiController::class, 'generarDataProximasCitas']);
 
-Route::get('/api/proximas-citas', [AgendaApiController::class, 'index']);
+Route::post('/api/proximas-citas', [AgendaApiController::class, 'verEventosAgenda']);
 
 Route::get('/api/proximos-servicios/baja-vision', [ServiciosApiController::class, 'getServiciosProximos']);
 

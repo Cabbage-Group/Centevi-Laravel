@@ -66,6 +66,7 @@ const sucursalesSlice = createSlice({
   initialState: {
     sucursales: [],
     sucursales_option_selects: [],
+    sucursales_with_colors: [],
     meta: {},
     metaSucursales: {},
     status: 'idle',
@@ -94,6 +95,33 @@ const sucursalesSlice = createSlice({
             } :
             { ...rest }
         );
+        const specialColors = {
+          7: "red",
+          3: "#1677FF",
+          4: "green"
+        };
+        const filteredSucursales = action.payload.data.filter(({ id_sucursal }) =>
+          [3, 4, 7].includes(id_sucursal)
+        ).map(({ id_sucursal, nombre }) => ({
+          id: id_sucursal,
+          name: nombre,
+          color: specialColors[id_sucursal]
+        }));
+
+        const otrosSucursales = action.payload.data.filter(({ id_sucursal }) =>
+          ![3, 4, 7].includes(id_sucursal)
+        );
+
+        if (otrosSucursales.length > 0) {
+          filteredSucursales.push({
+            id: "otros",
+            name: "Otros",
+            color: "purple"
+          });
+        }
+
+        state.sucursales_with_colors = filteredSucursales;
+
       })
       .addCase(fetchSucursales.rejected, (state, action) => {
         state.status = 'failed';

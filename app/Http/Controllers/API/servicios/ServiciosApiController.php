@@ -30,11 +30,10 @@ class ServiciosApiController extends Controller
 
       if (empty($consultaNombre)) {
         return response()->json([
-          'status' => 'error',
-          'message' => 'El nombre de la consulta es obligatorio.',
-        ], 400);
+          'status' => 'success',
+          'data' => [],
+        ], 200);
       }
-
       // Mapeo del nombre de la consulta a su respectivo modelo y relación con servicios
       $models = [
         'baja_vision' => [
@@ -53,10 +52,11 @@ class ServiciosApiController extends Controller
       // Verificar si la consulta es válida
       if (!isset($models[$consultaNombre])) {
         return response()->json([
-          'status' => 'error',
-          'message' => 'El nombre de consulta no es válido.',
-        ], 400);
+          'status' => 'success',
+          'data' => [], // Devuelve un array vacío
+        ], 200);
       }
+
 
       $modelClass = $models[$consultaNombre]['model'];
       $relationName = $models[$consultaNombre]['relation'];
@@ -72,9 +72,9 @@ class ServiciosApiController extends Controller
       // Verificar si se encontraron registros
       if ($query->isEmpty()) {
         return response()->json([
-          'status' => 'error',
-          'message' => 'No se encontraron servicios próximos para la consulta especificada.',
-        ], 404);
+          'status' => 'success',
+          'data' => [], // Devuelve un array vacío
+        ], 200);
       }
 
       // Transformar los datos de la consulta
@@ -85,7 +85,7 @@ class ServiciosApiController extends Controller
           'servicios_id' => $item->servicios_id,
           'servicio_codigo' => optional($item->servicio)->codigo,
           'servicio_nombre' => optional($item->servicio)->servicio,
-          'consulta_nombre' => optional($item->{$relationName})->nombre, // Tomar el nombre de la consulta según la relación
+          'consulta_nombre' => optional($item->{$relationName})->nombre,
         ];
       });
 
