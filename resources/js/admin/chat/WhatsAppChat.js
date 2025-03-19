@@ -5,22 +5,21 @@ import {
   SearchOutlined,
   EllipsisOutlined,
   CalendarOutlined,
-  CheckOutlined,
+  DeleteOutlined,
+  DiffOutlined
 
 } from '@ant-design/icons';
-import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import { MentionsInput, Mention } from "react-mentions";
 import { Link } from "react-router-dom";
-import { fetchPacientes, fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
+import { fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
 import '../../../css/chatMentions/styles.css'
 import { fetchOrdenesMenciones } from "../../redux/features/ordenes/ordenesSlice";
-import { use } from "react";
 
 const { Header, Content, Footer } = Layout;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 dayjs.locale("es");
 
@@ -37,6 +36,7 @@ const WhatsAppChat = () => {
   const [search, setSearch] = useState("");
   const [searchOrden, setSearchOrden] = useState("");
   const [searchType, setSearchType] = useState("orden");
+  const [input, setInput] = useState("");
   const {
     doctores_menciones
   } = useSelector((state) => state.usuarios);
@@ -272,13 +272,13 @@ const WhatsAppChat = () => {
 
   const ordenesMencionesFormatted = ordenes_menciones
     ? ordenes_menciones.map((orden) => ({
-      id: String(orden.id), // Convierte el ID a string
+      id: String(orden.id), 
       display: String(orden.display),
-      id_paciente: orden.id_paciente // Asegura que display también sea string
+      id_paciente: orden.id_paciente 
     }))
     : [];
 
-  const [input, setInput] = useState("");
+
   const messageEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -289,17 +289,25 @@ const WhatsAppChat = () => {
     scrollToBottom();
   }, [conversations[activeChat].messages]);
 
+  const openFileExplorer = () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.style.display = "none"; 
+    document.body.appendChild(fileInput);
+    fileInput.click();
+    fileInput.remove(); 
+  };
+
   const formatMessage = (message) => {
-    console.log('message:',message)
+    console.log('message:', message)
     return message.split(/(@\[[^\]]+\]\(\d+\)|#\[\d+\]\(\d+\))/g).map((part, index) => {
-      if (!part) return null; // Evita renderizar elementos vacíos
-  
-      // Detectar menciones de usuarios (@usuario)
+      if (!part) return null; 
+
       const mentionMatch = part.match(/@\[(.*?)\]\((\d+)\)/);
       if (mentionMatch) {
         const name = mentionMatch[1];
         const id = mentionMatch[2];
-  
+
         const isDoctor = doctores_menciones.some((doc) => doc.id.toString() === id);
         return (
           <Link
@@ -315,17 +323,15 @@ const WhatsAppChat = () => {
           </Link>
         );
       }
-  
-      // Detectar órdenes formateadas (#orden)
+
       const orderMatch = part.match(/#\[(\d+)\]\((\d+)\)/);
-      console.log('orderMatch:',orderMatch)
       if (orderMatch) {
-        const display = orderMatch[1]; // Número de orden visible
-        const id = orderMatch[2]; // ID real de la orden
+        const display = orderMatch[1]; 
+        const id = orderMatch[2]; 
         const orden = ordenesMencionesFormatted.find((o) => o.id.toString() === id);
-        console.log('orden3233333:',orden)
+        console.log('orden3233333:', orden)
         const idPaciente = orden ? orden.id_paciente : null;
-  
+
         return (
           <Link
             key={`order-${index}`}
@@ -340,15 +346,10 @@ const WhatsAppChat = () => {
           </Link>
         );
       }
-  
-      return part; // Retornar la parte del mensaje que no es mención ni orden
+
+      return part; 
     });
   };
-  
-
-
-
-
 
   const sendMessage = () => {
     if (input.trim() === "") return;
@@ -358,21 +359,18 @@ const WhatsAppChat = () => {
     console.log('activeChat:', activeChat)
     const updatedConversations = [...conversations];
 
-    // Add new message to the active chat
     updatedConversations[activeChat].messages.push({
       text: input,
       sender: "user",
       time
     });
 
-    // Update last message for the sidebar
     updatedConversations[activeChat].lastMessage = input;
     updatedConversations[activeChat].lastTime = time;
 
     setConversations(updatedConversations);
     setInput("");
 
-    // Simulate reply after a short delay
     setTimeout(() => {
       const reply = {
         text: "Ok, entendido 👍",
@@ -393,12 +391,6 @@ const WhatsAppChat = () => {
     if (e.key === 'Enter') {
       sendMessage();
     }
-  };
-
-  // WhatsApp-style timestamp formatter
-  const formatDate = () => {
-    const today = new Date();
-    return `${today.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}`;
   };
 
   const getAvatarColor = (index) => {
@@ -432,19 +424,14 @@ const WhatsAppChat = () => {
     };
   }, []);
 
-  console.log('allMenciones:', allMenciones)
-
-  console.log('ordenesMencionesFormatted:', ordenesMencionesFormatted)
   return (
 
     <Row
       className="h-screen"
       gutter={[32, 16]}
     >
-      {/* Left side - Conversations */}
       <Col xxl={8} xl={8} md={8} className="border-r">
         <Layout className="h-full flex flex-col" style={{ height: '90vh' }}>
-          {/* Conversations Header */}
           <Header
             style={{ padding: "0 20px", marginBottom: '10px', borderRadius: '6px', background: 'white' }}
             className="flex justify-between shadow-md"
@@ -714,7 +701,6 @@ const WhatsAppChat = () => {
                 
         `}</style>
 
-          {/* Input Area - Footer Fijo */}
           <Footer
             style={{
               padding: "8px 12px",
@@ -743,6 +729,23 @@ const WhatsAppChat = () => {
                   <CalendarOutlined style={{ color: "white" }} />
                 </div>
               </Col>
+              <Col>
+                <div
+                  onClick={openFileExplorer}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    backgroundColor: "#128C7E",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                >
+                  <DiffOutlined style={{ color: "white" }} />
+                </div>
+              </Col>
               <Col flex="auto">
                 <MentionsInput
                   className="mentions mentions--multiLine"
@@ -750,40 +753,22 @@ const WhatsAppChat = () => {
                   onChange={(e) => {
                     const value = e.target.value;
                     setInput(value);
-
-                    console.log("Valor ingresado:", value);
-
                     const orderMatch = value.match(/#(\w{2,})$/);
                     if (orderMatch) {
-                      console.log("Detectada orden:", orderMatch);
                       setSearchType("orden");
                       setSearchOrden(orderMatch[1]);
                       return;
                     }
 
                     const userMatch = value.match(/@(\w{2,})$/);
-                    console.log("Detectado usuario222222222222222222:", userMatch);
                     if (userMatch) {
                       console.log("Detectado usuario:", userMatch);
                       setSearchType("usuario");
                       setSearch(userMatch[1]);
                       return;
                     }
-
-
                     setSearch("");
                   }}
-
-                  // onChange={(e) => {
-                  //   const value = e.target.value;
-                  //   setInput(value);
-                  //   const match = value.match(/@(\w{2,})$/);
-                  //   if (match) {
-                  //     setSearch(match[1]);
-                  //   } else {
-                  //     setSearch("");
-                  //   }
-                  // }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -827,7 +812,6 @@ const WhatsAppChat = () => {
 
                   }}
                 >
-
                   <Mention
                     trigger="@"
                     data={searchType === "orden" ? [] : allMenciones}
@@ -842,7 +826,7 @@ const WhatsAppChat = () => {
 
                   <Mention
                     trigger="#"
-                    data={searchType === "usuario" ? [] : ordenesMencionesFormatted} 
+                    data={searchType === "usuario" ? [] : ordenesMencionesFormatted}
                     className="mentions__mention"
                     markup="#[__display__](__id__)"
                     displayTransform={(id, display) => `#${display}`}
@@ -852,18 +836,6 @@ const WhatsAppChat = () => {
                       </div>
                     )}
                   />
-
-                  {/* <Mention
-                    trigger="@"
-                    data={allMenciones}
-                    className="mentions__mention"
-                    displayTransform={(id, display) => `@${display}`}
-                    renderSuggestion={(suggestion) => (
-                      <div style={{ padding: "5px", cursor: "pointer" }}>
-                        {suggestion.display} {suggestion.type === "doctor" ? "🧑‍⚕️" : "🏥"}
-                      </div>
-                    )}
-                  /> */}
                 </MentionsInput>
               </Col>
               <Col>
