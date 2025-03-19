@@ -10,6 +10,14 @@ import {
 } from '@ant-design/icons';
 import { DeleteOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
+import { MentionsInput, Mention } from "react-mentions";
+import { Link } from "react-router-dom";
+import { fetchPacientes, fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
+import '../../../css/chatMentions/styles.css'
+import { fetchOrdenesMenciones } from "../../redux/features/ordenes/ordenesSlice";
+import { use } from "react";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
@@ -18,6 +26,7 @@ dayjs.locale("es");
 
 const WhatsAppChat = () => {
 
+  const dispatch = useDispatch();
   const [activeChat, setActiveChat] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +34,21 @@ const WhatsAppChat = () => {
   const [eventDates, setEventDates] = useState([dayjs(), dayjs().add(1, "day")]);
   const [eventDescription, setEventDescription] = useState("");
   const [eventTitle, setEventTitle] = useState("");
+  const [search, setSearch] = useState("");
+  const [searchOrden, setSearchOrden] = useState("");
+  const [searchType, setSearchType] = useState("orden");
+  const {
+    doctores_menciones
+  } = useSelector((state) => state.usuarios);
+
+  const {
+    pacientes_menciones
+  } = useSelector((state) => state.pacientes);
+
+  const {
+    ordenes_menciones
+  } = useSelector((state) => state.ordenes);
+
   const [conversations, setConversations] = useState([
     {
       id: 0,
@@ -216,6 +240,44 @@ const WhatsAppChat = () => {
     }
   ]);
 
+  useEffect(() => {
+    dispatch(fetchUsuarios({}))
+  }, [])
+
+  useEffect(() => {
+    if (searchOrden.length >= 2) {
+      dispatch(fetchOrdenesMenciones({ search: searchOrden }));
+    }
+  }, [searchOrden, dispatch]);
+
+
+  useEffect(() => {
+    if (search.length >= 2) {
+      dispatch(fetchPacientesMenciones({ search: search }));
+    }
+  }, [search, dispatch]);
+
+  const allMenciones = [
+    ...doctores_menciones.map((doc) => ({
+      id: doc.id.toString(),
+      display: doc.display,
+      type: "doctor",
+    })),
+    ...pacientes_menciones.map((pac) => ({
+      id: pac.id.toString(),
+      display: pac.display,
+      type: "paciente",
+    })),
+  ];
+
+  const ordenesMencionesFormatted = ordenes_menciones
+    ? ordenes_menciones.map((orden) => ({
+      id: String(orden.id), // Convierte el ID a string
+      display: String(orden.display),
+      id_paciente: orden.id_paciente // Asegura que display también sea string
+    }))
+    : [];
+
   const [input, setInput] = useState("");
   const messageEndRef = useRef(null);
 
@@ -226,6 +288,67 @@ const WhatsAppChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [conversations[activeChat].messages]);
+
+  const formatMessage = (message) => {
+    console.log('message:',message)
+    return message.split(/(@\[[^\]]+\]\(\d+\)|#\[\d+\]\(\d+\))/g).map((part, index) => {
+      if (!part) return null; // Evita renderizar elementos vacíos
+  
+      // Detectar menciones de usuarios (@usuario)
+      const mentionMatch = part.match(/@\[(.*?)\]\((\d+)\)/);
+      if (mentionMatch) {
+        const name = mentionMatch[1];
+        const id = mentionMatch[2];
+  
+        const isDoctor = doctores_menciones.some((doc) => doc.id.toString() === id);
+        return (
+          <Link
+            key={`mention-${index}`}
+            to={isDoctor ? `/doctores/${id}` : `/historia-paciente/${id}`}
+            style={{
+              color: isDoctor ? "#128C7E" : "#ff4500",
+              fontWeight: "bold",
+              textDecoration: "none",
+            }}
+          >
+            @{name}
+          </Link>
+        );
+      }
+  
+      // Detectar órdenes formateadas (#orden)
+      const orderMatch = part.match(/#\[(\d+)\]\((\d+)\)/);
+      console.log('orderMatch:',orderMatch)
+      if (orderMatch) {
+        const display = orderMatch[1]; // Número de orden visible
+        const id = orderMatch[2]; // ID real de la orden
+        const orden = ordenesMencionesFormatted.find((o) => o.id.toString() === id);
+        console.log('orden3233333:',orden)
+        const idPaciente = orden ? orden.id_paciente : null;
+  
+        return (
+          <Link
+            key={`order-${index}`}
+            to={`/orden-receta/${id}/${display}/${idPaciente}`}
+            style={{
+              color: "#0000ff",
+              fontWeight: "bold",
+              textDecoration: "none",
+            }}
+          >
+            #{display}
+          </Link>
+        );
+      }
+  
+      return part; // Retornar la parte del mensaje que no es mención ni orden
+    });
+  };
+  
+
+
+
+
 
   const sendMessage = () => {
     if (input.trim() === "") return;
@@ -309,6 +432,9 @@ const WhatsAppChat = () => {
     };
   }, []);
 
+  console.log('allMenciones:', allMenciones)
+
+  console.log('ordenesMencionesFormatted:', ordenesMencionesFormatted)
   return (
 
     <Row
@@ -542,7 +668,7 @@ const WhatsAppChat = () => {
                         alignItems: "flex-end",
                       }}
                     >
-                      <div style={{ wordBreak: "break-word" }}>{msg.text}</div>
+                      <div style={{ wordBreak: "break-word" }}> {formatMessage(msg.text)}</div>
 
                       {/* Contenedor de la hora y los check */}
                       <div
@@ -618,21 +744,127 @@ const WhatsAppChat = () => {
                 </div>
               </Col>
               <Col flex="auto">
-                <Input
+                <MentionsInput
+                  className="mentions mentions--multiLine"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Escribe un mensaje"
-                  // className="custom-input"
-                  style={{
-                    borderRadius: "20px",
-                    padding: "8px 12px",
-                    backgroundColor: "#EAEAEA",
-                    color: "black",
-                    border: "none",
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setInput(value);
+
+                    console.log("Valor ingresado:", value);
+
+                    const orderMatch = value.match(/#(\w{2,})$/);
+                    if (orderMatch) {
+                      console.log("Detectada orden:", orderMatch);
+                      setSearchType("orden");
+                      setSearchOrden(orderMatch[1]);
+                      return;
+                    }
+
+                    const userMatch = value.match(/@(\w{2,})$/);
+                    console.log("Detectado usuario222222222222222222:", userMatch);
+                    if (userMatch) {
+                      console.log("Detectado usuario:", userMatch);
+                      setSearchType("usuario");
+                      setSearch(userMatch[1]);
+                      return;
+                    }
+
+
+                    setSearch("");
                   }}
-                  bordered={false} // Oculta el borde
-                />
+
+                  // onChange={(e) => {
+                  //   const value = e.target.value;
+                  //   setInput(value);
+                  //   const match = value.match(/@(\w{2,})$/);
+                  //   if (match) {
+                  //     setSearch(match[1]);
+                  //   } else {
+                  //     setSearch("");
+                  //   }
+                  // }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage()
+                    }
+                  }}
+                  placeholder="Escribe un mensaje"
+                  style={{
+                    suggestions: {
+                      list: {
+                        position: 'absolute',
+                        bottom: '100%',
+                        marginBottom: '5px',
+                        backgroundColor: 'white',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                        zIndex: 10,
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                        width: '300px',
+                      }
+                    },
+                    control: {
+                      borderRadius: "10px",
+                      backgroundColor: "#EAEAEA",
+                      color: "black",
+                      border: "none",
+                      width: "100%",
+                      fontSize: "14px",
+                    },
+                    highlighter: {
+                      padding: "4px 10px",
+                    },
+                    input: {
+                      borderRadius: "10px",
+                      outline: "none",
+                      borderColor: "#EAEAEA",
+                      padding: "4px 10px",
+                    },
+
+                  }}
+                >
+
+                  <Mention
+                    trigger="@"
+                    data={searchType === "orden" ? [] : allMenciones}
+                    className="mentions__mention"
+                    displayTransform={(id, display) => `@${display}`}
+                    renderSuggestion={(suggestion) => (
+                      <div style={{ padding: "5px", cursor: "pointer" }}>
+                        {suggestion.display} {suggestion.type === "doctor" ? "🧑‍⚕️" : "🏥"}
+                      </div>
+                    )}
+                  />
+
+                  <Mention
+                    trigger="#"
+                    data={searchType === "usuario" ? [] : ordenesMencionesFormatted} 
+                    className="mentions__mention"
+                    markup="#[__display__](__id__)"
+                    displayTransform={(id, display) => `#${display}`}
+                    renderSuggestion={(suggestion) => (
+                      <div style={{ padding: "5px", cursor: "pointer" }}>
+                        Orden #{suggestion.display} 📄
+                      </div>
+                    )}
+                  />
+
+                  {/* <Mention
+                    trigger="@"
+                    data={allMenciones}
+                    className="mentions__mention"
+                    displayTransform={(id, display) => `@${display}`}
+                    renderSuggestion={(suggestion) => (
+                      <div style={{ padding: "5px", cursor: "pointer" }}>
+                        {suggestion.display} {suggestion.type === "doctor" ? "🧑‍⚕️" : "🏥"}
+                      </div>
+                    )}
+                  /> */}
+                </MentionsInput>
               </Col>
               <Col>
                 <div
@@ -653,8 +885,6 @@ const WhatsAppChat = () => {
                 </div>
               </Col>
             </Row>
-
-
             <style jsx>{`   
               input::placeholder, 
                 textarea::placeholder {

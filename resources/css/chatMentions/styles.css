@@ -1,0 +1,14 @@
+
+  .mentions__suggestions__item--focused {
+    background-color: #639551fe;
+    color: #fff;
+  }
+  .mentions__mention {
+    position: relative;
+    z-index: 1;
+    color: blue;
+    text-shadow: 1px 1px 1px white, 1px -1px 1px white, -1px 1px 1px white,
+      -1px -1px 1px white;
+    text-decoration: none;
+    pointer-events: none;
+  }

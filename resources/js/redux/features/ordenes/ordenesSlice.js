@@ -2,44 +2,6 @@ import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/too
 import axios from 'axios';
 import API from '../../../config/config.js';
 
-// export const fecthOrdenes = createAsyncThunk(
-//   'ordenes/fecthordenes',
-//   async ({
-//     page = '',
-//     limit = 10000000000000,
-//     sortOrder = 'desc',
-//     sortColumn = 'created_at',
-//     search = '',
-//     status = '',
-//     lenteContacto = '',
-//     pagado = '',
-//     sucursal = '',
-//     laboratorio = '',
-//     fase = '',
-//     startDate = '',
-//     endDate = '',
-//   }) => {
-//     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
-
-//     const response = await axios.post(`${API}/verOrdenes`,
-//       {
-//         page,
-//         limit,
-//         sortOrder,
-//         sortColumn,
-//         search,
-//         fecha,
-//         pagado,
-//         sucursal,
-//         status,
-//         lenteContacto,
-//         laboratorio,
-//         fase
-//       },);
-//     return response.data;
-//   }
-// );
-
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
   async ({
@@ -227,6 +189,17 @@ export const fetchContactoOrdenesDelPaciente = createAsyncThunk(
   }
 );
 
+export const fetchOrdenesMenciones = createAsyncThunk(
+  'ordenes/fetchOrdenesMenciones',
+  async ({ search = '' }) => {
+
+    const response = await axios.get(`${API}/search/ordenes`, {
+      params: { search }
+    });
+    return response.data;
+  }
+);
+
 
 
 const ordenesSlice = createSlice({
@@ -239,6 +212,7 @@ const ordenesSlice = createSlice({
     OrderIDPaciente: null,
     contactoOrden: [],
     ordenes_options_selecteds: [],
+    ordenes_menciones: [],
     nro_orden_auto: [],
     OrderId: null,
     total: 0,
@@ -286,7 +260,7 @@ const ordenesSlice = createSlice({
         state.total = action.payload.meta.total
         state.ordenes_options_selecteds = action.payload.data.map((
           { ordenes_id, nro_orden_id, nombres, apellidos, id_paciente, ...rest }) =>
-            id_paciente && nombres && apellidos
+          id_paciente && nombres && apellidos
             ? {
               value: ordenes_id,
               label: `Nro Orden: ${nro_orden_id} || Nombre: ${nombres.trim()} ${apellidos.trim()}`,
@@ -361,6 +335,9 @@ const ordenesSlice = createSlice({
       })
       .addCase(fetchContactoOrdenesDelPaciente.fulfilled, (state, action) => {
         state.contactoOrden = action.payload.data;
+      })
+      .addCase(fetchOrdenesMenciones.fulfilled, (state, action) => {
+        state.ordenes_menciones = action.payload.data;
       });
   },
 });

@@ -99,6 +99,7 @@ const usuariosSlice = createSlice({
     usuarios_doctores_options_selecteds: [],
     doctores_activados: [],
     asesores_activados: [],
+    doctores_menciones: [],
     meta: {},
     status: 'idle',
     error: null,
@@ -120,6 +121,12 @@ const usuariosSlice = createSlice({
           .map(doctor => ({
             value: doctor.id_usuario,
             label: doctor.nombre
+          }));
+        state.doctores_menciones = state.usuarios
+          .filter(usuario => usuario.perfil === "doctor" && usuario.estado === 1)
+          .map(doctor => ({
+            id: doctor.id_usuario,
+            display: doctor.nombre
           }));
         state.usuarios_activados = state.usuarios
           .filter(usuario => usuario.estado === 1);

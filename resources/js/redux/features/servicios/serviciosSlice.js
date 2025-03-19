@@ -16,10 +16,27 @@ export const fetchServicios = createAsyncThunk(
   }
 );
 
+export const fetchServiciosProximosAgenda = createAsyncThunk(
+  'servicios/fetchServiciosProximos',
+  async ({ consulta_nombre, consulta_id }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API}/proximos-servicios/baja-vision`, {
+        params: { consulta_nombre: consulta_nombre, consulta_id },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching servicios próximos:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const serviciosSlice = createSlice({
   name: 'servicios',
   initialState: {
     servicios: [],
+    serviciosProximos: [],
+    serviciosProximos_options: [],
     status: 'idle',
     error: null,
   },
@@ -32,11 +49,27 @@ const serviciosSlice = createSlice({
       })
       .addCase(fetchServicios.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.servicios = action.payload.data; 
+        state.servicios = action.payload.data;
       })
       .addCase(fetchServicios.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+      })
+      .addCase(fetchServiciosProximosAgenda.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchServiciosProximosAgenda.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.serviciosProximos = action.payload.data;
+        state.serviciosProximos_options = state.serviciosProximos
+        .map(servicios => ({
+          value: servicios.id,
+          label: servicios.servicio_codigo +  " | " +  servicios.servicio_nombre 
+        }));
+      })
+      .addCase(fetchServiciosProximosAgenda.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
   },
 });

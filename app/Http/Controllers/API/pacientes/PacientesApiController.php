@@ -2580,4 +2580,30 @@ class PacientesApiController extends Controller
       'success' => true
     ]);
   }
+
+  public function buscarPacientes(Request $request)
+  {
+    $query = $request->query('search');
+
+    if (!$query) {
+      return response()->json(['data' => []], 200); // Retorna un array vacío si no hay búsqueda
+    }
+
+    $pacientes = Pacientes::where('nombres', 'LIKE', "%{$query}%")
+      ->orWhere('apellidos', 'LIKE', "%{$query}%")
+      ->orWhere('nro_cedula', 'LIKE', "%{$query}%")
+      ->limit(10)
+      ->get(['id_paciente', 'nombres', 'apellidos']);
+
+    if ($pacientes->isEmpty()) {
+      return response()->json(['data' => []], 200); // Devuelve array vacío si no hay pacientes
+    }
+
+    return response()->json([
+      'data' => $pacientes->map(fn($p) => [
+        'id' => $p->id_paciente,
+        'display' => "{$p->nombres} {$p->apellidos}"
+      ])
+    ], 200);
+  }
 }

@@ -21,6 +21,17 @@ export const fetchPacientes = createAsyncThunk(
   }
 );
 
+export const fetchPacientesMenciones = createAsyncThunk(
+  'pacientes/fetchPacientesMenciones',
+  async ({ search = '' }) => {
+    
+    const response = await axios.get(`${API}/menciones/pacientes`, {
+      params: { search }
+    });
+    return response.data;
+  }
+);
+
 export const eliminarPaciente = createAsyncThunk(
   'pacientes/eliminarPaciente',
   async (id_paciente) => {
@@ -35,6 +46,7 @@ const pacientesSlice = createSlice({
     data: [],
     pacientes: [],
     pacientes_options_selecteds: [],
+    pacientes_menciones: [],
     meta: {},
     status: 'idle',
     error: null,
@@ -86,8 +98,12 @@ const pacientesSlice = createSlice({
         state.data = [];
         state.pacientes = [];
         state.pacientes_options_selecteds = [];
+      })
+      .addCase(fetchPacientesMenciones.fulfilled, (state, action) => {
+        state.pacientes_menciones = action.payload.data;
       });
   },
 });
 
 export default pacientesSlice.reducer;
+
