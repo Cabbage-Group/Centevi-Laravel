@@ -2145,14 +2145,14 @@ class OrdenesApiController extends Controller
       ->first();
 
     if ($orden) {
-        $orden = collect($orden)->map(function ($value, $key) {
-            if (in_array($key, ['nro_orden', 'ordenes_id', 'pagado', 'id_paciente', 'id_sucursal', 'lente_contacto', 'correccion'])) {
-                return (int) $value;
-            }
-            return $value;
-        })->toArray();
+      $orden = collect($orden)->map(function ($value, $key) {
+        if (in_array($key, ['nro_orden', 'ordenes_id', 'pagado', 'id_paciente', 'id_sucursal', 'lente_contacto', 'correccion'])) {
+          return (int) $value;
+        }
+        return $value;
+      })->toArray();
     }
-    
+
     if (!$orden) {
       return response()->json([
         'respuesta' => false,
@@ -2499,6 +2499,30 @@ class OrdenesApiController extends Controller
       'mensaje' => 'Órdenes obtenidas correctamente',
       'total' => $total,
       'data' => $ordenes
+    ], 200);
+  }
+
+  public function searchOrdenes(Request $request)
+  {
+    $query = $request->query('search');
+
+    if (!$query) {
+      return response()->json(['data' => []], 200);
+    }
+
+    $ordenes = Ordenes::where('nro_orden_id', 'LIKE', "%{$query}%")
+      ->limit(10)
+      ->get(['id_orden', 'nro_orden_id', 'id_paciente']);
+
+    if ($ordenes->isEmpty()) {
+      return response()->json(['data' => []], 200);
+    }
+    return response()->json([
+      'data' => $ordenes->map(fn($o) => [
+        'id' => $o->id_orden,
+        'display' => $o->nro_orden_id,
+        'id_paciente' => $o->id_paciente
+      ])
     ], 200);
   }
 }

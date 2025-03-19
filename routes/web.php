@@ -459,6 +459,8 @@ Route::post('/api/proximas-citas', [AgendaApiController::class, 'verEventosAgend
 
 Route::get('/api/proximos-servicios/baja-vision', [ServiciosApiController::class, 'getServiciosProximos']);
 
+Route::get('/api/search/ordenes', [OrdenesApiController::class, 'searchOrdenes']);
+
 Route::get('/{any}', function () {
   return view('app');
 })->where('any', '.*');

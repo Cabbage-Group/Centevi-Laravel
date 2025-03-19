@@ -25,7 +25,7 @@ export const fetchPacientesMenciones = createAsyncThunk(
   'pacientes/fetchPacientesMenciones',
   async ({ search = '' }) => {
     
-    const response = await axios.get(`${API}/pacientes/menciones`, {
+    const response = await axios.get(`${API}/menciones/pacientes`, {
       params: { search }
     });
     return response.data;
@@ -75,12 +75,6 @@ const pacientesSlice = createSlice({
             } :
             { ...rest }
         );
-        // state.pacientes_menciones = action.pacientes = state.pacientes
-        //   .map(paciente => ({
-        //     id: paciente.id_paciente,
-        //     display: paciente.nombres
-        //   }))
-
       })
       .addCase(fetchPacientes.rejected, (state, action) => {
         state.status = 'failed';
