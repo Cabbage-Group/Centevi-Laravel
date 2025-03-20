@@ -13,6 +13,7 @@ use App\Models\RefraccionGeneral;
 use App\Models\Sucursales;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AgendaApiController extends Controller
 {
@@ -43,6 +44,49 @@ class AgendaApiController extends Controller
 
     public function generarDataProximasCitas()
     {
+
+        DB::table('consultagenerica')->update([
+            'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
+        ]);
+        
+        DB::table('baja_vision')->update([
+            'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
+        ]);
+        
+        DB::table('optometria_neonatos')->update([
+            'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
+        ]);
+        
+        DB::table('optometria_pediatrica')->update([
+            'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
+        ]);
+        
+        DB::table('ortoptica_adultos')->update([
+            'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
+        ]);
+        
+        DB::table('refracciongeneral')->update([
+            'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
+        ]);
+
+        // UPDATE consultagenerica
+        // SET fecha_proxima_consulta = CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00');
+
+        // UPDATE baja_vision
+        // SET fecha_proxima_consulta = CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00');
+
+        // UPDATE optometria_neonatos
+        // SET fecha_proxima_consulta = CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00');
+
+        // UPDATE optometria_pediatrica
+        // SET fecha_proxima_consulta = CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00');
+
+        // UPDATE ortoptica_adultos
+        // SET fecha_proxima_consulta = CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00');
+
+        // UPDATE refracciongeneral
+        // SET fecha_proxima_consulta = CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00');
+
         $consultas = BajaVision::whereNotNull('fecha_proxima_consulta')->get();
 
         foreach ($consultas as $consulta) {
@@ -154,9 +198,7 @@ class AgendaApiController extends Controller
                     'tipo' => 'Consulta',
                 ]
             );
-        }
-
-
+        }      
 
         return response()->json(['message' => 'Proximas citas actualizadas correctamente']);
     }

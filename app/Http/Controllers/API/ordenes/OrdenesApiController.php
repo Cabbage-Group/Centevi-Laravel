@@ -46,7 +46,7 @@ class OrdenesApiController extends Controller
 
     // Query con búsqueda dinámica, filtro por lente_contacto y ordenamiento
     $query = Ordenes::with([
-      'paciente:id_paciente,nombres,celular,apellidos',
+      'paciente:id_paciente,nro_cedula,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
       'fasesOrdenes.tipoFaseOrden',
       'fasesOrdenes.usuario',
@@ -151,6 +151,7 @@ class OrdenesApiController extends Controller
         'elaborado_por_fase' => $ultimaFase->usuario->nombre ?? null,
         'siguiente_fase' => $siguienteFase,
         'id_paciente' => $orden->paciente->id_paciente,
+        'nro_cedula' => $orden->paciente->nro_cedula,
         'nombres' => $orden->paciente->nombres,
         'apellidos' => $orden->paciente->apellidos,
         'celular' => $orden->paciente->celular,

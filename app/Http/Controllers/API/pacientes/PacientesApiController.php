@@ -212,7 +212,7 @@ class PacientesApiController extends Controller
     $data = $request->all();
     $defaults = [
       'sucursal' => '1', //cambiar cuando se realize la parte de login
-      'doctor' => 'Pepe', //cambiar cuando se realize la parte de login
+      'doctor' => '', //cambiar cuando se realize la parte de login
       'nombres' => '',
       'apellidos' => '',
       'email' => '',

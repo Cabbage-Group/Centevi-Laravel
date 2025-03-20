@@ -487,6 +487,7 @@ const TableOrdenesCorrecciones = (
                 <th style={{ width: columnWidths.pagado }}>Pagado</th>
                 <th style={{ width: columnWidths.fecha }}>Fec. de Creación</th>
                 <th style={{ width: columnWidths.sucursal }}>Sucursal</th>
+                <th style={{ width: columnWidths.paciente }}>Cédula</th>
                 <th style={{ width: columnWidths.paciente }}>Paciente</th>
                 <th style={{ width: columnWidths.celular }}>Celular</th>
                 <th style={{ width: columnWidths.laboratorio }}>Laboratorio</th>
@@ -545,6 +546,9 @@ const TableOrdenesCorrecciones = (
                     </td>
                     <td onClick={() => console.log(orden)} >{orden?.created_at}</td>
                     <td>{orden?.sucursal?.replace("CENTEVI", "").trim()}</td>
+
+                    <td onClick={() => console.log(orden)}>{orden.nro_cedula}</td>
+
                     <td>
                       <Text
                         ellipsis={true}

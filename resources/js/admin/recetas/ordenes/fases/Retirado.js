@@ -11,6 +11,7 @@ import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrd
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
+import ValidarPermisos from '../../../../utils/ValidarPermisos';
 
 const Retirado = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
 
@@ -214,23 +215,28 @@ const Retirado = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
           >
             Se completó todas las fases
             <br />
-            <Link
-              to={isDisabled ? '#' : `/crear-correciones-ordenes`}
-              className="btn btn-warning btnEditarReceta"
-              state={{ pacienteOrden }}
-              style={{
-                display: 'inline-block',
-                marginTop: '10px',
-                padding: '10px 20px',
-                backgroundColor: '#ffc107',
-                color: '#000',
-                borderRadius: '5px',
-                textDecoration: 'none',
-              }}
+            {
+              ValidarPermisos(
+                "orden.corregirorden",
+                <Link
+                  to={isDisabled ? '#' : `/crear-correciones-ordenes`}
+                  className="btn btn-warning btnEditarReceta"
+                  state={{ pacienteOrden }}
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '10px',
+                    padding: '10px 20px',
+                    backgroundColor: '#ffc107',
+                    color: '#000',
+                    borderRadius: '5px',
+                    textDecoration: 'none',
+                  }}
 
-            >
-              Corregir orden
-            </Link>
+                >
+                  Corregir orden
+                </Link>
+              )
+            }
           </div>
         </Col>
 

@@ -667,7 +667,7 @@ const VerAgenda = () => {
       </Modal>
 
       <Modal
-        title="Eventos agrupados"
+        title="Proximas citas"
         open={isGroupedModalOpen}
         onCancel={() => setIsGroupedModalOpen(false)}
         footer={null}
