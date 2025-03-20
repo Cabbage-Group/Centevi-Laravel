@@ -6,7 +6,9 @@ import {
   EllipsisOutlined,
   CalendarOutlined,
   DeleteOutlined,
-  DiffOutlined
+  DiffOutlined,
+  DownloadOutlined,
+  FileOutlined
 
 } from '@ant-design/icons';
 import dayjs from "dayjs";
@@ -64,6 +66,13 @@ const WhatsAppChat = () => {
         { text: "Hola!", sender: "bot", time: "10:03" },
         { text: "¿Cómo estás?", sender: "bot", time: "10:04" },
         { text: "¿Nos vemos mañana en el café?", sender: "bot", time: "10:10" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -80,24 +89,15 @@ const WhatsAppChat = () => {
         { text: "Hola Juan!", sender: "bot", time: "Ayer" },
         { text: "Te llamé ayer", sender: "user", time: "Ayer" },
         { text: "Vale, hablamos luego", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
-    // {
-    //   id: 2,
-    //   name: "Grupo Familia",
-    //   status: "5 participantes",
-    //   avatar: "F",
-    //   unread: 5,
-    //   calendar: 10,
-    //   lastTimeCalendar: "2025-01-13 18:10:30",
-    //   lastTime: "09:45",
-    //   lastMessage: "Mamá: ¿Quién puede ir a comprar?",
-    //   messages: [
-    //     { text: "¿Alguien va a venir a comer el domingo?", sender: "bot", time: "09:30" },
-    //     { text: "Yo puedo!", sender: "user", time: "09:40" },
-    //     { text: "¿Quién puede ir a comprar?", sender: "bot", time: "09:45" },
-    //   ]
-    // },
     {
       id: 3,
       name: "Carlos Rodríguez",
@@ -110,6 +110,13 @@ const WhatsAppChat = () => {
         { text: "Buenos días", sender: "bot", time: "08:10" },
         { text: "Buenos días Carlos", sender: "user", time: "08:15" },
         { text: "Voy a llegar tarde a la reunión", sender: "bot", time: "08:20" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -124,6 +131,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -138,6 +152,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -152,6 +173,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -166,6 +194,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -180,6 +215,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -194,6 +236,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -208,6 +257,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -222,6 +278,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     },
     {
@@ -236,6 +299,13 @@ const WhatsAppChat = () => {
         { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
         { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
         { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
+        {
+          type: "file",
+          fileName: "documento.pdf",
+          fileUrl: "/files/documento.pdf",
+          sender: "user",
+          time: "10:15",
+        },
       ]
     }
   ]);
@@ -245,16 +315,12 @@ const WhatsAppChat = () => {
   }, [])
 
   useEffect(() => {
-    if (searchOrden.length >= 2) {
-      dispatch(fetchOrdenesMenciones({ search: searchOrden }));
-    }
+    dispatch(fetchOrdenesMenciones({ search: searchOrden }));
   }, [searchOrden, dispatch]);
 
 
   useEffect(() => {
-    if (search.length >= 2) {
-      dispatch(fetchPacientesMenciones({ search: search }));
-    }
+    dispatch(fetchPacientesMenciones({ search: search }));
   }, [search, dispatch]);
 
   const allMenciones = [
@@ -272,9 +338,9 @@ const WhatsAppChat = () => {
 
   const ordenesMencionesFormatted = ordenes_menciones
     ? ordenes_menciones.map((orden) => ({
-      id: String(orden.id), 
+      id: String(orden.id),
       display: String(orden.display),
-      id_paciente: orden.id_paciente 
+      id_paciente: orden.id_paciente
     }))
     : [];
 
@@ -290,18 +356,51 @@ const WhatsAppChat = () => {
   }, [conversations[activeChat].messages]);
 
   const openFileExplorer = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.style.display = "none"; 
-    document.body.appendChild(fileInput);
-    fileInput.click();
-    fileInput.remove(); 
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "*";
+    input.onchange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        sendFileMessage(file);
+      }
+    };
+    input.click();
   };
 
+  const sendFileMessage = (file) => {
+    const now = new Date();
+    const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+    const fileMessage = {
+      type: "file",
+      fileName: file.name,
+      fileUrl: URL.createObjectURL(file),
+      fileSize: `${(file.size / 1024).toFixed(2)} KB`, // Convertir bytes a KB
+      sender: "user",
+      time
+    };
+
+    const updatedConversations = [...conversations];
+    updatedConversations[activeChat].messages.push(fileMessage);
+    updatedConversations[activeChat].lastMessage = file.name;
+    updatedConversations[activeChat].lastTime = time;
+
+    setConversations(updatedConversations);
+  };
+
+
   const formatMessage = (message) => {
-    console.log('message:', message)
+    if (!message) return [""];
+
+    // Si el mensaje es un objeto (archivo), devuelve solo el nombre del archivo
+    if (typeof message === "object" && message.type === "file") {
+      return [`📎 Archivo adjunto: `, message.fileName];
+    }
+
+    if (typeof message !== "string") return [""];
     return message.split(/(@\[[^\]]+\]\(\d+\)|#\[\d+\]\(\d+\))/g).map((part, index) => {
-      if (!part) return null; 
+      if (!part) return null;
 
       const mentionMatch = part.match(/@\[(.*?)\]\((\d+)\)/);
       if (mentionMatch) {
@@ -326,8 +425,8 @@ const WhatsAppChat = () => {
 
       const orderMatch = part.match(/#\[(\d+)\]\((\d+)\)/);
       if (orderMatch) {
-        const display = orderMatch[1]; 
-        const id = orderMatch[2]; 
+        const display = orderMatch[1];
+        const id = orderMatch[2];
         const orden = ordenesMencionesFormatted.find((o) => o.id.toString() === id);
         console.log('orden3233333:', orden)
         const idPaciente = orden ? orden.id_paciente : null;
@@ -347,7 +446,7 @@ const WhatsAppChat = () => {
         );
       }
 
-      return part; 
+      return part;
     });
   };
 
@@ -655,7 +754,44 @@ const WhatsAppChat = () => {
                         alignItems: "flex-end",
                       }}
                     >
-                      <div style={{ wordBreak: "break-word" }}> {formatMessage(msg.text)}</div>
+                      <div style={{ wordBreak: "break-word" }}>
+                        {msg.type === "file" ? (
+                          <div
+                            style={{
+                              background: "#025E4D",
+                              padding: "10px",
+                              borderRadius: "10px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              maxWidth: "300px",
+                              color: "white",
+                            }}
+                          >
+                            <div>
+                              <FileOutlined style={{ fontSize: "30px", color: "white" }} />
+                            </div>
+                            <div style={{ flexGrow: 1 }}>
+                              <div style={{ fontWeight: "bold" }}>{msg.fileName}</div>
+                              <div style={{ fontSize: "12px", opacity: 0.8 }}>{msg.fileSize}</div>
+                            </div>
+                            <div>
+                              <a
+                                href={msg.fileUrl}
+                                download={msg.fileName}
+                                style={{ color: "white", fontSize: "20px" }}
+                              >
+                                <DownloadOutlined />
+                              </a>
+                            </div>
+                          </div>
+                        ) : (
+                          formatMessage(msg.text)
+                        )}
+                      </div>
+
+
+
 
                       {/* Contenedor de la hora y los check */}
                       <div
@@ -750,17 +886,19 @@ const WhatsAppChat = () => {
                 <MentionsInput
                   className="mentions mentions--multiLine"
                   value={input}
+                  allowSpaceInQuery={true}
                   onChange={(e) => {
                     const value = e.target.value;
                     setInput(value);
-                    const orderMatch = value.match(/#(\w{2,})$/);
+                    const orderMatch = value.match(/#(\w*)$/);
                     if (orderMatch) {
                       setSearchType("orden");
                       setSearchOrden(orderMatch[1]);
                       return;
                     }
 
-                    const userMatch = value.match(/@(\w{2,})$/);
+                    const userMatch = value.match(/@([^\n\r@#]*)$/);
+
                     if (userMatch) {
                       console.log("Detectado usuario:", userMatch);
                       setSearchType("usuario");
@@ -816,7 +954,11 @@ const WhatsAppChat = () => {
                     trigger="@"
                     data={searchType === "orden" ? [] : allMenciones}
                     className="mentions__mention"
-                    displayTransform={(id, display) => `@${display}`}
+                    displayTransform={(id, display) => {
+                      const mention = allMenciones.find((item) => item.id === id);
+                      const icon = mention?.type === "doctor" ? "🧑‍⚕️" : "🏥";
+                      return `@${display} ${icon}`;
+                    }}
                     renderSuggestion={(suggestion) => (
                       <div style={{ padding: "5px", cursor: "pointer" }}>
                         {suggestion.display} {suggestion.type === "doctor" ? "🧑‍⚕️" : "🏥"}
@@ -829,7 +971,7 @@ const WhatsAppChat = () => {
                     data={searchType === "usuario" ? [] : ordenesMencionesFormatted}
                     className="mentions__mention"
                     markup="#[__display__](__id__)"
-                    displayTransform={(id, display) => `#${display}`}
+                    displayTransform={(id, display) => `#${display}📄`}
                     renderSuggestion={(suggestion) => (
                       <div style={{ padding: "5px", cursor: "pointer" }}>
                         Orden #{suggestion.display} 📄
