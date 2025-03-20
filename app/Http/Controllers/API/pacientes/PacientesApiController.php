@@ -2583,20 +2583,26 @@ class PacientesApiController extends Controller
 
   public function buscarPacientes(Request $request)
   {
-    $query = $request->query('search');
+    $query = trim($request->query('search'));
 
     if (!$query) {
-      return response()->json(['data' => []], 200); // Retorna un array vacío si no hay búsqueda
+      return response()->json(['data' => []], 200);
     }
 
-    $pacientes = Pacientes::where('nombres', 'LIKE', "%{$query}%")
-      ->orWhere('apellidos', 'LIKE', "%{$query}%")
+    // Dividir la búsqueda en palabras
+    $terms = explode(' ', $query);
+
+    $pacientes = Pacientes::where(function ($q) use ($terms) {
+      foreach ($terms as $term) {
+        $q->whereRaw("CONCAT(nombres, ' ', apellidos) LIKE ?", ["%{$term}%"]);
+      }
+    })
       ->orWhere('nro_cedula', 'LIKE', "%{$query}%")
       ->limit(10)
       ->get(['id_paciente', 'nombres', 'apellidos']);
 
     if ($pacientes->isEmpty()) {
-      return response()->json(['data' => []], 200); // Devuelve array vacío si no hay pacientes
+      return response()->json(['data' => []], 200);
     }
 
     return response()->json([

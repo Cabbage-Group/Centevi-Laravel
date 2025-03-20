@@ -2507,20 +2507,22 @@ class OrdenesApiController extends Controller
     $query = $request->query('search');
 
     if (!$query) {
-      return response()->json(['data' => []], 200);
+      // Si no se pasa el parámetro 'search', devolver las últimas 10 órdenes creadas
+      $ordenes = Ordenes::latest()
+        ->limit(10)
+        ->get(['id_orden', 'nro_orden_id', 'id_paciente']);
+    } else {
+      // Si se pasa 'search', filtrar por 'nro_orden_id'
+      $ordenes = Ordenes::where('nro_orden_id', 'LIKE', "%{$query}%")
+        ->latest()
+        ->limit(10)
+        ->get(['id_orden', 'nro_orden_id', 'id_paciente']);
     }
 
-    $ordenes = Ordenes::where('nro_orden_id', 'LIKE', "%{$query}%")
-      ->limit(10)
-      ->get(['id_orden', 'nro_orden_id', 'id_paciente']);
-
-    if ($ordenes->isEmpty()) {
-      return response()->json(['data' => []], 200);
-    }
     return response()->json([
       'data' => $ordenes->map(fn($o) => [
-        'id' => $o->id_orden,
-        'display' => $o->nro_orden_id,
+        'id' => (string) $o->id_orden,
+        'display' => (string) $o->nro_orden_id,
         'id_paciente' => $o->id_paciente
       ])
     ], 200);
