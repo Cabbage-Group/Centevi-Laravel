@@ -87,7 +87,7 @@ import marcasSlice from './features/marcas/marcasSlice'
 import kpisTipoLenteSlice from './features/kpis/kpisTiposLente/kpisTiposLente';
 import tiposArosSlice from './features/tipos-aros/tiposArosSlice'
 import kpisTiposCristales from './features/kpis/kpisTiposCristales/kpisTiposCristalesSlice'
-import proximasCitasAgenda from './features/proximas_citas/ProximasCitasAgendaSlice'
+import citasAgenda from './features/citas/CitasAgendaSlice'
 
 
 
@@ -206,7 +206,7 @@ const store = configureStore({
 
     kpisTiposCristales: kpisTiposCristales,
 
-    proximasCitasAgenda: proximasCitasAgenda,
+    citasAgenda: citasAgenda,
 
    
 

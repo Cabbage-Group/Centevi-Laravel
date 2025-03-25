@@ -455,11 +455,13 @@ Route::get('/api/menciones/pacientes', [PacientesApiController::class, 'buscarPa
 
 Route::post('/api/proximas-citas/generar', [AgendaApiController::class, 'generarDataProximasCitas']);
 
-Route::post('/api/proximas-citas', [AgendaApiController::class, 'verEventosAgenda']);
+Route::post('/api/citas', [AgendaApiController::class, 'verEventosAgenda']);
 
-Route::get('/api/proximos-servicios/baja-vision', [ServiciosApiController::class, 'getServiciosProximos']);
+Route::get('/api/proximos-servicios/servicios-realizados', [ServiciosApiController::class, 'getServiciosProximos']);
 
 Route::get('/api/search/ordenes', [OrdenesApiController::class, 'searchOrdenes']);
+
+Route::post('/api/citas/agendar', [AgendaApiController::class, 'agendarCita']);
 
 Route::get('/{any}', function () {
   return view('app');

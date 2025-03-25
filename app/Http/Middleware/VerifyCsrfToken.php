@@ -210,11 +210,13 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/obtener-correcciones-ordenes/*',
 
-    'http://127.0.0.1:8000/api/proximas-citas',
+    'http://127.0.0.1:8000/api/citas',
 
     'http://127.0.0.1:8000/api/proximas-citas/generar',
 
     'http://127.0.0.1:8000/api/proximos-servicios/baja-vision/*',
+
+    'http://127.0.0.1:8000/api/citas/crear',
 
     
 

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\RefraccionGeneral;
 use App\Models\ServiciosProximosOptometriaGeneral;
 use App\Models\ServiciosRealizadosOptometriaGeneral;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class OptometriaGeneralApiController extends Controller
 {
@@ -22,7 +24,8 @@ class OptometriaGeneralApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_general' => 'array',
-      'servicios_proximos_optometria_general' => 'array'
+      'servicios_proximos_optometria_general' => 'array',
+      'fecha_proxima_consulta' => 'nullable|date' 
       // Otras validaciones aquí...
     ]);
 
@@ -62,6 +65,22 @@ class OptometriaGeneralApiController extends Controller
           ]);
         }
       }
+
+      if (!empty($request->fecha_proxima_consulta)) {
+        $fechaProxima = Carbon::parse($request->fecha_proxima_consulta)->setTime(12, 0, 0);
+        Citas::create([
+          'origen_id' => $refraccionGeneral->id_consulta,
+          'origen_tabla' => 'refraccion_general',
+          'fecha_hora' => $fechaProxima,
+          'tipo' => 'consulta',
+          'paciente_id' => $refraccionGeneral->paciente,
+          'doctor' => $refraccionGeneral->doctor,
+          'sucursal_id' => $refraccionGeneral->sucursal,
+          'ex_proxima_cita' => true,
+          'comentarios' => '' // Comentario vacío por el momento
+        ]);
+      }
+  
 
       return response()->json([
         'success' => true,

@@ -5,7 +5,11 @@ namespace App\Http\Controllers\API\servicios;
 use App\Http\Controllers\Controller;
 use App\Models\Servicio;
 use App\Models\ServiciosProximosBajaVision;
+use App\Models\ServiciosProximosHistoriasClinicas;
 use App\Models\ServiciosProximosOptometriaGeneral;
+use App\Models\ServiciosProximosOptometriaNeonatos;
+use App\Models\ServiciosProximosOptometriaPediatrica;
+use App\Models\ServiciosProximosOrtopticaAdultos;
 use Illuminate\Http\Request;
 
 class ServiciosApiController extends Controller
@@ -41,11 +45,31 @@ class ServiciosApiController extends Controller
           'relation' => 'bajavision',
           'foreign_key' => 'bajavision_id',
         ],
-        'optometria_general' => [
+        'refraccion_general' => [
           'model' => ServiciosProximosOptometriaGeneral::class,
           'relation' => 'optometriaGeneral',
           'foreign_key' => 'optometriageneral_id',
         ],
+        'consulta_generica' => [
+          'model' => ServiciosProximosHistoriasClinicas::class,
+          'relation' => 'historiaClinica',
+          'foreign_key' => 'historiaclinica_id',
+        ],
+        'optometria_neonatos' => [
+          'model' => ServiciosProximosOptometriaNeonatos::class,
+          'relation' => 'optometriaNeonatos',
+          'foreign_key' => 'optometriaNeonatos_id',
+        ],
+        'optometria_pediatrica' => [
+          'model' => ServiciosProximosOptometriaPediatrica::class,
+          'relation' => 'optometriaPediatrica',
+          'foreign_key' => 'optometriaPediatrica_id',
+        ],
+        'ortoptica_adultos' => [
+          'model' => ServiciosProximosOrtopticaAdultos::class,
+          'relation' => 'ortopticaAdultos',
+          'foreign_key' => 'ortopticaAdultos_id',
+        ]
         // Puedes seguir agregando más modelos aquí...
       ];
 

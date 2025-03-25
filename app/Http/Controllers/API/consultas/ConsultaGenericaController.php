@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\ConsultaGenerica;
 use App\Models\ServiciosRealizadosHistoriasClinicas;
 use App\Models\ServiciosProximosHistoriasClinicas;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+
 
 
 class ConsultaGenericaController extends Controller
@@ -24,7 +27,8 @@ class ConsultaGenericaController extends Controller
       'fecha_atencion' => 'required|date',
       'm_c' => 'required|string',
       'servicios_realizados_historias_clinicas' => 'array',
-      'servicios_proximos_historias_clinicas' => 'array'
+      'servicios_proximos_historias_clinicas' => 'array',
+      'fecha_proxima_consulta' => 'nullable|date' 
       // Otras validaciones aquí...
     ]);
 
@@ -64,6 +68,21 @@ class ConsultaGenericaController extends Controller
           'servicios_id' => $servicioId,
         ]);
       }
+    }
+
+    if (!empty($request->fecha_proxima_consulta)) {
+      $fechaProxima = Carbon::parse($request->fecha_proxima_consulta)->setTime(12, 0, 0);
+      Citas::create([
+        'origen_id' => $consultaGenerica->id_consulta,
+        'origen_tabla' => 'consulta_generica',
+        'fecha_hora' => $fechaProxima,
+        'tipo' => 'consulta',
+        'paciente_id' => $consultaGenerica->paciente,
+        'doctor' => $consultaGenerica->doctor,
+        'sucursal_id' => $consultaGenerica->sucursal,
+        'ex_proxima_cita' => true,
+        'comentarios' => '' // Comentario vacío por el momento
+      ]);
     }
 
     // Retornar la respuesta
@@ -191,7 +210,6 @@ class ConsultaGenericaController extends Controller
       $result = ConsultaGenerica::where($item, $valor)
         ->where($item2, $valor2)
         ->get(['id_consulta', 'fecha_creacion', 'doctor']);
-
     } else {
       // Consulta sin parámetros
       $result = ConsultaGenerica::all();
@@ -237,5 +255,4 @@ class ConsultaGenericaController extends Controller
   {
     return (new ConsultaGenerica())->getFillable();
   }
-
 }

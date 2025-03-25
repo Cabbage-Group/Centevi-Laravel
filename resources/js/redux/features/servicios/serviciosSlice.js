@@ -20,7 +20,7 @@ export const fetchServiciosProximosAgenda = createAsyncThunk(
   'servicios/fetchServiciosProximos',
   async ({ consulta_nombre, consulta_id }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API}/proximos-servicios/baja-vision`, {
+      const response = await axios.get(`${API}/proximos-servicios/servicios-realizados`, {
         params: { consulta_nombre: consulta_nombre, consulta_id },
       });
       return response.data;

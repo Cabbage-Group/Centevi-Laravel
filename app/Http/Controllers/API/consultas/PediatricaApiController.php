@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\OptometriaPediatrica;
 use App\Models\ServiciosRealizadosOptometriaPediatrica;
 use App\Models\ServiciosProximosOptometriaPediatrica;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class PediatricaApiController extends Controller
 {
@@ -22,7 +24,8 @@ class PediatricaApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_pediatrica' => 'array',
-      'servicios_proximos_optometria_pediatrica' => 'array'
+      'servicios_proximos_optometria_pediatrica' => 'array',
+      'fecha_proxima_consulta' => 'nullable|date' 
       // Agrega las reglas para los demás campos...
     ]);
 
@@ -62,6 +65,21 @@ class PediatricaApiController extends Controller
             'servicios_id' => $servicioId,
           ]);
         }
+      }
+
+      if (!empty($request->fecha_proxima_consulta)) {
+        $fechaProxima = Carbon::parse($request->fecha_proxima_consulta)->setTime(12, 0, 0);
+        Citas::create([
+          'origen_id' => $optometriaPediatrica->id_consulta,
+          'origen_tabla' => 'optometria_pediatrica',
+          'fecha_hora' => $fechaProxima,
+          'tipo' => 'consulta',
+          'paciente_id' => $optometriaPediatrica->paciente,
+          'doctor' => $optometriaPediatrica->doctor,
+          'sucursal_id' => $optometriaPediatrica->sucursal,
+          'ex_proxima_cita' => true,
+          'comentarios' => '' // Comentario vacío por el momento
+        ]);
       }
 
       return response()->json([

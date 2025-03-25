@@ -66,11 +66,6 @@ class RefraccionGeneral extends Model
     return $this->hasMany(ServiciosProximosOptometriaGeneral::class, 'optometriageneral_id');
   }
 
-  public function proximaCita()
-  {
-    return $this->morphOne(ProximasCitas::class, 'origen', 'origen_tabla', 'origen_id');
-  }
-
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'sucursal' => 'integer',
