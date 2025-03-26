@@ -214,8 +214,6 @@ const Ordenes = () => {
           { tipo_fase_orden_id: 0, status: 0 }
         );
 
-      console.log('Última fase creada:', lastPhase);
-
       let newStep = 0;
 
       if (lastPhase.tipo_fase_orden_id === 1) {
@@ -227,8 +225,6 @@ const Ordenes = () => {
       } else if (lastPhase.tipo_fase_orden_id === 4) {
         newStep = 3;
       }
-
-      console.log('Nuevo step:', newStep);
       setNivelStep(newStep);
       setInitialized(true);
     }

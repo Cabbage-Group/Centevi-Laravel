@@ -27,6 +27,8 @@ use App\Http\Controllers\API\materiales\MaterialesApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
+use App\Http\Controllers\API\proveedorMaterial\ProveedorDeMaterialController;
+use App\Http\Controllers\API\proveedorMaterial\ProveedorMaterialApiController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
 use App\Http\Controllers\API\terapias\Terapia_Bajav_ApiController;
 use App\Http\Controllers\API\terapias\Terapia_Optometria_Neonatos_ApiController;
@@ -462,6 +464,16 @@ Route::get('/api/proximos-servicios/servicios-realizados', [ServiciosApiControll
 Route::get('/api/search/ordenes', [OrdenesApiController::class, 'searchOrdenes']);
 
 Route::post('/api/citas/agendar', [AgendaApiController::class, 'agendarCita']);
+
+Route::get('/api/proveedor-material', [ProveedorMaterialApiController::class, 'index']);
+
+Route::get('/api/proveedor-material/{id}', [ProveedorMaterialApiController::class, 'show']);
+
+Route::post('/api/proveedor-material', [ProveedorMaterialApiController::class, 'store']);
+
+Route::put('/api/proveedor-material/{id}', [ProveedorMaterialApiController::class, 'update']);
+
+Route::delete('/api/proveedor-material/{id}', [ProveedorMaterialApiController::class, 'destroy']);
 
 Route::get('/{any}', function () {
   return view('app');

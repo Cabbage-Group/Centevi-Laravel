@@ -32,27 +32,21 @@ class MarcasApiController extends Controller
   public function create(Request $request)
   {
 
-    $validator = Validator::make($request->all(), [
-      'codigo' => 'required|string|max:100',
-      'nombre' => 'required|string|max:100',
+    $validatedData = $request->validate([
+      'codigo' => 'required|string|max:50|unique:marcas,codigo',
+      'nombre' => 'required|string|max:100|unique:marcas,nombre',
       'lente_contacto' => 'nullable|boolean',
+    ], [
+      'codigo.unique' => 'El código ya ha sido registrado. Por favor, usa otro.',
+      'nombre.unique' => 'El nombre ya está en uso. Intenta con otro nombre.',
     ]);
 
-    if ($validator->fails()) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Error de validación',
-        'errors' => $validator->errors(),
-      ], 422);
-    }
-
     try {
-      $cristales = new Marcas();
-      $cristales->codigo = $request->input('codigo');
-      $cristales->nombre = $request->input('nombre');
-      $cristales->lente_contacto = $request->input('lente_contacto', 0); // Asignar 0 si no se envía
-
-      $cristales->save();
+      $cristales = Marcas::create([
+        'codigo' => $validatedData['codigo'],
+        'nombre' => $validatedData['nombre'],
+        'lente_contacto' => $validatedData['lente_contacto'] ?? 0,
+      ]);
 
       return response()->json([
         'success' => true,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Select, Tooltip, Button } from 'antd';
+import { Col, Divider, Input, Row, Select, Tooltip, Button, Space } from 'antd';
 import moment from 'moment';
 import { ClockCircleTwoTone, ConsoleSqlOutlined } from '@ant-design/icons';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
@@ -8,6 +8,7 @@ import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tipos
 import { useParams, useLocation } from 'react-router-dom';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
+import { fetchProveedorMaterial } from '../../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
 
 const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
@@ -16,9 +17,11 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [faseOrdenId, setFaseOrdenId] = useState();
   const [laboratorio, setLaboratorio] = useState('');
+  const [proveedorMaterial, setProveedorMaterial] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [elaboradoFase, setElaboradoFase] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
+  const proveedor_material_options_selecteds = useSelector((state) => state.proveedorMaterial.proveedor_material_options_selecteds);
   const { orderId } = useParams();
   const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [celular, setCelular] = useState('');
@@ -32,6 +35,10 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
+
+  useEffect(() => {
+    dispatch(fetchProveedorMaterial())
+  }, [])
 
   useEffect(() => {
     if (pacienteOrden) {
@@ -100,6 +107,7 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
         if (faseOrden) {
           setLaboratorio(faseOrden.laboratorio);
           setObservaciones(faseOrden.observacion);
+          setProveedorMaterial(faseOrden.proveedor_material);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
           setFaseOrdenId(faseOrden.id);
@@ -114,13 +122,14 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
       tipo_fase_orden_id: tipoFaseId,
       laboratorio: laboratorio,
       observacion: observaciones,
+      proveedor_material: proveedorMaterial,
       fecha_fase: fechaActual,
       elaborado_por: usuarioId,
       created_at: fechaCreacion,
     };
     dispatch(actualizarDatosFase(nuevaFase));
 
-  }, [laboratorio, observaciones, fechaActual, tipoFaseId, fechaCreacion, status]);
+  }, [laboratorio, observaciones, fechaActual, tipoFaseId, fechaCreacion, status, proveedorMaterial]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -216,22 +225,45 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
     <div>
       <Row style={{ marginBottom: '20px' }} gutter={[16, 16]}>
         <Col xxl={12} xl={12} md={12}>
-          <label htmlFor="laboratorio">Selecciona el laboratorio</label>
-          <br />
-          <Select
-            showSearch
-            placeholder=""
-            options={opcionesLaboratorio}
-            style={{
-              width: '200px',
-              height: '30px',
-              color: 'black',
-              fontWeight: 'bold',
-              marginBottom: '20px',
-            }}
-            onChange={(value) => setLaboratorio(value)}
-            value={laboratorio}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div>
+              <label htmlFor="laboratorio">Selecciona el laboratorio</label>
+              <br />
+              <Select
+                showSearch
+                placeholder="Selecciona un laboratorio"
+                options={opcionesLaboratorio}
+                style={{
+                  width: '200px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setLaboratorio(value)}
+                value={laboratorio}
+              />
+            </div>
+
+            {!pacienteOrden?.lente_contacto && (
+              <div>
+                <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
+                <br />
+                <Select
+                  showSearch
+                  placeholder="Selecciona un proveedor"
+                  options={proveedor_material_options_selecteds}
+                  style={{
+                    width: '200px',
+                    height: '30px',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                  onChange={(value) => setProveedorMaterial(value)}
+                  value={proveedorMaterial}
+                />
+              </div>
+            )}
+          </div>
           <br />
           <label htmlFor="observaciones">Observaciones</label>
           <Input.TextArea
@@ -277,9 +309,7 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
             <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContacto
-              id_orden={orderId}
-            />
+            <VecesContacto id_orden={orderId} />
             <Button
               style={{ marginLeft: '10px' }}
               onClick={handleContactarPaciente}
@@ -290,6 +320,7 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
           </div>
         </Col>
       </Row>
+
     </div>
   );
 };

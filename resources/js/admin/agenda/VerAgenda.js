@@ -158,6 +158,9 @@ const VerAgenda = () => {
 
   const handleDateClick = (info) => {
     setIsEditMode(false);
+    form.setFieldsValue({
+      fechaAgenda: dayjs(info.dateStr)
+    });
     setCurrentEventId(null);
     setEventTitle("");
     setEventDescription("");
