@@ -670,6 +670,7 @@ class CorrecionesOrdenesController extends Controller
       'laboratorio' => 'nullable|string|max:45',
       'fecha_fase' => 'nullable|string|max:45',
       'observacion' => 'nullable|string|max:400',
+      'proveedor_material' => 'nullable|string|max:3000',
       'status' => 'nullable|integer|min:0|max:1',
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
     ]);
@@ -682,6 +683,7 @@ class CorrecionesOrdenesController extends Controller
       $updated = $existingFase->update([
         'laboratorio' => $validatedData['laboratorio'],
         'observacion' => $validatedData['observacion'],
+        'proveedor_material' => $validatedData['proveedor_material'],
         'fecha_fase' => $validatedData['fecha_fase'],
         'status' => $validatedData['status'] ?? $existingFase->status,
         'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\OptometriaNeonatos;
 use App\Models\ServiciosRealizadosOptometriaNeonatos;
 use App\Models\ServiciosProximosOptometriaNeonatos;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class NeonatosApiController extends Controller
 {
@@ -23,7 +23,9 @@ class NeonatosApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_neonatos' => 'array',
-      'servicios_proximos_optometria_neonatos' => 'array'
+      'servicios_proximos_optometria_neonatos' => 'array',
+      'servicios_proximos_historias_clinicas' => 'array',
+      'fecha_proxima_consulta' => 'nullable|date' 
       // Añadir validaciones para los demás campos necesarios
     ]);
 
@@ -55,6 +57,22 @@ class NeonatosApiController extends Controller
           ]);
         }
       }
+
+      if (!empty($request->fecha_proxima_consulta)) {
+        $fechaProxima = Carbon::parse($request->fecha_proxima_consulta)->setTime(12, 0, 0);
+        Citas::create([
+          'origen_id' => $neonato->id_consulta,
+          'origen_tabla' => 'optometria_neonatos',
+          'fecha_hora' => $fechaProxima,
+          'tipo' => 'consulta',
+          'paciente_id' => $neonato->paciente,
+          'doctor' => $neonato->doctor,
+          'sucursal_id' => $neonato->sucursal,
+          'ex_proxima_cita' => true,
+          'comentarios' => '' // Comentario vacío por el momento
+        ]);
+      }
+  
 
       return response()->json([
         'success' => true,

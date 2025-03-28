@@ -18,6 +18,7 @@ class FasesOrdenes extends Model
     'ordenes_id',
     'laboratorio',
     'observacion',
+    'proveedor_material',
     'fecha_fase',
     'status',
     'elaborado_por',

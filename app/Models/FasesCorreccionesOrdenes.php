@@ -18,6 +18,7 @@ class FasesCorreccionesOrdenes extends Model
     'correccion_ordenes_id',
     'laboratorio',
     'observacion',
+    'proveedor_material',
     'fecha_fase',
     'status',
     'created_at',

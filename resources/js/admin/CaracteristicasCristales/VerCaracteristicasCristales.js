@@ -22,6 +22,7 @@ import {
 } from "../../redux/features/tratamientos/tratamientosSlice";
 import { createMarcas, deleteMarcas, fetchMarcas, updateMarcas } from "../../redux/features/marcas/marcasSlice";
 import { createTiposAros, deleteTiposAros, fetchTiposAros, updateTiposAros } from "../../redux/features/tipos-aros/tiposArosSlice";
+import { createProveedorMaterial, deleteProveedorMaterial, fetchProveedorMaterial, updateProveedorMaterial } from "../../redux/features/proveedor-material/proveedorMaterialSlice";
 
 const CristalesMaterialesTratamientos = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const CristalesMaterialesTratamientos = () => {
   const { tratamientos } = useSelector((state) => state.tratamientos);
   const { tiposAros } = useSelector((state) => state.tiposAros)
   const { marcas_lente_contacto, marcas_lente_normal } = useSelector((state) => state.marcas)
+  const { proveedorMaterial } = useSelector((state) => state.proveedorMaterial)
 
   useEffect(() => {
     dispatch(fetchCristales());
@@ -46,6 +48,7 @@ const CristalesMaterialesTratamientos = () => {
     dispatch(fetchTratamientos());
     dispatch(fetchMarcas());
     dispatch(fetchTiposAros());
+    dispatch(fetchProveedorMaterial());
   }, [dispatch]);
 
   // Manejo del modal
@@ -65,22 +68,52 @@ const CristalesMaterialesTratamientos = () => {
   const handleSave = () => {
     form.validateFields().then(values => {
       if (editingItem) {
-        console.log('editingItem:', editingItem)
         if (selectedTable === "Cristales") dispatch(updateCristales({ id: editingItem.id, ...values }));
         if (selectedTable === "Materiales") dispatch(updateMateriales({ id: editingItem.id, ...values }));
         if (selectedTable === "Tratamientos") dispatch(updateTratamientos({ id: editingItem.id, ...values }));
         if (selectedTable === "MarcasLenteContacto") dispatch(updateMarcas({ id: editingItem.id, ...values }));
         if (selectedTable === "MarcasLenteNormal") dispatch(updateMarcas({ id: editingItem.id, ...values }));
         if (selectedTable === "TiposAros") dispatch(updateTiposAros({ id: editingItem.id, ...values }))
+        if (selectedTable === "ProveedorMaterial") dispatch(updateProveedorMaterial({ id: editingItem.id, ...values }))
         message.success("Actualizado correctamente!");
       } else {
         if (selectedTable === "Cristales") dispatch(createCristales(values));
         if (selectedTable === "Materiales") dispatch(createMateriales(values));
         if (selectedTable === "Tratamientos") dispatch(createTratamientos(values));
-        if (selectedTable === "MarcasLenteContacto") dispatch(createMarcas(values));
+        if (selectedTable === "MarcasLenteContacto") {
+          dispatch(createMarcas(values))
+            .unwrap()
+            .then(() => {
+              message.success("Creado correctamente!");
+              handleCancel();
+            })
+            .catch((error) => {
+              if (error.errors?.codigo) {
+                message.error("El código ya ha sido registrado.");
+              } else if (error.errors?.nombre) {
+                message.error("El nombre ya ha sido registrado.");
+              } else {
+                message.error("Error al crear la marca de lente de contacto.");
+              }
+            });
+        }
         if (selectedTable === "MarcasLenteNormal") dispatch(createMarcas(values));
         if (selectedTable === "TiposAros") dispatch(createTiposAros(values));
-        message.success("Creado correctamente!");
+        if (selectedTable === "ProveedorMaterial") {
+          dispatch(createProveedorMaterial(values))
+            .unwrap()
+            .then(() => {
+              message.success("Creado correctamente!");
+              handleCancel();
+            })
+            .catch((error) => {
+              if (error.errors?.nombre) {
+                message.error("El nombre ya ha sido registrado.");
+              } else {
+                message.error("Error al crear el proveedor de material.");
+              }
+            });
+        }
       }
       handleCancel();
     });
@@ -99,6 +132,7 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "MarcasLenteContacto") dispatch(deleteMarcas(id));
         if (selectedTable === "MarcasLenteNormal") dispatch(deleteMarcas(id));
         if (selectedTable === "TiposAros") dispatch(deleteTiposAros(id));
+        if (selectedTable === "ProveedorMaterial") dispatch(deleteProveedorMaterial(id));
         message.success("Eliminado correctamente!");
       }
     });
@@ -161,14 +195,15 @@ const CristalesMaterialesTratamientos = () => {
     Tratamientos: tratamientos || [],
     MarcasLenteContacto: marcas_lente_contacto || [],
     MarcasLenteNormal: marcas_lente_normal || [],
-    TiposAros: tiposAros || []
+    TiposAros: tiposAros || [],
+    ProveedorMaterial: proveedorMaterial || []
   };
 
 
   return (
     <div style={{ padding: "20px" }}>
       <Segmented
-        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal", "TiposAros"]}
+        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal", "TiposAros", "ProveedorMaterial"]}
         value={selectedTable}
         onChange={setSelectedTable}
         style={{ marginBottom: 20 }}

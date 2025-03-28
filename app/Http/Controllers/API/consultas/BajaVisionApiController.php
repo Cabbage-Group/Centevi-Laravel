@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API\consultas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BajaVision;
+use App\Models\Citas;
 use App\Models\ServiciosRealizadosBajaVision;
 use App\Models\ServiciosProximosBajaVision;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class BajaVisionApiController extends Controller
 {
@@ -22,7 +24,8 @@ class BajaVisionApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_baja_vision' => 'array',
-      'servicios_proximos_baja_vision' => 'array'
+      'servicios_proximos_baja_vision' => 'array',
+      'fecha_proxima_consulta' => 'nullable|date'
       // Otras validaciones aquí...
     ]);
 
@@ -62,13 +65,27 @@ class BajaVisionApiController extends Controller
       }
 
 
+      if (!empty($request->fecha_proxima_consulta)) {
+        $fechaProxima = Carbon::parse($request->fecha_proxima_consulta)->setTime(12, 0, 0);
+        Citas::create([
+          'origen_id' => $bajaVision->id_consulta,
+          'origen_tabla' => 'baja_vision',
+          'fecha_hora' => $fechaProxima,
+          'tipo' => 'consulta',
+          'paciente_id' => $bajaVision->paciente,
+          'doctor' => $bajaVision->doctor,
+          'sucursal_id' => $bajaVision->sucursal,
+          'ex_proxima_cita' => true,
+          'comentarios' => '' // Comentario vacío por el momento
+        ]);
+      }
+
+
       return response()->json([
         'success' => true,
         'message' => 'Registro creado exitosamente',
         'data' => $bajaVision,
       ], 201);
-
-
     } catch (\Exception $e) {
       return response()->json([
         'success' => false,
@@ -76,28 +93,6 @@ class BajaVisionApiController extends Controller
         'errors' => $e->getMessage(),
       ], 500);
     }
-
-    // Obtener todos los campos de la solicitud
-    // $datos = $request->all();
-
-
-
-    // // Rellenar campos no enviados con un valor adecuado
-    // foreach ($this->getFillable() as $field) {
-    //     if (!isset($datos[$field])) {
-    //         if (in_array($field, ['sucursal', 'paciente', 'id_terapia', 'edad'])) {
-    //             $datos[$field] = null; // Usa null para campos enteros
-    //         } else {
-    //             $datos[$field] = ''; // Usa string vacío para otros campos
-    //         }
-    //     }
-    // }
-
-    // $datos['fecha_creacion'] = now(); // Establecer la fecha actual
-
-    // // Crear el registro
-    // $bajaVision = BajaVision::create($datos);
-
   }
 
 
@@ -235,7 +230,4 @@ class BajaVisionApiController extends Controller
   {
     return (new BajaVision())->getFillable();
   }
-
 }
-
-

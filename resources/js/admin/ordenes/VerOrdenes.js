@@ -38,7 +38,6 @@ const VerOrdenes = () => {
   const [correctionsFilterLenteContacto, setCorrectionsFilterLenteContacto] = useState(lenteContactoCorreccion || []);
   const [isCorrections, setIsCorrections] = useState(changeOrden);
 
-  console.log('faseCorreccion:', faseCorreccion)
   const handleToggleCorrections = () => {
     setIsCorrections(!isCorrections);
   };

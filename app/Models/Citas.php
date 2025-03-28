@@ -5,19 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProximasCitas extends Model
+class Citas extends Model
 {
     use HasFactory;
 
-    protected $table = 'proximas_citas';
+    protected $table = 'citas';
     protected $fillable = [
+        'citas_id',
         'origen_id',
         'origen_tabla',
         'fecha_hora',
         'tipo',
         'paciente_id',
-        'doctor_id',
+        'doctor',
         'sucursal_id',
+        'ex_proxima_cita',
         'comentarios'
     ];
 

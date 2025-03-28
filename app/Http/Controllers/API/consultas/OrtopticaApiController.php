@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ServiciosRealizadosOrtopticaAdultos;
 use App\Models\ServiciosProximosOrtopticaAdultos;
 use App\Models\OrtopticaAdultos;
+use Carbon\Carbon;
 
 class OrtopticaApiController extends Controller
 {
@@ -22,7 +24,8 @@ class OrtopticaApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_ortoptica_adultos' => 'array',
-      'servicios_proximos_ortoptica_adultos' => 'array'
+      'servicios_proximos_ortoptica_adultos' => 'array',
+      'fecha_proxima_consulta' => 'nullable|date' 
       // Otras validaciones aquí...
     ]);
 
@@ -61,6 +64,21 @@ class OrtopticaApiController extends Controller
             'servicios_id' => $servicioId,
           ]);
         }
+      }
+
+      if (!empty($request->fecha_proxima_consulta)) {
+        $fechaProxima = Carbon::parse($request->fecha_proxima_consulta)->setTime(12, 0, 0);
+        Citas::create([
+          'origen_id' => $ortoptica->id_consulta,
+          'origen_tabla' => 'ortoptica_adultos',
+          'fecha_hora' => $fechaProxima,
+          'tipo' => 'consulta',
+          'paciente_id' => $ortoptica->paciente,
+          'doctor' => $ortoptica->doctor,
+          'sucursal_id' => $ortoptica->sucursal,
+          'ex_proxima_cita' => true,
+          'comentarios' => '' // Comentario vacío por el momento
+        ]);
       }
 
       return response()->json([

@@ -4,13 +4,12 @@ namespace App\Http\Controllers\API\agenda;
 
 use App\Http\Controllers\Controller;
 use App\Models\BajaVision;
+use App\Models\Citas;
 use App\Models\ConsultaGenerica;
 use App\Models\OptometriaNeonatos;
 use App\Models\OptometriaPediatrica;
 use App\Models\OrtopticaAdultos;
-use App\Models\ProximasCitas;
 use App\Models\RefraccionGeneral;
-use App\Models\Sucursales;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -23,8 +22,12 @@ class AgendaApiController extends Controller
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
         $sucursales = $request->input('sucursales', []);
+        $exProximaCita = $request->input('ex_proxima_cita', null);
+        $hasCitasId = $request->input('has_citas_id', null);
+        $citasIdNull = $request->input('citas_id_null', null);
+        $tipo = $request->input('tipo', null);
 
-        $query = ProximasCitas::with(['paciente:id_paciente,nombres,nro_cedula', 'sucursal:id_sucursal,nombre'])
+        $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono', 'sucursal:id_sucursal,nombre'])
             ->whereMonth('fecha_hora', $month)
             ->whereYear('fecha_hora', $year);
 
@@ -36,9 +39,65 @@ class AgendaApiController extends Controller
             }
         }
 
+        if (!is_null($exProximaCita)) {
+            $query->where('ex_proxima_cita', filter_var($exProximaCita, FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if (!is_null($hasCitasId) && filter_var($hasCitasId, FILTER_VALIDATE_BOOLEAN)) {
+            $query->whereNotNull('citas_id');
+        }
+
+        if (!is_null($citasIdNull) && filter_var($citasIdNull, FILTER_VALIDATE_BOOLEAN)) {
+            $query->whereNull('citas_id');
+        }
+
+        if (!is_null($tipo) && in_array($tipo, ['consulta', 'terapia'])) {
+            $query->where('tipo', $tipo);
+        }
+
         return response()->json([
             "data" => $query->get()
         ]);
+    }
+
+    public function agendarCita(Request $request)
+    {
+        $request->validate([
+            'origen_id' => 'required|integer',
+            'origen_tabla' => 'required|string',
+            'fecha_hora' => 'required|date',
+            'tipo' => 'required|in:consulta,terapia',
+            'paciente_id' => 'required|integer',
+            'doctor' => 'nullable|string',
+            'sucursal_id' => 'nullable|integer',
+            'comentarios' => 'nullable|string',
+            'cita_existente_id' => 'nullable|integer|exists:citas,id', // ID de la cita a actualizar
+        ]);
+
+        $nuevaCita = Citas::create([
+            'origen_id' => $request->origen_id,
+            'origen_tabla' => $request->origen_tabla,
+            'fecha_hora' => $request->fecha_hora,
+            'tipo' => $request->tipo,
+            'paciente_id' => $request->paciente_id,
+            'doctor' => $request->doctor,
+            'sucursal_id' => $request->sucursal_id,
+            'ex_proxima_cita' => false,
+            'comentarios' => $request->comentarios,
+        ]);
+
+        if ($request->cita_existente_id) {
+            $citaExistente = Citas::where('id', $request->cita_existente_id)->whereNull('citas_id')->first();
+
+            if ($citaExistente) {
+                $citaExistente->update(['citas_id' => $nuevaCita->id]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Cita creada exitosamente',
+            'nueva_cita' => $nuevaCita
+        ], 201);
     }
 
 
@@ -90,7 +149,7 @@ class AgendaApiController extends Controller
         $consultas = BajaVision::whereNotNull('fecha_proxima_consulta')->get();
 
         foreach ($consultas as $consulta) {
-            ProximasCitas::updateOrCreate(
+            Citas::updateOrCreate(
                 [
                     'origen_id' => $consulta->id_consulta,
                     'origen_tabla' => 'baja_vision'
@@ -109,7 +168,7 @@ class AgendaApiController extends Controller
         $consultasGenericas = ConsultaGenerica::whereNotNull('fecha_proxima_consulta')->get();
 
         foreach ($consultasGenericas as $consulta) {
-            ProximasCitas::updateOrCreate(
+            Citas::updateOrCreate(
                 [
                     'origen_id' => $consulta->id_consulta,
                     'origen_tabla' => 'consulta_generica'
@@ -128,7 +187,7 @@ class AgendaApiController extends Controller
         $consultasNeonatos = OptometriaNeonatos::whereNotNull('fecha_proxima_consulta')->get();
 
         foreach ($consultasNeonatos as $consulta) {
-            ProximasCitas::updateOrCreate(
+            Citas::updateOrCreate(
                 [
                     'origen_id' => $consulta->id_consulta,
                     'origen_tabla' => 'optometria_neonatos'
@@ -147,7 +206,7 @@ class AgendaApiController extends Controller
         $consultasOptometriaPediatrica = OptometriaPediatrica::whereNotNull('fecha_proxima_consulta')->get();
 
         foreach ($consultasOptometriaPediatrica as $consulta) {
-            ProximasCitas::updateOrCreate(
+            Citas::updateOrCreate(
                 [
                     'origen_id' => $consulta->id_consulta,
                     'origen_tabla' => 'optometria_pediatrica'
@@ -166,7 +225,7 @@ class AgendaApiController extends Controller
 
         $consultasOrtopticaAdultos = OrtopticaAdultos::whereNotNull('fecha_proxima_consulta')->get();
         foreach ($consultasOrtopticaAdultos as $consulta) {
-            ProximasCitas::updateOrCreate(
+            Citas::updateOrCreate(
                 [
                     'origen_id' => $consulta->id_consulta,
                     'origen_tabla' => 'ortoptica_adultos',
@@ -184,7 +243,7 @@ class AgendaApiController extends Controller
 
         $consultasRefraccionGeneral = RefraccionGeneral::whereNotNull('fecha_proxima_consulta')->get();
         foreach ($consultasRefraccionGeneral as $consulta) {
-            ProximasCitas::updateOrCreate(
+            Citas::updateOrCreate(
                 [
                     'origen_id' => $consulta->id_consulta,
                     'origen_tabla' => 'refraccion_general',

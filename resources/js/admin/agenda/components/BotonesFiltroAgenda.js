@@ -28,11 +28,11 @@ const estilos_btn = {
 const BotonesFiltroAgenda = (props) => {
 
   const {
-    lista_botones
+    lista_botones,
+    setSelectedIndex
   } = props
 
   const [index, setIndex] = useState(0)
-
   return (
 
     <div
@@ -48,12 +48,12 @@ const BotonesFiltroAgenda = (props) => {
         lista_botones.map((boton, i) => {
           return (
             <div
-              style={
-                index == i
-                  ? estilos_btn_seleccionado
-                  : estilos_btn
-              }
-              onClick={() => setIndex(i)}
+              key={i}
+              style={index === i ? estilos_btn_seleccionado : estilos_btn}
+              onClick={() => {
+                setIndex(i);
+                setSelectedIndex(i); 
+              }}
             >
               {boton}
             </div>

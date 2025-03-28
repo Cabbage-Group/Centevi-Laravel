@@ -8,6 +8,7 @@ import moment from 'moment';
 import { useLocation, useParams } from 'react-router-dom';
 import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
+import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
 
 const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
@@ -16,8 +17,10 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [faseOrdenId, setFaseOrdenId] = useState();
   const [laboratorio, setLaboratorio] = useState('');
+  const [proveedorMaterial, setProveedorMaterial] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
+  const proveedor_material_options_selecteds = useSelector((state) => state.proveedorMaterial.proveedor_material_options_selecteds);
   const { correccionOrderId } = useParams();
   const [celular, setCelular] = useState('');
   const [mensaje, setMensaje] = useState(
@@ -29,6 +32,11 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
   const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
+
+  useEffect(() => {
+    dispatch(fetchProveedorMaterial())
+  }, [])
+
 
   useEffect(() => {
     if (correcionOrden) {
@@ -83,6 +91,7 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
         if (faseOrden) {
           setLaboratorio(faseOrden.laboratorio);
           setObservaciones(faseOrden.observacion);
+          setProveedorMaterial(faseOrden.proveedor_material);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
           setFaseOrdenId(faseOrden.id)
@@ -97,12 +106,13 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
         tipo_fase_correccion_orden_id: tipoFaseId,
         laboratorio: laboratorio,
         observacion: observaciones,
+        proveedor_material: proveedorMaterial,
         fecha_fase: fechaActual,
         created_at: fechaCreacion,
       };
       dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
     }
-  }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch, fechaCreacion, status]);
+  }, [laboratorio, observaciones, fechaActual, proveedorMaterial, tipoFaseId, dispatch, fechaCreacion, status]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -124,8 +134,6 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
       mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
     }
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
-
-    console.log('telefonoFormateado:', telefonoFormateado)
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
@@ -199,22 +207,45 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
     <div>
       <Row style={{ marginBottom: '20px' }} gutter={[16, 16]}>
         <Col xxl={12} xl={12} md={12}>
-          <label htmlFor="laboratorio">Selecciona el laboratorio</label>
-          <br />
-          <Select
-            showSearch
-            placeholder=""
-            options={opcionesLaboratorio}
-            style={{
-              width: '200px',
-              height: '30px',
-              color: 'black',
-              fontWeight: 'bold',
-              marginBottom: '20px',
-            }}
-            onChange={(value) => setLaboratorio(value)}
-            value={laboratorio}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div>
+              <label htmlFor="laboratorio">Selecciona el laboratorio</label>
+              <br />
+              <Select
+                showSearch
+                placeholder="Selecciona un laboratorio"
+                options={opcionesLaboratorio}
+                style={{
+                  width: '200px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setLaboratorio(value)}
+                value={laboratorio}
+              />
+            </div>
+
+            {!correcionOrden?.lente_contacto && (
+              <div>
+                <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
+                <br />
+                <Select
+                  showSearch
+                  placeholder="Selecciona un proveedor"
+                  options={proveedor_material_options_selecteds}
+                  style={{
+                    width: '200px',
+                    height: '30px',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                  onChange={(value) => setProveedorMaterial(value)}
+                  value={proveedorMaterial}
+                />
+              </div>
+            )}
+          </div>
           <br />
           <label htmlFor="observaciones">Observaciones</label>
           <Input.TextArea
@@ -260,9 +291,9 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
             <span>{status || 'Sin estado'}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-            <VecesContactoCorrecciones 
+            <VecesContactoCorrecciones
               correcionOrden={correcionOrden}
-              id={correccionOrderId} 
+              id={correccionOrderId}
             />
             <Button
               style={{ marginLeft: '10px' }}

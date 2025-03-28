@@ -14,7 +14,6 @@ class TiposArosApiController extends Controller
     try {
       $tiposAros = TiposAros::all();
 
-      // Verificar la codificación de los datos
       foreach ($tiposAros as $tipoAro) {
         foreach ($tipoAro->getAttributes() as $key => $value) {
           if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
@@ -43,10 +42,9 @@ class TiposArosApiController extends Controller
 
   public function create(Request $request)
   {
-    // Validar la solicitud
     $validator = Validator::make($request->all(), [
-      'nombre' => 'required|string|max:100',
-    ]);
+      'nombre' => 'required|string|max:100|unique:tipos_aros,nombre',
+  ]);
 
     if ($validator->fails()) {
       return response()->json([
@@ -57,10 +55,8 @@ class TiposArosApiController extends Controller
     }
 
     try {
-      $tiposAros = new TiposAros();
-      $tiposAros->nombre = $request->input('nombre');
-      $tiposAros->save();
-
+      $tiposAros = TiposAros::create($request->only('nombre'));
+  
       return response()->json([
         'success' => true,
         'message' => 'tiposAros creado exitosamente',

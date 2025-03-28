@@ -19,14 +19,13 @@ export const fetchMarcas = createAsyncThunk(
 
 export const createMarcas = createAsyncThunk(
   'marcas/createMarcas',
-  async (values) => {
+  async (values, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API}/marcas`, values);
       return response.data;
     } catch (error) {
-
       console.error('Error creating marcas:', error.response.data);
-      throw error;
+      return rejectWithValue(error.response.data); 
     }
   }
 );
