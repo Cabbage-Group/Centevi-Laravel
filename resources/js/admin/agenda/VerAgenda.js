@@ -24,30 +24,6 @@ const VerAgenda = () => {
   const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [proximosServicios, setProximosServicios] = useState(serviciosProximos_options);
-  const [events, setEvents] = useState([
-    {
-      id: "1",
-      title: "Reunión de equipo",
-      start: "2025-03-13T10:00:00",
-      end: "2025-03-13T11:00:00",
-      badge: "Importante",
-    },
-    {
-      id: "2",
-      title: "Consulta médica",
-      start: "2025-03-13T14:00:00",
-      end: "2024-03-15T15:00:00",
-      badge: "Personal",
-    },
-    {
-      id: "3",
-      title: "Entrega de proyecto",
-      start: "2024-03-16T16:00:00",
-      end: "2024-03-16T17:00:00",
-      badge: "Trabajo",
-    },
-  ]);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState("");
   const [nroCedula, setNroCedula] = useState("");
@@ -58,6 +34,7 @@ const VerAgenda = () => {
   const [eventDates, setEventDates] = useState(dayjs());
   const [eventBadge, setEventBadge] = useState("");
   const [tableName, setTableName] = useState("");
+  const [agendado_por, setAgendadoPor] = useState("");
   const [sucursalId, setSucursalId] = useState();
   const [pacienteId, setPacienteId] = useState();
   const [consultaId, setConsultaId] = useState()
@@ -66,23 +43,23 @@ const VerAgenda = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentDate, setCurrentDate] = useState(dayjs().format("MMMM YYYY"));
   const [currentDateAgenda, setCurrentDateAgenda] = useState(new Date());
+  const [currentEndDateAgenda, setCurrentEndDateAgenda] = useState(new Date());
   const [groupedEvents, setGroupedEvents] = useState([]);
   const [isGroupedModalOpen, setIsGroupedModalOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [selectedSucursales, setSelectedSucursales] = useState([]);
   const [hideSunday, setHideSunday] = useState(true);
+  const usuario = localStorage.getItem("usuario");
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo.'
   );
 
   const calendarRef = useRef(null);
 
-
-
-
   const { citasAgenda } = useSelector((state) => state.citasAgenda);
 
   const { sucursales_with_colors } = useSelector((state) => state.sucursales);
+
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
@@ -95,8 +72,26 @@ const VerAgenda = () => {
   }, [serviciosProximos_options]);
 
   useEffect(() => {
-    const month = currentDateAgenda.getMonth() + 1;
-    const year = currentDateAgenda.getFullYear();
+    const startMonth = currentDateAgenda.getMonth() + 1;
+    const startYear = currentDateAgenda.getFullYear();
+    const endMonth = currentEndDateAgenda.getMonth() + 1;
+    const endYear = currentEndDateAgenda.getFullYear();
+
+    const months = [];
+    for (let m = startMonth; m <= (startYear === endYear ? endMonth : 12); m++) {
+      months.push(m);
+    }
+    if (startYear !== endYear) {
+      for (let m = 1; m <= endMonth; m++) {
+        months.push(m);
+      }
+    }
+
+    const years = [];
+    for (let y = startYear; y <= endYear; y++) {
+      years.push(y);
+    }
+
 
     let tipo = '';
     let ex_proxima_cita = false;
@@ -115,16 +110,31 @@ const VerAgenda = () => {
       ex_proxima_cita = true;
     }
 
-    dispatch(fetchCitasAgenda({ month, year, sucursales: selectedSucursales, tipo, ex_proxima_cita, citas_id_null }));
-  }, [currentView, currentDateAgenda, selectedSucursales, selectedIndex, dispatch]);
+    dispatch(fetchCitasAgenda({ months, years, sucursales: selectedSucursales, tipo, ex_proxima_cita, citas_id_null }));
+  }, [currentView, currentDateAgenda, selectedSucursales, currentEndDateAgenda, selectedIndex, dispatch]);
 
   const handleDateChange = (dateInfo) => {
     const { view } = dateInfo;
+    const newDateCalendar = dayjs(dateInfo.view.currentStart).format("MMMM YYYY");
     let newDate = new Date(view.currentStart);
-    if (currentDateAgenda.getMonth() !== newDate.getMonth() || currentDateAgenda.getFullYear() !== newDate.getFullYear()) {
+    let newEndDate = new Date(view.currentEnd);
+    setCurrentDate(newDateCalendar);
+
+    if (
+      currentDateAgenda.getMonth() !== newDate.getMonth() ||
+      currentDateAgenda.getFullYear() !== newDate.getFullYear()
+    ) {
       setCurrentDateAgenda(newDate);
     }
+    if (
+      currentEndDateAgenda.getMonth() !== newEndDate.getMonth() ||
+      currentEndDateAgenda.getFullYear() !== newEndDate.getFullYear()
+    ) {
+      setCurrentEndDateAgenda(newEndDate);
+    }
   };
+
+
 
 
   const handleSucursalChange = (id) => {
@@ -164,7 +174,7 @@ const VerAgenda = () => {
     setCurrentEventId(null);
     setEventTitle("");
     setEventDescription("");
-    setEventDates([dayjs(info.dateStr), dayjs(info.dateStr).add(1, "day")]);
+    setEventDates([dayjs(), dayjs().add(1, "day")]);
     setEventBadge("Trabajo");
     setIsModalOpen(true);
   };
@@ -202,11 +212,9 @@ const VerAgenda = () => {
       setSucursalId(clickedEvent.sucursal_id);
       setPacienteId(clickedEvent.paciente_id)
       setCelular(clickedEvent.celular);
+      setAgendadoPor(clickedEvent.agendado_por)
       setIsModalOpen(true);
-
-      console.log("Antes de setFieldsValue:", form.getFieldsValue());
-      console.log("serviciosProximos_options:", serviciosProximos_options);
-
+      console.log('clickedEvent', clickedEvent)
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente || "",
@@ -214,12 +222,11 @@ const VerAgenda = () => {
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
         fechaAgenda: dayjs(clickedEvent.start),
-        tipoAgenda: clickedEvent.tipo || ""
+        tipoAgenda: clickedEvent.tipo || "",
+        agendado_por: clickedEvent.agendado_por || ""
       });
-
+      console.log('')
       form.validateFields();
-
-      console.log("Después de setFieldsValue:", form.getFieldsValue());
     }
   };
 
@@ -283,9 +290,9 @@ const VerAgenda = () => {
           doctor: values.doctor,
           sucursal_id: sucursalId,
           comentarios: values.comentarios,
+          agendado_por: usuario
         };
-
-        console.log('result:', data);
+        console.log('data:', data)
         setIsModalOpen(false);
         dispatch(fetchAgendarCitas(data));
 
@@ -517,20 +524,33 @@ const VerAgenda = () => {
             hour12: false,
             meridiem: 'short',
           }}
-
+          slotDuration="00:20:00"
+          slotLabelInterval="00:30"
           height="auto"
           eventContent={(info) => {
-            const { hiddenEvents } = info.event.extendedProps;
-            const doctorName = info.event.extendedProps.doctor;
+            const { hiddenEvents, comentarios, doctor, tipo } = info.event.extendedProps;
             const eventTime = info.timeText;
-
-            // console.log('info:', info)
+            const isDayView = info.view.type === "timeGridDay";
+            const isWeekView = info.view.type === "timeGridWeek";
 
             return (
               <div>
-                <b>{eventTime} - {info.event.title}</b><br />
-                <small>{doctorName}</small>
-
+                <b
+                  style={{
+                    whiteSpace: "nowrap",
+                  }}>{eventTime} - {info.event.title}</b>
+                {isDayView && comentarios && (
+                  <span style={{ marginLeft: "6px", fontSize: "12px", fontWeight: "bold", color: "#FFD700" }}>
+                    ({comentarios})
+                  </span>
+                )}
+                <br />
+                <small style={{ display: "block", marginBottom: "4px", fontSize: "12px", fontWeight: "bold", color: "#ffffff" }}>
+                  🧑‍⚕️ {doctor}
+                </small>
+                <small style={{ display: "block", fontSize: "12px", fontWeight: "bold", color: "#87D3C8" }}>
+                  🩺 {tipo}
+                </small>
                 {hiddenEvents && hiddenEvents.length > 0 && (
                   <span
                     style={{
@@ -629,11 +649,15 @@ const VerAgenda = () => {
         >
 
           <label style={{ marginTop: '10px' }}>Agendado por:</label>
-          <Input
-            placeholder="Usuario Conectado"
-            style={{ marginBottom: "5px" }}
-            disabled
-          />
+          <Form.Item
+            name="agendado_por"
+          >
+            <Input
+              placeholder="agendado_por"
+              style={{ marginBottom: "5px" }}
+              disabled
+            />
+          </Form.Item>
 
           {/*  */}
           <Row gutter={[16, 16]}>
@@ -710,7 +734,20 @@ const VerAgenda = () => {
           </Form.Item>
           <Form.Item
             name="tipoAgenda"
-            rules={[{ required: true, message: "El tipo de agenda es requerido" }]}
+            rules={[
+              {
+                required: true,
+                message: "El tipo de agenda es requerido",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (value === "terapia" || value === "consulta") {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject("Debes seleccionar Terapias o Consultas");
+                },
+              }),
+            ]}
           >
             <Radio.Group>
               <Radio value="terapia">Terapias</Radio>
@@ -790,7 +827,6 @@ const VerAgenda = () => {
                     )
                   })
                 }
-
               </div>
             </div>
           </div>
@@ -829,8 +865,20 @@ const VerAgenda = () => {
               }}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <strong style={{ fontSize: "11px" }}>{dayjs(event.start).format("HH:mm")}- {event.title}</strong>
-                <span style={{ fontSize: "10px", opacity: 0.7 }}>{event.doctor}</span>
+                <strong style={{ fontSize: "11px" }}>
+                  {dayjs(event.start).format("HH:mm")} - {event.title}
+                  {currentView === "timeGridDay" && event.comentarios && (
+                    <span style={{ fontWeight: "normal", fontSize: "10px", color: "#FFD700" }}>
+                      {" "}({event.comentarios})
+                    </span>
+                  )}
+                </strong>
+                <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "#ffffff" }}>
+                  🧑‍⚕️ {event.doctor}
+                </span>
+                <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "#87D3C8" }}>
+                  🩺 {event.tipo}
+                </span>
               </div>
             </List.Item>
           )}

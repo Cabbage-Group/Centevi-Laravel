@@ -25,7 +25,8 @@ class OrtopticaApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_ortoptica_adultos' => 'array',
       'servicios_proximos_ortoptica_adultos' => 'array',
-      'fecha_proxima_consulta' => 'nullable|date' 
+      'fecha_proxima_consulta' => 'nullable|date',
+      'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
     ]);
 
@@ -72,12 +73,13 @@ class OrtopticaApiController extends Controller
           'origen_id' => $ortoptica->id_consulta,
           'origen_tabla' => 'ortoptica_adultos',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'consulta',
+          'tipo' => 'proxima cita',
           'paciente_id' => $ortoptica->paciente,
           'doctor' => $ortoptica->doctor,
           'sucursal_id' => $ortoptica->sucursal,
           'ex_proxima_cita' => true,
-          'comentarios' => '' // Comentario vacío por el momento
+          'comentarios' => '',
+          'agendado_por' => $request->agendado_por, 
         ]);
       }
 

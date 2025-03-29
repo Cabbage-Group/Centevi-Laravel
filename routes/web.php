@@ -475,6 +475,10 @@ Route::put('/api/proveedor-material/{id}', [ProveedorMaterialApiController::clas
 
 Route::delete('/api/proveedor-material/{id}', [ProveedorMaterialApiController::class, 'destroy']);
 
+Route::get('/api/usuario/conversaciones/{id}', [UsuariosApiController::class, 'getUserConversations']);
+
+Route::get('/api/usuarios/conversaciones/{id}', [UsuariosApiController::class, 'getUsersWithConversations']);
+
 Route::get('/{any}', function () {
   return view('app');
 })->where('any', '.*');

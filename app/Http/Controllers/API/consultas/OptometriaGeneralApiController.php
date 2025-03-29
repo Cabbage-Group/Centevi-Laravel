@@ -25,7 +25,8 @@ class OptometriaGeneralApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_general' => 'array',
       'servicios_proximos_optometria_general' => 'array',
-      'fecha_proxima_consulta' => 'nullable|date' 
+      'fecha_proxima_consulta' => 'nullable|date',
+      'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
     ]);
 
@@ -72,12 +73,13 @@ class OptometriaGeneralApiController extends Controller
           'origen_id' => $refraccionGeneral->id_consulta,
           'origen_tabla' => 'refraccion_general',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'consulta',
+          'tipo' => 'proxima cita',
           'paciente_id' => $refraccionGeneral->paciente,
           'doctor' => $refraccionGeneral->doctor,
           'sucursal_id' => $refraccionGeneral->sucursal,
           'ex_proxima_cita' => true,
-          'comentarios' => '' // Comentario vacío por el momento
+          'comentarios' => '',
+          'agendado_por' => $request->agendado_por, 
         ]);
       }
   

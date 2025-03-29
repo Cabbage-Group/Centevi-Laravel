@@ -12,23 +12,33 @@ use App\Models\OrtopticaAdultos;
 use App\Models\RefraccionGeneral;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
 
 class AgendaApiController extends Controller
 {
 
     public function verEventosAgenda(Request $request)
     {
-        $month = $request->input('month', Carbon::now()->month);
-        $year = $request->input('year', Carbon::now()->year);
+        $months = $request->input('months', [Carbon::now()->month]);
+        $years = $request->input('years', [Carbon::now()->year]);
         $sucursales = $request->input('sucursales', []);
         $exProximaCita = $request->input('ex_proxima_cita', null);
         $hasCitasId = $request->input('has_citas_id', null);
         $citasIdNull = $request->input('citas_id_null', null);
         $tipo = $request->input('tipo', null);
 
+        // Convertir a array si no lo es
+        if (!is_array($months)) {
+            $months = explode(',', $months);
+        }
+        if (!is_array($years)) {
+            $years = explode(',', $years);
+        }
+
         $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono', 'sucursal:id_sucursal,nombre'])
-            ->whereMonth('fecha_hora', $month)
-            ->whereYear('fecha_hora', $year);
+            ->whereIn(DB::raw('MONTH(fecha_hora)'), $months)
+            ->whereIn(DB::raw('YEAR(fecha_hora)'), $years);
 
         if (!empty($sucursales)) {
             if (in_array('otros', $sucursales)) {
@@ -59,6 +69,7 @@ class AgendaApiController extends Controller
         ]);
     }
 
+
     public function agendarCita(Request $request)
     {
         $request->validate([
@@ -70,6 +81,7 @@ class AgendaApiController extends Controller
             'doctor' => 'nullable|string',
             'sucursal_id' => 'nullable|integer',
             'comentarios' => 'nullable|string',
+            'agendado_por' => 'nullable|string',
             'cita_existente_id' => 'nullable|integer|exists:citas,id', // ID de la cita a actualizar
         ]);
 
@@ -81,8 +93,10 @@ class AgendaApiController extends Controller
             'paciente_id' => $request->paciente_id,
             'doctor' => $request->doctor,
             'sucursal_id' => $request->sucursal_id,
+            'agendado_por' => $request->agendado_por,
             'ex_proxima_cita' => false,
             'comentarios' => $request->comentarios,
+
         ]);
 
         if ($request->cita_existente_id) {
@@ -95,7 +109,8 @@ class AgendaApiController extends Controller
 
         return response()->json([
             'message' => 'Cita creada exitosamente',
-            'nueva_cita' => $nuevaCita
+            'nueva_cita' => $nuevaCita,
+            'cita_existente_id' => $request->cita_existente_id
         ], 201);
     }
 
