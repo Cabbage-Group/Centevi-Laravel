@@ -90,6 +90,45 @@ export const updateEstadoUsuario = createAsyncThunk(
   }
 );
 
+export const fetchUsuariosConversaciones = createAsyncThunk(
+  'usuarios/fetchUsuariosConversaciones',
+  async (id) => {
+    try {
+      const response = await axios.get(`${API}/usuarios/conversaciones/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching usuarios:', error.response.data);
+      throw error;
+    }
+  }
+);
+
+export const fetchUsuarioConversacionesMensajes = createAsyncThunk(
+  'usuarios/fetchUsuarioConversacionesMensajes',
+  async (id) => {
+    try {
+      const response = await axios.get(`${API}/usuario/conversaciones/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching usuario:', error.response.data);
+      throw error;
+    }
+  }
+);
+
+export const fetchConversacionesWebSocket = createAsyncThunk(
+  'usuarios/fetchConversacionesWebSocket',
+  async (id) => {
+    try {
+      const response = await axios.get(`${API}/chat/messages/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching usuario:', error.response.data);
+      throw error;
+    }
+  }
+);
+
 const usuariosSlice = createSlice({
   name: 'usuarios',
   initialState: {
@@ -100,6 +139,8 @@ const usuariosSlice = createSlice({
     doctores_activados: [],
     asesores_activados: [],
     doctores_menciones: [],
+    usuarios_conversaciones: [],
+    usuario_conversaciones_mensajes: [],
     meta: {},
     status: 'idle',
     error: null,
@@ -189,6 +230,15 @@ const usuariosSlice = createSlice({
       .addCase(createUsuario.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+      })
+      .addCase(fetchUsuariosConversaciones.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.usuarios_conversaciones = action.payload.data;
+      })
+      .addCase(fetchUsuarioConversacionesMensajes.fulfilled, (state, action) => {
+        console.log('action.payload:',action.payload)
+        state.status = 'succeeded';
+        state.usuario_conversaciones_mensajes = action.payload.data;
       });
   },
 });

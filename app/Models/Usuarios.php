@@ -46,6 +46,22 @@ class Usuarios extends Model
   {
     return $this->hasMany(ContactoOrden::class, 'usuario_id');
   }
+
+  public function mensajes()
+  {
+    return $this->hasMany(Mensajes::class, 'usuario_id', 'id_usuario');
+  }
+
+  public function conversacionesIniciadas()
+  {
+    return $this->hasMany(Conversaciones::class, 'usuario1Id', 'id_usuario');
+  }
+
+  public function conversacionesRecibidas()
+  {
+    return $this->hasMany(Conversaciones::class, 'usuario2Id', 'id_usuario');
+  }
+
   /**
    * The attributes that should be hidden for serialization.
    *
@@ -66,6 +82,4 @@ class Usuarios extends Model
     'editado' => 'date',
     'estado' => 'integer'
   ];
-
-
 }
