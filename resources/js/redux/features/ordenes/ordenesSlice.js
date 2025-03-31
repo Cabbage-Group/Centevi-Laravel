@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config.js';
+import API_LOCAL from '../../../config/configSvLocal.js';
 
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
@@ -144,6 +145,23 @@ export const verOrdenPdfSmall = createAsyncThunk(
   }
 );
 
+export const impricionAutomatica = createAsyncThunk(
+  'ordenes/imprimir-automatica',
+  async (orden, { rejectWithValue }) => {
+
+    try {
+
+      const response = await axios.get(`${API_LOCAL}/imprimir/${orden?.id_paciente}/${orden?.nro_orden_id}`)
+
+      return response
+
+    } catch (error) {
+      console.error('Error al visualizar la orden:', error.response?.data)
+      return rejectWithValue(error.response?.data || 'Error al obtener PDF')
+    }
+
+  }
+);
 
 export const updateOrden = createAsyncThunk(
   'ordenes/updateOrdenes',

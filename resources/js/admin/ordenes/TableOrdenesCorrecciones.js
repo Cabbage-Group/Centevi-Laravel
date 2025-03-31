@@ -4,9 +4,9 @@ import {
   EyeOutlined,
   WhatsAppOutlined
 } from '@ant-design/icons';
-import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall } from '../../redux/features/ordenes/ordenesSlice.js';
+import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall, impricionAutomatica } from '../../redux/features/ordenes/ordenesSlice.js';
 import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
-import { Modal, Tooltip, Skeleton, Table, Typography } from 'antd';
+import { Modal, Tooltip, Skeleton, Table, Typography, Button, message } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes.js';
@@ -48,6 +48,8 @@ const TableOrdenesCorrecciones = (
   const [showOrdenSmall, setShowOrdenSmall] = useState(false);
   const [urlPdfOrdenSmall, setUrlPdfOrdenSmall] = useState(null)
   const [loadingPdfSmall, setLoadingPdfSmall] = useState(false)
+  const [ordenSeleccionada, setOrdenSeleccionada] = useState({})
+  const [loadingImprecion, setLoadingImprecion] = useState(false)
   const {
     ordenes,
     status,
@@ -248,13 +250,15 @@ const TableOrdenesCorrecciones = (
     setLoadingPdfSize(false)
   }
 
-  const handleVerOrdenSmall = async (id_orden) => {
+  const handleVerOrdenSmall = async (id_orden, orden) => {
 
     try {
       setShowOrdenSmall(false)
       setLoadingPdfSmall(true)
       setShowOrdenSmall(true)
+      setOrdenSeleccionada(orden)
       const url = await dispatch(verOrdenPdfSmall(id_orden))
+
       if (url) {
         setUrlPdfOrdenSmall(url.payload)
       } else {
@@ -663,7 +667,7 @@ const TableOrdenesCorrecciones = (
                         </button>
 
                         <button
-                          onClick={() => handleVerOrdenSmall(orden.id_orden)}
+                          onClick={() => handleVerOrdenSmall(orden.id_orden, orden)}
                           className="btnAccionesOrdenes"
                           style={{ background: '#EFF5FF' }}
                         >
@@ -1136,6 +1140,33 @@ const TableOrdenesCorrecciones = (
         height='100%'
         centered={false}
       >
+
+        <div
+          style={{
+            textAlignLast: "center",
+            marginBottom: "15px"
+          }}
+          onClick={async () => {
+            setLoadingImprecion(true)
+            await dispatch(impricionAutomatica(ordenSeleccionada))
+            setLoadingImprecion(false)
+            setShowOrdenSmall(false)
+            setUrlPdfOrdenSmall(null)
+            message.success("Impreción completa !");
+          }}
+        >
+          <Button
+            loading={loadingImprecion} type='primary'
+            disabled={loadingImprecion}
+          >
+            {
+              loadingImprecion
+                ? "Imprimiendo"
+                : "Mandar a imprimir!"
+            }
+          </Button>
+        </div>
+
         {
           loadingPdfSmall
             ? <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -1171,6 +1202,8 @@ const TableOrdenesCorrecciones = (
             onClick={() => {
               setShowOrdenSmall(false)
               setUrlPdfOrdenSmall(null)
+              setLoadingImprecion(false)
+              setOrdenSeleccionada({})
             }}
             className='btn btn-danger'
           >Cerrar</button>

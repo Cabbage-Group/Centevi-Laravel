@@ -221,6 +221,10 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/proveedor-material',
 
     'http://127.0.0.1:8000/api/proveedor-material/*',
+    
+
+    
+    'http://127.0.0.1:8000/api/citas/agendar',
 
     
 
