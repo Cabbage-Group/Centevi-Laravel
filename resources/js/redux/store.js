@@ -89,6 +89,7 @@ import tiposArosSlice from './features/tipos-aros/tiposArosSlice'
 import kpisTiposCristales from './features/kpis/kpisTiposCristales/kpisTiposCristalesSlice';
 import citasAgenda from './features/citas/CitasAgendaSlice';
 import proveedorMaterialSlice from './features/proveedor-material/proveedorMaterialSlice';
+import chat from './features/mensajes/mensajesSlice'
 
 
 const store = configureStore({
@@ -208,9 +209,9 @@ const store = configureStore({
 
     citasAgenda: citasAgenda,
 
-    proveedorMaterial: proveedorMaterialSlice
+    proveedorMaterial: proveedorMaterialSlice,
 
-   
+    chat : chat
 
 
   }

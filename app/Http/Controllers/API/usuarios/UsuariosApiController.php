@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API\usuarios;
 
 use App\Http\Controllers\Controller;
+use App\Models\Conversacion;
+use App\Models\Conversaciones;
 use Illuminate\Http\Request;
 use App\Models\Usuarios;
 use Illuminate\Support\Facades\Hash;
@@ -192,7 +194,6 @@ class UsuariosApiController extends Controller
           'tipo_usuario_id' => intval($request->input('tipo_usuario_id', $usuario->tipo_usuario_id))
         ],
       ], 200);
-
     } catch (\Exception $e) {
       Log::error('Error al actualizar el usuario: ' . $e->getMessage());
 
@@ -286,7 +287,7 @@ class UsuariosApiController extends Controller
       $usuarioData = [
         'usuario' => $request->input('usuario'),
         'nombre' => $request->input('nombre'),
-        'password' => crypt($request->input('password'), '$2a$07$asxx54ahjppf45sd87a5a4dDDGsystemdev$'),// Usar bcrypt para encriptar la contraseña
+        'password' => crypt($request->input('password'), '$2a$07$asxx54ahjppf45sd87a5a4dDDGsystemdev$'), // Usar bcrypt para encriptar la contraseña
         'perfil' => $request->input('perfil'),
         'sucursal' => $request->input('sucursal'),
         'foto' => $fotoPath, // Guardar la URL de la imagen
@@ -334,7 +335,65 @@ class UsuariosApiController extends Controller
     return $codigoAleatorio;
   }
 
+public function getUserConversations($userId)
+{
+    // Buscar usuario
+    $usuario = Usuarios::find($userId);
+    if (!$usuario) {
+        return response()->json(['error' => 'Usuario no encontrado'], 404);
+    }
+
+    // Obtener conversaciones donde el usuario participa
+    $conversaciones = Conversaciones::where('usuario1Id', $userId)
+        ->orWhere('usuario2Id', $userId)
+        ->with([
+            'usuario1',
+            'usuario2',
+            'mensajes' => function ($query) {
+                $query->orderBy('creadoEn', 'asc')->limit(1000); // Últimos 10 mensajes
+            }
+        ])
+        ->orderBy('creadoEn', 'asc')
+        ->get();
+
+    return response()->json([
+        'data' => $conversaciones // Solo `data` con las conversaciones directamente
+    ], 200);
+}
+
+  
 
 
+  public function getUsersWithConversations($userId)
+  {
+    // Obtener todos los usuarios excepto el actual
+    $usuarios = Usuarios::where('id_usuario', '!=', $userId)
+      ->with(['conversacionesIniciadas', 'conversacionesRecibidas'])
+      ->get();
 
+    // Formatear la respuesta
+    $usuariosConConversaciones = $usuarios->map(function ($usuario) {
+      return [
+        'id_usuario' => $usuario->id_usuario,
+        'nombre' => $usuario->nombre,
+        'conversaciones' => ($usuario->conversacionesIniciadas ?? collect([]))
+          ->merge($usuario->conversacionesRecibidas ?? collect([]))
+          ->map(function ($conversacion) {
+            return [
+              'id' => $conversacion->id,
+              'usuario1Id' => $conversacion->usuario1_id, // Ajuste en nombre de clave
+              'usuario2Id' => $conversacion->usuario2_id,
+              'creado_en' => $conversacion->creado_en, // Ajuste en nombre de columna
+            ];
+          })->values(), // Asegura índices secuenciales en JSON
+      ];
+    })->values(); // Asegura índices secuenciales en JSON
+
+    // Retornar la respuesta con la clave `data`
+    return response()->json([
+      'data' => $usuariosConConversaciones,
+      'message' => 'Usuarios con conversaciones obtenidos correctamente',
+      'status' => 'success'
+    ]);
+  }
 }

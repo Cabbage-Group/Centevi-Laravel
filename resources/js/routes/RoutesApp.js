@@ -86,6 +86,9 @@ import KpisConsultasTerapiasDoctores from '../admin/kpis/KpisConsultasTerapias/k
 import KpisTiposCristales from '../admin/kpis/KpisTiposCristales/KpiTipoCristales.js';
 import VerAgenda from '../admin/agenda/VerAgenda.js';
 import WhatsAppChat from '../admin/chat/WhatsAppChat.js';
+import ChatScreen from '../../components/WebSocket.js';
+import ChatComponent from '../../components/WebSocket.js';
+import PruebaChat from '../admin/chat/PruebaChat.js';
 
 
 const RoutesApp = () => {
@@ -253,6 +256,8 @@ const RoutesApp = () => {
           <Route path="/ver-agenda" element={<Sidebar component={<VerAgenda />} />} />
 
           <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat/>} />} />
+
+          <Route path="/ver-socket" element={<Sidebar component={<ChatComponent/>} />} />
 
         </Route>
 
