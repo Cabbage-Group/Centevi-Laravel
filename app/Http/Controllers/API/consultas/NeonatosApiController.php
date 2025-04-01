@@ -25,7 +25,8 @@ class NeonatosApiController extends Controller
       'servicios_realizados_optometria_neonatos' => 'array',
       'servicios_proximos_optometria_neonatos' => 'array',
       'servicios_proximos_historias_clinicas' => 'array',
-      'fecha_proxima_consulta' => 'nullable|date' 
+      'fecha_proxima_consulta' => 'nullable|date',
+      'agendado_por' => 'required|string|max:255',
       // Añadir validaciones para los demás campos necesarios
     ]);
 
@@ -64,12 +65,13 @@ class NeonatosApiController extends Controller
           'origen_id' => $neonato->id_consulta,
           'origen_tabla' => 'optometria_neonatos',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'consulta',
+          'tipo' => 'proxima cita',
           'paciente_id' => $neonato->paciente,
           'doctor' => $neonato->doctor,
           'sucursal_id' => $neonato->sucursal,
           'ex_proxima_cita' => true,
-          'comentarios' => '' // Comentario vacío por el momento
+          'comentarios' => '',
+          'agendado_por' => $request->agendado_por, 
         ]);
       }
   

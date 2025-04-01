@@ -96,9 +96,9 @@ const sucursalesSlice = createSlice({
             { ...rest }
         );
         const specialColors = {
-          7: "red",
-          3: "#1677FF",
-          4: "green"
+          7: "#FBDDD9",
+          3: "#BCE9FB",
+          4: "#BEE9D3"
         };
         const filteredSucursales = action.payload.data.filter(({ id_sucursal }) =>
           [3, 4, 7].includes(id_sucursal)

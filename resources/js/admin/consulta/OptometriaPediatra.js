@@ -25,6 +25,7 @@ const OptometriaPediatra = () => {
   const initialValues = {
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
+    agendado_por: localStorage.getItem('nombre'),
     id_terapia: '0',
     paciente: '',
     edad: '0',

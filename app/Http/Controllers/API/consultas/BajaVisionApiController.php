@@ -10,6 +10,8 @@ use App\Models\ServiciosRealizadosBajaVision;
 use App\Models\ServiciosProximosBajaVision;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 class BajaVisionApiController extends Controller
 {
@@ -25,7 +27,8 @@ class BajaVisionApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_baja_vision' => 'array',
       'servicios_proximos_baja_vision' => 'array',
-      'fecha_proxima_consulta' => 'nullable|date'
+      'fecha_proxima_consulta' => 'nullable|date',
+      'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
     ]);
 
@@ -71,20 +74,23 @@ class BajaVisionApiController extends Controller
           'origen_id' => $bajaVision->id_consulta,
           'origen_tabla' => 'baja_vision',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'consulta',
+          'tipo' => 'proxima cita',
           'paciente_id' => $bajaVision->paciente,
           'doctor' => $bajaVision->doctor,
           'sucursal_id' => $bajaVision->sucursal,
           'ex_proxima_cita' => true,
-          'comentarios' => '' // Comentario vacío por el momento
+          'comentarios' => '',
+          'agendado_por' => $request->agendado_por, 
         ]);
       }
+      Log::info('Datos recibidos en la API:', $request->all()); 
 
 
       return response()->json([
         'success' => true,
         'message' => 'Registro creado exitosamente',
         'data' => $bajaVision,
+        'agendado_por' => $request->agendado_por
       ], 201);
     } catch (\Exception $e) {
       return response()->json([

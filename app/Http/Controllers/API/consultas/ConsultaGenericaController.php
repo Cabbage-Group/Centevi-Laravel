@@ -28,7 +28,8 @@ class ConsultaGenericaController extends Controller
       'm_c' => 'required|string',
       'servicios_realizados_historias_clinicas' => 'array',
       'servicios_proximos_historias_clinicas' => 'array',
-      'fecha_proxima_consulta' => 'nullable|date' 
+      'fecha_proxima_consulta' => 'nullable|date',
+      'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
     ]);
 
@@ -76,12 +77,13 @@ class ConsultaGenericaController extends Controller
         'origen_id' => $consultaGenerica->id_consulta,
         'origen_tabla' => 'consulta_generica',
         'fecha_hora' => $fechaProxima,
-        'tipo' => 'consulta',
+        'tipo' => 'proxima cita',
         'paciente_id' => $consultaGenerica->paciente,
         'doctor' => $consultaGenerica->doctor,
         'sucursal_id' => $consultaGenerica->sucursal,
         'ex_proxima_cita' => true,
-        'comentarios' => '' // Comentario vacío por el momento
+        'comentarios' => '',
+        'agendado_por' => $request->agendado_por, 
       ]);
     }
 

@@ -25,8 +25,9 @@ class PediatricaApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_pediatrica' => 'array',
       'servicios_proximos_optometria_pediatrica' => 'array',
-      'fecha_proxima_consulta' => 'nullable|date' 
-      // Agrega las reglas para los demás campos...
+      'fecha_proxima_consulta' => 'nullable|date',
+      'agendado_por' => 'required|string|max:255',
+  
     ]);
 
     if ($validator->fails()) {
@@ -73,12 +74,13 @@ class PediatricaApiController extends Controller
           'origen_id' => $optometriaPediatrica->id_consulta,
           'origen_tabla' => 'optometria_pediatrica',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'consulta',
+          'tipo' => 'proxima cita',
           'paciente_id' => $optometriaPediatrica->paciente,
           'doctor' => $optometriaPediatrica->doctor,
           'sucursal_id' => $optometriaPediatrica->sucursal,
           'ex_proxima_cita' => true,
-          'comentarios' => '' // Comentario vacío por el momento
+          'comentarios' => '',
+          'agendado_por' => $request->agendado_por, 
         ]);
       }
 

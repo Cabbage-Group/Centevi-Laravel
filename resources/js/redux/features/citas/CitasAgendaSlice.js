@@ -4,11 +4,11 @@ import API from '../../../config/config';
 
 export const fetchCitasAgenda = createAsyncThunk(
     'citasAgenda/fetchCitasAgenda',
-    async ({ month, year, ex_proxima_cita, has_citas_id, citas_id_null, tipo, sucursales = [] }, { rejectWithValue }) => {
+    async ({ months = [], years = [], ex_proxima_cita, has_citas_id, citas_id_null, tipo, sucursales = [] }, { rejectWithValue }) => {
         try {
             const response = await axios.post(`${API}/citas`, {
-                month,
-                year,
+                months,
+                years,
                 ex_proxima_cita,
                 has_citas_id,
                 citas_id_null,
@@ -18,9 +18,9 @@ export const fetchCitasAgenda = createAsyncThunk(
             const citasData = response.data.data || [];
 
             const sucursalColors = {
-                "CENTEVI El Dorado": "red",
-                "CENTEVI Consultorios Medicos Paitilla": "green",
-                "CENTEVI Centro Médico San Judas Tadeo": "#1677FF",
+                "CENTEVI El Dorado": "#FBDDD9",
+                "CENTEVI Consultorios Medicos Paitilla": "#BEE9D3",
+                "CENTEVI Centro Médico San Judas Tadeo": "#BCE9FB",
                 "Otros": "purple"
             };
 
@@ -42,7 +42,8 @@ export const fetchCitasAgenda = createAsyncThunk(
                 paciente: cita.paciente?.nombres || 'Sin Nombre',
                 sucursal: cita.sucursal?.nombre || 'Sin Sucursal',
                 celular: cita.paciente?.celular || "00000000",
-                comentarios: cita.comentarios?.trim() || 'Sin comentarios'
+                comentarios: cita.comentarios?.trim() || 'Sin comentarios',
+                agendado_por: cita.agendado_por?.trim() || 'Sin Usuario'
             }));
 
         } catch (error) {
@@ -57,6 +58,7 @@ export const fetchAgendarCitas = createAsyncThunk(
     async (data, { rejectWithValue }) => {
         try {
             const response = await axios.post(`${API}/citas/agendar`, data);
+
             return response.data;
 
         } catch (error) {
@@ -87,7 +89,6 @@ const citasAgendaSlice = createSlice({
             }
         },
         setCurrentViewAgenda: (state, action) => {
-            console.log('action.payload:', action.payload)
             state.currentView = action.payload;
         }
     },
@@ -120,9 +121,6 @@ const citasAgendaSlice = createSlice({
                     groupedEvents[eventKey].push(event);
                 });
 
-
-                console.log('groupedEvents:', groupedEvents);
-
                 const finalEvents = [];
                 const maxVisibleEvents = state.currentView === 'dayGridMonth' ? 5 :
                     state.currentView === 'timeGridDay' ? 5 : 2;
@@ -135,7 +133,6 @@ const citasAgendaSlice = createSlice({
 
                         const lastEventIndex = displayedEvents.length - 1;
                         const lastEvent = displayedEvents[lastEventIndex];
-                        console.log('lastEvent:', lastEvent)
                         displayedEvents[lastEventIndex].extendedProps = {
                             isMoreEvents: true,
                             hiddenEvents: hiddenEvents
@@ -146,15 +143,19 @@ const citasAgendaSlice = createSlice({
                         finalEvents.push(...eventsAtSameTime);
                     }
                 });
-
-
-
                 state.citasAgenda = finalEvents
             })
             .addCase(fetchCitasAgenda.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload || 'Error desconocido';
+            })
+            .addCase(fetchAgendarCitas.fulfilled, (state, action) => {
+                state.citasAgenda = state.citasAgenda.filter(cita => cita.id !== action.payload.cita_existente_id);
+         
             });
+
+
+
     }
 });
 export const { addOrUpdateEvent, setCurrentViewAgenda } = citasAgendaSlice.actions;
