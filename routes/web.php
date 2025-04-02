@@ -20,6 +20,7 @@ use App\Http\Controllers\API\agenda\AgendaApiController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
+use App\Http\Controllers\API\download\DownloadController;
 use App\Http\Controllers\API\email\EmailController;
 use App\Http\Controllers\API\kpis\KpisApiController;
 use App\Http\Controllers\API\marcas\MarcasApiController;
@@ -478,6 +479,10 @@ Route::delete('/api/proveedor-material/{id}', [ProveedorMaterialApiController::c
 Route::get('/api/usuario/conversaciones/{id}', [UsuariosApiController::class, 'getUserConversations']);
 
 Route::get('/api/usuarios/conversaciones/{id}', [UsuariosApiController::class, 'getUsersWithConversations']);
+
+Route::get('download/{fileId}', [DownloadController::class, 'download']);
+
+Route::post('/api/upload', [DownloadController::class, 'upload']);
 
 Route::get('/{any}', function () {
   return view('app');

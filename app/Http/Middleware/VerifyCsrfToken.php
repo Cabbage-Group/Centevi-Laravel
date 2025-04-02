@@ -230,6 +230,8 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/usuarios/conversaciones/*',
 
+    'http://127.0.0.1:8000/api/upload',
+
     
 
 

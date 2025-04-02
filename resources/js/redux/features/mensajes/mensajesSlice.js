@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import API from '../../../config/config.js';
 
 const API_URL = "http://localhost:3008";
 
@@ -12,19 +13,36 @@ export const fetchMessages = createAsyncThunk(
 );
 
 
+// export const uploadFile = createAsyncThunk(
+//   "chat/uploadFile",
+//   async (file) => {
+//     const formData = new FormData();
+//     formData.append("file", file);
+
+//     const response = await axios.post(`${API_URL}/upload`, formData, {
+//       headers: { "Content-Type": "multipart/form-data" },
+//     });
+
+//     return response.data;
+//   }
+// );
+
+
 export const uploadFile = createAsyncThunk(
   "chat/uploadFile",
   async (file) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post(`${API_URL}/upload`, formData, {
+    const response = await axios.post(`${API}/upload`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
     return response.data;
   }
 );
+
+
 
 const chatSlice = createSlice({
   name: "chat",

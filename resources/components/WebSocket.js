@@ -89,6 +89,7 @@ const ChatComponent = () => {
         if (fileToSend) {
             try {
                 const resultAction = await dispatch(uploadFile(fileToSend));
+                console.log('resultAction:',resultAction)
                 if (uploadFile.fulfilled.match(resultAction)) {
                     const fileData = resultAction.payload;
                     socket.emit(
@@ -156,7 +157,7 @@ const ChatComponent = () => {
     };
 
 
-
+    console.log('fileToSend.................:',fileToSend)
     return (
         <div>
             <WhatsAppChat
@@ -173,24 +174,6 @@ const ChatComponent = () => {
                 setFileToSend={setFileToSend}
 
             />
-            {/* {fileToSend && (
-                <div style={{ marginTop: "10px", textAlign: "center" }}>
-                    <p>📄 Archivo seleccionado: {fileToSend.name}</p>
-                    {filePreview ? (
-                        fileToSend.type.startsWith("image/") ? (
-                            <img src={filePreview} alt="Previsualización" style={{ maxWidth: "200px", maxHeight: "200px" }} />
-                        ) : (
-                            <pre style={{ maxWidth: "300px", overflow: "auto", background: "#f5f5f5", padding: "10px" }}>
-                                {filePreview}
-                            </pre>
-                        )
-                    ) : (
-                        <p>Vista previa no disponible</p>
-                    )}
-                    <button onClick={sendMessage} style={{ margin: "5px" }}>📤 Enviar archivo</button>
-                    <button onClick={clearFile} style={{ margin: "5px", backgroundColor: "red", color: "white" }}>❌ Cancelar</button>
-                </div>
-            )} */}
         </div>
     );
 };
