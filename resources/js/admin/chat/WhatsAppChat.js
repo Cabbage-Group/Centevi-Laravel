@@ -8,7 +8,8 @@ import {
   DeleteOutlined,
   DiffOutlined,
   DownloadOutlined,
-  FileOutlined
+  FileOutlined,
+  CloseOutlined
 
 } from '@ant-design/icons';
 import dayjs from "dayjs";
@@ -19,6 +20,8 @@ import { Link } from "react-router-dom";
 import { fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
 import '../../../css/chatMentions/styles.css'
 import { fetchOrdenesMenciones } from "../../redux/features/ordenes/ordenesSlice";
+import PdfThumbnail from "./PdfImage";
+import FilePreview from "./FilePreview";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -546,6 +549,8 @@ const WhatsAppChat = ({
     };
   }, []);
 
+  console.log('fileToSend:', fileToSend)
+
   return (
 
     <Row
@@ -731,91 +736,103 @@ const WhatsAppChat = ({
               </Button>
             )}
           </Header>
-          
-          <div
-            style={{
-              flexGrow: 1,
-              overflowY: "auto",
-              background: "white",
-              backgroundImage: "url('/img/fondo_wsp_blanco.jpg')",
-              backgroundRepeat: "repeat",
-              backgroundSize: "contain",
-            }}
-            className="custom-scroll"
-          >
-            <div className="p-4" style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
-              <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className="flex mb-1"
-                    style={{
-                      justifyContent: msg.usuarioId == id_usuario ? "flex-end" : "flex-start",
-                      display: "flex",
-                      alignItems: "flex-end",
-                    }}
-                  >
+          {fileToSend ? (
+            <div
+              style={{
+                background: "#E9EDEF",
+                height: "80vh",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+
+              }}
+            >
+              <CloseOutlined
+                onClick={() => setFileToSend(null)}
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  left: "8px",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  color: "#555"
+                }}
+              />
+              <h3 style={{ textAlign: "center", marginBottom: "20px" }}>{fileToSend.name}</h3>
+              <div
+                style={{
+                  display: "flex",
+                  overflow: "hidden",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  maxWidth: "100%",
+                  maxHeight: "80vh"
+                }}
+              >
+                <PdfThumbnail fileToSend={fileToSend} />
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                flexGrow: 1,
+                overflowY: "auto",
+                background: "white",
+                backgroundImage: "url('/img/fondo_wsp_blanco.jpg')",
+                backgroundRepeat: "repeat",
+                backgroundSize: "contain",
+                maxHeight: "calc(90vh - 120px)",
+              }}
+              className="custom-scroll"
+            >
+              <div className="p-4" style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
+                <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                  {messages.map((msg, index) => (
                     <div
-                      className="relative px-2 py-1 rounded-lg shadow-sm"
+                      key={index}
+                      className="flex mb-1"
                       style={{
-                        backgroundColor: msg.usuarioId == id_usuario ? "#005C4B" : "#202C33",
-                        color: "#FFFFFF",
-                        maxWidth: "75%",
-                        textAlign: "left",
-                        borderRadius: "8px",
-                        boxShadow: "0px 1px 2px rgba(150, 35, 35, 0.2)",
+                        justifyContent: msg.usuarioId == id_usuario ? "flex-end" : "flex-start",
                         display: "flex",
                         alignItems: "flex-end",
                       }}
                     >
-                      <div style={{ wordBreak: "break-word" }}>
-                        {msg.tipoArchivo === "application/pdf" ? (
-                          <div
-                            style={{
-                              background: "#025E4D",
-                              padding: "10px",
-                              borderRadius: "10px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              maxWidth: "300px",
-                              color: "white",
-                            }}
-                          >
-                            <FileOutlined style={{ fontSize: "30px", color: "white" }} />
-                            <div>
-                              <div style={{ fontWeight: "bold" }}>{msg.nombreArchivo}</div>
-                              <div style={{ fontSize: "12px", opacity: 0.8 }}>{msg.fileSize}</div>
-                            </div>
-                            <a
-                              href={msg.archivoUrl}
-                              download={msg.nombreArchivo}
-                              style={{ color: "white", fontSize: "20px" }}
-                            >
-                              <DownloadOutlined />
-                            </a>
-                          </div>
-                        ) : (
-                          msg.contenido
-                        )}
-                      </div>
+                      <div
+                        className="relative px-2 py-1 rounded-lg shadow-sm"
+                        style={{
+                          backgroundColor: msg.usuarioId == id_usuario ? "#005C4B" : "#202C33",
+                          color: "#FFFFFF",
+                          maxWidth: "75%",
+                          textAlign: "left",
+                          borderRadius: "8px",
+                          boxShadow: "0px 1px 2px rgba(150, 35, 35, 0.2)",
+                          display: "flex",
+                          alignItems: "flex-end",
+                        }}
+                      >
+                        <div style={{ wordBreak: "break-word" }}>
+                          {msg.tipoArchivo ? (
+                            <FilePreview msg={msg} />
+                          ) : (
+                            msg.contenido
+                          )}
+                        </div>
 
-                      <div style={{ display: "flex", justifyContent: "flex-end", alignSelf: "flex-end", marginLeft: "5px", marginBottom: "-2px" }}>
-                        <span style={{ fontSize: "10px", whiteSpace: "nowrap", color: "rgba(255, 255, 255, 0.6)" }}>
-                          {msg.time} {new Date().getHours() >= 12 ? "p.m." : "a.m."}
-                        </span>
+                        <div style={{ display: "flex", justifyContent: "flex-end", alignSelf: "flex-end", marginLeft: "5px", marginBottom: "-2px" }}>
+                          <span style={{ fontSize: "10px", whiteSpace: "nowrap", color: "rgba(255, 255, 255, 0.6)" }}>
+                            {msg.time} {new Date().getHours() >= 12 ? "p.m." : "a.m."}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                <div ref={messageEndRef} />
+                  ))}
+                  <div ref={messageEndRef} />
+                </div>
               </div>
             </div>
-          </div>
-
-
-
-
+          )}
           <style jsx>{`
             .custom-scroll::-webkit-scrollbar {
                 width: 6px;
@@ -829,8 +846,41 @@ const WhatsAppChat = ({
             }
                 
         `}</style>
-        
-       
+
+          {fileToSend ? (
+            <Footer
+              style={{
+                padding: "16px 24px",
+                background: "#E9EDEF",
+                bottom: "0px",
+                width: "100%",
+                position: "absolute",
+                borderBottomLeftRadius: "6px",
+                borderBottomRightRadius: "6px",
+                zIndex: 10, // Asegura que este footer esté por encima
+              }}
+            >
+              <Row gutter={8} align="middle" justify="center">
+                <Col>
+                  <div
+                    onClick={sendMessage}
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      backgroundColor: "#128C7E",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <SendOutlined style={{ color: "white", fontSize: "24px" }} /> {/* Cambia el icono aquí */}
+                  </div>
+                </Col>
+              </Row>
+            </Footer>
+          ) : (
             <Footer
               style={{
                 padding: "8px 12px",
@@ -988,8 +1038,8 @@ const WhatsAppChat = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      cursor: input.trim() ? "pointer" : "default",
-                      opacity: input.trim() ? 1 : 0.5,
+                      cursor: message.trim() ? "pointer" : "default",
+                      opacity: message.trim() ? 1 : 0.5,
                     }}
                   >
                     <SendOutlined style={{ color: "white" }} />
@@ -1004,7 +1054,8 @@ const WhatsAppChat = ({
             `}</style>
 
             </Footer>
-         
+          )}
+
         </Layout>
       </Col >
       <Modal
