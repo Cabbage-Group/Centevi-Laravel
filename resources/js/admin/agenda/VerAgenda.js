@@ -32,11 +32,14 @@ const VerAgenda = () => {
   const [celular, setCelular] = useState()
   const [eventDescription, setEventDescription] = useState("");
   const [eventDates, setEventDates] = useState(dayjs());
+
+  const [dateEvent, setDateEvent] = useState(null);
   const [eventBadge, setEventBadge] = useState("");
   const [tableName, setTableName] = useState("");
   const [agendado_por, setAgendadoPor] = useState("");
   const [sucursalId, setSucursalId] = useState();
   const [pacienteId, setPacienteId] = useState();
+  const [eventPaciente, setEventPaciente] = useState(null);
   const [consultaId, setConsultaId] = useState()
   const [currentView, setCurrentView] = useState("timeGridWeek");
   const [currentEventId, setCurrentEventId] = useState(null);
@@ -51,7 +54,15 @@ const VerAgenda = () => {
   const [hideSunday, setHideSunday] = useState(true);
   const usuario = localStorage.getItem("usuario");
   const [mensaje, setMensaje] = useState(
-    'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo.'
+    `Buenas Tardes ☀
+Un placer saludarle 👋🏻le escribimos de CENTEVI PANAMÁ. - Sucursal {sucursal}
+Agradecemos confirmar su asistencia a la cita programada:
+Día: {dia}
+Hora: {hora}
+
+Paciente: {nombre}
+
+Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas📚`
   );
 
   const calendarRef = useRef(null);
@@ -144,9 +155,25 @@ const VerAgenda = () => {
   };
 
   const generateWhatsAppLink = () => {
+
+    console.log("eventDates: ---")
+    console.log(dateEvent)
+
+    const fecha = new Date(dateEvent);
+
+    // Obtener el día en español
+    const opcionesFecha = { weekday: "long", day: "numeric", month: "long", year: "numeric", locale: "es-ES" };
+    const dia = fecha.toLocaleDateString("es-ES", opcionesFecha);
+
+    // Obtener la hora en formato de 12 horas con AM/PM
+    const opcionesHora = { hour: "2-digit", minute: "2-digit", hour12: true };
+    const hora = fecha.toLocaleTimeString("es-ES", opcionesHora);
+
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
     let mensajePersonalizado = mensaje
-      .replace('{nombre}', eventTitle)
+      .replace('{dia}', dia)
+      .replace('{hora}', hora)
+      .replace('{nombre}', eventPaciente)
       .replace('{sucursal}', sucursal);
 
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
@@ -199,6 +226,9 @@ const VerAgenda = () => {
     }
 
     if (clickedEvent) {
+      setDateEvent(clickedEvent.start)
+      setEventPaciente(clickedEvent.paciente)
+      setSucursal(clickedEvent.sucursal)
       dispatch(
         fetchServiciosProximosAgenda({
           consulta_nombre: tableName,

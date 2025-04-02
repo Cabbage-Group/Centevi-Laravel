@@ -373,7 +373,7 @@ const WhatsAppChat = ({
     : [];
 
   useEffect(() => {
-    if (messageEndRef.current) {
+    if (messageEndRef && messageEndRef?.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages])
@@ -745,7 +745,7 @@ const WhatsAppChat = ({
           >
             <div className="p-4" style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
               <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                {messages.map((msg, index) => (
+                {messages?.map((msg, index) => (
                   <div
                     key={index}
                     className="flex mb-1"

@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes.js';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 import '../../../css/tables/TableOrdenes.css'
+import API_LOCAL from '../../config/configSvLocal.js';
 
 const { Paragraph, Text } = Typography;
 
@@ -1148,7 +1149,8 @@ const TableOrdenesCorrecciones = (
           }}
           onClick={async () => {
             setLoadingImprecion(true)
-            await dispatch(impricionAutomatica(ordenSeleccionada))
+            // await dispatch(impricionAutomatica(ordenSeleccionada))
+            window.open(`${API_LOCAL}/imprimir/${ordenSeleccionada?.id_paciente}/${ordenSeleccionada?.nro_orden_id}`, '_blank');
             setLoadingImprecion(false)
             setShowOrdenSmall(false)
             setUrlPdfOrdenSmall(null)

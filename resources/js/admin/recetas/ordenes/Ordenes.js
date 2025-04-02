@@ -151,7 +151,7 @@ const Ordenes = () => {
     if (isCorrections !== false) {
       dispatch(setChangeOrden(isCorrections));
     }
-  },);
+  }, []);
 
   useEffect(() => {
     if (selectedPaciente) {

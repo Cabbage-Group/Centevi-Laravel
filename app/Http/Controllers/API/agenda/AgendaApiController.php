@@ -36,7 +36,7 @@ class AgendaApiController extends Controller
             $years = explode(',', $years);
         }
 
-        $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono', 'sucursal:id_sucursal,nombre'])
+        $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono,celular', 'sucursal:id_sucursal,nombre'])
             ->whereIn(DB::raw('MONTH(fecha_hora)'), $months)
             ->whereIn(DB::raw('YEAR(fecha_hora)'), $years);
 
@@ -121,23 +121,23 @@ class AgendaApiController extends Controller
         DB::table('consultagenerica')->update([
             'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
         ]);
-        
+
         DB::table('baja_vision')->update([
             'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
         ]);
-        
+
         DB::table('optometria_neonatos')->update([
             'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
         ]);
-        
+
         DB::table('optometria_pediatrica')->update([
             'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
         ]);
-        
+
         DB::table('ortoptica_adultos')->update([
             'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
         ]);
-        
+
         DB::table('refracciongeneral')->update([
             'fecha_proxima_consulta' => DB::raw("CONCAT(DATE(fecha_proxima_consulta), ' 12:00:00')")
         ]);
@@ -174,7 +174,8 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'Consulta',
+                    'tipo' => 'proxima cita',
+                    'ex_proxima_cita' => true
                 ]
             );
         }
@@ -193,7 +194,8 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'Consulta',
+                    'tipo' => 'proxima cita',
+                    'ex_proxima_cita' => true
                 ]
             );
         }
@@ -212,7 +214,8 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'Consulta',
+                    'tipo' => 'proxima cita',
+                    'ex_proxima_cita' => true
                 ]
             );
         }
@@ -231,7 +234,8 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'Consulta',
+                    'tipo' => 'proxima cita',
+                    'ex_proxima_cita' => true
                 ]
             );
         }
@@ -250,7 +254,8 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'Consulta',
+                    'tipo' => 'proxima cita',
+                    'ex_proxima_cita' => true
                 ]
             );
         }
@@ -268,10 +273,11 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'Consulta',
+                    'tipo' => 'proxima cita',
+                    'ex_proxima_cita' => true
                 ]
             );
-        }      
+        }
 
         return response()->json(['message' => 'Proximas citas actualizadas correctamente']);
     }

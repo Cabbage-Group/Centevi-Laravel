@@ -17,4 +17,8 @@ class TiposAros extends Model
     'nombre'
   ];
 
+  public function getNombreAttribute($value)
+  {
+    return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+  }
 }

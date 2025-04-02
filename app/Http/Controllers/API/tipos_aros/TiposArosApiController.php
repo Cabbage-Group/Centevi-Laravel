@@ -26,6 +26,10 @@ class TiposArosApiController extends Controller
         }
       }
 
+      foreach ($tiposAros as $tipo) {
+        $tipo->nombre = utf8_encode($tipo->nombre);
+      }
+
       return response()->json([
         'success' => true,
         'message' => 'Operación exitosa',
@@ -44,7 +48,7 @@ class TiposArosApiController extends Controller
   {
     $validator = Validator::make($request->all(), [
       'nombre' => 'required|string|max:100|unique:tipos_aros,nombre',
-  ]);
+    ]);
 
     if ($validator->fails()) {
       return response()->json([
@@ -56,7 +60,7 @@ class TiposArosApiController extends Controller
 
     try {
       $tiposAros = TiposAros::create($request->only('nombre'));
-  
+
       return response()->json([
         'success' => true,
         'message' => 'tiposAros creado exitosamente',
