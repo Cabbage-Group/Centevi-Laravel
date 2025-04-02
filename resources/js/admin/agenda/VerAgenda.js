@@ -4,7 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
-import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col, List, Form } from "antd";
+import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col, List, Form, Spin } from "antd";
 import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -14,6 +14,9 @@ import { fetchServicios, fetchServiciosProximosAgenda } from "../../redux/featur
 import { addOrUpdateEvent, fetchAgendarCitas, fetchCitasAgenda, setCurrentViewAgenda } from "../../redux/features/citas/CitasAgendaSlice";
 import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
 import Swal from 'sweetalert2';
+import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
+import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
+import { error } from "laravel-mix/src/Log";
 
 
 dayjs.locale("es");
@@ -23,7 +26,7 @@ const VerAgenda = () => {
   const [form] = Form.useForm()
   const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [proximosServicios, setProximosServicios] = useState(serviciosProximos_options);
+  const [proximosServicios, setProximosServicios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState("");
   const [nroCedula, setNroCedula] = useState("");
@@ -44,6 +47,7 @@ const VerAgenda = () => {
   const [currentView, setCurrentView] = useState("timeGridWeek");
   const [currentEventId, setCurrentEventId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isCreateMode, setIsCreateMode] = useState(false);
   const [currentDate, setCurrentDate] = useState(dayjs().format("MMMM YYYY"));
   const [currentDateAgenda, setCurrentDateAgenda] = useState(new Date());
   const [currentEndDateAgenda, setCurrentEndDateAgenda] = useState(new Date());
@@ -69,18 +73,116 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
   const { citasAgenda } = useSelector((state) => state.citasAgenda);
 
-  const { sucursales_with_colors } = useSelector((state) => state.sucursales);
+  const { sucursales_with_colors, sucursales_option_selects } = useSelector((state) => state.sucursales);
+
+  const { pacientes_options_agenda } = useSelector((state) => state.pacientes);
+
+  const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
+
+  const [selectedPaciente, setSelectedPaciente] = useState(null);
+
+  const [selectedSucursal, setSelectedSucursal] = useState(null);
+
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+  const [dataLoaded, setDataLoaded] = useState(false);
 
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
   }, [])
 
-
-
   useEffect(() => {
     setProximosServicios(serviciosProximos_options);
   }, [serviciosProximos_options]);
+
+
+
+  useEffect(() => {
+    form.setFieldsValue({ agendado_por: usuario });
+  }, [form]);
+
+  useEffect(() => {
+    dispatch(fetchUsuarios({}))
+  }, [])
+
+  // useEffect(() => {
+
+  //     dispatch(fetchPacientes({}))
+
+  // }, [selectedPaciente])
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePacienteSelectOpen = () => {
+    if (!dataLoaded) {
+      setIsLoading(true);
+      dispatch(fetchPacientes({}))
+        .then(() => {
+          setDataLoaded(true);
+        })
+        .catch((error) => {
+          console.error('Error al cargar los pacientes:', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  };
+  const handleCedulaSelectOpen = () => {
+    if (!dataLoaded) {
+      setIsLoading(true);
+      dispatch(fetchPacientes({}))
+        .then(() => {
+          setDataLoaded(true);
+        })
+        .catch((error) => {
+          console.error('Error al cargar las cedulas:', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+
+    }
+  };
+
+  const handleSelectChangServicios = (value, option) => {
+    setProximosServicios((prev) => {
+      const indexFind = prev.findIndex((proximo) => proximo.value === option.value); // Suponiendo que `option.value` es el identificador
+
+      if (indexFind !== -1) {
+        return prev.map((proximo, index) =>
+          index === indexFind ? { ...proximo, ...option } : proximo
+        );
+      } else {
+        return [...prev, option]; // Agregar nuevo servicio si no existe
+      }
+    });
+  };
+
+
+  const handlePacienteChange = (value) => {
+    const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
+    setSelectedPaciente(selected);
+    form.setFieldsValue({ nroCedula: selected.nro_cedula });
+  };
+
+
+  const handleCedulaChange = (value) => {
+    const paciente = pacientes_options_agenda.find((paciente) => paciente.nro_cedula === value);
+    if (paciente) {
+      setSelectedPaciente(paciente.value)
+      form.setFieldsValue({ paciente: paciente.value });
+    }
+  };
+
+  const handleSucursalChangeSelect = (value) => {
+    setSelectedSucursal(value);
+  };
+
+  const handleDoctorChange = (value) => {
+    setSelectedDoctor(value);
+  };
+
 
   useEffect(() => {
     const startMonth = currentDateAgenda.getMonth() + 1;
@@ -145,9 +247,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     }
   };
 
-
-
-
   const handleSucursalChange = (id) => {
     setSelectedSucursales((prev) =>
       prev.includes(id) ? prev.filter((sucursalId) => sucursalId !== id) : [...prev, id]
@@ -155,10 +254,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   };
 
   const generateWhatsAppLink = () => {
-
-    console.log("eventDates: ---")
-    console.log(dateEvent)
-
     const fecha = new Date(dateEvent);
 
     // Obtener el día en español
@@ -203,7 +298,23 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     setEventDescription("");
     setEventDates([dayjs(), dayjs().add(1, "day")]);
     setEventBadge("Trabajo");
+    setAgendadoPor(localStorage.getItem("usuario"));
+    setProximosServicios([])
+    setConsultaId(null)
+    setTableName(null)
+    form.resetFields();
+    form.setFieldsValue({
+      nroCedula: "",
+      paciente: "",
+      sucursal: "",
+      doctor: "",
+      comentarios: "",
+      fechaAgenda: dayjs(info.date),
+      tipoAgenda: "",
+      agendado_por: localStorage.getItem("usuario")
+    });
     setIsModalOpen(true);
+
   };
 
   const handleEventClick = (info) => {
@@ -224,17 +335,10 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         }
       });
     }
-
     if (clickedEvent) {
       setDateEvent(clickedEvent.start)
       setEventPaciente(clickedEvent.paciente)
       setSucursal(clickedEvent.sucursal)
-      dispatch(
-        fetchServiciosProximosAgenda({
-          consulta_nombre: tableName,
-          consulta_id: consultaId,
-        })
-      );
       setIsEditMode(true);
       setCurrentEventId(clickedEvent.id);
       setTableName(clickedEvent.origen_tabla);
@@ -242,33 +346,37 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       setSucursalId(clickedEvent.sucursal_id);
       setPacienteId(clickedEvent.paciente_id)
       setCelular(clickedEvent.celular);
+      setSelectedPaciente(clickedEvent.paciente_id)
+      setSelectedSucursal(clickedEvent.sucursal_id)
       setAgendadoPor(clickedEvent.agendado_por)
       setIsModalOpen(true);
       console.log('clickedEvent', clickedEvent)
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
-        paciente: clickedEvent.paciente || "",
-        sucursal: clickedEvent.sucursal || "",
+        paciente: clickedEvent.paciente ? { value: clickedEvent.paciente_id, label: clickedEvent.paciente } : undefined,
+        sucursal: clickedEvent.sucursal ? { value: clickedEvent.sucursal_id, label: clickedEvent.sucursal } : undefined,
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
         fechaAgenda: dayjs(clickedEvent.start),
         tipoAgenda: clickedEvent.tipo || "",
         agendado_por: clickedEvent.agendado_por || ""
       });
-      console.log('')
       form.validateFields();
     }
+
   };
 
-
   useEffect(() => {
-    dispatch(
-      fetchServiciosProximosAgenda({
-        consulta_nombre: tableName,
-        consulta_id: consultaId,
-      })
-    );
+    if (consultaId) {
+      dispatch(
+        fetchServiciosProximosAgenda({
+          consulta_nombre: tableName,
+          consulta_id: consultaId,
+        })
+      );
+    }
   }, [consultaId]);
+
 
   useEffect(() => {
     if (serviciosProximos_options.length > 0) {
@@ -289,7 +397,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   };
 
   const handleAgendarEvent = (values) => {
-    console.log('values:', values)
+    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     if (!eventDates) {
       Swal.fire({
         icon: "warning",
@@ -316,16 +424,16 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
           origen_tabla: tableName,
           fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
           tipo: values.tipoAgenda,
-          paciente_id: pacienteId,
+          paciente_id: selectedPaciente,
           doctor: values.doctor,
-          sucursal_id: sucursalId,
+          sucursal_id: selectedSucursal,
           comentarios: values.comentarios,
-          agendado_por: usuario
+          agendado_por: usuario,
+          servicios_id: serviciosRealizadosSubmit
         };
         console.log('data:', data)
         setIsModalOpen(false);
         dispatch(fetchAgendarCitas(data));
-
         Swal.fire({
           icon: "success",
           title: "Cita Agendada",
@@ -336,8 +444,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       }
     });
   };
-
-
 
   const handleDeleteEvent = () => {
     if (currentEventId) {
@@ -446,8 +552,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
           position: 'relative'
         }}
       >
-
-        {/* FILTROS DE AGENDAS */}
 
         <BotonesFiltroAgenda
           lista_botones={["Consultas", "Terapias", "Proximas Citas"]}
@@ -561,8 +665,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
             const { hiddenEvents, comentarios, doctor, tipo } = info.event.extendedProps;
             const eventTime = info.timeText;
             const isDayView = info.view.type === "timeGridDay";
-            const isWeekView = info.view.type === "timeGridWeek";
-
             return (
               <div>
                 <b
@@ -724,7 +826,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
             name="agendado_por"
           >
             <Input
-              placeholder="agendado_por"
+              placeholder=""
               style={{ marginBottom: "5px" }}
               disabled
             />
@@ -738,9 +840,25 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 name="nroCedula"
                 rules={[{ required: true, message: "La cédula es requerida" }]}
               >
-                <Input
-                  placeholder="Cédula"
-                />
+                <Select
+                  showSearch
+                  placeholder="Seleccionar cédula"
+                  onChange={(value) => {
+                    handleCedulaChange(value)
+                  }}
+                  value={selectedPaciente ? selectedPaciente.nro_cedula : undefined}
+                  onDropdownVisibleChange={(open) => open && handleCedulaSelectOpen()}
+                  notFoundContent={isLoading ? <Spin size="small" /> : null}
+                  filterOption={(input, option) => {
+                    return option?.children.toLowerCase().includes(input.toLowerCase());
+                  }}
+                >
+                  {pacientes_options_agenda.map((paciente) => (
+                    <Select.Option key={`${paciente.nro_cedula}-${paciente.value}`} value={paciente.nro_cedula}>
+                      {paciente.nro_cedula}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
             <Col xxl={16} xl={16} md={16}>
@@ -749,9 +867,26 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 name="paciente"
                 rules={[{ required: true, message: "El paciente es requerido" }]}
               >
-                <Input
-                  placeholder="paciente"
-                />
+                <Select
+                  showSearch
+                  placeholder="Seleccionar paciente"
+                  onChange={(value) => {
+                    console.log('value:', value)
+                    handlePacienteChange(value);
+                    setSelectedPaciente(value)
+                  }}
+                  onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
+                  notFoundContent={isLoading ? <Spin size="small" /> : null}
+                  filterOption={(input, option) => {
+                    return option?.children.toLowerCase().includes(input.toLowerCase());
+                  }}
+                >
+                  {pacientes_options_agenda.map((paciente) => (
+                    <Select.Option key={paciente.value} value={paciente.value}>
+                      {paciente.label}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
@@ -763,9 +898,20 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 name="sucursal"
                 rules={[{ required: true, message: "La sucursal es requerida" }]}
               >
-                <Input
-                  placeholder="sucursal"
-                />
+                <Select
+                  placeholder="Seleccionar sucursal"
+                  onChange={(value) => {
+                    handleSucursalChangeSelect(value)
+                    setSelectedSucursal(value)
+                  }}
+                >
+                  {sucursales_option_selects.map((sucursal) => (
+                    <Select.Option key={sucursal.value} value={sucursal.value}>
+                      {sucursal.label}
+                    </Select.Option>
+
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
             <Col xxl={12} xl={12} md={12}>
@@ -774,9 +920,17 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 name="doctor"
                 rules={[{ required: true, message: "El doctor es requerido" }]}
               >
-                <Input
-                  placeholder="doctor"
-                />
+                <Select
+                  placeholder="Seleccionar doctor"
+                  onChange={handleDoctorChange}
+                  value={selectedDoctor}
+                >
+                  {usuarios_doctores_options_selecteds.map((doctor) => (
+                    <Select.Option key={doctor.value} value={doctor.label}>
+                      {doctor.label}
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
@@ -841,6 +995,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                     width: '100%', color: 'transparent',
                     background: 'white !important'
                   }}
+                  onChange={handleSelectChangServicios}
                   options={servicios.map(servicio => ({
                     value: servicio.id,
                     label: servicio.codigo + " | " + servicio.servicio
@@ -859,8 +1014,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   display: 'ruby',
                   marginTop: '10px',
                   marginBottom: '10px'
-                }}
-                onClick={() => {
                 }}
               >
                 {
@@ -888,8 +1041,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                             cursor: 'pointer'
                           }}
                           onClick={() => {
-                            const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
-                            setProximosServicios(newServicios)
+                            // const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
+                            setProximosServicios([])
                           }}
                         >
                           <CloseCircleTwoTone twoToneColor="#eb2f96" />

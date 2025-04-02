@@ -5,11 +5,15 @@ namespace App\Http\Controllers\API\agenda;
 use App\Http\Controllers\Controller;
 use App\Models\BajaVision;
 use App\Models\Citas;
+use App\Models\CitasServicio;
+use App\Models\CitasServicios;
 use App\Models\ConsultaGenerica;
 use App\Models\OptometriaNeonatos;
 use App\Models\OptometriaPediatrica;
 use App\Models\OrtopticaAdultos;
+use App\Models\Pacientes;
 use App\Models\RefraccionGeneral;
+use App\Models\Sucursales;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -73,21 +77,23 @@ class AgendaApiController extends Controller
     public function agendarCita(Request $request)
     {
         $request->validate([
-            'origen_id' => 'required|integer',
-            'origen_tabla' => 'required|string',
+            'origen_id' => 'nullable|integer',
+            'origen_tabla' => 'nullable|string',
             'fecha_hora' => 'required|date',
-            'tipo' => 'required|in:consulta,terapia',
-            'paciente_id' => 'required|integer',
+            'tipo' => 'nullable|in:consulta,terapia',
+            'paciente_id' => 'nullable|integer',
             'doctor' => 'nullable|string',
             'sucursal_id' => 'nullable|integer',
             'comentarios' => 'nullable|string',
             'agendado_por' => 'nullable|string',
-            'cita_existente_id' => 'nullable|integer|exists:citas,id', // ID de la cita a actualizar
+            'cita_existente_id' => 'nullable|integer|exists:citas,id',
+            'servicios_id' => 'nullable|array',
+            'servicios_id.*' => 'integer|exists:servicios,id',
         ]);
 
         $nuevaCita = Citas::create([
-            'origen_id' => $request->origen_id,
-            'origen_tabla' => $request->origen_tabla,
+            'origen_id' => null,
+            'origen_tabla' => $request->origen_tabla ?? 'citas_servicios',
             'fecha_hora' => $request->fecha_hora,
             'tipo' => $request->tipo,
             'paciente_id' => $request->paciente_id,
@@ -96,8 +102,20 @@ class AgendaApiController extends Controller
             'agendado_por' => $request->agendado_por,
             'ex_proxima_cita' => false,
             'comentarios' => $request->comentarios,
-
         ]);
+
+        $nuevaCita->update([
+            'origen_id' => $request->origen_id ?? $nuevaCita->id,
+        ]);
+
+        if ($request->has('servicios_id') && is_array($request->servicios_id)) {
+            foreach ($request->servicios_id as $servicioId) {
+                CitasServicios::create([
+                    'cita_id' => $nuevaCita->id,
+                    'servicios_id' => $servicioId,
+                ]);
+            }
+        }
 
         if ($request->cita_existente_id) {
             $citaExistente = Citas::where('id', $request->cita_existente_id)->whereNull('citas_id')->first();
@@ -107,12 +125,45 @@ class AgendaApiController extends Controller
             }
         }
 
+        // Obtener el nombre del paciente si existe
+        $pacienteNombre = null;
+        if ($request->paciente_id) {
+            $paciente = Pacientes::find($request->paciente_id);
+            $pacienteNombre = $paciente ? $paciente->nombres : 'Desconocido';
+            $nro_cedula = $paciente ? $paciente->nro_cedula : 'descnocido';
+        }
+        $sucursalNombre = 'Desconocida';
+        if ($request->sucursal_id) {
+            $sucursal = Sucursales::find($request->sucursal_id);
+            if ($sucursal) {
+                $sucursalNombre = $sucursal->nombre;
+            }
+        }
+
         return response()->json([
             'message' => 'Cita creada exitosamente',
-            'nueva_cita' => $nuevaCita,
+            'nueva_cita' => [
+                'id' => $nuevaCita->id,
+                'origen_id' => $nuevaCita->origen_id,
+                'origen_tabla' => $nuevaCita->origen_tabla,
+                'fecha_hora' => $nuevaCita->fecha_hora,
+                'tipo' => $nuevaCita->tipo,
+                'paciente_id' => $nuevaCita->paciente_id,
+                'sucursal_id' => $nuevaCita->sucursal_id,
+                'doctor' => $nuevaCita->doctor,
+                'agendado_por' => $nuevaCita->agendado_por,
+                'comentarios' => $nuevaCita->comentarios,
+                'nro_cedula' => $nro_cedula,
+                'title' => $pacienteNombre,
+                'paciente' => $pacienteNombre,
+                'sucursal' => $sucursalNombre
+            ],
             'cita_existente_id' => $request->cita_existente_id
         ], 201);
     }
+
+
+
 
 
     public function generarDataProximasCitas()

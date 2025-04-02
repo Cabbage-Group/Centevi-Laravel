@@ -18,11 +18,6 @@ class AddAgendadoPorToCitasTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::table('citas', function (Blueprint $table) {

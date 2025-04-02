@@ -43,7 +43,7 @@ export const fetchCitasAgenda = createAsyncThunk(
                 sucursal: cita.sucursal?.nombre || 'Sin Sucursal',
                 celular: cita.paciente?.celular || "00000000",
                 comentarios: cita.comentarios?.trim() || 'Sin comentarios',
-                agendado_por: cita.agendado_por?.trim() || 'Sin Usuario'
+                agendado_por: cita.agendado_por?.trim() || ''
             }));
 
         } catch (error) {
@@ -74,7 +74,8 @@ const citasAgendaSlice = createSlice({
         citasAgenda: [],
         loading: false,
         error: null,
-        currentView: 'timeGridWeek'
+        currentView: 'timeGridWeek',
+        currentType: 0
     },
     reducers: {
         addOrUpdateEvent: (state, action) => {
@@ -90,6 +91,10 @@ const citasAgendaSlice = createSlice({
         },
         setCurrentViewAgenda: (state, action) => {
             state.currentView = action.payload;
+        },
+        setCurrentTypeAgenda: (state, action) => {
+            console.log('Nuevo currentType:', action.payload);
+            state.currentType = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -150,13 +155,65 @@ const citasAgendaSlice = createSlice({
                 state.error = action.payload || 'Error desconocido';
             })
             .addCase(fetchAgendarCitas.fulfilled, (state, action) => {
-                state.citasAgenda = state.citasAgenda.filter(cita => cita.id !== action.payload.cita_existente_id);
-         
+                const sucursalColors = {
+                    7: "#FBDDD9",
+                    4: "#BEE9D3",
+                    3: "#BCE9FB",
+                    default: "purple"
+                };
+                // if (action.payload.cita_existente_id) {
+                //     state.citasAgenda = state.citasAgenda.filter(
+                //         cita => cita.id !== action.payload.cita_existente_id
+                //     );
+                // }
+
+                if (action.payload.nueva_cita) {
+                    const { sucursal_id, tipo, origen_id } = action.payload.nueva_cita;
+                    const color = sucursalColors[sucursal_id] || sucursalColors.default;
+
+                    const nuevaCitaTransformada = {
+                        ...action.payload.nueva_cita,
+                        id: origen_id,
+                        start: action.payload.nueva_cita.fecha_hora,
+                        end: action.payload.nueva_cita.fecha_hora,
+                        title: action.payload.nueva_cita.title,
+                        paciente: action.payload.nueva_cita.paciente,
+                        doctor: action.payload.nueva_cita.doctor,
+                        badge: "Pendiente",
+                        backgroundColor: color,
+                        borderColor: color,
+                    };
+                    if (state.currentType === 2) {
+                        state.citasAgenda = state.citasAgenda.filter(
+                            cita => cita.id !== action.payload.cita_existente_id
+                        );
+                    }
+
+                    if (state.currentType === 0) {
+                        if (tipo === "consulta") {
+                            console.log('✅ Agregando cita porque es consulta y currentType es 0');
+                            state.citasAgenda = [...state.citasAgenda, nuevaCitaTransformada];
+                        } else if (tipo === "terapia") {
+                            console.log('No agregamos la cita porque es terapia y currentType es 0');
+                        }
+                    } else if (state.currentType === 1) {
+                        if (tipo === "terapia") {
+                            console.log('✅ Agregando cita porque es terapia y currentType es 1');
+                            state.citasAgenda = [...state.citasAgenda, nuevaCitaTransformada];
+                        } else if (tipo === "consulta") {
+                            console.log('Eliminando cita porque es consulta y currentType es 1');
+                            state.citasAgenda = state.citasAgenda.filter(
+                                cita => cita.id !== origen_id
+                            );
+                        }
+                    } 
+                } else {
+                    console.log('No hay nueva cita para agregar');
+                }
+
+
             });
-
-
-
     }
 });
-export const { addOrUpdateEvent, setCurrentViewAgenda } = citasAgendaSlice.actions;
+export const { addOrUpdateEvent, setCurrentViewAgenda, setCurrentTypeAgenda } = citasAgendaSlice.actions;
 export default citasAgendaSlice.reducer;

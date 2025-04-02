@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { setCurrentTypeAgenda } from '../../../redux/features/citas/CitasAgendaSlice'
+import { useDispatch } from 'react-redux'
 
 const estilos_btn_seleccionado = {
   paddingBottom: '5px',
@@ -26,7 +28,7 @@ const estilos_btn = {
 }
 
 const BotonesFiltroAgenda = (props) => {
-
+  const dispatch = useDispatch();
   const {
     lista_botones,
     setSelectedIndex
@@ -51,8 +53,10 @@ const BotonesFiltroAgenda = (props) => {
               key={i}
               style={index === i ? estilos_btn_seleccionado : estilos_btn}
               onClick={() => {
+                console.log('Cambiando a:', i);
                 setIndex(i);
-                setSelectedIndex(i); 
+                setSelectedIndex(i);
+                dispatch(setCurrentTypeAgenda(i))
               }}
             >
               {boton}
