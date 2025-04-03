@@ -27,10 +27,10 @@ class AgendaApiController extends Controller
         $months = $request->input('months', [Carbon::now()->month]);
         $years = $request->input('years', [Carbon::now()->year]);
         $sucursales = $request->input('sucursales', []);
-        $exProximaCita = $request->input('ex_proxima_cita', null);
+        $exProximaCita = $request->input('ex_proxima_cita', []);
         $hasCitasId = $request->input('has_citas_id', null);
         $citasIdNull = $request->input('citas_id_null', null);
-        $tipo = $request->input('tipo', null);
+        $tipo = $request->input('tipo', []);
 
         // Convertir a array si no lo es
         if (!is_array($months)) {
@@ -38,6 +38,10 @@ class AgendaApiController extends Controller
         }
         if (!is_array($years)) {
             $years = explode(',', $years);
+        }
+
+        if (empty($tipo)) {
+            $tipo = null; 
         }
 
         $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono,celular', 'sucursal:id_sucursal,nombre'])
@@ -52,9 +56,13 @@ class AgendaApiController extends Controller
             }
         }
 
-        if (!is_null($exProximaCita)) {
-            $query->where('ex_proxima_cita', filter_var($exProximaCita, FILTER_VALIDATE_BOOLEAN));
-        }
+        // if (!is_null($exProximaCita)) {
+        //     $query->where('ex_proxima_cita', filter_var($exProximaCita, FILTER_VALIDATE_BOOLEAN));
+        // }
+
+        if (!empty($exProximaCita)) {
+            $query->whereIn('ex_proxima_cita', (array) $exProximaCita);
+          }
 
         if (!is_null($hasCitasId) && filter_var($hasCitasId, FILTER_VALIDATE_BOOLEAN)) {
             $query->whereNotNull('citas_id');
@@ -64,8 +72,8 @@ class AgendaApiController extends Controller
             $query->whereNull('citas_id');
         }
 
-        if (!is_null($tipo) && in_array($tipo, ['consulta', 'terapia'])) {
-            $query->where('tipo', $tipo);
+        if (!is_null($tipo) && !empty($tipo)) {
+            $query->whereIn('tipo', $tipo); 
         }
 
         return response()->json([
@@ -225,7 +233,7 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'proxima cita',
+                    'tipo' => 'proxima_cita',
                     'ex_proxima_cita' => true
                 ]
             );
@@ -245,7 +253,7 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'proxima cita',
+                    'tipo' => 'proxima_cita',
                     'ex_proxima_cita' => true
                 ]
             );
@@ -265,7 +273,7 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'proxima cita',
+                    'tipo' => 'proxima_cita',
                     'ex_proxima_cita' => true
                 ]
             );
@@ -285,7 +293,7 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'proxima cita',
+                    'tipo' => 'proxima_cita',
                     'ex_proxima_cita' => true
                 ]
             );
@@ -305,7 +313,7 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'proxima cita',
+                    'tipo' => 'proxima_cita',
                     'ex_proxima_cita' => true
                 ]
             );
@@ -324,7 +332,7 @@ class AgendaApiController extends Controller
                     'sucursal_id' => $consulta->sucursal,
                     'fecha_hora' => $consulta->fecha_proxima_consulta,
                     'comentarios' => ' ',
-                    'tipo' => 'proxima cita',
+                    'tipo' => 'proxima_cita',
                     'ex_proxima_cita' => true
                 ]
             );

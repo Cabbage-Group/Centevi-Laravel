@@ -73,7 +73,7 @@ class OrtopticaApiController extends Controller
           'origen_id' => $ortoptica->id_consulta,
           'origen_tabla' => 'ortoptica_adultos',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'proxima cita',
+          'tipo' => 'proxima_cita',
           'paciente_id' => $ortoptica->paciente,
           'doctor' => $ortoptica->doctor,
           'sucursal_id' => $ortoptica->sucursal,

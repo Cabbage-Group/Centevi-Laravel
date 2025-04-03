@@ -6,11 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 class UpdateCitasNullableFields extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
+  
     public function up()
     {
         Schema::table('citas', function (Blueprint $table) {
@@ -26,11 +22,7 @@ class UpdateCitasNullableFields extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
+   
     public function down()
     {
         Schema::table('citas', function (Blueprint $table) {

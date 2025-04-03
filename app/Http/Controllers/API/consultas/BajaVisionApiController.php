@@ -74,7 +74,7 @@ class BajaVisionApiController extends Controller
           'origen_id' => $bajaVision->id_consulta,
           'origen_tabla' => 'baja_vision',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'proxima cita',
+          'tipo' => 'proxima_cita',
           'paciente_id' => $bajaVision->paciente,
           'doctor' => $bajaVision->doctor,
           'sucursal_id' => $bajaVision->sucursal,

@@ -73,7 +73,7 @@ class OptometriaGeneralApiController extends Controller
           'origen_id' => $refraccionGeneral->id_consulta,
           'origen_tabla' => 'refraccion_general',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'proxima cita',
+          'tipo' => 'proxima_cita',
           'paciente_id' => $refraccionGeneral->paciente,
           'doctor' => $refraccionGeneral->doctor,
           'sucursal_id' => $refraccionGeneral->sucursal,

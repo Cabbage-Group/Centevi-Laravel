@@ -65,7 +65,7 @@ class NeonatosApiController extends Controller
           'origen_id' => $neonato->id_consulta,
           'origen_tabla' => 'optometria_neonatos',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'proxima cita',
+          'tipo' => 'proxima_cita',
           'paciente_id' => $neonato->paciente,
           'doctor' => $neonato->doctor,
           'sucursal_id' => $neonato->sucursal,

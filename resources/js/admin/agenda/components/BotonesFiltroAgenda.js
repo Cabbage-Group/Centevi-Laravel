@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { setCurrentTypeAgenda } from '../../../redux/features/citas/CitasAgendaSlice'
-import { useDispatch } from 'react-redux'
+import React from 'react';
+import { setCurrentTypeAgenda } from '../../../redux/features/citas/CitasAgendaSlice';
+import { useDispatch } from 'react-redux';
 
 const estilos_btn_seleccionado = {
   paddingBottom: '5px',
@@ -13,7 +13,7 @@ const estilos_btn_seleccionado = {
   borderRadius: '8px',
   marginLeft: '10px',
   cursor: 'pointer'
-}
+};
 
 const estilos_btn = {
   paddingBottom: '5px',
@@ -25,18 +25,25 @@ const estilos_btn = {
   marginLeft: '10px',
   border: '.5px solid #889CCC',
   cursor: 'pointer'
-}
+};
 
-const BotonesFiltroAgenda = (props) => {
+const BotonesFiltroAgenda = ({ lista_botones, selectedIndex, setSelectedIndex }) => {
   const dispatch = useDispatch();
-  const {
-    lista_botones,
-    setSelectedIndex
-  } = props
 
-  const [index, setIndex] = useState(0)
+  const toggleSelection = (i) => {
+    let updatedSelections;
+
+    if (selectedIndex.includes(i)) {
+      updatedSelections = selectedIndex.filter(index => index !== i);
+    } else {
+      updatedSelections = [...selectedIndex, i];
+    }
+
+    setSelectedIndex(updatedSelections);
+    dispatch(setCurrentTypeAgenda(updatedSelections));
+  };
+
   return (
-
     <div
       style={{
         position: 'absolute',
@@ -44,28 +51,18 @@ const BotonesFiltroAgenda = (props) => {
         top: '15px',
         display: 'flex'
       }}
-      onClick={() => console.log(lista_botones)}
     >
-      {
-        lista_botones.map((boton, i) => {
-          return (
-            <div
-              key={i}
-              style={index === i ? estilos_btn_seleccionado : estilos_btn}
-              onClick={() => {
-                console.log('Cambiando a:', i);
-                setIndex(i);
-                setSelectedIndex(i);
-                dispatch(setCurrentTypeAgenda(i))
-              }}
-            >
-              {boton}
-            </div>
-          )
-        })
-      }
+      {lista_botones.map((boton, i) => (
+        <div
+          key={i}
+          style={selectedIndex.includes(i) ? estilos_btn_seleccionado : estilos_btn}
+          onClick={() => toggleSelection(i)}
+        >
+          {boton}
+        </div>
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export default BotonesFiltroAgenda
+export default BotonesFiltroAgenda;

@@ -16,7 +16,7 @@ import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice
 import Swal from 'sweetalert2';
 import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
-import { error } from "laravel-mix/src/Log";
+
 
 
 dayjs.locale("es");
@@ -25,7 +25,7 @@ const VerAgenda = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm()
   const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState([0]);
   const [proximosServicios, setProximosServicios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventTitle, setEventTitle] = useState("");
@@ -38,7 +38,7 @@ const VerAgenda = () => {
 
   const [dateEvent, setDateEvent] = useState(null);
   const [eventBadge, setEventBadge] = useState("");
-  const [tableName, setTableName] = useState("");
+  const [tableName, setTableName] = useState("citas_servicios");
   const [agendado_por, setAgendadoPor] = useState("");
   const [sucursalId, setSucursalId] = useState();
   const [pacienteId, setPacienteId] = useState();
@@ -68,6 +68,8 @@ Paciente: {nombre}
 
 Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas📚`
   );
+
+ 
 
   const calendarRef = useRef(null);
 
@@ -106,11 +108,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     dispatch(fetchUsuarios({}))
   }, [])
 
-  // useEffect(() => {
 
-  //     dispatch(fetchPacientes({}))
-
-  // }, [selectedPaciente])
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePacienteSelectOpen = () => {
@@ -189,7 +187,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     const startYear = currentDateAgenda.getFullYear();
     const endMonth = currentEndDateAgenda.getMonth() + 1;
     const endYear = currentEndDateAgenda.getFullYear();
-
+  
     const months = [];
     for (let m = startMonth; m <= (startYear === endYear ? endMonth : 12); m++) {
       months.push(m);
@@ -199,32 +197,53 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         months.push(m);
       }
     }
-
+  
     const years = [];
     for (let y = startYear; y <= endYear; y++) {
       years.push(y);
     }
-
-
-    let tipo = '';
-    let ex_proxima_cita = false;
-    let citas_id_null = true
-
-    if (selectedIndex === 0) {
-      tipo = 'consulta';
+  
+    let tipo = [];
+    let ex_proxima_cita = [];
+    let citas_id_null = true;
+  
+    if (selectedIndex.length === 2 && selectedIndex.includes(0) && selectedIndex.includes(1)) {
+      tipo = ['consulta', 'terapia'];
       citas_id_null = true;
-      ex_proxima_cita = false;
-    } else if (selectedIndex === 1) {
-      tipo = 'terapia';
-      ex_proxima_cita = false;
-    } else if (selectedIndex === 2) {
-      tipo = '';
-      citas_id_null = true
-      ex_proxima_cita = true;
+      ex_proxima_cita = [false]; 
+    } 
+    else if (selectedIndex.length === 3 && selectedIndex.includes(0) && selectedIndex.includes(1) && selectedIndex.includes(2)) {
+      tipo = ['consulta', 'terapia', 'proxima_cita'];
+      citas_id_null = true;
+      ex_proxima_cita = [true, false];
+    } 
+    else {
+      if (selectedIndex.includes(0)) {
+        tipo.push('consulta');
+        citas_id_null = true;
+        ex_proxima_cita.push(false);
+      }
+      if (selectedIndex.includes(1)) {
+        tipo.push('terapia');
+        ex_proxima_cita.push(false);
+      }
+      if (selectedIndex.includes(2)) {
+        tipo.push('proxima_cita');
+        citas_id_null = true;
+        ex_proxima_cita.push(true);
+      }
     }
-
-    dispatch(fetchCitasAgenda({ months, years, sucursales: selectedSucursales, tipo, ex_proxima_cita, citas_id_null }));
+  
+    dispatch(fetchCitasAgenda({ 
+      months, 
+      years, 
+      sucursales: selectedSucursales, 
+      tipo, 
+      ex_proxima_cita, 
+      citas_id_null 
+    }));
   }, [currentView, currentDateAgenda, selectedSucursales, currentEndDateAgenda, selectedIndex, dispatch]);
+  
 
   const handleDateChange = (dateInfo) => {
     const { view } = dateInfo;
@@ -302,6 +321,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     setProximosServicios([])
     setConsultaId(null)
     setTableName(null)
+    setConsultaId(null)
     form.resetFields();
     form.setFieldsValue({
       nroCedula: "",
@@ -350,7 +370,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       setSelectedSucursal(clickedEvent.sucursal_id)
       setAgendadoPor(clickedEvent.agendado_por)
       setIsModalOpen(true);
-      console.log('clickedEvent', clickedEvent)
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente ? { value: clickedEvent.paciente_id, label: clickedEvent.paciente } : undefined,
@@ -421,7 +440,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         const data = {
           cita_existente_id: currentEventId,
           origen_id: consultaId,
-          origen_tabla: tableName,
+          origen_tabla: "citas_servicios",
           fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
           tipo: values.tipoAgenda,
           paciente_id: selectedPaciente,
@@ -431,7 +450,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
           agendado_por: usuario,
           servicios_id: serviciosRealizadosSubmit
         };
-        console.log('data:', data)
         setIsModalOpen(false);
         dispatch(fetchAgendarCitas(data));
         Swal.fire({
@@ -555,6 +573,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
         <BotonesFiltroAgenda
           lista_botones={["Consultas", "Terapias", "Proximas Citas"]}
+          selectedIndex={selectedIndex}
           setSelectedIndex={setSelectedIndex}
         />
 
@@ -759,8 +778,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         width={"90vh"}
         onCancel={() => {
           setIsModalOpen(false);
-          form.resetFields();
-          resetForm();
+ 
+       
         }}
         footer={[
           <div style={{
@@ -795,8 +814,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 key="cancel"
                 onClick={() => {
                   setIsModalOpen(false);
-                  form.resetFields();
-                  resetForm();
+               
                 }}
               >
                 Cancelar
@@ -812,8 +830,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
           </div>
         ]}
         style={{ width: "90vh" }}
-
-
       >
         <Form
           form={form}
@@ -871,7 +887,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   showSearch
                   placeholder="Seleccionar paciente"
                   onChange={(value) => {
-                    console.log('value:', value)
                     handlePacienteChange(value);
                     setSelectedPaciente(value)
                   }}
@@ -934,7 +949,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
               </Form.Item>
             </Col>
           </Row>
-
 
           {/*  */}
           <label style={{ marginTop: '10px' }}>Comentarios de la agenda:</label>
