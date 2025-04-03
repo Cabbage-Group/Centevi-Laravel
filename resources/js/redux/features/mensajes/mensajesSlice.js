@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import API from '../../../config/config.js';
 
-const API_URL = "http://localhost:3008";
+const API_URL = "http://127.0.0.1:3008";
 
 export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",

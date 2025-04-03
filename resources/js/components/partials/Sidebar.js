@@ -276,12 +276,12 @@ const Sidebar = (props) => {
                   <li
                     className="menu" style={{ position: 'relative' }}
                     onClick={() => {
-                      navigate("/ver-chat")
+                      navigate("/ver-socket")
                     }}
                   >
                     {/* <a href="#chat" data-active="false" className="menu-toggle"> */}
                     <Link
-                      to="/ver-chat"
+                      to="/ver-socket"
                       className="menu-toggle"
                       style={{ width: '100%' }}
                     >
@@ -934,7 +934,7 @@ const Sidebar = (props) => {
             <div className="submenu" id="chat">
               <ul className="submenu-list" data-parent-element="#uiKit">
                 <li>
-                  <Link to={"/ver-chat"}>
+                  <Link to={"/ver-socket"}>
                     <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
                       height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"

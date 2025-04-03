@@ -65,14 +65,14 @@ const WhatsAppChat = ({
 
 
 
-  useEffect(() => {
-    dispatch(fetchUsuariosConversaciones(124))
-  }, [])
+  // useEffect(() => {
+  //   dispatch(fetchUsuariosConversaciones(124))
+  // }, [])
 
 
-  useEffect(() => {
-    dispatch(fetchUsuarioConversacionesMensajes(124))
-  }, [])
+  // useEffect(() => {
+  //   dispatch(fetchUsuarioConversacionesMensajes(124))
+  // }, [])
 
   const {
     pacientes_menciones
@@ -789,7 +789,7 @@ const WhatsAppChat = ({
             >
               <div className="p-4" style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
                 <div style={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-                  {messages.map((msg, index) => (
+                  {messages?.map((msg, index) => (
                     <div
                       key={index}
                       className="flex mb-1"
@@ -1038,8 +1038,8 @@ const WhatsAppChat = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      cursor: message.trim() ? "pointer" : "default",
-                      opacity: message.trim() ? 1 : 0.5,
+                      cursor: message?.trim() ? "pointer" : "default",
+                      opacity: message?.trim() ? 1 : 0.5,
                     }}
                   >
                     <SendOutlined style={{ color: "white" }} />

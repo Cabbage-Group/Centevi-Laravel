@@ -335,34 +335,31 @@ class UsuariosApiController extends Controller
     return $codigoAleatorio;
   }
 
-public function getUserConversations($userId)
-{
+  public function getUserConversations($userId)
+  {
     // Buscar usuario
     $usuario = Usuarios::find($userId);
     if (!$usuario) {
-        return response()->json(['error' => 'Usuario no encontrado'], 404);
+      return response()->json(['error' => 'Usuario no encontrado'], 404);
     }
 
     // Obtener conversaciones donde el usuario participa
     $conversaciones = Conversaciones::where('usuario1Id', $userId)
-        ->orWhere('usuario2Id', $userId)
-        ->with([
-            'usuario1',
-            'usuario2',
-            'mensajes' => function ($query) {
-                $query->orderBy('creadoEn', 'asc')->limit(1000); // Últimos 10 mensajes
-            }
-        ])
-        ->orderBy('creadoEn', 'asc')
-        ->get();
+      ->orWhere('usuario2Id', $userId)
+      ->with([
+        'usuario1',
+        'usuario2',
+        'mensajes' => function ($query) {
+          $query->orderBy('creadoEn', 'asc')->limit(1000); // Últimos 10 mensajes
+        }
+      ])
+      ->orderBy('creadoEn', 'asc')
+      ->get();
 
     return response()->json([
-        'data' => $conversaciones // Solo `data` con las conversaciones directamente
+      'data' => $conversaciones // Solo `data` con las conversaciones directamente
     ], 200);
-}
-
-  
-
+  }
 
   public function getUsersWithConversations($userId)
   {
