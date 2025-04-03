@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\servicios;
 
 use App\Http\Controllers\Controller;
+use App\Models\CitasServicios;
 use App\Models\Servicio;
 use App\Models\ServiciosProximosBajaVision;
 use App\Models\ServiciosProximosHistoriasClinicas;
@@ -69,8 +70,13 @@ class ServiciosApiController extends Controller
           'model' => ServiciosProximosOrtopticaAdultos::class,
           'relation' => 'ortopticaAdultos',
           'foreign_key' => 'ortopticaAdultos_id',
+        ],
+        'citas_servicios' => [
+          'model' => CitasServicios::class,
+          'relation' => 'cita',
+          'foreign_key' => 'cita_id',
         ]
-        // Puedes seguir agregando más modelos aquí...
+        
       ];
 
       // Verificar si la consulta es válida

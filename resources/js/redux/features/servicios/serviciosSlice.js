@@ -63,7 +63,7 @@ const serviciosSlice = createSlice({
         state.serviciosProximos = action.payload.data;
         state.serviciosProximos_options = state.serviciosProximos
         .map(servicios => ({
-          value: servicios.id,
+          value: servicios.servicios_id,
           label: servicios.servicio_codigo +  " | " +  servicios.servicio_nombre 
         }));
       })

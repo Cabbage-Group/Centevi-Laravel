@@ -74,7 +74,7 @@ class PediatricaApiController extends Controller
           'origen_id' => $optometriaPediatrica->id_consulta,
           'origen_tabla' => 'optometria_pediatrica',
           'fecha_hora' => $fechaProxima,
-          'tipo' => 'proxima cita',
+          'tipo' => 'proxima_cita',
           'paciente_id' => $optometriaPediatrica->paciente,
           'doctor' => $optometriaPediatrica->doctor,
           'sucursal_id' => $optometriaPediatrica->sucursal,

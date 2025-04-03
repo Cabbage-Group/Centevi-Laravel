@@ -46,6 +46,7 @@ const pacientesSlice = createSlice({
     data: [],
     pacientes: [],
     pacientes_options_selecteds: [],
+    pacientes_options_agenda: [],
     pacientes_menciones: [],
     meta: {},
     status: 'idle',
@@ -71,6 +72,15 @@ const pacientesSlice = createSlice({
             {
               value: id_paciente,
               label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
+              ...rest
+            } :
+            { ...rest }
+        );
+        state.pacientes_options_agenda = action.payload.data.map(({ id_paciente, nombres, apellidos, ...rest }) =>
+          id_paciente && nombres && apellidos ?
+            {
+              value: id_paciente,
+              label: `${nombres} ${apellidos}`,
               ...rest
             } :
             { ...rest }

@@ -77,7 +77,7 @@ class ConsultaGenericaController extends Controller
         'origen_id' => $consultaGenerica->id_consulta,
         'origen_tabla' => 'consulta_generica',
         'fecha_hora' => $fechaProxima,
-        'tipo' => 'proxima cita',
+        'tipo' => 'proxima_cita',
         'paciente_id' => $consultaGenerica->paciente,
         'doctor' => $consultaGenerica->doctor,
         'sucursal_id' => $consultaGenerica->sucursal,

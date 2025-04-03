@@ -63,17 +63,6 @@ const WhatsAppChat = ({
     usuario_conversaciones_mensajes
   } = useSelector((state) => state.usuarios);
 
-
-
-  // useEffect(() => {
-  //   dispatch(fetchUsuariosConversaciones(124))
-  // }, [])
-
-
-  // useEffect(() => {
-  //   dispatch(fetchUsuarioConversacionesMensajes(124))
-  // }, [])
-
   const {
     pacientes_menciones
   } = useSelector((state) => state.pacientes);
