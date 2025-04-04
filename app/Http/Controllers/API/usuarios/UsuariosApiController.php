@@ -23,7 +23,7 @@ class UsuariosApiController extends Controller
       'page' => 'integer|min:1',
       'limit' => 'integer|min:1|max:10000',
       'sortOrder' => Rule::in(['asc', 'desc']),
-      'sortColumn' => Rule::in(['usuario', 'nombre', 'perfil', 'sucursal', 'estado', 'ultimo_login', 'editado', 'id']),
+      'sortColumn' => Rule::in(['usuario', 'nombre', 'perfil', 'sucursal', 'estado', 'ultimo_login', 'editado', 'id', '']),
       'usuarios' => 'string|max:255',
 
     ]);
@@ -95,6 +95,20 @@ class UsuariosApiController extends Controller
     }
   }
 
+  public function getUsersExceptOne(Request $request)
+  {
+    $request->validate([
+      'exclude_id' => 'required|exists:usuarios,id_usuario',
+    ]);
+
+    $users = Usuarios::where('id_usuario', '!=', $request->exclude_id)->get();
+
+    return response()->json([
+      'status' => 'success',
+      'message' => 'Usuarios obtenidos correctamente',
+      'data' => $users
+    ]);
+  }
   public function usuariosDoctor()
   {
     try {
@@ -335,33 +349,33 @@ class UsuariosApiController extends Controller
     return $codigoAleatorio;
   }
 
-public function getUserConversations($userId)
-{
+  public function getUserConversations($userId)
+  {
     // Buscar usuario
     $usuario = Usuarios::find($userId);
     if (!$usuario) {
-        return response()->json(['error' => 'Usuario no encontrado'], 404);
+      return response()->json(['error' => 'Usuario no encontrado'], 404);
     }
 
     // Obtener conversaciones donde el usuario participa
     $conversaciones = Conversaciones::where('usuario1Id', $userId)
-        ->orWhere('usuario2Id', $userId)
-        ->with([
-            'usuario1',
-            'usuario2',
-            'mensajes' => function ($query) {
-                $query->orderBy('creadoEn', 'asc')->limit(1000); // Últimos 10 mensajes
-            }
-        ])
-        ->orderBy('creadoEn', 'asc')
-        ->get();
+      ->orWhere('usuario2Id', $userId)
+      ->with([
+        'usuario1',
+        'usuario2',
+        'mensajes' => function ($query) {
+          $query->orderBy('creadoEn', 'asc')->limit(1000); // Últimos 10 mensajes
+        }
+      ])
+      ->orderBy('creadoEn', 'asc')
+      ->get();
 
     return response()->json([
-        'data' => $conversaciones // Solo `data` con las conversaciones directamente
+      'data' => $conversaciones // Solo `data` con las conversaciones directamente
     ], 200);
-}
+  }
 
-  
+
 
 
   public function getUsersWithConversations($userId)
