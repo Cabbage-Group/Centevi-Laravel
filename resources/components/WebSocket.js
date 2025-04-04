@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { fetchUsuarios } from "../js/redux/features/usuarios/usuariosSlice";
+import { fetchUsuariosExceptOne } from "../js/redux/features/usuarios/usuariosSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage, fetchMessages, uploadFile } from "../js/redux/features/mensajes/mensajesSlice";
+import { addMessage, fetchConversations, fetchMessages, updateConversations, uploadFile } from "../js/redux/features/mensajes/mensajesSlice";
 import WhatsAppChat from "../js/admin/chat/WhatsAppChat";
 import { useRef } from "react";
 
@@ -13,25 +13,27 @@ const ChatComponent = () => {
     const [socket, setSocket] = useState(null);
     const [fileToSend, setFileToSend] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
-
-    const { usuarios } = useSelector((state) => state.usuarios);
+    const id_usuario = localStorage.getItem("id_usuario");
+    const { usuarios_except_one } = useSelector((state) => state.usuarios);
     const messages = useSelector((state) => state.chat.messages);
+    const conversations = useSelector((state) => state.chat.conversations);
     const messageEndRef = useRef(null);
 
-    useEffect(() => {
-        dispatch(fetchUsuarios({}));
-    }, [dispatch]);
+    console.log('conversations:', conversations)
 
     useEffect(() => {
-        const id_usuario = localStorage.getItem("id_usuario");
+        dispatch(fetchUsuariosExceptOne(Number(id_usuario)))
+    }, [])
 
+    useEffect(() => {
         if (!id_usuario || !receptorId) return;
-
         dispatch(fetchMessages({ id_usuario, receptorId }));
     }, [dispatch, receptorId]);
 
     useEffect(() => {
-        const id_usuario = localStorage.getItem("id_usuario");
+
+        dispatch(fetchConversations(Number(id_usuario)));
+
         const token_user = localStorage.getItem("token_user");
 
         if (!id_usuario || !token_user) return;
@@ -47,19 +49,56 @@ const ChatComponent = () => {
             dispatch(addMessage(data));
         });
 
+        newSocket.on("privateMessage", (message) => {
+            console.log("Nuevo mensaje privado recibido:", message);
+            
+            const audio = new Audio("/sounds/SonidoChat.mp3");
+            audio.play().catch((e) => {
+                console.warn("No se pudo reproducir el sonido:", e);
+                
+                if (Notification.permission === "granted") {
+                    new Notification("Nuevo mensaje privado", {
+                        body: "Necesita interactuar con la pagina" 
+                    });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission();
+                }
+            });
+        });
+        
+
+
+        newSocket.on("updateConversations", (updatedConversations) => {
+            dispatch(updateConversations(updatedConversations));
+        });
+
         setSocket(newSocket);
 
         return () => {
-            newSocket.disconnect();
+            newSocket.disconnect()
+            newSocket.off("onMessage");
+            newSocket.off("updateConversations");
         };
     }, [dispatch]);
+
+    useEffect(() => {
+
+        if (!socket || !id_usuario || !receptorId) return;
+
+        const chatId = [id_usuario, receptorId].sort().join("_");
+
+        socket.emit("joinChat", { chatId, userId: id_usuario });
+
+        return () => {
+            socket.emit("leaveChat", { chatId });
+        };
+    }, [socket, receptorId]);
 
     const sendMessage = async () => {
         if (!message.trim() && !fileToSend) {
             console.log("⚠️ Falta mensaje o archivo");
             return;
         }
-        const id_usuario = localStorage.getItem("id_usuario");
         socket.emit(
             "createChat",
             {
@@ -69,18 +108,6 @@ const ChatComponent = () => {
                 archivoUrl: null,
                 tipoArchivo: null,
                 nombreArchivo: null,
-            },
-            (response) => {
-                if (response.success) {
-                    socket.emit("sendMessage", {
-                        id_usuario,
-                        receptorId,
-                        mensaje: message,
-                        archivoUrl: null,
-                        tipoArchivo: null,
-                        nombreArchivo: null,
-                    });
-                }
             }
         );
 
@@ -89,7 +116,6 @@ const ChatComponent = () => {
         if (fileToSend) {
             try {
                 const resultAction = await dispatch(uploadFile(fileToSend));
-                console.log('resultAction:',resultAction)
                 if (uploadFile.fulfilled.match(resultAction)) {
                     const fileData = resultAction.payload;
                     socket.emit(
@@ -101,18 +127,6 @@ const ChatComponent = () => {
                             archivoUrl: fileData.archivoUrl,
                             tipoArchivo: fileData.tipoArchivo,
                             nombreArchivo: fileData.nombreArchivo,
-                        },
-                        (response) => {
-                            if (response.success) {
-                                socket.emit("sendMessage", {
-                                    id_usuario,
-                                    receptorId,
-                                    mensaje: "",
-                                    archivoUrl: fileData.archivoUrl,
-                                    tipoArchivo: fileData.tipoArchivo,
-                                    nombreArchivo: fileData.nombreArchivo,
-                                });
-                            }
                         }
                     );
                 } else {
@@ -136,7 +150,6 @@ const ChatComponent = () => {
             if (file) {
                 setFileToSend(file);
 
-                // Generar previsualización
                 if (file.type.startsWith("image/")) {
                     setFilePreview(URL.createObjectURL(file));
                 } else if (file.type.startsWith("text/")) {
@@ -150,18 +163,10 @@ const ChatComponent = () => {
         };
         input.click();
     };
-
-    const clearFile = () => {
-        setFileToSend(null);
-        setFilePreview(null);
-    };
-
-
-    console.log('fileToSend.................:',fileToSend)
     return (
         <div>
             <WhatsAppChat
-                usuarios={usuarios}
+                usuarios={usuarios_except_one}
                 setReceptorId={setReceptorId}
                 activeChat={receptorId}
                 messages={messages}
@@ -172,7 +177,7 @@ const ChatComponent = () => {
                 openFileExplorer={openFileExplorer}
                 fileToSend={fileToSend}
                 setFileToSend={setFileToSend}
-
+                conversations={conversations}
             />
         </div>
     );

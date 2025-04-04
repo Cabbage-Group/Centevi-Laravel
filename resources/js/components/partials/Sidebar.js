@@ -4,9 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import ValidarPermisos from '../../utils/ValidarPermisos';
 import { fetchValidarToken, validateUserAuth } from '../../redux/features/auth/AuthSlice';
+import { fetchConversations } from '../../redux/features/mensajes/mensajesSlice';
 
 const Sidebar = (props) => {
-
+  const id_usuario = localStorage.getItem("id_usuario");
   const { component } = props
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -19,6 +20,13 @@ const Sidebar = (props) => {
 
   const [selectPacientes, setSelectPacientes] = useState(false);
   const [loadingRoutes, setLoadingRoutes] = useState(false);
+  const conversationsLength = useSelector((state) => state.chat.conversationsLength);
+
+  console.log('conversationsLength:', conversationsLength)
+
+  useEffect(() => {
+    dispatch(fetchConversations(Number(id_usuario)));
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('token_user');
@@ -276,7 +284,7 @@ const Sidebar = (props) => {
                   <li
                     className="menu" style={{ position: 'relative' }}
                     onClick={() => {
-                      navigate("/ver-chat")
+                      navigate("/ver-socket")
                     }}
                   >
                     {/* <a href="#chat" data-active="false" className="menu-toggle"> */}
@@ -311,7 +319,7 @@ const Sidebar = (props) => {
                         fontWeight: 'bold'
                       }}
                     >
-                      22
+                      {conversationsLength}
                     </span>
                   </li>
                 )

@@ -480,9 +480,12 @@ Route::get('/api/usuario/conversaciones/{id}', [UsuariosApiController::class, 'g
 
 Route::get('/api/usuarios/conversaciones/{id}', [UsuariosApiController::class, 'getUsersWithConversations']);
 
+Route::get('/api/usuarios/exclude', [UsuariosApiController::class, 'getUsersExceptOne']);
+
 Route::get('download/{fileId}', [DownloadController::class, 'download']);
 
 Route::post('/api/upload', [DownloadController::class, 'upload']);
+
 
 Route::get('/{any}', function () {
   return view('app');

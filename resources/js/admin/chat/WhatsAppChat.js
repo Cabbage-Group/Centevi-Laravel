@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
-import { Row, Col, Input, Avatar, List, Button, Radio, Typography, Badge, Layout, Modal, Popconfirm, DatePicker, Tooltip, FloatButton } from "antd";
+import { Row, Col, Input, Avatar, List, Button, Radio, Typography, Badge, Layout, Modal, Popconfirm, DatePicker, Tooltip, FloatButton, Dropdown, Menu } from "antd";
 import {
   SendOutlined,
   SearchOutlined,
-  EllipsisOutlined,
   CalendarOutlined,
   DeleteOutlined,
   DiffOutlined,
-  DownloadOutlined,
-  FileOutlined,
   CloseOutlined
 
 } from '@ant-design/icons';
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsuarioConversacionesMensajes, fetchUsuarios, fetchUsuariosConversaciones } from "../../redux/features/usuarios/usuariosSlice";
+import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import { MentionsInput, Mention } from "react-mentions";
 import { Link } from "react-router-dom";
 import { fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
@@ -22,11 +21,14 @@ import '../../../css/chatMentions/styles.css'
 import { fetchOrdenesMenciones } from "../../redux/features/ordenes/ordenesSlice";
 import PdfThumbnail from "./PdfImage";
 import FilePreview from "./FilePreview";
+import SearchUsersChat from "./SearchUsersChat";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
 
 dayjs.locale("es");
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const WhatsAppChat = ({
   usuarios,
@@ -40,10 +42,10 @@ const WhatsAppChat = ({
   openFileExplorer = { openFileExplorer },
   fileToSend,
   setFileToSend,
+  conversations
 }) => {
 
   const dispatch = useDispatch();
-  // const [activeChat, setActiveChat] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventBadge, setEventBadge] = useState("Trabajo");
@@ -54,13 +56,12 @@ const WhatsAppChat = ({
   const [searchOrden, setSearchOrden] = useState("");
   const [searchType, setSearchType] = useState("orden");
   const [input, setInput] = useState("");
+  const [receptorName, setReceptorName] = useState("")
+  const [conversationId, setConversationId] = useState("")
   const id_usuario = localStorage.getItem("id_usuario");
 
-
   const {
-    doctores_menciones,
-    usuarios_conversaciones,
-    usuario_conversaciones_mensajes
+    doctores_menciones
   } = useSelector((state) => state.usuarios);
 
   const {
@@ -70,265 +71,6 @@ const WhatsAppChat = ({
   const {
     ordenes_menciones
   } = useSelector((state) => state.ordenes);
-
-  const [conversations, setConversations] = useState([
-    {
-      id: 0,
-      name: "María García",
-      status: "en línea",
-
-      unread: 2,
-      calendar: 4,
-      lastTimeCalendar: "2024-05-10 06:05:30",
-      lastTime: "12:30",
-      lastMessage: "¿Cómo estás hoy?",
-      messages: [
-        { text: "Hola!", sender: "bot", time: "10:03" },
-        { text: "¿Cómo estás?", sender: "bot", time: "10:04" },
-        { text: "¿Nos vemos mañana en el café?", sender: "bot", time: "10:10" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 1,
-      name: "Juan Pérez",
-      status: "escribiendo...",
-      avatar: "J",
-      unread: 0,
-      calendar: 8,
-      lastTimeCalendar: "2024-10-11 13:10:30",
-      lastTime: "Ayer",
-      lastMessage: "Vale, hablamos luego",
-      messages: [
-        { text: "Hola Juan!", sender: "bot", time: "Ayer" },
-        { text: "Te llamé ayer", sender: "user", time: "Ayer" },
-        { text: "Vale, hablamos luego", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 3,
-      name: "Carlos Rodríguez",
-      status: "última vez hoy 08:22",
-      avatar: "C",
-      unread: 0,
-      lastTime: "08:20",
-      lastMessage: "Voy a llegar tarde a la reunión",
-      messages: [
-        { text: "Buenos días", sender: "bot", time: "08:10" },
-        { text: "Buenos días Carlos", sender: "user", time: "08:15" },
-        { text: "Voy a llegar tarde a la reunión", sender: "bot", time: "08:20" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 4,
-      name: "+507 7456-3201",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 5,
-      name: "Jose Saul",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 6,
-      name: "+507 6723-4589",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 7,
-      name: "+507 7123-9876",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 8,
-      name: "Laura Martínez",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 9,
-      name: "+507 6789-6543",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 10,
-      name: "Laura Martínez",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 11,
-      name: "Laura Martínez",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    },
-    {
-      id: 12,
-      name: "Laura Martínez",
-      status: "última vez ayer 23:11",
-      avatar: "L",
-      unread: 0,
-      lastTime: "Ayer",
-      lastMessage: "Gracias por la ayuda!",
-      messages: [
-        { text: "¿Me puedes ayudar con el proyecto?", sender: "bot", time: "Ayer" },
-        { text: "Claro, mándame los detalles", sender: "user", time: "Ayer" },
-        { text: "Gracias por la ayuda!", sender: "bot", time: "Ayer" },
-        {
-          type: "file",
-          fileName: "documento.pdf",
-          fileUrl: "/files/documento.pdf",
-          sender: "user",
-          time: "10:15",
-        },
-      ]
-    }
-  ]);
 
   useEffect(() => {
     dispatch(fetchUsuarios({}))
@@ -369,40 +111,6 @@ const WhatsAppChat = ({
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages])
-
-  // const openFileExplorer = () => {
-  //   const input = document.createElement("input");
-  //   input.type = "file";
-  //   input.accept = "*";
-  //   input.onchange = (event) => {
-  //     const file = event.target.files[0];
-  //     if (file) {
-  //       setFileToSend(file);
-  //     }
-  //   };
-  //   input.click();
-  // };
-
-  // const sendFileMessage = (file) => {
-  //   const now = new Date();
-  //   const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-  //   const fileMessage = {
-  //     type: "file",
-  //     fileName: file.name,
-  //     fileUrl: URL.createObjectURL(file),
-  //     fileSize: `${(file.size / 1024).toFixed(2)} KB`, // Convertir bytes a KB
-  //     sender: "user",
-  //     time
-  //   };
-
-  //   const updatedConversations = [...conversations];
-  //   updatedConversations[activeChat].messages.push(fileMessage);
-  //   updatedConversations[activeChat].lastMessage = file.name;
-  //   updatedConversations[activeChat].lastTime = time;
-
-  //   setConversations(updatedConversations);
-  // };
 
 
   const formatMessage = (message) => {
@@ -465,48 +173,6 @@ const WhatsAppChat = ({
     });
   };
 
-  // const sendMessage = () => {
-  //   if (input.trim() === "") return;
-  //   const now = new Date();
-  //   const time = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-
-  //   console.log('activeChat:', activeChat)
-  //   const updatedConversations = [...conversations];
-
-  //   updatedConversations[activeChat].messages.push({
-  //     text: input,
-  //     sender: "user",
-  //     time
-  //   });
-
-  //   updatedConversations[activeChat].lastMessage = input;
-  //   updatedConversations[activeChat].lastTime = time;
-
-  //   setConversations(updatedConversations);
-  //   setInput("");
-
-  //   setTimeout(() => {
-  //     const reply = {
-  //       text: "Ok, entendido 👍",
-  //       sender: "bot",
-  //       time: `${now.getHours()}:${(now.getMinutes() + 1).toString().padStart(2, '0')}`
-  //     };
-
-  //     const conversationsWithReply = [...updatedConversations];
-  //     conversationsWithReply[activeChat].messages.push(reply);
-  //     conversationsWithReply[activeChat].lastMessage = reply.text;
-  //     conversationsWithReply[activeChat].lastTime = reply.time;
-
-  //     setConversations(conversationsWithReply);
-  //   }, 1500);
-  // };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  };
-
   const getAvatarColor = (index) => {
     const colors = ['#128C7E', '#075E54', '#25D366', '#34B7F1', '#4FCE5D'];
     return colors[index % colors.length];
@@ -538,7 +204,8 @@ const WhatsAppChat = ({
     };
   }, []);
 
-  console.log('fileToSend:', fileToSend)
+
+  console.log('conversations',conversations)
 
   return (
 
@@ -548,27 +215,12 @@ const WhatsAppChat = ({
     >
       <Col xxl={8} xl={8} md={8} className="border-r">
         <Layout className="h-full flex flex-col" style={{ height: '90vh' }}>
-          <Header
-            style={{ padding: "0 20px", marginBottom: '10px', borderRadius: '6px', background: 'white' }}
-            className="flex justify-between shadow-md"
+          <SearchUsersChat
+            users={usuarios}
+            setReceptorId={setReceptorId}
+            setReceptorName={setReceptorName}
           >
-            <div className="flex">
-              <span className="font-extrabold text-2xl tracking-wide"
-                style={{
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: "#202C33 !important",
-                  letterSpacing: "1px"
-                }}
-              >
-                Chats
-              </span>
-            </div>
-            <div className="flex gap-6 text-white">
-              <SearchOutlined style={{ fontSize: "20px", cursor: "pointer", transition: "0.3s" }} className="hover:text-gray-400" />
-              <EllipsisOutlined style={{ fontSize: "20px", cursor: "pointer", transition: "0.3s" }} className="hover:text-gray-400" />
-            </div>
-          </Header>
+          </SearchUsersChat>
 
           {/* Conversations List con Scroll Interno */}
           <Content
@@ -597,39 +249,42 @@ const WhatsAppChat = ({
               />
             </div>
             <List
-              dataSource={usuarios}
+              dataSource={conversations}
               renderItem={(item, index) => (
                 <List.Item
                   className={`cursor-pointer px-3 py-2 transition-colors`}
                   style={{
-                    backgroundColor: activeChat === item.id_usuario ? "#eaeaea" : "white",
+                    backgroundColor: activeChat === item?.userId ? "#eaeaea" : "white",
                     cursor: "pointer",
                   }}
-                  onClick={() => setReceptorId(item.id_usuario)}
+                  onClick={() => {
+                    setReceptorId(item?.userId)
+                    setReceptorName(item?.name)
+                  }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#eaeaea")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = activeChat === item.id_usuario ? "#eaeaea" : "white")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = activeChat === item?.userId ? "#eaeaea" : "white")}
                 >
                   <div className="w-full" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "12px" }}>
                     <Avatar style={{ backgroundColor: getAvatarColor(index) }} size={48}>
                       {item.avatar}
                     </Avatar>
                     <div>
-                      <Text strong style={{ color: "black" }}>{item.nombre}</Text>
+                      <Text strong style={{ color: "black" }}>{item?.name}</Text>
                       <Text type="secondary" style={{ fontSize: "13px", display: "block", maxWidth: "80%", color: "#8696A0" }} ellipsis>
-                        {item.lastMessage}
+                        {item?.lastMessage}
                       </Text>
                     </div>
                   </div>
                   <div className="flex-1 flex flex-col border-b border-gray-400 pb-2">
                     <div className="flex justify-between items-center">
                       <Text type="secondary" style={{ fontSize: "12px", color: "#8696A0" }}>
-                        {item.lastTime}
+                        {item?.lastTime}
                       </Text>
                     </div>
                     <div className="flex items-center gap-3">
-                      {item.unread > 0 && (
+                      {item.unreadMessages > 0 && (
                         <Badge
-                          count={item.unread}
+                          count={item?.unreadMessages}
                           style={{
                             backgroundColor: "#00A884",
                             color: "white",
@@ -637,8 +292,8 @@ const WhatsAppChat = ({
                           }}
                         />
                       )}
-                      {item.calendar > 0 && (
-                        <Tooltip title={item.calendar}>
+                      {item?.calendar > 0 && (
+                        <Tooltip title={item?.calendar}>
                           <Badge
                             count={
                               <CalendarOutlined
@@ -680,9 +335,6 @@ const WhatsAppChat = ({
 
         </Layout>
       </Col>
-
-
-
       <Col xxl={16} xl={16} md={16} style={{ position: 'relative' }}>
         <Layout
           className="h-full flex flex-col"
@@ -710,7 +362,7 @@ const WhatsAppChat = ({
               </Avatar>
               <div style={{ display: "table-cell", verticalAlign: "middle", paddingLeft: "10px" }}>
                 <div style={{ color: "black", fontWeight: "500", whiteSpace: "nowrap" }}>
-                  {conversations[activeChat]?.name}
+                  {receptorName}
                 </div>
               </div>
             </div>
@@ -805,13 +457,13 @@ const WhatsAppChat = ({
                           {msg.tipoArchivo ? (
                             <FilePreview msg={msg} />
                           ) : (
-                            msg.contenido
+                            formatMessage(msg.contenido)
                           )}
                         </div>
 
                         <div style={{ display: "flex", justifyContent: "flex-end", alignSelf: "flex-end", marginLeft: "5px", marginBottom: "-2px" }}>
                           <span style={{ fontSize: "10px", whiteSpace: "nowrap", color: "rgba(255, 255, 255, 0.6)" }}>
-                            {msg.time} {new Date().getHours() >= 12 ? "p.m." : "a.m."}
+                            {dayjs(msg.creadoEn).tz(dayjs.tz.guess()).format('h:mm a')}
                           </span>
                         </div>
                       </div>
