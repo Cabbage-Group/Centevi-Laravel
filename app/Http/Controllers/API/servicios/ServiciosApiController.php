@@ -30,8 +30,8 @@ class ServiciosApiController extends Controller
   public function getServiciosProximos(Request $request)
   {
     try {
-      $consultaNombre = $request->input('consulta_nombre'); // Nombre de la consulta
-      $consultaId = $request->input('consulta_id'); // ID de la consulta
+      $consultaNombre = $request->input('consulta_nombre'); 
+      $consultaId = $request->input('consulta_id'); 
 
       if (empty($consultaNombre)) {
         return response()->json([
@@ -39,7 +39,6 @@ class ServiciosApiController extends Controller
           'data' => [],
         ], 200);
       }
-      // Mapeo del nombre de la consulta a su respectivo modelo y relación con servicios
       $models = [
         'baja_vision' => [
           'model' => ServiciosProximosBajaVision::class,
@@ -79,35 +78,30 @@ class ServiciosApiController extends Controller
         
       ];
 
-      // Verificar si la consulta es válida
       if (!isset($models[$consultaNombre])) {
         return response()->json([
           'status' => 'success',
-          'data' => [], // Devuelve un array vacío
+          'data' => [],
         ], 200);
       }
-
 
       $modelClass = $models[$consultaNombre]['model'];
       $relationName = $models[$consultaNombre]['relation'];
       $foreignKey = $models[$consultaNombre]['foreign_key'] ?? 'consulta_id';
 
-      // Obtener los servicios próximos del modelo correspondiente
       $query = $modelClass::with(['servicio:id,servicio,codigo', $relationName])
         ->when(!empty($consultaId), function ($q) use ($foreignKey, $consultaId) {
           return $q->where($foreignKey, (int) $consultaId);
         })
         ->get();
 
-      // Verificar si se encontraron registros
       if ($query->isEmpty()) {
         return response()->json([
           'status' => 'success',
-          'data' => [], // Devuelve un array vacío
+          'data' => [],
         ], 200);
       }
 
-      // Transformar los datos de la consulta
       $result = $query->map(function ($item) use ($relationName) {
         return [
           'id' => $item->id,

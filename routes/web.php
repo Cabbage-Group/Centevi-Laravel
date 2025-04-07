@@ -466,6 +466,8 @@ Route::get('/api/search/ordenes', [OrdenesApiController::class, 'searchOrdenes']
 
 Route::post('/api/citas/agendar', [AgendaApiController::class, 'agendarCita']);
 
+Route::delete('/api/citas/delete/{id}', [AgendaApiController::class, 'deleteCita']);
+
 Route::get('/api/proveedor-material', [ProveedorMaterialApiController::class, 'index']);
 
 Route::get('/api/proveedor-material/{id}', [ProveedorMaterialApiController::class, 'show']);

@@ -11,7 +11,7 @@ import "dayjs/locale/es";
 import BotonesFiltroAgenda from "./components/BotonesFiltroAgenda";
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchServicios, fetchServiciosProximosAgenda } from "../../redux/features/servicios/serviciosSlice";
-import { addOrUpdateEvent, fetchAgendarCitas, fetchCitasAgenda, setCurrentViewAgenda } from "../../redux/features/citas/CitasAgendaSlice";
+import { addOrUpdateEvent, deleteCita, fetchAgendarCitas, fetchCitasAgenda, setCurrentViewAgenda } from "../../redux/features/citas/CitasAgendaSlice";
 import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
 import Swal from 'sweetalert2';
 import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
@@ -69,7 +69,7 @@ Paciente: {nombre}
 Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas📚`
   );
 
- 
+
 
   const calendarRef = useRef(null);
 
@@ -97,8 +97,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   useEffect(() => {
     setProximosServicios(serviciosProximos_options);
   }, [serviciosProximos_options]);
-
-
 
   useEffect(() => {
     form.setFieldsValue({ agendado_por: usuario });
@@ -187,7 +185,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     const startYear = currentDateAgenda.getFullYear();
     const endMonth = currentEndDateAgenda.getMonth() + 1;
     const endYear = currentEndDateAgenda.getFullYear();
-  
+
     const months = [];
     for (let m = startMonth; m <= (startYear === endYear ? endMonth : 12); m++) {
       months.push(m);
@@ -197,26 +195,26 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         months.push(m);
       }
     }
-  
+
     const years = [];
     for (let y = startYear; y <= endYear; y++) {
       years.push(y);
     }
-  
+
     let tipo = [];
     let ex_proxima_cita = [];
     let citas_id_null = true;
-  
+
     if (selectedIndex.length === 2 && selectedIndex.includes(0) && selectedIndex.includes(1)) {
       tipo = ['consulta', 'terapia'];
       citas_id_null = true;
-      ex_proxima_cita = [false]; 
-    } 
+      ex_proxima_cita = [false];
+    }
     else if (selectedIndex.length === 3 && selectedIndex.includes(0) && selectedIndex.includes(1) && selectedIndex.includes(2)) {
       tipo = ['consulta', 'terapia', 'proxima_cita'];
       citas_id_null = true;
       ex_proxima_cita = [true, false];
-    } 
+    }
     else {
       if (selectedIndex.includes(0)) {
         tipo.push('consulta');
@@ -233,17 +231,17 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         ex_proxima_cita.push(true);
       }
     }
-  
-    dispatch(fetchCitasAgenda({ 
-      months, 
-      years, 
-      sucursales: selectedSucursales, 
-      tipo, 
-      ex_proxima_cita, 
-      citas_id_null 
+
+    dispatch(fetchCitasAgenda({
+      months,
+      years,
+      sucursales: selectedSucursales,
+      tipo,
+      ex_proxima_cita,
+      citas_id_null
     }));
   }, [currentView, currentDateAgenda, selectedSucursales, currentEndDateAgenda, selectedIndex, dispatch]);
-  
+
 
   const handleDateChange = (dateInfo) => {
     const { view } = dateInfo;
@@ -275,11 +273,9 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   const generateWhatsAppLink = () => {
     const fecha = new Date(dateEvent);
 
-    // Obtener el día en español
     const opcionesFecha = { weekday: "long", day: "numeric", month: "long", year: "numeric", locale: "es-ES" };
     const dia = fecha.toLocaleDateString("es-ES", opcionesFecha);
 
-    // Obtener la hora en formato de 12 horas con AM/PM
     const opcionesHora = { hour: "2-digit", minute: "2-digit", hour12: true };
     const hora = fecha.toLocaleTimeString("es-ES", opcionesHora);
 
@@ -299,7 +295,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   const handleContactarPaciente = async () => {
 
     try {
-      // Abrir enlace de WhatsApp
       window.open(generateWhatsAppLink(), '_blank');
     } catch (error) {
       console.error('Error al crear contacto:', error);
@@ -337,6 +332,19 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
   };
 
+  useEffect(() => {
+    if (consultaId) {
+      console.log('entre2')
+      dispatch(
+        fetchServiciosProximosAgenda({
+          consulta_nombre: tableName,
+          consulta_id: consultaId,
+        })
+      );
+    }
+  }, [consultaId]);
+
+
   const handleEventClick = (info) => {
     const eventId = Number(info.event.id);
     let clickedEvent = citasAgenda.find(
@@ -356,13 +364,13 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       });
     }
     if (clickedEvent) {
+      setConsultaId(clickedEvent.origen_id);
+      setTableName(clickedEvent.origen_tabla);
       setDateEvent(clickedEvent.start)
       setEventPaciente(clickedEvent.paciente)
       setSucursal(clickedEvent.sucursal)
       setIsEditMode(true);
-      setCurrentEventId(clickedEvent.id);
-      setTableName(clickedEvent.origen_tabla);
-      setConsultaId(clickedEvent.origen_id);
+      setCurrentEventId(clickedEvent.id); 
       setSucursalId(clickedEvent.sucursal_id);
       setPacienteId(clickedEvent.paciente_id)
       setCelular(clickedEvent.celular);
@@ -382,19 +390,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       });
       form.validateFields();
     }
-
   };
 
-  useEffect(() => {
-    if (consultaId) {
-      dispatch(
-        fetchServiciosProximosAgenda({
-          consulta_nombre: tableName,
-          consulta_id: consultaId,
-        })
-      );
-    }
-  }, [consultaId]);
 
 
   useEffect(() => {
@@ -465,8 +462,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
   const handleDeleteEvent = () => {
     if (currentEventId) {
-      setEvents(citasAgenda.filter(event => event.id !== currentEventId));
       setIsModalOpen(false);
+      dispatch(deleteCita(currentEventId))
       resetForm();
     }
   };
@@ -778,8 +775,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         width={"90vh"}
         onCancel={() => {
           setIsModalOpen(false);
- 
-       
+
+
         }}
         footer={[
           <div style={{
@@ -814,7 +811,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 key="cancel"
                 onClick={() => {
                   setIsModalOpen(false);
-               
+
                 }}
               >
                 Cancelar
@@ -994,8 +991,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
             </Radio.Group>
           </Form.Item>
 
-          {/* ------------------- */}
-
           <div className="form-row mb-4 mt-2">
             <div className="form-group col-md-12">
               <label htmlFor="tags">Servicios a realizar</label>
@@ -1123,9 +1118,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         />
 
       </Modal>
-
-
-
     </div>
   );
 };

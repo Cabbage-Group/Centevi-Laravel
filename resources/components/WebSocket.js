@@ -19,8 +19,6 @@ const ChatComponent = () => {
     const conversations = useSelector((state) => state.chat.conversations);
     const messageEndRef = useRef(null);
 
-    console.log('conversations:', conversations)
-
     useEffect(() => {
         dispatch(fetchUsuariosExceptOne(Number(id_usuario)))
     }, [])

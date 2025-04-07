@@ -68,6 +68,20 @@ export const fetchAgendarCitas = createAsyncThunk(
     }
 );
 
+export const deleteCita = createAsyncThunk(
+    'citasAgenda/deleteCita',
+    async (id_cita) => {
+        try {
+            await axios.delete(`${API}/citas/delete/${id_cita}`);
+            return id_cita;
+        } catch (error) {
+            console.error('Error deleting cita:', error.response.data);
+            throw error;
+        }
+    }
+);
+
+
 const citasAgendaSlice = createSlice({
     name: 'citasAgenda',
     initialState: {
@@ -93,7 +107,6 @@ const citasAgendaSlice = createSlice({
             state.currentView = action.payload;
         },
         setCurrentTypeAgenda: (state, action) => {
-            console.log('Nuevo currentType:', action.payload);
             state.currentType = action.payload;
         }
     },
@@ -304,6 +317,10 @@ const citasAgendaSlice = createSlice({
                 } else {
                     console.log('No hay nueva cita para agregar');
                 }
+            })
+            .addCase(deleteCita.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.citasAgenda = state.citasAgenda.filter(cita => cita.id !== action.payload);
             });
 
     }
