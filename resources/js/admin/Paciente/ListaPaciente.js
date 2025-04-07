@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchPacientes, eliminarPaciente } from '../../redux/features/pacientes/pacientesSlice.js';
+import { fetchPacientes, eliminarPaciente, fetchInterfuerza } from '../../redux/features/pacientes/pacientesSlice.js';
 import { Link } from 'react-router-dom';
 import PaginationPacientes from './PaginationPacientes.js';
 import Swal from 'sweetalert2';
@@ -61,6 +61,50 @@ const ListaPaciente = () => {
       }
     });
   };
+
+  const handleVerificarInterfuerza = (ruc) => {
+    Swal.fire({
+      title: '¿Deseas verificar este paciente en el sistema externo?',
+      text: `RUC: ${ruc}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, verificar',
+      cancelButtonText: 'Cancelar'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const resultAction = await dispatch(fetchInterfuerza(ruc));
+
+          if (resultAction.type === 'pacientes/fetchInterfuerza/rejected') {
+            Swal.fire({
+              title: 'Error',
+              text: resultAction.payload.message,
+              icon: 'error'
+            });
+            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
+          } else {
+            const data = resultAction.payload;
+            Swal.fire({
+              title: 'Verificación exitosa',
+              text: data.message,
+              icon: 'success'
+            });
+            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
+          }
+        } catch (error) {
+          Swal.fire({
+            title: 'Error',
+            text: error.response?.data?.message || 'Hubo un problema al verificar',
+            icon: 'error'
+          });
+        }
+      }
+    });
+  };
+
+
 
 
 
@@ -133,6 +177,9 @@ const ListaPaciente = () => {
                               <th>
                                 Fecha de creacion
                               </th>
+                              <th>
+                                Interfuerza
+                              </th>
                               <th className="text-center dt-no-sorting">
                                 Action
                               </th>
@@ -151,6 +198,13 @@ const ListaPaciente = () => {
                                         moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
                                       }
                                     </td>
+                                    <td
+                                      style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                                      onClick={() => handleVerificarInterfuerza(paciente.nro_cedula)}
+                                    >
+                                      {paciente.interfuerza === null ? 'Sin verificar' : paciente.interfuerza ? 'Sí' : 'No'}
+                                    </td>
+
                                     <td>
                                       <div className="btn-group">
 
@@ -161,7 +215,6 @@ const ListaPaciente = () => {
                                             data-toggle="modal"
 
                                           >
-
                                             <svg
                                               className="h-6 w-6"
                                               fill="none"
@@ -252,6 +305,9 @@ const ListaPaciente = () => {
                               </th>
                               <th>
                                 Fecha de creacion
+                              </th>
+                              <th>
+                                Interfuerza
                               </th>
                               <th className="text-center dt-no-sorting">
                                 Action

@@ -14,11 +14,25 @@ use App\Models\ConsultaGenerica;
 use App\Models\RefraccionGeneral;
 use App\Models\OptometriaNeonatos;
 use App\Models\OrtopticaAdultos;
+use App\Services\InterfuerzaCreateService;
+use App\Services\InterfuerzaService;
 use Carbon\Carbon;
 use GrahamCampbell\ResultType\Success;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class PacientesApiController extends Controller
+
 {
+  protected $interfuerzaService;
+  protected $interfuerzaCreateService;
+
+  public function __construct(InterfuerzaService $interfuerzaService, InterfuerzaCreateService $interfuerzaCreateService)
+  {
+      $this->interfuerzaService = $interfuerzaService;
+      $this->interfuerzaCreateService = $interfuerzaCreateService;
+  }
+
   public function pacientes(Request $request)
   {
     // Obtener los parámetros
@@ -236,6 +250,71 @@ class PacientesApiController extends Controller
 
     // Crear un nuevo paciente
     $paciente = Pacientes::create($data);
+
+    $payload = [
+      'class' => 'PUT',
+      'action' => 'customers',
+      'data' => [
+        "Tipo" => "CLIENTE",
+        "RUC" => $paciente->nro_cedula ?? '',
+        "DV" => "12",
+        "Empresa" => "MI EMPRESA S.A.",
+        "Email" => $paciente->email ?? '',
+        "Status" => "ACTIVE",
+        "Telefono_1" => $paciente->telefono ?? '',
+        "Telefono_2" => "",
+        "Cellular" => $paciente->celular ?? '',
+        "Direccion" => $paciente->direccion ?? '',
+        "Ciudad" => "PANAMA",
+        "Estado" => "PANAMA",
+        "Pais" => "PANAMA",
+        "Empleados" => "1",
+        "Industria" => "Retail",
+        "Credit_Term" => "CREDIT",
+        "Due_Days" => "30",
+        "Credit_Amount_Limit" => "1000.00",
+        "Vendedor" => "adm@elconix.com",
+        "BirthDate" => $paciente->fecha_nacimiento ?? "1980-02-21",
+        "Taxable" => true,
+        "Tipo_Contribuyente" => "1",
+        "Clase" => "Juridica",
+        "Name_First" => $paciente->nombres ?? '',
+        "Name_Second" => "",
+        "LastName_First" => $paciente->apellidos ?? '',
+        "LastName_Second" => ""
+      ]
+    ];
+
+    try {
+      $response = $this->interfuerzaCreateService->request($payload);
+
+      if (!$response->successful()) {
+        // Loguear y devolver advertencia
+        Log::error('Error al crear cliente en Interfuerza', [
+          'payload' => $payload,
+          'response_status' => $response->status(),
+          'response_body' => $response->body()
+        ]);
+        return response()->json([
+          'respuesta' => true,
+          'mensaje' => 'Paciente registrado, pero no se pudo registrar en Interfuerza',
+          'data' => [$paciente],
+          'mensaje_dev' => 'Error en Interfuerza: ' . $response->body()
+        ], 207); // 207 Multi-Status: éxito parcial
+      }
+    } catch (\Exception $e) {
+      // Manejar cualquier excepción, como timeout o conexión
+      Log::error('Excepción al comunicar con Interfuerza', [
+        'exception' => $e->getMessage(),
+        'payload' => $payload
+      ]);
+      return response()->json([
+        'respuesta' => true,
+        'mensaje' => 'Paciente registrado, pero no se pudo conectar con Interfuerza',
+        'data' => [$paciente],
+        'mensaje_dev' => 'Excepción: ' . $e->getMessage()
+      ], 207);
+    }
 
     // Retornar respuesta exitosa
     return response()->json([

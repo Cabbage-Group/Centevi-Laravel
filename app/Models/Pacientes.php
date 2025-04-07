@@ -36,6 +36,7 @@ class Pacientes extends Model
     'medico',
     'urgencia',
     'menor',
+    'interfuerza',
     'fecha_creacion',
   ];
 
@@ -45,5 +46,4 @@ class Pacientes extends Model
     'sucursal' => 'integer',
     'fecha_creacion' => 'date',
   ];
-
 }

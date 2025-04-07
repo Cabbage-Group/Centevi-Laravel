@@ -22,6 +22,7 @@ use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
 use App\Http\Controllers\API\download\DownloadController;
 use App\Http\Controllers\API\email\EmailController;
+use App\Http\Controllers\API\interfuerza\InterfuerzaController;
 use App\Http\Controllers\API\kpis\KpisApiController;
 use App\Http\Controllers\API\marcas\MarcasApiController;
 use App\Http\Controllers\API\materiales\MaterialesApiController;
@@ -487,6 +488,9 @@ Route::get('/api/usuarios/exclude', [UsuariosApiController::class, 'getUsersExce
 Route::get('download/{fileId}', [DownloadController::class, 'download']);
 
 Route::post('/api/upload', [DownloadController::class, 'upload']);
+
+Route::post('/api/verificar-interfuerza', [InterfuerzaController::class, 'verificarYActualizar']);
+
 
 
 Route::get('/{any}', function () {
