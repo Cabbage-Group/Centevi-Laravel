@@ -41,7 +41,7 @@ class AgendaApiController extends Controller
         }
 
         if (empty($tipo)) {
-            $tipo = null; 
+            $tipo = null;
         }
 
         $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono,celular', 'sucursal:id_sucursal,nombre'])
@@ -62,7 +62,7 @@ class AgendaApiController extends Controller
 
         if (!empty($exProximaCita)) {
             $query->whereIn('ex_proxima_cita', (array) $exProximaCita);
-          }
+        }
 
         if (!is_null($hasCitasId) && filter_var($hasCitasId, FILTER_VALIDATE_BOOLEAN)) {
             $query->whereNotNull('citas_id');
@@ -73,7 +73,7 @@ class AgendaApiController extends Controller
         }
 
         if (!is_null($tipo) && !empty($tipo)) {
-            $query->whereIn('tipo', $tipo); 
+            $query->whereIn('tipo', $tipo);
         }
 
         return response()->json([
@@ -169,6 +169,56 @@ class AgendaApiController extends Controller
             'cita_existente_id' => $request->cita_existente_id
         ], 201);
     }
+
+    public function deleteCita($id)
+    {
+        $cita = Citas::find($id);
+
+        if (!$cita) {
+            return response()->json(['message' => 'Cita no encontrada'], 404);
+        }
+
+        $citaEliminada = $cita->toArray(); // Guardamos los datos antes de eliminar
+
+        if ($cita->ex_proxima_cita == 1 || $cita->ex_proxima_cita === true) {
+            $origenTabla = $cita->origen_tabla;
+            $origenId = $cita->origen_id;
+
+            $tablaServiciosMap = [
+                'baja_vision' => ['tabla' => 'servicios_proximos_baja_vision', 'columna' => 'bajavision_id'],
+                'consulta_generica' => ['tabla' => 'servicios_proximos_historias_clinicas', 'columna' => 'historiaclinica_id'],
+                'refraccion_general' => ['tabla' => 'servicios_proximos_optometria_general', 'columna' => 'optometriageneral_id'],
+                'optometria_neonatos' => ['tabla' => 'servicios_proximos_optometria_neonatos', 'columna' => 'optometriaNeonatos_id'],
+                'optometria_pediatrica' => ['tabla' => 'servicios_proximos_optometria_pediatrica', 'columna' => 'optometriaPediatrica_id'],
+                'ortoptica_adultos' => ['tabla' => 'servicios_proximos_ortoptica_adultos', 'columna' => 'ortopticaAdultos_id'],
+            ];
+
+            if (isset($tablaServiciosMap[$origenTabla])) {
+                $tablaServicios = $tablaServiciosMap[$origenTabla]['tabla'];
+                $columna = $tablaServiciosMap[$origenTabla]['columna'];
+
+                try {
+                    DB::table($tablaServicios)
+                        ->where($columna, $origenId)
+                        ->delete();
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'message' => 'Error al eliminar servicios relacionados',
+                        'error' => $e->getMessage()
+                    ], 500);
+                }
+            }
+        }
+
+        $cita->delete();
+
+        return response()->json([
+            'message' => 'Cita eliminada con éxito',
+            'cita' => $citaEliminada
+        ], 200);
+    }
+
+
 
 
 

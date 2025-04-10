@@ -22,6 +22,7 @@ use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
 use App\Http\Controllers\API\download\DownloadController;
 use App\Http\Controllers\API\email\EmailController;
+use App\Http\Controllers\API\interfuerza\InterfuerzaController;
 use App\Http\Controllers\API\kpis\KpisApiController;
 use App\Http\Controllers\API\marcas\MarcasApiController;
 use App\Http\Controllers\API\materiales\MaterialesApiController;
@@ -466,6 +467,8 @@ Route::get('/api/search/ordenes', [OrdenesApiController::class, 'searchOrdenes']
 
 Route::post('/api/citas/agendar', [AgendaApiController::class, 'agendarCita']);
 
+Route::delete('/api/citas/delete/{id}', [AgendaApiController::class, 'deleteCita']);
+
 Route::get('/api/proveedor-material', [ProveedorMaterialApiController::class, 'index']);
 
 Route::get('/api/proveedor-material/{id}', [ProveedorMaterialApiController::class, 'show']);
@@ -480,9 +483,15 @@ Route::get('/api/usuario/conversaciones/{id}', [UsuariosApiController::class, 'g
 
 Route::get('/api/usuarios/conversaciones/{id}', [UsuariosApiController::class, 'getUsersWithConversations']);
 
+Route::get('/api/usuarios/exclude', [UsuariosApiController::class, 'getUsersExceptOne']);
+
 Route::get('download/{fileId}', [DownloadController::class, 'download']);
 
 Route::post('/api/upload', [DownloadController::class, 'upload']);
+
+Route::post('/api/verificar-interfuerza', [InterfuerzaController::class, 'verificarYActualizar']);
+
+
 
 Route::get('/{any}', function () {
   return view('app');

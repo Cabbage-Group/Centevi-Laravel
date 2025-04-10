@@ -129,6 +129,21 @@ export const fetchConversacionesWebSocket = createAsyncThunk(
   }
 );
 
+
+export const fetchUsuariosExceptOne = createAsyncThunk(
+  'usuarios/fetchUsuariosExceptOne',
+  async (excludeId) => {
+    try {
+      const response = await axios.get(`/api/usuarios/exclude`, {
+        params: { exclude_id: excludeId }
+      });
+      return response.data;
+    } catch (error) {
+      throw Error(error.response?.data?.message || 'Error al obtener usuarios');
+    }
+  }
+);
+
 const usuariosSlice = createSlice({
   name: 'usuarios',
   initialState: {
@@ -141,6 +156,7 @@ const usuariosSlice = createSlice({
     doctores_menciones: [],
     usuarios_conversaciones: [],
     usuario_conversaciones_mensajes: [],
+    usuarios_except_one: [],
     meta: {},
     status: 'idle',
     error: null,
@@ -210,7 +226,6 @@ const usuariosSlice = createSlice({
       })
       .addCase(updateEstadoUsuario.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Actualiza el estado del usuario en la lista local
         const updatedUsuario = action.payload.data;
         state.usuarios = state.usuarios.map(usuario =>
           usuario.id_usuario === updatedUsuario.id_usuario ? updatedUsuario : usuario
@@ -236,10 +251,14 @@ const usuariosSlice = createSlice({
         state.usuarios_conversaciones = action.payload.data;
       })
       .addCase(fetchUsuarioConversacionesMensajes.fulfilled, (state, action) => {
-        console.log('action.payload:',action.payload)
         state.status = 'succeeded';
         state.usuario_conversaciones_mensajes = action.payload.data;
+      })
+      .addCase(fetchUsuariosExceptOne.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.usuarios_except_one = action.payload.data;
       });
+
   },
 });
 

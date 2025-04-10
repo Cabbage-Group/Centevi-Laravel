@@ -5,9 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import ValidarPermisos from '../../utils/ValidarPermisos';
 import { fetchValidarToken, validateUserAuth } from '../../redux/features/auth/AuthSlice';
 import getIp from '../../redux/features/utils/getIp';
+import { fetchConversations } from '../../redux/features/mensajes/mensajesSlice';
 
 const Sidebar = (props) => {
-
+  const id_usuario = localStorage.getItem("id_usuario");
   const { component } = props
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -20,6 +21,13 @@ const Sidebar = (props) => {
 
   const [selectPacientes, setSelectPacientes] = useState(false);
   const [loadingRoutes, setLoadingRoutes] = useState(false);
+  const conversationsLength = useSelector((state) => state.chat.conversationsLength);
+
+  console.log('conversationsLength:', conversationsLength)
+
+  useEffect(() => {
+    dispatch(fetchConversations(Number(id_usuario)));
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('token_user');
@@ -314,7 +322,7 @@ const Sidebar = (props) => {
                         fontWeight: 'bold'
                       }}
                     >
-                      22
+                      {conversationsLength}
                     </span>
                   </li>
                 )

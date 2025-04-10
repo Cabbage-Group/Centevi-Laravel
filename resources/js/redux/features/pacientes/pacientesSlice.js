@@ -24,7 +24,7 @@ export const fetchPacientes = createAsyncThunk(
 export const fetchPacientesMenciones = createAsyncThunk(
   'pacientes/fetchPacientesMenciones',
   async ({ search = '' }) => {
-    
+
     const response = await axios.get(`${API}/menciones/pacientes`, {
       params: { search }
     });
@@ -40,6 +40,25 @@ export const eliminarPaciente = createAsyncThunk(
   }
 );
 
+export const fetchInterfuerza = createAsyncThunk(
+  'pacientes/fetchInterfuerza',
+  async (ruc, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API}/verificar-interfuerza`, { ruc });
+      return response.data; 
+    } catch (error) {
+      if (error.response) {
+        return rejectWithValue(error.response.data);  
+      } else {
+        return rejectWithValue({ message: 'Error desconocido' });
+      }
+    }
+  }
+);
+
+
+
+
 const pacientesSlice = createSlice({
   name: 'pacientes',
   initialState: {
@@ -50,6 +69,8 @@ const pacientesSlice = createSlice({
     pacientes_menciones: [],
     meta: {},
     status: 'idle',
+    statusInterfuerza: 'idle',
+    errorInterfaz: null,
     error: null,
     search: '',
     doctor: '',
@@ -111,6 +132,18 @@ const pacientesSlice = createSlice({
       })
       .addCase(fetchPacientesMenciones.fulfilled, (state, action) => {
         state.pacientes_menciones = action.payload.data;
+      })
+      .addCase(fetchInterfuerza.pending, (state) => {
+        state.statusInterfuerza = 'loading';
+      })
+      .addCase(fetchInterfuerza.fulfilled, (state, action) => {
+        state.statusInterfuerza = 'succeeded';
+
+      })
+      .addCase(fetchInterfuerza.rejected, (state, action) => {
+        console.log(' action:', action)
+        state.statusInterfuerza = 'failed';
+        state.errorInterfaz = action.error.message;
       });
   },
 });

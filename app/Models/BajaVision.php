@@ -64,11 +64,6 @@ class BajaVision extends Model
     return $this->hasMany(ServiciosProximosBajaVision::class, 'bajavision_id');
   }
 
-  public function proximaCita()
-  {
-    return $this->morphOne(ProximasCitas::class, 'origen', 'origen_tabla', 'origen_id');
-  }
-
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'sucursal' => 'integer',
