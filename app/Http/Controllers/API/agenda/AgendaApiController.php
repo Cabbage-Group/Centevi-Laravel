@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API\agenda;
 use App\Http\Controllers\Controller;
 use App\Models\BajaVision;
 use App\Models\Citas;
-use App\Models\CitasServicio;
 use App\Models\CitasServicios;
 use App\Models\ConsultaGenerica;
 use App\Models\OptometriaNeonatos;
@@ -13,10 +12,17 @@ use App\Models\OptometriaPediatrica;
 use App\Models\OrtopticaAdultos;
 use App\Models\Pacientes;
 use App\Models\RefraccionGeneral;
+use App\Models\ServiciosProximosBajaVision;
+use App\Models\ServiciosProximosHistoriasClinicas;
+use App\Models\ServiciosProximosOptometriaGeneral;
+use App\Models\ServiciosProximosOptometriaNeonatos;
+use App\Models\ServiciosProximosOptometriaPediatrica;
+use App\Models\ServiciosProximosOrtopticaAdultos;
 use App\Models\Sucursales;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 
 class AgendaApiController extends Controller
@@ -44,7 +50,7 @@ class AgendaApiController extends Controller
             $tipo = null;
         }
 
-        $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono,celular', 'sucursal:id_sucursal,nombre'])
+        $query = Citas::with(['paciente:id_paciente,nombres,nro_cedula,telefono,celular,apellidos', 'sucursal:id_sucursal,nombre'])
             ->whereIn(DB::raw('MONTH(fecha_hora)'), $months)
             ->whereIn(DB::raw('YEAR(fecha_hora)'), $years);
 
@@ -139,6 +145,7 @@ class AgendaApiController extends Controller
             $paciente = Pacientes::find($request->paciente_id);
             $pacienteNombre = $paciente ? $paciente->nombres : 'Desconocido';
             $nro_cedula = $paciente ? $paciente->nro_cedula : 'descnocido';
+            $apellidos = $paciente ? $paciente->apellidos : 'desconocido';
         }
         $sucursalNombre = 'Desconocida';
         if ($request->sucursal_id) {
@@ -164,7 +171,8 @@ class AgendaApiController extends Controller
                 'nro_cedula' => $nro_cedula,
                 'title' => $pacienteNombre,
                 'paciente' => $pacienteNombre,
-                'sucursal' => $sucursalNombre
+                'sucursal' => $sucursalNombre,
+                'apellidos' => $apellidos,
             ],
             'cita_existente_id' => $request->cita_existente_id
         ], 201);
@@ -219,7 +227,156 @@ class AgendaApiController extends Controller
     }
 
 
+    public function updateCita(Request $request, $id)
+    {
+        // Validación
+        $validator = Validator::make($request->all(), [
+            'origen_id'        => 'nullable|integer',
+            'origen_tabla'     => 'nullable|string',
+            'fecha_hora'       => 'nullable|date',
+            'tipo'             => 'nullable|string',
+            'paciente_id'      => 'nullable|integer|exists:pacientes,id_paciente',
+            'doctor'           => 'nullable|string',
+            'sucursal_id'      => 'nullable|integer|exists:sucursales,id_sucursal',
+            'ex_proxima_cita'  => 'nullable|boolean',
+            'comentarios'      => 'nullable|string',
+            'agendado_por'     => 'nullable|string',
+            'servicios_ids'    => 'nullable|array',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Buscar cita
+        $cita = Citas::find($id);
+        if (!$cita) {
+            return response()->json(['message' => 'Cita no encontrada'], 404);
+        }
+
+        // Actualizar cita
+        $cita->update($request->all());
+
+        $exProximaCita = $request->boolean('ex_proxima_cita');
+        $origenTabla = $request->input('origen_tabla');
+        $origenId = $request->input('origen_id');
+        $serviciosIds = $request->input('servicios_ids', []);
+
+        if ($exProximaCita && $origenTabla === 'baja_vision') {
+            // Eliminar antiguos servicios relacionados a la historia clínica
+            ServiciosProximosBajaVision::where('bajavision_id', $origenId)->delete();
+
+            // Crear nuevos servicios relacionados
+            foreach ($serviciosIds as $servicioId) {
+                ServiciosProximosBajaVision::create([
+                    'bajavision_id' => $origenId,
+                    'servicios_id'       => $servicioId,
+                ]);
+            }
+        } elseif ($exProximaCita && $origenTabla === 'consulta_generica') {
+            // Eliminar antiguos servicios relacionados a la historia clínica
+            ServiciosProximosHistoriasClinicas::where('historiaclinica_id', $origenId)->delete();
+
+            // Crear nuevos servicios relacionados
+            foreach ($serviciosIds as $servicioId) {
+                ServiciosProximosHistoriasClinicas::create([
+                    'historiaclinica_id' => $origenId,
+                    'servicios_id'       => $servicioId,
+                ]);
+            }
+        } elseif ($exProximaCita && $origenTabla === 'refraccion_general') {
+            // Eliminar antiguos servicios relacionados a la historia clínica
+            ServiciosProximosOptometriaGeneral::where('optometriageneral_id', $origenId)->delete();
+
+            // Crear nuevos servicios relacionados
+            foreach ($serviciosIds as $servicioId) {
+                ServiciosProximosOptometriaGeneral::create([
+                    'optometriageneral_id' => $origenId,
+                    'servicios_id'       => $servicioId,
+                ]);
+            }
+        } elseif ($exProximaCita && $origenTabla === 'ortoptica_adultos') {
+            // Eliminar antiguos servicios relacionados a la historia clínica
+            ServiciosProximosOrtopticaAdultos::where('ortopticaAdultos_id', $origenId)->delete();
+
+            // Crear nuevos servicios relacionados
+            foreach ($serviciosIds as $servicioId) {
+                ServiciosProximosOrtopticaAdultos::create([
+                    'ortopticaAdultos_id' => $origenId,
+                    'servicios_id'       => $servicioId,
+                ]);
+            }
+        } elseif ($exProximaCita && $origenTabla === 'optometria_pediatrica') {
+            // Eliminar antiguos servicios relacionados a la historia clínica
+            ServiciosProximosOptometriaPediatrica::where('optometriaPediatrica_id', $origenId)->delete();
+
+            // Crear nuevos servicios relacionados
+            foreach ($serviciosIds as $servicioId) {
+                ServiciosProximosOptometriaPediatrica::create([
+                    'optometriaPediatrica_id' => $origenId,
+                    'servicios_id'       => $servicioId,
+                ]);
+            }
+        } elseif ($exProximaCita && $origenTabla === 'optometria_neonatos') {
+            // Eliminar antiguos servicios relacionados a la historia clínica
+            ServiciosProximosOptometriaNeonatos::where('optometriaNeonatos_id', $origenId)->delete();
+
+            // Crear nuevos servicios relacionados
+            foreach ($serviciosIds as $servicioId) {
+                ServiciosProximosOptometriaNeonatos::create([
+                    'optometriaNeonatos_id' => $origenId,
+                    'servicios_id'       => $servicioId,
+                ]);
+            }
+        } elseif (!$exProximaCita) {
+            // Eliminar antiguos servicios de la cita
+            CitasServicios::where('cita_id', $cita->id)->delete();
+
+            // Crear nuevos servicios asociados a la cita
+            foreach ($serviciosIds as $servicioId) {
+                CitasServicios::create([
+                    'cita_id'      => $cita->id,
+                    'servicios_id' => $servicioId,
+                ]);
+            }
+        }
+
+        $pacienteNombre = null;
+        if ($request->paciente_id) {
+            $paciente = Pacientes::find($request->paciente_id);
+            $pacienteNombre = $paciente ? $paciente->nombres : 'Desconocido';
+            $nro_cedula = $paciente ? $paciente->nro_cedula : 'descnocido';
+            $apellidos = $paciente ? $paciente->apellidos : 'desconocido';
+        }
+        $sucursalNombre = 'Desconocida';
+        if ($request->sucursal_id) {
+            $sucursal = Sucursales::find($request->sucursal_id);
+            if ($sucursal) {
+                $sucursalNombre = $sucursal->nombre;
+            }
+        }
+        return response()->json([
+            'message' => 'Cita actualizada correctamente',
+            'cita' => [
+                'id' => $cita->id,
+                'origen_id' => $cita->origen_id,
+                'origen_tabla' => $cita->origen_tabla,
+                'fecha_hora' => $cita->fecha_hora,
+                'tipo' => $cita->tipo,
+                'paciente_id' => $cita->paciente_id,
+                'sucursal_id' => $cita->sucursal_id,
+                'doctor' => $cita->doctor,
+                'agendado_por' => $cita->agendado_por,
+                'comentarios' => $cita->comentarios,
+                'nro_cedula' => $nro_cedula,
+                'title' => $pacienteNombre,
+                'paciente' => $pacienteNombre,
+                'sucursal' => $sucursalNombre,
+                'apellidos' => $apellidos,
+                'ex_proxima_cita' => $cita->ex_proxima_cita
+            ]
+        ]);
+    }
 
 
 

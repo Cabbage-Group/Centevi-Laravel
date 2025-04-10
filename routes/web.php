@@ -491,7 +491,7 @@ Route::post('/api/upload', [DownloadController::class, 'upload']);
 
 Route::post('/api/verificar-interfuerza', [InterfuerzaController::class, 'verificarYActualizar']);
 
-
+Route::put('/api/citas/update/{id}', [AgendaApiController::class, 'updateCita']);
 
 Route::get('/{any}', function () {
   return view('app');

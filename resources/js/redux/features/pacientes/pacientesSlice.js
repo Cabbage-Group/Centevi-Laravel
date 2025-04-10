@@ -45,10 +45,10 @@ export const fetchInterfuerza = createAsyncThunk(
   async (ruc, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API}/verificar-interfuerza`, { ruc });
-      return response.data; 
+      return response.data;
     } catch (error) {
       if (error.response) {
-        return rejectWithValue(error.response.data);  
+        return rejectWithValue(error.response.data);
       } else {
         return rejectWithValue({ message: 'Error desconocido' });
       }
@@ -97,11 +97,14 @@ const pacientesSlice = createSlice({
             } :
             { ...rest }
         );
-        state.pacientes_options_agenda = action.payload.data.map(({ id_paciente, nombres, apellidos, ...rest }) =>
-          id_paciente && nombres && apellidos ?
+        state.pacientes_options_agenda = action.payload.data.map(({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
+          id_paciente && nombres && apellidos && nro_cedula ?
             {
               value: id_paciente,
-              label: `${nombres} ${apellidos}`,
+              label: `${nro_cedula}-${nombres} ${apellidos}`,
+              nombres: nombres,
+              apellidos: apellidos,
+              nro_cedula: nro_cedula,
               ...rest
             } :
             { ...rest }

@@ -41,9 +41,11 @@ export const fetchCitasAgenda = createAsyncThunk(
                 doctor: cita?.doctor || 'Sin datos',
                 paciente: cita.paciente?.nombres || 'Sin Nombre',
                 sucursal: cita.sucursal?.nombre || 'Sin Sucursal',
+                apellidos: cita.paciente?.apellidos || 'No registrado',
                 celular: cita.paciente?.celular || "00000000",
                 comentarios: cita.comentarios?.trim() || 'Sin comentarios',
-                agendado_por: cita.agendado_por?.trim() || ''
+                agendado_por: cita.agendado_por?.trim() || '',
+                esProximaCita: cita.ex_proxima_cita || false,
             }));
 
         } catch (error) {
@@ -80,6 +82,22 @@ export const deleteCita = createAsyncThunk(
         }
     }
 );
+
+
+export const updateCita = createAsyncThunk(
+    'citasAgenda/updateCita',
+    async ({ id_cita, data }) => {
+        try {
+            const response = await axios.put(`${API}/citas/update/${id_cita}`, data);
+            console.log('response',response)
+            return response.data.cita ;
+        } catch (error) {
+            console.error('Error update cita:', error.response.data);
+            throw error;
+        }
+    }
+);
+
 
 
 const citasAgendaSlice = createSlice({
@@ -168,7 +186,6 @@ const citasAgendaSlice = createSlice({
                 state.error = action.payload || 'Error desconocido';
             })
             .addCase(fetchAgendarCitas.fulfilled, (state, action) => {
-                console.log('state.currentType,', state.currentType)
                 const sucursalColors = {
                     7: "#FBDDD9",
                     4: "#BEE9D3",
@@ -179,7 +196,6 @@ const citasAgendaSlice = createSlice({
                 if (action.payload.nueva_cita) {
                     const { sucursal_id, tipo, origen_id } = action.payload.nueva_cita;
                     const color = sucursalColors[sucursal_id] || sucursalColors.default;
-
                     const nuevaCitaTransformada = {
                         ...action.payload.nueva_cita,
                         id: origen_id,
@@ -187,13 +203,12 @@ const citasAgendaSlice = createSlice({
                         end: action.payload.nueva_cita.fecha_hora,
                         title: action.payload.nueva_cita.title,
                         paciente: action.payload.nueva_cita.paciente,
+                        apellidos: action.payload.nueva_cita.apellidos,
                         doctor: action.payload.nueva_cita.doctor,
                         badge: "Pendiente",
                         backgroundColor: color,
                         borderColor: color,
                     };
-
-
 
                     if (Array.isArray(state.currentType)) {
 
@@ -321,8 +336,48 @@ const citasAgendaSlice = createSlice({
             .addCase(deleteCita.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.citasAgenda = state.citasAgenda.filter(cita => cita.id !== action.payload);
-            });
+            })
+            .addCase(updateCita.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(updateCita.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const sucursalColors = {
+                    7: "#FBDDD9",
+                    4: "#BEE9D3",
+                    3: "#BCE9FB",
+                    default: "purple"
+                };
+                console.log('action.payload:', action.payload)
+                if (action.payload) {
+                    const { sucursal_id, tipo, origen_id, id } = action.payload;
+                    const color = sucursalColors[sucursal_id] || sucursalColors.default;
+                    const nuevaCitaTransformada = {
+                        ...action.payload,
+                        id: id,
+                        start: action.payload.fecha_hora,
+                        end: action.payload.fecha_hora,
+                        title: action.payload.title,
+                        paciente: action.payload.paciente,
+                        apellidos: action.payload.apellidos,
+                        doctor: action.payload.doctor,
+                        badge: "Pendiente",
+                        backgroundColor: color,
+                        borderColor: color,
+                    };
+                    console.log('nuevaCitaTransformada:', nuevaCitaTransformada)
 
+                    const index = state.citasAgenda.findIndex((cita) => cita.id === id);
+
+                    if (index !== -1) {
+                        state.citasAgenda[index] = { ...state.citasAgenda[index], ...nuevaCitaTransformada };
+                    }
+                }
+            })
+            .addCase(updateCita.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            });
     }
 });
 export const { addOrUpdateEvent, setCurrentViewAgenda, setCurrentTypeAgenda } = citasAgendaSlice.actions;
