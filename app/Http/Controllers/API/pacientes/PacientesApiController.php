@@ -54,22 +54,7 @@ class PacientesApiController extends Controller
     ]);
 
     $data = Pacientes::query();
-
-    // if (!empty($search)) {
-    //     $nameParts = explode(' ', $search);
-    //     $data->where(function ($query) use ($search) {
-    //         $query->where(DB::raw("CONCAT(nombres, ' ', apellidos)"), 'like', "%{$search}%")
-    //             ->orWhere(DB::raw("CONCAT(apellidos, ' ', nombres)"), 'like', "%{$search}%")
-    //             ->orWhere('nro_cedula', 'like', "%{$search}%")
-    //             ->orWhere('direccion', 'like', "%{$search}%")
-    //             ->orWhere('fecha_creacion', 'like', "%{$search}%")
-    //             ->orWhere('nombres', 'like', "%{$search}%")
-    //             ->orWhere('apellidos', 'like', "%{$search}%");
-    //     });
-    // } else {
-
-    // }
-
+    
     if (!empty($search)) {
       $nameParts = explode(' ', $search);
       $data->where(function ($query) use ($nameParts) {
@@ -231,7 +216,7 @@ class PacientesApiController extends Controller
       'apellidos' => '',
       'email' => '',
       'nro_seguro' => '',
-      'fecha_nacimiento' => '',
+      'fecha_nacimiento' => null,
       'genero' => '',
       'lugar_nacimiento' => '',
       'direccion' => '',

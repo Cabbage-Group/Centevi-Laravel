@@ -10,18 +10,21 @@ import {
   List, Form, Spin
 } from "antd";
 import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined } from "@ant-design/icons";
+import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col, List, Form, Spin, AutoComplete } from "antd";
+import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import BotonesFiltroAgenda from "./components/BotonesFiltroAgenda";
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchServicios, fetchServiciosProximosAgenda } from "../../redux/features/servicios/serviciosSlice";
-import { addOrUpdateEvent, deleteCita, fetchAgendarCitas, fetchCitasAgenda, setCurrentViewAgenda } from "../../redux/features/citas/CitasAgendaSlice";
+import { addOrUpdateEvent, deleteCita, fetchAgendarCitas, fetchCitasAgenda, setCurrentViewAgenda, updateCita } from "../../redux/features/citas/CitasAgendaSlice";
 import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
 import Swal from 'sweetalert2';
 import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import axios from "axios";
 import getIp from "../../redux/features/utils/getIp";
+import { crearPacientes, verificarCedula } from "../../redux/features/pacientes/crearPacientesSlice";
 
 
 
@@ -48,7 +51,7 @@ const VerAgenda = () => {
   const [tableName, setTableName] = useState("citas_servicios");
   const [agendado_por, setAgendadoPor] = useState("");
   const [sucursalId, setSucursalId] = useState();
-  const [pacienteId, setPacienteId] = useState();
+  // const [pacienteId, setPacienteId] = useState();
   const [eventPaciente, setEventPaciente] = useState(null);
   const [consultaId, setConsultaId] = useState()
   const [currentView, setCurrentView] = useState("timeGridDay");
@@ -95,6 +98,19 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   const [dataLoaded, setDataLoaded] = useState(false);
+
+  const [pacienteInput, setPacienteInput] = useState('');
+
+  const [pacienteId, setPacienteId] = useState('');
+
+  const [createPaciente, setCreatePaciente] = useState(null)
+
+  const [createCedula, setCreateCedula] = useState(null)
+
+  const [apellidos, setApellidos] = useState('')
+
+  const [esProximaCita, setEsProximaCita] = useState(1)
+
 
 
   useEffect(() => {
@@ -177,34 +193,57 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   };
 
   const handleSelectChangServicios = (value, option) => {
+    form.setFieldsValue({ proximosServicios: value });
     setProximosServicios((prev) => {
-      const indexFind = prev.findIndex((proximo) => proximo.value === option.value); // Suponiendo que `option.value` es el identificador
+      const indexFind = prev.findIndex((proximo) => proximo.value === option.value);
 
       if (indexFind !== -1) {
         return prev.map((proximo, index) =>
           index === indexFind ? { ...proximo, ...option } : proximo
         );
       } else {
-        return [...prev, option]; // Agregar nuevo servicio si no existe
+        return [...prev, option];
       }
     });
   };
 
 
   const handlePacienteChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
-    setSelectedPaciente(selected);
-    form.setFieldsValue({ nroCedula: selected.nro_cedula });
+    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    if (selected) {
+      setSelectedPaciente(selected.value);
+      setPacienteId(selected.value)
+      setApellidos(selected.apellidos)
+      form.setFieldsValue({ nroCedula: selected.nro_cedula });
+      form.setFieldsValue({ apellidos: selected.apellidos })
+    }
+
   };
 
 
   const handleCedulaChange = (value) => {
-    const paciente = pacientes_options_agenda.find((paciente) => paciente.nro_cedula === value);
+    const paciente = pacientes_options_agenda.find((paciente) => paciente.label === value);
     if (paciente) {
       setSelectedPaciente(paciente.value)
-      form.setFieldsValue({ paciente: paciente.value });
+      setPacienteId(paciente.value)
+      setApellidos(paciente.apellidos)
+      form.setFieldsValue({ paciente: paciente.nombres });
+      form.setFieldsValue({ apellidos: paciente.apellidos })
     }
   };
+
+  const handleApellidosChange = (value) => {
+    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    if (selected) {
+      setSelectedPaciente(selected.value);
+      setPacienteId(selected.value)
+      setApellidos(selected.apellidos)
+      form.setFieldsValue({ nroCedula: selected.nro_cedula });
+      form.setFieldsValue({ paciente: selected.nombres })
+    }
+
+  };
+
 
   const handleSucursalChangeSelect = (value) => {
     setSelectedSucursal(value);
@@ -369,6 +408,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
   const handleDateClick = (info) => {
 
+    console.log('isEditMode:', isEditMode)
     setIsEditMode(false);
     form.setFieldsValue({
       fechaAgenda: dayjs(info.dateStr)
@@ -383,6 +423,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     setConsultaId(null)
     setTableName(null)
     setConsultaId(null)
+
     form.resetFields();
     form.setFieldsValue({
       nroCedula: "",
@@ -391,7 +432,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       comentarios: "",
       fechaAgenda: dayjs(info.date),
       tipoAgenda: "",
-      agendado_por: localStorage.getItem("usuario")
+      agendado_por: localStorage.getItem("usuario"),
+      proximosServicios: []
     });
 
 
@@ -423,7 +465,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
   useEffect(() => {
     if (consultaId) {
-      console.log('entre2')
       dispatch(
         fetchServiciosProximosAgenda({
           consulta_nombre: tableName,
@@ -431,7 +472,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         })
       );
     }
-  }, [consultaId]);
+  }, [consultaId, tableName]);
 
 
   const handleEventClick = (info) => {
@@ -459,34 +500,40 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       setEventPaciente(clickedEvent.paciente)
       setSucursal(clickedEvent.sucursal)
       setIsEditMode(true);
-      setCurrentEventId(clickedEvent.id); 
+      setCurrentEventId(clickedEvent.id);
       setSucursalId(clickedEvent.sucursal_id);
       setPacienteId(clickedEvent.paciente_id)
       setCelular(clickedEvent.celular);
       setSelectedPaciente(clickedEvent.paciente_id)
+      setPacienteId(clickedEvent.paciente_id)
       setSelectedSucursal(clickedEvent.sucursal_id)
       setAgendadoPor(clickedEvent.agendado_por)
+      setPacienteInput(clickedEvent.paciente_id)
+      setApellidos(clickedEvent.apellidos)
+      setEsProximaCita(clickedEvent.esProximaCita)
       setIsModalOpen(true);
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
-        paciente: clickedEvent.paciente ? { value: clickedEvent.paciente_id, label: clickedEvent.paciente } : undefined,
+        paciente: clickedEvent.paciente,
+        apellidos: clickedEvent.apellidos,
         sucursal: clickedEvent.sucursal ? { value: clickedEvent.sucursal_id, label: clickedEvent.sucursal } : undefined,
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
         fechaAgenda: dayjs(clickedEvent.start),
         tipoAgenda: clickedEvent.tipo || "",
-        agendado_por: clickedEvent.agendado_por || ""
+        agendado_por: clickedEvent.agendado_por || "",
       });
       form.validateFields();
     }
   };
-
-
-
   useEffect(() => {
     if (serviciosProximos_options.length > 0) {
       form.setFieldsValue({
-        proximosServicios: serviciosProximos_options
+        proximosServicios: serviciosProximos_options.map(serv => serv.value)
+      });
+    } else {
+      form.setFieldsValue({
+        proximosServicios: []
       });
     }
   }, [serviciosProximos_options]);
@@ -502,52 +549,173 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   };
 
   const handleAgendarEvent = (values) => {
-    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
-    if (!eventDates) {
+    console.log('values', values)
+    if (createCedula !== null) {
+      dispatch(verificarCedula(createCedula))
+        .then((response) => {
+          if (response.payload == true) {
+            Swal.fire({
+              icon: "warning",
+              title: "Cédula existente",
+              text: "La cédula ya está registrada. No se puede agendar esta cita.",
+            });
+            return;
+          } else if (response.payload === false) {
+            Swal.fire({
+              title: "Paciente no existe",
+              text: "El paciente no está registrado. ¿Deseas crearlo?",
+              icon: "question",
+              showCancelButton: true,
+              confirmButtonText: "Sí, crear paciente",
+              cancelButtonText: "Cancelar",
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+            }).then((result) => {
+              if (result.isConfirmed) {
+                const data = {
+                  nombres: values.paciente,
+                  sucursal: selectedSucursal,
+                  doctor: values.doctor,
+                  nro_cedula: values.nroCedula,
+                  apellidos: values.apellidos
+                };
+                dispatch(crearPacientes(data))
+                  .then((response) => {
+                    const newPaciente = response.payload.data[0];
+                    if (newPaciente && newPaciente.id_paciente) {
+                      Swal.fire({
+                        title: "Cargando usuarios...",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                          Swal.showLoading();
+                        },
+                      });
+                      dispatch(fetchPacientes({}))
+                        .then(() => {
+                          Swal.close();
+                          setTimeout(() => {
+                            continueAgendarEvent(values, newPaciente.id_paciente);
+                          });
+                        })
+                        .catch(() => {
+                          Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Hubo un error al obtener los usuarios.",
+                          });
+                        });
+                    } else {
+                      Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "No se pudo obtener el ID del paciente creado.",
+                      });
+                    }
+                  })
+                  .catch((error) => {
+                    Swal.fire({
+                      icon: "error",
+                      title: "Error",
+                      text: "Hubo un error al crear el paciente.",
+                    });
+                  });
+              }
+            });
+          }
+        })
+        .catch((error) => {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Hubo un error al verificar la cédula.",
+          });
+        });
+    } else {
+      const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
+
+      console.log('entre aqui')
+      if (!values.tipoAgenda || values.tipoAgenda === "proxima_cita") {
+        Swal.fire({
+          icon: "warning",
+          title: "Tipo de Agenda requerido",
+          text: "Por favor, selecciona un tipo de agenda (Terapia o Consulta) antes de continuar.",
+        });
+        return;
+      }
+
+      if (!eventDates) {
+        Swal.fire({
+          icon: "warning",
+          title: "Fecha requerida",
+          text: "Por favor, selecciona una fecha antes de agendar.",
+        });
+        return;
+      }
+
       Swal.fire({
-        icon: "warning",
-        title: "Fecha requerida",
-        text: "Por favor, selecciona una fecha antes de agendar.",
+        title: "¿Confirmar agendamiento?",
+        text: "¿Deseas agendar esta cita?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, agendar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const data = {
+            cita_existente_id: currentEventId,
+            origen_id: consultaId,
+            origen_tabla: "citas_servicios",
+            fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
+            tipo: values.tipoAgenda,
+            paciente_id: pacienteId,
+            doctor: values.doctor,
+            sucursal_id: selectedSucursal,
+            comentarios: values.comentarios,
+            agendado_por: usuario,
+            servicios_id: serviciosRealizadosSubmit
+          };
+          setIsModalOpen(false);
+          dispatch(fetchAgendarCitas(data));
+          Swal.fire({
+            icon: "success",
+            title: "Cita Agendada",
+            text: "La cita ha sido agendada exitosamente.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
       });
-      return;
     }
 
-    Swal.fire({
-      title: "¿Confirmar agendamiento?",
-      text: "¿Deseas agendar esta cita?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sí, agendar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const data = {
-          cita_existente_id: currentEventId,
-          origen_id: consultaId,
-          origen_tabla: "citas_servicios",
-          fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
-          tipo: values.tipoAgenda,
-          paciente_id: selectedPaciente,
-          doctor: values.doctor,
-          sucursal_id: selectedSucursal,
-          comentarios: values.comentarios,
-          agendado_por: usuario,
-          servicios_id: serviciosRealizadosSubmit
-        };
-        setIsModalOpen(false);
-        dispatch(fetchAgendarCitas(data));
-        Swal.fire({
-          icon: "success",
-          title: "Cita Agendada",
-          text: "La cita ha sido agendada exitosamente.",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-      }
-    });
+
   };
+  const continueAgendarEvent = (values, newPacienteId) => {
+    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
+    const data = {
+      cita_existente_id: currentEventId,
+      origen_id: consultaId,
+      origen_tabla: "citas_servicios",
+      fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
+      tipo: values.tipoAgenda,
+      paciente_id: newPacienteId,
+      doctor: values.doctor,
+      sucursal_id: selectedSucursal,
+      comentarios: values.comentarios,
+      agendado_por: usuario,
+      servicios_id: serviciosRealizadosSubmit
+    };
+    setIsModalOpen(false);
+    dispatch(fetchAgendarCitas(data));
+    Swal.fire({
+      icon: "success",
+      title: "Cita Agendada",
+      text: "La cita ha sido agendada exitosamente.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  }
 
   const handleDeleteEvent = () => {
     if (currentEventId) {
@@ -556,6 +724,33 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       resetForm();
     }
   };
+
+  const handleUpdateEvent = (values) => {
+    console.log('Actualizando con:', values);
+    console.log('esProximaCita', esProximaCita);
+    console.log('currentEventId', currentEventId);
+    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
+    const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
+    const data = {
+      origen_id: consultaId,
+      origen_tabla: esProximaCita === 1 ? tableName : "citas_servicios",
+      fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
+      tipo: tipo,
+      paciente_id: pacienteId,
+      doctor: values.doctor,
+      sucursal_id: selectedSucursal,
+      ex_proxima_cita: esProximaCita === 1 ? esProximaCita : 0,
+      comentarios: values.comentarios,
+      agendado_por: usuario,
+      servicios_ids: serviciosRealizadosSubmit
+    };
+    console.log('Datos finales a enviar:', data);
+    if (currentEventId) {
+      setIsModalOpen(false);
+      dispatch(updateCita({ id_cita: currentEventId, data: data }))
+    }
+  };
+
 
   const resetForm = () => {
     setEventTitle("");
@@ -571,7 +766,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   };
 
   const changeView = (viewName) => {
-
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.changeView(viewName);
@@ -620,7 +814,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   const toggleSunday = () => {
     setHideSunday(!hideSunday);
   };
-
 
   return (
     <div
@@ -879,8 +1072,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         width={"90vh"}
         onCancel={() => {
           setIsModalOpen(false);
-
-
         }}
         footer={[
           <div style={{
@@ -911,11 +1102,38 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   </Button>
                 </Popconfirm>
               )}
+              {isEditMode && (
+                <Popconfirm
+                  key="update"
+                  title="¿Está seguro de actualizar este evento?"
+                  onConfirm={async () => {
+                    try {
+                      const values = await form.validateFields();
+                      handleUpdateEvent(values);
+                    } catch (errorInfo) {
+                      console.log('Errores en el formulario:', errorInfo);
+                    }
+                  }}
+                  okText="Sí"
+                  cancelText="No"
+                >
+                  <Button
+                    icon={<EditOutlined />}
+                    style={{
+                      backgroundColor: '#fadb14',
+                      borderColor: '#fadb14',
+                      color: '#000',
+                    }}
+                  >
+                    Actualizar
+                  </Button>
+
+                </Popconfirm>
+              )}
               <Button
                 key="cancel"
                 onClick={() => {
                   setIsModalOpen(false);
-
                 }}
               >
                 Cancelar
@@ -924,6 +1142,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 key="submit"
                 type="primary"
                 onClick={() => form.submit()}
+                disabled={esProximaCita === false && isEditMode}
               >
                 Agendar Cita
               </Button>
@@ -937,7 +1156,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
           layout="vertical"
           onFinish={handleAgendarEvent}
         >
-
           <label style={{ marginTop: '10px' }}>Agendado por:</label>
           <Form.Item
             name="agendado_por"
@@ -951,58 +1169,136 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
           {/*  */}
           <Row gutter={[16, 16]}>
-            <Col xxl={8} xl={8} md={8}>
+            <Col xxl={16} xl={16} md={16}>
               <label style={{ marginTop: '10px' }}>Cedula:</label>
               <Form.Item
                 name="nroCedula"
                 rules={[{ required: true, message: "La cédula es requerida" }]}
               >
-                <Select
-                  showSearch
-                  placeholder="Seleccionar cédula"
-                  onChange={(value) => {
-                    handleCedulaChange(value)
-                  }}
-                  value={selectedPaciente ? selectedPaciente.nro_cedula : undefined}
-                  onDropdownVisibleChange={(open) => open && handleCedulaSelectOpen()}
-                  notFoundContent={isLoading ? <Spin size="small" /> : null}
-                  filterOption={(input, option) => {
-                    return option?.children.toLowerCase().includes(input.toLowerCase());
-                  }}
-                >
-                  {pacientes_options_agenda.map((paciente) => (
-                    <Select.Option key={`${paciente.nro_cedula}-${paciente.value}`} value={paciente.nro_cedula}>
-                      {paciente.nro_cedula}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xxl={16} xl={16} md={16}>
-              <label style={{ marginTop: '10px' }}>Nombre del paciente:</label>
-              <Form.Item
-                name="paciente"
-                rules={[{ required: true, message: "El paciente es requerido" }]}
-              >
-                <Select
+                <AutoComplete
+                  allowClear
                   showSearch
                   placeholder="Seleccionar paciente"
+                  onSearch={(text) => {
+                    setPacienteId(null)
+                    setCreateCedula(text)
+                  }}
+                  onSelect={(value, key) => {
+                    setCreateCedula(null)
+                    handleCedulaChange(key.key);
+                  }}
+                  onDropdownVisibleChange={(open) => open && handleCedulaSelectOpen()}
+                  notFoundContent={isLoading ? <Spin size="small" /> : null}
+                  options={pacientes_options_agenda.map((paciente) => {
+                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
+                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
+                    return {
+                      key: fullKey,
+                      value: paciente.nro_cedula,
+                      label: `${paciente.nro_cedula} - ${fullName}`,
+                      searchText: fullName.toLowerCase(),
+                    };
+                  })}
+                  filterOption={(inputValue, option) => {
+                    const words = inputValue.toLowerCase().split(" ");
+                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
+                    return words.every(word => fullText.includes(word));
+                  }}
+                >
+                </AutoComplete>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 24]}>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '10px' }}>Nombres:</label>
+              <Form.Item
+                name="paciente"
+                // initialValue={pacienteInput}
+                rules={[{ required: true, message: "El paciente es requerido" }]}
+              >
+                <AutoComplete
+                  allowClear
+                  showSearch
+                  mode="combobox"
+                  placeholder="Seleccionar paciente"
+                  options={pacientes_options_agenda.map((paciente) => {
+                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
+                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
+                    return {
+                      key: fullKey,
+                      value: paciente.nombres,
+                      label: `${paciente.nro_cedula} - ${fullName}`,
+                      searchText: fullName.toLowerCase(),
+                    }
+                  })}
+                  filterOption={(inputValue, option) => {
+                    const words = inputValue.toLowerCase().split(" ");
+                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
+                    return words.every(word => fullText.includes(word));
+                  }}
                   onChange={(value) => {
-                    handlePacienteChange(value);
-                    setSelectedPaciente(value)
+                    setPacienteInput(value);
+                    form.setFieldsValue({ paciente: value });
+                  }}
+                  onSelect={(value, key) => {
+                    const selected = pacientes_options_agenda.find(
+                      (paciente) => paciente.nombres === value
+                    );
+                    setPacienteId(selected.value)
+                    setCreatePaciente(null);
+                    setCreateCedula(null)
+                    handlePacienteChange(key.key);
+                  }}
+                  onSearch={(text) => {
+                    setCreatePaciente(text)
                   }}
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
                   notFoundContent={isLoading ? <Spin size="small" /> : null}
-                  filterOption={(input, option) => {
-                    return option?.children.toLowerCase().includes(input.toLowerCase());
-                  }}
                 >
-                  {pacientes_options_agenda.map((paciente) => (
-                    <Select.Option key={paciente.value} value={paciente.value}>
-                      {paciente.label}
-                    </Select.Option>
-                  ))}
-                </Select>
+                </AutoComplete>
+              </Form.Item>
+            </Col>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '10px' }}>Apellidos:</label>
+              <Form.Item
+                name="apellidos"
+                rules={[{ required: true, message: "El apellido es requerido" }]}
+              >
+                <AutoComplete
+                  allowClear
+                  showSearch
+                  mode="combobox"
+                  placeholder="Seleccionar paciente"
+                  options={pacientes_options_agenda.map((paciente) => {
+                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
+                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
+                    return {
+                      key: fullKey,
+                      value: paciente.apellidos,
+                      label: `${paciente.nro_cedula} - ${fullName}`,
+                      searchText: fullName.toLowerCase(),
+                    }
+                  })}
+                  filterOption={(inputValue, option) => {
+                    const words = inputValue.toLowerCase().split(" ");
+                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
+                    return words.every(word => fullText.includes(word));
+                  }}
+                  onChange={(value) => {
+                    setApellidos(value);
+                    form.setFieldsValue({ apellidos: value });
+                  }}
+                  onSelect={(value, key) => {
+                    setCreateCedula(null)
+
+                    handleApellidosChange(key.key);
+                  }}
+
+                  onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
+                  notFoundContent={isLoading ? <Spin size="small" /> : null}
+                >
+                </AutoComplete>
               </Form.Item>
             </Col>
           </Row>
@@ -1074,12 +1370,26 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
           </Form.Item>
           <Form.Item
             name="tipoAgenda"
+            // rules={[
+            //   {
+            //     required: true,
+            //     message: "El tipo de agenda es requerido",
+            //   },
+            //   ({ getFieldValue }) => ({
+            //     validator(_, value) {
+            //       if (value === "terapia" || value === "consulta") {
+            //         return Promise.resolve();
+            //       }
+            //       return Promise.reject("Debes seleccionar Terapias o Consultas");
+            //     },
+            //   }),
+            // ]}
             rules={[
-              {
+              esProximaCita === false && {
                 required: true,
                 message: "El tipo de agenda es requerido",
               },
-              ({ getFieldValue }) => ({
+              esProximaCita === false && ({
                 validator(_, value) {
                   if (value === "terapia" || value === "consulta") {
                     return Promise.resolve();
@@ -1087,7 +1397,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   return Promise.reject("Debes seleccionar Terapias o Consultas");
                 },
               }),
-            ]}
+            ].filter(Boolean)}
           >
             <Radio.Group>
               <Radio value="terapia">Terapias</Radio>
