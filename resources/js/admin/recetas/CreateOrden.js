@@ -53,11 +53,23 @@ const CreateOrden = () => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
-  console.log('cristales_options_selecteds',cristales_options_selecteds)
+  console.log('cristales_options_selecteds', cristales_options_selecteds)
+
+  // Dorado : 186.74.2.218
+  // San Judas Tadeo: 190.219.45.142
+  // Paitilla:  45.229.196.9
 
   const initialValues = {
     id_paciente: parsedId || "",
-    id_sucursal: "",
+    id_sucursal:
+      localStorage.getItem('ip') == '186.74.2.218'
+        ? "7"
+        : localStorage.getItem('ip') == '190.219.45.142'
+          ? "3"
+          : localStorage.getItem('ip') == '45.229.196.9'
+            ? "4"
+            : ""
+    ,
     esfera_od: "",
     esfera_oi: "",
     cilindro_od: "",
@@ -1572,7 +1584,7 @@ const CreateOrden = () => {
                                             <b>MARCA</b>
                                           </div>
                                           {isAroVisible ? (
-                                          
+
                                             <Field
                                               className="form-control"
                                               name="marca"
@@ -1601,7 +1613,7 @@ const CreateOrden = () => {
                                                 value: marca.label,
                                                 label: marca.label
                                               }))}
-                                        
+
                                             />
                                           )}
                                         </div>

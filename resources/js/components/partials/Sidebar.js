@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import ValidarPermisos from '../../utils/ValidarPermisos';
 import { fetchValidarToken, validateUserAuth } from '../../redux/features/auth/AuthSlice';
+import getIp from '../../redux/features/utils/getIp';
 
 const Sidebar = (props) => {
 
@@ -45,7 +46,9 @@ const Sidebar = (props) => {
     return () => clearTimeout(timer);
   }, []);
 
-
+  useEffect(async () => {
+    const IP = await getIp();
+  }, [])
 
   return (
     true == true ? (

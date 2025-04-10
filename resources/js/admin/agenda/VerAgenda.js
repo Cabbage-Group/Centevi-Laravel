@@ -4,7 +4,11 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
-import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col, List, Form, Spin } from "antd";
+import {
+  Modal, Input, DatePicker, Radio, Button,
+  Space, Popconfirm, Select, Row, Col,
+  List, Form, Spin
+} from "antd";
 import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -16,6 +20,8 @@ import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice
 import Swal from 'sweetalert2';
 import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
+import axios from "axios";
+import getIp from "../../redux/features/utils/getIp";
 
 
 
@@ -25,6 +31,7 @@ const VerAgenda = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm()
   const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
+  const [IP, setIp] = useState('');
   const [selectedIndex, setSelectedIndex] = useState([0]);
   const [proximosServicios, setProximosServicios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,7 +51,7 @@ const VerAgenda = () => {
   const [pacienteId, setPacienteId] = useState();
   const [eventPaciente, setEventPaciente] = useState(null);
   const [consultaId, setConsultaId] = useState()
-  const [currentView, setCurrentView] = useState("timeGridWeek");
+  const [currentView, setCurrentView] = useState("timeGridDay");
   const [currentEventId, setCurrentEventId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isCreateMode, setIsCreateMode] = useState(false);
@@ -68,8 +75,6 @@ Paciente: {nombre}
 
 Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas📚`
   );
-
- 
 
   const calendarRef = useRef(null);
 
@@ -108,6 +113,34 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     dispatch(fetchUsuarios({}))
   }, [])
 
+  useEffect(() => {
+    if (sucursales_option_selects && sucursales_option_selects.length > 0) {
+      sucursales_option_selects.map((sucursal) => {
+
+
+        // Dorado : 186.74.2.218
+        // San Judas Tadeo: 190.219.45.142
+        // Paitilla:  45.229.196.9
+
+        if (localStorage.getItem('ip') == '38.255.105.33') {
+          if (sucursal.value == 7) {
+
+
+            // console.log("sucursal: -----");
+            // console.log(sucursal);
+
+            // setSucursal(sucursal.label)
+            // setSucursalId(sucursal.value);
+            // form.setFieldsValue({
+            //   sucursal: sucursal.label
+            //     ? { value: sucursal.value, label: sucursal.label }
+            //     : undefined,
+            // });
+          }
+        }
+      })
+    }
+  }, [sucursales_option_selects])
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -187,7 +220,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     const startYear = currentDateAgenda.getFullYear();
     const endMonth = currentEndDateAgenda.getMonth() + 1;
     const endYear = currentEndDateAgenda.getFullYear();
-  
+
     const months = [];
     for (let m = startMonth; m <= (startYear === endYear ? endMonth : 12); m++) {
       months.push(m);
@@ -197,26 +230,26 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         months.push(m);
       }
     }
-  
+
     const years = [];
     for (let y = startYear; y <= endYear; y++) {
       years.push(y);
     }
-  
+
     let tipo = [];
     let ex_proxima_cita = [];
     let citas_id_null = true;
-  
+
     if (selectedIndex.length === 2 && selectedIndex.includes(0) && selectedIndex.includes(1)) {
       tipo = ['consulta', 'terapia'];
       citas_id_null = true;
-      ex_proxima_cita = [false]; 
-    } 
+      ex_proxima_cita = [false];
+    }
     else if (selectedIndex.length === 3 && selectedIndex.includes(0) && selectedIndex.includes(1) && selectedIndex.includes(2)) {
       tipo = ['consulta', 'terapia', 'proxima_cita'];
       citas_id_null = true;
       ex_proxima_cita = [true, false];
-    } 
+    }
     else {
       if (selectedIndex.includes(0)) {
         tipo.push('consulta');
@@ -233,17 +266,17 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         ex_proxima_cita.push(true);
       }
     }
-  
-    dispatch(fetchCitasAgenda({ 
-      months, 
-      years, 
-      sucursales: selectedSucursales, 
-      tipo, 
-      ex_proxima_cita, 
-      citas_id_null 
+
+    dispatch(fetchCitasAgenda({
+      months,
+      years,
+      sucursales: selectedSucursales,
+      tipo,
+      ex_proxima_cita,
+      citas_id_null
     }));
   }, [currentView, currentDateAgenda, selectedSucursales, currentEndDateAgenda, selectedIndex, dispatch]);
-  
+
 
   const handleDateChange = (dateInfo) => {
     const { view } = dateInfo;
@@ -306,8 +339,39 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     }
   };
 
+  const seleccionarSucursalIP = () => {
+
+    let sucursalSeleccionado = null
+
+    if (sucursales_option_selects && sucursales_option_selects.length > 0) {
+      sucursales_option_selects.map((sucursal) => {
+
+
+        // Dorado : 186.74.2.218
+        // San Judas Tadeo: 190.219.45.142
+        // Paitilla:  45.229.196.9
+
+        if (localStorage.getItem('ip') == '186.74.2.218') {
+          if (sucursal.value == 7) {
+            sucursalSeleccionado = sucursal
+          }
+        } else if (localStorage.getItem('ip') == '190.219.45.142') {
+          if (sucursal.value == 3) {
+            sucursalSeleccionado = sucursal
+          }
+        } else if (localStorage.getItem('ip') == '45.229.196.9') {
+          if (sucursal.value == 4) {
+            sucursalSeleccionado = sucursal
+          }
+        }
+      })
+    }
+
+    return sucursalSeleccionado;
+  }
 
   const handleDateClick = (info) => {
+
     setIsEditMode(false);
     form.setFieldsValue({
       fechaAgenda: dayjs(info.dateStr)
@@ -326,13 +390,36 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     form.setFieldsValue({
       nroCedula: "",
       paciente: "",
-      sucursal: "",
       doctor: "",
       comentarios: "",
       fechaAgenda: dayjs(info.date),
       tipoAgenda: "",
       agendado_por: localStorage.getItem("usuario")
     });
+
+
+
+    // La IP tiene una sucursal
+    const sucursalSeleccionado = seleccionarSucursalIP()
+
+    if (sucursalSeleccionado) {
+
+      setSucursalId(sucursalSeleccionado.value);
+      setSucursal(sucursalSeleccionado.label)
+      setSelectedSucursal(sucursalSeleccionado.value)
+
+      form.setFieldsValue({
+        sucursal: { value: sucursalSeleccionado.value, label: sucursalSeleccionado.label }
+      })
+
+    } else {
+      form.setFieldsValue({
+        sucursal: "",
+      })
+    }
+
+    // FIN La IP tiene una sucursal
+
     setIsModalOpen(true);
 
   };
@@ -686,31 +773,46 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
             const isDayView = info.view.type === "timeGridDay";
             return (
               <div>
-                <b
+                <div
                   style={{
+                    display: "flex",
+                    alignItems: "center",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                    display: "block",
-                    color: "black",
                   }}
-                  title={`${eventTime} - ${info.event.title}`}
                 >
-                  {eventTime} - {info.event.title}
-                </b>
-
-                {isDayView && comentarios && (
-                  <span
-                    style={{
-                      marginLeft: "6px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "black",
-                    }}
-                  >
-                    ({comentarios})
+                  <span>
+                    <b
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        color: "black",
+                        flexShrink: 1,
+                        minWidth: 0, // Necesario para que ellipsis funcione correctamente
+                      }}
+                      title={`${eventTime} - ${info.event.title}`}
+                    >
+                      {eventTime} - {info.event.title}
+                    </b>
                   </span>
-                )}
+
+                  {isDayView && comentarios && (
+                    <span
+                      style={{
+                        marginLeft: "6px",
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        color: "black",
+                        flexShrink: 0, // Esto evita que se corte el texto de comentarios
+                      }}
+                      title={comentarios}
+                    >
+                      ({comentarios})
+                    </span>
+                  )}
+                </div>
+
 
                 <small
                   style={{
@@ -778,8 +880,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         width={"90vh"}
         onCancel={() => {
           setIsModalOpen(false);
- 
-       
+
+
         }}
         footer={[
           <div style={{
@@ -814,7 +916,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                 key="cancel"
                 onClick={() => {
                   setIsModalOpen(false);
-               
+
                 }}
               >
                 Cancelar

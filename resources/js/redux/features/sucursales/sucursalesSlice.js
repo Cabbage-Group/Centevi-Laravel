@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config.js';
+import getIp from '../utils/getIp.js';
 
 export const fetchSucursales = createAsyncThunk(
   'sucursales/fetchSucursales',
@@ -9,6 +10,9 @@ export const fetchSucursales = createAsyncThunk(
       const response = await axios.get(`${API}/sucursales`, {
         params: { page, limit, sortOrder, sortColumn, search }
       });
+
+      const IP = await getIp();
+
       return response.data;
     } catch (error) {
 

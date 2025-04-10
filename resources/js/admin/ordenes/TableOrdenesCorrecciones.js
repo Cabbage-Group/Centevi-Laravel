@@ -567,7 +567,10 @@ const TableOrdenesCorrecciones = (
                             fontWeight: "normal",
                           }}
                         >
-                          {`${orden?.nombres} ${orden?.apellidos?.split(" ")[0]}`}
+                          {
+                            `${orden?.nombres?.split(" ")[0]} 
+                            ${orden?.apellidos?.split(" ")[0]}`
+                          }
                         </span>
                       </Text>
 
