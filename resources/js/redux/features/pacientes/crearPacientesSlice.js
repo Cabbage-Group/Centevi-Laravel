@@ -29,7 +29,7 @@ export const crearPacientes = createAsyncThunk(
             const response = await axios.post(`${API}/pacientes`, data);
             console.log('Datos enviados:', data);
 
-            return response.data;
+            return response;
         } catch (error) {
             console.log('Datos enviados:', data);
 
@@ -55,11 +55,12 @@ const crearPacientesSlice = createSlice({
             })
             .addCase(crearPacientes.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.crearPacientes = action.payload;
+                state.crearPacientes = action.payload.data;
             })
             .addCase(crearPacientes.rejected, (state, action) => {
+                console.log('action:',action.payload.message)
                 state.status = 'failed';
-                state.error = action.payload;
+                state.error = action.payload.message;
             })
             .addCase(verificarCedula.pending, (state) => {
                 state.cedulaVerificacionStatus = 'loading';

@@ -1,12 +1,15 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field } from 'formik';
 import Swal from 'sweetalert2';
 import { crearPacientes, verificarCedula } from '../../redux/features/pacientes/crearPacientesSlice';
+import { fetchInterfuerza } from '../../redux/features/pacientes/pacientesSlice';
 
 const CrearPaciente = () => {
   const dispatch = useDispatch();
-
+  const usuario = localStorage.getItem("usuario");
+  const { error } = useSelector((state) => state.crearPacientes);
+  console.log('error:', error)
   const initialValues = {
     sucursal: "",
     doctor: localStorage.getItem('nombre'),
@@ -83,16 +86,46 @@ const CrearPaciente = () => {
         }
       });
 
-      await dispatch(crearPacientes(cleanedValues)).unwrap();
+      await dispatch(crearPacientes({ ...cleanedValues, usuario })).unwrap();
 
-      Swal.fire({
+      await Swal.fire({
         icon: 'success',
         title: 'El paciente ha sido guardado correctamente',
         showConfirmButton: true,
         confirmButtonText: 'Cerrar'
       });
+      
 
-      // Resetear el formulario
+      Swal.fire({
+        title: 'Consultando Interfuerza...',
+        text: 'Estamos verificando datos adicionales del paciente',
+        icon: 'info',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const respuestaInterfuerza = await dispatch(fetchInterfuerza({
+        ruc: nroCedula,
+        usuario
+      })).unwrap();
+      
+      setTimeout(() => {
+        Swal.close(); 
+      
+        if (respuestaInterfuerza?.message) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Interfuerza',
+            text: respuestaInterfuerza.message,
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      }, 700);
+
       resetForm();
     } catch (error) {
       let errorMessage = error.message || 'Error desconocido';
@@ -133,7 +166,7 @@ const CrearPaciente = () => {
     <div
       className="admin-data-content"
       style={{
-        
+
       }}
     >
       <div className="row layout-top-spacing">
