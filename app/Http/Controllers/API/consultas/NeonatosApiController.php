@@ -71,10 +71,10 @@ class NeonatosApiController extends Controller
           'sucursal_id' => $neonato->sucursal,
           'ex_proxima_cita' => true,
           'comentarios' => '',
-          'agendado_por' => $request->agendado_por, 
+          'agendado_por' => $request->agendado_por,
         ]);
       }
-  
+
 
       return response()->json([
         'success' => true,
@@ -173,6 +173,14 @@ class NeonatosApiController extends Controller
       ], 404);
     }
 
+    $cita = Citas::where('origen_id', $id)
+      ->where('origen_tabla', 'optometria_neonatos')
+      ->first();
+
+    if ($cita) {
+      $cita->delete();
+    }
+
     // Eliminar el registro
     $neonato->delete();
 
@@ -240,5 +248,4 @@ class NeonatosApiController extends Controller
   {
     return (new OptometriaNeonatos())->getFillable();
   }
-
 }

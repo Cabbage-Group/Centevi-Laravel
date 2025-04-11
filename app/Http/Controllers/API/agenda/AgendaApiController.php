@@ -173,6 +173,7 @@ class AgendaApiController extends Controller
                 'paciente' => $pacienteNombre,
                 'sucursal' => $sucursalNombre,
                 'apellidos' => $apellidos,
+                'ex_proxima_cita' => $nuevaCita->ex_proxima_cita
             ],
             'cita_existente_id' => $request->cita_existente_id
         ], 201);
@@ -263,10 +264,9 @@ class AgendaApiController extends Controller
         $serviciosIds = $request->input('servicios_ids', []);
 
         if ($exProximaCita && $origenTabla === 'baja_vision') {
-            // Eliminar antiguos servicios relacionados a la historia clínica
+
             ServiciosProximosBajaVision::where('bajavision_id', $origenId)->delete();
 
-            // Crear nuevos servicios relacionados
             foreach ($serviciosIds as $servicioId) {
                 ServiciosProximosBajaVision::create([
                     'bajavision_id' => $origenId,
@@ -274,10 +274,8 @@ class AgendaApiController extends Controller
                 ]);
             }
         } elseif ($exProximaCita && $origenTabla === 'consulta_generica') {
-            // Eliminar antiguos servicios relacionados a la historia clínica
             ServiciosProximosHistoriasClinicas::where('historiaclinica_id', $origenId)->delete();
 
-            // Crear nuevos servicios relacionados
             foreach ($serviciosIds as $servicioId) {
                 ServiciosProximosHistoriasClinicas::create([
                     'historiaclinica_id' => $origenId,
@@ -285,10 +283,10 @@ class AgendaApiController extends Controller
                 ]);
             }
         } elseif ($exProximaCita && $origenTabla === 'refraccion_general') {
-            // Eliminar antiguos servicios relacionados a la historia clínica
+
             ServiciosProximosOptometriaGeneral::where('optometriageneral_id', $origenId)->delete();
 
-            // Crear nuevos servicios relacionados
+
             foreach ($serviciosIds as $servicioId) {
                 ServiciosProximosOptometriaGeneral::create([
                     'optometriageneral_id' => $origenId,
@@ -296,10 +294,10 @@ class AgendaApiController extends Controller
                 ]);
             }
         } elseif ($exProximaCita && $origenTabla === 'ortoptica_adultos') {
-            // Eliminar antiguos servicios relacionados a la historia clínica
+   
             ServiciosProximosOrtopticaAdultos::where('ortopticaAdultos_id', $origenId)->delete();
 
-            // Crear nuevos servicios relacionados
+
             foreach ($serviciosIds as $servicioId) {
                 ServiciosProximosOrtopticaAdultos::create([
                     'ortopticaAdultos_id' => $origenId,
@@ -307,10 +305,10 @@ class AgendaApiController extends Controller
                 ]);
             }
         } elseif ($exProximaCita && $origenTabla === 'optometria_pediatrica') {
-            // Eliminar antiguos servicios relacionados a la historia clínica
+  
             ServiciosProximosOptometriaPediatrica::where('optometriaPediatrica_id', $origenId)->delete();
 
-            // Crear nuevos servicios relacionados
+   
             foreach ($serviciosIds as $servicioId) {
                 ServiciosProximosOptometriaPediatrica::create([
                     'optometriaPediatrica_id' => $origenId,
@@ -318,10 +316,10 @@ class AgendaApiController extends Controller
                 ]);
             }
         } elseif ($exProximaCita && $origenTabla === 'optometria_neonatos') {
-            // Eliminar antiguos servicios relacionados a la historia clínica
+     
             ServiciosProximosOptometriaNeonatos::where('optometriaNeonatos_id', $origenId)->delete();
 
-            // Crear nuevos servicios relacionados
+ 
             foreach ($serviciosIds as $servicioId) {
                 ServiciosProximosOptometriaNeonatos::create([
                     'optometriaNeonatos_id' => $origenId,
@@ -329,10 +327,10 @@ class AgendaApiController extends Controller
                 ]);
             }
         } elseif (!$exProximaCita) {
-            // Eliminar antiguos servicios de la cita
+  
             CitasServicios::where('cita_id', $cita->id)->delete();
 
-            // Crear nuevos servicios asociados a la cita
+     
             foreach ($serviciosIds as $servicioId) {
                 CitasServicios::create([
                     'cita_id'      => $cita->id,

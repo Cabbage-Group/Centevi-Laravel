@@ -27,7 +27,7 @@ class PediatricaApiController extends Controller
       'servicios_proximos_optometria_pediatrica' => 'array',
       'fecha_proxima_consulta' => 'nullable|date',
       'agendado_por' => 'required|string|max:255',
-  
+
     ]);
 
     if ($validator->fails()) {
@@ -80,7 +80,7 @@ class PediatricaApiController extends Controller
           'sucursal_id' => $optometriaPediatrica->sucursal,
           'ex_proxima_cita' => true,
           'comentarios' => '',
-          'agendado_por' => $request->agendado_por, 
+          'agendado_por' => $request->agendado_por,
         ]);
       }
 
@@ -197,6 +197,14 @@ class PediatricaApiController extends Controller
       ], 404);
     }
 
+    $cita = Citas::where('origen_id', $id)
+      ->where('origen_tabla', 'optometria_pediatrica')
+      ->first();
+
+    if ($cita) {
+      $cita->delete();
+    }
+
     $optometriaPediatrica->delete();
 
     return response()->json([
@@ -204,6 +212,7 @@ class PediatricaApiController extends Controller
       'message' => 'Registro eliminado exitosamente',
     ], 200);
   }
+  
   public function mostrarOptometriaPediatrica(Request $request)
   {
     // Obtén los parámetros de la solicitud

@@ -83,7 +83,7 @@ class ConsultaGenericaController extends Controller
         'sucursal_id' => $consultaGenerica->sucursal,
         'ex_proxima_cita' => true,
         'comentarios' => '',
-        'agendado_por' => $request->agendado_por, 
+        'agendado_por' => $request->agendado_por,
       ]);
     }
 
@@ -161,7 +161,7 @@ class ConsultaGenericaController extends Controller
     }
 
     if ($request->has('servicios_proximos_historias_clinicas')) {
-      // Eliminar los servicios próximos existentes
+
       ServiciosProximosHistoriasClinicas::where('historiaclinica_id', $consultaGenerica->id_consulta)->delete();
 
       // Insertar los nuevos servicios próximos
@@ -192,6 +192,15 @@ class ConsultaGenericaController extends Controller
         'message' => 'Registro no encontrado',
       ], 404);
     }
+
+    $cita = Citas::where('origen_id', $id)
+      ->where('origen_tabla', 'consulta_generica')
+      ->first();
+
+    if ($cita) {
+      $cita->delete();
+    }
+
     $ConsultaGenerica->delete();
     return response()->json([
       'success' => true,

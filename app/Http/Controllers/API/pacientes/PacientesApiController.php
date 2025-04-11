@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\pacientes;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\Pacientes;
 use App\Models\HistoriaClinica;
@@ -195,7 +196,8 @@ class PacientesApiController extends Controller
       'menor' => 'nullable|string',
       'fecha_creacion' => 'nullable|date',
       'nro_cedula' => 'nullable|string|max:20|unique:pacientes',
-    ]);
+      'estado' => 'nullable'
+    ]); 
 
     // Retornar errores de validación si los hay
     if ($validator->fails()) {
@@ -210,7 +212,7 @@ class PacientesApiController extends Controller
     // Obtener los datos de la solicitud y rellenar los valores faltantes
     $data = $request->all();
     $defaults = [
-      'sucursal' => '1', //cambiar cuando se realize la parte de login
+      'sucursal' => null, //cambiar cuando se realize la parte de login
       'doctor' => '', //cambiar cuando se realize la parte de login
       'nombres' => '',
       'apellidos' => '',
@@ -227,7 +229,8 @@ class PacientesApiController extends Controller
       'urgencia' => '',
       'menor' => '',
       'fecha_creacion' => now()->format('Y/m/d'),
-      'nro_cedula' => ''
+      'nro_cedula' => '',
+      'estaod' => 1
     ];
 
     // Rellenar datos faltantes con valores predeterminados
@@ -242,8 +245,8 @@ class PacientesApiController extends Controller
       'data' => [
         "Tipo" => "CLIENTE",
         "RUC" => $paciente->nro_cedula ?? '',
-        "DV" => "12",
-        "Empresa" => "MI EMPRESA S.A.",
+        "DV" => "", 
+        "Empresa" => "", //nombre apeliido  del paciente
         "Email" => $paciente->email ?? '',
         "Status" => "ACTIVE",
         "Telefono_1" => $paciente->telefono ?? '',
@@ -254,12 +257,12 @@ class PacientesApiController extends Controller
         "Estado" => "PANAMA",
         "Pais" => "PANAMA",
         "Empleados" => "1",
-        "Industria" => "Retail",
-        "Credit_Term" => "CREDIT",
+        "Industria" => "",
+        "Credit_Term" => "",
         "Due_Days" => "30",
         "Credit_Amount_Limit" => "1000.00",
-        "Vendedor" => "adm@elconix.com",
-        "BirthDate" => $paciente->fecha_nacimiento ?? "1980-02-21",
+        "Vendedor" => "adm@elconix.com", //usaurio q creo
+        "BirthDate" => $paciente->fecha_nacimiento ?? "",
         "Taxable" => true,
         "Tipo_Contribuyente" => "1",
         "Clase" => "Juridica",
@@ -337,14 +340,14 @@ class PacientesApiController extends Controller
   {
     // Validar la entrada
     $validator = Validator::make($request->all(), [
-      "sucursal" => 'nullable|int|max:11',
+      "sucursal" => 'nullable',
       "doctor" => 'nullable|string|max:255',
       'nombres' => 'nullable|string|max:255',
       'apellidos' => 'nullable|string|max:255',
       'nro_cedula' => 'nullable|string|max:20',
       'email' => 'nullable|string|email|max:255',
       'nro_seguro' => 'nullable|string|max:20',
-      'fecha_nacimiento' => 'required|date',
+      'fecha_nacimiento' => 'nullable|date',
       'genero' => 'nullable|string',
       'lugar_nacimiento' => 'nullable|string|max:255',
       'direccion' => 'nullable|string|max:255',
@@ -381,7 +384,7 @@ class PacientesApiController extends Controller
 
     // Preparar los datos para actualizar
     $data = [
-      "sucursal" => $request->filled('sucursal') ? $request->sucursal : '',
+      "sucursal" => $request->filled('sucursal') ? $request->sucursal : null,
       "doctor" => $request->filled('doctor') ? $request->doctor : '',
       'nombres' => $request->filled('nombres') ? $request->nombres : '',
       'apellidos' => $request->filled('apellidos') ? $request->apellidos : '',
@@ -427,6 +430,7 @@ class PacientesApiController extends Controller
       ], 404);
     }
 
+    Citas::where('paciente_id', $id)->delete();
 
     $paciente->delete();
 

@@ -79,7 +79,7 @@ class OrtopticaApiController extends Controller
           'sucursal_id' => $ortoptica->sucursal,
           'ex_proxima_cita' => true,
           'comentarios' => '',
-          'agendado_por' => $request->agendado_por, 
+          'agendado_por' => $request->agendado_por,
         ]);
       }
 
@@ -246,4 +246,28 @@ class OrtopticaApiController extends Controller
     return (new OrtopticaAdultos())->getFillable();
   }
 
+  public function DeleteOrtoptica($id)
+  {
+    $ortopticaAdultos = OrtopticaAdultos::find($id);
+    if (!$ortopticaAdultos) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Registro no encontrado',
+      ], 404);
+    }
+
+    $cita = Citas::where('origen_id', $id)
+      ->where('origen_tabla', 'ortoptica_adultos')
+      ->first();
+
+    if ($cita) {
+      $cita->delete();
+    }
+
+    $ortopticaAdultos->delete();
+    return response()->json([
+      'success' => true,
+      'message' => 'Registro eliminado exitosamente',
+    ], 200);
+  }
 }
