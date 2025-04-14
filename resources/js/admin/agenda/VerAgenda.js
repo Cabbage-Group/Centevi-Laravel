@@ -7,10 +7,8 @@ import esLocale from "@fullcalendar/core/locales/es";
 import {
   Modal, Input, DatePicker, Radio, Button,
   Space, Popconfirm, Select, Row, Col,
-  List, Form, Spin
+  List, Form, Spin, AutoComplete
 } from "antd";
-import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined } from "@ant-design/icons";
-import { Modal, Input, DatePicker, Radio, Button, Space, Popconfirm, Select, Row, Col, List, Form, Spin, AutoComplete } from "antd";
 import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -25,8 +23,6 @@ import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import axios from "axios";
 import getIp from "../../redux/features/utils/getIp";
 import { crearPacientes, verificarCedula } from "../../redux/features/pacientes/crearPacientesSlice";
-
-
 
 dayjs.locale("es");
 
@@ -1169,7 +1165,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
           {/*  */}
           <Row gutter={[16, 16]}>
-            <Col xxl={16} xl={16} md={16}>
+            <Col xxl={24} xl={24} md={24}>
               <label style={{ marginTop: '10px' }}>Cedula:</label>
               <Form.Item
                 name="nroCedula"
