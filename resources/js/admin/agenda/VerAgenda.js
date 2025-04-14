@@ -105,7 +105,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 
   const [apellidos, setApellidos] = useState('')
 
-  const [esProximaCita, setEsProximaCita] = useState(1)
+  const [esProximaCita, setEsProximaCita] = useState(null)
 
 
 
@@ -458,19 +458,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     setIsModalOpen(true);
 
   };
-
-  useEffect(() => {
-    if (consultaId) {
-      dispatch(
-        fetchServiciosProximosAgenda({
-          consulta_nombre: tableName,
-          consulta_id: consultaId,
-        })
-      );
-    }
-  }, [consultaId, tableName]);
-
-
   const handleEventClick = (info) => {
     const eventId = Number(info.event.id);
     let clickedEvent = citasAgenda.find(
@@ -490,8 +477,10 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       });
     }
     if (clickedEvent) {
+      console.log('clickedEvent:', clickedEvent)
       setConsultaId(clickedEvent.origen_id);
       setTableName(clickedEvent.origen_tabla);
+      setEsProximaCita(clickedEvent.esProximaCita)
       setDateEvent(clickedEvent.start)
       setEventPaciente(clickedEvent.paciente)
       setSucursal(clickedEvent.sucursal)
@@ -506,7 +495,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       setAgendadoPor(clickedEvent.agendado_por)
       setPacienteInput(clickedEvent.paciente_id)
       setApellidos(clickedEvent.apellidos)
-      setEsProximaCita(clickedEvent.esProximaCita)
       setIsModalOpen(true);
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
@@ -520,8 +508,25 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         agendado_por: clickedEvent.agendado_por || "",
       });
       form.validateFields();
+
+      if (clickedEvent.esProximaCita === 1) {
+        dispatch(
+          fetchServiciosProximosAgenda({
+            consulta_nombre: clickedEvent.origen_tabla,
+            consulta_id: clickedEvent.origen_id,
+          })
+        );
+      } else {
+        dispatch(
+          fetchServiciosProximosAgenda({
+            consulta_nombre: clickedEvent.origen_tabla,
+            consulta_id: clickedEvent.id,
+          })
+        );
+      }
     }
   };
+
   useEffect(() => {
     if (serviciosProximos_options.length > 0) {
       form.setFieldsValue({
@@ -570,10 +575,9 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
               if (result.isConfirmed) {
                 const data = {
                   nombres: values.paciente,
-                  sucursal: selectedSucursal,
-                  doctor: values.doctor,
                   nro_cedula: values.nroCedula,
-                  apellidos: values.apellidos
+                  apellidos: values.apellidos,
+                  estado: false
                 };
                 dispatch(crearPacientes(data))
                   .then((response) => {
@@ -589,9 +593,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                       dispatch(fetchPacientes({}))
                         .then(() => {
                           Swal.close();
-                          setTimeout(() => {
-                            continueAgendarEvent(values, newPaciente.id_paciente);
-                          });
+                          continueAgendarEvent(values, newPaciente.id_paciente);
+
                         })
                         .catch(() => {
                           Swal.fire({
@@ -628,8 +631,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         });
     } else {
       const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
-
-      console.log('entre aqui')
       if (!values.tipoAgenda || values.tipoAgenda === "proxima_cita") {
         Swal.fire({
           icon: "warning",
@@ -744,6 +745,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
     if (currentEventId) {
       setIsModalOpen(false);
       dispatch(updateCita({ id_cita: currentEventId, data: data }))
+
     }
   };
 

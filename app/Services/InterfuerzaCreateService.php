@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
-class InterfuerzaService
+class InterfuerzaCreateService
 {
     protected $baseUrl = 'https://app.interfuerza.com/api/';
     protected $token = 'bcf0466ee568b7825422e792b62d825f';
@@ -17,7 +17,3 @@ class InterfuerzaService
         ])->post($this->baseUrl, $payload);
     }
 }
-
-
-
-

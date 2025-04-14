@@ -80,10 +80,10 @@ class BajaVisionApiController extends Controller
           'sucursal_id' => $bajaVision->sucursal,
           'ex_proxima_cita' => true,
           'comentarios' => '',
-          'agendado_por' => $request->agendado_por, 
+          'agendado_por' => $request->agendado_por,
         ]);
       }
-      Log::info('Datos recibidos en la API:', $request->all()); 
+      Log::info('Datos recibidos en la API:', $request->all());
 
 
       return response()->json([
@@ -170,6 +170,7 @@ class BajaVisionApiController extends Controller
         'message' => 'Registro no encontrado',
       ], 404);
     }
+
 
     $bajaVision->delete();
 

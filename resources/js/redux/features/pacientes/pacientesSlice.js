@@ -42,9 +42,9 @@ export const eliminarPaciente = createAsyncThunk(
 
 export const fetchInterfuerza = createAsyncThunk(
   'pacientes/fetchInterfuerza',
-  async (ruc, { rejectWithValue }) => {
+  async ({ ruc, usuario }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API}/verificar-interfuerza`, { ruc });
+      const response = await axios.post(`${API}/verificar-interfuerza`, { ruc, usuario });
       return response.data;
     } catch (error) {
       if (error.response) {

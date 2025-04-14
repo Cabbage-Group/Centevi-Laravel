@@ -79,10 +79,10 @@ class OptometriaGeneralApiController extends Controller
           'sucursal_id' => $refraccionGeneral->sucursal,
           'ex_proxima_cita' => true,
           'comentarios' => '',
-          'agendado_por' => $request->agendado_por, 
+          'agendado_por' => $request->agendado_por,
         ]);
       }
-  
+
 
       return response()->json([
         'success' => true,
@@ -189,6 +189,15 @@ class OptometriaGeneralApiController extends Controller
         'message' => 'Registro no encontrado',
       ], 404);
     }
+
+    $cita = Citas::where('origen_id', $id)
+      ->where('origen_tabla', 'refraccion_general')
+      ->first();
+
+    if ($cita) {
+      $cita->delete();
+    }
+
     $refraccionGeneral->delete();
     return response()->json([
       'success' => true,

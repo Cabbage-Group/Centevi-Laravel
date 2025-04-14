@@ -11,9 +11,12 @@ const ListaPaciente = () => {
 
   const dispatch = useDispatch();
   const { meta, pacientes, status, error, totalPages, search } = useSelector((state) => state.pacientes);
-  const { usuario, permisos } = useSelector((state) => state.auth);
+  const { permisos } = useSelector((state) => state.auth);
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
+  const usuario = localStorage.getItem("usuario");
+
+
 
   useEffect(() => {
     dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
@@ -74,8 +77,23 @@ const ListaPaciente = () => {
       cancelButtonText: 'Cancelar'
     }).then(async (result) => {
       if (result.isConfirmed) {
+
+        Swal.fire({
+          title: 'Verificando...',
+          text: 'Por favor espera',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
         try {
-          const resultAction = await dispatch(fetchInterfuerza(ruc));
+          const resultAction = await dispatch(fetchInterfuerza({ ruc: ruc, usuario: usuario }));
+
+          Swal.close();
+
+          console.log('resultAction', resultAction);
 
           if (resultAction.type === 'pacientes/fetchInterfuerza/rejected') {
             Swal.fire({
@@ -94,6 +112,7 @@ const ListaPaciente = () => {
             dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
           }
         } catch (error) {
+          Swal.close();
           Swal.fire({
             title: 'Error',
             text: error.response?.data?.message || 'Hubo un problema al verificar',

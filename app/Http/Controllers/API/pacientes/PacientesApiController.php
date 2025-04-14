@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\pacientes;
 
 use App\Http\Controllers\Controller;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\Pacientes;
 use App\Models\HistoriaClinica;
@@ -14,6 +15,7 @@ use App\Models\ConsultaGenerica;
 use App\Models\RefraccionGeneral;
 use App\Models\OptometriaNeonatos;
 use App\Models\OrtopticaAdultos;
+use App\Services\InterfuerzaClientCreator;
 use App\Services\InterfuerzaCreateService;
 use App\Services\InterfuerzaService;
 use Carbon\Carbon;
@@ -27,10 +29,12 @@ class PacientesApiController extends Controller
   protected $interfuerzaService;
   protected $interfuerzaCreateService;
 
-  public function __construct(InterfuerzaService $interfuerzaService, InterfuerzaCreateService $interfuerzaCreateService)
-  {
-      $this->interfuerzaService = $interfuerzaService;
-      $this->interfuerzaCreateService = $interfuerzaCreateService;
+  public function __construct(
+    InterfuerzaService $interfuerzaService,
+    InterfuerzaCreateService $interfuerzaCreateService
+  ) {
+    $this->interfuerzaService = $interfuerzaService;
+    $this->interfuerzaCreateService = $interfuerzaCreateService;
   }
 
   public function pacientes(Request $request)
@@ -54,7 +58,7 @@ class PacientesApiController extends Controller
     ]);
 
     $data = Pacientes::query();
-    
+
     if (!empty($search)) {
       $nameParts = explode(' ', $search);
       $data->where(function ($query) use ($nameParts) {
@@ -175,7 +179,7 @@ class PacientesApiController extends Controller
 
   public function crearpaciente(Request $request)
   {
-    // Validar los datos de entrada para pacientes
+
     $validator = Validator::make($request->all(), [
       "sucursal" => 'nullable|int|max:11',
       "doctor" => 'nullable|string|max:255',
@@ -195,9 +199,10 @@ class PacientesApiController extends Controller
       'menor' => 'nullable|string',
       'fecha_creacion' => 'nullable|date',
       'nro_cedula' => 'nullable|string|max:20|unique:pacientes',
+      'estado' => 'nullable',
+      'usuario' => 'nullable'
     ]);
 
-    // Retornar errores de validación si los hay
     if ($validator->fails()) {
       return response()->json([
         'respuesta' => false,
@@ -207,11 +212,10 @@ class PacientesApiController extends Controller
       ], 400);
     }
 
-    // Obtener los datos de la solicitud y rellenar los valores faltantes
     $data = $request->all();
     $defaults = [
-      'sucursal' => '1', //cambiar cuando se realize la parte de login
-      'doctor' => '', //cambiar cuando se realize la parte de login
+      'sucursal' => null,
+      'doctor' => '',
       'nombres' => '',
       'apellidos' => '',
       'email' => '',
@@ -227,84 +231,25 @@ class PacientesApiController extends Controller
       'urgencia' => '',
       'menor' => '',
       'fecha_creacion' => now()->format('Y/m/d'),
-      'nro_cedula' => ''
+      'nro_cedula' => '',
+      'estado' => 1
     ];
 
-    // Rellenar datos faltantes con valores predeterminados
     $data = array_merge($defaults, $data);
 
-    // Crear un nuevo paciente
+
     $paciente = Pacientes::create($data);
 
-    $payload = [
-      'class' => 'PUT',
-      'action' => 'customers',
-      'data' => [
-        "Tipo" => "CLIENTE",
-        "RUC" => $paciente->nro_cedula ?? '',
-        "DV" => "12",
-        "Empresa" => "MI EMPRESA S.A.",
-        "Email" => $paciente->email ?? '',
-        "Status" => "ACTIVE",
-        "Telefono_1" => $paciente->telefono ?? '',
-        "Telefono_2" => "",
-        "Cellular" => $paciente->celular ?? '',
-        "Direccion" => $paciente->direccion ?? '',
-        "Ciudad" => "PANAMA",
-        "Estado" => "PANAMA",
-        "Pais" => "PANAMA",
-        "Empleados" => "1",
-        "Industria" => "Retail",
-        "Credit_Term" => "CREDIT",
-        "Due_Days" => "30",
-        "Credit_Amount_Limit" => "1000.00",
-        "Vendedor" => "adm@elconix.com",
-        "BirthDate" => $paciente->fecha_nacimiento ?? "1980-02-21",
-        "Taxable" => true,
-        "Tipo_Contribuyente" => "1",
-        "Clase" => "Juridica",
-        "Name_First" => $paciente->nombres ?? '',
-        "Name_Second" => "",
-        "LastName_First" => $paciente->apellidos ?? '',
-        "LastName_Second" => ""
-      ]
-    ];
+    // $response = $interfuerzaClientCreator->crearCliente($paciente, $request->usuario);
+    // $verificarRequest = new Request([
+    //   'ruc' => $paciente->nro_cedula,
+    //   'usuario' => $request->usuario
+    // ]);
 
-    try {
-      $response = $this->interfuerzaCreateService->request($payload);
 
-      if (!$response->successful()) {
-        // Loguear y devolver advertencia
-        Log::error('Error al crear cliente en Interfuerza', [
-          'payload' => $payload,
-          'response_status' => $response->status(),
-          'response_body' => $response->body()
-        ]);
-        return response()->json([
-          'respuesta' => true,
-          'mensaje' => 'Paciente registrado, pero no se pudo registrar en Interfuerza',
-          'data' => [$paciente],
-          'mensaje_dev' => 'Error en Interfuerza: ' . $response->body()
-        ], 207); // 207 Multi-Status: éxito parcial
-      }
-    } catch (\Exception $e) {
-      // Manejar cualquier excepción, como timeout o conexión
-      Log::error('Excepción al comunicar con Interfuerza', [
-        'exception' => $e->getMessage(),
-        'payload' => $payload
-      ]);
-      return response()->json([
-        'respuesta' => true,
-        'mensaje' => 'Paciente registrado, pero no se pudo conectar con Interfuerza',
-        'data' => [$paciente],
-        'mensaje_dev' => 'Excepción: ' . $e->getMessage()
-      ], 207);
-    }
-
-    // Retornar respuesta exitosa
     return response()->json([
       'respuesta' => true,
-      'mensaje' => 'Paciente registrado correctamente',
+      'message' => 'Paciente registrado correctamente',
       'data' => [$paciente],
       'mensaje_dev' => null
     ], 201);
@@ -337,14 +282,14 @@ class PacientesApiController extends Controller
   {
     // Validar la entrada
     $validator = Validator::make($request->all(), [
-      "sucursal" => 'nullable|int|max:11',
+      "sucursal" => 'nullable',
       "doctor" => 'nullable|string|max:255',
       'nombres' => 'nullable|string|max:255',
       'apellidos' => 'nullable|string|max:255',
       'nro_cedula' => 'nullable|string|max:20',
       'email' => 'nullable|string|email|max:255',
       'nro_seguro' => 'nullable|string|max:20',
-      'fecha_nacimiento' => 'required|date',
+      'fecha_nacimiento' => 'nullable|date',
       'genero' => 'nullable|string',
       'lugar_nacimiento' => 'nullable|string|max:255',
       'direccion' => 'nullable|string|max:255',
@@ -381,7 +326,7 @@ class PacientesApiController extends Controller
 
     // Preparar los datos para actualizar
     $data = [
-      "sucursal" => $request->filled('sucursal') ? $request->sucursal : '',
+      "sucursal" => $request->filled('sucursal') ? $request->sucursal : null,
       "doctor" => $request->filled('doctor') ? $request->doctor : '',
       'nombres' => $request->filled('nombres') ? $request->nombres : '',
       'apellidos' => $request->filled('apellidos') ? $request->apellidos : '',
@@ -427,6 +372,7 @@ class PacientesApiController extends Controller
       ], 404);
     }
 
+    Citas::where('paciente_id', $id)->delete();
 
     $paciente->delete();
 

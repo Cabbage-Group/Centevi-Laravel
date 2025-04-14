@@ -89,8 +89,8 @@ export const updateCita = createAsyncThunk(
     async ({ id_cita, data }) => {
         try {
             const response = await axios.put(`${API}/citas/update/${id_cita}`, data);
-            console.log('response',response)
-            return response.data.cita ;
+            console.log('response', response)
+            return response.data.cita;
         } catch (error) {
             console.error('Error update cita:', error.response.data);
             throw error;
@@ -192,19 +192,20 @@ const citasAgendaSlice = createSlice({
                     3: "#BCE9FB",
                     default: "purple"
                 };
-
+                console.log('action.payload.nueva_cita:', action.payload.nueva_cita)
                 if (action.payload.nueva_cita) {
                     const { sucursal_id, tipo, origen_id } = action.payload.nueva_cita;
                     const color = sucursalColors[sucursal_id] || sucursalColors.default;
                     const nuevaCitaTransformada = {
                         ...action.payload.nueva_cita,
-                        id: origen_id,
+                        id: action.payload.nueva_cita.id,
                         start: action.payload.nueva_cita.fecha_hora,
                         end: action.payload.nueva_cita.fecha_hora,
                         title: action.payload.nueva_cita.title,
                         paciente: action.payload.nueva_cita.paciente,
                         apellidos: action.payload.nueva_cita.apellidos,
                         doctor: action.payload.nueva_cita.doctor,
+                        esProximaCita: action.payload.nueva_cita.ex_proxima_cita,
                         badge: "Pendiente",
                         backgroundColor: color,
                         borderColor: color,
