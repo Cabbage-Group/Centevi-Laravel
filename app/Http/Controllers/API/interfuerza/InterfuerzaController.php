@@ -48,8 +48,6 @@ class InterfuerzaController extends Controller
             ]
         ]);
 
-        // $response = null;
-
         if (!$response || !$response->successful()) {
             return response()->json(['message' => 'Error al consultar a Interfuerza'], 500);
         }
@@ -84,7 +82,8 @@ class InterfuerzaController extends Controller
 
                 return response()->json([
                     'message' => 'Paciente no encontrado. Se creó uno nuevo en Interfuerza',
-                    'paciente' => $paciente
+                    'paciente' => $paciente,
+                    'interfuerza' => $responseInterfuerza->json()
                 ], 200);
             }
 
@@ -100,8 +99,8 @@ class InterfuerzaController extends Controller
 
         return response()->json([
             'message' => 'Paciente actualizado con éxito',
-            'paciente' => $paciente
+            'paciente' => $paciente,
+
         ]);
     }
-
 }

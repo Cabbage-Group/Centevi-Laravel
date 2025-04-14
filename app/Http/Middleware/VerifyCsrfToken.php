@@ -238,6 +238,8 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/verificar-interfuerza',
 
+    'http://127.0.0.1:8000/api/quote/create',
+
     
 
 

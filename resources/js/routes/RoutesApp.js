@@ -89,6 +89,7 @@ import WhatsAppChat from '../admin/chat/WhatsAppChat.js';
 import ChatScreen from '../../components/WebSocket.js';
 import ChatComponent from '../../components/WebSocket.js';
 import PruebaChat from '../admin/chat/PruebaChat.js';
+import CrearCotizacion from '../admin/cotizaciones/CrearCotizaciones.js';
 
 
 const RoutesApp = () => {
@@ -255,9 +256,11 @@ const RoutesApp = () => {
 
           <Route path="/ver-agenda" element={<Sidebar component={<VerAgenda />} />} />
 
-          <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat/>} />} />
+          <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat />} />} />
 
-          <Route path="/ver-socket" element={<Sidebar component={<ChatComponent/>} />} />
+          <Route path="/ver-socket" element={<Sidebar component={<ChatComponent />} />} />
+
+          <Route path="/crear-cotizacion" element={<Sidebar component={<CrearCotizacion/>} />} />
 
         </Route>
 
