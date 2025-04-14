@@ -89,8 +89,10 @@ import tiposArosSlice from './features/tipos-aros/tiposArosSlice'
 import kpisTiposCristales from './features/kpis/kpisTiposCristales/kpisTiposCristalesSlice';
 import citasAgenda from './features/citas/CitasAgendaSlice';
 import proveedorMaterialSlice from './features/proveedor-material/proveedorMaterialSlice';
-import chat from './features/mensajes/mensajesSlice'
-
+import chat from './features/mensajes/mensajesSlice';
+import interfuerzaQuotes from './features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice';
+import interfuerzaCustomers from './features/interfuerza/interfuerzaCustomers/interfuerzaCustomersSlice'
+import interfuerzaWareHouses from './features/interfuerza/interfuerzaWareHouses/interfuerzaWareHousesSlice'
 
 const store = configureStore({
   reducer: {
@@ -211,7 +213,13 @@ const store = configureStore({
 
     proveedorMaterial: proveedorMaterialSlice,
 
-    chat : chat
+    chat : chat,
+
+    interfuerzaQuotes: interfuerzaQuotes,
+
+    interfuerzaCustomers: interfuerzaCustomers,
+
+    interfuerzaWareHouses: interfuerzaWareHouses
 
 
   }

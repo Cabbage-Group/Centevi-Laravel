@@ -28,10 +28,10 @@ const interfuerzaSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUsuarios.pending, (state) => {
+      .addCase(fetchInterfuerza.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchUsuarios.fulfilled, (state, action) => {
+      .addCase(fetchInterfuerza.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.interfuerza = action.payload.data;
       })

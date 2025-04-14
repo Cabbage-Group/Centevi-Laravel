@@ -22,6 +22,10 @@ use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
 use App\Http\Controllers\API\download\DownloadController;
 use App\Http\Controllers\API\email\EmailController;
+use App\Http\Controllers\API\interfuerza\interfuerzaApiControllerCustomers;
+use App\Http\Controllers\API\interfuerza\interfuerzaApiControllerProducts;
+use App\Http\Controllers\API\interfuerza\interfuerzaApiControllerQuotes;
+use App\Http\Controllers\API\interfuerza\interfuerzaApiControllerWareHouses;
 use App\Http\Controllers\API\interfuerza\InterfuerzaController;
 use App\Http\Controllers\API\kpis\KpisApiController;
 use App\Http\Controllers\API\marcas\MarcasApiController;
@@ -492,6 +496,14 @@ Route::post('/api/upload', [DownloadController::class, 'upload']);
 Route::post('/api/verificar-interfuerza', [InterfuerzaController::class, 'verificarYActualizar']);
 
 Route::put('/api/citas/update/{id}', [AgendaApiController::class, 'updateCita']);
+
+Route::post('/api/quote/create', [interfuerzaApiControllerQuotes::class, 'createQuote']);
+
+Route::get('/api/customers/get', [interfuerzaApiControllerCustomers::class, 'getCustomers']);
+
+Route::get('/api/ware-houses/get', [interfuerzaApiControllerWareHouses::class, 'getWareHouses']);
+
+Route::get('/api/products/get', [interfuerzaApiControllerProducts::class, 'getProducts']);
 
 Route::get('/{any}', function () {
   return view('app');
