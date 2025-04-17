@@ -240,6 +240,10 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/quote/create',
 
+    'http://127.0.0.1:8000/api/crear/quote/centevi',
+
+    'http://127.0.0.1:8000/api/update/quote/centevi/*',
+
     
 
 

@@ -91,8 +91,10 @@ import citasAgenda from './features/citas/CitasAgendaSlice';
 import proveedorMaterialSlice from './features/proveedor-material/proveedorMaterialSlice';
 import chat from './features/mensajes/mensajesSlice';
 import interfuerzaQuotes from './features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice';
-import interfuerzaCustomers from './features/interfuerza/interfuerzaCustomers/interfuerzaCustomersSlice'
-import interfuerzaWareHouses from './features/interfuerza/interfuerzaWareHouses/interfuerzaWareHousesSlice'
+import interfuerzaCustomers from './features/interfuerza/interfuerzaCustomers/interfuerzaCustomersSlice';
+import interfuerzaWareHouses from './features/interfuerza/interfuerzaWareHouses/interfuerzaWareHousesSlice';
+import interfuerzaProducts from './features/interfuerza/interfuerzaProducts/interfuerzaproductsSlice'
+import quotes from './features/quotes/quotesSlice'
 
 const store = configureStore({
   reducer: {
@@ -213,14 +215,17 @@ const store = configureStore({
 
     proveedorMaterial: proveedorMaterialSlice,
 
-    chat : chat,
+    chat: chat,
 
     interfuerzaQuotes: interfuerzaQuotes,
 
     interfuerzaCustomers: interfuerzaCustomers,
 
-    interfuerzaWareHouses: interfuerzaWareHouses
+    interfuerzaWareHouses: interfuerzaWareHouses,
 
+    interfuerzaProducts: interfuerzaProducts,
+
+    quotes: quotes
 
   }
 });

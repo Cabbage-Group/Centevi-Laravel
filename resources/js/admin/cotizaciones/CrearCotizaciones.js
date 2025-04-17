@@ -17,11 +17,14 @@ import {
   message
 } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
 import { createInterfuerzaQuotes } from '../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice';
 import { fetchInterfuerzaCustomers } from '../../redux/features/interfuerza/interfuerzaCustomers/interfuerzaCustomersSlice';
 import { fetchInterfuerzaWareHouses } from '../../redux/features/interfuerza/interfuerzaWareHouses/interfuerzaWareHousesSlice';
+import { fetchInterfuerzaProducts } from '../../redux/features/interfuerza/interfuerzaProducts/interfuerzaproductsSlice';
+import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
+import { createQuotes, fetchExchangeRate, updateEstadoQuote } from '../../redux/features/quotes/quotesSlice';
+import Swal from 'sweetalert2';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -33,57 +36,42 @@ const CrearCotizacion = () => {
   const [form] = Form.useForm();
   const { interfuerzaQuotes } = useSelector((state) => state.interfuerzaQuotes);
   const { interfuerzaWareHouses } = useSelector((state) => state.interfuerzaWareHouses);
+  const { exchangeRate, exchangeRateStatus } = useSelector((state) => state.quotes);
+  const nombre = localStorage.getItem('nombre');
   const {
-    interfuerzaCustomers,
-    Status,
-    page,
-    hasMore
-  } = useSelector((state) => state.interfuerzaCustomers);
+
+    pacientes_options_cotizacion
+  } = useSelector((state) => state.pacientes);
+  const {
+    interfuerzaProducts,
+    page_products,
+    hasMore_products
+  } = useSelector((state) => state.interfuerzaProducts);
+
   const [lines, setLines] = useState([]);
   const [searchValue, setSearchValue] = useState('');
+  const [searchValueProducts, setSearchValueProducts] = useState('');
 
+  useEffect(() => {
+    if (exchangeRate) {
+      form.setFieldsValue({
+        Vendedor: nombre || '',
+        Currency_Rate: exchangeRate,
+      });
+    }
+  }, [form, nombre, exchangeRate]);
 
-  // const initialValues = {
-  //   id: '00001',
-  //   Cliente: 'C0001',
-  //   Token: '2131212ddsqeq123123',
-  //   Bodega: 'SLN BRIGOLF ARRIJAN',
-  //   Status: 'ACTIVE',
-  //   Date: moment('2015-01-14'),
-  //   Expira: moment('2015-02-14'),
-  //   Comentario: '',
-  //   SubTotal: 5.00,
-  //   Discount: 0.00,
-  //   Taxes: 0.00,
-  //   Total: 5.00,
-  //   Reservar_Productos: false,
-  //   Type: 'SALES-TEAM',
-  //   Vendedor: 'adm@elconix.com',
-  //   Currency: 'USD',
-  //   Currency_Rate: 1.000000000,
-  //   Lines: [
-  //     {
-  //       Codigo: 'PS0000118',
-  //       Descripcion: 'CORTE DE CABELLO',
-  //       Item_Number: '0002',
-  //       Nombre: 'CORTE DE CABELLO - GLORIA',
-  //       Marca: 'GLORIA',
-  //       Category_L1: 'SERVICIO SALON',
-  //       Category_L2: '',
-  //       Category_L3: '',
-  //       Unidades: 1.00,
-  //       Precio_Unitario: 5.0000,
-  //       Discount: 0.00,
-  //       DiscountFactor: 0.00,
-  //       TaxID: '1',
-  //       TaxName: 'ITBMS',
-  //       TaxFactor: 0.00,
-  //       TaxValue: 0.0000,
-  //       Total: 5.00
-  //     }
-  //   ]
-  // };
+  useEffect(() => {
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }))
+  }, [dispatch])
 
+  useEffect(() => {
+    dispatch(fetchExchangeRate());
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchInterfuerzaProducts({}))
+  }, [dispatch])
 
   useEffect(() => {
     dispatch(fetchInterfuerzaWareHouses())
@@ -92,6 +80,8 @@ const CrearCotizacion = () => {
   useEffect(() => {
     dispatch(fetchInterfuerzaCustomers({ page: 1 }));
   }, [dispatch]);
+
+
 
   const handleSearch = (inputValue) => {
     setSearchValue(inputValue);
@@ -103,41 +93,167 @@ const CrearCotizacion = () => {
     }));
   };
 
-  const handleScroll = (event) => {
+  const handleSearchProducts = (inputValue) => {
+    setSearchValue(inputValue);
+    dispatch(fetchInterfuerzaProducts({
+      page: 1,
+      field: 'Item_Number',
+      operator: '=',
+      value: inputValue
+    }));
+  };
+
+  const handleScrollProducts = (event) => {
     const { scrollTop, scrollHeight, clientHeight } = event.target;
-    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && status !== 'loading') {
-      dispatch(fetchInterfuerzaCustomers({
-        page: page + 1,
-        field: 'RUC',
+    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore_products && status !== 'loading') {
+      dispatch(fetchInterfuerzaProducts({
+        page: page_products + 1,
+        field: 'Item_Number',
         operator: '=',
-        value: searchValue
+        value: searchValueProducts
       }));
     }
   };
 
-  console.log('page:', page)
-
 
   const onFinish = async (values) => {
     console.log('values:', values);
+
     const formattedValues = {
       ...values,
       Date: values.Date?.format('YYYY-MM-DD'),
       Expira: values.Expira?.format('YYYY-MM-DD'),
-      Reservar_Productos: values.Reservar_Productos ? 'YES' : 'NO',
+      Reservar_Productos: values.Reservar_Productos ? 'SI' : 'NO',
       Lines: lines,
     };
 
-    console.log('Datos de formulario enviados:', formattedValues);
-
+    // Step 1: Save quote in the main system
+    let responseQuote = null;
     try {
-      await dispatch(createInterfuerzaQuotes(formattedValues)).unwrap();
-      message.success('✅ Cotización creada exitosamente');
+      // Show loading for main system save
+      Swal.fire({
+        title: 'Guardando cotización...',
+        text: 'Procesando datos en el sistema principal',
+        icon: 'info',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      responseQuote = await dispatch(createQuotes(formattedValues)).unwrap();
+
+      Swal.close();
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Cotización guardada correctamente',
+        text: 'Se guardó en el sistema principal.',
+        confirmButtonText: 'Continuar'
+      });
     } catch (error) {
-      message.error('❌ Ocurrió un error al crear la cotización');
-      console.error(error);
+      console.error('Error en Laravel:', error);
+      Swal.close();
+
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error al guardar en el sistema',
+        text: error?.message || 'Ocurrió un error al guardar la cotización.',
+        confirmButtonText: 'Entendido'
+      });
+
+      return;
+    }
+
+    if (responseQuote) {
+      try {
+        Swal.fire({
+          title: 'Enviando a Interfuerza...',
+          text: 'Creando cotización en Interfuerza',
+          icon: 'info',
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        const responseInterfuerzaQuote = await dispatch(createInterfuerzaQuotes(formattedValues)).unwrap();
+        Swal.close();
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'Cotización enviada a Interfuerza',
+          text: 'Se guardó también en Interfuerza.',
+          confirmButtonText: 'Continuar'
+        });
+
+        try {
+          Swal.fire({
+            title: 'Actualizando estado...',
+            text: 'Registrando información en el sistema',
+            icon: 'info',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          await dispatch(updateEstadoQuote({
+            id: responseQuote.quote.id,
+            data: {
+              estado: 1,
+              codigo_interfuerza: responseInterfuerzaQuote.data.response.id
+            }
+          })).unwrap();
+
+          Swal.close();
+        } catch (updateError) {
+          console.error('Error al actualizar estado:', updateError);
+          Swal.close();
+        }
+
+      } catch (interfuerzaError) {
+        console.error('Error en Interfuerza:', interfuerzaError);
+        Swal.close();
+
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al crear en Interfuerza',
+          text: interfuerzaError?.message || 'No se pudo crear la cotización en Interfuerza.',
+          confirmButtonText: 'Entendido'
+        });
+
+        try {
+          Swal.fire({
+            title: 'Actualizando estado...',
+            text: 'Registrando el error en el sistema',
+            icon: 'info',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
+
+          await dispatch(updateEstadoQuote({
+            id: responseQuote.quote.id,
+            data: {
+              estado: 0
+            }
+          })).unwrap();
+
+          Swal.close();
+        } catch (updateError) {
+          console.error('Error al actualizar estado después del fallo:', updateError);
+          Swal.close();
+        }
+      }
     }
   };
+
 
   const addLine = () => {
     setLines([
@@ -174,7 +290,6 @@ const CrearCotizacion = () => {
   };
 
   const updateLine = (index, field, value) => {
-    console.log('value2:',value)
     const newLines = [...lines];
     newLines[index][field] = value;
 
@@ -199,12 +314,31 @@ const CrearCotizacion = () => {
 
     calculateTotals(newLines);
   };
+
+  const handleSelectProduct = (index, value) => {
+    const selectedWrapper = interfuerzaProducts.find(p => p.Producto?.Item_Number === value);
+    const selectedProduct = selectedWrapper?.Producto;
+
+    console.log('selectedProduct:', selectedProduct)
+
+    if (selectedProduct) {
+      updateLine(index, 'Codigo', selectedProduct.id);
+      updateLine(index, 'Nombre', selectedProduct.Nombre || '');
+      updateLine(index, 'Marca', selectedProduct.Marca || '');
+      updateLine(index, 'Precio_Unitario', parseFloat(selectedProduct.Precio_Venta) || 0);
+      updateLine(index, 'Unidades', 1);
+    }
+  };
+
+
+
   const calculateTotals = (currentLines) => {
     const linesArray = currentLines || lines;
     const subtotal = linesArray.reduce((sum, line) => sum + parseFloat(line.Total || 0), 0);
-
+    const impuesto_total = subtotal * TAX_RATE
     form.setFieldsValue({
-      SubTotal: subtotal.toFixed(2),
+      Taxes: impuesto_total.toFixed(2),
+      SubTotal: subtotal.toFixed(2) - impuesto_total.toFixed(2),
       Total: subtotal.toFixed(2)
     });
   };
@@ -214,22 +348,63 @@ const CrearCotizacion = () => {
       title: 'Código',
       dataIndex: 'Codigo',
       key: 'Codigo',
-      render: (text, record, index) => (
-        <Input
-          value={text}
-          onChange={(e) => updateLine(index, 'Codigo', e.target.value)}
-        />
-      )
+      width: 250,
+      render: (text, record, index) => {
+        return (
+          <Select
+            showSearch
+            style={{ width: '100%' }}
+            value={record.Codigo}
+            placeholder="Selecciona un producto"
+            optionFilterProp="children"
+            onChange={(value) => {
+              handleSelectProduct(index, value)
+            }}
+            filterOption={false}
+            onSearch={handleSearchProducts}
+            onPopupScroll={handleScrollProducts}
+          >
+            {
+              interfuerzaProducts.map((item) => (
+                <Option
+                  key={item.Producto?.id} value={item.Producto?.Item_Number}>
+                  {item.Producto?.Item_Number}
+                </Option>
+              ))
+            }
+          </Select >
+        )
+      }
     },
     {
       title: 'Nombre',
       dataIndex: 'Nombre',
       key: 'Nombre',
+      width: 250,
       render: (text, record, index) => (
-        <Input
-          value={text}
-          onChange={(e) => updateLine(index, 'Nombre', e.target.value)}
-        />
+        <Select
+          showSearch
+          style={{ width: '100%' }}
+          placeholder="Selecciona un producto"
+          value={record.Nombre}
+          optionFilterProp="children"
+          onChange={(value) => {
+            console.log('value:', value)
+            handleSelectProduct(index, value)
+          }}
+          filterOption={false}
+          onSearch={handleSearchProducts}
+          onPopupScroll={handleScrollProducts}
+        >
+          {
+            interfuerzaProducts.map((item) => (
+              <Option
+                key={item.Producto?.id} value={item.Producto?.Item_Number}>
+                {item.Producto?.Nombre}
+              </Option>
+            ))
+          }
+        </Select>
       )
     },
     {
@@ -360,15 +535,15 @@ const CrearCotizacion = () => {
                 showSearch
                 onSearch={handleSearch}
                 optionFilterProp="children"
-                filterOption={false}
-                onPopupScroll={handleScroll}
+                filterOption={(input, option) => {
+                  const searchTerms = input.toLowerCase().split(' ');
+                  return searchTerms.every(term =>
+                    (option?.label ?? '').toLowerCase().includes(term)
+                  );
+                }}
+                options={pacientes_options_cotizacion}
                 notFoundContent={status === 'loading' ? <Spin size="small" /> : null}
               >
-                {interfuerzaCustomers?.map((customer) => (
-                  <Option key={customer.Cliente} value={customer.Cliente}>
-                    {customer.RUC} || {customer.Nombre}
-                  </Option>
-                ))}
               </Select>
             </Form.Item>
           </Col>
@@ -382,7 +557,6 @@ const CrearCotizacion = () => {
               <Select>
                 <Option value="ACTIVE">ACTIVO</Option>
                 <Option value="INACTIVE">INACTIVO</Option>
-                <Option value="PENDING">PENDIENTE</Option>
               </Select>
             </Form.Item>
           </Col>
@@ -404,7 +578,7 @@ const CrearCotizacion = () => {
           <Col span={6}>
             <Form.Item
               name="Date"
-              label="Fecha"
+              label="Fecha Inicio"
               rules={[{ required: true, message: 'Campo requerido' }]}
             >
               <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
@@ -445,7 +619,9 @@ const CrearCotizacion = () => {
               label="Vendedor"
               rules={[{ required: true, message: 'Campo requerido' }]}
             >
-              <Input />
+              <Input
+                disabled
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -455,13 +631,10 @@ const CrearCotizacion = () => {
             <Form.Item
               name="Currency"
               label="Moneda"
+              initialValue="USD"
               rules={[{ required: true, message: 'Campo requerido' }]}
             >
-              <Select>
-                <Option value="USD">USD</Option>
-                <Option value="EUR">EUR</Option>
-                <Option value="PAB">PAB</Option>
-              </Select>
+              <Input disabled />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -470,7 +643,7 @@ const CrearCotizacion = () => {
               label="Tasa de Cambio"
               rules={[{ required: true, message: 'Campo requerido' }]}
             >
-              <InputNumber style={{ width: '100%' }} precision={9} />
+              <InputNumber style={{ width: '100%' }} precision={9} disabled />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -479,7 +652,7 @@ const CrearCotizacion = () => {
               label="Reservar Productos"
               valuePropName="checked"
             >
-              <Switch checkedChildren="SÍ" unCheckedChildren="NO" />
+              <Switch checkedChildren="SI" unCheckedChildren="NO" />
             </Form.Item>
           </Col>
         </Row>
@@ -512,7 +685,21 @@ const CrearCotizacion = () => {
         />
 
         <Divider />
-
+        <Row gutter={16}>
+          <Col span={8} offset={8}>
+            <Form.Item
+              name="Taxes"
+              label="Impuesto"
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                disabled
+                precision={2}
+                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         <Row gutter={16}>
           <Col span={8} offset={8}>
             <Form.Item
@@ -547,7 +734,7 @@ const CrearCotizacion = () => {
         <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit">
-              Guardar Factura
+              Guardar Cotización
             </Button>
             <Button>
               Cancelar

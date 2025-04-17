@@ -29,19 +29,19 @@ const interfuerzaProductsSlice = createSlice({
     name: 'interfuerzaProducts',
     initialState: {
         interfuerzaProducts: [],
-        status: 'idle',
-        error: null,
-        page: 1,
-        hasMore: true
+        status_products: 'idle',
+        error_products: null,
+        page_products: 1,
+        hasMore_products: true
     },
     reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchInterfuerzaProducts.pending, (state) => {
-                state.status = 'loading';
+                state.status_products = 'loading';
             })
             .addCase(fetchInterfuerzaProducts.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+                state.status_products = 'succeeded';
                 console.log('action:', action.payload)
                 const { products, page } = action.payload;
 
@@ -51,8 +51,8 @@ const interfuerzaProductsSlice = createSlice({
                     state.interfuerzaProducts = [...state.interfuerzaProducts, ...products];
                 }
 
-                state.page = page;
-                state.hasMore = products.length === 25;
+                state.page_products = page;
+                state.hasMore_products = products.length === 25;
             })
 
 

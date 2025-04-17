@@ -61,7 +61,7 @@ class interfuerzaApiControllerProducts extends Controller
 
         return response()->json([
             'success' => $response->successful(),
-            'data' => $data,
+            'data' =>  $data['products'] ?? [],
             'filters' => $payload,
             'meta' => [
                 'page' => $page,

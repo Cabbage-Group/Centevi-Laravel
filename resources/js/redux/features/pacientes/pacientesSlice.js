@@ -56,9 +56,6 @@ export const fetchInterfuerza = createAsyncThunk(
   }
 );
 
-
-
-
 const pacientesSlice = createSlice({
   name: 'pacientes',
   initialState: {
@@ -67,6 +64,7 @@ const pacientesSlice = createSlice({
     pacientes_options_selecteds: [],
     pacientes_options_agenda: [],
     pacientes_menciones: [],
+    pacientes_options_cotizacion: [],
     meta: {},
     status: 'idle',
     statusInterfuerza: 'idle',
@@ -97,18 +95,32 @@ const pacientesSlice = createSlice({
             } :
             { ...rest }
         );
-        state.pacientes_options_agenda = action.payload.data.map(({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
-          id_paciente && nombres && apellidos && nro_cedula ?
-            {
-              value: id_paciente,
-              label: `${nro_cedula}-${nombres} ${apellidos}`,
-              nombres: nombres,
-              apellidos: apellidos,
-              nro_cedula: nro_cedula,
-              ...rest
-            } :
-            { ...rest }
-        );
+        state.pacientes_options_agenda = action.payload.data
+          .filter(({ estado }) => estado !== 0)
+          .map(({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
+            id_paciente && nombres && apellidos && nro_cedula
+              ? {
+                value: id_paciente,
+                label: `${nro_cedula}-${nombres} ${apellidos}`,
+                nombres,
+                apellidos,
+                nro_cedula,
+                ...rest
+              }
+              : { ...rest }
+          )
+        state.pacientes_options_cotizacion = action.payload.data
+          .filter(({ codigo }) => codigo !== null)
+          .map(({ id_paciente, nro_cedula, nombres, apellidos, codigo, ...rest }) =>
+            id_paciente && nombres && apellidos && nro_cedula
+              ? {
+                value: codigo,
+                label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
+                ...rest
+              }
+              : { ...rest }
+          );
+
       })
       .addCase(fetchPacientes.rejected, (state, action) => {
         state.status = 'failed';

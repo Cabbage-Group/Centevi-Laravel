@@ -29,7 +29,7 @@ export const crearPacientes = createAsyncThunk(
             const response = await axios.post(`${API}/pacientes`, data);
             console.log('Datos enviados:', data);
 
-            return response;
+            return response.data;
         } catch (error) {
             console.log('Datos enviados:', data);
 
@@ -41,7 +41,7 @@ export const crearPacientes = createAsyncThunk(
 const crearPacientesSlice = createSlice({
     name: 'crearPacientes',
     initialState: {
-        crearPacientes: null,
+        crearPacientes: [],
         status: 'idle', 
         error: null,
         cedulaVerificada: null,
@@ -54,8 +54,9 @@ const crearPacientesSlice = createSlice({
                 state.status = 'loading';
             })
             .addCase(crearPacientes.fulfilled, (state, action) => {
+                console.log('action', action.payload)
                 state.status = 'succeeded';
-                state.crearPacientes = action.payload.data;
+                // state.crearPacientes = action.payload.data.data;
             })
             .addCase(crearPacientes.rejected, (state, action) => {
                 console.log('action:',action.payload.message)
