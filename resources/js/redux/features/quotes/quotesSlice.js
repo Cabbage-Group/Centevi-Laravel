@@ -2,14 +2,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config';
+import { act } from 'react';
 
 
 export const fetchQuotes = createAsyncThunk(
     'quotes/fetchQuotes',
-    async (_, { rejectWithValue }) => {
+    async ({ page = 1, limit = 10, sortColumn = 'created_at', sortOrder = 'asc', searchTerm }, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API}/obtener/quotes/centevi`);
-            console.log('response:', response)
+            console.log('sortColumn:',sortColumn)
+            const response = await axios.get(`${API}/obtener/quotes/centevi`, {
+                params: {
+                    page,
+                    limit,
+                    sortColumn,
+                    sortOrder,
+                    searchTerm
+                },
+            });
             return response.data;
         } catch (error) {
             if (error.response) {
@@ -25,10 +34,8 @@ export const fetchQuotes = createAsyncThunk(
 export const createQuotes = createAsyncThunk(
     'quotes/createQuotes',
     async (data, { rejectWithValue }) => {
-        console.log('data:', data)
         try {
             const response = await axios.post(`${API}/crear/quote/centevi`, data);
-            console.log('response:', response)
             return response.data;
         } catch (error) {
             if (error.response) {
@@ -45,7 +52,6 @@ export const VerUnaQuote = createAsyncThunk(
     async (id, { rejectWithValue }) => {
         try {
             const response = await axios.get(`${API}/ver/quote/centevi/${id}`);
-            console.log('response:', response)
             return response.data;
         } catch (error) {
             if (error.response) {
@@ -75,7 +81,6 @@ export const fetchExchangeRate = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const response = await axios.get(`https://v6.exchangerate-api.com/v6/055cfd817c849596fb5c49e7/latest/USD`);
-            console.log('response:', response)
             return response.data.conversion_rates.PAB;
         } catch (error) {
             return rejectWithValue({ message: 'Error al obtener la tasa de cambio' });
@@ -89,23 +94,44 @@ const quotesSlice = createSlice({
         data: [],
         quotes: [],
         quote: {},
+        page: 1,
+        limit: 10,
+        sortColumn: 'created_at',
+        sortOrder: 'asc',
+        total: 0,
         status: 'idle',
+        meta: {},
+        searchTerm: '',
         status_create: 'idle',
         exchangeRate: null,
         exchangeRateStatus: 'idle',
         error: null,
         errorCreate: null,
     },
-    reducers: {},
+    reducers: {
+        setPage: (state, action) => {
+            state.page = action.payload;
+        },
+        setSort: (state, action) => {
+            console.log('action2',action.payload)
+            state.sortColumn = action.payload.sortColumn;
+            state.sortOrder = action.payload.sortOrder;
+        },
+        setSearchTerm: (state, action) => {
+            state.searchTerm = action.payload;
+            state.page = 1;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchQuotes.pending, (state) => {
                 state.status = 'loading';
             })
             .addCase(fetchQuotes.fulfilled, (state, action) => {
+                console.log('action1:', action.payload)
                 state.status = 'succeeded';
                 state.quotes = action.payload.data;
-
+                state.meta = action.payload.meta
             })
             .addCase(fetchQuotes.rejected, (state, action) => {
                 state.status = 'failed';
@@ -116,8 +142,6 @@ const quotesSlice = createSlice({
             })
             .addCase(createQuotes.fulfilled, (state, action) => {
                 state.status_create = 'succeeded';
-                state.quotes = action.payload
-
             })
             .addCase(createQuotes.rejected, (state, action) => {
                 console.log('action:', action.payload)
@@ -152,7 +176,6 @@ const quotesSlice = createSlice({
             })
             .addCase(updateEstadoQuote.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-
                 const updatedQuote = action.payload.quote;
 
                 state.quotes = state.quotes.map(quote =>
@@ -162,9 +185,11 @@ const quotesSlice = createSlice({
             .addCase(updateEstadoQuote.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
-            }); 3
+            });
     },
 });
 
+
+export const { setPage, setSort, setSearchTerm } = quotesSlice.actions;
 export default quotesSlice.reducer;
 

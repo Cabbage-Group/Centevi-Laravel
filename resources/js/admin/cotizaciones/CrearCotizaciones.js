@@ -25,6 +25,8 @@ import { fetchInterfuerzaProducts } from '../../redux/features/interfuerza/inter
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { createQuotes, fetchExchangeRate, updateEstadoQuote } from '../../redux/features/quotes/quotesSlice';
 import Swal from 'sweetalert2';
+import dayjs from 'dayjs';
+import { useLocation } from 'react-router-dom';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -37,9 +39,10 @@ const CrearCotizacion = () => {
   const { interfuerzaQuotes } = useSelector((state) => state.interfuerzaQuotes);
   const { interfuerzaWareHouses } = useSelector((state) => state.interfuerzaWareHouses);
   const { exchangeRate, exchangeRateStatus } = useSelector((state) => state.quotes);
+  const location = useLocation();
+  const record = location.state?.record;
   const nombre = localStorage.getItem('nombre');
   const {
-
     pacientes_options_cotizacion
   } = useSelector((state) => state.pacientes);
   const {
@@ -62,6 +65,34 @@ const CrearCotizacion = () => {
   }, [form, nombre, exchangeRate]);
 
   useEffect(() => {
+    if (record) {
+      console.log('entre')
+      form.setFieldsValue({
+        Cliente: record.Cliente || '',
+        Status: record.Status || '',
+        Type: record.Type || '',
+        Date: record.Date ? dayjs(record.Date) : null,
+        Expira: record.Expira ? dayjs(record.Expira) : null,
+        Bodega: record.Bodega || '',
+        Vendedor: record.Vendedor || '',
+        Reservar_Productos: record?.Reservar_Productos === 'YES',
+        Comentario: record.Comentario || '',
+        Taxes: record.Taxes || '',
+        SubTotal: record.SubTotal || '',
+        Total: record.Total || ''
+
+      });
+
+      if (record?.lines && Array.isArray(record.lines)) {
+        setLines(record.lines.map((line, index) => ({
+          key: index,
+          ...line
+        })));
+      }
+    }
+  }, [record]);
+
+  useEffect(() => {
     dispatch(fetchPacientes({ page: 1, limit: 50000 }))
   }, [dispatch])
 
@@ -77,9 +108,9 @@ const CrearCotizacion = () => {
     dispatch(fetchInterfuerzaWareHouses())
   }, [dispatch])
 
-  useEffect(() => {
-    dispatch(fetchInterfuerzaCustomers({ page: 1 }));
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchInterfuerzaCustomers({ page: 1 }));
+  // }, [dispatch]);
 
 
 
@@ -117,20 +148,17 @@ const CrearCotizacion = () => {
 
 
   const onFinish = async (values) => {
-    console.log('values:', values);
-
+    console.log('values:', values)
     const formattedValues = {
       ...values,
       Date: values.Date?.format('YYYY-MM-DD'),
       Expira: values.Expira?.format('YYYY-MM-DD'),
-      Reservar_Productos: values.Reservar_Productos ? 'SI' : 'NO',
+      Reservar_Productos: values.Reservar_Productos ? 'YES' : 'NO',
       Lines: lines,
     };
 
-    // Step 1: Save quote in the main system
     let responseQuote = null;
     try {
-      // Show loading for main system save
       Swal.fire({
         title: 'Guardando cotización...',
         text: 'Procesando datos en el sistema principal',
@@ -319,8 +347,6 @@ const CrearCotizacion = () => {
     const selectedWrapper = interfuerzaProducts.find(p => p.Producto?.Item_Number === value);
     const selectedProduct = selectedWrapper?.Producto;
 
-    console.log('selectedProduct:', selectedProduct)
-
     if (selectedProduct) {
       updateLine(index, 'Codigo', selectedProduct.id);
       updateLine(index, 'Nombre', selectedProduct.Nombre || '');
@@ -335,10 +361,12 @@ const CrearCotizacion = () => {
   const calculateTotals = (currentLines) => {
     const linesArray = currentLines || lines;
     const subtotal = linesArray.reduce((sum, line) => sum + parseFloat(line.Total || 0), 0);
+    const discount_total = linesArray.reduce((sum, line) => sum + parseFloat(line.Discount || 0), 0);
     const impuesto_total = subtotal * TAX_RATE
     form.setFieldsValue({
       Taxes: impuesto_total.toFixed(2),
       SubTotal: subtotal.toFixed(2) - impuesto_total.toFixed(2),
+      Discount: discount_total.toFixed(2),
       Total: subtotal.toFixed(2)
     });
   };
@@ -556,7 +584,10 @@ const CrearCotizacion = () => {
             >
               <Select>
                 <Option value="ACTIVE">ACTIVO</Option>
-                <Option value="INACTIVE">INACTIVO</Option>
+                <Option value="BILLED">FACTURADA</Option>
+                <Option value="APROVED">APROVADA</Option>
+                <Option value="EXPIRED">EXPIRADA</Option>
+                <Option value="CANCELLED">CANCELADA</Option>
               </Select>
             </Form.Item>
           </Col>
@@ -570,6 +601,17 @@ const CrearCotizacion = () => {
                 <Option value="SALES-TEAM">EQUIPO DE VENTAS</Option>
                 <Option value="CUSTOMER">CLIENTE</Option>
               </Select>
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              name="Vendedor"
+              label="Vendedor"
+              rules={[{ required: true, message: 'Campo requerido' }]}
+            >
+              <Input
+                disabled
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -611,17 +653,6 @@ const CrearCotizacion = () => {
                 ))}
 
               </Select>
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              name="Vendedor"
-              label="Vendedor"
-              rules={[{ required: true, message: 'Campo requerido' }]}
-            >
-              <Input
-                disabled
-              />
             </Form.Item>
           </Col>
         </Row>
@@ -686,10 +717,12 @@ const CrearCotizacion = () => {
 
         <Divider />
         <Row gutter={16}>
-          <Col span={8} offset={8}>
+          <Col span={8} offset={16}>
             <Form.Item
               name="Taxes"
               label="Impuesto"
+              layout="horizontal"
+
             >
               <InputNumber
                 style={{ width: '100%' }}
@@ -701,10 +734,11 @@ const CrearCotizacion = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={8} offset={8}>
+          <Col span={8} offset={16}>
             <Form.Item
               name="SubTotal"
               label="Subtotal"
+              layout="horizontal"
             >
               <InputNumber
                 style={{ width: '100%' }}
@@ -716,10 +750,11 @@ const CrearCotizacion = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={8} offset={8}>
+          <Col span={8} offset={16}>
             <Form.Item
-              name="Total"
-              label="Total"
+              name="Discount"
+              label="Descuento Total"
+              layout="horizontal"
             >
               <InputNumber
                 style={{ width: '100%' }}
@@ -730,17 +765,34 @@ const CrearCotizacion = () => {
             </Form.Item>
           </Col>
         </Row>
-
-        <Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit">
-              Guardar Cotización
-            </Button>
-            <Button>
-              Cancelar
-            </Button>
-          </Space>
-        </Form.Item>
+        <Row gutter={16}>
+          <Col span={8} offset={16}>
+            <Form.Item
+              name="Total"
+              label="Total"
+              layout="horizontal"
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                disabled
+                precision={2}
+                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row justify="end">
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Guardar Cotización
+              </Button>
+              <Button>
+                Cancelar
+              </Button>
+            </Space>
+          </Form.Item>
+        </Row>
       </Form>
     </Card>
   );
