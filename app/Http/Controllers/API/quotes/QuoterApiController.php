@@ -13,24 +13,63 @@ use Exception;
 
 class QuoterApiController extends Controller
 {
-
     public function obtenerQuotes(Request $request)
     {
-        $sortColumn = $request->input('sortColumn', 'created_at'); 
+        $sortColumn = $request->input('sortColumn', 'created_at');
         $sortOrder = $request->input('sortOrder', 'asc');
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 10);
+        $searchTerm = $request->input('searchTerm', '');
 
         if (!in_array($sortOrder, ['asc', 'desc'])) {
             $sortOrder = 'asc';
         }
-        $quotes = Quote::with('lines')
-            ->orderBy($sortColumn, $sortOrder) 
-            ->get(); 
+
+        $query  = Quote::with('lines')
+            ->orderBy($sortColumn, $sortOrder);
+
+        if ($searchTerm) {
+            if (in_array(strtolower($searchTerm), ['verificado', 'sin verificar', 'no creado'])) {
+                $estado = null;
+
+                if (strtolower($searchTerm) === 'verificado') {
+                    $estado = 1; 
+                } elseif (strtolower($searchTerm) === 'sin verificar') {
+                    $estado = null; 
+                } elseif (strtolower($searchTerm) === 'no creado') {
+                    $estado = 0; 
+                }
+
+                $query->where('estado', $estado);
+            } else {
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('Cliente', 'LIKE', "%$searchTerm%")
+                        ->orWhere('id', 'LIKE', "%$searchTerm%")
+                        ->orWhere('Bodega', 'LIKE', "%$searchTerm%")
+                        ->orWhere('Status', 'LIKE', "%$searchTerm%")
+                        ->orWhere('Total', 'LIKE', "%$searchTerm%")
+                        ->orWhere('Reservar_Productos', 'LIKE', "%$searchTerm%")
+                        ->orWhere('Vendedor', 'LIKE', "%$searchTerm%")
+                        ->orWhere('estado', 'LIKE', "%$searchTerm%");
+                });
+            }
+        }
+
+        $quotes = $query->paginate($limit, ['*'], 'page', $page);
 
         return response()->json([
-            'data' => $quotes, 
-            'meta' => [] 
+            'data' => $quotes->items(),
+            'meta' => [
+                'total' => $quotes->total(),
+                'limit' => $quotes->perPage(),
+                'page' => $quotes->currentPage(),
+                'last_page' => $quotes->lastPage(),
+            ]
         ]);
     }
+
+
+
 
 
 

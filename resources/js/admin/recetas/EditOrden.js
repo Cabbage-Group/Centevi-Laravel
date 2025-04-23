@@ -115,15 +115,18 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
       setTipoAro(pacienteOrden?.tipo_aro);
       setSelectedMarca(pacienteOrden?.marca);
       setServiciosRealizados([
-        pacienteOrden?.tipo_cristal_od ? { 
-          value: pacienteOrden.tipo_cristal_od, 
-          label: pacienteOrden.tipo_cristal_od, 
-          ojo: "Ojo Derecho" }
+        pacienteOrden?.tipo_cristal_od ? {
+          value: pacienteOrden.tipo_cristal_od,
+          label: pacienteOrden.tipo_cristal_od,
+          ojo: "Ojo Derecho"
+        }
           : null,
-        pacienteOrden?.tipo_cristal_oi ? 
-        { value: pacienteOrden.tipo_cristal_oi, 
-          label: pacienteOrden.tipo_cristal_oi, 
-          ojo: "Ojo Izquierdo" }
+        pacienteOrden?.tipo_cristal_oi ?
+          {
+            value: pacienteOrden.tipo_cristal_oi,
+            label: pacienteOrden.tipo_cristal_oi,
+            ojo: "Ojo Izquierdo"
+          }
           : null,
       ].filter(Boolean));
       setMaterialesSeleccionados([
@@ -415,9 +418,9 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
       elaborado_por: usuario?.usuario?.id_usuario,
       lente_contacto: lenteContacto,
     };
-    const result = await dispatch(updateOrden({ id_orden: orderId, data: transformedValues }));
 
-    if (result.meta.requestStatus === 'fulfilled') {
+    try {
+      await dispatch(updateOrden({ id_orden: orderId, data: transformedValues })).unwrap();
       Swal.fire({
         icon: 'success',
         title: 'pacienteOrden Actualizada',
@@ -425,11 +428,11 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
       }).then(() => {
         navigate(-1);
       });
-    } else {
+    } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Hubo un problema al actualizar la receta. Por favor, intenta de nuevo. Nro de pacienteOrden ya existente',
+        text: 'Hubo un problema al actualizar la receta. Por favor, intenta de nuevo',
       });
     }
   };
@@ -1114,7 +1117,7 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
                                             background: 'white !important'
                                           }}
                                           optionFilterProp="label"
-                                          onChange={handleSelectChangeTratamientos}                                    
+                                          onChange={handleSelectChangeTratamientos}
                                           options={tratamientos_options_selecteds.map(servicio => ({
                                             value: servicio.value,
                                             label: servicio.label
@@ -1759,21 +1762,21 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
                                                 option.label.toLowerCase().includes(input.toLowerCase())
                                               }
                                               options={marcas_options_selecteds.map(marca => ({
-                                                value: marca.value,
+                                                value: marca.label,
                                                 label: marca.label
                                               }))}
                                             />
                                           )}
                                         </div>
                                       </Col>
-                                
+
                                       <Col xxl={24} xl={24} md={24}>
                                         <Row
                                           gutter={[16, 16]}
                                         >
                                           <Col xxl={12} xl={12} md={12}>
                                             <Row>
-                                            
+
                                               {isAroVisible && (
                                                 <Col xxl={24} xl={24} md={24}>
                                                   <div
@@ -1782,7 +1785,7 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
                                                       marginBottom: '10px'
                                                     }}
                                                   >
-                                                 
+
                                                     <b>TIPO DE ARO*:</b>
                                                     <Select
                                                       showSearch
