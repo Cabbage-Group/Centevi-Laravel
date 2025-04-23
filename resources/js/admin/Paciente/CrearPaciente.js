@@ -107,24 +107,24 @@ const CrearPaciente = () => {
         }
       });
 
-      const respuestaInterfuerza = await dispatch(fetchInterfuerza({
-        ruc: nroCedula,
-        usuario
-      })).unwrap();
+      // const respuestaInterfuerza = await dispatch(fetchInterfuerza({
+      //   ruc: nroCedula,
+      //   usuario
+      // })).unwrap();
       
-      setTimeout(() => {
-        Swal.close(); 
+      // setTimeout(() => {
+      //   Swal.close(); 
       
-        if (respuestaInterfuerza?.message) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Interfuerza',
-            text: respuestaInterfuerza.message,
-            showConfirmButton: true,
-            confirmButtonText: 'Aceptar'
-          });
-        }
-      }, 700);
+      //   if (respuestaInterfuerza?.message) {
+      //     Swal.fire({
+      //       icon: 'success',
+      //       title: 'Interfuerza',
+      //       text: respuestaInterfuerza.message,
+      //       showConfirmButton: true,
+      //       confirmButtonText: 'Aceptar'
+      //     });
+      //   }
+      // }, 700);
 
       resetForm();
     } catch (error) {

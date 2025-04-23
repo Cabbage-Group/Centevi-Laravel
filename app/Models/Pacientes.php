@@ -38,7 +38,8 @@ class Pacientes extends Model
     'menor',
     'interfuerza',
     'fecha_creacion',
-    'estado'
+    'estado',
+    'codigo'
   ];
 
   // Atributos que deben ser convertidos a tipos nativos

@@ -75,8 +75,6 @@ Paciente: {nombre}
 Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas📚`
   );
 
-
-
   const calendarRef = useRef(null);
 
   const { citasAgenda } = useSelector((state) => state.citasAgenda);
@@ -477,7 +475,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       });
     }
     if (clickedEvent) {
-      console.log('clickedEvent:', clickedEvent)
       setConsultaId(clickedEvent.origen_id);
       setTableName(clickedEvent.origen_tabla);
       setEsProximaCita(clickedEvent.esProximaCita)

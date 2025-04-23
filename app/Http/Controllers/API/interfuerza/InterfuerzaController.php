@@ -77,6 +77,12 @@ class InterfuerzaController extends Controller
                     ], 200);
                 }
 
+                $interfuerzaData = $responseInterfuerza->json();
+
+                if (isset($interfuerzaData['response']['id'])) {
+                    $paciente->codigo = $interfuerzaData['response']['id'];
+                }
+        
                 $paciente->interfuerza = true;
                 $paciente->save();
 

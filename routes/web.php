@@ -35,6 +35,7 @@ use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
 use App\Http\Controllers\API\proveedorMaterial\ProveedorDeMaterialController;
 use App\Http\Controllers\API\proveedorMaterial\ProveedorMaterialApiController;
+use App\Http\Controllers\API\quotes\QuoterApiController;
 use App\Http\Controllers\API\recetas\RecetasApiController;
 use App\Http\Controllers\API\terapias\Terapia_Bajav_ApiController;
 use App\Http\Controllers\API\terapias\Terapia_Optometria_Neonatos_ApiController;
@@ -504,6 +505,14 @@ Route::get('/api/customers/get', [interfuerzaApiControllerCustomers::class, 'get
 Route::get('/api/ware-houses/get', [interfuerzaApiControllerWareHouses::class, 'getWareHouses']);
 
 Route::get('/api/products/get', [interfuerzaApiControllerProducts::class, 'getProducts']);
+
+Route::get('/api/obtener/quotes/centevi', [QuoterApiController::class, 'obtenerQuotes']);
+
+Route::get('/api/ver/quote/centevi/{id}', [QuoterApiController::class, 'verUnaCotizacion']);
+
+Route::post('/api/crear/quote/centevi', [QuoterApiController::class, 'crearQoute']);
+
+Route::put('/api/update/quote/centevi/{id}', [QuoterApiController::class, 'updateEstadoInterfuerza']);
 
 Route::get('/{any}', function () {
   return view('app');

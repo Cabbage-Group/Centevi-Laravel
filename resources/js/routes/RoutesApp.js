@@ -88,8 +88,10 @@ import VerAgenda from '../admin/agenda/VerAgenda.js';
 import WhatsAppChat from '../admin/chat/WhatsAppChat.js';
 import ChatScreen from '../../components/WebSocket.js';
 import ChatComponent from '../../components/WebSocket.js';
-import PruebaChat from '../admin/chat/PruebaChat.js';
+// import PruebaChat from '../admin/chat/PruebaChat.js';
 import CrearCotizacion from '../admin/cotizaciones/CrearCotizaciones.js';
+import TableCotizaciones from '../admin/cotizaciones/TableCotizaciones.js';
+import VerUnaCotizacion from '../admin/cotizaciones/VerUnaCotizacion.js';
 
 
 const RoutesApp = () => {
@@ -261,6 +263,10 @@ const RoutesApp = () => {
           <Route path="/ver-socket" element={<Sidebar component={<ChatComponent />} />} />
 
           <Route path="/crear-cotizacion" element={<Sidebar component={<CrearCotizacion/>} />} />
+     
+          <Route path="/table-cotizaciones" element={<Sidebar component={<TableCotizaciones/>} />} />
+
+          <Route path="/ver-cotizacion/:id" element={<Sidebar component={<VerUnaCotizacion/>} />} />
 
         </Route>
 

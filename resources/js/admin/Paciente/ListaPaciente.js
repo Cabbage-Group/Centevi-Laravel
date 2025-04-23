@@ -139,7 +139,7 @@ const ListaPaciente = () => {
               >
                 <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                   <div className="widget-content widget-content-area br-6">
-                    <div className="form-row mb-4">
+                    <div className="form-row mb-1">
                       <div
                         className="form-group col-md-12"
                         style={{
@@ -196,9 +196,9 @@ const ListaPaciente = () => {
                               <th>
                                 Fecha de creacion
                               </th>
-                              <th>
+                              {/* <th>
                                 Interfuerza
-                              </th>
+                              </th> */}
                               <th className="text-center dt-no-sorting">
                                 Action
                               </th>
@@ -217,12 +217,18 @@ const ListaPaciente = () => {
                                         moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
                                       }
                                     </td>
-                                    <td
+                                    {/* <td
                                       style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                                       onClick={() => handleVerificarInterfuerza(paciente.nro_cedula)}
                                     >
-                                      {paciente.interfuerza === null ? 'Sin verificar' : paciente.interfuerza ? 'Sí' : 'No'}
-                                    </td>
+                                      {
+                                        paciente.interfuerza === null
+                                          ? 'Sin verificar'
+                                          : paciente.interfuerza
+                                            ? 'Sí'
+                                            : 'No'
+                                      }
+                                    </td> */}
 
                                     <td>
                                       <div className="btn-group">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\interfuerza;
 use App\Http\Controllers\Controller;
 use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
+use Whoops\Run;
 
 class interfuerzaApiControllerQuotes extends Controller
 {
@@ -18,7 +19,7 @@ class interfuerzaApiControllerQuotes extends Controller
     public function createQuote(Request $request)
     {
         $payload = [
-           "class" => "PUT",
+            "class" => "PUT",
             "action" => "quotes",
             "data" => $request->all()
         ];
@@ -27,7 +28,7 @@ class interfuerzaApiControllerQuotes extends Controller
 
         return response()->json([
             'success' => $response->successful(),
-            'data'=> $response->json()
+            'data' => $response->json()
         ], $response->status());
     }
 }
