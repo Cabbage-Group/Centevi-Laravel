@@ -47,6 +47,7 @@ class PacientesApiController extends Controller
     // $search = $request->query('search', '');
     $doctor = $request->query('doctor', '');
     $search = $request->query('search', '');
+    $estado = $request->query('estado', 1);
 
     $request->validate([
       'page' => 'integer|min:1',
@@ -76,6 +77,10 @@ class PacientesApiController extends Controller
 
     if (!empty($doctor)) {
       $data->where('doctor', '=', $doctor);
+    }
+
+    if (!empty($estado)) {
+      $data->where('estado', '=', $estado);
     }
 
     $data->orderBy($sortColumn, $sortOrder);

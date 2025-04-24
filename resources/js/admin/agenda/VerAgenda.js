@@ -574,7 +574,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   nombres: values.paciente,
                   nro_cedula: values.nroCedula,
                   apellidos: values.apellidos,
-                  estado: false
+                  estado: 0
                 };
                 dispatch(crearPacientes(data))
                   .then((response) => {

@@ -262,11 +262,11 @@ const RoutesApp = () => {
 
           <Route path="/ver-socket" element={<Sidebar component={<ChatComponent />} />} />
 
-          <Route path="/crear-cotizacion" element={<Sidebar component={<CrearCotizacion/>} />} />
-     
-          <Route path="/table-cotizaciones" element={<Sidebar component={<TableCotizaciones/>} />} />
+          <Route path="/crear-cotizacion" element={<Sidebar component={<CrearCotizacion />} />} />
 
-          <Route path="/ver-cotizacion/:id" element={<Sidebar component={<VerUnaCotizacion/>} />} />
+          <Route path="/table-cotizaciones" element={<Sidebar component={<TableCotizaciones />} />} />
+
+          <Route path="/ver-cotizacion/:id" element={<Sidebar component={<VerUnaCotizacion />} />} />
 
         </Route>
 

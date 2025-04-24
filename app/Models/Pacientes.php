@@ -38,7 +38,6 @@ class Pacientes extends Model
     'menor',
     'interfuerza',
     'fecha_creacion',
-    'estado',
     'codigo'
   ];
 
@@ -46,6 +45,7 @@ class Pacientes extends Model
   protected $casts = [
     'id_paciente' => 'integer',
     'sucursal' => 'integer',
+    'estado' => 'boolean',
     'fecha_creacion' => 'date',
   ];
 }
