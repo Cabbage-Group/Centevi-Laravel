@@ -92,6 +92,7 @@ import ChatComponent from '../../components/WebSocket.js';
 import CrearCotizacion from '../admin/cotizaciones/CrearCotizaciones.js';
 import TableCotizaciones from '../admin/cotizaciones/TableCotizaciones.js';
 import VerUnaCotizacion from '../admin/cotizaciones/VerUnaCotizacion.js';
+import NewTableOrdenes from '../admin/recetas/ordenes/NewTableOrdenes.js';
 
 
 const RoutesApp = () => {
@@ -267,6 +268,9 @@ const RoutesApp = () => {
           <Route path="/table-cotizaciones" element={<Sidebar component={<TableCotizaciones />} />} />
 
           <Route path="/ver-cotizacion/:id" element={<Sidebar component={<VerUnaCotizacion />} />} />
+
+          
+          <Route path="/new-table-orden" element={<Sidebar component={<NewTableOrdenes />} />} />
 
         </Route>
 

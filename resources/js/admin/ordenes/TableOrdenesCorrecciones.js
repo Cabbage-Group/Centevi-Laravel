@@ -76,7 +76,6 @@ const TableOrdenesCorrecciones = (
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
 
-  console.log('correctionsFiltroFase:', correctionsFiltroFase)
 
   useEffect(() => {
     dispatch(fecthOrdenes({

@@ -514,6 +514,8 @@ Route::post('/api/crear/quote/centevi', [QuoterApiController::class, 'crearQoute
 
 Route::put('/api/update/quote/centevi/{id}', [QuoterApiController::class, 'updateEstadoInterfuerza']);
 
+Route::post('/api/prueba/orden', [OrdenesApiController::class, 'pruebaobtenerOrdenes']);
+
 Route::get('/{any}', function () {
   return view('app');
 })->where('any', '.*');

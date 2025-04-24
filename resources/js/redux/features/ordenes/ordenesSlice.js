@@ -235,6 +235,7 @@ const ordenesSlice = createSlice({
     OrderId: null,
     total: 0,
     meta: {},
+    search_term_ordenes: '',
     status: 'idle',
     statusPacienteOrdenes: 'idle',
     statusPacienteOrden: 'idle',
@@ -264,6 +265,10 @@ const ordenesSlice = createSlice({
     },
     clearOrderId: (state) => {
       state.OrderId = null;
+    },
+    setSearchTermOrdenes: (state, action) => {
+      state.search_term_ordenes = action.payload;
+      // state.page = 1;
     },
   },
   extraReducers: (builder) => {
@@ -366,5 +371,7 @@ export const {
   setFechaRange,
   setOrderId,
   clearOrderId,
-  setSearch } = ordenesSlice.actions;
+  setSearch,
+  setSearchTermOrdenes
+} = ordenesSlice.actions;
 export default ordenesSlice.reducer;

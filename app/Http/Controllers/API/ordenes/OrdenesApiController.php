@@ -20,6 +20,96 @@ use App\Models\CorrecionesOrdenes;
 class OrdenesApiController extends Controller
 {
 
+  public function pruebaobtenerOrdenes(Request $request)
+  {
+
+    $search = $request->input('search', '');
+    $limit = $request->input('limit', 20);
+    $page = $request->input('page', 1);
+    $sortColumn = $request->input('sortColumn', 'id_orden');
+    $sortOrder = $request->input('sortOrder', 'asc');
+
+    $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
+    if (!in_array($sortColumn, $validColumns)) {
+      $sortColumn = 'id_orden';
+    }
+    $sortOrder = $sortOrder === 'desc' ? 'desc' : 'asc';
+
+    $query = Ordenes::with([
+      'paciente:id_paciente,nro_cedula,nombres,celular,apellidos',
+      'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
+      'fasesOrdenes.tipoFaseOrden',
+      'fasesOrdenes.usuario',
+      'fasesOrdenes:id,tipo_fase_orden_id,ordenes_id,laboratorio,elaborado_por' 
+    ]);
+
+    $ordenes = $query->orderBy($sortColumn, $sortOrder)->get();
+
+    if (!empty($search)) {
+      $query->where(function ($q) use ($search) {
+        $q->where('id_orden', $search) 
+          ->orWhere('nro_orden_id', $search);
+
+        if (is_numeric($search)) {
+          $q->orWhere('id_orden', 'like', "$search%") 
+            ->orWhere('nro_orden_id', 'like', "$search%")
+            ->orWhereHas('paciente', function ($pq) use ($search) {
+              $pq->where('celular', 'like', "$search%")
+                ->orWhere('nro_cedula', 'like', "$search%");
+            });
+        }
+
+        // Búsqueda de nombres más eficiente
+        $searchTerms = explode(' ', trim($search));
+        if (count($searchTerms) > 0) {
+          $q->orWhereHas('paciente', function ($pq) use ($searchTerms) {
+            foreach ($searchTerms as $index => $term) {
+              if (!empty($term)) {
+                if ($index === 0) {
+                  $pq->where(function ($tq) use ($term) {
+                    $tq->where('nombres', 'like', "$term%")
+                      ->orWhere('apellidos', 'like', "$term%");
+                  });
+                } else {
+                  $pq->orWhere(function ($tq) use ($term) {
+                    $tq->where('nombres', 'like', "$term%")
+                      ->orWhere('apellidos', 'like', "$term%");
+                  });
+                }
+              }
+            }
+          });
+        }
+
+        // Otras búsquedas
+        $q->orWhereHas('sucursal', function ($sq) use ($search) {
+          $sq->where('nombre', 'like', "$search%");
+        });
+
+        $q->orWhereHas('fasesOrdenes', function ($fq) use ($search) {
+          $fq->where('laboratorio', 'like', "$search%");
+        });
+      });
+    }
+
+    $total = $ordenes->count();
+
+    $ordenesPaginadas = $ordenes->slice(($page - 1) * $limit, $limit)->values();
+
+    return response()->json([
+      'data' => $ordenesPaginadas,
+      'meta' => [
+        'total' => $total,
+        'limit' => $limit,
+        'page' => $page,
+        'last_page' => ceil($total / $limit),
+        'sortColumn' => $sortColumn,
+        'sortOrder' => $sortOrder,
+        'search' => $search
+      ]
+    ]);
+  }
+
   public function obtenerOrdenes(Request $request)
   {
     // Parámetros de búsqueda, paginación y ordenamiento
@@ -50,21 +140,36 @@ class OrdenesApiController extends Controller
       'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
       'fasesOrdenes.tipoFaseOrden',
       'fasesOrdenes.usuario',
+      'fasesOrdenes:ordenes_id,laboratorio',
       'correciones'
     ]);
-
     if (!empty($search)) {
       $query->where(function ($q) use ($search) {
         $q->where('id_orden', 'like', "%$search%")
           ->orWhere('nro_orden_id', 'like', "%$search%")
           ->orWhere('created_at', 'like', "%$search%")
           ->orWhereHas('paciente', function ($q) use ($search) {
-            $q->whereRaw("REPLACE(TRIM(CONCAT(nombres, ' ', apellidos)), '  ', ' ') LIKE ?", ["%$search%"])
-              ->orWhereRaw("REPLACE(TRIM(CONCAT(apellidos, ' ', nombres)), '  ', ' ') LIKE ?", ["%$search%"])
-              ->orWhere('celular', 'like', "%$search%");
+            // Split the search term into words
+            $searchTerms = explode(' ', trim($search));
+
+            $q->where(function ($innerQ) use ($searchTerms) {
+              foreach ($searchTerms as $term) {
+                if (!empty($term)) {
+                  $innerQ->where(function ($nameQ) use ($term) {
+                    $nameQ->where('nombres', 'like', "%$term%")
+                      ->orWhere('apellidos', 'like', "%$term%");
+                  });
+                }
+              }
+            })
+              ->orWhere('celular', 'like', "%$search%")
+              ->orWhere('nro_cedula', 'like', "%$search%");
           })
           ->orWhereHas('sucursal', function ($q) use ($search) {
             $q->where('nombre', 'like', "%$search%");
+          })
+          ->orWhereHas('fasesOrdenes', function ($q) use ($search) {
+            $q->where('laboratorio', 'like', "%$search%");
           });
       });
     }
@@ -192,6 +297,8 @@ class OrdenesApiController extends Controller
         'lente_contacto' => $orden['lente_contacto'],
         'tratamientos_oi' => $orden['tratamientos_oi'],
         'tratamientos_od' => $orden['tratamientos_od'],
+        'codigo_cristal' => $orden->codigo_cristal,
+        'proveedor' =>  $orden->fasesOrdenes->whereNotNull('proveedor_material')->pluck('proveedor_material')->first() ?? null,
       ];
     });
 
