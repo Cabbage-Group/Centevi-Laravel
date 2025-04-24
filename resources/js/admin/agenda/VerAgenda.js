@@ -574,7 +574,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   nombres: values.paciente,
                   nro_cedula: values.nroCedula,
                   apellidos: values.apellidos,
-                  estado: 0
+                  estado: false
                 };
                 dispatch(crearPacientes(data))
                   .then((response) => {
@@ -720,9 +720,6 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
   };
 
   const handleUpdateEvent = (values) => {
-    console.log('Actualizando con:', values);
-    console.log('esProximaCita', esProximaCita);
-    console.log('currentEventId', currentEventId);
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
     const data = {
