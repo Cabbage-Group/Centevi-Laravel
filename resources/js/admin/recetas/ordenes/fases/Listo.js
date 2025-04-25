@@ -23,6 +23,7 @@ const Listo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const { orderId } = useParams();
   const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
+  const [proveedorMaterial, setProveedorMaterial] = useState('');
   const [elaboradoFase, setElaboradoFase] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
   const [celular, setCelular] = useState('');
@@ -84,6 +85,7 @@ const Listo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseConfeccion(faseOrden2.fecha_fase);
+          setProveedorMaterial(faseOrden2.proveedor_material);
 
         }
       }
@@ -144,6 +146,7 @@ const Listo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
     const nuevaFase = {
       tipo_fase_orden_id: tipoFaseId,
       laboratorio: laboratorio,
+      proveedor_material: proveedorMaterial,
       observacion: observaciones,
       fecha_fase: fechaActual,
       elaborado_por: usuarioId,

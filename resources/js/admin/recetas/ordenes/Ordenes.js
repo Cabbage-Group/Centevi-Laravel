@@ -326,13 +326,33 @@ const Ordenes = () => {
           pagado: nuevoEstado
         }
 
-        await dispatch(updateOrden({ id_orden: pacienteOrden.id_orden, data: pagado }));
+        Swal.fire({
+          title: 'Actualizando...',
+          html: 'Por favor espere',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+  
 
-        await Swal.fire(
-          'Actualizado!',
-          'El estado de pago ha sido actualizado correctamente.',
-          'success'
-        );
+        try {
+          await dispatch(updateOrden({ id_orden: pacienteOrden.id_orden, data: pagado })).unwrap();
+
+          await Swal.fire(
+            'Actualizado!',
+            'El estado de pago ha sido actualizado correctamente.',
+            'success'
+          );
+        } catch (error) {
+          await Swal.fire(
+            'Error',
+            'Ocurrió un error al actualizar el estado de pago.',
+            'error'
+          );
+          return;
+        }
       }
     }
 
@@ -357,31 +377,50 @@ const Ordenes = () => {
         status: status,
       };
 
-      if (completar || avanzar) {
-        setNivelStep(nivelStep + 1);
+      try {
+        Swal.fire({
+          title: 'Cargando...',
+          text: 'Por favor espere',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        if (completar || avanzar) {
+          setNivelStep(nivelStep + 1);
+        }
+
+        await dispatch(createFasesOrdenes(nuevaDataConOrderId)).unwrap();
+
+        if (completar && nivelStep === 2) {
+          const siguienteFase = {
+            ...nuevaDataConOrderId,
+            status: 1,
+            observacion: '',
+            tipo_fase_orden_id: nuevaData.tipo_fase_orden_id + 1,
+          };
+
+          await dispatch(createFasesOrdenes(siguienteFase)).unwrap();
+        }
+
+        await Promise.all([
+          dispatch(fecthTiposFasesOrdenes(orderId)).unwrap(),
+          dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden })).unwrap()
+        ]);
+
+
+        Swal.close();
+        await Swal.fire(
+          completar ? 'Completado!' : 'Guardado!',
+          completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
+          'success'
+        );
+      } catch (error) {
+        console.error(error);
+        Swal.close();
+        await Swal.fire('Error', 'Ocurrió un problema al guardar la fase.', 'error');
       }
-
-      dispatch(createFasesOrdenes(nuevaDataConOrderId));
-
-      if (completar && nivelStep === 2) {
-        const siguienteFase = {
-          ...nuevaDataConOrderId,
-          status: 1,
-          observacion: '',
-          tipo_fase_orden_id: nuevaData.tipo_fase_orden_id + 1,
-        };
-
-        dispatch(createFasesOrdenes(siguienteFase));
-      }
-
-      dispatch(fecthTiposFasesOrdenes(orderId));
-      dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden }));
-
-      await Swal.fire(
-        completar ? 'Completado!' : 'Guardado!',
-        completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
-        'success'
-      );
     }
   };
 

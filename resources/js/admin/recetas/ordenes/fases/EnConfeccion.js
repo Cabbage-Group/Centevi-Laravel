@@ -21,6 +21,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
   const { orderId } = useParams();
   const [elaboradoFase, setElaboradoFase] = useState('');
   const [laboratorio, setLaboratorio] = useState('');
+  const [proveedorMaterial, setProveedorMaterial] = useState('');
   const [faseOrdenId, setFaseOrdenId] = useState();
   const [celular, setCelular] = useState('');
   const usuarioId = Number(localStorage.getItem('id_usuario'));
@@ -82,6 +83,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
         if (faseOrdenAnterior) {
           setLaboratorio(faseOrdenAnterior.laboratorio);
           setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
+          setProveedorMaterial(faseOrdenAnterior.proveedor_material);
         }
       }
     }
@@ -113,6 +115,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
     const nuevaFase = {
       tipo_fase_orden_id: tipoFaseId,
       laboratorio: laboratorio,
+      proveedor_material: proveedorMaterial,
       observacion: observaciones,
       fecha_fase: fechaActual,
       elaborado_por: usuarioId,

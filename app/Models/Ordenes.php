@@ -58,7 +58,8 @@ class Ordenes extends Model
     'l_cinco',
     'pagado',
     'lente_contacto',
-    'correccion'
+    'correccion',
+    'codigo_cristal'
   ];
 
   // Atributos que deben ser convertidos a tipos nativos

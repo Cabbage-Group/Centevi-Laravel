@@ -41,6 +41,28 @@ export const fecthOrdenes = createAsyncThunk(
   }
 );
 
+export const fecthPruebaOrdenes = createAsyncThunk(
+  'ordenes/fecthPruebaOrdenes',
+  async ({
+    page = '',
+    limit = 20,
+    search = '',
+    sortOrder = 'desc',
+    sortColumn = 'created_at',
+  }) => {
+
+    const response = await axios.post(`${API}/prueba/orden`,
+      {
+        page,
+        limit,
+        search,
+        sortOrder,
+        sortColumn,
+      },);
+    return response.data;
+  }
+);
+
 
 export const createOrdenes = createAsyncThunk(
   'ordenes/createOrdenes',
@@ -232,15 +254,20 @@ const ordenesSlice = createSlice({
     ordenes_options_selecteds: [],
     ordenes_menciones: [],
     nro_orden_auto: [],
+    ordenes_prueba: [],
     OrderId: null,
     total: 0,
     meta: {},
+    meta_prueba: {},
     search_term_ordenes: '',
+    search_prueba: '',
     status: 'idle',
     statusPacienteOrdenes: 'idle',
     statusPacienteOrden: 'idle',
+    status_prueba: '',
     search: '',
     error: null,
+    error_prueba: null,
     errorPacienteOrdenes: null,
     errorPacienteOrden: null,
     sortOrder: 'desc',
@@ -269,6 +296,9 @@ const ordenesSlice = createSlice({
     setSearchTermOrdenes: (state, action) => {
       state.search_term_ordenes = action.payload;
       // state.page = 1;
+    },
+    setSearchTermPruebaOrdenes: (state, action) => {
+      state.search_prueba = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -361,7 +391,19 @@ const ordenesSlice = createSlice({
       })
       .addCase(fetchOrdenesMenciones.fulfilled, (state, action) => {
         state.ordenes_menciones = action.payload.data;
-      });
+      })
+      .addCase(fecthPruebaOrdenes.pending, (state) => {
+        state.status_prueba = 'loading';
+      })
+      .addCase(fecthPruebaOrdenes.fulfilled, (state, action) => {
+        state.status_prueba = 'succeeded';
+        state.ordenes_prueba = action.payload.data;
+        state.meta_prueba = action.payload.meta;
+      })
+      .addCase(fecthPruebaOrdenes.rejected, (state, action) => {
+        state.status_prueba = 'failed';
+        state.error_prueba = action.error.message;
+      })
   },
 });
 
@@ -372,6 +414,7 @@ export const {
   setOrderId,
   clearOrderId,
   setSearch,
-  setSearchTermOrdenes
+  setSearchTermOrdenes,
+  setSearchTermPruebaOrdenes
 } = ordenesSlice.actions;
 export default ordenesSlice.reducer;
