@@ -38,6 +38,7 @@ const VerAgenda = () => {
   const [nroCedula, setNroCedula] = useState("");
   const [doctor, setDoctor] = useState("");
   const [sucursal, setSucursal] = useState("");
+  const [direccion_sucursal, setDireccion_sucursal] = useState("");
   const [celular, setCelular] = useState()
   const [eventDescription, setEventDescription] = useState("");
   const [eventDates, setEventDates] = useState(dayjs());
@@ -64,15 +65,18 @@ const VerAgenda = () => {
   const [hideSunday, setHideSunday] = useState(true);
   const usuario = localStorage.getItem("usuario");
   const [mensaje, setMensaje] = useState(
-    `Buenas Tardes ☀
-Un placer saludarle 👋🏻le escribimos de CENTEVI PANAMÁ. - Sucursal {sucursal}
+    `Buenas Tardes
+Un placer saludarle le escribimos de CENTEVI PANAMÁ. - Sucursal {sucursal}
 Agradecemos confirmar su asistencia a la cita programada:
 Día: {dia}
 Hora: {hora}
 
 Paciente: {nombre}
 
-Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas📚`
+Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas
+
+Dirección fisica: {direccion}
+`
   );
 
   const calendarRef = useRef(null);
@@ -352,7 +356,8 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       .replace('{dia}', dia)
       .replace('{hora}', hora)
       .replace('{nombre}', eventPaciente)
-      .replace('{sucursal}', sucursal);
+      .replace('{sucursal}', sucursal)
+      .replace('{direccion}', direccion_sucursal);
 
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
 
@@ -390,6 +395,10 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
             sucursalSeleccionado = sucursal
           }
         } else if (localStorage.getItem('ip') == '45.229.196.9') {
+          if (sucursal.value == 4) {
+            sucursalSeleccionado = sucursal
+          }
+        } else if (localStorage.getItem('ip') == '38.255.105.33') {
           if (sucursal.value == 4) {
             sucursalSeleccionado = sucursal
           }
@@ -440,9 +449,13 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
       setSucursalId(sucursalSeleccionado.value);
       setSucursal(sucursalSeleccionado.label)
       setSelectedSucursal(sucursalSeleccionado.value)
+      setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps)
 
       form.setFieldsValue({
-        sucursal: { value: sucursalSeleccionado.value, label: sucursalSeleccionado.label }
+        sucursal: {
+          value: sucursalSeleccionado.value,
+          label: sucursalSeleccionado.label
+        }
       })
 
     } else {
@@ -474,7 +487,11 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
         }
       });
     }
-    if (clickedEvent) {
+    if (clickedEvent) {    
+
+      const sucursalSeleccionada = sucursales_option_selects.find((sucursal) => sucursal.value == clickedEvent.sucursal_id)
+      setDireccion_sucursal(sucursalSeleccionada.ubicacion_maps)
+
       setConsultaId(clickedEvent.origen_id);
       setTableName(clickedEvent.origen_tabla);
       setEsProximaCita(clickedEvent.esProximaCita)
@@ -1307,6 +1324,10 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
                   onChange={(value) => {
                     handleSucursalChangeSelect(value)
                     setSelectedSucursal(value)
+
+                    const sucursalSeleccionada = sucursales_option_selects.find((sucursal) => sucursal.value == value)
+                    setDireccion_sucursal(sucursalSeleccionada.ubicacion_mps)
+
                   }}
                 >
                   {sucursales_option_selects.map((sucursal) => (

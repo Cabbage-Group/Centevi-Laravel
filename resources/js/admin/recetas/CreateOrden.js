@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { createOrdenes } from '../../redux/features/ordenes/ordenesSlice';
@@ -24,6 +24,9 @@ const CreateOrden = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const refButtonForm = useRef();
+
   const { id } = location.state || {};
   const parsedId = Number.isNaN(Number(id)) ? null : Number(id);
   const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
@@ -354,7 +357,7 @@ const CreateOrden = () => {
 
                         >
 
-                          {({ setFieldValue, values }) => (
+                          {({ setFieldValue, values, isSubmitting }) => (
                             <Form
                             >
                               <div className="form-row" style={{ marginBottom: "2rem" }}>
@@ -1938,11 +1941,23 @@ const CreateOrden = () => {
                               </div>
                               {/*  */}
                               <button
+                                style={{ display: 'none' }}
+                                ref={refButtonForm}
+                              >
+                                click
+                              </button>
+                              <Button
                                 className="btn btn-success mt-3"
                                 type="submit"
+                                loading={isSubmitting}
+                                onClick={() => {
+                                  console.log("click");
+                                  refButtonForm.current.click();
+                                  console.log("click");
+                                }}
                               >
                                 Crear Receta
-                              </button>
+                              </Button>
                             </Form>
                           )}
                         </Formik>
