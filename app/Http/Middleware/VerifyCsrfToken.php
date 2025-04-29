@@ -247,6 +247,14 @@ class VerifyCsrfToken extends Middleware
     
     'http://127.0.0.1:8000/api/prueba/orden',
 
+    'http://127.0.0.1:8000/api/crear/products',
+
+    'http://127.0.0.1:8000/api/delete/products',
+
+    'http://127.0.0.1:8000/api/migration/products',
+
+    'http://127.0.0.1:8000/api/verify/products',
+
     
 
 

@@ -1,9 +1,6 @@
-// redux/slices/quotesSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config';
-import { act } from 'react';
-
 
 export const fetchQuotes = createAsyncThunk(
   'quotes/fetchQuotes',
@@ -128,7 +125,6 @@ const quotesSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchQuotes.fulfilled, (state, action) => {
-        console.log('action1:', action.payload)
         state.status = 'succeeded';
         state.quotes = action.payload.data;
         state.meta = action.payload.meta
@@ -144,7 +140,6 @@ const quotesSlice = createSlice({
         state.status_create = 'succeeded';
       })
       .addCase(createQuotes.rejected, (state, action) => {
-        console.log('action:', action.payload)
         state.status_create = 'failed';
         state.errorCreate = action.error.message;
       })

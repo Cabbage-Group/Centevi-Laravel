@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\interfuerza;
 
 use App\Http\Controllers\Controller;
+use App\Models\ProductInterfuerza;
 use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 
@@ -66,8 +67,49 @@ class interfuerzaApiControllerProducts extends Controller
       'meta' => [
         'page' => $page,
         'per_page' => count($data['products'] ?? []),
-        'total' => $data['total'] ?? null
+        'total' => $data['count'] ?? null
       ]
     ]);
+  }
+
+  public function verifyProduct(Request $request)
+  {
+    $codigo = $request->input('codigo');
+
+    if (!$codigo) {
+      return response()->json(['error' => 'codigo number is required'], 400);
+    }
+
+    try {
+      $response = $this->interfuerza->request([
+        'class' => 'GET',
+        'action' => 'products',
+        "id" =>  $codigo
+      ]);
+
+      $dataInterfuerza = $response->json();
+      $existsInInterfuerza = !empty($dataInterfuerza['products']);
+
+      $existsInLocal = ProductInterfuerza::where('codigo', $codigo)->exists();
+      if ($existsInInterfuerza && $existsInLocal) {
+        $message = "El producto existe tanto en Interfuerza como en el sistema local.";
+      } elseif ($existsInInterfuerza && !$existsInLocal) {
+        $message = "El producto existe en Interfuerza pero NO en el sistema local.";
+      } elseif (!$existsInInterfuerza && $existsInLocal) {
+        $message = "El producto existe en el sistema local pero NO en Interfuerza.";
+      } else {
+        $message = "El producto NO existe ni en Interfuerza ni en el sistema local.";
+      }
+
+      return response()->json([
+        'success' => true,
+        'exists_in_interfuerza' => $existsInInterfuerza,
+        'exists_in_local' => $existsInLocal,
+        'message' => $message,
+        'product_interfuerza' => $dataInterfuerza['products'][0] ?? null, 
+      ]);
+    } catch (\Exception $e) {
+      return response()->json(['error' => $e->getMessage()], 500);
+    }
   }
 }

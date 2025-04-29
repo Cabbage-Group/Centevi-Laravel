@@ -93,6 +93,8 @@ import CrearCotizacion from '../admin/cotizaciones/CrearCotizaciones.js';
 import TableCotizaciones from '../admin/cotizaciones/TableCotizaciones.js';
 import VerUnaCotizacion from '../admin/cotizaciones/VerUnaCotizacion.js';
 import NewTableOrdenes from '../admin/recetas/ordenes/NewTableOrdenes.js';
+import ProductsInterfuerza from '../admin/products_interfuerza/ProductsInterfuerza.js';
+import TableProductsInterfuerza from '../admin/products_interfuerza/TableProductsInterfuerza.js';
 
 
 const RoutesApp = () => {
@@ -271,6 +273,10 @@ const RoutesApp = () => {
 
           
           <Route path="/new-table-orden" element={<Sidebar component={<NewTableOrdenes />} />} />
+
+          <Route path="/crear-productos" element={<Sidebar component={<ProductsInterfuerza />} />} />
+
+          <Route path="/table-productos" element={<Sidebar component={<TableProductsInterfuerza />} />} />
 
         </Route>
 

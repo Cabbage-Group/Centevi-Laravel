@@ -93,8 +93,9 @@ import chat from './features/mensajes/mensajesSlice';
 import interfuerzaQuotes from './features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice';
 import interfuerzaCustomers from './features/interfuerza/interfuerzaCustomers/interfuerzaCustomersSlice';
 import interfuerzaWareHouses from './features/interfuerza/interfuerzaWareHouses/interfuerzaWareHousesSlice';
-import interfuerzaProducts from './features/interfuerza/interfuerzaProducts/interfuerzaproductsSlice'
-import quotes from './features/quotes/quotesSlice'
+import interfuerzaProducts from './features/interfuerza/interfuerzaProducts/interfuerzaproductsSlice';
+import quotes from './features/quotes/quotesSlice';
+import productsInterfuerza from './features/productsInterfuerza/ProductsInterfuerza';
 
 const store = configureStore({
   reducer: {
@@ -225,7 +226,9 @@ const store = configureStore({
 
     interfuerzaProducts: interfuerzaProducts,
 
-    quotes: quotes
+    quotes: quotes,
+
+    productsInterfuerza: productsInterfuerza
 
   }
 });

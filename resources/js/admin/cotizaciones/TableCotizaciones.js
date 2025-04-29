@@ -25,7 +25,6 @@ const TableCotizaciones = () => {
   }, [dispatch, page, limit, sortColumn, sortOrder, searchTerm]);
 
   const handleTableChange = (pagination, filters, sorter) => {
-    console.log('sorter:', sorter.field)
     const newPage = pagination.current;
     const newSortColumn = sorter.field;
     const newSortOrder = sorter.order === 'ascend' ? 'asc' : sorter.order === 'descend' ? 'desc' : null;
@@ -36,7 +35,6 @@ const TableCotizaciones = () => {
   };
 
   const handleSearchChange = (value) => {
-    console.log('value:', value)
     dispatch(setSearchTerm(value));
   };
 

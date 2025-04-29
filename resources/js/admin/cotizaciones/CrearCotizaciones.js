@@ -14,7 +14,7 @@ import {
   Row,
   Col,
   Switch,
-  message
+  Spin
 } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,6 +27,7 @@ import { createQuotes, fetchExchangeRate, updateEstadoQuote } from '../../redux/
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
+import { fetchProductsInterfuerza } from '../../redux/features/productsInterfuerza/ProductsInterfuerza';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -51,6 +52,18 @@ const CrearCotizacion = () => {
     hasMore_products
   } = useSelector((state) => state.interfuerzaProducts);
 
+  const {
+    productsInterfuerza,
+    limit,
+    page,
+    sortColumn,
+    sortOrder,
+    meta,
+    searchTerm,
+    status,
+    error
+} = useSelector((state) => state.productsInterfuerza);
+
   const [lines, setLines] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [searchValueProducts, setSearchValueProducts] = useState('');
@@ -66,7 +79,6 @@ const CrearCotizacion = () => {
 
   useEffect(() => {
     if (record) {
-      console.log('entre')
       form.setFieldsValue({
         Cliente: record.Cliente || '',
         Status: record.Status || '',
@@ -107,6 +119,12 @@ const CrearCotizacion = () => {
   useEffect(() => {
     dispatch(fetchInterfuerzaWareHouses())
   }, [dispatch])
+
+  useEffect(() => {
+    dispatch(fetchProductsInterfuerza({}))
+  },[])
+
+  console.log('productsInterfuerza:',productsInterfuerza)
 
   // useEffect(() => {
   //   dispatch(fetchInterfuerzaCustomers({ page: 1 }));
@@ -344,14 +362,17 @@ const CrearCotizacion = () => {
   };
 
   const handleSelectProduct = (index, value) => {
-    const selectedWrapper = interfuerzaProducts.find(p => p.Producto?.Item_Number === value);
-    const selectedProduct = selectedWrapper?.Producto;
+    const selectedWrapper = productsInterfuerza.find(p => p.item_number === value);
+    console.log('valor:', value)
+    console.log('selectedWrapper:', selectedWrapper)
+    const selectedProduct = selectedWrapper;
 
     if (selectedProduct) {
-      updateLine(index, 'Codigo', selectedProduct.id);
-      updateLine(index, 'Nombre', selectedProduct.Nombre || '');
-      updateLine(index, 'Marca', selectedProduct.Marca || '');
-      updateLine(index, 'Precio_Unitario', parseFloat(selectedProduct.Precio_Venta) || 0);
+      updateLine(index, 'Codigo', selectedProduct.codigo);
+      updateLine(index, 'Item_Number', selectedProduct.item_number);
+      updateLine(index, 'Nombre', selectedProduct.nombre || '');
+      updateLine(index, 'Marca', selectedProduct.marca || '');
+      updateLine(index, 'Precio_Unitario', parseFloat(selectedProduct.ultimo_costo_unidad) || 0);
       updateLine(index, 'Unidades', 1);
     }
   };
@@ -374,29 +395,32 @@ const CrearCotizacion = () => {
   const columns = [
     {
       title: 'Código',
-      dataIndex: 'Codigo',
-      key: 'Codigo',
+      dataIndex: 'Item_Number',
+      key: 'Item_Number',
       width: 250,
       render: (text, record, index) => {
         return (
           <Select
             showSearch
             style={{ width: '100%' }}
-            value={record.Codigo}
+            value={record.Item_Number}
             placeholder="Selecciona un producto"
             optionFilterProp="children"
             onChange={(value) => {
+              console.log('Seleccionado:', value);
               handleSelectProduct(index, value)
             }}
-            filterOption={false}
-            onSearch={handleSearchProducts}
-            onPopupScroll={handleScrollProducts}
+            filterOption={(input, option) => {
+              const normalizedInput = input.toLowerCase().trim();
+              const normalizedLabel = (option?.children ?? '').toString().toLowerCase();
+              return normalizedLabel.includes(normalizedInput);
+            }}
           >
             {
-              interfuerzaProducts.map((item) => (
+              productsInterfuerza.map((item) => (
                 <Option
-                  key={item.Producto?.id} value={item.Producto?.Item_Number}>
-                  {item.Producto?.Item_Number}
+                  key={item?.id} value={item?.item_number}>
+                  {item?.item_number}
                 </Option>
               ))
             }
@@ -417,18 +441,20 @@ const CrearCotizacion = () => {
           value={record.Nombre}
           optionFilterProp="children"
           onChange={(value) => {
-            console.log('value:', value)
+            console.log('Seleccionado2222:', value);
             handleSelectProduct(index, value)
           }}
-          filterOption={false}
-          onSearch={handleSearchProducts}
-          onPopupScroll={handleScrollProducts}
+          filterOption={(input, option) => {
+            const normalizedInput = input.toLowerCase().trim();
+            const normalizedLabel = (option?.children ?? '').toString().toLowerCase();
+            return normalizedLabel.includes(normalizedInput);
+          }}     
         >
           {
-            interfuerzaProducts.map((item) => (
+            productsInterfuerza.map((item) => (
               <Option
-                key={item.Producto?.id} value={item.Producto?.Item_Number}>
-                {item.Producto?.Nombre}
+                key={item?.id} value={item?.item_number}>
+                {item?.nombre}
               </Option>
             ))
           }

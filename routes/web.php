@@ -33,6 +33,7 @@ use App\Http\Controllers\API\materiales\MaterialesApiController;
 use App\Http\Controllers\API\ordenes\OrdenesApiController;
 use App\Http\Controllers\API\permisos\PermisosController;
 use App\Http\Controllers\API\permisos_tipos_usuarios\PermisosTiposUsuariosController;
+use App\Http\Controllers\API\products_interfuerza\ProductsInterfuerzaApiController;
 use App\Http\Controllers\API\proveedorMaterial\ProveedorDeMaterialController;
 use App\Http\Controllers\API\proveedorMaterial\ProveedorMaterialApiController;
 use App\Http\Controllers\API\quotes\QuoterApiController;
@@ -515,6 +516,21 @@ Route::post('/api/crear/quote/centevi', [QuoterApiController::class, 'crearQoute
 Route::put('/api/update/quote/centevi/{id}', [QuoterApiController::class, 'updateEstadoInterfuerza']);
 
 Route::post('/api/prueba/orden', [OrdenesApiController::class, 'pruebaobtenerOrdenes']);
+
+Route::get('/api/products', [ProductsInterfuerzaApiController::class, 'obtenerProductos']);
+
+Route::post('/api/crear/products', [ProductsInterfuerzaApiController::class, 'crearProducts']);
+
+Route::post('/api/migration/products', [ProductsInterfuerzaApiController::class, 'migrationProductsInterfuerza']);
+
+Route::delete('/api/delete/products', [ProductsInterfuerzaApiController::class, 'deleteProductoInterfuerza']);
+
+Route::post('/api/verify/products', [interfuerzaApiControllerProducts::class, 'verifyProduct']);
+
+
+
+
+
 
 Route::get('/{any}', function () {
   return view('app');
