@@ -884,16 +884,19 @@ Dirección fisica: {direccion}
           transform: "translateY(-50%)",
           transition: "right 0.5s ease",
           cursor: "pointer",
-          background: "#E0F0EF",
-          padding: "20px",
+          background: "#009688",
           borderRadius: "8px 0px 0px 8px",
-          width: "70px",
+          width: "50px",
+          height: "50px",
           textAlign: "center",
           zIndex: 1000,
+          fontSize: "20px",
+          alignContent: "center",
+          color: 'white'
         }}
         onClick={() => setOpenCalendar(!openCalendar)}
       >
-        <CalendarOutlined style={{ color: 'black' }} />
+        <CalendarOutlined style={{ color: 'white' }} />
       </div>
 
       <div
@@ -903,7 +906,7 @@ Dirección fisica: {direccion}
           right: openCalendar ? "0px" : "-350px",
           transform: "translateY(-50%)",
           transition: "right 0.5s ease",
-          background: "#CBE7E4",
+          background: "#009688",
           width: "350px",
           height: "370px",
           padding: "20px",
@@ -1467,11 +1470,11 @@ Dirección fisica: {direccion}
             <Col xxl={24} xl={24} md={24}>
               <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
               <div style={{ display:'flex', gap:'10px'}}>
-                <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button>
+                {/* <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button> */}
                 <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={()=> setTimeEndDate(30)}>30min</Button>
                 <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={()=> setTimeEndDate(45)}>45min</Button>
                 <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={()=> setTimeEndDate(60)}>1h</Button>
-                <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button>
+                {/* <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button> */}
               </div>
             </Col>
             <Col xxl={12} xl={12} md={12}>
@@ -1500,8 +1503,9 @@ Dirección fisica: {direccion}
                   disabled={!enableTimeEndDateForm}
                   showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
-                  style={{ marginBottom: "10px", width: "100%" }}
+                  style={{ marginBottom: "10px", width: "100%", color: '#1677FF !important' }}
                   placeholder="Fecha y hora de fin"
+
                 />
               </Form.Item>
             </Col>
