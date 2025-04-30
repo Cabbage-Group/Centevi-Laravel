@@ -29,6 +29,8 @@ export const fetchCitasAgenda = createAsyncThunk(
                 title: cita.paciente?.nombres || 'Sin Nombre',
                 start: cita.fecha_hora || new Date().toISOString(),
                 end: cita.fecha_hora || new Date().toISOString(),
+                // end: cita.fecha_hora_fin ? cita.fecha_hora_fin : (cita.fecha_hora || new Date().toISOString()),
+                fecha_hora_fin: cita.fecha_hora_fin,
                 backgroundColor: sucursalColors[cita.sucursal?.nombre] || "purple",
                 borderColor: sucursalColors[cita.sucursal?.nombre] || "purple",
                 badge: cita?.sucursal?.nombre || 'Desconocido',

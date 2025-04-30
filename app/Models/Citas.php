@@ -15,6 +15,7 @@ class Citas extends Model
         'origen_id',
         'origen_tabla',
         'fecha_hora',
+        'fecha_hora_fin',
         'tipo',
         'paciente_id',
         'doctor',

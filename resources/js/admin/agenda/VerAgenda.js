@@ -7,9 +7,10 @@ import esLocale from "@fullcalendar/core/locales/es";
 import {
   Modal, Input, DatePicker, Radio, Button,
   Space, Popconfirm, Select, Row, Col,
-  List, Form, Spin, AutoComplete
+  List, Form, Spin, AutoComplete,
+  Calendar
 } from "antd";
-import { LeftOutlined, RightOutlined, PlusOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined, EditOutlined } from "@ant-design/icons";
+import { LeftOutlined, RightOutlined, PlusOutlined, CalendarOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import BotonesFiltroAgenda from "./components/BotonesFiltroAgenda";
@@ -109,7 +110,11 @@ Dirección fisica: {direccion}
 
   const [esProximaCita, setEsProximaCita] = useState(null)
 
+  const [openCalendar, setOpenCalendar] = useState(false);
 
+  const [ enableTimeEndDateForm, setEnableTimeEndDateForm ] = useState(false)
+
+  const [ rangeTimeEndDateSelected, setRangeTimeEndDateSelected ] = useState(60)
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
@@ -412,9 +417,10 @@ Dirección fisica: {direccion}
   const handleDateClick = (info) => {
 
     console.log('isEditMode:', isEditMode)
+    setRangeTimeEndDateSelected(60);
     setIsEditMode(false);
     form.setFieldsValue({
-      fechaAgenda: dayjs(info.dateStr)
+      fechaAgenda: dayjs(info.dateStr),
     });
     setCurrentEventId(null);
     setEventTitle("");
@@ -434,6 +440,7 @@ Dirección fisica: {direccion}
       doctor: "",
       comentarios: "",
       fechaAgenda: dayjs(info.date),
+      fechaAgendaFin: dayjs(info.date).add(1,'hour'),
       tipoAgenda: "",
       agendado_por: localStorage.getItem("usuario"),
       proximosServicios: []
@@ -475,6 +482,15 @@ Dirección fisica: {direccion}
       (event) => Number(event.id) === eventId
     );
 
+    const diferenciaMinutos = dayjs(clickedEvent.fecha_hora_fin).diff(dayjs(clickedEvent.start), 'minute');    
+    if (isNaN(diferenciaMinutos)) {
+      setRangeTimeEndDateSelected(60);
+    } else if ([15, 30, 45, 60].includes(diferenciaMinutos)) {
+      console.log('include');
+      setRangeTimeEndDateSelected(diferenciaMinutos);
+    } else {
+      setRangeTimeEndDateSelected(null);
+    }
     if (!clickedEvent) {
       citasAgenda.forEach(event => {
         if (event.extendedProps?.hiddenEvents) {
@@ -518,6 +534,7 @@ Dirección fisica: {direccion}
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
         fechaAgenda: dayjs(clickedEvent.start),
+        fechaAgendaFin: clickedEvent.fecha_hora_fin ? dayjs( clickedEvent.fecha_hora_fin) : dayjs(clickedEvent.start).add(60,'minutes'),
         tipoAgenda: clickedEvent.tipo || "",
         agendado_por: clickedEvent.agendado_por || "",
       });
@@ -540,6 +557,24 @@ Dirección fisica: {direccion}
       }
     }
   };
+
+  const ImageTherapy = () => (
+    <img src="../../../img/icon_therapy.png" width={15} height={15} alt="icon therapy" />
+  )
+
+  const setTimeEndDate = (value) => {
+    if(value){
+      
+      console.log('form.fechaAgenda')
+      console.log(form.fechaAgenda)
+      form.setFieldsValue({fechaAgendaFin: dayjs(form.getFieldValue('fechaAgenda')).add(value,'minutes')})
+      setRangeTimeEndDateSelected(value)
+      setEnableTimeEndDateForm(false)
+    }else{
+      setEnableTimeEndDateForm(true)
+      setRangeTimeEndDateSelected(null)
+    }
+  }
 
   useEffect(() => {
     if (serviciosProximos_options.length > 0) {
@@ -679,6 +714,7 @@ Dirección fisica: {direccion}
             origen_id: consultaId,
             origen_tabla: "citas_servicios",
             fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
+            fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
             tipo: values.tipoAgenda,
             paciente_id: pacienteId,
             doctor: values.doctor,
@@ -709,6 +745,7 @@ Dirección fisica: {direccion}
       origen_id: consultaId,
       origen_tabla: "citas_servicios",
       fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
+      fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
       tipo: values.tipoAgenda,
       paciente_id: newPacienteId,
       doctor: values.doctor,
@@ -750,7 +787,8 @@ Dirección fisica: {direccion}
       ex_proxima_cita: esProximaCita === 1 ? esProximaCita : 0,
       comentarios: values.comentarios,
       agendado_por: usuario,
-      servicios_ids: serviciosRealizadosSubmit
+      servicios_ids: serviciosRealizadosSubmit,
+      fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm")
     };
     console.log('Datos finales a enviar:', data);
     if (currentEventId) {
@@ -824,12 +862,57 @@ Dirección fisica: {direccion}
     setHideSunday(!hideSunday);
   };
 
+  const handleSelect = (date) => {
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi();
+      calendarApi.gotoDate(date.toDate());
+      calendarApi.changeView('timeGridDay');
+    }
+  };
+
   return (
     <div
       style={{
-        width: "100%", margin: "auto", padding: "30px",
+        width: "100%", margin: "auto", padding: "30px", position: "relative", overflow: "hidden"
       }}
     >
+      <div
+        style={{
+          position: "fixed",
+          top: "45%",
+          right: openCalendar ? "350px" : "0px",
+          transform: "translateY(-50%)",
+          transition: "right 0.5s ease",
+          cursor: "pointer",
+          background: "#E0F0EF",
+          padding: "20px",
+          borderRadius: "8px 0px 0px 8px",
+          width: "70px",
+          textAlign: "center",
+          zIndex: 1000,
+        }}
+        onClick={() => setOpenCalendar(!openCalendar)}
+      >
+        <CalendarOutlined style={{ color: 'black' }} />
+      </div>
+
+      <div
+        style={{
+          position: "fixed",
+          top: "45%",
+          right: openCalendar ? "0px" : "-350px",
+          transform: "translateY(-50%)",
+          transition: "right 0.5s ease",
+          background: "#CBE7E4",
+          width: "350px",
+          height: "370px",
+          padding: "20px",
+          borderRadius: "8px 0px 0px 8px",
+          zIndex: 999,
+        }}
+      >
+        <Calendar fullscreen={false} onSelect={handleSelect} mode="month"/>
+      </div>
       <div
         style={{ display: 'flex', position: 'relative' }}
       >
@@ -959,6 +1042,12 @@ Dirección fisica: {direccion}
             hour12: false,
             meridiem: 'short'
           }}
+          dayHeaderContent={(arg) => {
+            const date = arg.date;
+            const options = { weekday: "long", day: "2-digit", month: "2-digit" };
+            const formatted = date.toLocaleDateString("es-ES", options);
+            return formatted;
+          }}
           eventTimeFormat={{
             hour: "numeric",
             minute: "2-digit",
@@ -969,8 +1058,12 @@ Dirección fisica: {direccion}
           slotLabelInterval="00:30"
           height="auto"
           eventContent={(info) => {
-            const { hiddenEvents, comentarios, doctor, tipo } = info.event.extendedProps;
-            const eventTime = info.timeText;
+            const { hiddenEvents, comentarios, doctor, tipo, paciente, apellidos, fecha_hora_fin } = info.event.extendedProps;
+            const primerNombre = paciente ? paciente.split(" ")[0] : "";
+            const primerApellido = apellidos ? apellidos.split(" ")[0] : "";
+            const nombrePaciente = `${primerNombre} ${primerApellido}`;
+            const eventTime = info.timeText + (fecha_hora_fin ? (" - " +dayjs(fecha_hora_fin).format('HH:mm')) : "");
+            
             const isDayView = info.view.type === "timeGridDay";
             return (
               <div>
@@ -984,6 +1077,7 @@ Dirección fisica: {direccion}
                   }}
                 >
                   <span>
+                    { tipo == "terapia" && <ImageTherapy/> }
                     <b
                       style={{
                         overflow: "hidden",
@@ -994,7 +1088,7 @@ Dirección fisica: {direccion}
                       }}
                       title={`${eventTime} - ${info.event.title}`}
                     >
-                      {eventTime} - {info.event.title}
+                      {eventTime} - {nombrePaciente}
                     </b>
                   </span>
 
@@ -1013,8 +1107,6 @@ Dirección fisica: {direccion}
                     </span>
                   )}
                 </div>
-
-
                 <small
                   style={{
                     display: "block",
@@ -1363,24 +1455,57 @@ Dirección fisica: {direccion}
           {/*  */}
           <label style={{ marginTop: '10px' }}>Comentarios de la agenda:</label>
           <Form.Item
+            rules={[{ required: true, message: "El comentario es requerido" }]}
             name="comentarios"
           >
             <Input.TextArea
               placeholder="Descripción del Evento"
             />
           </Form.Item>
-          <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
-          <Form.Item
-            name="fechaAgenda"
-            rules={[{ required: true, message: "La fecha y hora son requeridas" }]}
-          >
-            <DatePicker
-              showTime={{ format: "HH:mm" }}
-              format="YYYY-MM-DD HH:mm"
-              style={{ marginBottom: "10px", width: "100%" }}
-              placeholder="Fecha de la agenda"
-            />
-          </Form.Item>
+
+          <Row gutter={[16, 16]}>
+            <Col xxl={24} xl={24} md={24}>
+              <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
+              <div style={{ display:'flex', gap:'10px'}}>
+                <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button>
+                <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={()=> setTimeEndDate(30)}>30min</Button>
+                <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={()=> setTimeEndDate(45)}>45min</Button>
+                <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={()=> setTimeEndDate(60)}>1h</Button>
+                <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button>
+              </div>
+            </Col>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '5px' }}>Hora de inicio:</label>
+              <Form.Item
+                name="fechaAgenda"
+                rules={[{ required: true, message: "La fecha y hora de inicio es requerida" }]}
+              >
+                <DatePicker
+                  allowClear={false}
+                  showTime={{ format: "HH:mm" }}
+                  format="YYYY-MM-DD HH:mm"
+                  style={{ marginBottom: "10px", width: "100%" }}
+                  placeholder="Fecha y hora de inicio"
+                />
+              </Form.Item>
+            </Col>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '10px' }}>Hora de fin:</label>
+              <Form.Item
+                name="fechaAgendaFin"
+                rules={[{ required: true, message: "La fecha y hora de fin es requerida" }]}
+              >
+                <DatePicker
+                  allowClear={false}
+                  disabled={!enableTimeEndDateForm}
+                  showTime={{ format: "HH:mm" }}
+                  format="YYYY-MM-DD HH:mm"
+                  style={{ marginBottom: "10px", width: "100%" }}
+                  placeholder="Fecha y hora de fin"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
           <Form.Item
             name="tipoAgenda"
             // rules={[
