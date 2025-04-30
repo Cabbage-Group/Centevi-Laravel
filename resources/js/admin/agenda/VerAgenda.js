@@ -1062,10 +1062,12 @@ Dirección fisica: {direccion}
           height="auto"
           eventContent={(info) => {
             const { hiddenEvents, comentarios, doctor, tipo, paciente, apellidos, fecha_hora_fin } = info.event.extendedProps;
-            const primerNombre = paciente ? paciente.split(" ")[0] : "";
-            const primerApellido = apellidos ? apellidos.split(" ")[0] : "";
+            const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
+            const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
             const nombrePaciente = `${primerNombre} ${primerApellido}`;
-            const eventTime = info.timeText + (fecha_hora_fin ? (" - " +dayjs(fecha_hora_fin).format('HH:mm')) : "");
+            const eventTime = info.timeText + (fecha_hora_fin 
+              ? (" - " + dayjs(fecha_hora_fin).format('HH:mm')) 
+              : " - " + dayjs(info.timeText, 'HH:mm').add(1, 'hour').format('HH:mm'));
             
             const isDayView = info.view.type === "timeGridDay";
             return (
