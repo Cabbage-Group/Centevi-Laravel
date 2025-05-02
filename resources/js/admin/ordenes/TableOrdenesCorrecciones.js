@@ -1055,7 +1055,6 @@ const TableOrdenesCorrecciones = (
         height='100%'
         centered={false}
       >
-
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button
             onClick={() => handleVerOrden(OrdenId)}

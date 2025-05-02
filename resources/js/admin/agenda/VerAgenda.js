@@ -794,8 +794,6 @@ Dirección fisica: {direccion}
     }
   };
 
-
-
   const continueAgendarEvent = async (values, newPacienteId) => {
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const data = {
@@ -1541,7 +1539,11 @@ Dirección fisica: {direccion}
                   //   setCelular(value);
                   //   form.setFieldsValue({ celular: value });
                   // }}
-                  onSearch={(val) => debouncedSetCelular(val)}
+                  onSearch={(val) => {
+                    const valueWithPrefix = val.startsWith("+507") ? val : `+507${val}`;
+                    form.setFieldsValue({ celular: valueWithPrefix });
+                    debouncedSetCelular(valueWithPrefix); 
+                  }}
                   onSelect={(value, key) => {
                     setCreateCedula(null)
                     handleCelularChange(key.key);
