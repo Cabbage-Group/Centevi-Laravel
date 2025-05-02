@@ -125,14 +125,14 @@ Dirección fisica: {direccion}
     debounce((val) => {
       setPacienteId(null);
       setCreateCedula(val);
-    }, 300), []
+    }, 100), []
   );
 
   const debouncedSetNombre = useMemo(() =>
     debounce((val) => {
       const cedula = form.getFieldValue("nroCedula");
       setCreateCedula(cedula);
-    }, 300), []
+    }, 100), []
   );
 
 
@@ -140,7 +140,7 @@ Dirección fisica: {direccion}
     debounce((val) => {
       const cedula = form.getFieldValue("nroCedula");
       setCreateCedula(cedula);
-    }, 300), []
+    }, 100), []
   );
 
   const debouncedSetCelular = useMemo(() =>
@@ -661,7 +661,7 @@ Dirección fisica: {direccion}
           Swal.fire({
             icon: "warning",
             title: "Cédula existente",
-            text: "La cédula ya está registrada. No se puede agendar esta cita.",
+            text: "La cédula ya está registrada. Seleccione un paciente de la lista",
           });
           return;
         }
@@ -858,7 +858,7 @@ Dirección fisica: {direccion}
       }
     }
   };
-  
+
   const handleUpdateEvent = async (values) => {
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
@@ -1453,8 +1453,8 @@ Dirección fisica: {direccion}
                     );
                     console.log('selected:', selected)
                     setPacienteId(selected.value)
-                    // setCreatePaciente(null);
-                    // setCreateCedula(null)  
+                    setCreatePaciente(null);
+                    setCreateCedula(null);
                     handlePacienteChange(key.key);
                   }}
                   onSearch={(text) => debouncedSetNombre(text)}
