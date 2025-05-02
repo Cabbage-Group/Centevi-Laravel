@@ -598,88 +598,83 @@ Dirección fisica: {direccion}
     setIsModalOpen(true);
   };
 
-  const handleAgendarEvent = (values) => {
-    console.log('values', values)
-    if (createCedula !== null) {
-      dispatch(verificarCedula(createCedula))
-        .then((response) => {
-          if (response.payload == true) {
-            Swal.fire({
-              icon: "warning",
-              title: "Cédula existente",
-              text: "La cédula ya está registrada. No se puede agendar esta cita.",
-            });
-            return;
-          } else if (response.payload === false) {
-            Swal.fire({
-              title: "Paciente no existe",
-              text: "El paciente no está registrado. ¿Deseas crearlo?",
-              icon: "question",
-              showCancelButton: true,
-              confirmButtonText: "Sí, crear paciente",
-              cancelButtonText: "Cancelar",
-              confirmButtonColor: '#3085d6',
-              cancelButtonColor: '#d33',
-            }).then((result) => {
-              if (result.isConfirmed) {
-                const data = {
-                  nombres: values.paciente,
-                  nro_cedula: values.nroCedula,
-                  apellidos: values.apellidos,
-                  estado: false
-                };
-                dispatch(crearPacientes(data))
-                  .then((response) => {
-                    const newPaciente = response.payload.data[0];
-                    if (newPaciente && newPaciente.id_paciente) {
-                      Swal.fire({
-                        title: "Cargando usuarios...",
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                          Swal.showLoading();
-                        },
-                      });
-                      dispatch(fetchPacientes({}))
-                        .then(() => {
-                          Swal.close();
-                          continueAgendarEvent(values, newPaciente.id_paciente);
+  const handleAgendarEvent = async (values) => {
+    console.log('values', values);
+    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
 
-                        })
-                        .catch(() => {
-                          Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: "Hubo un error al obtener los usuarios.",
-                          });
-                        });
-                    } else {
-                      Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: "No se pudo obtener el ID del paciente creado.",
-                      });
-                    }
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      icon: "error",
-                      title: "Error",
-                      text: "Hubo un error al crear el paciente.",
-                    });
-                  });
-              }
-            });
-          }
-        })
-        .catch((error) => {
+    if (createCedula !== null) {
+      try {
+        const response = await dispatch(verificarCedula(createCedula)).unwrap();
+
+        if (response === true) {
           Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Hubo un error al verificar la cédula.",
+            icon: "warning",
+            title: "Cédula existente",
+            text: "La cédula ya está registrada. No se puede agendar esta cita.",
           });
+          return;
+        }
+
+        if (response === false) {
+          const result = await Swal.fire({
+            title: "Paciente no existe",
+            text: "El paciente no está registrado. ¿Deseas crearlo?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Sí, crear paciente",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+          });
+
+          if (result.isConfirmed) {
+            const dataPaciente = {
+              nombres: values.paciente,
+              nro_cedula: values.nroCedula,
+              apellidos: values.apellidos,
+              estado: false
+            };
+
+            try {
+              const response = await dispatch(crearPacientes(dataPaciente)).unwrap();
+              const newPaciente = response.data[0];
+
+              if (newPaciente && newPaciente.id_paciente) {
+                Swal.fire({
+                  title: "Cargando usuarios...",
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                    Swal.showLoading();
+                  },
+                });
+
+                await dispatch(fetchPacientes({})).unwrap();
+                Swal.close();
+                continueAgendarEvent(values, newPaciente.id_paciente);
+              } else {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "No se pudo obtener el ID del paciente creado.",
+                });
+              }
+            } catch (error) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Hubo un error al crear el paciente.",
+              });
+            }
+          }
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Hubo un error al verificar la cédula.",
         });
+      }
     } else {
-      const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
       if (!values.tipoAgenda || values.tipoAgenda === "proxima_cita") {
         Swal.fire({
           icon: "warning",
@@ -698,7 +693,7 @@ Dirección fisica: {direccion}
         return;
       }
 
-      Swal.fire({
+      const result = await Swal.fire({
         title: "¿Confirmar agendamiento?",
         text: "¿Deseas agendar esta cita?",
         icon: "question",
@@ -707,24 +702,28 @@ Dirección fisica: {direccion}
         cancelButtonText: "Cancelar",
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const data = {
-            cita_existente_id: currentEventId,
-            origen_id: consultaId,
-            origen_tabla: "citas_servicios",
-            fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
-            fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
-            tipo: values.tipoAgenda,
-            paciente_id: pacienteId,
-            doctor: values.doctor,
-            sucursal_id: selectedSucursal,
-            comentarios: values.comentarios,
-            agendado_por: usuario,
-            servicios_id: serviciosRealizadosSubmit
-          };
-          setIsModalOpen(false);
-          dispatch(fetchAgendarCitas(data));
+      });
+
+      if (result.isConfirmed) {
+        const data = {
+          cita_existente_id: currentEventId,
+          origen_id: consultaId,
+          origen_tabla: "citas_servicios",
+          fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
+          fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
+          tipo: values.tipoAgenda,
+          paciente_id: pacienteId,
+          doctor: values.doctor,
+          sucursal_id: selectedSucursal,
+          comentarios: values.comentarios,
+          agendado_por: usuario,
+          servicios_id: serviciosRealizadosSubmit
+        };
+
+        setIsModalOpen(false);
+
+        try {
+          await dispatch(fetchAgendarCitas(data)).unwrap();
           Swal.fire({
             icon: "success",
             title: "Cita Agendada",
@@ -732,13 +731,20 @@ Dirección fisica: {direccion}
             timer: 2000,
             showConfirmButton: false,
           });
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Hubo un error al agendar la cita.",
+          });
         }
-      });
+      }
     }
-
-
   };
-  const continueAgendarEvent = (values, newPacienteId) => {
+
+
+
+  const continueAgendarEvent = async (values, newPacienteId) => {
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const data = {
       cita_existente_id: currentEventId,
@@ -754,16 +760,27 @@ Dirección fisica: {direccion}
       agendado_por: usuario,
       servicios_id: serviciosRealizadosSubmit
     };
+
     setIsModalOpen(false);
-    dispatch(fetchAgendarCitas(data));
-    Swal.fire({
-      icon: "success",
-      title: "Cita Agendada",
-      text: "La cita ha sido agendada exitosamente.",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-  }
+
+    try {
+      await dispatch(fetchAgendarCitas(data)).unwrap();
+      Swal.fire({
+        icon: "success",
+        title: "Cita Agendada",
+        text: "La cita ha sido agendada exitosamente.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un error al agendar la cita.",
+      });
+    }
+  };
+
 
   const handleDeleteEvent = () => {
     if (currentEventId) {

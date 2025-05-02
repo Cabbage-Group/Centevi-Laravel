@@ -441,7 +441,6 @@ const CrearCotizacion = () => {
           value={record.Nombre}
           optionFilterProp="children"
           onChange={(value) => {
-            console.log('Seleccionado2222:', value);
             handleSelectProduct(index, value)
           }}
           filterOption={(input, option) => {
