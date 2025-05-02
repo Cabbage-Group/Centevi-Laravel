@@ -112,9 +112,9 @@ Dirección fisica: {direccion}
 
   const [openCalendar, setOpenCalendar] = useState(false);
 
-  const [ enableTimeEndDateForm, setEnableTimeEndDateForm ] = useState(false)
+  const [enableTimeEndDateForm, setEnableTimeEndDateForm] = useState(false)
 
-  const [ rangeTimeEndDateSelected, setRangeTimeEndDateSelected ] = useState(60)
+  const [rangeTimeEndDateSelected, setRangeTimeEndDateSelected] = useState(60)
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
@@ -440,7 +440,7 @@ Dirección fisica: {direccion}
       doctor: "",
       comentarios: "",
       fechaAgenda: dayjs(info.date),
-      fechaAgendaFin: dayjs(info.date).add(1,'hour'),
+      fechaAgendaFin: dayjs(info.date).add(1, 'hour'),
       tipoAgenda: "",
       agendado_por: localStorage.getItem("usuario"),
       proximosServicios: []
@@ -482,7 +482,7 @@ Dirección fisica: {direccion}
       (event) => Number(event.id) === eventId
     );
 
-    const diferenciaMinutos = dayjs(clickedEvent.fecha_hora_fin).diff(dayjs(clickedEvent.start), 'minute');    
+    const diferenciaMinutos = dayjs(clickedEvent.fecha_hora_fin).diff(dayjs(clickedEvent.start), 'minute');
     if (isNaN(diferenciaMinutos)) {
       setRangeTimeEndDateSelected(60);
     } else if ([15, 30, 45, 60].includes(diferenciaMinutos)) {
@@ -503,7 +503,7 @@ Dirección fisica: {direccion}
         }
       });
     }
-    if (clickedEvent) {    
+    if (clickedEvent) {
 
       const sucursalSeleccionada = sucursales_option_selects.find((sucursal) => sucursal.value == clickedEvent.sucursal_id)
       setDireccion_sucursal(sucursalSeleccionada.ubicacion_maps)
@@ -534,7 +534,7 @@ Dirección fisica: {direccion}
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
         fechaAgenda: dayjs(clickedEvent.start),
-        fechaAgendaFin: clickedEvent.fecha_hora_fin ? dayjs( clickedEvent.fecha_hora_fin) : dayjs(clickedEvent.start).add(60,'minutes'),
+        fechaAgendaFin: clickedEvent.fecha_hora_fin ? dayjs(clickedEvent.fecha_hora_fin) : dayjs(clickedEvent.start).add(60, 'minutes'),
         tipoAgenda: clickedEvent.tipo || "",
         agendado_por: clickedEvent.agendado_por || "",
       });
@@ -563,14 +563,14 @@ Dirección fisica: {direccion}
   )
 
   const setTimeEndDate = (value) => {
-    if(value){
-      
+    if (value) {
+
       console.log('form.fechaAgenda')
       console.log(form.fechaAgenda)
-      form.setFieldsValue({fechaAgendaFin: dayjs(form.getFieldValue('fechaAgenda')).add(value,'minutes')})
+      form.setFieldsValue({ fechaAgendaFin: dayjs(form.getFieldValue('fechaAgenda')).add(value, 'minutes') })
       setRangeTimeEndDateSelected(value)
       setEnableTimeEndDateForm(false)
-    }else{
+    } else {
       setEnableTimeEndDateForm(true)
       setRangeTimeEndDateSelected(null)
     }
@@ -884,16 +884,19 @@ Dirección fisica: {direccion}
           transform: "translateY(-50%)",
           transition: "right 0.5s ease",
           cursor: "pointer",
-          background: "#E0F0EF",
-          padding: "20px",
+          background: "#009688",
           borderRadius: "8px 0px 0px 8px",
-          width: "70px",
+          width: "50px",
+          height: "50px",
           textAlign: "center",
           zIndex: 1000,
+          fontSize: "20px",
+          alignContent: "center",
+          color: 'white'
         }}
         onClick={() => setOpenCalendar(!openCalendar)}
       >
-        <CalendarOutlined style={{ color: 'black' }} />
+        <CalendarOutlined style={{ color: 'white' }} />
       </div>
 
       <div
@@ -903,7 +906,7 @@ Dirección fisica: {direccion}
           right: openCalendar ? "0px" : "-350px",
           transform: "translateY(-50%)",
           transition: "right 0.5s ease",
-          background: "#CBE7E4",
+          background: "#009688",
           width: "350px",
           height: "370px",
           padding: "20px",
@@ -911,7 +914,7 @@ Dirección fisica: {direccion}
           zIndex: 999,
         }}
       >
-        <Calendar fullscreen={false} onSelect={handleSelect} mode="month"/>
+        <Calendar fullscreen={false} onSelect={handleSelect} mode="month" />
       </div>
       <div
         style={{ display: 'flex', position: 'relative' }}
@@ -1059,11 +1062,13 @@ Dirección fisica: {direccion}
           height="auto"
           eventContent={(info) => {
             const { hiddenEvents, comentarios, doctor, tipo, paciente, apellidos, fecha_hora_fin } = info.event.extendedProps;
-            const primerNombre = paciente ? paciente.split(" ")[0] : "";
-            const primerApellido = apellidos ? apellidos.split(" ")[0] : "";
+            const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
+            const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
             const nombrePaciente = `${primerNombre} ${primerApellido}`;
-            const eventTime = info.timeText + (fecha_hora_fin ? (" - " +dayjs(fecha_hora_fin).format('HH:mm')) : "");
-            
+            const eventTime = info.timeText + (fecha_hora_fin
+              ? (" - " + dayjs(fecha_hora_fin).format('HH:mm'))
+              : " - " + dayjs(info.timeText, 'HH:mm').add(1, 'hour').format('HH:mm'));
+
             const isDayView = info.view.type === "timeGridDay";
             return (
               <div>
@@ -1077,7 +1082,7 @@ Dirección fisica: {direccion}
                   }}
                 >
                   <span>
-                    { tipo == "terapia" && <ImageTherapy/> }
+
                     <b
                       style={{
                         overflow: "hidden",
@@ -1134,7 +1139,7 @@ Dirección fisica: {direccion}
                   }}
                   title={tipo}
                 >
-                  🩺 {tipo}
+                  {tipo == "terapia" ? <ImageTherapy /> : <span>🩺</span>} {tipo}
                 </small>
 
                 {hiddenEvents && hiddenEvents.length > 0 && (
@@ -1466,12 +1471,12 @@ Dirección fisica: {direccion}
           <Row gutter={[16, 16]}>
             <Col xxl={24} xl={24} md={24}>
               <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
-              <div style={{ display:'flex', gap:'10px'}}>
-                <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button>
-                <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={()=> setTimeEndDate(30)}>30min</Button>
-                <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={()=> setTimeEndDate(45)}>45min</Button>
-                <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={()=> setTimeEndDate(60)}>1h</Button>
-                <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {/* <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button> */}
+                <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={() => setTimeEndDate(30)}>30min</Button>
+                <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={() => setTimeEndDate(45)}>45min</Button>
+                <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={() => setTimeEndDate(60)}>1h</Button>
+                {/* <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button> */}
               </div>
             </Col>
             <Col xxl={12} xl={12} md={12}>
@@ -1500,8 +1505,9 @@ Dirección fisica: {direccion}
                   disabled={!enableTimeEndDateForm}
                   showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
-                  style={{ marginBottom: "10px", width: "100%" }}
+                  style={{ marginBottom: "10px", width: "100%", color: '#1677FF !important' }}
                   placeholder="Fecha y hora de fin"
+
                 />
               </Form.Item>
             </Col>
