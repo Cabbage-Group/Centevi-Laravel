@@ -271,8 +271,8 @@ const RoutesApp = () => {
 
           <Route path="/ver-cotizacion/:id" element={<Sidebar component={<VerUnaCotizacion />} />} />
 
-          
-          <Route path="/new-table-orden" element={<Sidebar component={<NewTableOrdenes />} />} />
+
+          <Route path="/ordenes-labo" element={<Sidebar component={<NewTableOrdenes />} />} />
 
           <Route path="/crear-productos" element={<Sidebar component={<ProductsInterfuerza />} />} />
 

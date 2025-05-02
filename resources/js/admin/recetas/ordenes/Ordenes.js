@@ -335,7 +335,7 @@ const Ordenes = () => {
             Swal.showLoading();
           }
         });
-  
+
 
         try {
           await dispatch(updateOrden({ id_orden: pacienteOrden.id_orden, data: pagado })).unwrap();
