@@ -127,6 +127,7 @@ const citasAgendaSlice = createSlice({
             state.currentView = action.payload;
         },
         setCurrentTypeAgenda: (state, action) => {
+            console.log('action.payloaddsadadas;:', action.payload)
             state.currentType = action.payload;
         }
     },
@@ -206,6 +207,7 @@ const citasAgendaSlice = createSlice({
                         title: action.payload.nueva_cita.title,
                         paciente: action.payload.nueva_cita.paciente,
                         apellidos: action.payload.nueva_cita.apellidos,
+                        celular: action.payload.nueva_cita.celular,
                         doctor: action.payload.nueva_cita.doctor,
                         esProximaCita: action.payload.nueva_cita.ex_proxima_cita,
                         badge: "Pendiente",
@@ -351,10 +353,11 @@ const citasAgendaSlice = createSlice({
                     3: "#BCE9FB",
                     default: "purple"
                 };
-                console.log('action.payload:', action.payload)
+
                 if (action.payload) {
-                    const { sucursal_id, tipo, origen_id, id } = action.payload;
+                    const { sucursal_id, tipo, id } = action.payload;
                     const color = sucursalColors[sucursal_id] || sucursalColors.default;
+
                     const nuevaCitaTransformada = {
                         ...action.payload,
                         id: id,
@@ -368,15 +371,48 @@ const citasAgendaSlice = createSlice({
                         backgroundColor: color,
                         borderColor: color,
                     };
-                    console.log('nuevaCitaTransformada:', nuevaCitaTransformada)
 
                     const index = state.citasAgenda.findIndex((cita) => cita.id === id);
 
-                    if (index !== -1) {
-                        state.citasAgenda[index] = { ...state.citasAgenda[index], ...nuevaCitaTransformada };
+                    if (Array.isArray(state.currentType)) {
+                        const includesConsulta = state.currentType.includes(0);
+                        const includesTerapia = state.currentType.includes(1);
+                        const includesOtro = state.currentType.includes(2);
+
+                        const isFullFiltro = state.currentType.length >= 2 || state.currentType.includes(3);
+
+                        if (tipo === "consulta") {
+                            if (includesConsulta || isFullFiltro) {
+                                if (index !== -1) {
+                                    state.citasAgenda[index] = { ...state.citasAgenda[index], ...nuevaCitaTransformada };
+                                }
+                            } else {
+                                if (index !== -1) state.citasAgenda.splice(index, 1);
+                            }
+                        } else if (tipo === "terapia") {
+                            if (includesTerapia && (includesConsulta || includesOtro || isFullFiltro)) {
+                                if (index !== -1) {
+                                    state.citasAgenda[index] = { ...state.citasAgenda[index], ...nuevaCitaTransformada };
+                                }
+                            } else if (includesTerapia && state.currentType.length === 1) {
+                                if (index !== -1) state.citasAgenda.splice(index, 1);
+                            } else {
+                                if (index !== -1) state.citasAgenda.splice(index, 1);
+                            }
+                        } else {
+                            // Otros tipos
+                            if (includesOtro || isFullFiltro) {
+                                if (index !== -1) {
+                                    state.citasAgenda[index] = { ...state.citasAgenda[index], ...nuevaCitaTransformada };
+                                }
+                            } else {
+                                if (index !== -1) state.citasAgenda.splice(index, 1);
+                            }
+                        }
                     }
                 }
             })
+
             .addCase(updateCita.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;

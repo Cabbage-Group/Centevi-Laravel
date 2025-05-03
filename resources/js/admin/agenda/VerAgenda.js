@@ -24,10 +24,13 @@ import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import axios from "axios";
 import getIp from "../../redux/features/utils/getIp";
 import { crearPacientes, verificarCedula } from "../../redux/features/pacientes/crearPacientesSlice";
+import debounce from 'lodash/debounce';
+
 
 dayjs.locale("es");
 
 const VerAgenda = () => {
+
   const dispatch = useDispatch();
   const [form] = Form.useForm()
   const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
@@ -94,6 +97,8 @@ Dirección fisica: {direccion}
 
   const [selectedSucursal, setSelectedSucursal] = useState(null);
 
+  const [selectedCedula, setSelectedCedula] = useState(null);
+
   const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -116,6 +121,38 @@ Dirección fisica: {direccion}
 
   const [rangeTimeEndDateSelected, setRangeTimeEndDateSelected] = useState(60)
 
+  const debouncedSetCedula = useMemo(() =>
+    debounce((val) => {
+      setPacienteId(null);
+      setCreateCedula(val);
+    }, 100), []
+  );
+
+  const debouncedSetNombre = useMemo(() =>
+    debounce((val) => {
+      const cedula = form.getFieldValue("nroCedula");
+      setCreateCedula(cedula);
+    }, 100), []
+  );
+
+
+  const debouncedSetApellidos = useMemo(() =>
+    debounce((val) => {
+      const cedula = form.getFieldValue("nroCedula");
+      setCreateCedula(cedula);
+    }, 100), []
+  );
+
+  const debouncedSetCelular = useMemo(() =>
+    debounce((val) => {
+      const cedula = form.getFieldValue("nroCedula");
+      setCreateCedula(cedula);
+    }, 300), []
+  );
+
+
+
+
   useEffect(() => {
     dispatch(fetchSucursales({}))
   }, [])
@@ -124,9 +161,9 @@ Dirección fisica: {direccion}
     setProximosServicios(serviciosProximos_options);
   }, [serviciosProximos_options]);
 
-  useEffect(() => {
-    form.setFieldsValue({ agendado_por: usuario });
-  }, [form]);
+  // useEffect(() => {
+  //   form.setFieldsValue({ agendado_por: usuario });
+  // }, [form]);
 
   useEffect(() => {
     dispatch(fetchUsuarios({}))
@@ -217,12 +254,14 @@ Dirección fisica: {direccion}
       setSelectedPaciente(selected.value);
       setPacienteId(selected.value)
       setApellidos(selected.apellidos)
+      setApellidos(selected.celular)
+
       form.setFieldsValue({ nroCedula: selected.nro_cedula });
-      form.setFieldsValue({ apellidos: selected.apellidos })
+      form.setFieldsValue({ apellidos: selected.apellidos });
+      form.setFieldsValue({ celular: selected.celular });
     }
 
   };
-
 
   const handleCedulaChange = (value) => {
     const paciente = pacientes_options_agenda.find((paciente) => paciente.label === value);
@@ -230,23 +269,41 @@ Dirección fisica: {direccion}
       setSelectedPaciente(paciente.value)
       setPacienteId(paciente.value)
       setApellidos(paciente.apellidos)
+      setCelular(paciente.celular)
       form.setFieldsValue({ paciente: paciente.nombres });
-      form.setFieldsValue({ apellidos: paciente.apellidos })
+      form.setFieldsValue({ apellidos: paciente.apellidos });
+      form.setFieldsValue({ celular: paciente.celular });
     }
   };
 
   const handleApellidosChange = (value) => {
     const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+
     if (selected) {
       setSelectedPaciente(selected.value);
       setPacienteId(selected.value)
       setApellidos(selected.apellidos)
+      setCelular(selected.celular)
       form.setFieldsValue({ nroCedula: selected.nro_cedula });
-      form.setFieldsValue({ paciente: selected.nombres })
+      form.setFieldsValue({ paciente: selected.nombres });
+      form.setFieldsValue({ paciente: selected.apellidos });
+      form.setFieldsValue({ celular: selected.celular });
     }
-
   };
 
+  const handleCelularChange = (value) => {
+    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    if (selected) {
+      setSelectedPaciente(selected.value);
+      setPacienteId(selected.value)
+      setApellidos(selected.apellidos)
+      setCelular(selected.celular)
+      form.setFieldsValue({ nroCedula: selected.nro_cedula });
+      form.setFieldsValue({ paciente: selected.nombres });
+      form.setFieldsValue({ apellidos: selected.apellidos });
+      form.setFieldsValue({ celular: selected.celular });
+    }
+  };
 
   const handleSucursalChangeSelect = (value) => {
     setSelectedSucursal(value);
@@ -255,7 +312,6 @@ Dirección fisica: {direccion}
   const handleDoctorChange = (value) => {
     setSelectedDoctor(value);
   };
-
 
   useEffect(() => {
     const startMonth = currentDateAgenda.getMonth() + 1;
@@ -415,8 +471,6 @@ Dirección fisica: {direccion}
   }
 
   const handleDateClick = (info) => {
-
-    console.log('isEditMode:', isEditMode)
     setRangeTimeEndDateSelected(60);
     setIsEditMode(false);
     form.setFieldsValue({
@@ -530,6 +584,7 @@ Dirección fisica: {direccion}
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente,
         apellidos: clickedEvent.apellidos,
+        celular: clickedEvent.celular,
         sucursal: clickedEvent.sucursal ? { value: clickedEvent.sucursal_id, label: clickedEvent.sucursal } : undefined,
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
@@ -564,9 +619,6 @@ Dirección fisica: {direccion}
 
   const setTimeEndDate = (value) => {
     if (value) {
-
-      console.log('form.fechaAgenda')
-      console.log(form.fechaAgenda)
       form.setFieldsValue({ fechaAgendaFin: dayjs(form.getFieldValue('fechaAgenda')).add(value, 'minutes') })
       setRangeTimeEndDateSelected(value)
       setEnableTimeEndDateForm(false)
@@ -599,7 +651,6 @@ Dirección fisica: {direccion}
   };
 
   const handleAgendarEvent = async (values) => {
-    console.log('values', values);
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
 
     if (createCedula !== null) {
@@ -610,7 +661,7 @@ Dirección fisica: {direccion}
           Swal.fire({
             icon: "warning",
             title: "Cédula existente",
-            text: "La cédula ya está registrada. No se puede agendar esta cita.",
+            text: "La cédula ya está registrada. Seleccione un paciente de la lista",
           });
           return;
         }
@@ -632,6 +683,7 @@ Dirección fisica: {direccion}
               nombres: values.paciente,
               nro_cedula: values.nroCedula,
               apellidos: values.apellidos,
+              celular: values.celular,
               estado: false
             };
 
@@ -742,8 +794,6 @@ Dirección fisica: {direccion}
     }
   };
 
-
-
   const continueAgendarEvent = async (values, newPacienteId) => {
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const data = {
@@ -782,22 +832,40 @@ Dirección fisica: {direccion}
   };
 
 
-  const handleDeleteEvent = () => {
+  const handleDeleteEvent = async () => {
     if (currentEventId) {
-      setIsModalOpen(false);
-      dispatch(deleteCita(currentEventId))
-      resetForm();
+      try {
+        await dispatch(deleteCita(currentEventId)).unwrap();
+        setIsModalOpen(false);
+        resetForm();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Cita eliminada',
+          text: 'La cita se eliminó correctamente.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al eliminar',
+          text: error?.message || 'Ocurrió un error al eliminar la cita.',
+        });
+      }
     }
   };
 
-  const handleUpdateEvent = (values) => {
+  const handleUpdateEvent = async (values) => {
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
+
     const data = {
       origen_id: consultaId,
       origen_tabla: esProximaCita === 1 ? tableName : "citas_servicios",
       fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
-      tipo: tipo,
+      tipo,
       paciente_id: pacienteId,
       doctor: values.doctor,
       sucursal_id: selectedSucursal,
@@ -805,15 +873,32 @@ Dirección fisica: {direccion}
       comentarios: values.comentarios,
       agendado_por: usuario,
       servicios_ids: serviciosRealizadosSubmit,
-      fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm")
+      fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
     };
-    console.log('Datos finales a enviar:', data);
-    if (currentEventId) {
-      setIsModalOpen(false);
-      dispatch(updateCita({ id_cita: currentEventId, data: data }))
 
+    if (currentEventId) {
+      try {
+        await dispatch(updateCita({ id_cita: currentEventId, data })).unwrap();
+        setIsModalOpen(false);
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Cita actualizada',
+          text: 'La cita se actualizó correctamente.',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al actualizar',
+          text: error?.message || 'Ocurrió un error al actualizar la cita.',
+        });
+      }
     }
   };
+
 
 
   const resetForm = () => {
@@ -1078,7 +1163,7 @@ Dirección fisica: {direccion}
           slotLabelInterval="00:30"
           height="auto"
           eventContent={(info) => {
-            const { hiddenEvents, comentarios, doctor, tipo, paciente, apellidos, fecha_hora_fin } = info.event.extendedProps;
+            const { hiddenEvents, comentarios, doctor, tipo, paciente, apellidos, fecha_hora_fin, celular } = info.event.extendedProps;
             const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
             const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
             const nombrePaciente = `${primerNombre} ${primerApellido}`;
@@ -1106,11 +1191,11 @@ Dirección fisica: {direccion}
                         textOverflow: "ellipsis",
                         color: "black",
                         flexShrink: 1,
-                        minWidth: 0, // Necesario para que ellipsis funcione correctamente
+                        minWidth: 0,
                       }}
-                      title={`${eventTime} - ${info.event.title}`}
+                      title={`${eventTime} - ${info.event.title} - ${celular}`}
                     >
-                      {eventTime} - {nombrePaciente}
+                      {eventTime} - {nombrePaciente} - {celular}
                     </b>
                   </span>
 
@@ -1292,7 +1377,7 @@ Dirección fisica: {direccion}
 
           {/*  */}
           <Row gutter={[16, 16]}>
-            <Col xxl={24} xl={24} md={24}>
+            <Col xxl={12} xl={12} md={12}>
               <label style={{ marginTop: '10px' }}>Cedula:</label>
               <Form.Item
                 name="nroCedula"
@@ -1302,10 +1387,7 @@ Dirección fisica: {direccion}
                   allowClear
                   showSearch
                   placeholder="Seleccionar paciente"
-                  onSearch={(text) => {
-                    setPacienteId(null)
-                    setCreateCedula(text)
-                  }}
+                  onSearch={(text) => debouncedSetCedula(text)}
                   onSelect={(value, key) => {
                     setCreateCedula(null)
                     handleCedulaChange(key.key);
@@ -1331,8 +1413,7 @@ Dirección fisica: {direccion}
                 </AutoComplete>
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={[24, 24]}>
+
             <Col xxl={12} xl={12} md={12}>
               <label style={{ marginTop: '10px' }}>Nombres:</label>
               <Form.Item
@@ -1360,28 +1441,32 @@ Dirección fisica: {direccion}
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
                     return words.every(word => fullText.includes(word));
                   }}
-                  onChange={(value) => {
-                    setPacienteInput(value);
-                    form.setFieldsValue({ paciente: value });
-                  }}
+                  // onChange={(value) => {
+                  //   setPacienteInput(value);
+                  //   form.setFieldsValue({ paciente: value });
+                  // }}
                   onSelect={(value, key) => {
                     const selected = pacientes_options_agenda.find(
                       (paciente) => paciente.nombres === value
                     );
+                    console.log('selected:', selected)
                     setPacienteId(selected.value)
                     setCreatePaciente(null);
-                    setCreateCedula(null)
+                    setCreateCedula(null);
                     handlePacienteChange(key.key);
                   }}
-                  onSearch={(text) => {
-                    setCreatePaciente(text)
-                  }}
+                  onSearch={(text) => debouncedSetNombre(text)}
+                  // onSearch={(text) => {
+                  //   setCreatePaciente(text)
+                  // }}
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
                   notFoundContent={isLoading ? <Spin size="small" /> : null}
                 >
                 </AutoComplete>
               </Form.Item>
             </Col>
+          </Row>
+          <Row gutter={[24, 24]}>
             <Col xxl={12} xl={12} md={12}>
               <label style={{ marginTop: '10px' }}>Apellidos:</label>
               <Form.Item
@@ -1408,14 +1493,60 @@ Dirección fisica: {direccion}
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
                     return words.every(word => fullText.includes(word));
                   }}
-                  onChange={(value) => {
-                    setApellidos(value);
-                    form.setFieldsValue({ apellidos: value });
+                  // onChange={(value) => {
+                  //   setApellidos(value);
+                  //   form.setFieldsValue({ apellidos: value });
+                  // }}
+                  onSearch={(val) => debouncedSetApellidos(val)}
+                  onSelect={(value, key) => {
+                    setCreateCedula(null)
+                    handleApellidosChange(key.key);
+                  }}
+
+                  onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
+                  notFoundContent={isLoading ? <Spin size="small" /> : null}
+                >
+                </AutoComplete>
+              </Form.Item>
+            </Col>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '10px' }}>Celular:</label>
+              <Form.Item
+                name="celular"
+                rules={[{ required: true, message: "El celular es requerido" }]}
+              >
+                <AutoComplete
+                  allowClear
+                  showSearch
+                  mode="combobox"
+                  placeholder="Seleccionar paciente"
+                  options={pacientes_options_agenda.map((paciente) => {
+                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
+                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
+                    return {
+                      key: fullKey,
+                      value: paciente.apellidos,
+                      label: `${paciente.nro_cedula} - ${fullName}`,
+                      searchText: fullName.toLowerCase(),
+                    }
+                  })}
+                  filterOption={(inputValue, option) => {
+                    const words = inputValue.toLowerCase().split(" ");
+                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
+                    return words.every(word => fullText.includes(word));
+                  }}
+                  // onChange={(value) => {
+                  //   setCelular(value);
+                  //   form.setFieldsValue({ celular: value });
+                  // }}
+                  onSearch={(val) => {
+                    const valueWithPrefix = val.startsWith("+507") ? val : `+507${val}`;
+                    form.setFieldsValue({ celular: valueWithPrefix });
+                    debouncedSetCelular(valueWithPrefix); 
                   }}
                   onSelect={(value, key) => {
                     setCreateCedula(null)
-
-                    handleApellidosChange(key.key);
+                    handleCelularChange(key.key);
                   }}
 
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
@@ -1674,7 +1805,7 @@ Dirección fisica: {direccion}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                 <strong style={{ fontSize: "11px", color: 'black' }}>
-                  {dayjs(event.start).format("HH:mm")} - {event.title}
+                  {dayjs(event.start).format("HH:mm")} - {event.title} - {event.celular}
                   {currentView === "timeGridDay" && event.comentarios && (
                     <span style={{ fontWeight: "normal", fontSize: "10px", color: "black" }}>
                       {" "}({event.comentarios})

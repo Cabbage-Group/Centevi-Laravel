@@ -148,6 +148,7 @@ class AgendaApiController extends Controller
             $pacienteNombre = $paciente ? $paciente->nombres : 'Desconocido';
             $nro_cedula = $paciente ? $paciente->nro_cedula : 'descnocido';
             $apellidos = $paciente ? $paciente->apellidos : 'desconocido';
+            $celular = $paciente ? $paciente->celular : 'desconocido';
         }
         $sucursalNombre = 'Desconocida';
         if ($request->sucursal_id) {
@@ -176,6 +177,7 @@ class AgendaApiController extends Controller
                 'paciente' => $pacienteNombre,
                 'sucursal' => $sucursalNombre,
                 'apellidos' => $apellidos,
+                'celular' => $celular,
                 'ex_proxima_cita' => $nuevaCita->ex_proxima_cita
             ],
             'cita_existente_id' => $request->cita_existente_id
