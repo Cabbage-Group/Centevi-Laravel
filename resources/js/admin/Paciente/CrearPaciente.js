@@ -9,7 +9,6 @@ const CrearPaciente = () => {
   const dispatch = useDispatch();
   const usuario = localStorage.getItem("usuario");
   const { error } = useSelector((state) => state.crearPacientes);
-  console.log('error:', error)
   const initialValues = {
     sucursal: "",
     doctor: localStorage.getItem('nombre'),
@@ -41,7 +40,6 @@ const CrearPaciente = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      // Filtrar los campos vacíos
       const cleanedValues = Object.keys(values).reduce((acc, key) => {
         if (typeof values[key] === 'object' && values[key] !== null) {
           const nestedCleaned = Object.keys(values[key]).reduce((nestedAcc, nestedKey) => {
@@ -59,7 +57,6 @@ const CrearPaciente = () => {
         return acc;
       }, {});
 
-      // Verificar cédula antes de crear paciente
       const nroCedula = cleanedValues.nro_cedula;
       const cedulaExists = await dispatch(verificarCedula(nroCedula)).unwrap();
 
@@ -94,27 +91,27 @@ const CrearPaciente = () => {
         showConfirmButton: true,
         confirmButtonText: 'Cerrar'
       });
-      
 
-      Swal.fire({
-        title: 'Consultando Interfuerza...',
-        text: 'Estamos verificando datos adicionales del paciente',
-        icon: 'info',
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
+
+      // Swal.fire({
+      //   title: 'Consultando Interfuerza...',
+      //   text: 'Estamos verificando datos adicionales del paciente',
+      //   icon: 'info',
+      //   showConfirmButton: false,
+      //   allowOutsideClick: false,
+      //   didOpen: () => {
+      //     Swal.showLoading();
+      //   }
+      // });
 
       // const respuestaInterfuerza = await dispatch(fetchInterfuerza({
       //   ruc: nroCedula,
       //   usuario
       // })).unwrap();
-      
+
       // setTimeout(() => {
-      //   Swal.close(); 
-      
+      //   Swal.close();
+
       //   if (respuestaInterfuerza?.message) {
       //     Swal.fire({
       //       icon: 'success',
@@ -245,6 +242,7 @@ const CrearPaciente = () => {
                                   className="form-control"
                                   id="nro_cedula"
                                   name="nro_cedula"
+                                  required
                                   onBlur={(e) => handleCedulaBlur(e.target.value, setFieldValue)}
                                   as="input"
                                 />
