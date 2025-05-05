@@ -85,8 +85,6 @@ const Listo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
           setFechaFaseConfeccion(faseOrden2.fecha_fase);
-          setProveedorMaterial(faseOrden2.proveedor_material);
-
         }
       }
     }

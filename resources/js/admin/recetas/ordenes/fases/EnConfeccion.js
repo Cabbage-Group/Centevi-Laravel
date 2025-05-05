@@ -17,6 +17,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
+  const proveedor = useSelector((state) => state.fasesOrdenes.proveedor);
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
   const [elaboradoFase, setElaboradoFase] = useState('');
@@ -41,6 +42,8 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
     }
   }, []);
 
+
+  console.log('proveedor:', proveedor)
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente)
@@ -83,7 +86,6 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
         if (faseOrdenAnterior) {
           setLaboratorio(faseOrdenAnterior.laboratorio);
           setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
-          setProveedorMaterial(faseOrdenAnterior.proveedor_material);
         }
       }
     }

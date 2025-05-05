@@ -59,6 +59,7 @@ const fasesOrdenesSlice = createSlice({
     sucursalCorreccion: [],
     statusCorreccion: [],
     pagadoCorreccion: [],
+    proveedor: {},
     changeOrden: false,
     status: 'idle',
     error: null,
@@ -114,6 +115,9 @@ const fasesOrdenesSlice = createSlice({
     },
     setChangeOrden: (state, action) => {
       state.changeOrden = action.payload;
+    },
+    setProveedor: (state, action) => {
+      state.proveedor = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -173,7 +177,8 @@ export const {
   setSucursalCorreccionFilter,
   setStatusCorreccionFilter,
   setPagadoCorreccionFilter,
-  setChangeOrden
+  setChangeOrden,
+  setProveedor
 } = fasesOrdenesSlice.actions;
 
 export default fasesOrdenesSlice.reducer;

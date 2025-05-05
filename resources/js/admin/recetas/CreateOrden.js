@@ -56,7 +56,7 @@ const CreateOrden = () => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
-  console.log('cristales_options_selecteds', cristales_options_selecteds)
+
 
   // Dorado : 186.74.2.218
   // San Judas Tadeo: 190.219.45.142

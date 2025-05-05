@@ -43,10 +43,6 @@ export const fetchCorreccionesByOrdenId = createAsyncThunk(
             pagado
         }) => {
 
-        console.log("----------------------------");
-        console.log(orden_id);
-        console.log("----------------------------");
-
         try {
             const response = await axios.post(`${API}/obtener-correcciones-ordenes/${orden_id}`, {
                 laboratorio,

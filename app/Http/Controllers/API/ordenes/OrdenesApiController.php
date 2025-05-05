@@ -153,9 +153,8 @@ class OrdenesApiController extends Controller
     $sucursal = $request->input('sucursal', []);
     $laboratorio = $request->input('laboratorio', []);
     $fase = $request->input('fase', []);
+    $proveedor = $request->input('proveedor', []);
     $fecha = $request->input('fecha', '');
-
-
 
     $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
     if (!in_array($sortColumn, $validColumns)) {
@@ -231,6 +230,12 @@ class OrdenesApiController extends Controller
       });
     }
 
+    if (!empty($proveedor)) {
+      $query->whereHas('fasesOrdenes', function ($q) use ($proveedor) {
+        $q->whereIn('proveedor_material', (array) $proveedor);
+      });
+    }
+
     $ordenes = $query->orderBy($sortColumn, $sortOrder)->get();
 
     $ordenes = $ordenes->map(function ($orden) {
@@ -277,9 +282,11 @@ class OrdenesApiController extends Controller
         'pagado' => $orden->pagado,
         'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
         'laboratorio' => $orden->fasesOrdenes->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
+        'proveedor_material' => $orden->fasesOrdenes->whereNotNull('proveedor_material')->pluck('proveedor_material')->first()  ?? null,
         'tipo_fase_orden' => $siguienteFase,
         'elaborado_por_fase' => $ultimaFase->usuario->nombre ?? null,
         'siguiente_fase' => $siguienteFase,
+        'codigo_cristal' => $orden->codigo_cristal,
         'id_paciente' => $orden->paciente->id_paciente,
         'nro_cedula' => $orden->paciente->nro_cedula,
         'nombres' => $orden->paciente->nombres,

@@ -92,7 +92,7 @@ import ChatComponent from '../../components/WebSocket.js';
 import CrearCotizacion from '../admin/cotizaciones/CrearCotizaciones.js';
 import TableCotizaciones from '../admin/cotizaciones/TableCotizaciones.js';
 import VerUnaCotizacion from '../admin/cotizaciones/VerUnaCotizacion.js';
-import NewTableOrdenes from '../admin/recetas/ordenes/NewTableOrdenes.js';
+import NewTableOrdenes from '../admin/recetas/ordenesLabo/NewTableOrdenes.js';
 import ProductsInterfuerza from '../admin/products_interfuerza/ProductsInterfuerza.js';
 import TableProductsInterfuerza from '../admin/products_interfuerza/TableProductsInterfuerza.js';
 

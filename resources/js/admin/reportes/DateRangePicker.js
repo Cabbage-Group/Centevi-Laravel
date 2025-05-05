@@ -16,11 +16,6 @@ const DateRangePicker = ({ startDate, endDate, onChange, onApply, onReset, limit
         endDate ? dayjs(endDate, 'YYYY-MM-DD') : null,
     ]);
 
-
-    console.log('startDate:', startDate)
-    console.log('endDate:', endDate)
-    console.log('dates:', dates)
-
     // useEffect(() => {
     //     if (startDate === currentDate && endDate === currentDate) {
     //         setDates([null, null]);
