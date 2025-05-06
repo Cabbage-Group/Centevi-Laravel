@@ -123,10 +123,6 @@ const ListaPaciente = () => {
     });
   };
 
-
-
-
-
   return (
     <div className="admin-data-content" style={{ marginTop: '-50px' }}>
       <div className="row layout-top-spacing">
@@ -196,9 +192,9 @@ const ListaPaciente = () => {
                               <th>
                                 Fecha de creacion
                               </th>
-                              {/* <th>
+                              <th>
                                 Interfuerza
-                              </th> */}
+                              </th>
                               <th className="text-center dt-no-sorting">
                                 Action
                               </th>
@@ -217,7 +213,7 @@ const ListaPaciente = () => {
                                         moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
                                       }
                                     </td>
-                                    {/* <td
+                                    <td
                                       style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                                       onClick={() => handleVerificarInterfuerza(paciente.nro_cedula)}
                                     >
@@ -228,7 +224,7 @@ const ListaPaciente = () => {
                                             ? 'Sí'
                                             : 'No'
                                       }
-                                    </td> */}
+                                    </td>
 
                                     <td>
                                       <div className="btn-group">

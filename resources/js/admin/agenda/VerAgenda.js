@@ -1449,7 +1449,6 @@ Dirección fisica: {direccion}
                     const selected = pacientes_options_agenda.find(
                       (paciente) => paciente.nombres === value
                     );
-                    console.log('selected:', selected)
                     setPacienteId(selected.value)
                     setCreatePaciente(null);
                     setCreateCedula(null);

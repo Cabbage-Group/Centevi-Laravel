@@ -136,20 +136,10 @@ const TableOrdenesCorrecciones = (
   };
 
   const toggleorden = (index, ordenId) => {
-    console.log("index: -------------------------------");
-    console.log(index);
-    console.log(ordenId);
-    console.log("index: -------------------------------");
 
     setCollapsedordens(prevIndex => (prevIndex === index ? null : index));
-
     if (collapsedordens !== index) {
       setSelectedOrdenId(ordenId);
-
-      console.log("ordenId: -------------------------------");
-      console.log(ordenId);
-      console.log("ordenId: -------------------------------");
-
       dispatch(fetchCorreccionesByOrdenId({
         orden_id: ordenId
       }));

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Select, Tooltip, Button, Space } from 'antd';
 import moment from 'moment';
 import { ClockCircleTwoTone, ConsoleSqlOutlined } from '@ant-design/icons';
-import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { actualizarDatosFase, setProveedor } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { useParams, useLocation } from 'react-router-dom';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
@@ -128,6 +128,7 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
       created_at: fechaCreacion,
     };
     dispatch(actualizarDatosFase(nuevaFase));
+    dispatch(setProveedor(proveedorMaterial))
 
   }, [laboratorio, observaciones, fechaActual, tipoFaseId, fechaCreacion, status, proveedorMaterial]);
 

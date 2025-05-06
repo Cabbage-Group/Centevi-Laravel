@@ -37,8 +37,6 @@ const Retirado = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const idUsuario = localStorage.getItem('id_usuario');
   const [status, setStatus] = useState('');
 
-  console.log('tipoFaseId:', tipoFaseId)
-
   useEffect(() => {
     if (orderId) {
       dispatch(fecthTiposFasesOrdenes(orderId));

@@ -14,7 +14,6 @@ class Mensajes extends Model
     protected $fillable = [
         'conversacionId',
         'usuarioId',
-        'emisor',
         'contenido',
         'leido',
         'creadoEn'

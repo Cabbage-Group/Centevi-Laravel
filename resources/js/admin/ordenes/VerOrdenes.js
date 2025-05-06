@@ -135,7 +135,6 @@ const VerOrdenes = () => {
   };
 
   const handleCorrectionsChangeFase = (values) => {
-    console.log('entre')
     setCorrectionsFilterFase(values);
   };
 

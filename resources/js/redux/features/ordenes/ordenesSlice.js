@@ -17,6 +17,7 @@ export const fecthOrdenes = createAsyncThunk(
     sucursal = '',
     laboratorio = '',
     fase = '',
+    proveedor = '',
     startDate = '',
     endDate = '',
   }) => {
@@ -35,7 +36,8 @@ export const fecthOrdenes = createAsyncThunk(
         estados,
         lenteContacto,
         laboratorio,
-        fase
+        fase,
+        proveedor
       },);
     return response.data;
   }
