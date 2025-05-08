@@ -44,27 +44,29 @@ const ChatComponent = () => {
 
         newSocket.on("onMessage", (data) => {
             console.log("📩 Mensaje recibido:", data);
-            dispatch(addMessage(data));
+            dispatch(addMessage({
+                ...data,
+                estado: "ENVIADO"
+            }));
         });
+
 
         newSocket.on("privateMessage", (message) => {
             console.log("Nuevo mensaje privado recibido:", message);
-            
+
             const audio = new Audio("/sounds/SonidoChat.mp3");
             audio.play().catch((e) => {
                 console.warn("No se pudo reproducir el sonido:", e);
-                
+
                 if (Notification.permission === "granted") {
                     new Notification("Nuevo mensaje privado", {
-                        body: "Necesita interactuar con la pagina" 
+                        body: "Necesita interactuar con la pagina"
                     });
                 } else if (Notification.permission !== "denied") {
                     Notification.requestPermission();
                 }
             });
         });
-        
-
 
         newSocket.on("updateConversations", (updatedConversations) => {
             dispatch(updateConversations(updatedConversations));
@@ -97,23 +99,57 @@ const ChatComponent = () => {
             console.log("⚠️ Falta mensaje o archivo");
             return;
         }
-        socket.emit(
-            "createChat",
-            {
-                id_usuario,
-                receptorId,
-                mensaje: message,
+        if (message) {
+            const tempId = "temp-" + Date.now();
+
+            const tempMessage = {
+                id: tempId,
+                contenido: message,
+                usuarioId: Number(id_usuario),
+                conversacionId: null,
                 archivoUrl: null,
                 tipoArchivo: null,
                 nombreArchivo: null,
-            }
-        );
+                estado: "PENDIENTE",
+                creadoEn: new Date().toISOString()
+            };
 
-        setMessage("");
+            dispatch(addMessage(tempMessage));
+
+            socket.emit(
+                "createChat",
+                {
+                    id_usuario,
+                    receptorId,
+                    estado: "ENVIADO",
+                    mensaje: message,
+                    archivoUrl: null,
+                    tipoArchivo: null,
+                    nombreArchivo: null,
+                    tempId
+                }
+            );
+
+            setMessage("");
+        }
 
         if (fileToSend) {
             try {
+                const tempId = "temp-" + Date.now();
+
                 const resultAction = await dispatch(uploadFile(fileToSend));
+
+                const tempMessageFile = {
+                    id: tempId,
+                    usuarioId: Number(id_usuario),
+                    archivoUrl: resultAction.payload.archivoUrl,
+                    tipoArchivo: resultAction.payload.tipoArchivo,
+                    nombreArchivo: resultAction.payload.nombreArchivo,
+                    estado: "PENDIENTE"
+                };
+
+                dispatch(addMessage(tempMessageFile));
+
                 if (uploadFile.fulfilled.match(resultAction)) {
                     const fileData = resultAction.payload;
                     socket.emit(
@@ -122,9 +158,11 @@ const ChatComponent = () => {
                             id_usuario,
                             receptorId,
                             mensaje: "",
+                            estado: "ENVIADO",
                             archivoUrl: fileData.archivoUrl,
                             tipoArchivo: fileData.tipoArchivo,
                             nombreArchivo: fileData.nombreArchivo,
+                            tempId
                         }
                     );
                 } else {

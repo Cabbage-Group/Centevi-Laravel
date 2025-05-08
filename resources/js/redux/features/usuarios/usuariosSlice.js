@@ -134,7 +134,7 @@ export const fetchUsuariosExceptOne = createAsyncThunk(
   'usuarios/fetchUsuariosExceptOne',
   async (excludeId) => {
     try {
-      const response = await axios.get(`/api/usuarios/exclude`, {
+      const response = await axios.get(`${API}/usuarios/exclude`, {
         params: { exclude_id: excludeId }
       });
       return response.data;
@@ -256,7 +256,9 @@ const usuariosSlice = createSlice({
       })
       .addCase(fetchUsuariosExceptOne.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.usuarios_except_one = action.payload.data;
+        state.usuarios_except_one = action.payload.data
+          .filter(usuario => usuario.estado === 1);
+        // state.usuarios_except_one = action.payload.data;
       });
 
   },

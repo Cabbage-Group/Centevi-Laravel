@@ -56,8 +56,19 @@ const chatSlice = createSlice({
   },
   reducers: {
     addMessage: (state, action) => {
-      console.log('hola')
-      state.messages.push(action.payload);
+
+      const nuevoMensaje = action.payload;
+
+      if (nuevoMensaje.tempId) {
+        const index = state.messages.findIndex(m => m.id === nuevoMensaje.tempId);
+        if (index !== -1) {
+          state.messages[index] = nuevoMensaje;
+        } else {
+          state.messages.push(nuevoMensaje);
+        }
+      } else {
+        state.messages.push(nuevoMensaje);
+      }
     },
     updateConversations: (state, action) => {
       console.log('action.payload:', action.payload)
