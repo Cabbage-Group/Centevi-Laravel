@@ -192,7 +192,13 @@ class AgendaApiController extends Controller
             return response()->json(['message' => 'Cita no encontrada'], 404);
         }
 
-        $citaEliminada = $cita->toArray(); // Guardamos los datos antes de eliminar
+        // $citaEliminada = $cita->toArray(); // Guardamos los datos antes de eliminar
+        $citaEliminada = array_map(function ($value) {
+            if (is_string($value)) {
+                return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+            }
+            return $value;
+        }, $cita->toArray());
 
         if ($cita->ex_proxima_cita == 1 || $cita->ex_proxima_cita === true) {
             $origenTabla = $cita->origen_tabla;

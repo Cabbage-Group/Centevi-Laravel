@@ -36,7 +36,8 @@ const ChatComponent = () => {
 
         if (!id_usuario || !token_user) return;
 
-        const newSocket = io("http://localhost:3009", {
+        const newSocket = io("http://localhost:3001", {
+        // const newSocket = io("https://backend-contabilidad.centevi.digital", {
             transports: ["websocket"],
             query: { id_usuario },
             auth: { token_user },

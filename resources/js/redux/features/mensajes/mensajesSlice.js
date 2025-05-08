@@ -3,6 +3,7 @@ import axios from "axios";
 import API from '../../../config/config.js';
 
 const API_URL = "http://127.0.0.1:3008";
+// const API_URL = "https://backend-contabilidad.centevi.digital";
 
 export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",
