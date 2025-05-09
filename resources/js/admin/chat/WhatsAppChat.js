@@ -6,7 +6,9 @@ import {
   CalendarOutlined,
   DeleteOutlined,
   DiffOutlined,
-  CloseOutlined
+  CloseOutlined,
+  CloseCircleFilled,
+  LoadingOutlined
 
 } from '@ant-design/icons';
 import dayjs from "dayjs";
@@ -22,6 +24,7 @@ import { fetchOrdenesMenciones } from "../../redux/features/ordenes/ordenesSlice
 import PdfThumbnail from "./PdfImage";
 import FilePreview from "./FilePreview";
 import SearchUsersChat from "./SearchUsersChat";
+import { Spin } from "antd";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -42,7 +45,10 @@ const WhatsAppChat = ({
   openFileExplorer = { openFileExplorer },
   fileToSend,
   setFileToSend,
-  conversations
+  conversations,
+  status,
+  searchName,
+  setSearchName,
 }) => {
 
   const dispatch = useDispatch();
@@ -239,6 +245,16 @@ const WhatsAppChat = ({
                 prefix={<SearchOutlined
                   style={{ color: "#919191" }}
                 />}
+                suffix={
+                  searchName && (
+                    <CloseCircleFilled
+                      onClick={() => setSearchName("")}
+                      style={{ color: "#919191", cursor: "pointer" }}
+                    />
+                  )
+                }
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
                 placeholder="Buscar un nuevo chat"
                 className="custom-input"
                 style={{
@@ -260,8 +276,10 @@ const WhatsAppChat = ({
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    setReceptorId(item?.userId)
-                    setReceptorName(item?.name)
+                    if (status == 'succeeded') {
+                      setReceptorId(item?.userId)
+                      setReceptorName(item?.name)
+                    }
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#eaeaea")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = activeChat === item?.userId ? "#eaeaea" : "white")}
@@ -379,7 +397,19 @@ const WhatsAppChat = ({
               </Button>
             )}
           </Header>
-          {fileToSend ? (
+          {status === "loading" ? (
+            <div
+              style={{
+                height: "80vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                background: "#E9EDEF",
+              }}
+            >
+              <Spin indicator={<LoadingOutlined spin />} size="large" />
+            </div>
+          ) : fileToSend ? (
             <div
               style={{
                 background: "#E9EDEF",
@@ -389,7 +419,6 @@ const WhatsAppChat = ({
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
-
               }}
             >
               <CloseOutlined
@@ -400,7 +429,7 @@ const WhatsAppChat = ({
                   left: "8px",
                   cursor: "pointer",
                   fontSize: "16px",
-                  color: "#555"
+                  color: "#555",
                 }}
               />
               <h3 style={{ textAlign: "center", marginBottom: "20px" }}>{fileToSend.name}</h3>
@@ -411,7 +440,7 @@ const WhatsAppChat = ({
                   justifyContent: "center",
                   alignItems: "center",
                   maxWidth: "100%",
-                  maxHeight: "80vh"
+                  maxHeight: "80vh",
                 }}
               >
                 <PdfThumbnail fileToSend={fileToSend} />
@@ -422,7 +451,6 @@ const WhatsAppChat = ({
               style={{
                 flexGrow: 1,
                 overflowY: "auto",
-                background: "white",
                 backgroundImage: "url('/img/fondo_wsp_blanco.jpg')",
                 backgroundRepeat: "repeat",
                 backgroundSize: "contain",
@@ -437,7 +465,9 @@ const WhatsAppChat = ({
                       key={index}
                       className="flex mb-1"
                       style={{
-                        justifyContent: msg.usuarioId == id_usuario ? "flex-end" : "flex-start",
+                        justifyContent: msg.usuarioId == localStorage.getItem("id_usuario")
+                          ? "flex-end"
+                          : "flex-start",
                         display: "flex",
                         alignItems: "flex-end",
                       }}
@@ -445,7 +475,7 @@ const WhatsAppChat = ({
                       <div
                         className="relative px-2 py-1 rounded-lg shadow-sm"
                         style={{
-                          backgroundColor: msg.usuarioId == id_usuario ? "#005C4B" : "#202C33",
+                          backgroundColor: msg.usuarioId == localStorage.getItem("id_usuario") ? "#005C4B" : "#202C33",
                           color: "#FFFFFF",
                           maxWidth: "75%",
                           textAlign: "left",
@@ -456,21 +486,46 @@ const WhatsAppChat = ({
                         }}
                       >
                         <div style={{ wordBreak: "break-word" }}>
-                          {msg.tipoArchivo ? (
-                            <FilePreview msg={msg} />
-                          ) : (
-                            formatMessage(msg.contenido)
-                          )}
+                          {msg.tipoArchivo ? <FilePreview msg={msg} /> : formatMessage(msg.contenido)}
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end", alignSelf: "flex-end", marginLeft: "5px", marginBottom: "-2px" }}>
-                          <span style={{ fontSize: "10px", whiteSpace: "nowrap", color: "rgba(255, 255, 255, 0.6)" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignSelf: "flex-end",
+                            marginLeft: "5px",
+                            marginBottom: "-2px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              whiteSpace: "nowrap",
+                              color: "rgba(255, 255, 255, 0.6)",
+                            }}
+                          >
                             {dayjs(msg.creadoEn).tz(dayjs.tz.guess()).format("h:mm a")}
                           </span>
-                        
                         </div>
-                        <div style={{ display: "flex", justifyContent: "flex-end", alignSelf: "flex-end", marginLeft: "5px", marginBottom: "-2px" }}>
-                          <span style={{ fontSize: "12px", color: "#d1d1d1", marginRight: "12px" }} title={msg.estado === "PENDIENTE" ? "Pendiente" : "Enviado"}>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignSelf: "flex-end",
+                            marginLeft: "5px",
+                            marginBottom: "-2px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#d1d1d1",
+                              marginRight: "12px",
+                            }}
+                            title={msg.estado === "PENDIENTE" ? "Pendiente" : "Enviado"}
+                          >
                             {msg.estado === "PENDIENTE" ? "✓" : msg.estado === "ENVIADO" ? "✓✓" : null}
                           </span>
                         </div>
@@ -483,18 +538,18 @@ const WhatsAppChat = ({
             </div>
           )}
           <style jsx>{`
-            .custom-scroll::-webkit-scrollbar {
-                width: 6px;
-            }
-            .custom-scroll::-webkit-scrollbar-thumb {
-                background-color: rgba(90, 81, 81, 0.3);
-                border-radius: 6px;
-            }
-            .custom-scroll::-webkit-scrollbar-track {
-                background: transparent;
-            }
-                
-        `}</style>
+        .custom-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+          background-color: rgba(90, 81, 81, 0.3);
+          border-radius: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+      `}</style>
+
 
           {fileToSend ? (
             <Footer

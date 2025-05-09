@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { fetchUsuariosExceptOne } from "../js/redux/features/usuarios/usuariosSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage, fetchConversations, fetchMessages, updateConversations, uploadFile } from "../js/redux/features/mensajes/mensajesSlice";
+import { addMessage, clearMessages, fetchConversations, fetchMessages, updateConversations, uploadFile } from "../js/redux/features/mensajes/mensajesSlice";
 import WhatsAppChat from "../js/admin/chat/WhatsAppChat";
 import { useRef } from "react";
 
@@ -13,11 +13,14 @@ const ChatComponent = () => {
     const [socket, setSocket] = useState(null);
     const [fileToSend, setFileToSend] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
+    const [searchName, setSearchName] = useState("");
     const id_usuario = localStorage.getItem("id_usuario");
     const { usuarios_except_one } = useSelector((state) => state.usuarios);
     const messages = useSelector((state) => state.chat.messages);
+    const status = useSelector((state) => state.chat.status);
     const conversations = useSelector((state) => state.chat.conversations);
     const messageEndRef = useRef(null);
+
 
     useEffect(() => {
         dispatch(fetchUsuariosExceptOne(Number(id_usuario)))
@@ -25,12 +28,19 @@ const ChatComponent = () => {
 
     useEffect(() => {
         if (!id_usuario || !receptorId) return;
+        dispatch(clearMessages())
         dispatch(fetchMessages({ id_usuario, receptorId }));
     }, [dispatch, receptorId]);
 
     useEffect(() => {
+        dispatch(fetchConversations(
+            {
+                id_usuario: Number(id_usuario),
+                name: searchName
+            }));
+    }, [searchName])
 
-        dispatch(fetchConversations(Number(id_usuario)));
+    useEffect(() => {
 
         const token_user = localStorage.getItem("token_user");
 
@@ -214,6 +224,9 @@ const ChatComponent = () => {
                 fileToSend={fileToSend}
                 setFileToSend={setFileToSend}
                 conversations={conversations}
+                status={status}
+                searchName={searchName}
+                setSearchName={setSearchName}
             />
         </div>
     );
