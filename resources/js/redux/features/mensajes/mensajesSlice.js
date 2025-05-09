@@ -31,15 +31,16 @@ export const fetchUsuariosOrderByMessages = createAsyncThunk(
   "chat/fetchUsuariosOrderByMessages",
   async (id_usuario) => {
     const response = await axios.post(`${API_URL}/usuarios/get`, { id_usuario });
-    console.log('response:', response)
     return response.data;
   }
 );
 
 export const fetchConversations = createAsyncThunk(
   "chat/fetchConversations ",
-  async (id_usuario) => {
-    const response = await axios.post(`${API_URL}/chat/conversations`, { id_usuario });
+  async ({ id_usuario, name }) => {
+    const response = await axios.post(`${API_URL}/chat/conversations`,
+      { id_usuario, name }
+    );
     console.log('response:', response)
     return response.data;
   }
@@ -53,18 +54,32 @@ const chatSlice = createSlice({
     usuariosByMessages: [],
     conversations: [],
     conversationsLength: 0,
-    status: "idle",
+    status: "succeeded",
+    status_conversations: 'idle'
   },
   reducers: {
     addMessage: (state, action) => {
-      console.log('hola')
-      state.messages.push(action.payload);
+
+      const nuevoMensaje = action.payload;
+
+      if (nuevoMensaje.tempId) {
+        const index = state.messages.findIndex(m => m.id === nuevoMensaje.tempId);
+        if (index !== -1) {
+          state.messages[index] = nuevoMensaje;
+        } else {
+          state.messages.push(nuevoMensaje);
+        }
+      } else {
+        state.messages.push(nuevoMensaje);
+      }
     },
     updateConversations: (state, action) => {
-      console.log('action.payload:', action.payload)
       state.conversations = action.payload;
       state.conversationsLength = action.payload.length;
     },
+    clearMessages: (state) => {
+      state.messages = [];
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -90,16 +105,16 @@ const chatSlice = createSlice({
         state.uploadStatus = "failed";
       })
       .addCase(fetchUsuariosOrderByMessages.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status_conversations = "succeeded";
         state.usuariosByMessages = action.payload;
       })
       .addCase(fetchConversations.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status_conversations = "succeeded";
         state.conversations = action.payload.data;
         state.conversationsLength = action.payload.data.length;
       });
   },
 });
 
-export const { addMessage, updateConversations } = chatSlice.actions;
+export const { addMessage, updateConversations, clearMessages } = chatSlice.actions;
 export default chatSlice.reducer;

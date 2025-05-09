@@ -233,12 +233,12 @@ export const fetchContactoOrdenesDelPaciente = createAsyncThunk(
 
 export const fetchOrdenesMenciones = createAsyncThunk(
   'ordenes/fetchOrdenesMenciones',
-  async ({ search = '' }) => {
+  async (search) => {
 
     const response = await axios.get(`${API}/search/ordenes`, {
       params: { search }
     });
-    return response.data;
+    return response.data.data;
   }
 );
 
