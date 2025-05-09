@@ -56,6 +56,16 @@ export const fetchInterfuerza = createAsyncThunk(
   }
 );
 
+export const fetchMentionUsers = createAsyncThunk(
+  'mentions/fetchMentionUsers',
+  async (search) => {
+    const response = await axios.get(`${API}/menciones/pacientes`, {
+      params: { search }
+    });
+    return response.data.data;
+  }
+);
+
 const pacientesSlice = createSlice({
   name: 'pacientes',
   initialState: {
@@ -65,6 +75,7 @@ const pacientesSlice = createSlice({
     pacientes_options_agenda: [],
     pacientes_menciones: [],
     pacientes_options_cotizacion: [],
+    users: [],
     meta: {},
     status: 'idle',
     statusInterfuerza: 'idle',
@@ -159,6 +170,18 @@ const pacientesSlice = createSlice({
         console.log(' action:', action)
         state.statusInterfuerza = 'failed';
         state.errorInterfaz = action.error.message;
+      })
+      .addCase(fetchMentionUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMentionUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = action.payload;
+      })
+      .addCase(fetchMentionUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });

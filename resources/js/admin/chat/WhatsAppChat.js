@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Row, Col, Input, Avatar, List, Button, Radio, Typography, Badge, Layout, Modal, Popconfirm, DatePicker, Tooltip, FloatButton, Dropdown, Menu } from "antd";
 import {
   SendOutlined,
@@ -6,7 +6,9 @@ import {
   CalendarOutlined,
   DeleteOutlined,
   DiffOutlined,
-  CloseOutlined
+  CloseOutlined,
+  CloseCircleFilled,
+  LoadingOutlined
 
 } from '@ant-design/icons';
 import dayjs from "dayjs";
@@ -16,12 +18,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import { MentionsInput, Mention } from "react-mentions";
 import { Link } from "react-router-dom";
-import { fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
+import { fetchMentionUsers, fetchPacientesMenciones } from "../../redux/features/pacientes/pacientesSlice";
 import '../../../css/chatMentions/styles.css'
 import { fetchOrdenesMenciones } from "../../redux/features/ordenes/ordenesSlice";
 import PdfThumbnail from "./PdfImage";
 import FilePreview from "./FilePreview";
 import SearchUsersChat from "./SearchUsersChat";
+import { Spin } from "antd";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
@@ -42,7 +45,10 @@ const WhatsAppChat = ({
   openFileExplorer = { openFileExplorer },
   fileToSend,
   setFileToSend,
-  conversations
+  conversations,
+  status,
+  searchName,
+  setSearchName,
 }) => {
 
   const dispatch = useDispatch();
@@ -52,59 +58,18 @@ const WhatsAppChat = ({
   const [eventDates, setEventDates] = useState([dayjs(), dayjs().add(1, "day")]);
   const [eventDescription, setEventDescription] = useState("");
   const [eventTitle, setEventTitle] = useState("");
-  const [search, setSearch] = useState("");
-  const [searchOrden, setSearchOrden] = useState("");
-  const [searchType, setSearchType] = useState("orden");
-  const [input, setInput] = useState("");
   const [receptorName, setReceptorName] = useState("")
-  const [conversationId, setConversationId] = useState("")
   const id_usuario = localStorage.getItem("id_usuario");
+  const [allMenciones, setAllMenciones] = useState();
+  const [bus, setBus] = useState();
 
   const {
     doctores_menciones
   } = useSelector((state) => state.usuarios);
 
-  const {
-    pacientes_menciones
-  } = useSelector((state) => state.pacientes);
-
-  const {
-    ordenes_menciones
-  } = useSelector((state) => state.ordenes);
-
   useEffect(() => {
-    dispatch(fetchUsuarios({}))
-  }, [])
-
-  useEffect(() => {
-    dispatch(fetchOrdenesMenciones({ search: searchOrden }));
-  }, [searchOrden, dispatch]);
-
-
-  useEffect(() => {
-    dispatch(fetchPacientesMenciones({ search: search }));
-  }, [search, dispatch]);
-
-  const allMenciones = [
-    ...doctores_menciones.map((doc) => ({
-      id: doc.id.toString(),
-      display: doc.display,
-      type: "doctor",
-    })),
-    ...pacientes_menciones.map((pac) => ({
-      id: pac.id.toString(),
-      display: pac.display,
-      type: "paciente",
-    })),
-  ];
-
-  const ordenesMencionesFormatted = ordenes_menciones
-    ? ordenes_menciones.map((orden) => ({
-      id: String(orden.id),
-      display: String(orden.display),
-      id_paciente: orden.id_paciente
-    }))
-    : [];
+    dispatch(fetchUsuarios({ search: bus }))
+  }, [bus])
 
   useEffect(() => {
     if (messageEndRef && messageEndRef?.current) {
@@ -116,12 +81,12 @@ const WhatsAppChat = ({
   const formatMessage = (message) => {
     if (!message) return [""];
 
-    // Si el mensaje es un objeto (archivo), devuelve solo el nombre del archivo
     if (typeof message === "object" && message.type === "file") {
       return [`📎 Archivo adjunto: `, message.fileName];
     }
 
     if (typeof message !== "string") return [""];
+
     return message.split(/(@\[[^\]]+\]\(\d+\)|#\[\d+\]\(\d+\))/g).map((part, index) => {
       if (!part) return null;
 
@@ -130,42 +95,46 @@ const WhatsAppChat = ({
         const name = mentionMatch[1];
         const id = mentionMatch[2];
 
-        const isDoctor = doctores_menciones.some((doc) => doc.id.toString() === id);
+        // const isDoctor = doctores_menciones.some((doc) => doc.id.toString() === id);
         return (
-          <Link
+          <a
             key={`mention-${index}`}
-            to={isDoctor ? `/doctores/${id}` : `/historia-paciente/${id}`}
+            href={`/historia-paciente/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              color: isDoctor ? "#128C7E" : "#ff4500",
+              color: "#ffffff",
               fontWeight: "bold",
               textDecoration: "none",
             }}
           >
             @{name}
-          </Link>
+          </a>
         );
       }
 
-      const orderMatch = part.match(/#\[(\d+)\]\((\d+)\)/);
+      const orderMatch = part.match(/#\[(\d+)\]\((\d+)\|(\d+)\)/);
+
       if (orderMatch) {
         const display = orderMatch[1];
         const id = orderMatch[2];
-        const orden = ordenesMencionesFormatted.find((o) => o.id.toString() === id);
-        console.log('orden3233333:', orden)
-        const idPaciente = orden ? orden.id_paciente : null;
+        const idPaciente = orderMatch[3];
 
         return (
-          <Link
+          <a
             key={`order-${index}`}
-            to={`/orden-receta/${id}/${display}/${idPaciente}`}
+            href={`/orden-receta/${id}/${display}/${idPaciente}`}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              color: "#0000ff",
+              color: "#fa8c16",
               fontWeight: "bold",
               textDecoration: "none",
             }}
           >
             #{display}
-          </Link>
+          </a>
+
         );
       }
 
@@ -176,6 +145,48 @@ const WhatsAppChat = ({
   const getAvatarColor = (index) => {
     const colors = ['#128C7E', '#075E54', '#25D366', '#34B7F1', '#4FCE5D'];
     return colors[index % colors.length];
+  };
+
+  const fetchData = async (search, callback) => {
+    try {
+      const response = await dispatch(fetchMentionUsers(search));
+      const data = response.payload;
+
+      const allMenciones = [
+        ...doctores_menciones.map((doc) => ({
+          id: doc.id.toString(),
+          display: doc.display,
+          type: "doctor",
+        })),
+        ...data.map((pac) => ({
+          id: pac.id.toString(),
+          display: pac.display,
+          type: "paciente",
+        }))
+      ]
+      callback(allMenciones);
+      setAllMenciones(allMenciones)
+      setBus(search)
+    } catch (error) {
+      console.error('Error al buscar usuarios:', error);
+      callback([]);
+    }
+  };
+
+  const fetchDataNroOrden = async (search, callback) => {
+    try {
+      const response = await dispatch(fetchOrdenesMenciones(search));
+      const data = response.payload;
+      const dataConPaciente = data.map((orden) => ({
+        id: `${orden.id}|${orden.id_paciente}`,
+        display: orden.display,
+        id_paciente: orden.id_paciente,
+      }));
+      callback(dataConPaciente);
+    } catch (error) {
+      console.error('Error al buscar nro orden:', error);
+      callback([]);
+    }
   };
 
   const resetForm = () => {
@@ -203,9 +214,6 @@ const WhatsAppChat = ({
       document.body.style.overflow = "auto";
     };
   }, []);
-
-
-  console.log('conversations',conversations)
 
   return (
 
@@ -237,6 +245,16 @@ const WhatsAppChat = ({
                 prefix={<SearchOutlined
                   style={{ color: "#919191" }}
                 />}
+                suffix={
+                  searchName && (
+                    <CloseCircleFilled
+                      onClick={() => setSearchName("")}
+                      style={{ color: "#919191", cursor: "pointer" }}
+                    />
+                  )
+                }
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
                 placeholder="Buscar un nuevo chat"
                 className="custom-input"
                 style={{
@@ -258,8 +276,10 @@ const WhatsAppChat = ({
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    setReceptorId(item?.userId)
-                    setReceptorName(item?.name)
+                    if (status == 'succeeded') {
+                      setReceptorId(item?.userId)
+                      setReceptorName(item?.name)
+                    }
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#eaeaea")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = activeChat === item?.userId ? "#eaeaea" : "white")}
@@ -377,7 +397,19 @@ const WhatsAppChat = ({
               </Button>
             )}
           </Header>
-          {fileToSend ? (
+          {status === "loading" ? (
+            <div
+              style={{
+                height: "80vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                background: "#E9EDEF",
+              }}
+            >
+              <Spin indicator={<LoadingOutlined spin />} size="large" />
+            </div>
+          ) : fileToSend ? (
             <div
               style={{
                 background: "#E9EDEF",
@@ -387,7 +419,6 @@ const WhatsAppChat = ({
                 alignItems: "center",
                 justifyContent: "center",
                 position: "relative",
-
               }}
             >
               <CloseOutlined
@@ -398,7 +429,7 @@ const WhatsAppChat = ({
                   left: "8px",
                   cursor: "pointer",
                   fontSize: "16px",
-                  color: "#555"
+                  color: "#555",
                 }}
               />
               <h3 style={{ textAlign: "center", marginBottom: "20px" }}>{fileToSend.name}</h3>
@@ -409,7 +440,7 @@ const WhatsAppChat = ({
                   justifyContent: "center",
                   alignItems: "center",
                   maxWidth: "100%",
-                  maxHeight: "80vh"
+                  maxHeight: "80vh",
                 }}
               >
                 <PdfThumbnail fileToSend={fileToSend} />
@@ -420,7 +451,6 @@ const WhatsAppChat = ({
               style={{
                 flexGrow: 1,
                 overflowY: "auto",
-                background: "white",
                 backgroundImage: "url('/img/fondo_wsp_blanco.jpg')",
                 backgroundRepeat: "repeat",
                 backgroundSize: "contain",
@@ -435,7 +465,9 @@ const WhatsAppChat = ({
                       key={index}
                       className="flex mb-1"
                       style={{
-                        justifyContent: msg.usuarioId == id_usuario ? "flex-end" : "flex-start",
+                        justifyContent: msg.usuarioId == localStorage.getItem("id_usuario")
+                          ? "flex-end"
+                          : "flex-start",
                         display: "flex",
                         alignItems: "flex-end",
                       }}
@@ -443,7 +475,7 @@ const WhatsAppChat = ({
                       <div
                         className="relative px-2 py-1 rounded-lg shadow-sm"
                         style={{
-                          backgroundColor: msg.usuarioId == id_usuario ? "#005C4B" : "#202C33",
+                          backgroundColor: msg.usuarioId == localStorage.getItem("id_usuario") ? "#005C4B" : "#202C33",
                           color: "#FFFFFF",
                           maxWidth: "75%",
                           textAlign: "left",
@@ -454,16 +486,47 @@ const WhatsAppChat = ({
                         }}
                       >
                         <div style={{ wordBreak: "break-word" }}>
-                          {msg.tipoArchivo ? (
-                            <FilePreview msg={msg} />
-                          ) : (
-                            formatMessage(msg.contenido)
-                          )}
+                          {msg.tipoArchivo ? <FilePreview msg={msg} /> : formatMessage(msg.contenido)}
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end", alignSelf: "flex-end", marginLeft: "5px", marginBottom: "-2px" }}>
-                          <span style={{ fontSize: "10px", whiteSpace: "nowrap", color: "rgba(255, 255, 255, 0.6)" }}>
-                            {dayjs(msg.creadoEn).tz(dayjs.tz.guess()).format('h:mm a')}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignSelf: "flex-end",
+                            marginLeft: "5px",
+                            marginBottom: "-2px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "10px",
+                              whiteSpace: "nowrap",
+                              color: "rgba(255, 255, 255, 0.6)",
+                            }}
+                          >
+                            {dayjs(msg.creadoEn).tz(dayjs.tz.guess()).format("h:mm a")}
+                          </span>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignSelf: "flex-end",
+                            marginLeft: "5px",
+                            marginBottom: "-2px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#d1d1d1",
+                              marginRight: "12px",
+                            }}
+                            title={msg.estado === "PENDIENTE" ? "Pendiente" : "Enviado"}
+                          >
+                            {msg.estado === "PENDIENTE" ? "✓" : msg.estado === "ENVIADO" ? "✓✓" : null}
                           </span>
                         </div>
                       </div>
@@ -475,18 +538,18 @@ const WhatsAppChat = ({
             </div>
           )}
           <style jsx>{`
-            .custom-scroll::-webkit-scrollbar {
-                width: 6px;
-            }
-            .custom-scroll::-webkit-scrollbar-thumb {
-                background-color: rgba(90, 81, 81, 0.3);
-                border-radius: 6px;
-            }
-            .custom-scroll::-webkit-scrollbar-track {
-                background: transparent;
-            }
-                
-        `}</style>
+        .custom-scroll::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+          background-color: rgba(90, 81, 81, 0.3);
+          border-radius: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+          background: transparent;
+        }
+      `}</style>
+
 
           {fileToSend ? (
             <Footer
@@ -498,7 +561,7 @@ const WhatsAppChat = ({
                 position: "absolute",
                 borderBottomLeftRadius: "6px",
                 borderBottomRightRadius: "6px",
-                zIndex: 10, // Asegura que este footer esté por encima
+                zIndex: 10,
               }}
             >
               <Row gutter={8} align="middle" justify="center">
@@ -516,7 +579,7 @@ const WhatsAppChat = ({
                       cursor: "pointer",
                     }}
                   >
-                    <SendOutlined style={{ color: "white", fontSize: "24px" }} /> {/* Cambia el icono aquí */}
+                    <SendOutlined style={{ color: "white", fontSize: "24px" }} />
                   </div>
                 </Col>
               </Row>
@@ -571,29 +634,13 @@ const WhatsAppChat = ({
                 </Col>
                 <Col flex="auto">
                   <MentionsInput
-                    className="mentions mentions--multiLine"
+                    className="mentions-input"
                     value={message}
                     allowSpaceInQuery={true}
+                    placeholder="Escribe @ para mencionar a alguien o # para una orden"
                     onChange={(e) => {
                       const value = e.target.value;
                       setMessage(value)
-                      const orderMatch = value.match(/#(\w*)/);
-
-                      if (orderMatch) {
-                        setSearchType("orden");
-                        setSearchOrden(orderMatch[1]);
-                        return;
-                      }
-
-                      const userMatch = value.match(/@([^\n\r@#]*)$/);
-
-                      if (userMatch) {
-                        console.log("Detectado usuario:", userMatch);
-                        setSearchType("usuario");
-                        setSearch(userMatch[1]);
-                        return;
-                      }
-                      setSearch("");
                     }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
@@ -601,7 +648,6 @@ const WhatsAppChat = ({
                         sendMessage()
                       }
                     }}
-                    placeholder="Escribe un mensaje"
                     style={{
                       suggestions: {
                         list: {
@@ -635,13 +681,11 @@ const WhatsAppChat = ({
                         borderColor: "#EAEAEA",
                         padding: "4px 10px",
                       },
-
                     }}
                   >
                     <Mention
                       trigger="@"
-                      data={searchType === "orden" ? [] : allMenciones}
-                      className="mentions__mention"
+                      data={fetchData}
                       displayTransform={(id, display) => {
                         const mention = allMenciones.find((item) => item.id === id);
                         const icon = mention?.type === "doctor" ? "🧑‍⚕️" : "🏥";
@@ -649,23 +693,23 @@ const WhatsAppChat = ({
                       }}
                       renderSuggestion={(suggestion) => (
                         <div style={{ padding: "5px", cursor: "pointer" }}>
-                          {suggestion.display} {suggestion.type === "doctor" ? "🧑‍⚕️" : "🏥"}
+                          {suggestion.display} {suggestion.type === 'doctor' ? '🧑‍⚕️' : '🏥'}
                         </div>
                       )}
+                      appendSpaceOnAdd
                     />
-
                     <Mention
                       trigger="#"
-                      data={searchType === "usuario" ? [] : ordenesMencionesFormatted}
-                      className="mentions__mention"
+                      data={fetchDataNroOrden}
                       markup="#[__display__](__id__)"
-                      displayTransform={(id, display) => `#${display}📄`}
-                      renderSuggestion={(suggestion) => (
-                        <div style={{ padding: "5px", cursor: "pointer" }}>
+                      displayTransform={(id, display) => `#${display}`}
+                      renderSuggestion={(suggestion, search, highlightedDisplay, index, focused) => (
+                        <div className={`orden-item ${focused ? 'focused' : ''}`}>
                           Orden #{suggestion.display} 📄
                         </div>
                       )}
-                    />
+                    >
+                    </Mention>
                   </MentionsInput>
                 </Col>
                 <Col>

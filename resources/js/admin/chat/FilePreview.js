@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { 
-  FileOutlined, 
-  DownloadOutlined, 
-  PictureOutlined, 
-  FilePdfOutlined, 
-  FileWordOutlined, 
-  FileExcelOutlined, 
-  FilePptOutlined 
+import {
+  FileOutlined,
+  DownloadOutlined,
+  PictureOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  FileExcelOutlined,
+  FilePptOutlined
 } from "@ant-design/icons";
 import axios from 'axios';
 
@@ -14,6 +14,11 @@ const FilePreview = ({ msg }) => {
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [error, setError] = useState(null);
+  const id_usuario = localStorage.getItem("id_usuario");
+  const isOwnMessage = msg.usuarioId == id_usuario;
+
+  console.log('msg:',msg)
+  console.log('isOwnMessage:', isOwnMessage)
 
   const renderFileIcon = () => {
     switch (msg.tipoArchivo) {
@@ -38,21 +43,21 @@ const FilePreview = ({ msg }) => {
     setError(null);
     try {
       const response = await axios({
-        url: msg.archivoUrl, // URL del archivo a descargar
+        url: msg.archivoUrl,
         method: "GET",
-        responseType: "blob", // Especificamos que la respuesta es un archivo binario
+        responseType: "blob",
       });
-      
+
       const fileURL = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = fileURL;
-      link.setAttribute("download", msg.nombreArchivo); // El nombre del archivo será el nombre que se pasa desde msg
+      link.setAttribute("download", msg.nombreArchivo);
       document.body.appendChild(link);
-      link.click(); // Simula un click para descargar
+      link.click();
       link.remove();
 
       setDownloading(false);
-      setDownloaded(true); // Indica que el archivo se descargó correctamente
+      setDownloaded(true);
     } catch (err) {
       setDownloading(false);
       setError("Error al descargar el archivo");
@@ -64,7 +69,7 @@ const FilePreview = ({ msg }) => {
     <div style={{ wordBreak: "break-word" }}>
       <div
         style={{
-          background: "#025E4D",
+          background: isOwnMessage ? "#025E4D" : "#202C33",
           padding: "10px",
           borderRadius: "10px",
           display: "flex",

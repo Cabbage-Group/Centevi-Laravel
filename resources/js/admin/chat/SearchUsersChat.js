@@ -1,22 +1,10 @@
 import { useState } from "react";
-import { Layout, Select, Avatar, Typography } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Layout} from "antd";
 
 const { Header } = Layout;
-const { Text } = Typography;
-const { Option } = Select;
 
-const SearchUsersChat = ({ users, setReceptorId, setReceptorName }) => {
-    const [selectedUser, setSelectedUser] = useState(null);
+const SearchUsersChat = () => {
 
-    const handleSelect = (userId) => {
-        const user = users.find(u => u.id_usuario === userId);
-        if (user) {
-            setReceptorId(user.id_usuario);
-            setReceptorName(user.nombre);
-            setSelectedUser(user);
-        }
-    };
 
     return (
         <Header
@@ -43,37 +31,6 @@ const SearchUsersChat = ({ users, setReceptorId, setReceptorName }) => {
             >
                 Chats
             </span>
-
-            <Select
-                showSearch
-                placeholder="Buscar usuario..."
-                style={{
-                    width: 250,
-                    borderRadius: "8px",
-                    backgroundColor: "#606060",
-                    color: "white",
-                }}
-                dropdownStyle={{ backgroundColor: "#E9EDEF", color: "white" }}
-                optionFilterProp="label"
-                onSelect={handleSelect}
-                filterOption={(input, option) =>
-                    option.label.toLowerCase().includes(input.toLowerCase())
-                }
-                suffixIcon={<SearchOutlined style={{ color: "#000000" }} />}
-            >
-                {users.map(user => (
-                    <Option
-                        key={user.id_usuario}
-                        value={user.id_usuario}
-                        label={user.nombre} 
-                    >
-                        <div className="flex items-center gap-3">
-                            <Avatar src={user.foto} size={24}>{!user.foto && user.nombre[0]}</Avatar>
-                            <Text style={{ color: "#000000" }}>{user.nombre}</Text>
-                        </div>
-                    </Option>
-                ))}
-            </Select>
         </Header>
     );
 };
