@@ -1,0 +1,296 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ComposedChart, Area, Line, } from 'recharts';
+import DateRangeSeparate from "../../reportes/DateRange";
+import { fetchKpisTiposCristales, fetchKpisTiposCristalesNoLimits, setFechaRangeTiposCristales, setFechaRangeTiposCristalesNoLimits } from "../../../redux/features/kpis/kpisTiposCristales/kpisTiposCristalesSlice";
+import { Col, Select, Row } from "antd";
+import KpisTiposCristalesVertical from "./KpisTipoCristalesVertical";
+
+const KpisTiposCristales = () => {
+  const dispatch = useDispatch();
+
+  const {
+    kpisTiposCristales,
+    kpisTipos_cristales_select_option,
+    kpisTiposCristalesNoLimits,
+    kpisTipos_cristales_select_option_no_limits,
+  } = useSelector((state) => state.kpisTiposCristales);
+
+  const [localStartDateTiposCristales, setLocalStartDateTiposCristales] = useState();
+  const [localEndDateTiposCristales, setLocalEndDateTiposCristales] = useState();
+  const [tiposCristalesFilter, setTiposCristalesFilter] = useState([]);
+
+  const [localStartDateTiposCristalesNoLimits, setLocalStartDateTiposCristalesNoLimits] = useState();
+  const [localEndDateTiposCristaleNoLimits, setLocalEndDateTiposCristalesNoLimits] = useState();
+  const [tiposCristalesFilterNoLimits, setTiposCristalesFilterNoLimits] = useState([]);
+
+
+  const handleDateApplyTiposCristales = (newStartDate, newEndDate) => {
+    setLocalStartDateTiposCristales(newStartDate);
+    setLocalEndDateTiposCristales(newEndDate);
+    dispatch(setFechaRangeTiposCristales({ startDate: newStartDate, endDate: newEndDate }));
+  };
+
+  const handleDateResetTiposCristales = () => {
+    setLocalStartDateTiposCristales(null);
+    setLocalEndDateTiposCristales(null);
+    dispatch(setFechaRangeTiposCristales({ startDate: null, endDate: null }));
+  };
+
+  useEffect(() => {
+    dispatch(fetchKpisTiposCristales({
+      startDate: localStartDateTiposCristales,
+      endDate: localEndDateTiposCristales,
+      name: tiposCristalesFilter
+    }));
+  }, [dispatch,
+    tiposCristalesFilter,
+    localStartDateTiposCristales,
+    localEndDateTiposCristales])
+
+  useEffect(() => {
+    dispatch(fetchKpisTiposCristalesNoLimits({
+      startDate: localStartDateTiposCristalesNoLimits,
+      endDate: localEndDateTiposCristaleNoLimits,
+      name: tiposCristalesFilterNoLimits
+    }));
+  }, [dispatch,
+    tiposCristalesFilterNoLimits,
+    localStartDateTiposCristalesNoLimits,
+    localEndDateTiposCristaleNoLimits])
+
+
+  const handleChangeTiposCristales = (value) => {
+    setTiposCristalesFilter(value);
+  };
+
+  const truncateXAxisTiposCristales = (value) => {
+    return value.length > 10 ? value.substring(0, 10) + "..." : value;
+  };
+
+  const CustomTooltipBarras = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          background: "#f9f9f9",
+          color: "#000",
+          padding: "10px",
+          borderRadius: "5px",
+          border: "1px solid #ddd",
+          boxShadow: "0px 2px 5px rgba(0,0,0,0.2)"
+        }}>
+          <p style={{ margin: 0, fontWeight: "bold" }}>{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ margin: "5px 0", color: entry.color }}>
+              {entry.name}: <strong>{entry.value}</strong>
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleDateApplyTiposCristalesNoLimits = (newStartDate, newEndDate) => {
+    setLocalStartDateTiposCristales(newStartDate);
+    setLocalEndDateTiposCristales(newEndDate);
+    dispatch(setFechaRangeTiposCristales({ startDate: newStartDate, endDate: newEndDate }));
+  };
+
+  const handleDateResetTiposCristalesNoLimits = () => {
+    setLocalStartDateTiposCristalesNoLimits(null);
+    setLocalEndDateTiposCristalesNoLimits(null);
+    dispatch(setFechaRangeTiposCristalesNoLimits({ startDate: null, endDate: null }));
+  };
+
+  const handleChangeTiposCristalesNoLimits = (value) => {
+    setTiposCristalesFilterNoLimits(value);
+  };
+
+  const truncateXAxisTiposCristalesNoLimits = (value) => {
+    return value.length > 10 ? value.substring(0, 10) + "..." : value;
+  };
+
+  return (
+    <div>
+      <div>
+        <Row gutter={[16, 16]}>
+
+          <Col xxl={12} xl={12} md={12}>
+            <KpisTiposCristalesVertical
+              limit={70}
+            />
+          </Col>
+          <Col xxl={12} xl={12} md={12}>
+            <Row>
+              <Col xxl={24} xl={24} md={24}>
+                <div
+                  style={{
+                    background: 'white',
+                    padding: '15px',
+                    height: '600px',
+                    borderRadius: '15px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginTop: '15px',
+                    position: 'relative'
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute', background: 'orange', paddingLeft: '10px', paddingRight: '10px', paddingTop: '2px', paddingBottom: '2px',
+                      bottom: '10px', right: '20px', fontSize: '10px', color: 'white', borderRadius: '8px'
+                    }}
+                  >
+                    Tipos Cristales
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: "center", gap: "10px" }}>
+                    <DateRangeSeparate
+                      onApply={handleDateApplyTiposCristales}
+                      onReset={handleDateResetTiposCristales}
+                      isMonthPicker={true}
+                    />
+                    <div
+                      style={{
+                        display: "flex", flexDirection: "column", marginTop: '-32px',
+                        borderLeft: '1px solid gray',
+                        paddingLeft: '12px'
+                      }}
+                    >
+                      <label>Filtrar por Tipo de Cristal:</label>
+                      <Select
+                        mode="multiple"
+                        style={{ width: '200px' }}
+                        placeholder="Selecciona el tipo de cristal"
+                        onChange={handleChangeTiposCristales}
+                        value={tiposCristalesFilter || undefined}
+                        allowClear
+                      >
+                        {kpisTipos_cristales_select_option.map(tipoCristal => (
+                          <Select.Option key={tipoCristal.value} value={tipoCristal.label}>
+                            {tipoCristal.label}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={kpisTiposCristales}
+                        margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                        isAnimationActive={false}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                          interval={0}
+                          tickFormatter={truncateXAxisTiposCristales}
+                        />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
+                        <Legend
+                          verticalAlign="top"
+                          align="center"
+
+                        />
+                        <Bar dataKey="total" stackId="a" fill="#8884d8" />
+
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </ div>
+              </Col>
+              <Col xxl={24} xl={24} md={24}>
+                <div
+                  style={{
+                    background: 'white',
+                    padding: '15px',
+                    height: '600px',
+                    borderRadius: '15px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    marginTop: '15px',
+                    position: 'relative'
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute', background: 'orange', paddingLeft: '10px', paddingRight: '10px', paddingTop: '2px', paddingBottom: '2px',
+                      bottom: '10px', right: '20px', fontSize: '10px', color: 'white', borderRadius: '8px'
+                    }}
+                  >
+                    Tipos Cristales Sin limites
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: "center", gap: "10px" }}>
+                    <DateRangeSeparate
+                      onApply={handleDateApplyTiposCristalesNoLimits}
+                      onReset={handleDateResetTiposCristalesNoLimits}
+                      isMonthPicker={true}
+                    />
+                    <div
+                      style={{
+                        display: "flex", flexDirection: "column", marginTop: '-32px',
+                        borderLeft: '1px solid gray',
+                        paddingLeft: '12px'
+                      }}
+                    >
+                      <label>Filtrar por Tipo de Cristal:</label>
+                      <Select
+                        mode="multiple"
+                        style={{ width: '200px' }}
+                        placeholder="Selecciona el tipo de cristal"
+                        onChange={handleChangeTiposCristalesNoLimits}
+                        value={tiposCristalesFilterNoLimits || undefined}
+                        allowClear
+                      >
+                        {kpisTipos_cristales_select_option_no_limits.map(tipoCristal => (
+                          <Select.Option key={tipoCristal.value} value={tipoCristal.label}>
+                            {tipoCristal.label}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={kpisTiposCristalesNoLimits}
+                        margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+                        isAnimationActive={false}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
+                          interval={0}
+                          tickFormatter={truncateXAxisTiposCristalesNoLimits}
+                        />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
+                        <Legend
+                          verticalAlign="top"
+                          align="center"
+
+                        />
+                        <Bar dataKey="total" stackId="a" fill="#8884d8" />
+
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </ div>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </div>
+    </div>
+  )
+}
+
+export default KpisTiposCristales

@@ -15,6 +15,8 @@ class DocumentosPacientes extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id_documento';
 
+    public $timestamps = false;
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'url',

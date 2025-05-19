@@ -15,6 +15,8 @@ class PacientesMenores extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id_paciente';
 
+    public $timestamps = false;
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'nombres',

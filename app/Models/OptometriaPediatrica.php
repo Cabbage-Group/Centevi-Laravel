@@ -7,56 +7,74 @@ use Illuminate\Database\Eloquent\Model;
 
 class OptometriaPediatrica extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    // Nombre de la tabla
-    protected $table = 'optometria_pediatrica';
+  // Nombre de la tabla
+  protected $table = 'optometria_pediatrica';
 
-    // Clave primaria de la tabla
-    protected $primaryKey = 'id_consulta';
+  // Clave primaria de la tabla
+  protected $primaryKey = 'id_consulta';
 
-    // Atributos que son asignables en masa
-    protected $fillable = [
-        'sucursal',
-        'doctor',
-        'paciente',
-        'id_terapia',
-        'edad',
-        'fecha_atencion',
-        'm_c',
-        'a_o',
-        'a_p',
-        'a_f',
-        'medicamentos',
-        'tratamientos',
-        'desarrollo',
-        'nacimiento',
-        'parto',
-        'incubadora',
-        'tiempo',
-        'av_sc',
-        'av_cc',
-        'ojo_dominante',
-        'mano_dominante',
-        'lensometria',
-        'lensometria_extra',
-        'sa_pp',
-        'visuscopia',
-        'visuscopia_extra',
-        'refraccion',
-        'lentes_contacto',
-        'pruebas',
-        'pruebas_extra',
-        'conducta_seguir',
-        'plan_versiones',
-        'fecha_creacion',
-        'editado',
-    ];
+  public $timestamps = false;
+  // Atributos que son asignables en masa
+  protected $fillable = [
+    'sucursal',
+    'doctor',
+    'paciente',
+    'id_terapia',
+    'edad',
+    'fecha_atencion',
+    'm_c',
+    'a_o',
+    'a_p',
+    'a_f',
+    'medicamentos',
+    'tratamientos',
+    'desarrollo',
+    'nacimiento',
+    'parto',
+    'incubadora',
+    'tiempo',
+    'av_sc',
+    'av_cc',
+    'ojo_dominante',
+    'mano_dominante',
+    'lensometria',
+    'lensometria_extra',
+    'sa_pp',
+    'visuscopia',
+    'visuscopia_extra',
+    'refraccion',
+    'lentes_contacto',
+    'pruebas',
+    'pruebas_extra',
+    'conducta_seguir',
+    'plan_versiones',
+    'fecha_creacion',
+    'editado',
+    'fecha_proxima_consulta',
+    'hubo_contacto',
+    'se_agendo'
+  ];
 
-    // Atributos que deben ser convertidos a tipos nativos
-    protected $casts = [
-        'fecha_atencion' => 'date',
-        'fecha_creacion' => 'datetime',
-    ];
+  public function serviciosRealizados()
+  {
+    return $this->hasMany(ServiciosRealizadosOptometriaPediatrica::class, 'optometriaPediatrica_id');
+  }
+
+  public function serviciosProximos()
+  {
+    return $this->hasMany(ServiciosProximosOptometriaPediatrica::class, 'optometriaPediatrica_id');
+  }
+
+  
+  // Atributos que deben ser convertidos a tipos nativos
+  protected $casts = [
+    'sucursal' => 'integer',
+    'paciente' => 'integer',
+    'fecha_atencion' => 'date',
+    'fecha_creacion' => 'datetime',
+    'fecha_proxima_consulta' => 'datetime',
+  ];
 }
 

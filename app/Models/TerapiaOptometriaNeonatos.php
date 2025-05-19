@@ -15,6 +15,8 @@ class TerapiaOptometriaNeonatos extends Model
     // Clave primaria de la tabla
     protected $primaryKey = 'id';
 
+    public $timestamps = false;
+
     // Atributos que son asignables en masa
     protected $fillable = [
         'id_terapia',
@@ -28,6 +30,7 @@ class TerapiaOptometriaNeonatos extends Model
 
     // Atributos que deben ser convertidos a tipos nativos
     protected $casts = [
+        'sucursal' => 'integer',
         'fecha_creacion' => 'datetime',
         'completado' => 'boolean',
         'pagado' => 'boolean',

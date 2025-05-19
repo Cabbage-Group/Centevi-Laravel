@@ -24,7 +24,10 @@ class CreateUsuariosTable extends Migration
             $table->integer('estado')->nullable();
             $table->datetime('ultimo_login')->nullable();
             $table->date('editado')->nullable();
+            $table->foreignId('tipo_usuario_id')->constrained('tipos_usuarios')->onDelete('cascade'); // Relación con tipos_usuarios
             $table->timestamps();
+
+            
         });
     }
 

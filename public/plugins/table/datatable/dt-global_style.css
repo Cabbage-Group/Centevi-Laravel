@@ -53,29 +53,27 @@ table.dataTable {
   margin-bottom: 0 !important;
   border-collapse: collapse !important; }
   table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
-    color: #d3d3d3;
-    content: '';
+    color: #d3d3d300;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b2e4b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-up'%3E%3Cpolyline points='18 15 12 9 6 15'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 12px;
     width: 14px;
     height: 14px;
-    content: '';
     right: .3rem;
     top: .5rem; }
   table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_desc_disabled:after {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b2e4b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-chevron-down'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    color: #d3d3d300;
     background-repeat: no-repeat;
     background-position: center;
     background-size: 12px;
     width: 14px;
     height: 14px;
-    content: '';
     right: .3rem;
     top: 1.3rem; }
   table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:after {
-    color: #0e1726; }
+    color: #ffffff00; }
 
 .table > tbody tr {
   border-radius: 4px;
