@@ -659,7 +659,7 @@ const TableOrdenesCorrecciones = (
                           </svg>
                         </button>
 
-                        <button
+                        {/* <button
                           onClick={() => handleVerOrdenSmall(orden.id_orden, orden)}
                           className="btnAccionesOrdenes"
                           style={{ background: '#EFF5FF' }}
@@ -675,7 +675,7 @@ const TableOrdenesCorrecciones = (
                             <path d="M9 10.75C9.41421 10.75 9.75 10.4142 9.75 10C9.75 9.58579 9.41421 9.25 9 9.25H6C5.58579 9.25 5.25 9.58579 5.25 10C5.25 10.4142 5.58579 10.75 6 10.75H9Z" fill="#1C274C" />
                             <path d="M18 10C18 10.5523 17.5523 11 17 11C16.4477 11 16 10.5523 16 10C16 9.44772 16.4477 9 17 9C17.5523 9 18 9.44772 18 10Z" fill="#1C274C" />
                           </svg>
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => handleVerContacto(orden.id_orden)}
                           className="btn-info btnAccionesOrdenes"
@@ -757,6 +757,7 @@ const TableOrdenesCorrecciones = (
                                     {correcion.created_at}
                                   </td>
                                   <td onClick={() => console.log(correcion)} style={{ width: columnWidths.sucursal }}>{correcion.sucursal}</td>
+                                  <td style={{ width: columnWidths.paciente }}>{""}</td>{/** cedula */}
                                   <td style={{ width: columnWidths.paciente }}>{correcion.paciente_nombre_completo}</td>
                                   <td style={{ width: columnWidths.celular }}>{correcion.celular}</td>
                                   <td style={{ width: columnWidths.laboratorio }}>{correcion.laboratorio}</td>
