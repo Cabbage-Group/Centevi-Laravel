@@ -1,11 +1,12 @@
-import { AutoComplete, Button, Table } from "antd";
-import { useEffect } from "react";
+import { AutoComplete, Button, Table, Modal } from "antd";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CopyOutlined, EyeOutlined } from "@ant-design/icons";
-import { fetchQuotes, setPage, setSearchTerm, setSort, updateEstadoQuote } from "../../redux/features/quotes/quotesSlice";
+import { CopyOutlined, EyeOutlined, FilePdfOutlined } from "@ant-design/icons";
+import { fetchQuotes, setPage, setSearchTerm, setSort, updateEstadoQuote, VerUnaQuote } from "../../redux/features/quotes/quotesSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { createInterfuerzaQuotes } from "../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice";
+import { generatePdfPreview, downloadPDF, formatDate } from './GeneradorPDF.js';
 
 const TableCotizaciones = () => {
   const dispatch = useDispatch();
@@ -16,13 +17,28 @@ const TableCotizaciones = () => {
     sortColumn,
     sortOrder,
     meta,
-    searchTerm
+    searchTerm,
+    quote
   } = useSelector((state) => state.quotes);
   const navigate = useNavigate();
+  const [pdfModalVisible, setPdfModalVisible] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState(null);
+  const [pdfPreviewContent, setPdfPreviewContent] = useState('');
+  const [loadingPdf, setLoadingPdf] = useState(false);
+  const [currentQuoteDetails, setCurrentQuoteDetails] = useState(null);
 
   useEffect(() => {
     dispatch(fetchQuotes({ page, limit, sortColumn, sortOrder, searchTerm }));
-  }, [dispatch, page, limit, sortColumn, sortOrder, searchTerm]);
+  }, [page, limit, sortColumn, sortOrder, searchTerm]);
+
+  useEffect(() => {
+    if (quote && pdfModalVisible) {
+      setCurrentQuoteDetails(quote);
+      const previewContent = generatePdfPreview(quote);
+      setPdfPreviewContent(previewContent);
+      setLoadingPdf(false);
+    }
+  }, [quote, pdfModalVisible]);
 
   const handleTableChange = (pagination, filters, sorter) => {
     const newPage = pagination.current;
@@ -31,7 +47,6 @@ const TableCotizaciones = () => {
 
     if (newPage !== page) dispatch(setPage(newPage));
     dispatch(setSort({ sortColumn: newSortColumn, sortOrder: newSortOrder }));
-
   };
 
   const handleSearchChange = (value) => {
@@ -71,9 +86,7 @@ const TableCotizaciones = () => {
           ...record,
           Lines: record.lines,
         };
-
         const responseInterfuerzaQuote = await dispatch(createInterfuerzaQuotes(formattedRecord)).unwrap();
-
         await dispatch(updateEstadoQuote({
           id: record.id,
           data: {
@@ -92,6 +105,66 @@ const TableCotizaciones = () => {
     }
   };
 
+  const showPdfModal = async (record) => {
+    setLoadingPdf(true);
+    setPdfModalVisible(true);
+    setSelectedQuote(record);
+    setCurrentQuoteDetails(null);
+    setPdfPreviewContent('');
+    
+    try {
+      await dispatch(VerUnaQuote(record.id));
+    } catch (error) {
+      console.error('Error obteniendo detalles de cotización:', error);
+      Swal.fire('Error', 'No se pudieron cargar los detalles de la cotización.', 'error');
+      setPdfModalVisible(false);
+      setLoadingPdf(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      setLoadingPdf(true);
+      
+      const quoteDetails = currentQuoteDetails || selectedQuote;
+      const result = await downloadPDF(quoteDetails);
+      
+      setLoadingPdf(false);
+      
+      if (result.success) {
+        setPdfModalVisible(false);
+        Swal.fire({
+          title: 'PDF descargado', 
+          text: `El archivo ${result.fileName} se ha descargado correctamente.`, 
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire({
+          title: 'Error', 
+          text: 'No se pudo generar el PDF.', 
+          icon: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error generando PDF:', error);
+      setLoadingPdf(false);
+      Swal.fire({
+        title: 'Error', 
+        text: 'No se pudo generar el PDF.', 
+        icon: 'error'
+      });
+    }
+  };
+
+  const handleCloseModal = () => {
+    setPdfModalVisible(false);
+    setSelectedQuote(null);
+    setCurrentQuoteDetails(null);
+    setPdfPreviewContent('');
+    setLoadingPdf(false);
+  };
 
   const columns = [
     {
@@ -124,6 +197,7 @@ const TableCotizaciones = () => {
       key: 'Date',
       sorter: true,
       sortOrder: sortColumn === 'Date' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
+      render: (value) => formatDate(value)
     },
     {
       title: 'Fecha Fin',
@@ -131,6 +205,7 @@ const TableCotizaciones = () => {
       key: 'Expira',
       sorter: true,
       sortOrder: sortColumn === 'Expira' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
+      render: (value) => formatDate(value)
     },
     {
       title: 'Total ',
@@ -181,7 +256,6 @@ const TableCotizaciones = () => {
           >
             {label}
           </span>
-
         );
       },
     },
@@ -218,6 +292,17 @@ const TableCotizaciones = () => {
               color: '#fff',
             }}
           />
+          <Button
+            size="large"
+            icon={<FilePdfOutlined />}
+            onClick={() => showPdfModal(record)}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: '#52c41a',
+              color: '#fff',
+            }}
+          />
         </>
       ),
     },
@@ -233,14 +318,13 @@ const TableCotizaciones = () => {
           value={searchTerm}
         />
       </div>
-      <a className="btn btn-success mb-4 ml-3 mt-4">
-        <Link
-          to={`/crear-cotizacion`}
-          style={{ color: "white" }}
-        >
+
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <Link to={`/crear-cotizacion`} className="btn btn-success">
           Agregar Cotización
         </Link>
-      </a>
+      </div>
+
       <Table
         columns={columns}
         dataSource={quotes}
@@ -255,6 +339,44 @@ const TableCotizaciones = () => {
           showSizeChanger: false,
         }}
       />
+
+      <Modal
+        title={`Vista previa PDF - Cotización #${selectedQuote?.id || 'N/A'}`}
+        visible={pdfModalVisible}
+        onCancel={handleCloseModal}
+        width={900}
+        footer={[
+          <Button key="cancel" onClick={handleCloseModal}>
+            Cancelar
+          </Button>,
+          <Button 
+            key="download" 
+            type="primary" 
+            onClick={handleDownloadPdf}
+            loading={loadingPdf}
+            disabled={!currentQuoteDetails}
+            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+          >
+            Descargar PDF
+          </Button>,
+        ]}
+      >
+        <div style={{ 
+          height: '70vh', 
+          overflow: 'auto', 
+          border: '1px solid #eee', 
+          padding: '10px',
+          backgroundColor: '#f9f9f9'
+        }}>
+          {loadingPdf ? (
+            <div style={{ textAlign: 'center', padding: '50px' }}>
+              Cargando vista previa...
+            </div>
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: pdfPreviewContent }} />
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };
