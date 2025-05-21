@@ -48,12 +48,12 @@ export const fetchKpisTiposLenteAsesores = createAsyncThunk(
 
 export const fetchKpisTiposLenteDoctores = createAsyncThunk(
   'kpisTipoLente/fetchKpisTiposLenteDoctores',
-  async ({ startDate, endDate, doctorIds }) => {
+  async ({ startDate, endDate, doctorNames }) => {
     try {
       const requestBody = {
         startDate,
         endDate,
-        doctorIds
+        doctorNames
       };
       const response = await axios.post(`${API}/kpis/lente-ordenes-doctores`, requestBody);
 

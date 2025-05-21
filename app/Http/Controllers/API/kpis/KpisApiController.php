@@ -904,8 +904,7 @@ class KpisApiController extends Controller
       ->unionAll(
         DB::table(DB::raw("({$terapiaOrtopticaAdultosQuery->toSql()}) as terapia_ortoptica_adultos"))
           ->mergeBindings($terapiaBajaVQuery->getQuery())
-      );
-    ;
+      );;
 
     // Agrupar y sumar las consultas de todas las tablas
     $consultas = DB::table(DB::raw("({$unionQuery->toSql()}) as all_consultas"))
@@ -1495,78 +1494,56 @@ class KpisApiController extends Controller
 
   public function obtenerLentesPorDoctor(Request $request)
   {
-    // Obtener las fechas del cuerpo de la solicitud o asignar valores predeterminados
     $startDate = $request->input('startDate', date('Y-m-01', strtotime('-12 months')));
     $endDate = $request->input('endDate', date('Y-m-t'));
+    $doctorNames = $request->input('doctorNames', []); // Ahora esperamos nombres, no IDs
 
-
-
-    // Obtener el parámetro de doctores (puede ser un array de IDs)
-    $doctorIds = $request->input('doctorIds', []); // Debe ser un array de IDs de doctores
-
-    // Verificar formato correcto (YYYY-MM-DD)
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
       return response()->json(['error' => 'Formato de fecha inválido. Use YYYY-MM-DD'], 400);
     }
 
-    // Asegurar que startDate no sea mayor que endDate
     if ($startDate > $endDate) {
       return response()->json(['error' => 'startDate no puede ser mayor que endDate'], 400);
     }
 
-    // Obtener doctores filtrados por perfil = 'doctor' y estado = 1
-    $doctores = Usuarios::where('perfil', 'doctor')
-      ->where('estado', 1) // Filtrar solo doctores con estado = 1
-      ->orderBy('id_usuario');
+    // Si se proporcionaron nombres, filtramos. Si no, usamos todos los distintos doctores existentes
+    $query = Ordenes::query()
+      ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+      ->selectRaw('doctor, lente_contacto, COUNT(*) as cantidad')
+      ->whereNotNull('doctor');
 
-    // Si se ha proporcionado un filtro por doctor, aplicar el filtro
-    if (!empty($doctorIds)) {
-      $doctores = $doctores->whereIn('id_usuario', $doctorIds); // Filtrar por múltiples doctores
+    if (!empty($doctorNames)) {
+      $query->whereIn('doctor', $doctorNames);
     }
 
-    // Obtener los doctores filtrados
-    $doctores = $doctores->get();
-    $doctorIds = $doctores->pluck('id_usuario')->filter()->map(fn($id) => (int) $id)->toArray();
+    $ordenes = $query->groupBy('doctor', 'lente_contacto')->get();
 
-    if (empty($doctorIds)) {
-      return response()->json(['error' => 'No hay doctores registrados o activos'], 400);
-    }
-
-    // Inicializar el array de resultados con los doctores
+    // Armar resultados agrupados por doctor
     $resultados = [];
-    foreach ($doctores as $doctor) {
-      $resultados[$doctor->id_usuario] = [
-        'name' => $doctor->nombre, // Usamos el nombre del doctor
-        'lente_contacto' => 0, // Lente contacto
-        'lente_normal' => 0  // Lente normal
-      ];
-    }
 
-    // Consultar las órdenes en el rango de fechas y filtradas por doctor (elaborado_por)
-    $ordenes = Ordenes::whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
-      ->whereIn('elaborado_por', $doctorIds) // Filtrar por doctores (elaborado_por)
-      ->selectRaw('elaborado_por, lente_contacto, COUNT(*) as cantidad')
-      ->groupBy('elaborado_por', 'lente_contacto')
-      ->get();
-
-    // Asignar cantidades a cada doctor
     foreach ($ordenes as $orden) {
-      if (isset($resultados[$orden->elaborado_por])) {
-        if ($orden->lente_contacto == 1) {
-          $resultados[$orden->elaborado_por]['lente_contacto'] += $orden->cantidad;
-        } else {
-          $resultados[$orden->elaborado_por]['lente_normal'] += $orden->cantidad;
-        }
+      $doctorNombre = $orden->doctor ?? 'Desconocido';
+
+      if (!isset($resultados[$doctorNombre])) {
+        $resultados[$doctorNombre] = [
+          'name' => $doctorNombre,
+          'lente_contacto' => 0,
+          'lente_normal' => 0,
+        ];
+      }
+
+      if ($orden->lente_contacto == 1) {
+        $resultados[$doctorNombre]['lente_contacto'] += $orden->cantidad;
+      } else {
+        $resultados[$doctorNombre]['lente_normal'] += $orden->cantidad;
       }
     }
 
-    // Convertir resultados a un array de respuesta
-    $finalResults = array_values($resultados);
-
     return response()->json([
-      'data' => $finalResults
+      'data' => array_values($resultados)
     ]);
   }
+
 
   public function getConsultasYTerapiasPorDoctor(Request $request)
   {

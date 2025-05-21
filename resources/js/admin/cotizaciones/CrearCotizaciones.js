@@ -62,19 +62,26 @@ const CrearCotizacion = () => {
     searchTerm,
     status,
     error
-} = useSelector((state) => state.productsInterfuerza);
+  } = useSelector((state) => state.productsInterfuerza);
 
   const [lines, setLines] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [searchValueProducts, setSearchValueProducts] = useState('');
 
+
   useEffect(() => {
     if (exchangeRate) {
       form.setFieldsValue({
         Vendedor: nombre || '',
-        Currency_Rate: exchangeRate,
+        Currency_Rate: exchangeRate
       });
     }
+    form.setFieldsValue({
+      Status: "ACTIVE",
+      Type: "CUSTOMER",
+      Date: dayjs(),
+      Expira: dayjs().add(30, 'day')
+    });
   }, [form, nombre, exchangeRate]);
 
   useEffect(() => {
@@ -122,9 +129,9 @@ const CrearCotizacion = () => {
 
   useEffect(() => {
     dispatch(fetchProductsInterfuerza({}))
-  },[])
+  }, [])
 
-  console.log('productsInterfuerza:',productsInterfuerza)
+  console.log('productsInterfuerza:', productsInterfuerza)
 
   // useEffect(() => {
   //   dispatch(fetchInterfuerzaCustomers({ page: 1 }));
@@ -141,29 +148,6 @@ const CrearCotizacion = () => {
       value: inputValue
     }));
   };
-
-  const handleSearchProducts = (inputValue) => {
-    setSearchValue(inputValue);
-    dispatch(fetchInterfuerzaProducts({
-      page: 1,
-      field: 'Item_Number',
-      operator: '=',
-      value: inputValue
-    }));
-  };
-
-  const handleScrollProducts = (event) => {
-    const { scrollTop, scrollHeight, clientHeight } = event.target;
-    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore_products && status !== 'loading') {
-      dispatch(fetchInterfuerzaProducts({
-        page: page_products + 1,
-        field: 'Item_Number',
-        operator: '=',
-        value: searchValueProducts
-      }));
-    }
-  };
-
 
   const onFinish = async (values) => {
     console.log('values:', values)
@@ -447,7 +431,7 @@ const CrearCotizacion = () => {
             const normalizedInput = input.toLowerCase().trim();
             const normalizedLabel = (option?.children ?? '').toString().toLowerCase();
             return normalizedLabel.includes(normalizedInput);
-          }}     
+          }}
         >
           {
             productsInterfuerza.map((item) => (
