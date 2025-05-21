@@ -46,7 +46,7 @@ const VerKpisTipoLente = () => {
     dispatch(fetchKpisTiposLenteDoctores({
       startDate: localStartDateDoctores,
       endDate: localEndDateDoctores,
-      doctorIds: doctorFilter
+      doctorNames: doctorFilter
     }))
   }, [dispatch, localStartDateDoctores, localEndDateDoctores, doctorFilter])
 
@@ -548,7 +548,7 @@ const VerKpisTipoLente = () => {
                   allowClear
                 >
                   {doctores_activados.map(doctor => (
-                    <Select.Option key={doctor.id_usuario} value={doctor.id_usuario}>
+                    <Select.Option key={doctor.id_usuario} value={doctor.nombre}>
                       {doctor.nombre}
                     </Select.Option>
                   ))}
