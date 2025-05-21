@@ -26,6 +26,18 @@ class InterfuerzaController extends Controller
     $this->interfuerzaClientCreator = $interfuerzaClientCreator;
   }
 
+  private function utf8ize($mixed)
+  {
+    if (is_array($mixed)) {
+      foreach ($mixed as $key => $value) {
+        $mixed[$key] = $this->utf8ize($value);
+      }
+    } elseif (is_string($mixed)) {
+      return mb_convert_encoding($mixed, 'UTF-8', 'UTF-8');
+    }
+    return $mixed;
+  }
+
   public function verificarYActualizar(Request $request)
   {
     $ruc = $request->input('ruc');
@@ -103,10 +115,11 @@ class InterfuerzaController extends Controller
     $paciente->interfuerza = true;
     $paciente->save();
 
+    $pacienteData = $this->utf8ize($paciente->toArray());
+
     return response()->json([
       'message' => 'Paciente actualizado con éxito',
-      'paciente' => $paciente,
-
+      'paciente' => $pacienteData,
     ]);
   }
 }
