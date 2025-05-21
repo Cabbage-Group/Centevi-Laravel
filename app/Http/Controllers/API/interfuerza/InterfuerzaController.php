@@ -112,6 +112,12 @@ class InterfuerzaController extends Controller
       return response()->json(['message' => 'Paciente no encontrado en tu sistema'], 404);
     }
 
+    $interfuerzaId = $data['customers'][0]['Cliente'] ?? null;
+
+    if ($interfuerzaId) {
+      $paciente->codigo = $interfuerzaId;
+    }
+    
     $paciente->interfuerza = true;
     $paciente->save();
 
