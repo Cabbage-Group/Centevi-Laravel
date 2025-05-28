@@ -184,7 +184,6 @@ class PacientesApiController extends Controller
 
   public function crearpaciente(Request $request)
   {
-
     $validator = Validator::make($request->all(), [
       "sucursal" => 'nullable|int|max:11',
       "doctor" => 'nullable|string|max:255',
@@ -203,21 +202,25 @@ class PacientesApiController extends Controller
       'urgencia' => 'nullable|string',
       'menor' => 'nullable|string',
       'fecha_creacion' => 'nullable|date',
-      'nro_cedula' => 'nullable|string|max:20|unique:pacientes',
+      'nro_cedula' => 'nullable|string',
       'estado' => 'nullable',
-      'usuario' => 'nullable'
+      'usuario' => 'nullable',
+      'estadoPaciente' => 'required|string|in:no_existe,inactivo,activo'
     ]);
 
     if ($validator->fails()) {
       return response()->json([
         'respuesta' => false,
-        'mensaje' => 'Validation errors',
+        'mensaje' => 'Errores de validación',
         'data' => [],
-        'mensaje_dev' => "Opps el numero de cedula ya existe"
+        'estado_paciente' => $request->input('estadoPaciente'),
+        'mensaje_dev' => "Validación fallida"
       ], 400);
     }
 
     $data = $request->all();
+    $estadoPaciente = $request->input('estadoPaciente');
+
     $defaults = [
       'sucursal' => null,
       'doctor' => '',
@@ -242,23 +245,61 @@ class PacientesApiController extends Controller
 
     $data = array_merge($defaults, $data);
 
+    if ($estadoPaciente === 'activo') {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'El número de cédula ya está registrado y activo',
+        'data' => [],
+        'estado_paciente' => $estadoPaciente,
+        'mensaje_dev' => 'Paciente ya activo con ese número de cédula'
+      ], 400);
+    }
 
-    $paciente = Pacientes::create($data);
+    if ($estadoPaciente === 'inactivo') {
+      $paciente = Pacientes::where('nro_cedula', $data['nro_cedula'])->first();
 
-    // $response = $interfuerzaClientCreator->crearCliente($paciente, $request->usuario);
-    // $verificarRequest = new Request([
-    //   'ruc' => $paciente->nro_cedula,
-    //   'usuario' => $request->usuario
-    // ]);
+      if ($paciente) {
+        $paciente->update($data);
 
+        return response()->json([
+          'respuesta' => true,
+          'message' => 'Paciente reactivado y actualizado correctamente',
+          'data' => [$paciente],
+          'estado_paciente' => $estadoPaciente,
+          'mensaje_dev' => null
+        ], 200);
+      } else {
+        return response()->json([
+          'respuesta' => false,
+          'mensaje' => 'Paciente no encontrado para reactivación',
+          'data' => [],
+          'estado_paciente' => $estadoPaciente,
+          'mensaje_dev' => 'No se encontró paciente con esa cédula'
+        ], 404);
+      }
+    }
+
+    if ($estadoPaciente === 'no_existe') {
+      $paciente = Pacientes::create($data);
+
+      return response()->json([
+        'respuesta' => true,
+        'message' => 'Paciente registrado correctamente',
+        'data' => [$paciente],
+        'estado_paciente' => $estadoPaciente,
+        'mensaje_dev' => null
+      ], 201);
+    }
 
     return response()->json([
-      'respuesta' => true,
-      'message' => 'Paciente registrado correctamente',
-      'data' => [$paciente],
-      'mensaje_dev' => null
-    ], 201);
+      'respuesta' => false,
+      'mensaje' => 'Estado del paciente no reconocido',
+      'data' => [],
+      'estado_paciente' => $estadoPaciente,
+      'mensaje_dev' => 'EstadoPaciente inválido'
+    ], 400);
   }
+
 
   public function verificarCedula(Request $request)
   {
@@ -268,20 +309,43 @@ class PacientesApiController extends Controller
 
     if ($validator->fails()) {
       return response()->json([
-        'respuesta' => false,
-        'mensaje' => 'Validation errors',
-        'data' => [],
+        'respuesta'   => false,
+        'mensaje'     => 'Validation errors',
+        'data'        => [],
         'mensaje_dev' => 'Número de cédula inválido'
       ], 400);
     }
 
-    $exists = Pacientes::where('nro_cedula', $request->input('nro_cedula'))->exists();
+    $nroCedula = $request->input('nro_cedula');
+
+    $paciente = Pacientes::where('nro_cedula', $nroCedula)->first();
+
+    if (!$paciente) {
+      return response()->json([
+        'respuesta'        => true,
+        'mensaje'          => 'Paciente no encontrado, puede crearse.',
+        'estado_paciente'  => 'no_existe',
+        'data'             => ['exists' => false]
+      ], 200);
+    }
+
+    if (!$paciente->estado) {
+      return response()->json([
+        'respuesta'        => false,
+        'mensaje'          => 'El paciente ya existe pero está inactivo.',
+        'estado_paciente'  => 'inactivo',
+        'data'             => ['exists' => true]
+      ], 200);
+    }
 
     return response()->json([
-      'respuesta' => true,
-      'data' => ['exists' => $exists]
+      'respuesta'        => true,
+      'mensaje'          => 'El paciente ya existe y está activo.',
+      'estado_paciente'  => 'activo',
+      'data'             => ['exists' => true]
     ], 200);
   }
+
 
   public function editarpaciente(Request $request, $id)
   {

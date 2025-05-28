@@ -5,7 +5,7 @@ import getIp from '../utils/getIp.js';
 
 export const fetchSucursales = createAsyncThunk(
   'sucursales/fetchSucursales',
-  async ({ page = 1, limit = 50, sortOrder = 'asc', sortColumn = 'nombre', search = '' }) => {
+  async ({ page = 1, limit = 50, sortOrder = 'asc', sortColumn = 'fecha_creacion', search = '' }) => {
     try {
       const response = await axios.get(`${API}/sucursales`, {
         params: { page, limit, sortOrder, sortColumn, search }
@@ -144,8 +144,38 @@ const sucursalesSlice = createSlice({
       .addCase(updateSucursal.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
-      });
+      })
+      .addCase(createSucursal.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(createSucursal.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.sucursales.push(action.payload.data);
+        if (state.meta?.total !== undefined) {
+          state.meta.total += 1;
+        }
 
+      })
+      .addCase(createSucursal.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(deleteSucursal.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteSucursal.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.sucursales = state.sucursales.filter(
+          (sucursal) => sucursal.id_sucursal !== action.payload
+        );
+        if (state.meta?.total !== undefined) {
+          state.meta.total -= 1;
+        }
+      })
+      .addCase(deleteSucursal.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
   },
 });
 

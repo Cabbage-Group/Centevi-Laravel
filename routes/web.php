@@ -528,7 +528,7 @@ Route::delete('/api/delete/products', [ProductsInterfuerzaApiController::class, 
 
 Route::post('/api/verify/products', [interfuerzaApiControllerProducts::class, 'verifyProduct']);
 
-
+Route::get('/api/verify/quotes', [interfuerzaApiControllerQuotes::class, 'findQuoteById']);
 
 
 

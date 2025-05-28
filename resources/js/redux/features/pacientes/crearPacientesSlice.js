@@ -9,7 +9,7 @@ export const verificarCedula = createAsyncThunk(
   async (nroCedula, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API}/verificar-cedula`, { nro_cedula: nroCedula });
-      return response.data.data.exists;
+      return response.data.estado_paciente;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }

@@ -14,7 +14,7 @@ class SucursalesApiController extends Controller
     $page = $request->query('page', 1);
     $limit = $request->query('limit', 7);
     $sortOrder = $request->query('sortOrder', 'asc');
-    $sortColumn = $request->query('sortColumn', 'id_sucursal');
+    $sortColumn = $request->query('sortColumn', 'fecha_creacion');
     $search = $request->input('search', '');
 
 
@@ -35,13 +35,9 @@ class SucursalesApiController extends Controller
       });
     }
 
-
     $query->orderBy($sortColumn, $sortOrder);
 
-
     $sucursales = $query->paginate($limit, ['*'], 'page', $page);
-
-
 
     return response()->json([
       'data' => $sucursales->items(),

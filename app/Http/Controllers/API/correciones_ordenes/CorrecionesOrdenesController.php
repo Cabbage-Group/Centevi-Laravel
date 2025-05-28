@@ -317,7 +317,7 @@ class CorrecionesOrdenesController extends Controller
       'marca' => 'nullable',
       'tipo_aro' => 'nullable|string|max:255',
       'doctor' => 'nullable|string|max:255',
-      'observaciones' => 'nullable|string|max:400',
+      'observaciones' => 'nullable|string',
       'l_uno' => 'nullable|string|max:255',
       'l_dos' => 'nullable|string|max:255',
       'l_tres' => 'nullable|string|max:255',

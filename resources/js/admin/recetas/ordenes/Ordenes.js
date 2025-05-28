@@ -455,12 +455,12 @@ const Ordenes = () => {
 
                 await Promise.all([
                     dispatch(fecthTiposFasesOrdenes(orderId)).unwrap(),
-                    dispatch(
-                        fetchOrdenDelPaciente({
-                            id_paciente: idPaciente,
-                            nro_orden_id: nroOrden,
-                        })
-                    ).unwrap(),
+                    // dispatch(
+                    //     fetchOrdenDelPaciente({
+                    //         id_paciente: idPaciente,
+                    //         nro_orden_id: nroOrden,
+                    //     })
+                    // ).unwrap(),
                 ]);
 
                 Swal.close();

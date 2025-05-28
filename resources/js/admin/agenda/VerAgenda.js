@@ -508,6 +508,7 @@ Tarjeta (Clave,Visa o Mastercard)
   }
 
   const handleDateClick = (info) => {
+    setIsModalOpen(true);
     setRangeTimeEndDateSelected(60);
     setIsEditMode(false);
     form.setFieldsValue({
@@ -565,7 +566,6 @@ Tarjeta (Clave,Visa o Mastercard)
 
     // FIN La IP tiene una sucursal
 
-    setIsModalOpen(true);
 
   };
 
@@ -587,6 +587,7 @@ Tarjeta (Clave,Visa o Mastercard)
         }
       });
     }
+   setIsModalOpen(true);
 
     if (clickedEvent) {
       const fechaInicio = dayjs(clickedEvent.start);
@@ -626,8 +627,7 @@ Tarjeta (Clave,Visa o Mastercard)
       setAgendadoPor(clickedEvent.agendado_por);
       setPacienteInput(clickedEvent.paciente_id);
       setApellidos(clickedEvent.apellidos);
-      setIsModalOpen(true);
-
+   
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente,
@@ -725,7 +725,9 @@ Tarjeta (Clave,Visa o Mastercard)
       try {
         const response = await dispatch(verificarCedula(createCedula)).unwrap();
 
-        if (response === true) {
+        console.log('response:', response)
+
+        if (response === 'activo') {
           Swal.fire({
             icon: "warning",
             title: "Cédula existente",
@@ -734,7 +736,7 @@ Tarjeta (Clave,Visa o Mastercard)
           return;
         }
 
-        if (response === false) {
+        if (response === 'no_existe') {
           const result = await Swal.fire({
             title: "Paciente no existe",
             text: "El paciente no está registrado. ¿Deseas crearlo?",
@@ -752,7 +754,8 @@ Tarjeta (Clave,Visa o Mastercard)
               nro_cedula: values.nroCedula,
               apellidos: values.apellidos,
               celular: values.celular,
-              estado: false
+              estado: false,
+              estadoPaciente: 'no_existe'
             };
 
             try {

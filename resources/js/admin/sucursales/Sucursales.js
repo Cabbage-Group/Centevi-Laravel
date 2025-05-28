@@ -18,6 +18,7 @@ const Sucursales = () => {
     const [formValues, setFormValues] = useState({
         nombre: '',
         ubicacion: '',
+        ubicacion_maps: ''
 
     });
 
@@ -26,6 +27,7 @@ const Sucursales = () => {
             setFormValues({
                 nombre: selectedSucursal.nombre || '',
                 ubicacion: selectedSucursal.ubicacion || '',
+                ubicacion_maps: selectedSucursal.ubicacion_maps || ''
 
 
             });
@@ -36,11 +38,6 @@ const Sucursales = () => {
             });
         }
     }, [selectedSucursal, isEditMode]);
-
-    useEffect(() => {
-        dispatch(fetchSucursales({}));
-
-    }, [dispatch, currentPage]);
 
     useEffect(() => {
         dispatch(fetchSucursales({
@@ -79,12 +76,28 @@ const Sucursales = () => {
         setIsModalVisible(true);
     };
 
+    const clearBootstrapModalArtifacts = () => {
+        document.body.classList.remove('modal-open');
+
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+    };
+
     const handleModalClose = () => {
         setIsModalVisible(false);
         setSelectedSucursal(null);
-        setFile(null);
-    };
+        clearBootstrapModalArtifacts();
 
+    };
+    useEffect(() => {
+        console.log('isModalVisible ha cambiado a:', isModalVisible);
+    }, [isModalVisible]);
+
+    useEffect(() => {
+        console.log('isEditMode ha cambiado a:', isEditMode);
+    }, [isEditMode]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -100,71 +113,58 @@ const Sucursales = () => {
         setLocalSearch('');
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
 
         const newSucursalData = {
             nombre: formValues.nombre,
             ubicacion: formValues.ubicacion,
+            ubicacion_maps: formValues.ubicacion_maps
         };
 
-        if (isEditMode && selectedSucursal) {
+        try {
+            if (isEditMode && selectedSucursal) {
+                await dispatch(updateSucursal({ id: selectedSucursal.id_sucursal, updatedData: formValues })).unwrap();
 
-            dispatch(updateSucursal({ id: selectedSucursal.id_sucursal, updatedData: formValues }))
-                .then(() => {
-                    Swal.fire({
-                        title: '¡Éxito!',
-                        text: 'Sucursal actualizada correctamente.',
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        didClose: () => {
-                            window.location.reload();
-                        }
-                    });
-                    setIsModalVisible(false);
-                    setIsEditMode(false);
-                    setSelectedSucursal(null);
-                    dispatch(fetchSucursales({ page: currentPage }));
-                })
-                .catch((error) => {
-                    const errorMessage = error.response?.data?.message || 'Hubo un problema al actualizar la sucursal.';
-                    Swal.fire({
-                        title: '¡Error!',
-                        text: errorMessage,
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                    });
+                await Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Sucursal actualizada correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
                 });
-        } else {
 
-            dispatch(createSucursal(newSucursalData))
-                .then(() => {
-                    Swal.fire({
-                        title: 'Éxito!',
-                        text: 'Sucursal creado correctamente.',
-                        icon: 'success',
-                        confirmButtonText: 'OK',
-                        didClose: () => {
-                            window.location.reload();
-                        }
+                console.log('modal:', isModalVisible)
+                handleModalClose();
+                // setSelectedSucursal(null);
+                console.log('modal:', isModalVisible, 'mode', isEditMode)
+            } else {
+                await dispatch(createSucursal(newSucursalData)).unwrap();
 
+                const newTotal = (meta?.total || 0) + 1;
+                const lastPage = Math.ceil(newTotal / (meta?.limit || 7));
 
-                    });
-                })
-                .catch((error) => {
-                    const errorMessage = error.response?.data?.message || 'Hubo un problema al crear la sucursal.';
-                    Swal.fire({
-                        title: 'Error!',
-                        text: errorMessage,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                setCurrentPage(lastPage);
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Sucursal creada correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
                 });
+            }
+        } catch (error) {
+            const errorMessage = error?.message || 'Hubo un problema al procesar la sucursal.';
+            Swal.fire({
+                title: '¡Error!',
+                text: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'OK',
+            });
         }
-    }
+    };
 
-    const handleDeleteClick = (sucursal) => {
-        Swal.fire({
+
+    const handleDeleteClick = async (sucursal) => {
+        const result = await Swal.fire({
             title: '¿Estás seguro?',
             text: `¿Deseas eliminar la sucursal ${sucursal.nombre}?`,
             icon: 'warning',
@@ -173,37 +173,43 @@ const Sucursales = () => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-
-                dispatch(deleteSucursal(sucursal.id_sucursal))
-
-                    .then(() => {
-                        Swal.fire({
-                            title: 'Eliminado!',
-                            text: 'Sucursal eliminada correctamente.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
-
-                        if (sucursales.length === 1 && currentPage > 1) {
-                            setCurrentPage(currentPage - 1);
-                        } else {
-                            dispatch(fetchSucursales({ page: currentPage, limit: 7 }));
-                        }
-                    })
-                    .catch((error) => {
-                        const errorMessage = error.response?.data?.message || 'Hubo un problema al actualizar la sucursal.';
-                        Swal.fire({
-                            title: 'Error!',
-                            text: errorMessage,
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    });
-            }
         });
+
+        if (result.isConfirmed) {
+            try {
+                await dispatch(deleteSucursal(sucursal.id_sucursal)).unwrap();
+
+                const newTotal = (meta?.total || 0) - 1;
+                const totalPages = Math.ceil(newTotal / (meta?.limit || 7));
+
+                let newPage = currentPage;
+
+                if (currentPage > totalPages && totalPages > 0) {
+                    newPage = totalPages;
+                    setCurrentPage(newPage);
+                } else if (totalPages === 0) {
+                    newPage = 1;
+                    setCurrentPage(newPage);
+                }
+
+                Swal.fire({
+                    title: '¡Eliminado!',
+                    text: 'Sucursal eliminada correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } catch (error) {
+                const errorMessage = error?.message || 'Hubo un problema al eliminar la sucursal.';
+                Swal.fire({
+                    title: '¡Error!',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
     };
+
 
     return (
         <div className="admin-data-content" style={{ marginTop: 50, }}>
@@ -309,7 +315,8 @@ const Sucursales = () => {
                                                             <tr key={sucursal.id_sucursal}>
                                                                 <td>{sucursal.nombre}</td>
                                                                 <td>{sucursal.ubicacion}</td>
-                                                                <td>{sucursal.fecha_creacion}</td>
+                                                                <td>{new Date(sucursal.fecha_creacion).toLocaleDateString()}</td>
+
                                                                 <td>
                                                                     <div className="btn-group">
                                                                         <button
@@ -430,6 +437,21 @@ const Sucursales = () => {
                                                     />
                                                 </div>
                                             </div>
+                                            <div className="form-group">
+                                                <div className="input-group">
+                                                    <span className="input-group-addon">
+                                                        <i className="fa fa-lock" />
+                                                    </span>
+                                                    <input
+                                                        className="form-control input-lg"
+                                                        name="ubicacion_maps"
+                                                        placeholder="Ingresar ubicacion del mapa"
+                                                        required
+                                                        type="text"
+                                                        onChange={handleChange}
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="modal-footer">
@@ -454,18 +476,19 @@ const Sucursales = () => {
                     </div>
 
                 )}
-                {isModalVisible && (
+                {isModalVisible && isEditMode && (
                     <div
-                        className="modal fade show"
+                        aria-hidden="true"
+                        className="modal fade"
                         id="modalEditarSucursal"
-                        role="dialog"
+                        style={{ display: 'block' }}
                     >
                         <div className="modal-dialog" >
                             <div className="modal-content">
 
                                 <form
                                     encType="multipart/form-data"
-                                    method="post"
+                                    method="put"
                                     role="form"
                                     onSubmit={handleFormSubmit}
                                 >
@@ -524,8 +547,21 @@ const Sucursales = () => {
                                                 </div>
                                             </div>
 
+                                            <div className="form-group">
+                                                <div className="input-group">
+                                                    <span className="input-group-addon">
+                                                        <i className="fa fa-lock" />
+                                                    </span>
+                                                    <input
+                                                        className="form-control input-lg"
+                                                        value={formValues?.ubicacion_maps || ''}
+                                                        name="ubicacion_maps"
+                                                        onChange={handleChange}
+                                                        type="text"
+                                                    />
 
-
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="modal-footer">

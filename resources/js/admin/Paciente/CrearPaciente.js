@@ -57,10 +57,18 @@ const CrearPaciente = () => {
         return acc;
       }, {});
 
+
+
       const nroCedula = cleanedValues.nro_cedula;
       const cedulaExists = await dispatch(verificarCedula(nroCedula)).unwrap();
 
-      if (cedulaExists) {
+      console.log('cedulaExists:',cedulaExists)
+
+      cleanedValues.estadoPaciente = cedulaExists;
+
+      console.log('cleanedValues:', cleanedValues)
+
+      if (cedulaExists.estado_paciente === 'activo') {
         Swal.fire({
           icon: 'warning',
           title: 'Cédula existente',
@@ -142,7 +150,8 @@ const CrearPaciente = () => {
     if (nroCedula) {
       try {
         const response = await dispatch(verificarCedula(nroCedula)).unwrap();
-        if (response) {
+
+        if (response === 'activo') {
           Swal.fire({
             icon: 'warning',
             title: 'Cédula existente',
@@ -150,7 +159,6 @@ const CrearPaciente = () => {
             showConfirmButton: true,
             confirmButtonText: 'Cerrar'
           });
-          // Limpiar el campo
           setFieldValue('nro_cedula', '');
         }
       } catch (error) {
@@ -158,6 +166,7 @@ const CrearPaciente = () => {
       }
     }
   };
+
 
   return (
     <div

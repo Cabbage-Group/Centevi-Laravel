@@ -263,8 +263,9 @@ const CreateCorrecionOrden = () => {
 
   const handleSubmit = async (values) => {
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
-    const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
-    const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
+    const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label);
+    const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label);
+
     const transformedValues = {
       ...values,
       ...(serviciosRealizadosSubmit.length === 1
@@ -327,27 +328,26 @@ const CreateCorrecionOrden = () => {
       elaborado_por: usuario?.usuario?.id_usuario,
       lente_contacto: lenteContacto,
     };
-    console.log('transformedValues:', transformedValues);
-    const result = await dispatch(createCorrecionesOrdenes(transformedValues));
 
-    console.log('result:', result)
+    try {
+      await dispatch(createCorrecionesOrdenes(transformedValues)).unwrap();
 
-    if (result) {
       Swal.fire({
         icon: 'success',
         title: 'Receta creada',
-        text: 'La receta se ha creado exitosamente.',
+        text: 'Correción creada exitosamente.',
       }).then(() => {
         navigate(-1);
       });
-    } else {
+    } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Hubo un problema al crear la receta. Por favor, intenta de nuevo. Nro de Orden ya existente',
+        text: 'Hubo un problema al crear la corrección',
       });
     }
   };
+
 
   return (
     <div className="admin-data-content" data-select2-id="15">
@@ -1050,8 +1050,8 @@ const CreateCorrecionOrden = () => {
                                               }}
                                               onChange={(value) => {
                                                 console.log('value:', value)
-                                                setSelectedMarca(value); 
-                                                setFieldValue("marca", value); 
+                                                setSelectedMarca(value);
+                                                setFieldValue("marca", value);
                                               }}
                                               filterOption={(input, option) =>
                                                 option.label.toLowerCase().includes(input.toLowerCase())

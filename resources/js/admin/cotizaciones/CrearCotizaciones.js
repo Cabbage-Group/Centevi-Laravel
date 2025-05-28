@@ -132,13 +132,9 @@ const CrearCotizacion = () => {
     dispatch(fetchProductsInterfuerza({}))
   }, [])
 
-  console.log('productsInterfuerza:', productsInterfuerza)
-
   // useEffect(() => {
   //   dispatch(fetchInterfuerzaCustomers({ page: 1 }));
   // }, [dispatch]);
-
-
 
   const handleSearch = (inputValue) => {
     setSearchValue(inputValue);
