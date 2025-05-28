@@ -1,4 +1,4 @@
-import { AutoComplete, Button, Table, Modal } from "antd";
+import { AutoComplete, Button, Table, Modal, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CopyOutlined, EyeOutlined, FilePdfOutlined } from "@ant-design/icons";
@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { createInterfuerzaQuotes } from "../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice";
 import { generatePdfPreview, downloadPDF, formatDate } from './GeneradorPDF.js';
+
+const { Text } = Typography;
 
 const TableCotizaciones = () => {
   const dispatch = useDispatch();
@@ -111,7 +113,7 @@ const TableCotizaciones = () => {
     setSelectedQuote(record);
     setCurrentQuoteDetails(null);
     setPdfPreviewContent('');
-    
+
     try {
       await dispatch(VerUnaQuote(record.id));
     } catch (error) {
@@ -125,25 +127,25 @@ const TableCotizaciones = () => {
   const handleDownloadPdf = async () => {
     try {
       setLoadingPdf(true);
-      
+
       const quoteDetails = currentQuoteDetails || selectedQuote;
       const result = await downloadPDF(quoteDetails);
-      
+
       setLoadingPdf(false);
-      
+
       if (result.success) {
         setPdfModalVisible(false);
         Swal.fire({
-          title: 'PDF descargado', 
-          text: `El archivo ${result.fileName} se ha descargado correctamente.`, 
+          title: 'PDF descargado',
+          text: `El archivo ${result.fileName} se ha descargado correctamente.`,
           icon: 'success',
           timer: 2000,
           showConfirmButton: false
         });
       } else {
         Swal.fire({
-          title: 'Error', 
-          text: 'No se pudo generar el PDF.', 
+          title: 'Error',
+          text: 'No se pudo generar el PDF.',
           icon: 'error'
         });
       }
@@ -151,8 +153,8 @@ const TableCotizaciones = () => {
       console.error('Error generando PDF:', error);
       setLoadingPdf(false);
       Swal.fire({
-        title: 'Error', 
-        text: 'No se pudo generar el PDF.', 
+        title: 'Error',
+        text: 'No se pudo generar el PDF.',
         icon: 'error'
       });
     }
@@ -170,14 +172,79 @@ const TableCotizaciones = () => {
     {
       title: 'ID',
       dataIndex: 'id',
-      key: 'id'
+      key: 'id',
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${value}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {value}
+            </span>
+          </Text>
+        );
+      },
     },
     {
-      title: 'Cliente',
-      dataIndex: 'Cliente',
-      key: 'Cliente',
-      sorter: true,
-      sortOrder: sortColumn === 'Cliente' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
+      title: 'Cotización',
+      dataIndex: 'codigo_interfuerza',
+      key: 'codigo_interfuerza',
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${value}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {value}
+            </span>
+          </Text>
+        );
+      },
+    },
+    {
+      title: 'Paciente',
+      // dataIndex: 'Cliente',
+      // key: 'Cliente',
+      // sorter: true,
+      // sortOrder: sortColumn === 'Paciente' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
+      render: (_, record) => {
+
+        return (
+          // <span
+          // >
+          //   {record.paciente.nombres}
+          // </span>
+          <Text
+            ellipsis
+            title={`${record?.paciente?.nombres?.trim()} ${record?.paciente?.apellidos?.trim()}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {`${record?.paciente?.nombres?.trim().split(" ")[0] ?? ""} ${record?.paciente?.apellidos?.trim().split(" ")[0] ?? ""
+                }`}
+            </span>
+          </Text>
+        );
+      },
     },
     {
       title: 'Bodega',
@@ -185,27 +252,97 @@ const TableCotizaciones = () => {
       key: 'Bodega',
       sorter: true,
       sortOrder: sortColumn === 'Bodega' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${value}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {value}
+            </span>
+          </Text>
+        );
+      },
     },
     {
       title: 'Status',
       dataIndex: 'Status',
-      key: 'Status'
+      key: 'Status',
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${value}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {value}
+            </span>
+          </Text>
+        );
+      },
     },
     {
-      title: 'Fecha Inicio',
+      title: 'Fec. Inicio',
       dataIndex: 'Date',
       key: 'Date',
       sorter: true,
       sortOrder: sortColumn === 'Date' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
-      render: (value) => formatDate(value)
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${formatDate(value)}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {formatDate(value)}
+            </span>
+          </Text>
+        );
+      },
     },
     {
-      title: 'Fecha Fin',
+      title: 'Fec. Fin',
       dataIndex: 'Expira',
       key: 'Expira',
       sorter: true,
       sortOrder: sortColumn === 'Expira' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
-      render: (value) => formatDate(value)
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${formatDate(value)}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {formatDate(value)}
+            </span>
+          </Text>
+        );
+      },
     },
     {
       title: 'Total ',
@@ -213,19 +350,82 @@ const TableCotizaciones = () => {
       key: 'Total',
       sorter: true,
       sortOrder: sortColumn === 'Total' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
-      render: (value) => `$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`$${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              ${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </span>
+          </Text>
+        );
+      },
     },
-    {
-      title: 'Reservar Productos ',
-      dataIndex: 'Reservar_Productos',
-      key: 'Reservar_Productos'
-    },
+    // {
+    //   title: <Text
+    //     ellipsis
+    //     title={`Reservar Productos`}
+    //   >
+    //     <span
+    //     >
+    //       Reservar Productos
+    //     </span>
+    //   </Text>,
+    //   dataIndex: 'Reservar_Productos',
+    //   key: 'Reservar_Productos',
+    //   width: '50px',
+    //   render: (value) => {
+    //     return (
+    //       <Text
+    //         ellipsis
+    //         title={`${value}`}
+    //       >
+    //         <span
+    //           style={{
+    //             color: "#515365",
+    //             fontSize: "13px",
+    //             fontWeight: "normal",
+    //           }}
+    //         >
+    //           {value}
+    //         </span>
+    //       </Text>
+    //     );
+    //   },
+    // },
     {
       title: 'Vendedor',
       dataIndex: 'Vendedor',
       key: 'Vendedor',
       sorter: true,
       sortOrder: sortColumn === 'Vendedor' ? (sortOrder === 'asc' ? 'ascend' : 'descend') : null,
+      render: (value) => {
+        return (
+          <Text
+            ellipsis
+            title={`${value}`}
+          >
+            <span
+              style={{
+                color: "#515365",
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {value}
+            </span>
+          </Text>
+        );
+      },
     },
     {
       title: 'Interfuerza',
@@ -246,16 +446,23 @@ const TableCotizaciones = () => {
         }
 
         return (
-          <span
-            onClick={() => handleEstadoAction(record)}
-            style={{
-              cursor: 'pointer',
-              color,
-              textDecoration: 'underline',
-            }}
+          <Text
+            ellipsis
+            title={`${label}`}
           >
-            {label}
-          </span>
+            <span
+              onClick={() => handleEstadoAction(record)}
+              style={{
+                cursor: 'pointer',
+                color,
+                textDecoration: 'underline',
+                fontSize: "13px",
+                fontWeight: "normal",
+              }}
+            >
+              {label}
+            </span>
+          </Text>
         );
       },
     },
@@ -263,10 +470,10 @@ const TableCotizaciones = () => {
       title: "Acciones",
       key: "acciones",
       render: (_, record) => (
-        <>
+        <div style={{ display: 'flex' }}>
           <Button
             size="large"
-            icon={<EyeOutlined />}
+            icon={<EyeOutlined style={{ width: '15px' }} />}
             onClick={() => navigate(`/ver-cotizacion/${record.id}`)}
             style={{
               marginRight: 8,
@@ -274,11 +481,13 @@ const TableCotizaciones = () => {
               justifyContent: "center",
               backgroundColor: '#1890ff',
               color: '#fff',
+              width: "30px",
+              height: "30px"
             }}
           />
           <Button
             size="large"
-            icon={<CopyOutlined />}
+            icon={<CopyOutlined style={{ width: '15px' }} />}
             onClick={() => navigate(`/crear-cotizacion`,
               {
                 state: { record }
@@ -290,40 +499,48 @@ const TableCotizaciones = () => {
               justifyContent: "center",
               backgroundColor: '#da2268',
               color: '#fff',
+              width: "30px",
+              height: "30px"
             }}
           />
           <Button
             size="large"
-            icon={<FilePdfOutlined />}
+            icon={<FilePdfOutlined style={{ width: '15px' }} />}
             onClick={() => showPdfModal(record)}
             style={{
               alignItems: "center",
               justifyContent: "center",
               backgroundColor: '#52c41a',
               color: '#fff',
+              width: "30px",
+              height: "30px"
             }}
           />
-        </>
+        </div>
       ),
     },
   ];
 
   return (
     <div>
-      <div className="search-container">
-        <AutoComplete
-          style={{ width: 200, marginBottom: 20 }}
-          onSearch={handleSearchChange}
-          placeholder="Buscar cotización"
-          value={searchTerm}
-        />
+      <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+          <Link to={`/crear-cotizacion`} className="btn btn-success">
+            Agregar Cotización
+          </Link>
+        </div>
+        <div className="search-container">
+
+          <AutoComplete
+            style={{ width: 200, marginBottom: 20 }}
+            onSearch={handleSearchChange}
+            placeholder="Buscar cotización"
+            value={searchTerm}
+          />
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <Link to={`/crear-cotizacion`} className="btn btn-success">
-          Agregar Cotización
-        </Link>
-      </div>
+
 
       <Table
         columns={columns}
@@ -349,9 +566,9 @@ const TableCotizaciones = () => {
           <Button key="cancel" onClick={handleCloseModal}>
             Cancelar
           </Button>,
-          <Button 
-            key="download" 
-            type="primary" 
+          <Button
+            key="download"
+            type="primary"
             onClick={handleDownloadPdf}
             loading={loadingPdf}
             disabled={!currentQuoteDetails}
@@ -361,10 +578,10 @@ const TableCotizaciones = () => {
           </Button>,
         ]}
       >
-        <div style={{ 
-          height: '70vh', 
-          overflow: 'auto', 
-          border: '1px solid #eee', 
+        <div style={{
+          height: '70vh',
+          overflow: 'auto',
+          border: '1px solid #eee',
           padding: '10px',
           backgroundColor: '#f9f9f9'
         }}>

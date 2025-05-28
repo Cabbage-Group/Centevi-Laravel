@@ -225,6 +225,7 @@ class VerifyCsrfToken extends Middleware
 
     
     'http://127.0.0.1:8000/api/citas/agendar',
+    'http://127.0.0.1:8000/api/citas/confirmar',
 
     'http://127.0.0.1:8000/api/citas/delete/*',
 

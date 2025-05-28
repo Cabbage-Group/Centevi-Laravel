@@ -21,8 +21,12 @@ export const fetchCitasAgenda = createAsyncThunk(
                 "CENTEVI El Dorado": "#FBDDD9",
                 "CENTEVI Consultorios Medicos Paitilla": "#BEE9D3",
                 "CENTEVI Centro Médico San Judas Tadeo": "#BCE9FB",
-                "Otros": "purple"
+                "Otros": "#bb8fce"
             };
+
+            // console.log("citasData: -------------------");
+            // console.log(citasData);
+            
 
             return citasData.map(cita => ({
                 id: cita.id || `sin-id-${Math.random().toString(36).substr(2, 9)}`,
@@ -31,8 +35,8 @@ export const fetchCitasAgenda = createAsyncThunk(
                 end: cita.fecha_hora || new Date().toISOString(),
                 // end: cita.fecha_hora_fin ? cita.fecha_hora_fin : (cita.fecha_hora || new Date().toISOString()),
                 fecha_hora_fin: cita.fecha_hora_fin,
-                backgroundColor: sucursalColors[cita.sucursal?.nombre] || "purple",
-                borderColor: sucursalColors[cita.sucursal?.nombre] || "purple",
+                backgroundColor: sucursalColors[cita.sucursal?.nombre] || "#bb8fce",
+                borderColor: sucursalColors[cita.sucursal?.nombre] || "#bb8fce",
                 badge: cita?.sucursal?.nombre || 'Desconocido',
                 origen_id: cita.origen_id || 'Sin ID',
                 origen_tabla: cita.origen_tabla || 'Desconocido',
@@ -46,6 +50,7 @@ export const fetchCitasAgenda = createAsyncThunk(
                 apellidos: cita.paciente?.apellidos || 'No registrado',
                 celular: cita.paciente?.celular || "00000000",
                 comentarios: cita.comentarios?.trim() || 'Sin comentarios',
+                confirmado: cita.confirmado?.trim() || 'SIN STATUS',
                 agendado_por: cita.agendado_por?.trim() || '',
                 esProximaCita: cita.ex_proxima_cita || false,
             }));
@@ -67,6 +72,21 @@ export const fetchAgendarCitas = createAsyncThunk(
 
         } catch (error) {
             console.error('Error en fetchProximasCitasAgenda:', error);
+            return rejectWithValue(error.response?.data || 'Error fetching citas');
+        }
+    }
+);
+
+export const fetchConfirmarCita = createAsyncThunk(
+    'citasAgenda/fetchConfirmarCita',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await axios.post(`${API}/citas/confirmar`, data);
+
+            return response.data;
+
+        } catch (error) {
+            console.error('Error en fetchConfirmarCita:', error);
             return rejectWithValue(error.response?.data || 'Error fetching citas');
         }
     }
@@ -108,7 +128,8 @@ const citasAgendaSlice = createSlice({
         citasAgenda: [],
         loading: false,
         error: null,
-        currentView: 'timeGridWeek',
+        // currentView: 'timeGridWeek',
+        currentView: 'dayGridMonth',
         currentType: [0]
     },
     reducers: {
@@ -160,6 +181,9 @@ const citasAgendaSlice = createSlice({
                     groupedEvents[eventKey].push(event);
                 });
 
+                // console.log("groupedEvents: -----------")
+                // console.log(groupedEvents)
+
                 const finalEvents = [];
                 const maxVisibleEvents = state.currentView === 'dayGridMonth' ? 5 :
                     state.currentView === 'timeGridDay' ? 5 : 2;
@@ -182,6 +206,10 @@ const citasAgendaSlice = createSlice({
                         finalEvents.push(...eventsAtSameTime);
                     }
                 });
+
+                // console.log("finalEvents: ----------");
+                // console.log(finalEvents);
+                
                 state.citasAgenda = finalEvents
             })
             .addCase(fetchCitasAgenda.rejected, (state, action) => {
@@ -193,7 +221,7 @@ const citasAgendaSlice = createSlice({
                     7: "#FBDDD9",
                     4: "#BEE9D3",
                     3: "#BCE9FB",
-                    default: "purple"
+                    default: "#bb8fce"
                 };
                 console.log('action.payload.nueva_cita:', action.payload.nueva_cita)
                 if (action.payload.nueva_cita) {
@@ -351,7 +379,7 @@ const citasAgendaSlice = createSlice({
                     7: "#FBDDD9",
                     4: "#BEE9D3",
                     3: "#BCE9FB",
-                    default: "purple"
+                    default: "#bb8fce"
                 };
 
                 if (action.payload) {

@@ -472,6 +472,7 @@ Route::get('/api/proximos-servicios/servicios-realizados', [ServiciosApiControll
 Route::get('/api/search/ordenes', [OrdenesApiController::class, 'searchOrdenes']);
 
 Route::post('/api/citas/agendar', [AgendaApiController::class, 'agendarCita']);
+Route::post('/api/citas/confirmar', [AgendaApiController::class, 'confirmarCita']);
 
 Route::delete('/api/citas/delete/{id}', [AgendaApiController::class, 'deleteCita']);
 

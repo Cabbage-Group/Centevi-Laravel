@@ -31,4 +31,9 @@ class Quote extends Model
   {
     return $this->hasMany(QuoteLine::class);
   }
+
+  public function paciente()
+{
+    return $this->belongsTo(Pacientes::class, 'Cliente', 'codigo');
+}
 }

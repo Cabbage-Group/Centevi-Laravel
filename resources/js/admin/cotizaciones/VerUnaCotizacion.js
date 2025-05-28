@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchExchangeRate, VerUnaQuote } from '../../redux/features/quotes/quotesSlice';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -34,6 +34,8 @@ const VerUnaCotizacion = () => {
   const nombre = localStorage.getItem('nombre');
   const [lines, setLines] = useState([]);
   const { id } = useParams();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
@@ -57,7 +59,9 @@ const VerUnaCotizacion = () => {
         Comentario: quote?.Comentario,
         Taxes: quote?.Taxes,
         SubTotal: quote?.SubTotal,
-        Total: quote?.Total
+        Total: quote?.Total,
+        Discount: quote?.Discount,
+        SubTotalMenosDescuentos: quote?.SubTotal - quote?.Discount
 
       });
 
@@ -83,17 +87,18 @@ const VerUnaCotizacion = () => {
       title: 'Código',
       dataIndex: 'Codigo',
       key: 'Codigo',
-      width: 250,
+      width: "100px",
       render: (text, record, index) => {
         return (
           <Select
             showSearch
             disabled
-            style={{ width: '100%' }}
+            style={{ width: '100px' }}
             value={record.Codigo}
             placeholder="Selecciona un producto"
             optionFilterProp="children"
             filterOption={false}
+            title={record.Codigo}
           >
           </Select >
         )
@@ -103,69 +108,91 @@ const VerUnaCotizacion = () => {
       title: 'Nombre',
       dataIndex: 'Nombre',
       key: 'Nombre',
-      width: 250,
+      width: "150px",
       render: (text, record, index) => (
         <Select
           showSearch
           disabled
-          style={{ width: '100%' }}
+          style={{ width: '150px', color: 'black' }}
           placeholder="Selecciona un producto"
           value={record.Nombre}
           optionFilterProp="children"
+          title={record.Nombre}
         >
 
         </Select>
       )
     },
-    {
-      title: 'Marca',
-      dataIndex: 'Marca',
-      key: 'Marca',
-      render: (text, record, index) => (
-        <Input
-          value={text}
-          onChange={(e) => updateLine(index, 'Marca', e.target.value)}
-          disabled
-        />
-      )
-    },
+    // {
+    //   title: 'Marca',
+    //   dataIndex: 'Marca',
+    //   key: 'Marca',
+    //   render: (text, record, index) => (
+    //     <Input
+    //       value={text}
+    //       onChange={(e) => updateLine(index, 'Marca', e.target.value)}
+    //       disabled
+    //       style={{ width: '100%', color: 'black' }}
+    //       title={text}
+    //     />
+    //   )
+    // },
     {
       title: 'Unidades',
       dataIndex: 'Unidades',
       key: 'Unidades',
       render: (text, record, index) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={text}
           onChange={(value) => updateLine(index, 'Unidades', value)}
           precision={2}
           min={0}
           disabled
+          title={text}
         />
       )
     },
     {
-      title: 'Precio Unitario',
+      title: 'P. Unitario',
       dataIndex: 'Precio_Unitario',
       key: 'Precio_Unitario',
       render: (text, record, index) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={text}
           onChange={(value) => updateLine(index, 'Precio_Unitario', value)}
-          precision={4}
+          precision={2}
           min={0}
           disabled
+          title={parseFloat(text)}
         />
       )
     },
+
+    {
+      title: 'SubTotal',
+      dataIndex: 'SubTotal',
+      key: 'SubTotal',
+      render: (text, record) => (
+        <InputNumber
+          value={parseFloat(record.Precio_Unitario) * parseFloat(record.Unidades)}
+          disabled
+          precision={2}
+          style={{ width: '100%', color: 'black' }}
+          title={parseFloat(record.Precio_Unitario) * parseFloat(record.Unidades)}
+          onClick={() => console.log(record)}
+        />
+      )
+    },
+
     {
       title: '% Descuento',
       dataIndex: 'DiscountFactor',
       key: 'DiscountFactor',
       render: (text, record, index) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={parseFloat(text) * 100}
           onChange={(value) => updateLine(index, 'DiscountFactor', value / 100)}
           min={0}
@@ -174,6 +201,7 @@ const VerUnaCotizacion = () => {
           formatter={(value) => `${value}%`}
           parser={(value) => value.replace('%', '')}
           disabled
+          title={parseFloat(text)}
         />
       )
     },
@@ -183,52 +211,55 @@ const VerUnaCotizacion = () => {
       key: 'Discount',
       render: (text) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={parseFloat(text)}
           precision={2}
           disabled
+          title={parseFloat(text)}
         />
       )
     },
-    {
-      title: 'Impuestos',
-      dataIndex: 'TaxValue',
-      key: 'TaxValue',
-      render: (text) => (
-        <InputNumber
-          value={parseFloat(text)}
-          disabled
-          precision={2}
-        />
-      )
-    },
+    // {
+    //   title: 'Impuestos',
+    //   dataIndex: 'TaxValue',
+    //   key: 'TaxValue',
+    //   render: (text) => (
+    //     <InputNumber
+    //       value={parseFloat(text)}
+    //       disabled
+    //       precision={2}
+    //       style={{ width: '100%', color: 'black' }}
+    //       title={parseFloat(text)}
+    //     />
+    //   )
+    // },
     {
       title: 'Total',
       dataIndex: 'Total',
       key: 'Total',
       render: (text) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={parseFloat(text)}
           disabled
           precision={2}
-
+          title={parseFloat(text)}
         />
       )
     },
-    {
-      title: 'Acciones',
-      key: 'actions',
-      render: (_, record, index) => (
-        <Button
-          type="text"
-          danger
-          icon={<DeleteOutlined />}
-          onClick={() => removeLine(index)}
-          disabled
-        />
-      )
-    }
+    // {
+    //   title: 'Acciones',
+    //   key: 'actions',
+    //   render: (_, record, index) => (
+    //     <Button
+    //       type="text"
+    //       danger
+    //       icon={<DeleteOutlined />}
+    //       onClick={() => removeLine(index)}
+    //       disabled
+    //     />
+    //   )
+    // }
   ];
 
   return (
@@ -249,6 +280,7 @@ const VerUnaCotizacion = () => {
                 showSearch
                 optionFilterProp="children"
                 disabled
+                style={{ color: 'black !important' }}
               >
               </Select>
             </Form.Item>
@@ -398,49 +430,109 @@ const VerUnaCotizacion = () => {
         />
 
         <Divider />
-        <Row gutter={16}>
-          <Col span={8} offset={8}>
-            <Form.Item
-              name="Taxes"
-              label="Impuesto"
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={8} offset={8}>
-            <Form.Item
-              name="SubTotal"
-              label="Subtotal"
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={8} offset={8}>
-            <Form.Item
-              name="Total"
-              label="Total"
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
+
+        <Row>
+          <Col xxl={14} xl={14} md={14}></Col>
+          <Col xxl={10} xl={10} md={10}>
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                SubTotal
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="SubTotal"
+                // label="Subtotal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {/*  */}
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Descuento Total
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Discount"
+                // label="Discount"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Subtotal menos descuento
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="SubTotalMenosDescuentos"
+                // label="SubTotalMenosDescuentos"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {/*  */}
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Impuesto
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Taxes"
+                  // label="Impuesto"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Total
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Total"
+                  // label="Total"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
           </Col>
         </Row>
 
@@ -453,7 +545,9 @@ const VerUnaCotizacion = () => {
             >
               Guardar Cotización
             </Button>
-            <Button>
+            <Button
+              onClick={() => navigate('/table-cotizaciones')}
+            >
               Cancelar
             </Button>
           </Space>

@@ -120,7 +120,7 @@ const sucursalesSlice = createSlice({
           filteredSucursales.push({
             id: "otros",
             name: "Otros",
-            color: "purple"
+            color: "#bb8fce"
           });
         }
 

@@ -25,7 +25,7 @@ class QuoterApiController extends Controller
       $sortOrder = 'asc';
     }
 
-    $query = Quote::with('lines')
+    $query = Quote::with(['lines', 'paciente'])
       ->orderBy($sortColumn, $sortOrder);
 
     if ($searchTerm) {
@@ -50,6 +50,7 @@ class QuoterApiController extends Controller
             ->orWhere('Total', 'LIKE', "%$searchTerm%")
             ->orWhere('Reservar_Productos', 'LIKE', "%$searchTerm%")
             ->orWhere('Vendedor', 'LIKE', "%$searchTerm%")
+            ->orWhere('codigo_interfuerza', 'LIKE', "%$searchTerm%")
             ->orWhere('estado', 'LIKE', "%$searchTerm%");
         });
       }

@@ -22,7 +22,8 @@ class Citas extends Model
         'sucursal_id',
         'ex_proxima_cita',
         'comentarios',
-        'agendado_por'
+        'agendado_por',
+        'confirmado'
     ];
 
     public function paciente()

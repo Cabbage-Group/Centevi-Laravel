@@ -8,23 +8,41 @@ import {
   Modal, Input, DatePicker, Radio, Button,
   Space, Popconfirm, Select, Row, Col,
   List, Form, Spin, AutoComplete,
-  Calendar
+  Calendar,
+  Checkbox,
+  Tooltip
 } from "antd";
-import { LeftOutlined, RightOutlined, PlusOutlined, CalendarOutlined, DeleteOutlined, CloseCircleTwoTone, EyeOutlined, PhoneOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  LeftOutlined, RightOutlined, PlusOutlined,
+  CalendarOutlined, DeleteOutlined, CloseCircleTwoTone,
+  EyeOutlined, PhoneOutlined, EditOutlined
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import BotonesFiltroAgenda from "./components/BotonesFiltroAgenda";
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchServicios, fetchServiciosProximosAgenda } from "../../redux/features/servicios/serviciosSlice";
-import { addOrUpdateEvent, deleteCita, fetchAgendarCitas, fetchCitasAgenda, setCurrentViewAgenda, updateCita } from "../../redux/features/citas/CitasAgendaSlice";
+import {
+  fetchServicios,
+  fetchServiciosProximosAgenda
+} from "../../redux/features/servicios/serviciosSlice";
+import {
+  addOrUpdateEvent, deleteCita,
+  fetchAgendarCitas, fetchCitasAgenda,
+  fetchConfirmarCita,
+  setCurrentViewAgenda, updateCita
+} from "../../redux/features/citas/CitasAgendaSlice";
 import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
 import Swal from 'sweetalert2';
 import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import axios from "axios";
 import getIp from "../../redux/features/utils/getIp";
-import { crearPacientes, verificarCedula } from "../../redux/features/pacientes/crearPacientesSlice";
+import {
+  crearPacientes,
+  verificarCedula
+} from "../../redux/features/pacientes/crearPacientesSlice";
 import debounce from 'lodash/debounce';
+import { Link } from "react-router-dom";
 
 
 dayjs.locale("es");
@@ -33,7 +51,9 @@ const VerAgenda = () => {
 
   const dispatch = useDispatch();
   const [form] = Form.useForm()
-  const { servicios, serviciosProximos, serviciosProximos_options } = useSelector((state) => state.servicios);
+  const {
+    servicios, serviciosProximos, serviciosProximos_options
+  } = useSelector((state) => state.servicios);
   const [IP, setIp] = useState('');
   const [selectedIndex, setSelectedIndex] = useState([0]);
   const [proximosServicios, setProximosServicios] = useState([]);
@@ -64,9 +84,10 @@ const VerAgenda = () => {
   const [currentEndDateAgenda, setCurrentEndDateAgenda] = useState(new Date());
   const [groupedEvents, setGroupedEvents] = useState([]);
   const [isGroupedModalOpen, setIsGroupedModalOpen] = useState(false);
-  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: "-50px" });
   const [selectedSucursales, setSelectedSucursales] = useState([]);
   const [hideSunday, setHideSunday] = useState(true);
+  const [actualizarCitas, setActualizarCitas] = useState(false);
   const usuario = localStorage.getItem("usuario");
   const [mensaje, setMensaje] = useState(
     `Buenas Tardes
@@ -80,10 +101,17 @@ Paciente: {nombre}
 Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas apretadas
 
 Dirección fisica: {direccion}
+
+*Método de pago*
+ 
+Yappy, directorio de empresas en BGeneral como Centevi Panamá
+Efectivo
+Tarjeta (Clave,Visa o Mastercard)
 `
   );
 
   const calendarRef = useRef(null);
+  const confirmacionRef = useRef(null);
 
   const { citasAgenda } = useSelector((state) => state.citasAgenda);
 
@@ -365,15 +393,24 @@ Dirección fisica: {direccion}
       }
     }
 
-    dispatch(fetchCitasAgenda({
+    obtenerCitas({
       months,
       years,
       sucursales: selectedSucursales,
       tipo,
       ex_proxima_cita,
       citas_id_null
-    }));
-  }, [currentView, currentDateAgenda, selectedSucursales, currentEndDateAgenda, selectedIndex, dispatch]);
+    });
+  }, [
+    currentView, currentDateAgenda, selectedSucursales,
+    currentEndDateAgenda, selectedIndex, actualizarCitas, dispatch
+  ]);
+
+  const obtenerCitas = async (data) => {
+    await dispatch(fetchCitasAgenda(data));
+
+    changeView("timeGridDay");
+  }
 
 
   const handleDateChange = (dateInfo) => {
@@ -493,6 +530,7 @@ Dirección fisica: {direccion}
       paciente: "",
       doctor: "",
       comentarios: "",
+      confirmado: "SIN STATUS",
       fechaAgenda: dayjs(info.date),
       fechaAgendaFin: dayjs(info.date).add(1, 'hour'),
       tipoAgenda: "",
@@ -530,21 +568,13 @@ Dirección fisica: {direccion}
     setIsModalOpen(true);
 
   };
+
   const handleEventClick = (info) => {
     const eventId = Number(info.event.id);
     let clickedEvent = citasAgenda.find(
       (event) => Number(event.id) === eventId
     );
 
-    const diferenciaMinutos = dayjs(clickedEvent.fecha_hora_fin).diff(dayjs(clickedEvent.start), 'minute');
-    if (isNaN(diferenciaMinutos)) {
-      setRangeTimeEndDateSelected(60);
-    } else if ([15, 30, 45, 60].includes(diferenciaMinutos)) {
-      console.log('include');
-      setRangeTimeEndDateSelected(diferenciaMinutos);
-    } else {
-      setRangeTimeEndDateSelected(null);
-    }
     if (!clickedEvent) {
       citasAgenda.forEach(event => {
         if (event.extendedProps?.hiddenEvents) {
@@ -557,64 +587,101 @@ Dirección fisica: {direccion}
         }
       });
     }
-    if (clickedEvent) {
 
-      const sucursalSeleccionada = sucursales_option_selects.find((sucursal) => sucursal.value == clickedEvent.sucursal_id)
-      setDireccion_sucursal(sucursalSeleccionada.ubicacion_maps)
+    if (clickedEvent) {
+      const fechaInicio = dayjs(clickedEvent.start);
+      const fechaFin = clickedEvent.fecha_hora_fin
+        ? dayjs(clickedEvent.fecha_hora_fin)
+        : fechaInicio.add(60, 'minutes'); // ← Asignar fin si no existe
+
+      const diferenciaMinutos = fechaFin.diff(fechaInicio, 'minute');
+
+      if (isNaN(diferenciaMinutos)) {
+        setRangeTimeEndDateSelected(60);
+      } else if ([15, 30, 45, 60].includes(diferenciaMinutos)) {
+        setRangeTimeEndDateSelected(diferenciaMinutos);
+      } else {
+        setRangeTimeEndDateSelected(null);
+      }
+
+      const sucursalSeleccionada = sucursales_option_selects.find(
+        (sucursal) => sucursal.value == clickedEvent.sucursal_id
+      );
+      setDireccion_sucursal(sucursalSeleccionada?.ubicacion_maps || "");
 
       setConsultaId(clickedEvent.origen_id);
       setTableName(clickedEvent.origen_tabla);
-      setEsProximaCita(clickedEvent.esProximaCita)
-      setDateEvent(clickedEvent.start)
-      setEventPaciente(clickedEvent.paciente)
-      setSucursal(clickedEvent.sucursal)
+      setEsProximaCita(clickedEvent.esProximaCita);
+      setDateEvent(clickedEvent.start);
+      setEventPaciente(clickedEvent.paciente);
+      setSucursal(clickedEvent.sucursal);
       setIsEditMode(true);
       setCurrentEventId(clickedEvent.id);
       setSucursalId(clickedEvent.sucursal_id);
-      setPacienteId(clickedEvent.paciente_id)
+      setPacienteId(clickedEvent.paciente_id);
       setCelular(clickedEvent.celular);
-      setSelectedPaciente(clickedEvent.paciente_id)
-      setPacienteId(clickedEvent.paciente_id)
-      setSelectedSucursal(clickedEvent.sucursal_id)
-      setAgendadoPor(clickedEvent.agendado_por)
-      setPacienteInput(clickedEvent.paciente_id)
-      setApellidos(clickedEvent.apellidos)
+      setSelectedPaciente(clickedEvent.paciente_id);
+      setPacienteId(clickedEvent.paciente_id);
+      setSelectedSucursal(clickedEvent.sucursal_id);
+      setAgendadoPor(clickedEvent.agendado_por);
+      setPacienteInput(clickedEvent.paciente_id);
+      setApellidos(clickedEvent.apellidos);
       setIsModalOpen(true);
+
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente,
         apellidos: clickedEvent.apellidos,
         celular: clickedEvent.celular,
-        sucursal: clickedEvent.sucursal ? { value: clickedEvent.sucursal_id, label: clickedEvent.sucursal } : undefined,
+        sucursal: clickedEvent.sucursal
+          ? { value: clickedEvent.sucursal_id, label: clickedEvent.sucursal }
+          : undefined,
         doctor: clickedEvent.doctor || "",
         comentarios: clickedEvent.comentarios || "",
-        fechaAgenda: dayjs(clickedEvent.start),
-        fechaAgendaFin: clickedEvent.fecha_hora_fin ? dayjs(clickedEvent.fecha_hora_fin) : dayjs(clickedEvent.start).add(60, 'minutes'),
+        confirmado: clickedEvent.confirmado || "",
+        fechaAgenda: fechaInicio,
+        fechaAgendaFin: fechaFin,
         tipoAgenda: clickedEvent.tipo || "",
         agendado_por: clickedEvent.agendado_por || "",
       });
+
       form.validateFields();
 
-      if (clickedEvent.esProximaCita === 1) {
-        dispatch(
-          fetchServiciosProximosAgenda({
-            consulta_nombre: clickedEvent.origen_tabla,
-            consulta_id: clickedEvent.origen_id,
-          })
-        );
-      } else {
-        dispatch(
-          fetchServiciosProximosAgenda({
-            consulta_nombre: clickedEvent.origen_tabla,
-            consulta_id: clickedEvent.id,
-          })
-        );
-      }
+      dispatch(
+        fetchServiciosProximosAgenda({
+          consulta_nombre: clickedEvent.origen_tabla,
+          consulta_id:
+            clickedEvent.esProximaCita === 1
+              ? clickedEvent.origen_id
+              : clickedEvent.id,
+        })
+      );
     }
   };
 
+
   const ImageTherapy = () => (
     <img src="../../../img/icon_therapy.png" width={15} height={15} alt="icon therapy" />
+  )
+
+  const ImageConsulta = () => (
+    <img src="../../../img/icon_consulta.png" width={15} height={15} alt="icon consulta" />
+  )
+
+  const ImageHistory = () => (
+    <img src="../../../img/history.png" width={15} height={15} alt="icon history" />
+  )
+
+  const ImageCheck = () => (
+    <img src="../../../img/check.png" width={15} height={15} alt="icon check" />
+  )
+
+  const ImageCancel = () => (
+    <img src="../../../img/cancel.png" width={15} height={15} alt="icon cancel" />
+  )
+
+  const ImageWatch = () => (
+    <img src="../../../img/watch.svg" width={18} height={18} alt="icon watch" />
   )
 
   const setTimeEndDate = (value) => {
@@ -651,6 +718,7 @@ Dirección fisica: {direccion}
   };
 
   const handleAgendarEvent = async (values) => {
+
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
 
     if (createCedula !== null) {
@@ -768,8 +836,9 @@ Dirección fisica: {direccion}
           doctor: values.doctor,
           sucursal_id: selectedSucursal,
           comentarios: values.comentarios,
+          confirmado: values.confirmado,
           agendado_por: usuario,
-          servicios_id: serviciosRealizadosSubmit
+          servicios_id: serviciosRealizadosSubmit,
         };
 
         setIsModalOpen(false);
@@ -807,6 +876,7 @@ Dirección fisica: {direccion}
       doctor: values.doctor,
       sucursal_id: selectedSucursal,
       comentarios: values.comentarios,
+      confirmado: values.confirmado,
       agendado_por: usuario,
       servicios_id: serviciosRealizadosSubmit
     };
@@ -871,6 +941,7 @@ Dirección fisica: {direccion}
       sucursal_id: selectedSucursal,
       ex_proxima_cita: esProximaCita === 1 ? esProximaCita : 0,
       comentarios: values.comentarios,
+      confirmado: values.confirmado,
       agendado_por: usuario,
       servicios_ids: serviciosRealizadosSubmit,
       fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
@@ -953,7 +1024,7 @@ Dirección fisica: {direccion}
 
     setModalPosition({
       top: event.clientY,
-      left: event.clientX,
+      left: event.clientX - 150,
     });
 
     setGroupedEvents(hiddenEvents);
@@ -971,6 +1042,49 @@ Dirección fisica: {direccion}
       calendarApi.changeView('timeGridDay');
     }
   };
+
+  const enviarConfirmacionCita = async (info, confirmado) => {
+    const eventId = Number(info.event.id);
+
+    const result = await Swal.fire({
+      title: "Confirmar Cita?",
+      text: "¿Deseas confirmar que se dio esta cita?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, confirmar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33'
+    });
+
+    if (result.isConfirmed) {
+      console.log(eventId)
+      const data = {
+        cita_id: eventId,
+        confirmado: 'CONFIRMADO'
+      }
+
+      try {
+        await dispatch(fetchConfirmarCita(data)).unwrap();
+        setActualizarCitas(!actualizarCitas)
+        Swal.fire({
+          icon: "success",
+          title: "Cita Confirmada",
+          text: "La cita ha sido confirmada exitosamente.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Hubo un error al confirmar la cita.",
+        });
+      }
+    }
+
+
+  }
 
   return (
     <div
@@ -1117,7 +1231,11 @@ Dirección fisica: {direccion}
             </Button>
           </Space>
         </div>
-
+        {/* <button
+          onClick={() => console.log(citasAgenda)}
+        >
+          agenda
+        </button> */}
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -1127,7 +1245,7 @@ Dirección fisica: {direccion}
           editable
           selectable
           dateClick={handleDateClick}
-          eventClick={handleEventClick}
+          // eventClick={(info) => handleEventClick(info)}
           events={citasAgenda}
           eventOrder="id"
           eventDisplay="block"
@@ -1163,7 +1281,10 @@ Dirección fisica: {direccion}
           slotLabelInterval="00:30"
           height="auto"
           eventContent={(info) => {
-            const { hiddenEvents, comentarios, doctor, tipo, paciente, apellidos, fecha_hora_fin, celular } = info.event.extendedProps;
+            const {
+              hiddenEvents, comentarios, doctor, tipo, paciente,
+              apellidos, fecha_hora_fin, celular, confirmado, paciente_id
+            } = info.event.extendedProps;
             const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
             const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
             const nombrePaciente = `${primerNombre} ${primerApellido}`;
@@ -1173,100 +1294,174 @@ Dirección fisica: {direccion}
 
             const isDayView = info.view.type === "timeGridDay";
             return (
-              <div>
+              <div style={{ position: 'relative' }}>
                 <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
+                  onClick={() => handleEventClick(info)}
+                  style={
+                    tipo == "terapia" ?
+                      {
+                        height: "100%",
+                        border: "3px solid #003300",
+                        marginLeft: "-3px",
+                        paddingLeft: "3px"
+                      }
+                      : tipo == "consulta" ?
+                        {
+                          height: "100%",
+                          border: "3px solid #3300FF",
+                          marginLeft: "-3px",
+                          paddingLeft: "3px"
+                        }
+                        : {
+                          height: "100%",
+                          border: "3px solid transparent",
+                          marginLeft: "-3px",
+                          paddingLeft: "3px"
+                        }
+                  }
                 >
-                  <span>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <span>
 
-                    <b
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        color: "black",
-                        flexShrink: 1,
-                        minWidth: 0,
-                      }}
-                      title={`${eventTime} - ${info.event.title} - ${celular}`}
-                    >
-                      {eventTime} - {nombrePaciente} - {celular}
-                    </b>
-                  </span>
+                      <b
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          color: "black",
+                          flexShrink: 1,
+                          minWidth: 0,
+                        }}
+                        title={`${eventTime} - ${info.event.title} - ${celular}`}
+                      >
+                        {eventTime} - {nombrePaciente} - {celular}
+                      </b>
+                    </span>
 
-                  {isDayView && comentarios && (
-                    <span
+                    {isDayView && comentarios && (
+                      <span
+                        style={{
+                          marginLeft: "6px",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          color: "black",
+                          flexShrink: 0, // Esto evita que se corte el texto de comentarios
+                        }}
+                        title={comentarios}
+                      >
+                        ({comentarios})
+                      </span>
+                    )}
+                  </div>
+                  <small
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      color: "black",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                    title={doctor}
+                  >
+                    🧑‍⚕️ {doctor}
+                  </small>
+
+                  <div style={{ display: 'flex' }}>
+                    <small
                       style={{
-                        marginLeft: "6px",
+                        display: "block",
                         fontSize: "12px",
                         fontWeight: "bold",
                         color: "black",
-                        flexShrink: 0, // Esto evita que se corte el texto de comentarios
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
                       }}
-                      title={comentarios}
+                      title={tipo}
                     >
-                      ({comentarios})
+                      {
+                        tipo == "terapia"
+                          ? <ImageTherapy />
+                          : tipo == "consulta"
+                            ? <ImageConsulta />
+                            : <span>🩺</span>
+                      } {tipo}
+
+
+                    </small>
+                  </div>
+
+                  {hiddenEvents && hiddenEvents.length > 0 && (
+                    <span
+                      style={{
+                        color: "black",
+                        cursor: "pointer",
+                        position: "absolute",
+                        bottom: "0px",
+                        right: "0px",
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        backgroundColor: "white",
+                        padding: "2px 4px",
+                        borderRadius: "4px",
+                        whiteSpace: "nowrap",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShowMore(hiddenEvents, e);
+                      }}
+                    >
+                      +{hiddenEvents.length} más
                     </span>
                   )}
                 </div>
-                <small
-                  style={{
-                    display: "block",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    color: "black",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                  title={doctor}
-                >
-                  🧑‍⚕️ {doctor}
-                </small>
 
-                <small
-                  style={{
-                    display: "block",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                    color: "black",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                  title={tipo}
-                >
-                  {tipo == "terapia" ? <ImageTherapy /> : <span>🩺</span>} {tipo}
-                </small>
+                <div style={{ position: 'absolute', bottom: '22px', left: '150px' }}>
+                  <Tooltip title='Historia Clinica' >
+                    <Link to={"/historia-paciente/" + paciente_id}>
+                      <ImageHistory />
+                    </Link>
+                  </Tooltip>
+                </div>
 
-                {hiddenEvents && hiddenEvents.length > 0 && (
-                  <span
-                    style={{
-                      color: "black",
-                      cursor: "pointer",
-                      position: "absolute",
-                      bottom: "0px",
-                      right: "0px",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      backgroundColor: "white",
-                      padding: "2px 4px",
-                      borderRadius: "4px",
-                      whiteSpace: "nowrap",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShowMore(hiddenEvents, e);
-                    }}
-                  >
-                    +{hiddenEvents.length} más
-                  </span>
-                )}
+                <div style={{ position: 'absolute', bottom: '5px', left: '150px' }}>
+                  {/* <Checkbox
+                    onChange={(i) => enviarConfirmacionCita(info, i.target.checked)}
+                    checked={confirmado}
+                    style={{ display: 'none' }}
+                    ref={confirmacionRef}
+                  /> */}
+                  <div onClick={() => enviarConfirmacionCita(info, !confirmado)}>
+                    {
+                      confirmado == 'SIN STATUS'
+                        ? <Checkbox
+                          checked={false}
+                          ref={confirmacionRef}
+                          style={{ position: 'absolute', bottom: '-5px' }}
+                        />
+                        : confirmado == 'CONFIRMADO'
+                          ? <ImageCheck />
+                          : confirmado == 'CANCELADO'
+                            ? <ImageCancel />
+                            : confirmado == 'POSTERGADO'
+                              ? <ImageWatch />
+                              : <div></div>
+
+                      // <ImageCheck />
+                      // <ImageCancel />
+                    }
+
+                  </div>
+                </div>
               </div>
 
             );
@@ -1364,16 +1559,44 @@ Dirección fisica: {direccion}
           layout="vertical"
           onFinish={handleAgendarEvent}
         >
-          <label style={{ marginTop: '10px' }}>Agendado por:</label>
-          <Form.Item
-            name="agendado_por"
-          >
-            <Input
-              placeholder=""
-              style={{ marginBottom: "5px" }}
-              disabled
-            />
-          </Form.Item>
+          <Row gutter={[16, 16]}>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '10px' }}>Agendado por:</label>
+              <Form.Item
+                name="agendado_por"
+              >
+                <Input
+                  placeholder=""
+                  style={{ marginBottom: "5px" }}
+                  disabled
+                />
+              </Form.Item>
+            </Col>
+            <Col xxl={12} xl={12} md={12}>
+              <label style={{ marginTop: '10px' }}>Status:</label>
+              <Form.Item
+                name="confirmado"
+              // rules={[{ required: true, message: "La sucursal es requerida" }]}
+              >
+                <Select
+                  placeholder="Selecciona un status"
+                  onChange={(value) => {
+
+                  }}
+                >
+                  {[
+                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO"
+                  ].map((sucursal) => (
+                    <Select.Option key={sucursal} value={sucursal}>
+                      {sucursal}
+                    </Select.Option>
+
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
 
           {/*  */}
           <Row gutter={[16, 16]}>
@@ -1541,7 +1764,7 @@ Dirección fisica: {direccion}
                   onSearch={(val) => {
                     const valueWithPrefix = val.startsWith("+507") ? val : `+507${val}`;
                     form.setFieldsValue({ celular: valueWithPrefix });
-                    debouncedSetCelular(valueWithPrefix); 
+                    debouncedSetCelular(valueWithPrefix);
                   }}
                   onSelect={(value, key) => {
                     setCreateCedula(null)
@@ -1786,44 +2009,116 @@ Dirección fisica: {direccion}
         <List
           dataSource={groupedEvents}
           renderItem={(event) => (
-            <List.Item
-              style={{
-                cursor: "pointer",
-                padding: "6px",
-                marginBottom: "6px",
-                backgroundColor: event.backgroundColor,
-                borderLeft: `3px solid ${event.borderColor}`,
-                borderRadius: "6px",
-                color: "white",
-                fontSize: "12px",
-              }}
-              onClick={() => {
-                setIsGroupedModalOpen(false);
-                handleEventClick({ event: { id: event.id } });
-              }}
-            >
-              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <strong style={{ fontSize: "11px", color: 'black' }}>
-                  {dayjs(event.start).format("HH:mm")} - {event.title} - {event.celular}
-                  {currentView === "timeGridDay" && event.comentarios && (
-                    <span style={{ fontWeight: "normal", fontSize: "10px", color: "black" }}>
-                      {" "}({event.comentarios})
+            <div style={{ position: 'relative' }}>
+              <div>
+                <List.Item
+                  style={
+                    event.tipo == "terapia"
+                      ? {
+                        cursor: "pointer",
+                        padding: "6px",
+                        marginBottom: "6px",
+                        backgroundColor: event.backgroundColor,
+                        borderLeft: `3px solid ${event.borderColor}`,
+                        borderRadius: "6px",
+                        color: "white",
+                        fontSize: "12px",
+                        height: "100%",
+                        border: "3px solid #003300",
+                      }
+                      : event.tipo == "consulta"
+                        ? {
+                          cursor: "pointer",
+                          padding: "6px",
+                          marginBottom: "6px",
+                          backgroundColor: event.backgroundColor,
+                          borderLeft: `3px solid ${event.borderColor}`,
+                          borderRadius: "6px",
+                          color: "white",
+                          fontSize: "12px",
+                          height: "100%",
+                          border: "3px solid #3300FF",
+                        }
+                        : {
+                          cursor: "pointer",
+                          padding: "6px",
+                          marginBottom: "6px",
+                          backgroundColor: event.backgroundColor,
+                          borderLeft: `3px solid ${event.borderColor}`,
+                          borderRadius: "6px",
+                          color: "white",
+                          fontSize: "12px",
+                          height: "100%",
+                          border: "3px solid transparent",
+                        }
+                  }
+                  onClick={() => {
+                    // setIsGroupedModalOpen(false);
+                    // handleEventClick({ event: { id: event.id } });
+                    handleEventClick({ event: event });
+                  }}
+                >
+                  <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <strong style={{ fontSize: "11px", color: 'black' }}>
+                      {dayjs(event.start).format("HH:mm")} - {event.title} - {event.celular}
+                      {currentView === "timeGridDay" && event.comentarios && (
+                        <span style={{ fontWeight: "normal", fontSize: "10px", color: "black" }}>
+                          {" "}({event.comentarios})
+                        </span>
+                      )}
+                    </strong>
+                    <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}>
+                      🧑‍⚕️ {event.doctor}
                     </span>
-                  )}
-                </strong>
-                <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}>
-                  🧑‍⚕️ {event.doctor}
-                </span>
-                <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}>
-                  🩺 {event.tipo}
-                </span>
+                    <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}>
+                      🩺 {event.tipo}
+                    </span>
+                  </div>
+                </List.Item>
               </div>
-            </List.Item>
+
+              <div style={{ position: 'absolute', bottom: '22px', left: '115px' }}>
+                <Tooltip title='Historia Clinica' >
+                  <Link to={"/historia-paciente/" + event.paciente_id}>
+                    <ImageHistory />
+                  </Link>
+                </Tooltip>
+              </div>
+
+              <div style={{ position: 'absolute', bottom: '0', left: '115px' }}>
+                {/* <Checkbox
+                  onChange={(i) => enviarConfirmacionCita({ event: event }, i.target.checked)}
+                  checked={event.confirmado}
+                /> */}
+                <div onClick={() => enviarConfirmacionCita({ event: event }, '')}>
+                  {
+                    event.confirmado == 'SIN STATUS'
+                      ? <Checkbox
+                        checked={false}
+                        ref={confirmacionRef}
+                        style={{ position: 'absolute', bottom: '2px' }}
+                      />
+                      : event.confirmado == 'CONFIRMADO'
+                        ? <ImageCheck />
+                        : event.confirmado == 'CANCELADO'
+                          ? <ImageCancel />
+                          : event.confirmado == 'POSTERGADO'
+                            ? <ImageWatch />
+                            : <div></div>
+
+                    // <ImageCheck />
+                    // <ImageCancel />
+                  }
+
+                </div>
+              </div>
+
+            </div>
           )}
         />
 
       </Modal>
-    </div>
+    </div >
   );
 };
 

@@ -26,7 +26,7 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { createQuotes, fetchExchangeRate, updateEstadoQuote } from '../../redux/features/quotes/quotesSlice';
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { fetchProductsInterfuerza } from '../../redux/features/productsInterfuerza/ProductsInterfuerza';
 
 const { Option } = Select;
@@ -36,6 +36,7 @@ const TAX_RATE = 0.07;
 const CrearCotizacion = () => {
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const { interfuerzaQuotes } = useSelector((state) => state.interfuerzaQuotes);
   const { interfuerzaWareHouses } = useSelector((state) => state.interfuerzaWareHouses);
@@ -330,13 +331,15 @@ const CrearCotizacion = () => {
 
     if (['Unidades', 'Precio_Unitario', 'DiscountFactor'].includes(field)) {
       const subtotal = unidades * precio;
-      const descuento = subtotal * discountFactor;
+      const descuento = precio * unidades * discountFactor;
+
       const taxableAmount = subtotal - descuento;
       const impuesto = taxableAmount * TAX_RATE;
-      const total = subtotal - descuento + impuesto;
+      const total = (precio * unidades) - descuento;
 
-      newLines[index].Discount = descuento.toFixed(2);
+      newLines[index].Discount = descuento;
       newLines[index].TaxValue = impuesto.toFixed(2);
+      newLines[index].subTotal = subtotal;
       newLines[index].Total = total.toFixed(2);
     }
 
@@ -364,15 +367,19 @@ const CrearCotizacion = () => {
 
 
   const calculateTotals = (currentLines) => {
+
     const linesArray = currentLines || lines;
-    const subtotal = linesArray.reduce((sum, line) => sum + parseFloat(line.Total || 0), 0);
+    const subtotal = linesArray.reduce((sum, line) => sum + parseFloat(line.subTotal || 0), 0);
     const discount_total = linesArray.reduce((sum, line) => sum + parseFloat(line.Discount || 0), 0);
-    const impuesto_total = subtotal * TAX_RATE
+    const subTotalMenosDescuento = subtotal - discount_total
+    const impuesto_total = subTotalMenosDescuento * 0.07
+
     form.setFieldsValue({
       Taxes: impuesto_total.toFixed(2),
-      SubTotal: subtotal.toFixed(2) - impuesto_total.toFixed(2),
+      SubTotal: subtotal.toFixed(2),
       Discount: discount_total.toFixed(2),
-      Total: subtotal.toFixed(2)
+      Total: (impuesto_total + subTotalMenosDescuento).toFixed(2),
+      SubTotalMenosDescuento: subTotalMenosDescuento.toFixed(2)
     });
   };
 
@@ -381,12 +388,12 @@ const CrearCotizacion = () => {
       title: 'Código',
       dataIndex: 'Item_Number',
       key: 'Item_Number',
-      width: 250,
+      width: "100px",
       render: (text, record, index) => {
         return (
           <Select
             showSearch
-            style={{ width: '100%' }}
+            style={{ width: '100px' }}
             value={record.Item_Number}
             placeholder="Selecciona un producto"
             optionFilterProp="children"
@@ -416,11 +423,11 @@ const CrearCotizacion = () => {
       title: 'Nombre',
       dataIndex: 'Nombre',
       key: 'Nombre',
-      width: 250,
+      width: "150px",
       render: (text, record, index) => (
         <Select
           showSearch
-          style={{ width: '100%' }}
+          style={{ width: '150px' }}
           placeholder="Selecciona un producto"
           value={record.Nombre}
           optionFilterProp="children"
@@ -444,17 +451,19 @@ const CrearCotizacion = () => {
         </Select>
       )
     },
-    {
-      title: 'Marca',
-      dataIndex: 'Marca',
-      key: 'Marca',
-      render: (text, record, index) => (
-        <Input
-          value={text}
-          onChange={(e) => updateLine(index, 'Marca', e.target.value)}
-        />
-      )
-    },
+    // {
+    //   title: 'Marca',
+    //   dataIndex: 'Marca',
+    //   key: 'Marca',
+    //   width: 100,
+    //   render: (text, record, index) => (
+    //     <Input
+    //       value={text}
+    //       onChange={(e) => updateLine(index, 'Marca', e.target.value)}
+    //       title={parseFloat(text)}
+    //     />
+    //   )
+    // },
     {
       title: 'Unidades',
       dataIndex: 'Unidades',
@@ -466,11 +475,12 @@ const CrearCotizacion = () => {
           onChange={(value) => updateLine(index, 'Unidades', value)}
           precision={2}
           min={0}
+          title={parseFloat(text)}
         />
       )
     },
     {
-      title: 'Precio Unitario',
+      title: 'P. Unitario',
       dataIndex: 'Precio_Unitario',
       key: 'Precio_Unitario',
       render: (text, record, index) => (
@@ -478,11 +488,28 @@ const CrearCotizacion = () => {
           style={{ width: '100%' }}
           value={text}
           onChange={(value) => updateLine(index, 'Precio_Unitario', value)}
-          precision={4}
+          precision={2}
           min={0}
+          title={parseFloat(text)}
         />
       )
     },
+
+    {
+      title: 'SubTotal',
+      dataIndex: 'subTotal',
+      key: 'subTotal',
+      render: (text) => (
+        <InputNumber
+          style={{ width: '100%', color: 'black' }}
+          value={parseFloat(text)}
+          disabled
+          precision={2}
+          title={parseFloat(text)}
+        />
+      )
+    },
+
     {
       title: '% Descuento',
       dataIndex: 'DiscountFactor',
@@ -497,6 +524,7 @@ const CrearCotizacion = () => {
           precision={2}
           formatter={(value) => `${value}%`}
           parser={(value) => value.replace('%', '')}
+          title={parseFloat(text)}
         />
       )
     },
@@ -506,35 +534,39 @@ const CrearCotizacion = () => {
       key: 'Discount',
       render: (text) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={parseFloat(text)}
           precision={2}
           disabled
+          title={parseFloat(text)}
         />
       )
     },
-    {
-      title: 'Impuestos',
-      dataIndex: 'TaxValue',
-      key: 'TaxValue',
-      render: (text) => (
-        <InputNumber
-          value={parseFloat(text)}
-          disabled
-          precision={2}
-        />
-      )
-    },
+    // {
+    //   title: 'Impuestos',
+    //   dataIndex: 'TaxValue',
+    //   key: 'TaxValue',
+    //   render: (text) => (
+    //     <InputNumber
+    //       style={{ width: '100%', color: 'black' }}
+    //       value={parseFloat(text)}
+    //       disabled
+    //       precision={2}
+    //       title={parseFloat(text)}
+    //     />
+    //   )
+    // },
     {
       title: 'Total',
       dataIndex: 'Total',
       key: 'Total',
       render: (text) => (
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: '100%', color: 'black' }}
           value={parseFloat(text)}
           disabled
           precision={2}
+          title={parseFloat(text)}
         />
       )
     },
@@ -632,7 +664,19 @@ const CrearCotizacion = () => {
               label="Fecha Inicio"
               rules={[{ required: true, message: 'Campo requerido' }]}
             >
-              <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+              <DatePicker
+                style={{ width: '100%' }} format="YYYY-MM-DD"
+                onChange={(date) => {
+                  if (date) {
+                    const expirationDate = dayjs(date).add(30, 'day');
+                    form.setFieldsValue({
+                      Expira: expirationDate,
+                    });
+                  } else {
+                    form.setFieldsValue({ Expira: null });
+                  }
+                }}
+              />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -725,69 +769,111 @@ const CrearCotizacion = () => {
         />
 
         <Divider />
-        <Row gutter={16}>
-          <Col span={8} offset={16}>
-            <Form.Item
-              name="Taxes"
-              label="Impuesto"
-              layout="horizontal"
+        <Row>
+          <Col xxl={14} xl={14} md={14}></Col>
+          <Col xxl={10} xl={10} md={10}>
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                SubTotal
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="SubTotal"
+                  // label="Subtotal"
+                  layout="horizontal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={8} offset={16}>
-            <Form.Item
-              name="SubTotal"
-              label="Subtotal"
-              layout="horizontal"
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={8} offset={16}>
-            <Form.Item
-              name="Discount"
-              label="Descuento Total"
-              layout="horizontal"
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={8} offset={16}>
-            <Form.Item
-              name="Total"
-              label="Total"
-              layout="horizontal"
-            >
-              <InputNumber
-                style={{ width: '100%' }}
-                disabled
-                precision={2}
-                formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              />
-            </Form.Item>
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Descuento Total
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Discount"
+                  // label="Descuento Total"
+                  layout="horizontal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Subtotal menos descuento
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="SubTotalMenosDescuento"
+                  // label="Descuento Total"
+                  layout="horizontal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Impuesto
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Taxes"
+                  // label="Impuesto"
+                  layout="horizontal"
+
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Total
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Total"
+                  // label="Total"
+                  layout="horizontal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
           </Col>
         </Row>
         <Row justify="end">
@@ -796,7 +882,9 @@ const CrearCotizacion = () => {
               <Button type="primary" htmlType="submit">
                 Guardar Cotización
               </Button>
-              <Button>
+              <Button
+                onClick={() => navigate('/table-cotizaciones')}
+              >
                 Cancelar
               </Button>
             </Space>
