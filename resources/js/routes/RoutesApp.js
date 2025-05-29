@@ -155,8 +155,8 @@ const RoutesApp = () => {
         {/* <Route path="/navbar" element={<Navbar />} /> */}
         {/* <Route element={<ProtectedRoute />}> */}
         <Route >
-          <Route path="*" element={<Sidebar component={<Home />} />} />
-          <Route path="/home" element={<Sidebar component={<Home />} />} />
+          <Route path="*" element={<Sidebar component={<VerAgenda />} />} />
+          {/* <Route path="/home" element={<Sidebar component={<Home />} />} />
           <Route path="/sucursales" element={<Sidebar component={<Sucursales />} />} />
           <Route path="/editar-bajaVision/:id/:id_consulta" element={<Sidebar component={<EditarBajaVision />} />} />
           <Route path="/ver-bajaVision/:id/:id_consulta" element={<Sidebar component={<VerBajaVision />} />} />
@@ -258,11 +258,11 @@ const RoutesApp = () => {
 
           <Route path="/kpis-consultas-terapias" element={<Sidebar component={<VerKpisConsultasYTerapias />} />} />
 
-          <Route path="/kpis-consultas-doctores" element={<Sidebar component={<KpisConsultasTerapiasDoctores />} />} />
+          <Route path="/kpis-consultas-doctores" element={<Sidebar component={<KpisConsultasTerapiasDoctores />} />} /> */}
 
           <Route path="/ver-agenda" element={<Sidebar component={<VerAgenda />} />} />
 
-          <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat />} />} />
+          {/* <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat />} />} />
 
           <Route path="/ver-socket" element={<Sidebar component={<ChatComponent />} />} />
 
@@ -279,7 +279,7 @@ const RoutesApp = () => {
 
           <Route path="/table-productos" element={<Sidebar component={<TableProductsInterfuerza />} />} />
 
-          <Route path="/prueba-mention" element={<Sidebar component={<MentionComponent />} />} />
+          <Route path="/prueba-mention" element={<Sidebar component={<MentionComponent />} />} /> */}
         </Route>
 
 
