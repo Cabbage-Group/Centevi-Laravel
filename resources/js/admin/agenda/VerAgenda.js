@@ -1260,7 +1260,7 @@ Tarjeta (Clave,Visa o Mastercard)
             day: "Día",
           }}
           hiddenDays={hideSunday ? [0] : []}
-          slotMinTime="08:00:00"
+          slotMinTime="07:00:00"
           slotMaxTime="19:00:00"
           slotLabelFormat={{
             hour: "numeric",
@@ -1455,7 +1455,7 @@ Tarjeta (Clave,Visa o Mastercard)
                           ? <ImageCheck />
                           : confirmado == 'CANCELADO'
                             ? <ImageCancel />
-                            : confirmado == 'POSTERGADO'
+                            : confirmado == 'REAGENDADO'
                               ? <ImageWatch />
                               : <div></div>
 
@@ -1588,7 +1588,7 @@ Tarjeta (Clave,Visa o Mastercard)
                   }}
                 >
                   {[
-                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO"
+                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "REAGENDADO"
                   ].map((sucursal) => (
                     <Select.Option key={sucursal} value={sucursal}>
                       {sucursal}
@@ -2105,7 +2105,7 @@ Tarjeta (Clave,Visa o Mastercard)
                         ? <ImageCheck />
                         : event.confirmado == 'CANCELADO'
                           ? <ImageCancel />
-                          : event.confirmado == 'POSTERGADO'
+                          : event.confirmado == 'REAGENDADO'
                             ? <ImageWatch />
                             : <div></div>
 
