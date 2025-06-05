@@ -10,7 +10,8 @@ import {
   List, Form, Spin, AutoComplete,
   Calendar,
   Checkbox,
-  Tooltip
+  Tooltip,
+  Grid
 } from "antd";
 import {
   LeftOutlined, RightOutlined, PlusOutlined,
@@ -43,18 +44,23 @@ import {
 } from "../../redux/features/pacientes/crearPacientesSlice";
 import debounce from 'lodash/debounce';
 import { Link } from "react-router-dom";
+import TimeLine from "./components/TimeLine";
+
 
 
 dayjs.locale("es");
+const { useBreakpoint } = Grid;
 
 const VerAgenda = () => {
-
+  const screens = useBreakpoint();
   const dispatch = useDispatch();
   const [form] = Form.useForm()
   const {
     servicios, serviciosProximos, serviciosProximos_options
   } = useSelector((state) => state.servicios);
   const [IP, setIp] = useState('');
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
+
   const [selectedIndex, setSelectedIndex] = useState([0]);
   const [proximosServicios, setProximosServicios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -409,7 +415,8 @@ Tarjeta (Clave,Visa o Mastercard)
   const obtenerCitas = async (data) => {
     await dispatch(fetchCitasAgenda(data));
 
-    changeView("timeGridDay");
+    // changeView("timeGridDay");
+    changeView(currentView);
   }
 
 
@@ -570,6 +577,7 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleEventClick = (info) => {
+    console.log(info)
     const eventId = Number(info.event.id);
     let clickedEvent = citasAgenda.find(
       (event) => Number(event.id) === eventId
@@ -587,7 +595,7 @@ Tarjeta (Clave,Visa o Mastercard)
         }
       });
     }
-   setIsModalOpen(true);
+    setIsModalOpen(true);
 
     if (clickedEvent) {
       const fechaInicio = dayjs(clickedEvent.start);
@@ -627,7 +635,7 @@ Tarjeta (Clave,Visa o Mastercard)
       setAgendadoPor(clickedEvent.agendado_por);
       setPacienteInput(clickedEvent.paciente_id);
       setApellidos(clickedEvent.apellidos);
-   
+
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente,
@@ -989,10 +997,15 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const changeView = (viewName) => {
-    if (calendarRef.current) {
-      const calendarApi = calendarRef.current.getApi();
-      calendarApi.changeView(viewName);
-      dispatch(setCurrentViewAgenda(viewName));
+
+    if (viewName !== 'timeLine') {
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        calendarApi.changeView(viewName);
+        dispatch(setCurrentViewAgenda(viewName));
+        setCurrentView(viewName);
+      }
+    } else {
       setCurrentView(viewName);
     }
   };
@@ -1001,6 +1014,9 @@ Tarjeta (Clave,Visa o Mastercard)
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.today();
+
+      const currentDate = calendarApi.getDate();
+      setFechaSeleccionada(currentDate);
     }
   };
 
@@ -1008,6 +1024,9 @@ Tarjeta (Clave,Visa o Mastercard)
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.prev();
+
+      const currentDate = calendarApi.getDate();
+      setFechaSeleccionada(currentDate);
     }
   };
 
@@ -1015,6 +1034,11 @@ Tarjeta (Clave,Visa o Mastercard)
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.next();
+
+      console.log(fechaSeleccionada)
+      const currentDate = calendarApi.getDate();
+      console.log(currentDate)
+      setFechaSeleccionada(currentDate);
     }
   };
 
@@ -1091,9 +1115,9 @@ Tarjeta (Clave,Visa o Mastercard)
 
   return (
     <div
-      style={{
+      style={screens.md ? {
         width: "100%", margin: "auto", padding: "30px", position: "relative", overflow: "hidden"
-      }}
+      } : { width: "100%", margin: "auto", padding: "0px", position: "relative", overflow: "hidden" }}
     >
       <div
         style={{
@@ -1157,15 +1181,19 @@ Tarjeta (Clave,Visa o Mastercard)
       </div>
 
       <div
-        style={{
+        style={screens.md ? {
           background: 'white',
           padding: '40px',
+          position: 'relative'
+        } : {
+          background: 'white',
+          // padding: '40px',
           position: 'relative'
         }}
       >
 
         <BotonesFiltroAgenda
-          lista_botones={["Consultas", "Terapias", "Proximas Citas"]}
+          lista_botones={["Consultas", "Terapias", "Prox. Citas"]}
           selectedIndex={selectedIndex}
           setSelectedIndex={setSelectedIndex}
         />
@@ -1175,13 +1203,13 @@ Tarjeta (Clave,Visa o Mastercard)
           <span style={{ fontSize: "18px", fontWeight: "bold" }}>{currentDate}</span>
         </div>
         <div
-          style={{
+          style={screens.md ? {
             position: 'absolute', top: '30px', left: '40px', width: '43%'
-          }}
+          } : { position: 'absolute', top: '5px', left: '5px', width: '43%' }}
         >
           <Row gutter={[8, 2]}>
             {sucursales_with_colors?.map((category) => (
-              <Col key={category.id} xxl={24} xl={24} md={24}>
+              <Col key={category.id} xxl={24} xl={24} md={24} ms={24} xs={24}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <input
                     type="checkbox"
@@ -1196,13 +1224,24 @@ Tarjeta (Clave,Visa o Mastercard)
                       borderRadius: 3,
                     }}
                   />
-                  <span>{category.name}</span>
+                  <span>
+                    {
+                      screens.md
+                        ? category.name
+                        : category.name.replace(/\b(CENTEVI|Medico|Médico|Centro|Consultorios|Medicos|San|Judas)\b/gi, '').trim()
+                    }
+                  </span>
                 </div>
               </Col>
             ))}
           </Row>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "70px" }}>
+        <div
+          style={screens.md
+            ? { display: "flex", justifyContent: "space-between", marginTop: "70px" }
+            : { display: "flex", justifyContent: "space-between", marginTop: "90px" }
+          }
+        >
 
           <Space>
             <Button onClick={goToPrev} icon={<LeftOutlined />} />
@@ -1218,19 +1257,25 @@ Tarjeta (Clave,Visa o Mastercard)
               onClick={() => changeView("dayGridMonth")}
               type={currentView === "dayGridMonth" ? "primary" : "default"}
             >
-              Mes
+              {screens.md ? "Mes" : "M"}
             </Button>
             <Button
               onClick={() => changeView("timeGridWeek")}
               type={currentView === "timeGridWeek" ? "primary" : "default"}
             >
-              Semana
+              {screens.md ? "Semana" : "S"}
             </Button>
             <Button
               onClick={() => changeView("timeGridDay")}
               type={currentView === "timeGridDay" ? "primary" : "default"}
             >
-              Día
+              {screens.md ? "Día" : "D"}
+            </Button>
+            <Button
+              onClick={() => changeView("timeLine")}
+              type={currentView === "timeLine" ? "primary" : "default"}
+            >
+              {screens.md ? "Time Line" : "T"}
             </Button>
           </Space>
         </div>
@@ -1239,146 +1284,132 @@ Tarjeta (Clave,Visa o Mastercard)
         >
           agenda
         </button> */}
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView={currentView}
-          headerToolbar={false}
-          locale={esLocale}
-          editable
-          selectable
-          dateClick={handleDateClick}
-          // eventClick={(info) => handleEventClick(info)}
-          events={citasAgenda}
-          eventOrder="id"
-          eventDisplay="block"
-          datesSet={handleDateChange}
-          buttonText={{
-            today: "Hoy",
-            month: "Mes",
-            week: "Semana",
-            day: "Día",
-          }}
-          hiddenDays={hideSunday ? [0] : []}
-          slotMinTime="07:00:00"
-          slotMaxTime="19:00:00"
-          slotLabelFormat={{
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: false,
-            meridiem: 'short'
-          }}
-          dayHeaderContent={(arg) => {
-            const date = arg.date;
-            const options = { weekday: "long", day: "2-digit", month: "2-digit" };
-            const formatted = date.toLocaleDateString("es-ES", options);
-            return formatted;
-          }}
-          eventTimeFormat={{
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: false,
-            meridiem: 'short',
-          }}
-          slotDuration="00:20:00"
-          slotLabelInterval="00:30"
-          height="auto"
-          eventContent={(info) => {
-            const {
-              hiddenEvents, comentarios, doctor, tipo, paciente,
-              apellidos, fecha_hora_fin, celular, confirmado, paciente_id
-            } = info.event.extendedProps;
-            const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
-            const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
-            const nombrePaciente = `${primerNombre} ${primerApellido}`;
-            const eventTime = info.timeText + (fecha_hora_fin
-              ? (" - " + dayjs(fecha_hora_fin).format('HH:mm'))
-              : " - " + dayjs(info.timeText, 'HH:mm').add(1, 'hour').format('HH:mm'));
+        {/* <h1>{currentView}</h1> */}
+        <div style={currentView !== 'timeLine' ? {} : { display: 'none' }}>
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView={currentView}
+            headerToolbar={false}
+            locale={esLocale}
+            editable
+            selectable
+            dateClick={handleDateClick}
+            // eventClick={(info) => handleEventClick(info)}
+            events={citasAgenda}
+            eventOrder="id"
+            eventDisplay="block"
+            datesSet={handleDateChange}
+            buttonText={{
+              today: "Hoy",
+              month: "Mes",
+              week: "Semana",
+              day: "Día",
+            }}
+            hiddenDays={hideSunday ? [0] : []}
+            slotMinTime="07:00:00"
+            slotMaxTime="19:00:00"
+            slotLabelFormat={{
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: false,
+              meridiem: 'short'
+            }}
+            dayHeaderContent={(arg) => {
+              const date = arg.date;
+              const options = { weekday: "long", day: "2-digit", month: "2-digit" };
+              const formatted = date.toLocaleDateString("es-ES", options);
+              return formatted;
+            }}
+            eventTimeFormat={{
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: false,
+              meridiem: 'short',
+            }}
+            slotDuration="00:20:00"
+            slotLabelInterval="00:30"
+            height="auto"
+            eventContent={(info) => {
+              const {
+                hiddenEvents, comentarios, doctor, tipo, paciente,
+                apellidos, fecha_hora_fin, celular, confirmado, paciente_id
+              } = info.event.extendedProps;
+              const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
+              const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
+              const nombrePaciente = `${primerNombre} ${primerApellido}`;
+              const eventTime = info.timeText + (fecha_hora_fin
+                ? (" - " + dayjs(fecha_hora_fin).format('HH:mm'))
+                : " - " + dayjs(info.timeText, 'HH:mm').add(1, 'hour').format('HH:mm'));
 
-            const isDayView = info.view.type === "timeGridDay";
-            return (
-              <div style={{ position: 'relative' }}>
-                <div
-                  onClick={() => handleEventClick(info)}
-                  style={
-                    tipo == "terapia" ?
-                      {
-                        height: "100%",
-                        border: "3px solid #003300",
-                        marginLeft: "-3px",
-                        paddingLeft: "3px"
-                      }
-                      : tipo == "consulta" ?
+              const isDayView = info.view.type === "timeGridDay";
+              return (
+                <div style={{ position: 'relative' }}>
+                  <div
+                    onClick={() => handleEventClick(info)}
+                    style={
+                      tipo == "terapia" ?
                         {
                           height: "100%",
-                          border: "3px solid #3300FF",
+                          border: "3px solid #003300",
                           marginLeft: "-3px",
                           paddingLeft: "3px"
                         }
-                        : {
-                          height: "100%",
-                          border: "3px solid transparent",
-                          marginLeft: "-3px",
-                          paddingLeft: "3px"
-                        }
-                  }
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
+                        : tipo == "consulta" ?
+                          {
+                            height: "100%",
+                            border: "3px solid #3300FF",
+                            marginLeft: "-3px",
+                            paddingLeft: "3px"
+                          }
+                          : {
+                            height: "100%",
+                            border: "3px solid transparent",
+                            marginLeft: "-3px",
+                            paddingLeft: "3px"
+                          }
+                    }
                   >
-                    <span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      <span>
 
-                      <b
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          color: "black",
-                          flexShrink: 1,
-                          minWidth: 0,
-                        }}
-                        title={`${eventTime} - ${info.event.title} - ${celular}`}
-                      >
-                        {eventTime} - {nombrePaciente} - {celular}
-                      </b>
-                    </span>
-
-                    {isDayView && comentarios && (
-                      <span
-                        style={{
-                          marginLeft: "6px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          color: "black",
-                          flexShrink: 0, // Esto evita que se corte el texto de comentarios
-                        }}
-                        title={comentarios}
-                      >
-                        ({comentarios})
+                        <b
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            color: "black",
+                            flexShrink: 1,
+                            minWidth: 0,
+                          }}
+                          title={`${eventTime} - ${info.event.title} - ${celular}`}
+                        >
+                          {eventTime} - {nombrePaciente} - {celular}
+                        </b>
                       </span>
-                    )}
-                  </div>
-                  <small
-                    style={{
-                      display: "block",
-                      fontSize: "12px",
-                      fontWeight: "bold",
-                      color: "black",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                    title={doctor}
-                  >
-                    🧑‍⚕️ {doctor}
-                  </small>
 
-                  <div style={{ display: 'flex' }}>
+                      {isDayView && comentarios && (
+                        <span
+                          style={{
+                            marginLeft: "6px",
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                            color: "black",
+                            flexShrink: 0, // Esto evita que se corte el texto de comentarios
+                          }}
+                          title={comentarios}
+                        >
+                          ({comentarios})
+                        </span>
+                      )}
+                    </div>
                     <small
                       style={{
                         display: "block",
@@ -1389,87 +1420,115 @@ Tarjeta (Clave,Visa o Mastercard)
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                       }}
-                      title={tipo}
+                      title={doctor}
                     >
-                      {
-                        tipo == "terapia"
-                          ? <ImageTherapy />
-                          : tipo == "consulta"
-                            ? <ImageConsulta />
-                            : <span>🩺</span>
-                      } {tipo}
-
-
+                      🧑‍⚕️ {doctor}
                     </small>
+
+                    <div style={{ display: 'flex' }}>
+                      <small
+                        style={{
+                          display: "block",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          color: "black",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        title={tipo}
+                      >
+                        {
+                          tipo == "terapia"
+                            ? <ImageTherapy />
+                            : tipo == "consulta"
+                              ? <ImageConsulta />
+                              : <span>🩺</span>
+                        } {tipo}
+
+
+                      </small>
+                    </div>
+
+                    {hiddenEvents && hiddenEvents.length > 0 && (
+                      <span
+                        style={{
+                          color: "black",
+                          cursor: "pointer",
+                          position: "absolute",
+                          bottom: "0px",
+                          right: "0px",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          backgroundColor: "white",
+                          padding: "2px 4px",
+                          borderRadius: "4px",
+                          whiteSpace: "nowrap",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShowMore(hiddenEvents, e);
+                        }}
+                      >
+                        +{hiddenEvents.length} más
+                      </span>
+                    )}
                   </div>
 
-                  {hiddenEvents && hiddenEvents.length > 0 && (
-                    <span
-                      style={{
-                        color: "black",
-                        cursor: "pointer",
-                        position: "absolute",
-                        bottom: "0px",
-                        right: "0px",
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        backgroundColor: "white",
-                        padding: "2px 4px",
-                        borderRadius: "4px",
-                        whiteSpace: "nowrap",
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleShowMore(hiddenEvents, e);
-                      }}
-                    >
-                      +{hiddenEvents.length} más
-                    </span>
-                  )}
-                </div>
+                  <div style={{ position: 'absolute', bottom: '22px', left: '150px' }}>
+                    <Tooltip title='Historia Clinica' >
+                      <Link to={"/historia-paciente/" + paciente_id}>
+                        <ImageHistory />
+                      </Link>
+                    </Tooltip>
+                  </div>
 
-                <div style={{ position: 'absolute', bottom: '22px', left: '150px' }}>
-                  <Tooltip title='Historia Clinica' >
-                    <Link to={"/historia-paciente/" + paciente_id}>
-                      <ImageHistory />
-                    </Link>
-                  </Tooltip>
-                </div>
-
-                <div style={{ position: 'absolute', bottom: '5px', left: '150px' }}>
-                  {/* <Checkbox
+                  <div style={{ position: 'absolute', bottom: '5px', left: '150px' }}>
+                    {/* <Checkbox
                     onChange={(i) => enviarConfirmacionCita(info, i.target.checked)}
                     checked={confirmado}
                     style={{ display: 'none' }}
                     ref={confirmacionRef}
                   /> */}
-                  <div onClick={() => enviarConfirmacionCita(info, !confirmado)}>
-                    {
-                      confirmado == 'SIN STATUS'
-                        ? <Checkbox
-                          checked={false}
-                          ref={confirmacionRef}
-                          style={{ position: 'absolute', bottom: '-5px' }}
-                        />
-                        : confirmado == 'CONFIRMADO'
-                          ? <ImageCheck />
-                          : confirmado == 'CANCELADO'
-                            ? <ImageCancel />
-                            : confirmado == 'REAGENDADO'
-                              ? <ImageWatch />
-                              : <div></div>
+                    <div onClick={() => enviarConfirmacionCita(info, !confirmado)}>
+                      {
+                        confirmado == 'SIN STATUS'
+                          ? <Checkbox
+                            checked={false}
+                            ref={confirmacionRef}
+                            style={{ position: 'absolute', bottom: '-5px' }}
+                          />
+                          : confirmado == 'CONFIRMADO'
+                            ? <ImageCheck />
+                            : confirmado == 'CANCELADO'
+                              ? <ImageCancel />
+                              : confirmado == 'REAGENDADO'
+                                ? <ImageWatch />
+                                : <div></div>
 
-                      // <ImageCheck />
-                      // <ImageCancel />
-                    }
+                        // <ImageCheck />
+                        // <ImageCancel />
+                      }
 
+                    </div>
                   </div>
                 </div>
-              </div>
 
-            );
-          }}
-        />
+              );
+            }}
+          />
+        </div>
+
+        <div style={currentView !== 'timeLine' ? { display: 'none' } : {}}>
+          <TimeLine
+            citasAgenda={citasAgenda}
+            fechaSeleccionada={fechaSeleccionada}
+            handleEventClick={handleEventClick}
+            enviarConfirmacionCita={enviarConfirmacionCita}
+          />
+        </div>
+
+
       </div>
 
       <Modal
