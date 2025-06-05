@@ -4,10 +4,14 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import TextareaAutosize from '@mui/material/TextareaAutosize';
+import * as Yup from 'yup';
 import {
   Modal, Input, DatePicker, Radio, Button,
-  Space, Popconfirm, Select, Row, Col,
-  List, Form, Spin, AutoComplete,
+  Space, Popconfirm, Row, Col,
+  List, Spin,
   Calendar,
   Checkbox,
   Tooltip
@@ -43,18 +47,44 @@ import {
 } from "../../redux/features/pacientes/crearPacientesSlice";
 import debounce from 'lodash/debounce';
 import { Link } from "react-router-dom";
+import { values } from "pdf-lib";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { Form, Formik } from "formik";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormLabel from "@mui/material/FormLabel";
+import FormHelperText from "@mui/material/FormHelperText";
+
 
 
 dayjs.locale("es");
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const VerAgenda = () => {
+  const formikRef = useRef();
+  const hint = React.useRef('');
+
+
 
   const dispatch = useDispatch();
-  const [form] = Form.useForm()
   const {
     servicios, serviciosProximos, serviciosProximos_options
   } = useSelector((state) => state.servicios);
   const [IP, setIp] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [pacienteSeleccionado, setPacienteSeleccionado] = useState('');
   const [selectedIndex, setSelectedIndex] = useState([0]);
   const [proximosServicios, setProximosServicios] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -145,44 +175,39 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const [openCalendar, setOpenCalendar] = useState(false);
 
+  const [fechaAgendaInicio, setFechaAgendaInicio] = useState();
+
+  const [fechaAgendaFin, setFechaAgendaFin] = useState();
+
+  const [tipoAgenda, setTipoAgenda] = useState();
+
+  const [comentarios, setComentarios] = useState();
+
+  const [selectedConfirmado, setSelectConfirmado] = useState();
+
   const [enableTimeEndDateForm, setEnableTimeEndDateForm] = useState(false)
 
   const [rangeTimeEndDateSelected, setRangeTimeEndDateSelected] = useState(60)
 
-  const debouncedSetCedula = useMemo(() =>
-    debounce((val) => {
-      setPacienteId(null);
-      setCreateCedula(val);
-    }, 100), []
-  );
-
-  const debouncedSetNombre = useMemo(() =>
-    debounce((val) => {
-      const cedula = form.getFieldValue("nroCedula");
-      setCreateCedula(cedula);
-    }, 100), []
-  );
-
-
-  const debouncedSetApellidos = useMemo(() =>
-    debounce((val) => {
-      const cedula = form.getFieldValue("nroCedula");
-      setCreateCedula(cedula);
-    }, 100), []
-  );
-
-  const debouncedSetCelular = useMemo(() =>
-    debounce((val) => {
-      const cedula = form.getFieldValue("nroCedula");
-      setCreateCedula(cedula);
-    }, 300), []
-  );
-
-
-
+  const validationSchema = Yup.object({
+    celular: Yup.string()
+      .required('El celular es obligatorio'),
+    paciente: Yup.string()
+      .required('La cédula es obligatoria'),
+    cedula: Yup.string()
+      .required('El nombre es obligatorio'),
+    apellidos: Yup.string()
+      .required('Los apellidos son obligatorios'),
+    sucursal: Yup.string()
+      .required('La sucursal es obligatoria'),
+    doctor: Yup.string()
+      .required('El doctor es obligatorio'),
+    confirmado: Yup.string().required('Este campo es obligatorio'),
+  });
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
+    // dispatch(fetchPacientes({}))
   }, [])
 
   useEffect(() => {
@@ -228,110 +253,6 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePacienteSelectOpen = () => {
-    if (!dataLoaded) {
-      setIsLoading(true);
-      dispatch(fetchPacientes({}))
-        .then(() => {
-          setDataLoaded(true);
-        })
-        .catch((error) => {
-          console.error('Error al cargar los pacientes:', error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  };
-  const handleCedulaSelectOpen = () => {
-    if (!dataLoaded) {
-      setIsLoading(true);
-      dispatch(fetchPacientes({}))
-        .then(() => {
-          setDataLoaded(true);
-        })
-        .catch((error) => {
-          console.error('Error al cargar las cedulas:', error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-
-    }
-  };
-
-  const handleSelectChangServicios = (value, option) => {
-    form.setFieldsValue({ proximosServicios: value });
-    setProximosServicios((prev) => {
-      const indexFind = prev.findIndex((proximo) => proximo.value === option.value);
-
-      if (indexFind !== -1) {
-        return prev.map((proximo, index) =>
-          index === indexFind ? { ...proximo, ...option } : proximo
-        );
-      } else {
-        return [...prev, option];
-      }
-    });
-  };
-
-
-  const handlePacienteChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
-    if (selected) {
-      setSelectedPaciente(selected.value);
-      setPacienteId(selected.value)
-      setApellidos(selected.apellidos)
-      setApellidos(selected.celular)
-
-      form.setFieldsValue({ nroCedula: selected.nro_cedula });
-      form.setFieldsValue({ apellidos: selected.apellidos });
-      form.setFieldsValue({ celular: selected.celular });
-    }
-
-  };
-
-  const handleCedulaChange = (value) => {
-    const paciente = pacientes_options_agenda.find((paciente) => paciente.label === value);
-    if (paciente) {
-      setSelectedPaciente(paciente.value)
-      setPacienteId(paciente.value)
-      setApellidos(paciente.apellidos)
-      setCelular(paciente.celular)
-      form.setFieldsValue({ paciente: paciente.nombres });
-      form.setFieldsValue({ apellidos: paciente.apellidos });
-      form.setFieldsValue({ celular: paciente.celular });
-    }
-  };
-
-  const handleApellidosChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
-
-    if (selected) {
-      setSelectedPaciente(selected.value);
-      setPacienteId(selected.value)
-      setApellidos(selected.apellidos)
-      setCelular(selected.celular)
-      form.setFieldsValue({ nroCedula: selected.nro_cedula });
-      form.setFieldsValue({ paciente: selected.nombres });
-      form.setFieldsValue({ paciente: selected.apellidos });
-      form.setFieldsValue({ celular: selected.celular });
-    }
-  };
-
-  const handleCelularChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
-    if (selected) {
-      setSelectedPaciente(selected.value);
-      setPacienteId(selected.value)
-      setApellidos(selected.apellidos)
-      setCelular(selected.celular)
-      form.setFieldsValue({ nroCedula: selected.nro_cedula });
-      form.setFieldsValue({ paciente: selected.nombres });
-      form.setFieldsValue({ apellidos: selected.apellidos });
-      form.setFieldsValue({ celular: selected.celular });
-    }
-  };
 
   const handleSucursalChangeSelect = (value) => {
     setSelectedSucursal(value);
@@ -511,9 +432,7 @@ Tarjeta (Clave,Visa o Mastercard)
     setIsModalOpen(true);
     setRangeTimeEndDateSelected(60);
     setIsEditMode(false);
-    form.setFieldsValue({
-      fechaAgenda: dayjs(info.dateStr),
-    });
+    formikRef.current.resetForm();
     setCurrentEventId(null);
     setEventTitle("");
     setEventDescription("");
@@ -524,22 +443,10 @@ Tarjeta (Clave,Visa o Mastercard)
     setConsultaId(null)
     setTableName(null)
     setConsultaId(null)
-
-    form.resetFields();
-    form.setFieldsValue({
-      nroCedula: "",
-      paciente: "",
-      doctor: "",
-      comentarios: "",
-      confirmado: "SIN STATUS",
-      fechaAgenda: dayjs(info.date),
-      fechaAgendaFin: dayjs(info.date).add(1, 'hour'),
-      tipoAgenda: "",
-      agendado_por: localStorage.getItem("usuario"),
-      proximosServicios: []
-    });
-
-
+    formikRef.current.setFieldValue('fechaAgenda', dayjs(info.date));
+    formikRef.current.setFieldValue('fechaAgendaFin', dayjs(info.date).add(1, 'hour'),);
+    formikRef.current.setFieldValue('agendado_por', localStorage.getItem("usuario"),);
+    formikRef.current.setFieldValue('confirmado', 'SIN STATUS',);
 
     // La IP tiene una sucursal
     const sucursalSeleccionado = seleccionarSucursalIP()
@@ -551,17 +458,10 @@ Tarjeta (Clave,Visa o Mastercard)
       setSelectedSucursal(sucursalSeleccionado.value)
       setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps)
 
-      form.setFieldsValue({
-        sucursal: {
-          value: sucursalSeleccionado.value,
-          label: sucursalSeleccionado.label
-        }
-      })
+      formikRef.current.setFieldValue('sucursal', sucursalSeleccionado.value)
 
     } else {
-      form.setFieldsValue({
-        sucursal: "",
-      })
+      formikRef.current.setFieldValue('sucursal', '')
     }
 
     // FIN La IP tiene una sucursal
@@ -587,29 +487,13 @@ Tarjeta (Clave,Visa o Mastercard)
         }
       });
     }
-   setIsModalOpen(true);
+    setIsModalOpen(true);
 
     if (clickedEvent) {
-      const fechaInicio = dayjs(clickedEvent.start);
-      const fechaFin = clickedEvent.fecha_hora_fin
-        ? dayjs(clickedEvent.fecha_hora_fin)
-        : fechaInicio.add(60, 'minutes'); // ← Asignar fin si no existe
-
-      const diferenciaMinutos = fechaFin.diff(fechaInicio, 'minute');
-
-      if (isNaN(diferenciaMinutos)) {
-        setRangeTimeEndDateSelected(60);
-      } else if ([15, 30, 45, 60].includes(diferenciaMinutos)) {
-        setRangeTimeEndDateSelected(diferenciaMinutos);
-      } else {
-        setRangeTimeEndDateSelected(null);
-      }
-
       const sucursalSeleccionada = sucursales_option_selects.find(
         (sucursal) => sucursal.value == clickedEvent.sucursal_id
       );
       setDireccion_sucursal(sucursalSeleccionada?.ubicacion_maps || "");
-
       setConsultaId(clickedEvent.origen_id);
       setTableName(clickedEvent.origen_tabla);
       setEsProximaCita(clickedEvent.esProximaCita);
@@ -622,31 +506,16 @@ Tarjeta (Clave,Visa o Mastercard)
       setPacienteId(clickedEvent.paciente_id);
       setCelular(clickedEvent.celular);
       setSelectedPaciente(clickedEvent.paciente_id);
-      setPacienteId(clickedEvent.paciente_id);
       setSelectedSucursal(clickedEvent.sucursal_id);
       setAgendadoPor(clickedEvent.agendado_por);
       setPacienteInput(clickedEvent.paciente_id);
       setApellidos(clickedEvent.apellidos);
-   
-      form.setFieldsValue({
-        nroCedula: clickedEvent.nro_cedula || "",
-        paciente: clickedEvent.paciente,
-        apellidos: clickedEvent.apellidos,
-        celular: clickedEvent.celular,
-        sucursal: clickedEvent.sucursal
-          ? { value: clickedEvent.sucursal_id, label: clickedEvent.sucursal }
-          : undefined,
-        doctor: clickedEvent.doctor || "",
-        comentarios: clickedEvent.comentarios || "",
-        confirmado: clickedEvent.confirmado || "",
-        fechaAgenda: fechaInicio,
-        fechaAgendaFin: fechaFin,
-        tipoAgenda: clickedEvent.tipo || "",
-        agendado_por: clickedEvent.agendado_por || "",
-      });
-
-      form.validateFields();
-
+      setSelectedEvent(clickedEvent);
+      setSelectedDoctor(clickedEvent.doctor)
+      setFechaAgendaInicio(clickedEvent.start)
+      setFechaAgendaFin(clickedEvent.fecha_hora_fin)
+      setComentarios(clickedEvent.comentarios)
+      setSelectConfirmado(clickedEvent.confirmado)
       dispatch(
         fetchServiciosProximosAgenda({
           consulta_nombre: clickedEvent.origen_tabla,
@@ -659,6 +528,43 @@ Tarjeta (Clave,Visa o Mastercard)
     }
   };
 
+  useEffect(() => {
+    if (formikRef.current && selectedEvent) {
+      const fechaInicio = dayjs(selectedEvent.start);
+      const fechaFin = selectedEvent.fecha_hora_fin
+        ? dayjs(selectedEvent.fecha_hora_fin)
+        : fechaInicio.add(60, 'minutes');
+
+      const diferenciaMinutos = fechaFin.diff(fechaInicio, 'minute');
+
+      if (isNaN(diferenciaMinutos)) {
+        setRangeTimeEndDateSelected(60);
+      } else if ([15, 30, 45, 60].includes(diferenciaMinutos)) {
+        setRangeTimeEndDateSelected(diferenciaMinutos);
+      } else {
+        setRangeTimeEndDateSelected(null);
+      }
+      formikRef.current.setFieldValue('cedula', selectedEvent.nro_cedula || '');
+      formikRef.current.setFieldValue('paciente', selectedEvent.paciente || '');
+      formikRef.current.setFieldValue('apellidos', selectedEvent.apellidos || '');
+      formikRef.current.setFieldValue('celular', selectedEvent.celular || '');
+      formikRef.current.setFieldValue('sucursal', selectedEvent.sucursal_id || '');
+      formikRef.current.setFieldValue('doctor', selectedEvent.doctor || '');
+      formikRef.current.setFieldValue('comentarios', selectedEvent.comentarios || '');
+      formikRef.current.setFieldValue('fechaAgenda', fechaInicio || '');
+      formikRef.current.setFieldValue('fechaAgendaFin', fechaFin || '');
+      formikRef.current.setFieldValue('tipoAgenda', selectedEvent.tipo || '');
+      formikRef.current.setFieldValue('agendado_por', selectedEvent.agendado_por || '');
+      formikRef.current.setFieldValue('confirmado', selectedEvent.confirmado || '');
+    }
+  }, [selectedEvent]);
+
+  useEffect(() => {
+    if (!formikRef.current) return;
+
+    const values = serviciosProximos_options.map(serv => serv.value);
+    formikRef.current.setFieldValue('proximosServicios', values);
+  }, [serviciosProximos_options]);
 
   const ImageTherapy = () => (
     <img src="../../../img/icon_therapy.png" width={15} height={15} alt="icon therapy" />
@@ -685,27 +591,26 @@ Tarjeta (Clave,Visa o Mastercard)
   )
 
   const setTimeEndDate = (value) => {
-    if (value) {
-      form.setFieldsValue({ fechaAgendaFin: dayjs(form.getFieldValue('fechaAgenda')).add(value, 'minutes') })
-      setRangeTimeEndDateSelected(value)
-      setEnableTimeEndDateForm(false)
-    } else {
-      setEnableTimeEndDateForm(true)
-      setRangeTimeEndDateSelected(null)
-    }
-  }
+    const fechaAgendaValue = formikRef.current.values.fechaAgenda;
 
-  useEffect(() => {
-    if (serviciosProximos_options.length > 0) {
-      form.setFieldsValue({
-        proximosServicios: serviciosProximos_options.map(serv => serv.value)
-      });
+    if (value && fechaAgendaValue) {
+      const startDate = dayjs(fechaAgendaValue);
+      const endDate = startDate.add(value, 'minutes');
+
+      formikRef.current.setFieldValue('fechaAgenda', startDate);
+      formikRef.current.setFieldValue('fechaAgendaFin', endDate);
+
+      setFechaAgendaInicio(startDate);
+      setFechaAgendaFin(endDate);
+
+      setRangeTimeEndDateSelected(value);
+      setEnableTimeEndDateForm(false);
     } else {
-      form.setFieldsValue({
-        proximosServicios: []
-      });
+      setEnableTimeEndDateForm(true);
+      setRangeTimeEndDateSelected(null);
     }
-  }, [serviciosProximos_options]);
+  };
+
 
   const openNewEventModal = () => {
     setIsEditMode(false);
@@ -718,9 +623,9 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleAgendarEvent = async (values) => {
-
+    console.log('Form submit:', values);
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
-
+    console.log('createCedula:', createCedula);
     if (createCedula !== null) {
       try {
         const response = await dispatch(verificarCedula(createCedula)).unwrap();
@@ -750,10 +655,10 @@ Tarjeta (Clave,Visa o Mastercard)
 
           if (result.isConfirmed) {
             const dataPaciente = {
-              nombres: values.paciente,
-              nro_cedula: values.nroCedula,
-              apellidos: values.apellidos,
-              celular: values.celular,
+              nombres: selectedPaciente,
+              nro_cedula: nroCedula,
+              apellidos: apellidos,
+              celular: celular,
               estado: false,
               estadoPaciente: 'no_existe'
             };
@@ -932,23 +837,24 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const handleUpdateEvent = async (values) => {
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
-    const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
+    const tipo = esProximaCita === 1 ? 'proxima_cita' : tipoAgenda;
 
     const data = {
       origen_id: consultaId,
       origen_tabla: esProximaCita === 1 ? tableName : "citas_servicios",
-      fecha_hora: values.fechaAgenda.format("YYYY-MM-DD HH:mm"),
-      tipo,
+      fecha_hora: dayjs(fechaAgendaInicio).format('YYYY-MM-DD HH:mm:ss'),
+      tipo: tipo,
       paciente_id: pacienteId,
-      doctor: values.doctor,
+      doctor: selectedDoctor,
       sucursal_id: selectedSucursal,
       ex_proxima_cita: esProximaCita === 1 ? esProximaCita : 0,
-      comentarios: values.comentarios,
+      comentarios: comentarios,
       confirmado: values.confirmado,
       agendado_por: usuario,
       servicios_ids: serviciosRealizadosSubmit,
-      fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
+      fecha_hora_fin: dayjs(fechaAgendaFin).format('YYYY-MM-DD HH:mm:ss'),
     };
+    console.log('data:', data)
 
     if (currentEventId) {
       try {
@@ -972,8 +878,6 @@ Tarjeta (Clave,Visa o Mastercard)
       }
     }
   };
-
-
 
   const resetForm = () => {
     setEventTitle("");
@@ -1355,7 +1259,7 @@ Tarjeta (Clave,Visa o Mastercard)
                           fontSize: "12px",
                           fontWeight: "bold",
                           color: "black",
-                          flexShrink: 0, // Esto evita que se corte el texto de comentarios
+                          flexShrink: 0,
                         }}
                         title={comentarios}
                       >
@@ -1514,7 +1418,7 @@ Tarjeta (Clave,Visa o Mastercard)
                   title="¿Está seguro de actualizar este evento?"
                   onConfirm={async () => {
                     try {
-                      const values = await form.validateFields();
+
                       handleUpdateEvent(values);
                     } catch (errorInfo) {
                       console.log('Errores en el formulario:', errorInfo);
@@ -1547,7 +1451,7 @@ Tarjeta (Clave,Visa o Mastercard)
               <Button
                 key="submit"
                 type="primary"
-                onClick={() => form.submit()}
+                onClick={() => formikRef.current?.submitForm()}
                 disabled={esProximaCita === false && isEditMode}
               >
                 Agendar Cita
@@ -1557,444 +1461,588 @@ Tarjeta (Clave,Visa o Mastercard)
         ]}
         style={{ width: "90vh" }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleAgendarEvent}
+        <Formik
+          innerRef={formikRef}
+          initialValues={{
+            paciente: '',
+            cedula: '',
+            apellidos: '',
+            celular: '',
+            sucursal: '',
+            doctor: '',
+            comentarios: '',
+            fechaAgenda: '',
+            proximosServicios: '',
+            fechaAgenda: '',
+            fechaAgendaFin: '',
+            tipoAgenda: '',
+            agendado_por: '',
+            confirmado: ''
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleAgendarEvent}
         >
-          <Row gutter={[16, 16]}>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Agendado por:</label>
-              <Form.Item
-                name="agendado_por"
-              >
-                <Input
-                  placeholder=""
-                  style={{ marginBottom: "5px" }}
-                  disabled
-                />
-              </Form.Item>
-            </Col>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Status:</label>
-              <Form.Item
-                name="confirmado"
-              // rules={[{ required: true, message: "La sucursal es requerida" }]}
-              >
-                <Select
-                  placeholder="Selecciona un status"
-                  onChange={(value) => {
+          {({ values, setFieldValue, handleSubmit, errors, touched }) => (
+            <Form onSubmit={handleSubmit}>
+              <Row gutter={[16, 32]} style={{ marginBottom: 24 }}>
+                <Col xxl={12} xl={12} md={12}>
+                  <Box
+                    component="form"
+                    sx={{ '& > :not(style)': { width: '25ch' } }}
+                    noValidate
+                    autoComplete="off"
+                  >
+                    <TextField
+                      id="outlined-basic"
+                      label="Agendado por"
+                      variant="outlined"
+                      value={values.agendado_por}
+                      disabled
+                    />
 
-                  }}
-                >
-                  {[
-                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "REAGENDADO"
-                  ].map((sucursal) => (
-                    <Select.Option key={sucursal} value={sucursal}>
-                      {sucursal}
-                    </Select.Option>
+                  </Box>
+                </Col>
+                <Col xxl={12} xl={12} md={12}>
+                  <FormControl
+                    sx={{ width: '100%' }}
+                    error={Boolean(touched.confirmado && errors.confirmado)}
+                  >
+                    <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={values.confirmado}
+                      onChange={(event) => {
+                        const selectedValue = event.target.value;
+                        setSelectConfirmado(selectedValue);
+                        setFieldValue('confirmado', selectedValue);
+                      }}
+                      label="Status"
+                    >
+                      {[
+                        "SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO"
+                      ].map((sucursal) => (
+                        <MenuItem key={sucursal} value={sucursal}>
+                          {sucursal}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {touched.confirmado && errors.confirmado && (
+                      <FormHelperText>{errors.confirmado}</FormHelperText>
+                    )}
+                  </FormControl>
+                </Col>
+              </Row>
+              <Row gutter={[16, 32]} style={{ marginBottom: 24 }}>
+                <Col xxl={12} xl={12} md={12}>
+                  <Autocomplete
+                    name="cedula"
+                    options={pacientes_options_agenda}
+                    getOptionLabel={(option) => option.label || ''}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={(event, newValue) => {
+                      setFieldValue('cedula', newValue && newValue.nro_cedula ? newValue.nro_cedula : '');
+                      setFieldValue('paciente', newValue && newValue.nombres ? newValue.nombres : '');
+                      setFieldValue('apellidos', newValue && newValue.apellidos ? newValue.apellidos : '');
+                      setFieldValue('celular', newValue && newValue.celular ? newValue.celular : '');
+                      setPacienteId(newValue?.id)
+                      setCreateCedula(null)
+                    }}
+                    loading={isLoading}
+                    onOpen={() => {
+                      if (!dataLoaded) {
+                        setIsLoading(true);
+                        dispatch(fetchPacientes({}))
+                          .then(() => {
+                            setDataLoaded(true);
+                          })
+                          .catch((error) => {
+                            console.error('Error al cargar las cédulas:', error);
+                          })
+                          .finally(() => {
+                            setIsLoading(false);
+                          });
+                      }
+                    }}
+                    disablePortal
+                    renderInput={(params) => {
+                      return (
+                        <Box sx={{ position: 'relative' }}>
+                          <Typography
+                            sx={{
+                              position: 'absolute',
+                              opacity: 0.5,
+                              left: 14,
+                              top: 16,
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              width: 'calc(100% - 75px)',
+                            }}
+                          >
+                            {hint.current}
+                          </Typography>
+                          <TextField
+                            {...params}
+                            onChange={(event) => {
+                              console.log('value:', event.target.value)
+                              const newValue = event.target.value;
+                              setFieldValue('cedula', newValue);
+                              setNroCedula(event.target.value)
+                              setCreateCedula(event.target.value)
 
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+                            }}
+                            error={Boolean(errors.cedula && touched.cedula)}
+                            helperText={touched.cedula && errors.cedula}
+                            label="Cedula"
+                          />
+                        </Box>
+                      );
+                    }}
+                    inputValue={values.cedula}
+                  />
+                </Col>
 
+                <Col xxl={12} xl={12} md={12}>
+                  <Autocomplete
+                    options={pacientes_options_agenda}
+                    getOptionLabel={(option) => option.label || ''}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={(event, newValue) => {
+                      setFieldValue('paciente', newValue && newValue.label ? newValue.label : '');
+                      setFieldValue('cedula', newValue && newValue.nro_cedula ? newValue.nro_cedula : '');
+                      setFieldValue('apellidos', newValue && newValue.apellidos ? newValue.apellidos : '');
+                      setFieldValue('celular', newValue && newValue.celular ? newValue.celular : '');
+                      setPacienteId(newValue?.id)
+                      setCreateCedula(null)
+                    }}
+                    disablePortal
+                    loading={isLoading}
+                    onOpen={() => {
+                      if (!dataLoaded) {
+                        setIsLoading(true);
+                        dispatch(fetchPacientes({}))
+                          .then(() => {
+                            setDataLoaded(true);
+                          })
+                          .catch((error) => {
+                            console.error('Error al cargar las cédulas:', error);
+                          })
+                          .finally(() => {
+                            setIsLoading(false);
+                          });
+                      }
+                    }}
+                    renderInput={(params) => {
+                      return (
+                        <Box sx={{ position: 'relative' }}>
+                          <Typography
+                            sx={{
+                              position: 'absolute',
+                              opacity: 0.5,
+                              left: 14,
+                              top: 16,
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              width: 'calc(100% - 75px)',
+                            }}
+                          >
+                            {hint.current}
+                          </Typography>
+                          <TextField
+                            {...params}
+                            onChange={(event) => {
+                              const newValue = event.target.value;
+                              setFieldValue('paciente', newValue);
+                              setSelectedPaciente(event.target.value)
+                              if (nroCedula) {
+                                setCreateCedula(nroCedula)
+                              }
+                            }}
+                            error={Boolean(errors.paciente && touched.paciente)}
+                            helperText={touched.paciente && errors.paciente}
+                            label="Nombre"
+                          />
+                        </Box>
+                      );
+                    }}
+                    inputValue={values.paciente}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={[16, 32]} style={{ marginBottom: 24 }}>
+                <Col xxl={12} xl={12} md={12}>
+                  <Autocomplete
+                    options={pacientes_options_agenda}
+                    getOptionLabel={(option) => option.label || ''}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={(event, newValue) => {
+                      console.log('newValue:', newValue)
+                      setFieldValue('apellidos', newValue && newValue.apellidos ? newValue.apellidos : '');
+                      setFieldValue('paciente', newValue && newValue.label ? newValue.label : '');
+                      setFieldValue('cedula', newValue && newValue.nro_cedula ? newValue.nro_cedula : '');
+                      setFieldValue('apellidos', newValue && newValue.apellidos ? newValue.apellidos : '');
+                      setFieldValue('celular', newValue && newValue.celular ? newValue.celular : '');
+                      setPacienteId(newValue?.id)
+                      setCreateCedula(null)
+                    }}
+                    disablePortal
+                    loading={isLoading}
+                    onOpen={() => {
+                      if (!dataLoaded) {
+                        setIsLoading(true);
+                        dispatch(fetchPacientes({}))
+                          .then(() => {
+                            setDataLoaded(true);
+                          })
+                          .catch((error) => {
+                            console.error('Error al cargar las cédulas:', error);
+                          })
+                          .finally(() => {
+                            setIsLoading(false);
+                          });
+                      }
+                    }}
+                    renderInput={(params) => {
+                      return (
+                        <Box sx={{ position: 'relative' }}>
+                          <Typography
+                            sx={{
+                              position: 'absolute',
+                              opacity: 0.5,
+                              left: 14,
+                              top: 16,
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              width: 'calc(100% - 75px)',
+                            }}
+                          >
+                            {hint.current}
+                          </Typography>
+                          <TextField
+                            {...params}
+                            onChange={(event) => {
+                              const newValue = event.target.value;
+                              setFieldValue('apellidos', newValue);
+                              setApellidos(event.target.value)
+                              if (nroCedula) {
+                                setCreateCedula(nroCedula)
+                              }
+                            }}
+                            error={Boolean(errors.apellidos && touched.apellidos)}
+                            helperText={touched.apellidos && errors.apellidos}
+                            label="Apellidos"
 
-          {/*  */}
-          <Row gutter={[16, 16]}>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Cedula:</label>
-              <Form.Item
-                name="nroCedula"
-                rules={[{ required: true, message: "La cédula es requerida" }]}
-              >
-                <AutoComplete
-                  allowClear
-                  showSearch
-                  placeholder="Seleccionar paciente"
-                  onSearch={(text) => debouncedSetCedula(text)}
-                  onSelect={(value, key) => {
-                    setCreateCedula(null)
-                    handleCedulaChange(key.key);
-                  }}
-                  onDropdownVisibleChange={(open) => open && handleCedulaSelectOpen()}
-                  notFoundContent={isLoading ? <Spin size="small" /> : null}
-                  options={pacientes_options_agenda.map((paciente) => {
-                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
-                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
-                    return {
-                      key: fullKey,
-                      value: paciente.nro_cedula,
-                      label: `${paciente.nro_cedula} - ${fullName}`,
-                      searchText: fullName.toLowerCase(),
-                    };
-                  })}
-                  filterOption={(inputValue, option) => {
-                    const words = inputValue.toLowerCase().split(" ");
-                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
-                  }}
-                >
-                </AutoComplete>
-              </Form.Item>
-            </Col>
+                          />
+                        </Box>
+                      );
+                    }}
+                    inputValue={values.apellidos}
+                  />
+                </Col>
+                <Col xxl={12} xl={12} md={12}>
+                  <Autocomplete
+                    options={pacientes_options_agenda}
+                    getOptionLabel={(option) => option.label || ''}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={(event, newValue) => {
+                      setFieldValue('celular', newValue && newValue.celular ? newValue.celular : '');
+                      setFieldValue('cedula', newValue && newValue.nro_cedula ? newValue.nro_cedula : '');
+                      setFieldValue('apellidos', newValue && newValue.apellidos ? newValue.apellidos : '');
+                      setFieldValue('paciente', newValue && newValue.label ? newValue.label : '');
+                      setPacienteId(newValue?.id)
+                      setCreateCedula(null)
+                    }}
+                    loading={isLoading}
+                    onOpen={() => {
+                      if (!dataLoaded) {
+                        setIsLoading(true);
+                        dispatch(fetchPacientes({}))
+                          .then(() => {
+                            setDataLoaded(true);
+                          })
+                          .catch((error) => {
+                            console.error('Error al cargar las cédulas:', error);
+                          })
+                          .finally(() => {
+                            setIsLoading(false);
+                          });
+                      }
+                    }}
+                    disablePortal
+                    renderInput={(params) => {
+                      return (
+                        <Box sx={{ position: 'relative' }}>
+                          <Typography
+                            sx={{
+                              position: 'absolute',
+                              opacity: 0.5,
+                              left: 14,
+                              top: 16,
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap',
+                              width: 'calc(100% - 75px)',
+                            }}
+                          >
+                            {hint.current}
+                          </Typography>
+                          <TextField
+                            {...params}
+                            onChange={(event) => {
+                              let newValue = event.target.value;
+                              if (newValue && !newValue.startsWith('+507')) {
+                                newValue = '+507' + newValue.replace(/^\+507/, '').replace(/[^0-9]/g, '');
+                              }
 
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Nombres:</label>
-              <Form.Item
-                name="paciente"
-                // initialValue={pacienteInput}
-                rules={[{ required: true, message: "El paciente es requerido" }]}
-              >
-                <AutoComplete
-                  allowClear
-                  showSearch
-                  mode="combobox"
-                  placeholder="Seleccionar paciente"
-                  options={pacientes_options_agenda.map((paciente) => {
-                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
-                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
-                    return {
-                      key: fullKey,
-                      value: paciente.nombres,
-                      label: `${paciente.nro_cedula} - ${fullName}`,
-                      searchText: fullName.toLowerCase(),
-                    }
-                  })}
-                  filterOption={(inputValue, option) => {
-                    const words = inputValue.toLowerCase().split(" ");
-                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
-                  }}
-                  // onChange={(value) => {
-                  //   setPacienteInput(value);
-                  //   form.setFieldsValue({ paciente: value });
-                  // }}
-                  onSelect={(value, key) => {
-                    const selected = pacientes_options_agenda.find(
-                      (paciente) => paciente.nombres === value
-                    );
-                    setPacienteId(selected.value)
-                    setCreatePaciente(null);
-                    setCreateCedula(null);
-                    handlePacienteChange(key.key);
-                  }}
-                  onSearch={(text) => debouncedSetNombre(text)}
-                  // onSearch={(text) => {
-                  //   setCreatePaciente(text)
-                  // }}
-                  onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
-                  notFoundContent={isLoading ? <Spin size="small" /> : null}
-                >
-                </AutoComplete>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={[24, 24]}>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Apellidos:</label>
-              <Form.Item
-                name="apellidos"
-                rules={[{ required: true, message: "El apellido es requerido" }]}
-              >
-                <AutoComplete
-                  allowClear
-                  showSearch
-                  mode="combobox"
-                  placeholder="Seleccionar paciente"
-                  options={pacientes_options_agenda.map((paciente) => {
-                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
-                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
-                    return {
-                      key: fullKey,
-                      value: paciente.apellidos,
-                      label: `${paciente.nro_cedula} - ${fullName}`,
-                      searchText: fullName.toLowerCase(),
-                    }
-                  })}
-                  filterOption={(inputValue, option) => {
-                    const words = inputValue.toLowerCase().split(" ");
-                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
-                  }}
-                  // onChange={(value) => {
-                  //   setApellidos(value);
-                  //   form.setFieldsValue({ apellidos: value });
-                  // }}
-                  onSearch={(val) => debouncedSetApellidos(val)}
-                  onSelect={(value, key) => {
-                    setCreateCedula(null)
-                    handleApellidosChange(key.key);
-                  }}
+                              setFieldValue('celular', newValue);
+                              setCelular(newValue);
 
-                  onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
-                  notFoundContent={isLoading ? <Spin size="small" /> : null}
-                >
-                </AutoComplete>
-              </Form.Item>
-            </Col>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Celular:</label>
-              <Form.Item
-                name="celular"
-                rules={[{ required: true, message: "El celular es requerido" }]}
-              >
-                <AutoComplete
-                  allowClear
-                  showSearch
-                  mode="combobox"
-                  placeholder="Seleccionar paciente"
-                  options={pacientes_options_agenda.map((paciente) => {
-                    const fullName = `${paciente.nombres} ${paciente.apellidos}`;
-                    const fullKey = `${paciente.nro_cedula}-${fullName}`;
-                    return {
-                      key: fullKey,
-                      value: paciente.apellidos,
-                      label: `${paciente.nro_cedula} - ${fullName}`,
-                      searchText: fullName.toLowerCase(),
-                    }
-                  })}
-                  filterOption={(inputValue, option) => {
-                    const words = inputValue.toLowerCase().split(" ");
-                    const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
-                  }}
-                  // onChange={(value) => {
-                  //   setCelular(value);
-                  //   form.setFieldsValue({ celular: value });
-                  // }}
-                  onSearch={(val) => {
-                    const valueWithPrefix = val.startsWith("+507") ? val : `+507${val}`;
-                    form.setFieldsValue({ celular: valueWithPrefix });
-                    debouncedSetCelular(valueWithPrefix);
-                  }}
-                  onSelect={(value, key) => {
-                    setCreateCedula(null)
-                    handleCelularChange(key.key);
-                  }}
+                              if (nroCedula) {
+                                setCreateCedula(nroCedula);
+                              }
+                            }}
+                            label="Celular"
+                            error={Boolean(errors.celular && touched.celular)}
+                            helperText={touched.celular && errors.celular}
+                          />
 
-                  onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
-                  notFoundContent={isLoading ? <Spin size="small" /> : null}
-                >
-                </AutoComplete>
-              </Form.Item>
-            </Col>
-          </Row>
+                        </Box>
+                      );
+                    }}
+                    inputValue={values.celular}
+                  />
+                </Col>
+              </Row>
+              <Row gutter={[16, 32]} style={{ marginBottom: 24 }}>
+                <Col xxl={12} xl={12} md={12}>
+                  <FormControl sx={{ width: '100%' }}
+                    error={Boolean(touched.sucursal && errors.sucursal)}
+                  >
+                    <InputLabel id="demo-simple-select-label">Sucursal</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={values.sucursal}
+                      onChange={(event) => {
+                        const selectedValue = event.target.value;
+                        handleSucursalChangeSelect(selectedValue);
+                        setFieldValue('sucursal', selectedValue);
+                      }}
+                      label="Sucursal"
+                    >
+                      {sucursales_option_selects.map((sucursal) => (
+                        <MenuItem key={sucursal.value} value={sucursal.value}>
+                          {sucursal.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {touched.sucursal && errors.sucursal && (
+                      <FormHelperText>{errors.sucursal}</FormHelperText>
+                    )}
+                  </FormControl>
+                </Col>
 
-          <Row gutter={[16, 16]}>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Sucursal:</label>
-              <Form.Item
-                name="sucursal"
-                rules={[{ required: true, message: "La sucursal es requerida" }]}
-              >
-                <Select
-                  placeholder="Seleccionar sucursal"
-                  onChange={(value) => {
-                    handleSucursalChangeSelect(value)
-                    setSelectedSucursal(value)
-
-                    const sucursalSeleccionada = sucursales_option_selects.find((sucursal) => sucursal.value == value)
-                    setDireccion_sucursal(sucursalSeleccionada.ubicacion_mps)
-
-                  }}
-                >
-                  {sucursales_option_selects.map((sucursal) => (
-                    <Select.Option key={sucursal.value} value={sucursal.value}>
-                      {sucursal.label}
-                    </Select.Option>
-
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Doctor:</label>
-              <Form.Item
-                name="doctor"
-                rules={[{ required: true, message: "El doctor es requerido" }]}
-              >
-                <Select
-                  placeholder="Seleccionar doctor"
-                  onChange={handleDoctorChange}
-                  value={selectedDoctor}
-                >
-                  {usuarios_doctores_options_selecteds.map((doctor) => (
-                    <Select.Option key={doctor.value} value={doctor.label}>
-                      {doctor.label}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/*  */}
-          <label style={{ marginTop: '10px' }}>Comentarios de la agenda:</label>
-          <Form.Item
-            rules={[{ required: true, message: "El comentario es requerido" }]}
-            name="comentarios"
-          >
-            <Input.TextArea
-              placeholder="Descripción del Evento"
-            />
-          </Form.Item>
-
-          <Row gutter={[16, 16]}>
-            <Col xxl={24} xl={24} md={24}>
-              <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                {/* <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button> */}
-                <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={() => setTimeEndDate(30)}>30min</Button>
-                <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={() => setTimeEndDate(45)}>45min</Button>
-                <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={() => setTimeEndDate(60)}>1h</Button>
-                {/* <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button> */}
-              </div>
-            </Col>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '5px' }}>Hora de inicio:</label>
-              <Form.Item
-                name="fechaAgenda"
-                rules={[{ required: true, message: "La fecha y hora de inicio es requerida" }]}
-              >
-                <DatePicker
-                  allowClear={false}
-                  showTime={{ format: "HH:mm" }}
-                  format="YYYY-MM-DD HH:mm"
-                  style={{ marginBottom: "10px", width: "100%" }}
-                  placeholder="Fecha y hora de inicio"
-                />
-              </Form.Item>
-            </Col>
-            <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Hora de fin:</label>
-              <Form.Item
-                name="fechaAgendaFin"
-                rules={[{ required: true, message: "La fecha y hora de fin es requerida" }]}
-              >
-                <DatePicker
-                  allowClear={false}
-                  disabled={!enableTimeEndDateForm}
-                  showTime={{ format: "HH:mm" }}
-                  format="YYYY-MM-DD HH:mm"
-                  style={{ marginBottom: "10px", width: "100%", color: '#1677FF !important' }}
-                  placeholder="Fecha y hora de fin"
-
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item
-            name="tipoAgenda"
-            // rules={[
-            //   {
-            //     required: true,
-            //     message: "El tipo de agenda es requerido",
-            //   },
-            //   ({ getFieldValue }) => ({
-            //     validator(_, value) {
-            //       if (value === "terapia" || value === "consulta") {
-            //         return Promise.resolve();
-            //       }
-            //       return Promise.reject("Debes seleccionar Terapias o Consultas");
-            //     },
-            //   }),
-            // ]}
-            rules={[
-              esProximaCita === false && {
-                required: true,
-                message: "El tipo de agenda es requerido",
-              },
-              esProximaCita === false && ({
-                validator(_, value) {
-                  if (value === "terapia" || value === "consulta") {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject("Debes seleccionar Terapias o Consultas");
-                },
-              }),
-            ].filter(Boolean)}
-          >
-            <Radio.Group>
-              <Radio value="terapia">Terapias</Radio>
-              <Radio value="consulta">Consultas</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <div className="form-row mb-4 mt-2">
-            <div className="form-group col-md-12">
-              <label htmlFor="tags">Servicios a realizar</label>
-              <Form.Item
-                name="proximosServicios"
-                rules={[{ required: true, message: "Debes seleccionar al menos un servicio" }]}
-              >
-                <Select
-                  showSearch
+                <Col xxl={12} xl={12} md={12}>
+                  <FormControl sx={{ width: '100%' }}
+                    error={Boolean(touched.doctor && errors.doctor)}
+                  >
+                    <InputLabel id="demo-simple-select-label">Doctor</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={values.doctor}
+                      onChange={(event) => {
+                        const selectedValue = event.target.value;
+                        handleDoctorChange(selectedValue);
+                        setFieldValue('doctor', selectedValue);
+                      }}
+                      label="Doctor"
+                    >
+                      {usuarios_doctores_options_selecteds.map((doctor) => (
+                        <MenuItem key={doctor.value} value={doctor.label}>
+                          {doctor.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {touched.doctor && errors.doctor && (
+                      <FormHelperText>{errors.doctor}</FormHelperText>
+                    )}
+                  </FormControl>
+                </Col>
+              </Row>
+              <FormControl sx={{ m: 1, width: '100%' }}>
+                <FormLabel htmlFor="comentarios">Comentarios de la agenda:</FormLabel>
+                <TextareaAutosize
+                  id="comentarios"
+                  name="comentarios"
+                  minRows={4}
+                  placeholder="Escribe tu comentario aquí..."
                   style={{
-                    width: '100%', color: 'transparent',
-                    background: 'white !important'
+                    width: '100%',
+                    fontSize: 16,
+                    padding: 8,
+                    borderRadius: 4,
+                    border: '1px solid rgba(0, 0, 0, 0.23)',
+                    fontFamily: 'inherit',
                   }}
-                  onChange={handleSelectChangServicios}
-                  options={servicios.map(servicio => ({
-                    value: servicio.id,
-                    label: servicio.codigo + " | " + servicio.servicio
-                  }))}
-                  filterOption={(input, option) => {
-                    const searchTerms = input.toLowerCase().split(' ');
-                    return searchTerms.every(term =>
-                      (option?.label ?? '').toLowerCase().includes(term)
-                    );
+                  value={values.comentarios}
+                  onChange={(e) => {
+                    setFieldValue('comentarios', e.target.value)
+                    setComentarios(e.target.value)
                   }}
                 />
-              </Form.Item>
+              </FormControl>
 
-              <div
-                style={{
-                  display: 'ruby',
-                  marginTop: '10px',
-                  marginBottom: '10px'
+              <Row gutter={[16, 16]}>
+                <Col xxl={24} xl={24} md={24}>
+                  <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {/* <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button> */}
+                    <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={() => setTimeEndDate(30)}>30min</Button>
+                    <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={() => setTimeEndDate(45)}>45min</Button>
+                    <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={() => setTimeEndDate(60)}>1h</Button>
+                    {/* <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button> */}
+                  </div>
+                </Col>
+                <Col xxl={12} xl={12} md={12}>
+                  <label style={{ marginTop: '5px' }}>Hora de inicio:</label>
+                  <DatePicker
+                    value={values.fechaAgenda ? dayjs(values.fechaAgenda) : null}
+                    allowClear={false}
+                    showTime={{ format: "HH:mm" }}
+                    format="YYYY-MM-DD HH:mm"
+                    style={{ marginBottom: "10px", width: "100%" }}
+                    placeholder="Fecha y hora de inicio"
+                    onChange={(date) => {
+                      setFieldValue('fechaAgenda', date ? date.toISOString() : '');
+                      setFechaAgendaInicio(date)
+                    }}
+                  />
+                </Col>
+                <Col xxl={12} xl={12} md={12}>
+                  <label style={{ marginTop: '10px' }}>Hora de fin:</label>
+
+                  <DatePicker
+                    value={values.fechaAgendaFin ? dayjs(values.fechaAgendaFin) : null}
+                    allowClear={false}
+                    disabled={!enableTimeEndDateForm}
+                    showTime={{ format: "HH:mm" }}
+                    format="YYYY-MM-DD HH:mm"
+                    style={{ marginBottom: "10px", width: "100%", color: '#1677FF !important' }}
+                    placeholder="Fecha y hora de fin"
+                    onChange={(date) => {
+                      setFieldValue('fechaAgendaFin', date ? date.toISOString() : '');
+                      setFechaAgendaFin(date)
+                    }}
+
+                  />
+
+                </Col>
+              </Row>
+
+              <Radio.Group
+                name="tipoAgenda"
+                value={values.tipoAgenda}
+                onChange={(e) => {
+                  setFieldValue('tipoAgenda', e.target.value),
+                    setTipoAgenda(e.target.value)
                 }}
               >
-                {
-                  proximosServicios.map((servicio) => {
-                    return (
-                      <div
-                        style={{
-                          color: 'black',
-                          background: 'white',
-                          border: '1px solid gray',
-                          paddingTop: '5px',
-                          paddingBottom: '5px',
-                          paddingLeft: '10px',
-                          paddingRight: '10px',
-                          borderRadius: '20px',
-                          display: 'flex',
-                          marginRight: '5px',
-                          marginTop: '5px'
-                        }}
-                      >
-                        {servicio.label}
-                        <div
-                          style={{
-                            marginLeft: '5px',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => {
-                            // const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
-                            setProximosServicios([])
-                          }}
-                        >
-                          <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                        </div>
-                      </div>
-                    )
-                  })
-                }
+                <Radio value="terapia">Terapias</Radio>
+                <Radio value="consulta">Consultas</Radio>
+              </Radio.Group>
+
+              <div className="form-row mb-4 mt-2">
+                <div className="form-group col-md-12">
+                  <FormLabel htmlFor="comentarios">Servicios a realizar:</FormLabel>
+                  <FormControl sx={{ m: 1, width: '100%' }}>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={values.proximosServicios}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setFieldValue('proximosServicios', value);
+                        const option = servicios.find(servicio => servicio.id === value);
+
+                        if (option) {
+                          setProximosServicios((prev) => {
+                            const indexFind = prev.findIndex(
+                              (proximo) => proximo.value === option.id
+                            );
+
+                            const newOption = {
+                              value: option.id,
+                              label: option.codigo + ' | ' + option.servicio,
+                            };
+
+                            if (indexFind !== -1) {
+                              return prev.map((proximo, index) =>
+                                index === indexFind ? { ...proximo, ...newOption } : proximo
+                              );
+                            } else {
+                              return [...prev, newOption];
+                            }
+                          });
+                        }
+                      }}
+                      MenuProps={MenuProps}
+                    >
+                      {servicios.map((servicio) => (
+                        <MenuItem key={servicio.id} value={servicio.id}>
+                          {servicio.codigo + "|" + servicio.servicio}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <div
+                    style={{
+                      display: 'ruby',
+                      marginTop: '10px',
+                      marginBottom: '10px'
+                    }}
+                  >
+                    {
+                      proximosServicios.map((servicio) => {
+                        return (
+                          <div
+                            style={{
+                              color: 'black',
+                              background: 'white',
+                              border: '1px solid gray',
+                              paddingTop: '5px',
+                              paddingBottom: '5px',
+                              paddingLeft: '10px',
+                              paddingRight: '10px',
+                              borderRadius: '20px',
+                              display: 'flex',
+                              marginRight: '5px',
+                              marginTop: '5px'
+                            }}
+                          >
+                            {servicio?.label}
+                            <div
+                              style={{
+                                marginLeft: '5px',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => {
+                                // const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
+                                setProximosServicios([])
+                              }}
+                            >
+                              <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                            </div>
+                          </div>
+                        )
+                      })
+                    }
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </Form>
+
+            </Form>
+          )}
+        </Formik>
       </Modal>
 
       <Modal
