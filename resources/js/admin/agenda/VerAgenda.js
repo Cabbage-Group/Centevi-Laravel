@@ -370,7 +370,7 @@ Tarjeta (Clave,Visa o Mastercard)
         }
     };
 
-   const downloadExcel = () => {
+const downloadExcel = async () => {
     try {
         if (typeof XLSX === "undefined") {
             Swal.fire({
@@ -413,33 +413,87 @@ Tarjeta (Clave,Visa o Mastercard)
             return;
         }
 
-        // DEBUGGING: Ver la estructura completa de las citas
-        console.log("=== DEBUGGING CITAS ===");
-        console.log("Primera cita completa:", citasDelMes[0]);
-        console.log("ExtendedProps de la primera cita:", citasDelMes[0]?.extendedProps);
-        
-        // Revisar todas las propiedades que podrían contener servicios
-        citasDelMes.forEach((cita, index) => {
-            if (index < 3) { // Solo las primeras 3 para no llenar la consola
-                console.log(`Cita ${index + 1}:`, {
-                    id: cita.id,
-                    extendedProps: cita.extendedProps,
-                    // Verificar si hay servicios en diferentes ubicaciones
-                    proximosServicios: cita.extendedProps?.proximosServicios,
-                    servicios_realizados: cita.extendedProps?.servicios_realizados,
-                    servicios: cita.extendedProps?.servicios,
-                    // También revisar directamente en la cita
-                    citaServicios: cita.servicios,
-                    citaProximosServicios: cita.proximosServicios,
-                });
-            }
+        Swal.fire({
+            title: "Procesando datos...",
+            text: "Obteniendo información de servicios...",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
         });
+        const mapTipoToConsultaNombre = (tipoAgenda) => {
+            const mappings = {
+                baja_vision: "baja_vision",
+                refraccion_general: "refraccion_general",
+                optometria_general: "refraccion_general",
+                consulta_generica: "consulta_generica",
+                optometria_neonatos: "optometria_neonatos",
+                optometria_pediatrica: "optometria_pediatrica",
+                ortoptica_adultos: "ortoptica_adultos",
+                citas: "citas_servicios",
+                cita: "citas_servicios",
+                consulta: "citas_servicios",
+                terapia: "citas_servicios",
+            };
 
-        const excelData = citasDelMes.map((cita) => {
+            return mappings[tipoAgenda] || "citas_servicios"; 
+        };
+        const excelDataPromises = citasDelMes.map(async (cita, index) => {
+            console.log(
+                `Procesando cita ${index + 1}/${citasDelMes.length}:`,
+                cita
+            );
+
             const fechaInicio = new Date(cita.start);
-            const fechaFin = cita.fecha_hora_fin
-                ? new Date(cita.fecha_hora_fin)
-                : null;
+            let fechaFin = null;
+            let horaFin = "";
+
+            const posiblesFechasFin = [
+                cita.end,
+                cita.fecha_hora_fin,
+                cita.extendedProps?.fecha_hora_fin,
+                cita.extendedProps?.end,
+                cita.extendedProps?.fechaFin,
+                cita.fechaFin,
+                cita.endDate,
+                cita.extendedProps?.endDate,
+                cita.extendedProps?.fecha_fin,
+                cita.fecha_fin
+            ];
+
+            console.log("Posibles fechas fin encontradas:", posiblesFechasFin);
+
+            for (let i = 0; i < posiblesFechasFin.length; i++) {
+                const fechaCandidata = posiblesFechasFin[i];
+                if (fechaCandidata) {
+                    const fechaTemp = new Date(fechaCandidata);
+                    if (!isNaN(fechaTemp.getTime()) && fechaTemp.getTime() !== fechaInicio.getTime()) {
+                        fechaFin = fechaTemp;
+                        console.log(`Usando fecha fin [${i}]:`, fechaCandidata, "->", fechaFin);
+                        break;
+                    }
+                }
+            }
+
+            if (!fechaFin) {
+                const duracion = cita.duracion || cita.extendedProps?.duracion || 30; 
+                fechaFin = new Date(fechaInicio.getTime() + (duracion * 60000));
+                console.log(`Calculando fecha fin con duración ${duracion} min:`, fechaFin);
+            }
+
+            if (fechaFin && !isNaN(fechaFin.getTime())) {
+                horaFin = fechaFin.toLocaleTimeString("es-ES", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                });
+            } else {
+                console.warn(`No se pudo determinar fecha fin para la cita ${cita.id || index}`);
+                horaFin = "";
+            }
+
+            console.log(`Cita ${index + 1} - Hora fin final:`, horaFin);
+
             const nombres =
                 cita.paciente || cita.title?.split(" - ")[0] || "";
             const apellidos = cita.apellidos || "";
@@ -447,95 +501,201 @@ Tarjeta (Clave,Visa o Mastercard)
                 ? `${nombres} ${apellidos}`
                 : nombres;
 
-            // FUNCIÓN PARA PROCESAR SERVICIOS
-            const obtenerServicios = (cita) => {
-                let servicios = [];
-                
-                // Intentar obtener servicios de diferentes ubicaciones posibles
-                const posiblesServicios = [
-                    cita.extendedProps?.proximosServicios,
-                    cita.extendedProps?.servicios_realizados,
-                    cita.extendedProps?.servicios,
-                    cita.servicios,
-                    cita.proximosServicios
-                ];
+            let serviciosRealizados = "";
 
-                for (let servicioData of posiblesServicios) {
-                    if (servicioData) {
-                        // Si es un array de objetos
-                        if (Array.isArray(servicioData)) {
-                            servicios = servicioData.map(servicio => {
-                                if (typeof servicio === 'object') {
-                                    return `${servicio.servicio_codigo || servicio.codigo || ''} | ${servicio.servicio_nombre || servicio.nombre || servicio.servicio || ''}`;
-                                }
-                                return servicio.toString();
-                            });
-                            break;
+            try {
+                const citaId =
+                    cita.id ||
+                    cita.extendedProps?.id ||
+                    cita.extendedProps?.cita_id;
+                const tipoAgenda =
+                    cita.extendedProps?.tipoAgenda ||
+                    cita.tipo ||
+                    cita.extendedProps?.tipo ||
+                    "";
+
+                console.log(
+                    `Cita ${
+                        index + 1
+                    } - ID: ${citaId}, Tipo original: ${tipoAgenda}`
+                );
+
+                if (citaId) {
+                    const consultaNombre =
+                        mapTipoToConsultaNombre(tipoAgenda);
+                    console.log(
+                        `Cita ${citaId} - Usando consulta_nombre: ${consultaNombre}`
+                    );
+
+                    const serviciosResponse = await dispatch(
+                        fetchServiciosProximosAgenda({
+                            consulta_nombre: consultaNombre,
+                            consulta_id: citaId,
+                        })
+                    );
+
+                    console.log(
+                        `Servicios response para cita ${citaId}:`,
+                        serviciosResponse
+                    );
+
+                    if (serviciosResponse && serviciosResponse.payload) {
+                        let serviciosData = serviciosResponse.payload;
+                        if (
+                            serviciosData.data &&
+                            Array.isArray(serviciosData.data)
+                        ) {
+                            serviciosData = serviciosData.data;
                         }
-                        // Si es una cadena
-                        else if (typeof servicioData === 'string' && servicioData.trim() !== '') {
-                            servicios = [servicioData];
-                            break;
+                        if (
+                            Array.isArray(serviciosData) &&
+                            serviciosData.length > 0
+                        ) {
+                            const serviciosArray = serviciosData
+                                .map((servicio) => {
+                                    const codigo =
+                                        servicio.servicio_codigo ||
+                                        servicio.codigo ||
+                                        servicio.service_code ||
+                                        "";
+                                    const nombre =
+                                        servicio.servicio_nombre ||
+                                        servicio.servicio ||
+                                        servicio.nombre ||
+                                        servicio.name ||
+                                        servicio.service_name ||
+                                        "";
+                                    if (codigo && nombre) {
+                                        return `${codigo} | ${nombre}`;
+                                    } else if (nombre) {
+                                        return nombre;
+                                    } else if (codigo) {
+                                        return codigo;
+                                    }
+                                    return "";
+                                })
+                                .filter(
+                                    (servicio) => servicio.trim() !== ""
+                                ); 
+
+                            if (serviciosArray.length > 1) {
+                                serviciosRealizados = serviciosArray.join("\n");
+                            } else {
+                                serviciosRealizados = serviciosArray.join(", ");
+                            }
+
+                            console.log(
+                                `Servicios procesados para cita ${citaId}:`,
+                                serviciosRealizados
+                            );
+                        } else {
+                            console.log(
+                                `No se encontraron servicios en array para cita ${citaId}`,
+                                serviciosData
+                            );
                         }
+                    } else {
+                        console.log(
+                            `Respuesta vacía o inválida para cita ${citaId}`,
+                            serviciosResponse
+                        );
                     }
                 }
 
-                return servicios.join(', ') || 'Sin servicios especificados';
-            };
+                if (
+                    !serviciosRealizados ||
+                    serviciosRealizados.trim() === ""
+                ) {
+                    serviciosRealizados =
+                        cita.extendedProps?.proximosServicios ||
+                        cita.extendedProps?.servicios_realizados ||
+                        cita.proximosServicios ||
+                        cita.servicios_realizados ||
+                        cita.extendedProps?.servicios ||
+                        "";
 
-            const serviciosTexto = obtenerServicios(cita);
+                    console.log(
+                        `Usando fallback para cita ${citaId}:`,
+                        serviciosRealizados
+                    );
+                }
+            } catch (error) {
+                console.warn(
+                    `Error obteniendo servicios para cita ${citaId}:`,
+                    error
+                );
+                serviciosRealizados =
+                    cita.extendedProps?.proximosServicios ||
+                    cita.extendedProps?.servicios_realizados ||
+                    cita.proximosServicios ||
+                    cita.servicios_realizados ||
+                    cita.extendedProps?.servicios ||
+                    "Error al cargar servicios";
+            }
+
+            if (!serviciosRealizados || serviciosRealizados.trim() === "") {
+                serviciosRealizados = "No se pudieron cargar los servicios";
+            }
 
             return {
-                Tipo: cita.extendedProps?.tipoAgenda || cita.tipo || "",
+                Tipo:
+                    cita.extendedProps?.tipoAgenda ||
+                    cita.tipo ||
+                    cita.extendedProps?.tipo ||
+                    "",
                 Cédula:
-                    cita.extendedProps?.nroCedula || cita.nro_cedula || "",
+                    cita.extendedProps?.nroCedula ||
+                    cita.nro_cedula ||
+                    cita.extendedProps?.cedula ||
+                    "",
                 "Nombre Paciente": nombreCompleto,
-                Sucursal: cita.sucursal || "",
-                Doctor: cita.doctor || "",
-                Status: cita.confirmado || "SIN STATUS",
-                "Servicios a Realizar": serviciosTexto,
+                Sucursal:
+                    cita.sucursal || cita.extendedProps?.sucursal || "",
+                Doctor: cita.doctor || cita.extendedProps?.doctor || "",
+                Status:
+                    cita.confirmado ||
+                    cita.extendedProps?.confirmado ||
+                    "SIN STATUS",
+                "Servicios a Realizar": serviciosRealizados,
                 Fecha: fechaInicio.toLocaleDateString("es-ES"),
                 "Hora Inicio": fechaInicio.toLocaleTimeString("es-ES", {
                     hour: "2-digit",
                     minute: "2-digit",
                     hour12: false,
                 }),
-                "Hora Fin": fechaFin
-                    ? fechaFin.toLocaleTimeString("es-ES", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                      })
-                    : "",
-                Comentarios: cita.comentarios || "",
-                "Agendado Por": cita.agendado_por || "",
+                "Hora Fin": horaFin,
+                Comentarios:
+                    cita.comentarios ||
+                    cita.extendedProps?.comentarios ||
+                    "",
+                "Agendado Por":
+                    cita.agendado_por ||
+                    cita.extendedProps?.agendado_por ||
+                    "",
             };
         });
 
-        // DEBUGGING: Ver los datos procesados para Excel
-        console.log("=== DATOS PARA EXCEL ===");
-        console.log("Primeros 2 registros procesados:", excelData.slice(0, 2));
+        console.log("Esperando a que se procesen todas las citas...");
+        const excelData = await Promise.all(excelDataPromises);
+        console.log("Datos finales para Excel:", excelData);
 
-        // Crear el libro de trabajo
         const worksheet = XLSX.utils.json_to_sheet(excelData);
         const workbook = XLSX.utils.book_new();
 
-        // Agregar la hoja al libro
         XLSX.utils.book_append_sheet(
             workbook,
             worksheet,
             `Agenda ${monthName} ${currentYear}`
         );
 
-        // Ajustar el ancho de las columnas
         const columnWidths = [
             { wch: 12 }, // Tipo
             { wch: 12 }, // Cédula
-            { wch: 45 }, // Nombre Paciente (más ancho para nombre completo)
+            { wch: 45 }, // Nombre Paciente
             { wch: 45 }, // Sucursal
             { wch: 20 }, // Doctor
             { wch: 12 }, // Status
-            { wch: 50 }, // Servicios a Realizar (aumenté el ancho)
+            { wch: 60 }, // Servicios a Realizar (más ancho)
             { wch: 12 }, // Fecha
             { wch: 12 }, // Hora Inicio
             { wch: 12 }, // Hora Fin
@@ -544,20 +704,37 @@ Tarjeta (Clave,Visa o Mastercard)
         ];
         worksheet["!cols"] = columnWidths;
 
-        // Descargar el archivo
+        Swal.close();
+
         const fileName = `Agenda_${monthName}_${currentYear}.xlsx`;
         XLSX.writeFile(workbook, fileName);
 
-        // Mostrar mensaje de éxito
+        const citasConServicios = excelData.filter((cita) => {
+            const servicios = cita["Servicios a Realizar"];
+            return (
+                servicios &&
+                servicios !== "No se pudieron cargar los servicios" &&
+                servicios !== "Error al cargar servicios" &&
+                servicios.trim() !== ""
+            );
+        }).length;
+
+        const citasSinServicios = citasDelMes.length - citasConServicios;
+
         Swal.fire({
             icon: "success",
             title: "Exportación exitosa",
-            text: `Se han exportado ${citasDelMes.length} citas del mes de ${monthName} ${currentYear}.`,
-            timer: 3000,
-            showConfirmButton: false,
+            html: `
+        <p>Se han exportado <strong>${citasDelMes.length}</strong> citas del mes de ${monthName} ${currentYear}.</p>
+        <p>Citas con servicios cargados: <strong>${citasConServicios}</strong></p>
+        <p>Citas sin servicios: <strong>${citasSinServicios}</strong></p>
+    `,
+            timer: 8000,
+            showConfirmButton: true,
         });
     } catch (error) {
         console.error("Error al exportar Excel:", error);
+        Swal.close();
         Swal.fire({
             icon: "error",
             title: "Error de exportación",
