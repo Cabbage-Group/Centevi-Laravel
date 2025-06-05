@@ -1,6 +1,10 @@
 import React from 'react';
 import { setCurrentTypeAgenda } from '../../../redux/features/citas/CitasAgendaSlice';
 import { useDispatch } from 'react-redux';
+import { Col, Row } from 'antd';
+import { Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
 
 const estilos_btn_seleccionado = {
   paddingBottom: '5px',
@@ -29,6 +33,7 @@ const estilos_btn = {
 
 const BotonesFiltroAgenda = ({ lista_botones, selectedIndex, setSelectedIndex }) => {
   const dispatch = useDispatch();
+  const screens = useBreakpoint();
 
   const toggleSelection = (i) => {
     let updatedSelections;
@@ -44,24 +49,51 @@ const BotonesFiltroAgenda = ({ lista_botones, selectedIndex, setSelectedIndex })
   };
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        right: '15px',
-        top: '15px',
-        display: 'flex'
-      }}
-    >
-      {lista_botones.map((boton, i) => (
-        <div
-          key={i}
-          style={selectedIndex.includes(i) ? estilos_btn_seleccionado : estilos_btn}
-          onClick={() => toggleSelection(i)}
-        >
-          {boton}
-        </div>
-      ))}
-    </div>
+
+    screens.md ? (
+      <div
+        style={{
+          position: 'absolute',
+          right: '15px',
+          top: '15px',
+          display: 'flex'
+        }}
+      >
+        {lista_botones.map((boton, i) => (
+          <div
+            key={i}
+            style={selectedIndex.includes(i) ? estilos_btn_seleccionado : estilos_btn}
+            onClick={() => toggleSelection(i)}
+          >
+            {boton}
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div
+        style={{
+          position: 'absolute',
+          right: '5px',
+          top: '5px',
+          display: 'flex',
+          width: '130px'
+        }}
+      >
+        <Row>
+          {lista_botones.map((boton, i) => (
+            <Col xxl={24} xl={24} md={24} sm={24} xs={24} style={{ marginBottom: '5px' }}>
+              <div
+                key={i}
+                style={selectedIndex.includes(i) ? estilos_btn_seleccionado : estilos_btn}
+                onClick={() => toggleSelection(i)}
+              >
+                {boton}
+              </div>
+            </Col>
+          ))}
+        </Row>
+      </div>
+    )
   );
 };
 

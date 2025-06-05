@@ -10,7 +10,8 @@ import {
   List, Form, Spin, AutoComplete,
   Calendar,
   Checkbox,
-  Tooltip
+  Tooltip,
+  Grid
 } from "antd";
 import {
   LeftOutlined, RightOutlined, PlusOutlined,
@@ -45,10 +46,12 @@ import debounce from 'lodash/debounce';
 import { Link } from "react-router-dom";
 
 
+
 dayjs.locale("es");
+const { useBreakpoint } = Grid;
 
 const VerAgenda = () => {
-
+  const screens = useBreakpoint();
   const dispatch = useDispatch();
   const [form] = Form.useForm()
   const {
@@ -409,7 +412,8 @@ Tarjeta (Clave,Visa o Mastercard)
   const obtenerCitas = async (data) => {
     await dispatch(fetchCitasAgenda(data));
 
-    changeView("timeGridDay");
+    // changeView("timeGridDay");
+    changeView(currentView);
   }
 
 
@@ -587,7 +591,7 @@ Tarjeta (Clave,Visa o Mastercard)
         }
       });
     }
-   setIsModalOpen(true);
+    setIsModalOpen(true);
 
     if (clickedEvent) {
       const fechaInicio = dayjs(clickedEvent.start);
@@ -627,7 +631,7 @@ Tarjeta (Clave,Visa o Mastercard)
       setAgendadoPor(clickedEvent.agendado_por);
       setPacienteInput(clickedEvent.paciente_id);
       setApellidos(clickedEvent.apellidos);
-   
+
       form.setFieldsValue({
         nroCedula: clickedEvent.nro_cedula || "",
         paciente: clickedEvent.paciente,
@@ -1091,9 +1095,9 @@ Tarjeta (Clave,Visa o Mastercard)
 
   return (
     <div
-      style={{
+      style={screens.md ? {
         width: "100%", margin: "auto", padding: "30px", position: "relative", overflow: "hidden"
-      }}
+      } : { width: "100%", margin: "auto", padding: "0px", position: "relative", overflow: "hidden" }}
     >
       <div
         style={{
@@ -1157,15 +1161,19 @@ Tarjeta (Clave,Visa o Mastercard)
       </div>
 
       <div
-        style={{
+        style={screens.md ? {
           background: 'white',
           padding: '40px',
+          position: 'relative'
+        } : {
+          background: 'white',
+          // padding: '40px',
           position: 'relative'
         }}
       >
 
         <BotonesFiltroAgenda
-          lista_botones={["Consultas", "Terapias", "Proximas Citas"]}
+          lista_botones={["Consultas", "Terapias", "Prox. Citas"]}
           selectedIndex={selectedIndex}
           setSelectedIndex={setSelectedIndex}
         />
@@ -1175,13 +1183,13 @@ Tarjeta (Clave,Visa o Mastercard)
           <span style={{ fontSize: "18px", fontWeight: "bold" }}>{currentDate}</span>
         </div>
         <div
-          style={{
+          style={screens.md ? {
             position: 'absolute', top: '30px', left: '40px', width: '43%'
-          }}
+          } : { position: 'absolute', top: '5px', left: '5px', width: '43%' }}
         >
           <Row gutter={[8, 2]}>
             {sucursales_with_colors?.map((category) => (
-              <Col key={category.id} xxl={24} xl={24} md={24}>
+              <Col key={category.id} xxl={24} xl={24} md={24} ms={24} xs={24}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <input
                     type="checkbox"
@@ -1196,13 +1204,24 @@ Tarjeta (Clave,Visa o Mastercard)
                       borderRadius: 3,
                     }}
                   />
-                  <span>{category.name}</span>
+                  <span>
+                    {
+                      screens.md
+                        ? category.name
+                        : category.name.replace(/\b(CENTEVI|Medico|Médico|Centro|Consultorios|Medicos|San|Judas)\b/gi, '').trim()
+                    }
+                  </span>
                 </div>
               </Col>
             ))}
           </Row>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "70px" }}>
+        <div
+          style={screens.md
+            ? { display: "flex", justifyContent: "space-between", marginTop: "70px" }
+            : { display: "flex", justifyContent: "space-between", marginTop: "90px" }
+          }
+        >
 
           <Space>
             <Button onClick={goToPrev} icon={<LeftOutlined />} />
@@ -1218,19 +1237,19 @@ Tarjeta (Clave,Visa o Mastercard)
               onClick={() => changeView("dayGridMonth")}
               type={currentView === "dayGridMonth" ? "primary" : "default"}
             >
-              Mes
+              {screens.md ?"Mes":"M"}
             </Button>
             <Button
               onClick={() => changeView("timeGridWeek")}
               type={currentView === "timeGridWeek" ? "primary" : "default"}
             >
-              Semana
+              {screens.md ?"Semana":"S"}
             </Button>
             <Button
               onClick={() => changeView("timeGridDay")}
               type={currentView === "timeGridDay" ? "primary" : "default"}
             >
-              Día
+              {screens.md ?"Día":"D"}
             </Button>
           </Space>
         </div>
