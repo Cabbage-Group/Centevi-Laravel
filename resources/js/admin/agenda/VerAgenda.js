@@ -16,7 +16,7 @@ import {
 import {
   LeftOutlined, RightOutlined, PlusOutlined,
   CalendarOutlined, DeleteOutlined, CloseCircleTwoTone,
-  EyeOutlined, PhoneOutlined, EditOutlined
+  EyeOutlined, PhoneOutlined, EditOutlined, DownloadOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -45,7 +45,7 @@ import {
 import debounce from 'lodash/debounce';
 import { Link } from "react-router-dom";
 import TimeLine from "./components/TimeLine";
-
+import * as XLSX from "xlsx";
 
 
 dayjs.locale("es");
