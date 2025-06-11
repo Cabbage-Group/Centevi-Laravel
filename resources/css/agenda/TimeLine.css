@@ -1,0 +1,81 @@
+.event-calendar-container {
+  font-family: 'Arial', sans-serif;
+  max-width: 1200px;
+}
+
+.date-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.hour-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.hour-group {
+  display: flex;
+  gap: 20px;
+}
+
+.hour-label {
+  width: 80px;
+  font-weight: bold;
+  color: #555;
+  padding-top: 8px;
+  align-content: center;
+}
+
+.events-container {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.event-card {
+  width: calc(20% - 10px);
+  min-width: 180px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.event-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #0066cc;
+  line-height: 1.1;
+}
+
+.event-description {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.break-row {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .hour-group {
+    flex-direction: column;
+  }
+
+  .hour-label {
+    width: 100%;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .event-card {
+    width: 100%;
+  }
+}

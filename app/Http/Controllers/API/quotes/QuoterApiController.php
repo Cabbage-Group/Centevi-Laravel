@@ -71,7 +71,7 @@ class QuoterApiController extends Controller
 
   public function verUnaCotizacion($id)
   {
-    $quote = Quote::with('lines')->findOrFail($id);
+    $quote = Quote::with(['lines', 'paciente'])->findOrFail($id);
     return response()->json($quote);
   }
 
@@ -174,7 +174,8 @@ class QuoterApiController extends Controller
     return response()->json(['message' => 'Quote deleted']);
   }
 
-  public function verifyQuoteInterfuerza(){
-    
+  public function verifyQuoteInterfuerza()
+  {
+
   }
 }

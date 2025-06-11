@@ -315,8 +315,24 @@ const ProximasCitas = () => {
                               onClick={() => handleSort('FECHA_CONSULTA')}
 
                             >
-                              FECHA_CONSULTA
+                              FEC_CONSULTA
                             </th>
+
+                            <th
+
+                              aria-controls="zero-config"
+                              aria-label={`Nombre: activate to sort column ${sortOrder === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${sortOrder}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSort('FECHA_PROXIMA')}
+
+                            >
+                              PROX_CITA
+                            </th>
+
                             <th
 
                               aria-controls="zero-config"
@@ -393,6 +409,7 @@ const ProximasCitas = () => {
                                 <tr key={serviciosR.ID_CONSULTA}>
                                   <td>{`${prefix}${serviciosR.ID_CONSULTA}`}</td>
                                   <td>{moment.utc(serviciosR.FECHA_CONSULTA).format('DD-MM-YYYY')}</td>
+                                  <td>{moment.utc(serviciosR.FECHA_PROXIMA).format('DD-MM-YYYY')}</td>
                                   <td>{serviciosR.CONSULTA}</td>
                                   <td>{serviciosR.CEDULA}</td>
                                   <td>{serviciosR.PACIENTE}</td>
@@ -547,8 +564,24 @@ const ProximasCitas = () => {
                               onClick={() => handleSortserviciosProximos('FECHA_CONSULTA')}
 
                             >
-                              FECHA_CONSULTA
+                              FEC_CONSULTA
                             </th>
+
+                            <th
+
+                              aria-controls="zero-config"
+                              aria-label={`Nombre: activate to sort column ${sortOrderServiciosProximos === 'desc' ? 'descending' : 'ascending'}`}
+                              className={`sorting ${sortOrderServiciosProximos}`}
+                              colSpan="1"
+                              rowSpan="1"
+                              style={{ width: '153.82px' }}
+                              tabIndex="0"
+                              onClick={() => handleSortserviciosProximos('FECHA_PROXIMA')}
+
+                            >
+                              PROX_CITA
+                            </th>
+
                             <th
 
                               aria-controls="zero-config"
@@ -623,6 +656,7 @@ const ProximasCitas = () => {
                                 <tr key={serviciosP.ID_CONSULTA}>
                                   <td>{`${prefix}${serviciosP.ID_CONSULTA}`}</td>
                                   <td>{moment.utc(serviciosP.FECHA_CONSULTA).format('DD-MM-YYYY')}</td>
+                                  <td>{moment.utc(serviciosP.FECHA_PROXIMA).format('DD-MM-YYYY')}</td>
                                   <td>{serviciosP.CONSULTA}</td>
                                   <td>{serviciosP.CEDULA}</td>
                                   <td>{serviciosP.PACIENTE}</td>

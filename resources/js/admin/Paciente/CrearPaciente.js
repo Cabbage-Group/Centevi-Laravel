@@ -62,7 +62,7 @@ const CrearPaciente = () => {
       const nroCedula = cleanedValues.nro_cedula;
       const cedulaExists = await dispatch(verificarCedula(nroCedula)).unwrap();
 
-      console.log('cedulaExists:',cedulaExists)
+      console.log('cedulaExists:', cedulaExists)
 
       cleanedValues.estadoPaciente = cedulaExists;
 

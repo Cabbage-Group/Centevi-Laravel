@@ -19,12 +19,14 @@ export const generatePdfPreview = (quoteDetails) => {
 
       <!-- Información principal en formato de 2 columnas y compañía a la derecha -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-        <div>
+       <div>
           <p style="font-size: 15px; color: #333; margin-bottom: 10px; font-weight: bold;">Para:</p>
-          <p style="margin: 5px 0;"><strong>${quoteDetails?.Cliente || ''}</strong></p>
-          <p style="margin: 5px 0;">${quoteDetails?.Direccion || ''}</p>
-          <p style="margin: 5px 0;">T: ${quoteDetails?.Telefono || ''}</p>
-          <p style="margin: 5px 0;">C: ${quoteDetails?.Celular || ''}</p>
+          <p style="margin: 5px 0;">${quoteDetails?.paciente?.nombres && quoteDetails?.paciente?.apellidos ? 
+            `${quoteDetails.paciente.nombres.trim()} ${quoteDetails.paciente.apellidos.trim()}` : 
+            quoteDetails?.Cliente || ''}</p>
+          <p style="font-size: 13px; margin: 5px 1px;">${quoteDetails?.paciente?.direccion || quoteDetails?.Direccion || ''}</p>
+          <p style="margin: 5px 0;">T: ${quoteDetails?.paciente?.telefono || quoteDetails?.Telefono || ''}</p>
+          <p style="margin: 5px 0;">C: ${quoteDetails?.paciente?.celular || quoteDetails?.Celular || ''}</p>
         </div>
         
         <div>
