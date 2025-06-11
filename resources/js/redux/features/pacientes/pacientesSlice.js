@@ -175,7 +175,6 @@ const pacientesSlice = createSlice({
 
       })
       .addCase(fetchInterfuerza.rejected, (state, action) => {
-        console.log(' action:', action)
         state.statusInterfuerza = 'failed';
         state.errorInterfaz = action.error.message;
       })
