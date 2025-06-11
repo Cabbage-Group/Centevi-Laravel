@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\API\ventas\VentasApiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,3 +23,6 @@ Route::get('/items/{id}', [TestController::class, 'show']);
 Route::post('/items', [TestController::class, 'store']);
 Route::put('/items/{id}', [TestController::class, 'update']);
 Route::delete('/items/{id}', [TestController::class, 'destroy']);
+Route::post('/ventas-reportes-pagos', [VentasApiController::class, 'guardarPagosReportes']);
+
+Route::post('/ventas/download-data', [VentasApiController::class, 'export']);

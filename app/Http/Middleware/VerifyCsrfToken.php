@@ -255,6 +255,7 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/migration/products',
 
     'http://127.0.0.1:8000/api/verify/products',
+    'http://127.0.0.1:8000/api/ventas/download-data',
 
     
 

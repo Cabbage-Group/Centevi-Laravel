@@ -96,6 +96,7 @@ import NewTableOrdenes from '../admin/recetas/ordenesLabo/NewTableOrdenes.js';
 import ProductsInterfuerza from '../admin/products_interfuerza/ProductsInterfuerza.js';
 import TableProductsInterfuerza from '../admin/products_interfuerza/TableProductsInterfuerza.js';
 import MentionComponent from '../admin/chat/MentionComponent.js';
+import Ventas from '../admin/ventas/Ventas.js';
 
 
 const RoutesApp = () => {
@@ -280,6 +281,8 @@ const RoutesApp = () => {
           <Route path="/table-productos" element={<Sidebar component={<TableProductsInterfuerza />} />} />
 
           <Route path="/prueba-mention" element={<Sidebar component={<MentionComponent />} />} />
+
+          <Route path="/ventas" element={<Sidebar component={<Ventas />} />} />
         </Route>
 
 

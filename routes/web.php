@@ -51,6 +51,7 @@ use App\Http\Controllers\API\servicios\ServiciosApiController;
 use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
+use App\Http\Controllers\API\ventas\VentasApiController;
 use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -530,8 +531,9 @@ Route::post('/api/verify/products', [interfuerzaApiControllerProducts::class, 'v
 
 Route::get('/api/verify/quotes', [interfuerzaApiControllerQuotes::class, 'findQuoteById']);
 
+Route::get('/api/ventas', [VentasApiController::class, 'reportes']);
 
-
+Route::post('/api/ventas/download-data', [VentasApiController::class, 'export']);
 
 Route::get('/{any}', function () {
   return view('app');

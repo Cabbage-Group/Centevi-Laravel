@@ -96,6 +96,7 @@ import interfuerzaWareHouses from './features/interfuerza/interfuerzaWareHouses/
 import interfuerzaProducts from './features/interfuerza/interfuerzaProducts/interfuerzaproductsSlice';
 import quotes from './features/quotes/quotesSlice';
 import productsInterfuerza from './features/productsInterfuerza/ProductsInterfuerza';
+import ventasSlice from './features/ventas/VentasSlice'
 
 const store = configureStore({
   reducer: {
@@ -228,7 +229,8 @@ const store = configureStore({
 
     quotes: quotes,
 
-    productsInterfuerza: productsInterfuerza
+    productsInterfuerza: productsInterfuerza,
+    ventasSlice: ventasSlice
 
   }
 });
