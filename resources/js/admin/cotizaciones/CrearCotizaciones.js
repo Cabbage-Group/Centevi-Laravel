@@ -299,8 +299,8 @@ const CrearCotizacion = () => {
         Precio_Unitario: 0,
         Discount: 0,
         DiscountFactor: 0,
-        TaxID: '',
-        TaxName: '',
+        TaxID: '1',
+        TaxName: 'ITBMS',
         TaxFactor: 0,
         TaxValue: 0,
         Total: 0
@@ -354,6 +354,7 @@ const CrearCotizacion = () => {
       updateLine(index, 'Codigo', selectedProduct.codigo);
       updateLine(index, 'Item_Number', selectedProduct.item_number);
       updateLine(index, 'Nombre', selectedProduct.nombre || '');
+      updateLine(index, 'Descripcion', selectedProduct.nombre || '');
       updateLine(index, 'Marca', selectedProduct.marca || '');
       updateLine(index, 'Precio_Unitario', parseFloat(selectedProduct.ultimo_costo_unidad) || 0);
       updateLine(index, 'Unidades', 1);

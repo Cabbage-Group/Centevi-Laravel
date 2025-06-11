@@ -201,7 +201,7 @@ class CorrecionesOrdenesController extends Controller
         $siguienteFase = "Nuevo";
       } else {
         $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
-      
+
         if ($ultimaFase->tipo_fase_correccion_orden_id == 4) {
           $estado = 'Completado';
         } elseif ($diasDiferencia <= 6) {
@@ -232,14 +232,14 @@ class CorrecionesOrdenesController extends Controller
         'correccion_id' => $orden->id,
         'orden_id' => $orden->orden ? $orden->orden->id_orden : null,
         'pagado' => $orden->orden ? $orden->orden->pagado : 0,
-        'lente_contacto' => $orden->orden ?  $orden->orden->lente_contacto : null,
+        'lente_contacto' => $orden->orden ? $orden->orden->lente_contacto : null,
         'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
         'id_sucursal' => $orden->orden ? $orden->orden->sucursal->id_sucursal : null,
         'sucursal' => $orden->orden ? $orden->orden->sucursal->nombre : null,
         'nro_orden_id' => $orden->orden ? $orden->orden->nro_orden_id : null,
         'nombres' => $orden->orden ? $orden->orden->paciente->nombres : null,
         'apellidos' => $orden->orden ? $orden->orden->paciente->apellidos : null,
-        'celular' =>  $orden->orden ? $orden->orden->paciente->celular : null,
+        'celular' => $orden->orden ? $orden->orden->paciente->celular : null,
         'laboratorio' => $orden->faseCorreccionOrden->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
         'fase_actual' => $siguienteFase,
         'siguiente_fase' => $siguienteFase,

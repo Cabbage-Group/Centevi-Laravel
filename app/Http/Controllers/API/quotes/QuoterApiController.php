@@ -174,7 +174,8 @@ class QuoterApiController extends Controller
     return response()->json(['message' => 'Quote deleted']);
   }
 
-  public function verifyQuoteInterfuerza(){
-    
+  public function verifyQuoteInterfuerza()
+  {
+
   }
 }

@@ -339,6 +339,218 @@ Tarjeta (Clave,Visa o Mastercard)
     }
   };
 
+
+  // INICIO DESCARGA DEL EXCEL
+
+
+  const downloadExcel = () => {
+    try {
+      if (typeof XLSX === "undefined") {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "La librería XLSX no está disponible. Por favor, instala la dependencia.",
+        });
+        return;
+      }
+
+      const currentMonth = currentDateAgenda.getMonth() + 1;
+      const currentYear = currentDateAgenda.getFullYear();
+      const monthName = new Intl.DateTimeFormat("es-ES", {
+        month: "long",
+      }).format(currentDateAgenda);
+
+      if (!citasAgenda || citasAgenda.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Sin datos",
+          text: "No hay citas disponibles para exportar.",
+        });
+        return;
+      }
+
+      const citasDelMes = citasAgenda.filter((cita) => {
+        const citaDate = new Date(cita.start);
+        return (
+          citaDate.getMonth() + 1 === currentMonth &&
+          citaDate.getFullYear() === currentYear
+        );
+      });
+
+      if (citasDelMes.length === 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Sin datos",
+          text: `No hay citas disponibles para ${monthName} ${currentYear}.`,
+        });
+        return;
+      }
+
+      // Revisar todas las propiedades que podrían contener servicios
+      citasDelMes.forEach((cita, index) => {
+        if (index < 3) { // Solo las primeras 3 para no llenar la consola
+          console.log(`Cita ${index + 1}:`, {
+            id: cita.id,
+            extendedProps: cita.extendedProps,
+            // Verificar si hay servicios en diferentes ubicaciones
+            proximosServicios: cita.extendedProps?.proximosServicios,
+            servicios_realizados: cita.extendedProps?.servicios_realizados,
+            servicios: cita.extendedProps?.servicios,
+            // También revisar directamente en la cita
+            citaServicios: cita.servicios,
+            citaProximosServicios: cita.proximosServicios,
+          });
+        }
+      });
+
+      const excelData = citasDelMes.map((cita) => {
+        const fechaInicio = new Date(cita.start);
+        const fechaFin = cita.fecha_hora_fin
+          ? new Date(cita.fecha_hora_fin)
+          : null;
+        const nombres =
+          cita.paciente || cita.title?.split(" - ")[0] || "";
+        const apellidos = cita.apellidos || "";
+        const nombreCompleto = apellidos
+          ? `${nombres} ${apellidos}`
+          : nombres;
+
+        // FUNCIÓN PARA PROCESAR SERVICIOS
+        const obtenerServicios = (cita) => {
+          let servicios = [];
+
+          // Intentar obtener servicios de diferentes ubicaciones posibles
+          const posiblesServicios = [
+            cita.extendedProps?.proximosServicios,
+            cita.extendedProps?.servicios_realizados,
+            cita.extendedProps?.servicios,
+            cita.servicios,
+            cita.proximosServicios
+          ];
+
+          for (let servicioData of posiblesServicios) {
+            if (servicioData) {
+              // Si es un array de objetos
+              if (Array.isArray(servicioData)) {
+                servicios = servicioData.map(servicio => {
+                  if (typeof servicio === 'object') {
+                    return `${servicio.servicio_codigo || servicio.codigo || ''} | ${servicio.servicio_nombre || servicio.nombre || servicio.servicio || ''}`;
+                  }
+                  return servicio.toString();
+                });
+                break;
+              }
+              // Si es una cadena
+              else if (typeof servicioData === 'string' && servicioData.trim() !== '') {
+                servicios = [servicioData];
+                break;
+              }
+            }
+          }
+
+          return servicios.join(', ') || 'Sin servicios especificados';
+        };
+
+        const serviciosTexto = obtenerServicios(cita);
+
+        return {
+          Tipo: cita.extendedProps?.tipoAgenda || cita.tipo || "",
+          Cédula:
+            cita.extendedProps?.nroCedula || cita.nro_cedula || "",
+          "Nombre Paciente": nombreCompleto,
+          Sucursal: cita.sucursal || "",
+          Doctor: cita.doctor || "",
+          Status: cita.confirmado || "SIN STATUS",
+          // "Servicios a Realizar": serviciosTexto,
+          Fecha: fechaInicio.toLocaleDateString("es-ES"),
+          "Hora Inicio": fechaInicio.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          "Hora Fin": fechaFin
+            ? fechaFin.toLocaleTimeString("es-ES", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+            : "",
+          Comentarios: cita.comentarios || "",
+          "Agendado Por": cita.agendado_por || "",
+        };
+      });
+
+      // DEBUGGING: Ver los datos procesados para Excel
+      console.log("=== DATOS PARA EXCEL ===");
+      console.log("Primeros 2 registros procesados:", excelData.slice(0, 2));
+
+      // Crear el libro de trabajo
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+
+      // Agregar la hoja al libro
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        `Agenda ${monthName} ${currentYear}`
+      );
+
+      // Ajustar el ancho de las columnas
+      const columnWidths = [
+        { wch: 12 }, // Tipo
+        { wch: 12 }, // Cédula
+        { wch: 45 }, // Nombre Paciente (más ancho para nombre completo)
+        { wch: 45 }, // Sucursal
+        { wch: 20 }, // Doctor
+        { wch: 12 }, // Status
+        { wch: 50 }, // Servicios a Realizar (aumenté el ancho)
+        { wch: 12 }, // Fecha
+        { wch: 12 }, // Hora Inicio
+        { wch: 12 }, // Hora Fin
+        { wch: 45 }, // Comentarios
+        { wch: 15 }, // Agendado Por
+      ];
+      worksheet["!cols"] = columnWidths;
+
+      // Descargar el archivo
+      const fileName = `Agenda_${monthName}_${currentYear}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+      // Mostrar mensaje de éxito
+      Swal.fire({
+        icon: "success",
+        title: "Exportación exitosa",
+        text: `Se han exportado ${citasDelMes.length} citas del mes de ${monthName} ${currentYear}.`,
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error al exportar Excel:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error de exportación",
+        text: "Hubo un error al generar el archivo Excel. Revisa la consola para más detalles.",
+      });
+    }
+  };
+
+  const ExcelDownloadButton = () => (
+    <Button
+      type="primary"
+      icon={<DownloadOutlined />}
+      onClick={downloadExcel}
+      style={{
+        backgroundColor: "#52c41a",
+        borderColor: "#52c41a",
+        marginTop: "10px",
+      }}
+    >
+      Descargar Excel
+    </Button>
+  );
+
+  // FIN DE LA DESCARGA DEL EXCEL
+
   const handleSucursalChangeSelect = (value) => {
     setSelectedSucursal(value);
   };
@@ -377,7 +589,12 @@ Tarjeta (Clave,Visa o Mastercard)
       citas_id_null = true;
       ex_proxima_cita = [false];
     }
-    else if (selectedIndex.length === 3 && selectedIndex.includes(0) && selectedIndex.includes(1) && selectedIndex.includes(2)) {
+    else if (
+      selectedIndex.length === 3 &&
+      selectedIndex.includes(0) &&
+      selectedIndex.includes(1) &&
+      selectedIndex.includes(2)
+    ) {
       tipo = ['consulta', 'terapia', 'proxima_cita'];
       citas_id_null = true;
       ex_proxima_cita = [true, false];
@@ -577,7 +794,6 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleEventClick = (info) => {
-    console.log(info)
     const eventId = Number(info.event.id);
     let clickedEvent = citasAgenda.find(
       (event) => Number(event.id) === eventId
@@ -1197,6 +1413,19 @@ Tarjeta (Clave,Visa o Mastercard)
           selectedIndex={selectedIndex}
           setSelectedIndex={setSelectedIndex}
         />
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "15px",
+            marginBottom: "20px",
+            float: "right",
+            marginRight: "-24px"
+          }}
+        >
+          <ExcelDownloadButton />
+        </div>
 
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "45px", fontSize: "18px", fontWeight: "bold" }}>

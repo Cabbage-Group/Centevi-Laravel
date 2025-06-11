@@ -7,6 +7,22 @@ import { Link } from 'react-router-dom';
 
 const { Paragraph, Text } = Typography;
 
+// Función para sumar 1 hora a una fecha
+const sumarHoras = (fechaString, horas = 1) => {
+  const fecha = new Date(fechaString);
+
+  if (isNaN(fecha.getTime())) {
+    // Si la fecha no es válida, usamos la fecha actual como fallback
+    const ahora = new Date();
+    ahora.setHours(ahora.getHours() + horas);
+    return ahora.toISOString().slice(0, 19).replace('T', ' ');
+  }
+  fecha.setHours(fecha.getHours() + horas);
+
+
+  return fecha.toISOString();
+};
+
 const EventCalendar = ({ events, handleEventClick, enviarConfirmacionCita }) => {
   // 1. Función para agrupar eventos por hora
   const groupEventsByHour = () => {
@@ -15,24 +31,62 @@ const EventCalendar = ({ events, handleEventClick, enviarConfirmacionCita }) => 
     events.forEach(event => {
       const eventDate = parseISO(event.date);
       const eventDateEnd = parseISO(event.end);
-      const hourStart = startOfHour(eventDate);
-      const hourEnd = startOfHour(eventDateEnd);
 
-      const hourKey = hourStart.toISOString();
-      const hourKeyEnd = hourEnd.toISOString();
+      const hourKey = eventDate.toISOString();
+      const hourKeyEnd = eventDateEnd.toISOString();
 
       if (!grouped[hourKey]) {
         grouped[hourKey] = {
-          hourDisplay: format(hourStart, 'HH:mm'),
-          dateDisplay: format(hourStart, 'PPPP', { locale: es }),
+          hourDisplay: format(eventDate, 'HH:mm'),
+          dateDisplay: format(eventDate, 'PPPP', { locale: es }),
 
-          hourDisplayEnd: format(hourEnd, 'HH:mm'),
-          dateDisplayEnd: format(hourEnd, 'PPPP', { locale: es }),
+          hourDisplayEnd: format(eventDateEnd, 'HH:mm'),
+          dateDisplayEnd: format(eventDateEnd, 'PPPP', { locale: es }),
           events: []
         };
       }
 
       grouped[hourKey].events.push(event);
+    });
+
+    // AGREGAR EVENTOS EN HIDE, QUE ESTAN EN EL MODAL DE VER MAS
+    events[events.length - 1]?.cita?.extendedProps?.hiddenEvents?.forEach(event => {
+
+      const endDate = event.fecha_hora_fin && !isNaN(new Date(event.fecha_hora_fin).getTime()) && event.fecha_hora_fin !== null
+        ? event.fecha_hora_fin
+        : sumarHoras(event.start, 1);
+
+      const eventDate = parseISO(event.start);
+      const eventDateEnd = parseISO(endDate);
+
+      const hourKey = eventDate.toISOString();
+      const hourKeyEnd = eventDateEnd.toISOString();
+
+      if (!grouped[hourKey]) {
+        grouped[hourKey] = {
+          hourDisplay: format(eventDate, 'HH:mm'),
+          dateDisplay: format(eventDate, 'PPPP', { locale: es }),
+
+          hourDisplayEnd: format(eventDateEnd, 'HH:mm'),
+          dateDisplayEnd: format(eventDateEnd, 'PPPP', { locale: es }),
+          events: []
+        };
+      }
+
+      grouped[hourKey].events.push({
+        id: event.id,
+        title: event.title,
+        description: event.tipo,
+        date: event.start,
+        end: endDate,
+        nroCedula: event.nro_cedula,
+        celular: event.celular,
+        comentarios: event.comentarios,
+        confirmado: event.confirmado,
+        doctor: event.doctor,
+        paciente_id: event.paciente_id,
+        cita: event
+      });
     });
 
     return grouped;
@@ -82,6 +136,26 @@ const EventCalendar = ({ events, handleEventClick, enviarConfirmacionCita }) => 
         </div>
       )} */}
 
+      {/* <button
+        onClick={() => {
+          console.log(events)
+          events.forEach(event => {
+            console.log(event.date)
+            console.log(event.end)
+            console.log("---------------------------")
+            const eventDate = parseISO(event.date);
+            const eventDateEnd = parseISO(event.end);
+
+            const hourStart = startOfHour(eventDate);
+            const hourEnd = startOfHour(eventDateEnd);
+            console.log(hourStart)
+            console.log(hourEnd)
+          })
+        }}
+      >
+        click
+      </button> */}
+
       {/* Lista de eventos agrupados */}
       <div className="hour-groups">
         {sortedGroups.map(([hourKey, group]) => (
@@ -95,13 +169,42 @@ const EventCalendar = ({ events, handleEventClick, enviarConfirmacionCita }) => 
             <div className="events-container">
               {group.events.map((event, index) => (
                 <React.Fragment key={event.id}>
-                  <div style={{ position: 'relative' }} className="event-card">
+                  <div
+                    style={
+                      event.cita.tipo == "terapia" ?
+                        {
+                          border: "3px solid #003300",
+                          position: 'relative',
+                          background: event.cita.borderColor
+                        }
+                        : event.cita.tipo == "consulta" ?
+                          {
+                            border: "3px solid #3300FF",
+                            position: 'relative',
+                            background: event.cita.borderColor
+                          }
+                          : {
+                            position: 'relative',
+                            background: event.cita.borderColor,
+                            border: "3px solid transparent",
+                          }
+                    }
+                    className="event-card"
+                  >
                     <div
                       onClick={() => {
                         handleEventClick({ event: event.cita });
                       }}
                     >
-                      <div className="event-title">{event.title}</div>
+                      <div className="event-title">
+                        <Text
+                          ellipsis={true}
+                          style={{ width: "180px", color: "#0066cc" }}
+                          title={event.title}
+                        >
+                          {event.title}
+                        </Text>
+                      </div>
                       <div className="event-title">{event.celular}</div>
                       <div className="event-description" style={{ marginBottom: '5px' }}>
                         <Text
@@ -152,10 +255,35 @@ const EventCalendar = ({ events, handleEventClick, enviarConfirmacionCita }) => 
                                   ? <ImageConsulta />
                                   : <span>🩺</span>
                             } {event.description}
-
-
                           </small>
                         </div>
+                      </div>
+
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "-9px",
+                          right: "-9px",
+                          borderRadius: "100%",
+                          width: "25px",
+                          height: "25px",
+                          background: "white",
+                          display: "flex",
+                          justifyContent: "center",
+                          border: "1px solid gray"
+                        }}
+                      >
+                        <Tooltip title={event.description}>
+                          <div>
+                            {
+                              event.description == "terapia"
+                                ? <ImageTherapy />
+                                : event.description == "consulta"
+                                  ? <ImageConsulta />
+                                  : <span>🩺</span>
+                            }
+                          </div>
+                        </Tooltip>
                       </div>
 
 
@@ -211,7 +339,7 @@ const EventCalendar = ({ events, handleEventClick, enviarConfirmacionCita }) => 
           </div>
         ))}
       </div>
-    </div>
+    </div >
   );
 };
 
@@ -264,21 +392,7 @@ const TimeLine = ({ citasAgenda, fechaSeleccionada, handleEventClick, enviarConf
     return fechaCitaNormalizada === fechaSeleccionadaNormalizada;
   });
 
-  // Función para sumar 1 hora a una fecha
-  const sumarHoras = (fechaString, horas = 1) => {
-    const fecha = new Date(fechaString);
 
-    if (isNaN(fecha.getTime())) {
-      // Si la fecha no es válida, usamos la fecha actual como fallback
-      const ahora = new Date();
-      ahora.setHours(ahora.getHours() + horas);
-      return ahora.toISOString().slice(0, 19).replace('T', ' ');
-    }
-    fecha.setHours(fecha.getHours() + horas);
-
-
-    return fecha.toISOString();
-  };
 
   return (
     <div>
@@ -293,8 +407,9 @@ const TimeLine = ({ citasAgenda, fechaSeleccionada, handleEventClick, enviarConf
       </div>
 
 
-
-      {/* <button onClick={() => {
+{/* 
+      <button onClick={() => {
+        console.log(citasAgenda);
         console.log(fechaSeleccionada)
         var x = citasFiltradas.map((cita, index) => {
           // Verificamos explícitamente si fecha_hora_fin existe y es válida
