@@ -111,15 +111,23 @@ const pacientesSlice = createSlice({
           .map(({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
             id_paciente && nombres && apellidos && nro_cedula
               ? {
+                id: id_paciente,
+                label: `${nombres} ${apellidos}`,
                 value: id_paciente,
-                label: `${nro_cedula}-${nombres} ${apellidos}`,
+                nro_cedula,
                 nombres,
                 apellidos,
-                nro_cedula,
-                ...rest
+                ...rest,
               }
-              : { ...rest }
+              : null
           )
+          .filter(Boolean)
+          .filter(
+            (item, index, self) =>
+              index === self.findIndex((t) => t.label === item.label)
+          );
+
+
         state.pacientes_options_cotizacion = action.payload.data
           .filter(({ codigo }) => codigo !== null)
           .map(({ id_paciente, nro_cedula, nombres, apellidos, codigo, ...rest }) =>
@@ -167,7 +175,6 @@ const pacientesSlice = createSlice({
 
       })
       .addCase(fetchInterfuerza.rejected, (state, action) => {
-        console.log(' action:', action)
         state.statusInterfuerza = 'failed';
         state.errorInterfaz = action.error.message;
       })

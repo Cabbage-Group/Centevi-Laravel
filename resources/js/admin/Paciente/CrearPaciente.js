@@ -57,16 +57,10 @@ const CrearPaciente = () => {
         return acc;
       }, {});
 
-
-
       const nroCedula = cleanedValues.nro_cedula;
       const cedulaExists = await dispatch(verificarCedula(nroCedula)).unwrap();
 
-      console.log('cedulaExists:', cedulaExists)
-
       cleanedValues.estadoPaciente = cedulaExists;
-
-      console.log('cleanedValues:', cleanedValues)
 
       if (cedulaExists.estado_paciente === 'activo') {
         Swal.fire({
@@ -101,35 +95,35 @@ const CrearPaciente = () => {
       });
 
 
-      // Swal.fire({
-      //   title: 'Consultando Interfuerza...',
-      //   text: 'Estamos verificando datos adicionales del paciente',
-      //   icon: 'info',
-      //   showConfirmButton: false,
-      //   allowOutsideClick: false,
-      //   didOpen: () => {
-      //     Swal.showLoading();
-      //   }
-      // });
+      Swal.fire({
+        title: 'Consultando Interfuerza...',
+        text: 'Estamos verificando datos adicionales del paciente',
+        icon: 'info',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
-      // const respuestaInterfuerza = await dispatch(fetchInterfuerza({
-      //   ruc: nroCedula,
-      //   usuario
-      // })).unwrap();
+      const respuestaInterfuerza = await dispatch(fetchInterfuerza({
+        ruc: nroCedula,
+        usuario
+      })).unwrap();
 
-      // setTimeout(() => {
-      //   Swal.close();
+      setTimeout(() => {
+        Swal.close();
 
-      //   if (respuestaInterfuerza?.message) {
-      //     Swal.fire({
-      //       icon: 'success',
-      //       title: 'Interfuerza',
-      //       text: respuestaInterfuerza.message,
-      //       showConfirmButton: true,
-      //       confirmButtonText: 'Aceptar'
-      //     });
-      //   }
-      // }, 700);
+        if (respuestaInterfuerza?.message) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Interfuerza',
+            text: respuestaInterfuerza.message,
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      }, 700);
 
       resetForm();
     } catch (error) {
