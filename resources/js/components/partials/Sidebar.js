@@ -385,32 +385,39 @@ const Sidebar = (props) => {
                 )
               }
 
-              <li
-                className="menu"
-                onClick={() => {
-                  navigate("/ventas")
-                }}
-              >
-                {/* <a href="#agenda" data-active="false" className="menu-toggle"> */}
-                <Link
-                  to="/ventas"
-                  className="menu-toggle"
-                  style={{ width: '100%' }}
-                >
-                  <div className="base-menu">
-                    <div className="base-icons">
-                      {/*  */}
-                      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="2" y="2" width="60" height="60" rx="10" stroke="#1ABC9C" stroke-width="4" />
-                        <path d="M20 40L28 32L36 40L44 24" stroke="#1ABC9C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                        <circle cx="44" cy="24" r="3" fill="#1ABC9C" />
-                      </svg>
-                    </div>
-                    <span>Ventas</span>
-                  </div>
-                </Link>
-                {/* </a> */}
-              </li>
+
+              {
+                ValidarPermisos(
+                  "sidebar.ventas",
+                  <li
+                    className="menu"
+                    onClick={() => {
+                      navigate("/ventas")
+                    }}
+                  >
+                    {/* <a href="#agenda" data-active="false" className="menu-toggle"> */}
+                    <Link
+                      to="/ventas"
+                      className="menu-toggle"
+                      style={{ width: '100%' }}
+                    >
+                      <div className="base-menu">
+                        <div className="base-icons">
+                          {/*  */}
+                          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="2" width="60" height="60" rx="10" stroke="#1ABC9C" stroke-width="4" />
+                            <path d="M20 40L28 32L36 40L44 24" stroke="#1ABC9C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="44" cy="24" r="3" fill="#1ABC9C" />
+                          </svg>
+                        </div>
+                        <span>Ventas</span>
+                      </div>
+                    </Link>
+                    {/* </a> */}
+                  </li>
+                )
+              }
+
 
               <div className="ps__rail-x" style={{ left: 0, bottom: 0, }}>
                 <div className="ps__thumb-x" tabIndex="0" style={{ left: 0, width: 0, }}></div>

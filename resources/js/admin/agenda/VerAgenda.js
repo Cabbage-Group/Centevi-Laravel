@@ -46,6 +46,7 @@ import debounce from 'lodash/debounce';
 import { Link } from "react-router-dom";
 import TimeLine from "./components/TimeLine";
 import * as XLSX from "xlsx";
+import ValidarPermisos from "../../utils/ValidarPermisos";
 
 
 dayjs.locale("es");
@@ -1414,18 +1415,24 @@ Tarjeta (Clave,Visa o Mastercard)
           setSelectedIndex={setSelectedIndex}
         />
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "15px",
-            marginBottom: "20px",
-            float: "right",
-            marginRight: "-24px"
-          }}
-        >
-          <ExcelDownloadButton />
-        </div>
+
+        {
+          ValidarPermisos(
+            "agenda.descargar-excel",
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "15px",
+                marginBottom: "20px",
+                float: "right",
+                marginRight: "-24px"
+              }}
+            >
+              <ExcelDownloadButton />
+            </div>
+          )
+        }
 
 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "45px", fontSize: "18px", fontWeight: "bold" }}>
