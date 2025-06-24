@@ -295,6 +295,7 @@ class OrdenesApiController extends Controller
         'sucursal' => $orden->sucursal->nombre,
         'lente_contacto' => $orden->lente_contacto,
         'correcciones' => $orden->correciones->count(),
+        'cancelada' => $orden->cancelada ?? 0,
         'estado' => $estado,
         'esfera_od' => $orden['esfera_od'],
         'cilindro_od' => $orden['cilindro_od'],
@@ -573,11 +574,6 @@ class OrdenesApiController extends Controller
       'mensaje' => 'Órdenes obtenidas correctamente',
     ], 200);
   }
-
-
-
-
-
 
   public function createOrdenes(Request $request)
   {
@@ -2566,6 +2562,32 @@ class OrdenesApiController extends Controller
         'display' => (string) $o->nro_orden_id,
         'id_paciente' => $o->id_paciente
       ])
+    ], 200);
+  }
+
+  public function updateOrdenCancelada($id_orden)
+  {
+    $orden = Ordenes::find($id_orden);
+
+    if (!$orden) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Orden no encontrada',
+        'status' => [
+          'code' => 404,
+          'message' => 'Order not found'
+        ]
+      ], 404);
+    }
+
+    // Alternar el estado de cancelada
+    $orden->cancelada = !$orden->cancelada;
+    $orden->save();
+
+    return response()->json([
+      'respuesta' => true,
+      'mensaje' => 'Orden actualizada correctamente',
+      'data' => $orden
     ], 200);
   }
 }

@@ -278,6 +278,9 @@ Route::put('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_Adul
 Route::delete('/api/terapia_ortoptica_adultos/{id_sesion}', [Terapia_Ortoptica_Adultos_ApiController::class, 'eliminarTerapia_ortoptica_adultos']);
 
 Route::get('/api/servicios', [ServiciosApiController::class, 'index']);
+Route::post('/api/servicios/store', [ServiciosApiController::class, 'store']);
+Route::put('/api/servicios/update/{id}', [ServiciosApiController::class, 'update']);
+Route::delete('/api/servicios/delete/{id}', [ServiciosApiController::class, 'destroy']);
 
 Route::get('/api/reportes-servicios-realizados', [PacientesApiController::class, 'obtenerConsultasConServicios']);
 
@@ -445,6 +448,8 @@ Route::get('/api/ordenes/pdf/size/{id}', [OrdenesApiController::class, 'verOrden
 
 Route::get('/api/ordenes/pdf/small/{id}', [OrdenesApiController::class, 'verOrdenPdfSmall']);
 
+Route::put('/api/ordenes/cancelada/{id}', [OrdenesApiController::class, 'updateOrdenCancelada']);
+
 Route::get('/preview-email', function () {
   return View::make('emails.verify', ['code' => '123456']);
 });
@@ -452,6 +457,7 @@ Route::get('/preview-email', function () {
 Route::post('/api/send-verification-email', [EmailController::class, 'sendVerificationEmail']);
 
 Route::post('/api/obtener-ordenes', [OrdenesApiController::class, 'obtenerOrdenes']);
+
 
 
 Route::post('/api/obtener-correcciones-ordenes/{id_orden}', [CorrecionesOrdenesController::class, 'ObtenerCorrecionesOrdenes']);

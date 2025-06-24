@@ -101,7 +101,10 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/pacientes-adultos',
     'http://127.0.0.1:8000/api/usuarios-doctor',
 
-    'http://127.0.0.1:8000/api/servicios',
+
+    'http://127.0.0.1:8000/api/servicios/*',
+    'http://127.0.0.1:8000/api/servicios/*',
+    'http://127.0.0.1:8000/api/servicios/update/*',
 
     'http://127.0.0.1:8000/api/reporte-servicio-realizados',
     'http://127.0.0.1:8000/api/reporte-servicio-proximos',
@@ -221,9 +224,9 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/proveedor-material',
 
     'http://127.0.0.1:8000/api/proveedor-material/*',
-    
 
-    
+
+
     'http://127.0.0.1:8000/api/citas/agendar',
     'http://127.0.0.1:8000/api/citas/confirmar',
 
@@ -245,7 +248,7 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/update/quote/centevi/*',
 
-    
+
     'http://127.0.0.1:8000/api/prueba/orden',
 
     'http://127.0.0.1:8000/api/crear/products',
@@ -257,7 +260,7 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/verify/products',
     'http://127.0.0.1:8000/api/ventas/download-data',
 
-    
+
 
 
   ];
