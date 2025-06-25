@@ -237,6 +237,7 @@ const CrearCotizacion = () => {
           })).unwrap();
 
           Swal.close();
+          navigate('/table-cotizaciones');
         } catch (updateError) {
           console.error('Error al actualizar estado:', updateError);
           Swal.close();
@@ -273,6 +274,7 @@ const CrearCotizacion = () => {
           })).unwrap();
 
           Swal.close();
+          navigate('/table-cotizaciones');
         } catch (updateError) {
           console.error('Error al actualizar estado después del fallo:', updateError);
           Swal.close();

@@ -158,9 +158,16 @@ class QuoterApiController extends Controller
     }
 
     $quote->save();
+
+    $data = $quote->only(['id', 'estado', 'codigo_interfuerza']);
+
+    $data = array_map(function ($value) {
+      return is_string($value) ? mb_convert_encoding($value, 'UTF-8', 'UTF-8') : $value;
+    }, $data);
+
     return response()->json([
       'message' => 'Estado y código Interfuerza actualizados correctamente',
-      'quote' => $quote->only(['id', 'estado', 'codigo_interfuerza'])
+      'quote' => $data
     ]);
   }
 

@@ -437,7 +437,7 @@ const TableCotizaciones = () => {
         if (record.estado === null) {
           label = 'Sin verificar';
           color = '#888';
-        } else if (record.estado === 1) {
+        } else if (record.estado == 1 || record.estado == true) {
           label = 'Verificado';
           color = 'green';
         } else {

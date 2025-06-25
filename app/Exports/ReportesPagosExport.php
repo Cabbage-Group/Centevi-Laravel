@@ -7,42 +7,44 @@ use DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class ReportesPagosExport implements FromCollection,WithHeadings
+class ReportesPagosExport implements FromCollection, WithHeadings
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function headings(): array
-    {
-      return [
-        'Abono',
-        'Factura',
-        'Fecha',
-        'Fecha Pago fin',
-        'Monto',
-        'Balance',
-        'Agente',
-        'Caja',
-        'Bodega',
-        'Pais',
-        'Ciudad',
-        'Vendedor',
-        'Tipo',
-        'Pos',
-        'Tipo transaccion',
-        'Ref',
-        'Comentario',
-        'Referencia',
-        'Proyecto',
-        'Abono ref',
-        'Fiscal id',
-        'Monto factura',
-        'Tipo factura',
-      ];
-    }
-    public function collection()
-    {
-      $report = DB::table('reportes_pagos')->select(
+  /**
+   * @return \Illuminate\Support\Collection
+   */
+  public function headings(): array
+  {
+    return [
+      'Abono',
+      'Factura',
+      'Fecha',
+      'Fecha Pago fin',
+      'Monto',
+      'Balance',
+      'Agente',
+      'Caja',
+      'Bodega',
+      'Pais',
+      'Ciudad',
+      'Vendedor',
+      'Tipo',
+      'Pos',
+      'Tipo transaccion',
+      'Ref',
+      'Comentario',
+      'Referencia',
+      'Proyecto',
+      'Abono ref',
+      'Fiscal id',
+      'Monto factura',
+      'Tipo factura',
+    ];
+  }
+  public function collection()
+  {
+    $report = DB::table('reportes_pagos')
+      ->where('cobro_anticipo_status', 'CLOSED')
+      ->select(
         'cobro_anticipo_id',
         'cobro_aplicado_pago',
         'cobro_anticipo_fecha',
@@ -68,6 +70,6 @@ class ReportesPagosExport implements FromCollection,WithHeadings
         'cobro_aplicado_monto',
         'cobro_aplicado_tipo'
       )->get();
-      return $report;
-    }
+    return $report;
+  }
 }

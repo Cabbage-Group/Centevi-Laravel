@@ -250,6 +250,7 @@ Tarjeta (Clave,Visa o Mastercard)
         });
     }
   };
+
   const handleCedulaSelectOpen = () => {
     if (!dataLoaded) {
       setIsLoading(true);
@@ -284,7 +285,8 @@ Tarjeta (Clave,Visa o Mastercard)
 
 
   const handlePacienteChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
+
     if (selected) {
       setSelectedPaciente(selected.value);
       setPacienteId(selected.value)
@@ -299,7 +301,8 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleCedulaChange = (value) => {
-    const paciente = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    const paciente = pacientes_options_agenda.find((paciente) => paciente.value === value);
+
     if (paciente) {
       setSelectedPaciente(paciente.value)
       setPacienteId(paciente.value)
@@ -312,7 +315,7 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleApellidosChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
 
     if (selected) {
       setSelectedPaciente(selected.value);
@@ -321,13 +324,13 @@ Tarjeta (Clave,Visa o Mastercard)
       setCelular(selected.celular)
       form.setFieldsValue({ nroCedula: selected.nro_cedula });
       form.setFieldsValue({ paciente: selected.nombres });
-      form.setFieldsValue({ paciente: selected.apellidos });
+      form.setFieldsValue({ apellidos: selected.apellidos });
       form.setFieldsValue({ celular: selected.celular });
     }
   };
 
   const handleCelularChange = (value) => {
-    const selected = pacientes_options_agenda.find((paciente) => paciente.label === value);
+    const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
     if (selected) {
       setSelectedPaciente(selected.value);
       setPacienteId(selected.value)
@@ -1909,9 +1912,10 @@ Tarjeta (Clave,Visa o Mastercard)
                   showSearch
                   placeholder="Seleccionar paciente"
                   onSearch={(text) => debouncedSetCedula(text)}
-                  onSelect={(value, key) => {
+                  onSelect={(value, data) => {
                     setCreateCedula(null)
-                    handleCedulaChange(key.key);
+                    // handleCedulaChange(key.key);
+                    handleCedulaChange(data.id);
                   }}
                   onDropdownVisibleChange={(open) => open && handleCedulaSelectOpen()}
                   notFoundContent={isLoading ? <Spin size="small" /> : null}
@@ -1923,6 +1927,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       value: paciente.nro_cedula,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
+                      id: paciente.value,
                     };
                   })}
                   filterOption={(inputValue, option) => {
@@ -1952,9 +1957,11 @@ Tarjeta (Clave,Visa o Mastercard)
                     const fullKey = `${paciente.nro_cedula}-${fullName}`;
                     return {
                       key: fullKey,
-                      value: paciente.nombres,
+                      // value: paciente.nombres,
+                      value: paciente.value,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
+                      id: paciente.value
                     }
                   })}
                   filterOption={(inputValue, option) => {
@@ -1966,14 +1973,15 @@ Tarjeta (Clave,Visa o Mastercard)
                   //   setPacienteInput(value);
                   //   form.setFieldsValue({ paciente: value });
                   // }}
-                  onSelect={(value, key) => {
+                  onSelect={(value, data) => {
                     const selected = pacientes_options_agenda.find(
-                      (paciente) => paciente.nombres === value
+                      (paciente) => paciente.value === data.id
                     );
+                    form.setFieldsValue({ paciente: selected.nombres });
                     setPacienteId(selected.value)
                     setCreatePaciente(null);
                     setCreateCedula(null);
-                    handlePacienteChange(key.key);
+                    handlePacienteChange(data.id);
                   }}
                   onSearch={(text) => debouncedSetNombre(text)}
                   // onSearch={(text) => {
@@ -2006,6 +2014,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       value: paciente.apellidos,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
+                      id: paciente.value
                     }
                   })}
                   filterOption={(inputValue, option) => {
@@ -2018,9 +2027,9 @@ Tarjeta (Clave,Visa o Mastercard)
                   //   form.setFieldsValue({ apellidos: value });
                   // }}
                   onSearch={(val) => debouncedSetApellidos(val)}
-                  onSelect={(value, key) => {
+                  onSelect={(value, data) => {
                     setCreateCedula(null)
-                    handleApellidosChange(key.key);
+                    handleApellidosChange(data.id);
                   }}
 
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
@@ -2048,6 +2057,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       value: paciente.apellidos,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
+                      id: paciente.value
                     }
                   })}
                   filterOption={(inputValue, option) => {
@@ -2064,9 +2074,9 @@ Tarjeta (Clave,Visa o Mastercard)
                     form.setFieldsValue({ celular: valueWithPrefix });
                     debouncedSetCelular(valueWithPrefix);
                   }}
-                  onSelect={(value, key) => {
+                  onSelect={(value, data) => {
                     setCreateCedula(null)
-                    handleCelularChange(key.key);
+                    handleCelularChange(data.id);
                   }}
 
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}

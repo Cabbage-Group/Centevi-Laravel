@@ -23,8 +23,12 @@ class Quote extends Model
     'Currency',
     'Currency_Rate',
     'extraData',
-    'estado',
+    // 'estado',
     'codigo_interfuerza'
+  ];
+
+  protected $casts = [
+    'estado' => 'boolean',
   ];
 
   public function lines()
@@ -33,7 +37,7 @@ class Quote extends Model
   }
 
   public function paciente()
-{
+  {
     return $this->belongsTo(Pacientes::class, 'Cliente', 'codigo');
-}
+  }
 }
