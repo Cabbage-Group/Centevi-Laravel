@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { createOrdenes, updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select } from 'antd';
@@ -51,6 +51,8 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
   const [aroCentevi, setAroCentevi] = useState(false);
   const [tipoAro, setTipoAro] = useState('');
   const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
+
+
 
   useEffect(() => {
     if (pacienteOrden?.lente_contacto) {

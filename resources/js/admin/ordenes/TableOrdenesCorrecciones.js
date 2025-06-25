@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  CheckOutlined,
+  CloseOutlined,
   EyeOutlined,
   WhatsAppOutlined
 } from '@ant-design/icons';
-import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall, impricionAutomatica } from '../../redux/features/ordenes/ordenesSlice.js';
+import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall, impricionAutomatica, updateOrdeneCancelada } from '../../redux/features/ordenes/ordenesSlice.js';
 import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
 import { Modal, Tooltip, Skeleton, Table, Typography, Button, message } from 'antd';
 import { Link } from 'react-router-dom';
@@ -35,7 +37,9 @@ const TableOrdenesCorrecciones = (
     correctionsFiltroStatus,
     correctionsFiltroPagado,
     correctionsFiltroLenteContacto,
-    isCorrections
+    isCorrections,
+    setCancelarOrdenFilter,
+    cancelarOrdenFilter
   }
 
 ) => {
@@ -75,7 +79,7 @@ const TableOrdenesCorrecciones = (
   const currentPage = currentPageTable;
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
-
+  const [activo, setActivo] = useState(false);
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -92,6 +96,7 @@ const TableOrdenesCorrecciones = (
       lenteContacto: lenteContactoFiltro,
       fase: faseFiltro,
       laboratorio: laboratorioFiltro,
+      cancelada: cancelarOrdenFilter
     }));
   }, [
     dispatch,
@@ -105,6 +110,7 @@ const TableOrdenesCorrecciones = (
     lenteContactoFiltro,
     faseFiltro,
     laboratorioFiltro,
+    cancelarOrdenFilter,
     startDate,
     endDate
   ]);
@@ -134,6 +140,31 @@ const TableOrdenesCorrecciones = (
   const handlePageChange = (page) => {
     setCurrentPageTable(page);
   };
+
+  const toggleEstado = (id) => {
+    dispatch(updateOrdeneCancelada(id))
+      .unwrap()
+      .then((response) => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'El estado de la orden fue actualizado correctamente',
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        console.log('Orden actualizada:', response);
+        setActivo(true);
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ocurrió un error al actualizar la orden',
+        });
+        console.error('Error al actualizar la orden:', error);
+      });
+  };
+
 
   const toggleorden = (index, ordenId) => {
 
@@ -493,7 +524,8 @@ const TableOrdenesCorrecciones = (
             <tbody>
               {ordenes?.map((orden, index) => (
                 <React.Fragment key={orden?.id_orden}>
-                  <tr>
+                  <tr
+                    style={{ backgroundColor: orden?.cancelada ? '#f8d7da' : 'white' }}>
                     <td>
                       {orden?.correcciones ? (
                         <span
@@ -597,7 +629,16 @@ const TableOrdenesCorrecciones = (
 
                         <Link
                           to={`/orden-receta/${orden?.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
-                          className="btn-warning btnEditarReceta btnAccionesOrdenes"
+                          className={`btnEditarReceta btnAccionesOrdenes btn-warning`}
+                          style={{
+                            opacity: orden?.cancelada ? 0.5 : 1,
+                            cursor: orden?.cancelada ? 'not-allowed' : 'pointer'
+                          }}
+                          tabIndex={orden?.cancelada ? -1 : 0}
+                          aria-disabled={orden?.cancelada}
+                          onClick={(e) => {
+                            if (orden?.cancelada) e.preventDefault();
+                          }}
                           state={{
                             pagadoFiltro,
                             sucursalFiltro,
@@ -634,6 +675,7 @@ const TableOrdenesCorrecciones = (
                             />
                           </svg>
                         </Link>
+
                         <Link
                           to={`/ver-orden/${orden.id_orden}/${orden?.nro_orden_id}/${orden?.id_paciente}`}
                           className="btn-info btnAccionesOrdenes"
@@ -679,10 +721,18 @@ const TableOrdenesCorrecciones = (
                         <button
                           onClick={() => handleVerContacto(orden.id_orden)}
                           className="btn-info btnAccionesOrdenes"
-                          style={{ display: 'flex', alignItems: 'center', background: 'green' }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            background: 'green',
+                            opacity: orden?.cancelada ? 0.5 : 1,
+                            cursor: orden?.cancelada ? 'not-allowed' : 'pointer'
+                          }}
+                          disabled={orden?.cancelada}
                         >
                           <WhatsAppOutlined />
                         </button>
+
 
                         {
                           funPermisosObtenidosBoolean(permisos, 'sidebar.recetas.ordenes.eliminarorden')
@@ -713,6 +763,52 @@ const TableOrdenesCorrecciones = (
                             </button>
                             : null
                         }
+                        <button
+                          onClick={() => toggleEstado(orden.id_orden)}
+                          className="btnAccionesOrdenes"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: orden?.cancelada ? '#d9534f' : '#5cb85c',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {orden?.cancelada ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="white"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="white"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          )}
+                        </button>
                       </div>
                     </td>
 
@@ -720,16 +816,20 @@ const TableOrdenesCorrecciones = (
 
                   {collapsedordens === index && (
                     <tr>
-                      <td colSpan="10" style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
+                      <td colSpan="10">
                         <table className="table dt-table-hover">
-
-                          <tbody>
+                          <tbody
+                            style={{ padding: '20px' }}
+                          >
                             {correcionesbyOrden
                               ?.filter(
                                 (correcion) => correcion.orden_id === orden.id_orden
                               )
                               .map((correcion, idx) => (
-                                <tr key={correcion.correccion_id}>
+                                <tr
+                                  style={{ backgroundColor: orden?.cancelada ? '#f8d7da' : 'white' }}
+                                  key={correcion.correccion_id}
+                                >
 
                                   <td style={{ width: columnWidths.nroOrden }}>
                                     {correcion.nro_orden_id}-C{idx + 1}
@@ -789,7 +889,16 @@ const TableOrdenesCorrecciones = (
 
                                       <Link
                                         to={`/correciones-ordenes/${correcion.correccion_id}`}
-                                        className="btn-warning btnEditarReceta btnAccionesOrdenes"
+                                        className={`btnEditarReceta btnAccionesOrdenes btn-warning`}
+                                        style={{
+                                          opacity: orden?.cancelada ? 0.5 : 1,
+                                          cursor: orden?.cancelada ? 'not-allowed' : 'pointer'
+                                        }}
+                                        tabIndex={orden?.cancelada ? -1 : 0}
+                                        aria-disabled={orden?.cancelada}
+                                        onClick={(e) => {
+                                          if (orden?.cancelada) e.preventDefault();
+                                        }}
                                         state={{
                                           pagadoFiltro,
                                           sucursalFiltro,
@@ -811,6 +920,7 @@ const TableOrdenesCorrecciones = (
                                         data-target="#modalEditarSucursal"
                                         data-toggle="modal"
                                         id_receta="185"
+
                                       >
                                         <svg
                                           className="h-6 w-6"
@@ -853,7 +963,14 @@ const TableOrdenesCorrecciones = (
                                       <button
                                         onClick={() => handleVerContactoCorreccion(correcion.correccion_id)}
                                         className="btn-info btnAccionesOrdenes"
-                                        style={{ display: 'flex', alignItems: 'center', background: 'green' }}
+                                        style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          background: 'green',
+                                          opacity: orden?.cancelada ? 0.5 : 1,
+                                          cursor: orden?.cancelada ? 'not-allowed' : 'pointer'
+                                        }}
+                                        disabled={orden?.cancelada}
                                       >
                                         <WhatsAppOutlined />
                                       </button>
@@ -1233,7 +1350,7 @@ const TableOrdenesCorrecciones = (
 
         </div>
       </Modal>
-    </div>
+    </div >
 
   );
 };

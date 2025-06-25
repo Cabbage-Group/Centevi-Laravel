@@ -59,6 +59,7 @@ class Ordenes extends Model
     'pagado',
     'lente_contacto',
     'correccion',
+    'cancelada',
     'codigo_cristal'
   ];
 

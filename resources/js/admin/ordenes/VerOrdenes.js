@@ -8,6 +8,7 @@ import DateRangePicker from '../reportes/DateRangePicker';
 import { fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import CollapsibleTable from './TableOrdenesCorrecciones';
 import TableOrdenesCorrecciones from './TableOrdenesCorrecciones';
+import { set } from 'lodash';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -70,6 +71,7 @@ const VerOrdenes = () => {
   const [statusFilter, setStatusFilter] = useState(statusOrden || []);
   const [localEndDate, setLocalEndDate] = useState(fechaFin);
   const [localStartDate, setLocalStartDate] = useState(fechaInicio);
+  const [cancelarOrdenFilter, setCancelarOrdenFilter] = useState(false);
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
@@ -186,6 +188,11 @@ const VerOrdenes = () => {
     setCorrectionsFilterLenteContacto([]);
   }
 
+  const handleOrdenCancel = () => {
+    setCancelarOrdenFilter(!cancelarOrdenFilter);
+    setCurrentPage(1);
+  };
+
   const columns = React.useMemo(() => {
 
     if (!Array.isArray(correcionesbyOrden) || correcionesbyOrden.length === 0) return [];
@@ -231,12 +238,68 @@ const VerOrdenes = () => {
                 <div className="widget-content widget-content-area br-6">
                   <div style={{ width: '100%' }}>
                     <div className="d-flex justify-content-between mb-4">
-                      <Link
-                        to={"/create-orden"}
-                        className="btn btn-success"
-                        style={{ height: '37px' }}>
-                        Agregar Orden
-                      </Link>
+                      <div className="d-flex">
+                        <Link
+                          to="/create-orden"
+                          className="btn btn-success"
+                          style={{ height: '37px' }}
+                        >
+                          Agregar Orden
+                        </Link>
+
+                        <button
+                          className="btn"
+                          style={{
+                            backgroundColor: cancelarOrdenFilter ? '#d9534f' : '#5cb85c',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginLeft: '10px',
+                            padding: '0 10px',
+                            height: '35px',
+                          }}
+                          onClick={() => {
+                            const newValue = !cancelarOrdenFilter;
+                            setCancelarOrdenFilter(newValue);
+                            handleOrdenCancel(newValue ? '1' : '');
+                          }}
+                        >
+                          {cancelarOrdenFilter ? (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="white"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="white"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+
                       <div className="d-flex gap-2">
                         <button className="btn btn-success" onClick={handleToggleCorrections}>
                           {isCorrections ? "Filtrar por Fase" : "Filtrar Correcciones por Fase"}
@@ -484,6 +547,8 @@ const VerOrdenes = () => {
                     localStartDateFiltro={localStartDate}
                     currentPageTable={currentPage}
                     setCurrentPageTable={setCurrentPage}
+                    setCancelarOrdenFilter={setCancelarOrdenFilter}
+                    cancelarOrdenFilter={cancelarOrdenFilter}
                   />
                 </div>
               </div>

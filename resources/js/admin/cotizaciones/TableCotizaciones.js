@@ -1,8 +1,8 @@
-import { AutoComplete, Button, Table, Modal, Typography } from "antd";
+import { AutoComplete, Button, Table, Modal, Typography, Progress, message } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CopyOutlined, EyeOutlined, FilePdfOutlined } from "@ant-design/icons";
-import { fetchQuotes, setPage, setSearchTerm, setSort, updateEstadoQuote, VerUnaQuote } from "../../redux/features/quotes/quotesSlice";
+import { fetchQuotes, findQuotesByIdAndUpdate, setPage, setSearchTerm, setSort, updateEstadoQuote, VerUnaQuote } from "../../redux/features/quotes/quotesSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { createInterfuerzaQuotes } from "../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice";
@@ -20,7 +20,8 @@ const TableCotizaciones = () => {
     sortOrder,
     meta,
     searchTerm,
-    quote
+    quote,
+    codigoInterfuerzaList
   } = useSelector((state) => state.quotes);
   const navigate = useNavigate();
   const [pdfModalVisible, setPdfModalVisible] = useState(false);
@@ -28,7 +29,10 @@ const TableCotizaciones = () => {
   const [pdfPreviewContent, setPdfPreviewContent] = useState('');
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [currentQuoteDetails, setCurrentQuoteDetails] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [progress, setProgress] = useState(0);
 
+  console.log('codigoInterfuerzaList:', codigoInterfuerzaList)
   useEffect(() => {
     dispatch(fetchQuotes({ page, limit, sortColumn, sortOrder, searchTerm }));
   }, [page, limit, sortColumn, sortOrder, searchTerm]);
@@ -50,6 +54,40 @@ const TableCotizaciones = () => {
     if (newPage !== page) dispatch(setPage(newPage));
     dispatch(setSort({ sortColumn: newSortColumn, sortOrder: newSortOrder }));
   };
+
+  const handleSyncQuotes = async () => {
+    if (!codigoInterfuerzaList.length) {
+      return message.warning('No hay códigos de cotización para sincronizar.');
+    }
+
+    setSyncing(true);
+    setProgress(0);
+
+    const interval = setInterval(() => {
+      setProgress((prev) => (prev < 95 ? prev + 5 : prev)); 
+    }, 300);
+
+    try {
+      await dispatch(findQuotesByIdAndUpdate({ ids: codigoInterfuerzaList })).unwrap();
+      clearInterval(interval);
+      setProgress(100);
+      message.success('Cotizaciones actualizadas correctamente');
+
+      dispatch(fetchQuotes({ page, limit, sortColumn, sortOrder, searchTerm }));
+
+    } catch (error) {
+      clearInterval(interval);
+      setProgress(100);
+      message.error('Error al sincronizar cotizaciones');
+    } finally {
+      setTimeout(() => {
+        setSyncing(false);
+        setProgress(0);
+      }, 800);
+    }
+  };
+
+
 
   const handleSearchChange = (value) => {
     dispatch(setSearchTerm(value));
@@ -538,6 +576,19 @@ const TableCotizaciones = () => {
             value={searchTerm}
           />
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, marginLeft: 10 }}>
+          <Button type="primary" onClick={handleSyncQuotes} disabled={syncing}>
+            {syncing ? 'Sincronizando...' : 'Sincronizar cotizaciones'}
+          </Button>
+
+          {syncing && (
+            <div style={{ marginLeft: 12, width: 150 }}>
+              <Progress percent={progress} status="active" />
+            </div>
+          )}
+        </div>
+
+
       </div>
 
 

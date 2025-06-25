@@ -20,19 +20,28 @@ import { fecthTiposFasesOrdenes } from "../../../redux/features/ordenes/tiposFas
 import {
   createFasesOrdenes,
   setChangeOrden,
+  setendDateLabo,
   setFaseCorreccionFilter,
   setFaseFilter,
+  setfaseFilterLabo,
   setFechaFinFilter,
   setFechaInicioFilter,
   setLaboratorioCorreccionFilter,
   setLaboratorioFilter,
+  setlaboratorioFilterLabo,
   setLenteContactoCorreccionFilter,
+  setlenteContactoFilterLabo,
   setPagadoCorreccionFilter,
   setPagadoFilter,
+  setProveedor,
+  setproveedorFilterLabo,
+  setstartDateLabo,
   setStatusCorreccionFilter,
   setStatusFilter,
+  setstatusFilterLabo,
   setSucursalCorreccionFilter,
   setSucursalFilter,
+  setsucursalFilterLabo,
   setTipoLenteFilter,
 } from "../../../redux/features/ordenes/fasesOrdenesSlice";
 import { createContactoOrden } from "../../../redux/features/contacto-orden/ContactoOrdenSlice";
@@ -72,7 +81,6 @@ const Ordenes = () => {
   const { pacienteOrden } = useSelector((state) => state.ordenes);
 
   const { permisos } = useSelector((state) => state.auth);
-
   const {
     pagadoFiltro,
     sucursalFiltro,
@@ -89,6 +97,15 @@ const Ordenes = () => {
     correctionsFiltroStatus,
     correctionsFiltroPagado,
     correctionsFiltroLenteContacto,
+    laboratorioFilterLabo,
+    sucursalFilterLabo,
+    lenteContactoFilterLabo,
+    statusFilterLabo,
+    faseFilterLabo,
+    proveedorFilterLabo,
+    startDateLabo,
+    endDateLabo,
+    
   } = location.state || {};
 
   useEffect(() => {
@@ -179,6 +196,30 @@ const Ordenes = () => {
     if (isCorrections !== false) {
       dispatch(setChangeOrden(isCorrections));
     }
+    if (laboratorioFilterLabo !== false) {
+      dispatch(setlaboratorioFilterLabo(laboratorioFilterLabo));
+    }
+    if (sucursalFilterLabo !== false) {
+      dispatch(setsucursalFilterLabo(sucursalFilterLabo));
+    }
+    if (lenteContactoFilterLabo !== false) {  
+      dispatch(setlenteContactoFilterLabo(lenteContactoFilterLabo));
+    }
+    if (statusFilterLabo !== false) {
+      dispatch(setstatusFilterLabo(statusFilterLabo));
+    }
+    if (faseFilterLabo !== false) {   
+      dispatch(setfaseFilterLabo(faseFilterLabo));
+    }
+    if (proveedorFilterLabo !== false) {
+      dispatch(setproveedorFilterLabo(proveedorFilterLabo));  
+    }
+    if (startDateLabo !== false) {    
+      dispatch(setstartDateLabo(startDateLabo));
+    }
+    if (endDateLabo !== false) {  
+      dispatch(setendDateLabo(endDateLabo));
+    }    
   }, []);
 
   useEffect(() => {

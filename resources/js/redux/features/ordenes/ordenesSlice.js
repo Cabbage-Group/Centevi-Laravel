@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, isRejectedWithValue } from '@reduxjs/too
 import axios from 'axios';
 import API from '../../../config/config.js';
 import API_LOCAL from '../../../config/configSvLocal.js';
+import { update } from 'lodash';
 
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
@@ -20,6 +21,7 @@ export const fecthOrdenes = createAsyncThunk(
     proveedor = '',
     startDate = '',
     endDate = '',
+    cancelada = false
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
@@ -37,7 +39,8 @@ export const fecthOrdenes = createAsyncThunk(
         lenteContacto,
         laboratorio,
         fase,
-        proveedor
+        proveedor,
+        cancelada
       },);
     return response.data;
   }
@@ -197,6 +200,19 @@ export const updateOrden = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error('Error updating orden:', error.response?.data || error.message);
+      throw error;
+    }
+  }
+);
+
+export const updateOrdeneCancelada = createAsyncThunk(
+  'ordenes/updateOrdeneCancelada',
+  async (id_orden) => {
+    try {
+      const response = await axios.put(`${API}/ordenes/cancelada/${id_orden}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating orden cancelada:', error.response?.data || error.message);
       throw error;
     }
   }
@@ -406,6 +422,22 @@ const ordenesSlice = createSlice({
         state.status_prueba = 'failed';
         state.error_prueba = action.error.message;
       })
+      .addCase(updateOrdeneCancelada.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateOrdeneCancelada.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.ordenes.findIndex(
+          (orden) => orden.id_orden === action.payload.data.id_orden
+        );
+        if (index !== -1) {
+          state.ordenes[index].cancelada = action.payload.data.cancelada;
+        }
+      })
+      .addCase(updateOrdeneCancelada.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
   },
 });
 

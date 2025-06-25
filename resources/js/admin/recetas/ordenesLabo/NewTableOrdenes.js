@@ -18,11 +18,13 @@ import {
     Modal,
     Skeleton,
 } from "antd";
-import { EyeOutlined, FilePdfOutlined, EditOutlined } from "@ant-design/icons";
+import { EyeOutlined, FilePdfOutlined, EditOutlined, CloseOutlined, CheckOutlined } from "@ant-design/icons";
 import { useNavigate, Link } from "react-router-dom";
 import OptionsOrdenesLabo from "./OptionsOrdenesLabo";
 import DateRangePicker from "../../reportes/DateRangePicker";
 import { fetchCorreccionesByOrdenId } from "../../../redux/features/correciones-ordenes/correcionesOrdenesSlice";
+import '../../../../css/tables/TableOrdenes.css';
+
 
 const { Text } = Typography;
 
@@ -50,7 +52,14 @@ const NewTableOrdenes = () => {
         (state) => state.correcionesordenes
     );
     const OrdenId = useSelector((state) => state.ordenes.OrderId);
-
+    const laboratorioFilterLabo = useSelector((state) => state.fasesOrdenes.laboratorioFilterLabo);
+    const sucursalFilterLabo = useSelector((state) => state.fasesOrdenes.sucursalFilterLabo);
+    const lenteContactoFilterLabo = useSelector((state) => state.fasesOrdenes.lenteContactoFilterLabo);
+    const statusFilterLabo = useSelector((state) => state.fasesOrdenes.statusFilterLabo);
+    const faseFilterLabo = useSelector((state) => state.fasesOrdenes.faseFilterLabo);
+    const proveedorFilterLabo = useSelector((state) => state.fasesOrdenes.proveedorFilterLabo);
+    const startDateLabo = useSelector((state) => state.fasesOrdenes.startDateLabo);
+    const endDateLabo = useSelector((state) => state.fasesOrdenes.endDateLabo);
     const [showOrden, setShowOrden] = useState(false);
     const [showCorrecion, setShowCorrecion] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -62,16 +71,17 @@ const NewTableOrdenes = () => {
     const [correcionLoadingPdf, setCorreccionLoadingPdf] = useState(false);
     const [urlPdfOrden, setUrlPdfOrden] = useState(null);
     const [urlPdfCorrecion, setUrlPdfCorrecion] = useState(null);
-    const [laboratorioFilter, setLaboratorioFilter] = useState([]);
-    const [sucursalFilter, setSucursalFilter] = useState([]);
-    const [faseFilter, setFaseFilter] = useState([]);
-    const [lenteContactoFilter, setLenteContactoFilter] = useState([]);
-    const [statusFilter, setStatusFilter] = useState([]);
-    const [proveedorFilter, setProveedorFilter] = useState([]);
-    const [localEndDate, setLocalEndDate] = useState();
-    const [localStartDate, setLocalStartDate] = useState();
+    const [laboratorioFilter, setLaboratorioFilter] = useState(laboratorioFilterLabo || []);
+    const [sucursalFilter, setSucursalFilter] = useState(sucursalFilterLabo || []);
+    const [faseFilter, setFaseFilter] = useState(faseFilterLabo || []);
+    const [lenteContactoFilter, setLenteContactoFilter] = useState(lenteContactoFilterLabo || []);
+    const [statusFilter, setStatusFilter] = useState(statusFilterLabo || []);
+    const [proveedorFilter, setProveedorFilter] = useState(proveedorFilterLabo || []);
+    const [localEndDate, setLocalEndDate] = useState(endDateLabo);
+    const [localStartDate, setLocalStartDate] = useState(startDateLabo);
     const [selectedOrdenId, setSelectedOrdenId] = useState(null);
     const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+    const [cancelarOrdenFilter, setCancelarOrdenFilter] = useState(false);
 
     useEffect(() => {
         let isCurrent = true;
@@ -89,6 +99,7 @@ const NewTableOrdenes = () => {
                 proveedor: proveedorFilter,
                 startDate,
                 endDate,
+                cancelada: cancelarOrdenFilter,
             })
         ).then(() => {
             if (isCurrent) setIsLoading(false);
@@ -109,6 +120,7 @@ const NewTableOrdenes = () => {
         proveedorFilter,
         startDate,
         endDate,
+        cancelarOrdenFilter
     ]);
 
     useEffect(() => {
@@ -229,6 +241,11 @@ const NewTableOrdenes = () => {
         setCurrentPage(1);
     };
 
+    const handleOrdenCancel = () => {
+        setCancelarOrdenFilter(!cancelarOrdenFilter);
+        setCurrentPage(1);
+    };
+
     const columns = [
         {
             title: "N° de Orden",
@@ -280,9 +297,8 @@ const NewTableOrdenes = () => {
                             fontWeight: "normal",
                         }}
                     >
-                        {`${record?.nombres?.trim().split(" ")[0] ?? ""} ${
-                            record?.apellidos?.trim().split(" ")[0] ?? ""
-                        }`}
+                        {`${record?.nombres?.trim().split(" ")[0] ?? ""} ${record?.apellidos?.trim().split(" ")[0] ?? ""
+                            }`}
                     </span>
                 </Text>
             ),
@@ -319,12 +335,12 @@ const NewTableOrdenes = () => {
                                     record?.estado === "OK"
                                         ? "green"
                                         : record?.estado === "Advertencia"
-                                        ? "yellow"
-                                        : record?.estado === "Crítico"
-                                        ? "red"
-                                        : record?.estado === "Completado"
-                                        ? "blue"
-                                        : "gray",
+                                            ? "yellow"
+                                            : record?.estado === "Crítico"
+                                                ? "red"
+                                                : record?.estado === "Completado"
+                                                    ? "blue"
+                                                    : "gray",
                             }}
                         ></span>
                     </Tooltip>
@@ -378,21 +394,38 @@ const NewTableOrdenes = () => {
                         icon={<EditOutlined />}
                         onClick={() =>
                             navigate(
-                                `/orden-receta/${record.id_orden}/${record?.nro_orden_id}/${record?.id_paciente}`
+                                `/orden-receta/${record.id_orden}/${record.nro_orden_id}/${record.id_paciente}`,
+                                {
+                                    state: {
+                                        laboratorioFilterLabo: laboratorioFilter,
+                                        sucursalFilterLabo: sucursalFilter,
+                                        lenteContactoFilterLabo: lenteContactoFilter,
+                                        statusFilterLabo: statusFilter,
+                                        faseFilterLabo: faseFilter,
+                                        proveedorFilterLabo: proveedorFilter,
+                                        searchLabo: search,
+                                        startDateLabo: startDate,
+                                        endDateLabo: endDate,
+                                    },
+                                }
                             )
                         }
                         style={{
                             alignItems: "center",
                             justifyContent: "center",
                             backgroundColor: "#f39c12",
+                            borderColor: "#f39c12",
                             color: "#fff",
+                            opacity: record?.cancelada ? 0.5 : 1,
                         }}
+                        disabled={record.cancelada}
                     />
+
                 </>
             ),
         },
     ];
-
+    
     return (
         <div className="widget-content-area br-4">
             <div className="widget-one">
@@ -414,6 +447,29 @@ const NewTableOrdenes = () => {
                                                 onSearch={handleSearchChange}
                                                 placeholder="Buscar"
                                                 value={search}
+                                            />
+                                            <Button
+                                                type="primary"
+                                                icon={
+                                                    cancelarOrdenFilter ? (
+                                                        <CloseOutlined style={{ fontSize: '14px' }} />
+                                                    ) : (
+                                                        <CheckOutlined style={{ fontSize: '14px' }} />
+                                                    )
+                                                }
+                                                style={{
+                                                    backgroundColor: cancelarOrdenFilter ? '#d9534f' : '#5cb85c',
+                                                    borderColor: cancelarOrdenFilter ? '#d9534f' : '#5cb85c',
+                                                    color: 'white',
+                                                    marginLeft: '8px',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                }}
+                                                onClick={() => {
+                                                    const newValue = !cancelarOrdenFilter;
+                                                    setCancelarOrdenFilter(newValue);
+                                                    handleOrdenCancel(newValue ? '1' : '');
+                                                }}
                                             />
                                         </div>
                                         <div>
@@ -468,6 +524,7 @@ const NewTableOrdenes = () => {
                                 dataSource={ordenes}
                                 rowKey="id_orden"
                                 loading={isLoading}
+                                rowClassName={(record) => (record.cancelada ? 'fila-cancelada' : '')}
                                 pagination={{
                                     current: currentPage,
                                     total: meta?.total,
@@ -489,8 +546,7 @@ const NewTableOrdenes = () => {
                                                         record,
                                                         index
                                                     ) =>
-                                                        `${
-                                                            record.nro_orden_id
+                                                        `${record.nro_orden_id
                                                         }-C${index + 1}`,
                                                 },
                                                 {
@@ -520,21 +576,19 @@ const NewTableOrdenes = () => {
                                                                         "normal",
                                                                 }}
                                                             >
-                                                                {`${
-                                                                    record?.nombres
+                                                                {`${record?.nombres
+                                                                    ?.trim()
+                                                                    .split(
+                                                                        " "
+                                                                    )[0] ??
+                                                                    ""
+                                                                    } ${record?.apellidos
                                                                         ?.trim()
                                                                         .split(
                                                                             " "
                                                                         )[0] ??
                                                                     ""
-                                                                } ${
-                                                                    record?.apellidos
-                                                                        ?.trim()
-                                                                        .split(
-                                                                            " "
-                                                                        )[0] ??
-                                                                    ""
-                                                                }`}
+                                                                    }`}
                                                             </span>
                                                         </Text>
                                                     ),
@@ -570,18 +624,18 @@ const NewTableOrdenes = () => {
                                                                             "50%",
                                                                         backgroundColor:
                                                                             record?.estado ===
-                                                                            "OK"
+                                                                                "OK"
                                                                                 ? "green"
                                                                                 : record?.estado ===
-                                                                                  "Advertencia"
-                                                                                ? "yellow"
-                                                                                : record?.estado ===
-                                                                                  "Crítico"
-                                                                                ? "red"
-                                                                                : record?.estado ===
-                                                                                  "Completado"
-                                                                                ? "blue"
-                                                                                : "gray",
+                                                                                    "Advertencia"
+                                                                                    ? "yellow"
+                                                                                    : record?.estado ===
+                                                                                        "Crítico"
+                                                                                        ? "red"
+                                                                                        : record?.estado ===
+                                                                                            "Completado"
+                                                                                            ? "blue"
+                                                                                            : "gray",
                                                                     }}
                                                                 ></span>
                                                             </Tooltip>
@@ -607,11 +661,11 @@ const NewTableOrdenes = () => {
                                                                     handleVerCorrecion(
                                                                         record.correccion_id,
                                                                         record.nro_orden_id +
-                                                                            "-C" +
-                                                                            (parseFloat(
-                                                                                index
-                                                                            ) +
-                                                                                1)
+                                                                        "-C" +
+                                                                        (parseFloat(
+                                                                            index
+                                                                        ) +
+                                                                            1)
                                                                     );
                                                                 }}
                                                                 style={{
@@ -655,7 +709,8 @@ const NewTableOrdenes = () => {
                                                                 }
                                                                 onClick={() =>
                                                                     navigate(
-                                                                        `/orden-receta/${record.id_orden}/${record.nro_orden_id}/${record.id_paciente}`
+                                                                        `/orden-receta/${record.id_orden}/${record.nro_orden_id}/${record.id_paciente}`,
+                                                                        
                                                                     )
                                                                 }
                                                                 style={{
@@ -668,12 +723,17 @@ const NewTableOrdenes = () => {
                                                                     borderColor:
                                                                         "#f39c12",
                                                                     color: "#fff",
+                                                                    opacity: record?.cancelada ? 0.5 : 1,
                                                                 }}
+                                                                disabled={
+                                                                    record?.cancelada
+                                                                }
                                                             />
                                                         </>
                                                     ),
                                                 },
                                             ]}
+                                            rowClassName={(record) => (record.cancelada ? 'fila-cancelada' : '')}
                                             dataSource={correcionesbyOrden}
                                             rowKey="nro_orden_id"
                                             pagination={false}

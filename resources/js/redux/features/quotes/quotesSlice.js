@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import API from '../../../config/config';
+import { message } from 'laravel-mix/src/Log';
 
 export const fetchQuotes = createAsyncThunk(
   'quotes/fetchQuotes',
-  async ({ page = 1, limit = 10, sortColumn = 'created_at', sortOrder = 'asc', searchTerm }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10, sortColumn = 'created_at', sortOrder = 'desc', searchTerm }, { rejectWithValue }) => {
     try {
-      console.log('sortColumn:', sortColumn)
       const response = await axios.get(`${API}/obtener/quotes/centevi`, {
         params: {
           page,
@@ -85,6 +85,24 @@ export const fetchExchangeRate = createAsyncThunk(
   }
 );
 
+export const findQuotesByIdAndUpdate = createAsyncThunk(
+  'quotes/findQuotesByIdAndUpdate',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API}/verify/quotes`, data);
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        return rejectWithValue({ message: 'Error desconocido' });
+      }
+
+    }
+
+  }
+)
+
 const quotesSlice = createSlice({
   name: 'quotes',
   initialState: {
@@ -94,7 +112,7 @@ const quotesSlice = createSlice({
     page: 1,
     limit: 10,
     sortColumn: 'created_at',
-    sortOrder: 'asc',
+    sortOrder: 'desc',
     total: 0,
     status: 'idle',
     meta: {},
@@ -104,6 +122,7 @@ const quotesSlice = createSlice({
     exchangeRateStatus: 'idle',
     error: null,
     errorCreate: null,
+    codigoInterfuerzaList: [],
   },
   reducers: {
     setPage: (state, action) => {
@@ -128,6 +147,7 @@ const quotesSlice = createSlice({
         state.status = 'succeeded';
         state.quotes = action.payload.data;
         state.meta = action.payload.meta
+        state.codigoInterfuerzaList = action.payload.data.map(quote => quote.codigo_interfuerza);
       })
       .addCase(fetchQuotes.rejected, (state, action) => {
         state.status = 'failed';
@@ -180,7 +200,22 @@ const quotesSlice = createSlice({
       .addCase(updateEstadoQuote.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
-      });
+      })
+      .addCase(findQuotesByIdAndUpdate.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(findQuotesByIdAndUpdate.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // const updatedQuote = action.payload.quote;
+
+        // state.quotes = state.quotes.map(quote =>
+        //   quote.id === updatedQuote.id ? { ...quote, ...updatedQuote } : quote
+        // );
+      })
+      .addCase(findQuotesByIdAndUpdate.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
   },
 });
 

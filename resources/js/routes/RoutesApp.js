@@ -97,6 +97,7 @@ import ProductsInterfuerza from '../admin/products_interfuerza/ProductsInterfuer
 import TableProductsInterfuerza from '../admin/products_interfuerza/TableProductsInterfuerza.js';
 import MentionComponent from '../admin/chat/MentionComponent.js';
 import Ventas from '../admin/ventas/Ventas.js';
+import VerServicios from '../admin/servicios/VerServicios.js';
 
 
 const RoutesApp = () => {
@@ -283,6 +284,8 @@ const RoutesApp = () => {
           <Route path="/prueba-mention" element={<Sidebar component={<MentionComponent />} />} />
 
           <Route path="/ventas" element={<Sidebar component={<Ventas />} />} />
+
+          <Route path="/servicios" element={<Sidebar component={<VerServicios />} />} />
         </Route>
 
 

@@ -12,6 +12,7 @@ use App\Models\ServiciosProximosOptometriaNeonatos;
 use App\Models\ServiciosProximosOptometriaPediatrica;
 use App\Models\ServiciosProximosOrtopticaAdultos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ServiciosApiController extends Controller
 {
@@ -30,8 +31,8 @@ class ServiciosApiController extends Controller
   public function getServiciosProximos(Request $request)
   {
     try {
-      $consultaNombre = $request->input('consulta_nombre'); 
-      $consultaId = $request->input('consulta_id'); 
+      $consultaNombre = $request->input('consulta_nombre');
+      $consultaId = $request->input('consulta_id');
 
       if (empty($consultaNombre)) {
         return response()->json([
@@ -75,7 +76,7 @@ class ServiciosApiController extends Controller
           'relation' => 'cita',
           'foreign_key' => 'cita_id',
         ]
-        
+
       ];
 
       if (!isset($models[$consultaNombre])) {
@@ -124,5 +125,86 @@ class ServiciosApiController extends Controller
         'error' => $e->getMessage(),
       ], 500);
     }
+  }
+
+  public function store(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'codigo' => 'required|string|max:100|unique:servicios,codigo',
+      'servicio' => 'required|string|max:255',
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json([
+        'status' => 'error',
+        'errors' => $validator->errors(),
+      ], 422);
+    }
+
+    $servicio = Servicio::create([
+      'codigo' => $request->codigo,
+      'servicio' => $request->servicio,
+    ]);
+
+    return response()->json([
+      'status' => 'success',
+      'data' => $servicio,
+      'message' => 'Servicio creado correctamente',
+    ], 201);
+  }
+
+  public function update($id, Request $request)
+  {
+    $servicio = Servicio::find($id);
+
+    if (!$servicio) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Servicio no encontrado',
+      ], 404);
+    }
+
+    $validator = Validator::make($request->all(), [
+      'codigo' => 'required|string|max:100|unique:servicios,codigo,' . $servicio->id,
+      'servicio' => 'required|string|max:255',
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json([
+        'status' => 'error',
+        'errors' => $validator->errors(),
+      ], 422);
+    }
+
+    $servicio->update([
+      'codigo' => $request->codigo,
+      'servicio' => $request->servicio,
+    ]);
+
+    return response()->json([
+      'status' => 'success',
+      'data' => $servicio,
+      'message' => 'Servicio actualizado correctamente',
+    ], 200);
+  }
+
+  public function destroy($id)
+  {
+    $servicio = Servicio::find($id);
+
+    if (!$servicio) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Servicio no encontrado',
+      ], 404);
+    }
+
+    $servicio->delete();
+
+    return response()->json([
+      'status' => 'success',
+      'message' => 'Servicio eliminado correctamente',
+      'id' => $id,
+    ], 200);
   }
 }
