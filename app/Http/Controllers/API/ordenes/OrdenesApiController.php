@@ -155,6 +155,8 @@ class OrdenesApiController extends Controller
     $fase = $request->input('fase', []);
     $proveedor = $request->input('proveedor', []);
     $fecha = $request->input('fecha', '');
+    $cancelada = $request->input('cancelada', null);
+
 
     $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
     if (!in_array($sortColumn, $validColumns)) {
@@ -235,6 +237,11 @@ class OrdenesApiController extends Controller
         $q->whereIn('proveedor_material', (array) $proveedor);
       });
     }
+
+    if (!is_null($cancelada)) {
+      $query->where('cancelada', $cancelada);
+    }
+
 
     $ordenes = $query->orderBy($sortColumn, $sortOrder)->get();
 
@@ -1929,7 +1936,6 @@ class OrdenesApiController extends Controller
       ], 404);
     }
 
-    // Obtener parámetros de la consulta
     $limit = $request->input('limit', 10);
     $page = $request->input('page', 1);
     $sortColumn = $request->input('sortColumn', 'created_at');
@@ -1941,78 +1947,20 @@ class OrdenesApiController extends Controller
       $sortColumn = 'created_at';
     }
 
-    $contadorFasesQuery = DB::table('fases_ordenes')
-      ->select('ordenes_id', DB::raw('COUNT(*) as total_fases'))
-      ->groupBy('ordenes_id');
-
-    $primeraFaseQuery = DB::table('fases_ordenes as fo')
-      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-      ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
-      ->select(
-        'fo.ordenes_id',
-        'fo.laboratorio as laboratorio_primera_fase',
-        'fo.observacion as observacion_primera_fase',
-        'fo.fecha_fase as fecha_primera_fase',
-        'contador_fases.total_fases',
-        DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
-                WHEN contador_fases.total_fases = 4 THEN "Completado"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
-                ELSE "sin_status"
-            END as status_primera_fase')
-      )
-      ->whereRaw('fo.id = (
-            SELECT MIN(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id 
-            AND tipo_fase_orden_id = 1
-        )');
-    $ultimaFaseQuery = DB::table('fases_ordenes as fo')
-      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-      ->select(
-        'fo.ordenes_id',
-        DB::raw('
-                CASE 
-                    WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                        (SELECT tipo_fase_orden 
-                         FROM tipos_fases_ordenes 
-                         ORDER BY id ASC LIMIT 1)
-                    WHEN fo.tipo_fase_orden_id = 4 THEN 
-                        tfo.tipo_fase_orden
-                    ELSE 
-                        (SELECT tipo_fase_orden 
-                         FROM tipos_fases_ordenes 
-                         WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
-                END as fase_actual'),
-        'fo.laboratorio as laboratorio_ultima_fase',
-        'fo.fecha_fase as fecha_ultima_fase'
-      )
-      ->whereRaw('fo.id = (
-            SELECT MAX(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id
-        )');
-
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre,ubicacion_maps',
     ])
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
-      ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
-      ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id')
       ->where('ordenes.id_paciente', $id_paciente);
 
     if (!empty($nroOrdenId)) {
       $ordenes->where('ordenes.nro_orden_id', $nroOrdenId);
     }
 
-    // Paginar y ordenar la consulta
     $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
       ->paginate($limit, ['*'], 'page', $page);
 
-    // Retornar respuesta JSON
     return response()->json([
       'data' => $paginatedData->items(),
       'meta' => [

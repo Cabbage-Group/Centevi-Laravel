@@ -150,7 +150,7 @@ class CorrecionesOrdenesController extends Controller
     $pagado = $request->input('pagado', null);
 
     $query = CorrecionesOrdenes::with([
-      'orden:id_orden,pagado,nro_orden_id,id_sucursal,id_paciente,lente_contacto',
+      'orden:id_orden,pagado,nro_orden_id,id_sucursal,id_paciente,lente_contacto,cancelada',
       'faseCorreccionOrden.tipoFaseCorreccionOrden',
       'orden.sucursal',
       'orden.paciente'
@@ -245,6 +245,7 @@ class CorrecionesOrdenesController extends Controller
         'siguiente_fase' => $siguienteFase,
         'paciente_nombre_completo' => $orden->orden ? trim($orden->orden->paciente->nombres . ' ' . $orden->orden->paciente->apellidos) : null,
         'estado' => $estado,
+        'cancelada' => $orden->orden ? $orden->orden->cancelada : 0,
         'fecha' => $diasDiferencia && 0
       ];
     });

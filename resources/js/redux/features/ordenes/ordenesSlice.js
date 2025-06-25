@@ -21,6 +21,7 @@ export const fecthOrdenes = createAsyncThunk(
     proveedor = '',
     startDate = '',
     endDate = '',
+    cancelada = false
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
@@ -38,7 +39,8 @@ export const fecthOrdenes = createAsyncThunk(
         lenteContacto,
         laboratorio,
         fase,
-        proveedor
+        proveedor,
+        cancelada
       },);
     return response.data;
   }

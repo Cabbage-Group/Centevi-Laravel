@@ -22,3 +22,15 @@
     font-size: 15px;
     width: 18px;
 }
+
+.fila-cancelada {
+    background-color: #f8d7da !important;
+}
+
+.ant-table-expanded-row .ant-table-cell {
+    background-color: #f8d7da !important;
+}
+
+.ant-table-wrapper .ant-table-tbody>tr.fila-cancelada>td {
+    background-color: #f8d7da !important;
+}

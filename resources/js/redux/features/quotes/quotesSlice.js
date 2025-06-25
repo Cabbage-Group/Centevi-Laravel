@@ -4,9 +4,8 @@ import API from '../../../config/config';
 
 export const fetchQuotes = createAsyncThunk(
   'quotes/fetchQuotes',
-  async ({ page = 1, limit = 10, sortColumn = 'created_at', sortOrder = 'asc', searchTerm }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10, sortColumn = 'created_at', sortOrder = 'desc', searchTerm }, { rejectWithValue }) => {
     try {
-      console.log('sortColumn:', sortColumn)
       const response = await axios.get(`${API}/obtener/quotes/centevi`, {
         params: {
           page,
@@ -94,7 +93,7 @@ const quotesSlice = createSlice({
     page: 1,
     limit: 10,
     sortColumn: 'created_at',
-    sortOrder: 'asc',
+    sortOrder: 'desc',
     total: 0,
     status: 'idle',
     meta: {},

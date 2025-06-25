@@ -37,7 +37,9 @@ const TableOrdenesCorrecciones = (
     correctionsFiltroStatus,
     correctionsFiltroPagado,
     correctionsFiltroLenteContacto,
-    isCorrections
+    isCorrections,
+    setCancelarOrdenFilter,
+    cancelarOrdenFilter
   }
 
 ) => {
@@ -94,6 +96,7 @@ const TableOrdenesCorrecciones = (
       lenteContacto: lenteContactoFiltro,
       fase: faseFiltro,
       laboratorio: laboratorioFiltro,
+      cancelada: cancelarOrdenFilter
     }));
   }, [
     dispatch,
@@ -107,6 +110,7 @@ const TableOrdenesCorrecciones = (
     lenteContactoFiltro,
     faseFiltro,
     laboratorioFiltro,
+    cancelarOrdenFilter,
     startDate,
     endDate
   ]);

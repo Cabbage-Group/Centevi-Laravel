@@ -16,7 +16,7 @@ class QuoterApiController extends Controller
   public function obtenerQuotes(Request $request)
   {
     $sortColumn = $request->input('sortColumn', 'created_at');
-    $sortOrder = $request->input('sortOrder', 'asc');
+    $sortOrder = $request->input('sortOrder', 'desc');
     $page = $request->input('page', 1);
     $limit = $request->input('limit', 10);
     $searchTerm = $request->input('searchTerm', '');

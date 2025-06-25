@@ -59,7 +59,15 @@ const fasesOrdenesSlice = createSlice({
     sucursalCorreccion: [],
     statusCorreccion: [],
     pagadoCorreccion: [],
-    proveedor: {},
+    proveedor: [],
+    laboratorioFilterLabo: [],
+    sucursalFilterLabo: [],
+    lenteContactoFilterLabo: [],
+    statusFilterLabo: [],
+    faseFilterLabo: [],
+    proveedorFilterLabo: [],
+    startDateLabo: '',
+    endDateLabo: '',
     changeOrden: false,
     status: 'idle',
     error: null,
@@ -119,6 +127,31 @@ const fasesOrdenesSlice = createSlice({
     setProveedor: (state, action) => {
       state.proveedor = action.payload;
     },
+    setlaboratorioFilterLabo: (state, action) => {
+      state.laboratorioFilterLabo = action.payload;
+    },
+    setsucursalFilterLabo: (state, action) => {
+      state.sucursalFilterLabo = action.payload;
+    },
+    setlenteContactoFilterLabo: (state, action) => {
+      state.lenteContactoFilterLabo = action.payload;
+    },
+    setstatusFilterLabo: (state, action) => {
+      state.statusFilterLabo = action.payload;
+    },
+    setfaseFilterLabo: (state, action) => {
+      state.faseFilterLabo = action.payload;
+    },
+    setproveedorFilterLabo: (state, action) => {
+      state.proveedorFilterLabo = action.payload;
+    },
+    setstartDateLabo: (state, action) => {
+      state.startDateLabo = action.payload;
+    },
+    setendDateLabo: (state, action) => {
+      state.endDateLabo = action.payload;
+    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -178,7 +211,15 @@ export const {
   setStatusCorreccionFilter,
   setPagadoCorreccionFilter,
   setChangeOrden,
-  setProveedor
+  setProveedor,
+  setlaboratorioFilterLabo,
+  setsucursalFilterLabo,
+  setlenteContactoFilterLabo,
+  setstatusFilterLabo,
+  setfaseFilterLabo,
+  setproveedorFilterLabo,
+  setstartDateLabo,
+  setendDateLabo,
 } = fasesOrdenesSlice.actions;
 
 export default fasesOrdenesSlice.reducer;
