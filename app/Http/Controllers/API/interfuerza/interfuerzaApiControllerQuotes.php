@@ -101,7 +101,8 @@ class interfuerzaApiControllerQuotes extends Controller
         $quote = $quoteItem['Quote'] ?? null;
         $lines = $quoteItem['Lines'] ?? [];
 
-        if (!$quote) continue;
+        if (!$quote)
+          continue;
 
         $quoteId = $quote['id'] ?? null;
         $quoteDate = $quote['Date'] ?? null;
@@ -119,7 +120,7 @@ class interfuerzaApiControllerQuotes extends Controller
               $localQuote->update([
                 // 'date' => $quote['Date'] ?? $localQuote->date,
                 'Cliente' => $quote['Cliente'] ?? $localQuote->Cliente,
-               
+
                 'Bodega' => $quote['Bodega'] ?? $localQuote->Bodega,
                 'Status' => $quote['Status'] ?? $localQuote->Status,
                 'Comentario' => $quote['Comentario'] ?? $localQuote->Comentario,
@@ -132,7 +133,7 @@ class interfuerzaApiControllerQuotes extends Controller
                 'Currency' => $quote['Currency'] ?? $localQuote->Currency,
                 'Currency_Rate' => $quote['Currency_Rate'] ?? $localQuote->Currency_Rate,
                 'codigo_interfuerza' => $quote['id'] ?? $localQuote->codigo_interfuerza,
-                
+
                 // 'total_amount' => $quote['TotalAmount'] ?? $localQuote->total_amount,
                 // 'status' => $quote['Status'] ?? $localQuote->status,
                 // Agrega aquí más campos según tu estructura de base de datos

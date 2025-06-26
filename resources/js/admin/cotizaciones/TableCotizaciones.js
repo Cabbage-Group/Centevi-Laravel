@@ -64,7 +64,7 @@ const TableCotizaciones = () => {
     setProgress(0);
 
     const interval = setInterval(() => {
-      setProgress((prev) => (prev < 95 ? prev + 5 : prev)); 
+      setProgress((prev) => (prev < 95 ? prev + 5 : prev));
     }, 300);
 
     try {

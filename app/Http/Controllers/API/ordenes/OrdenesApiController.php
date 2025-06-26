@@ -238,7 +238,8 @@ class OrdenesApiController extends Controller
       });
     }
 
-    if (!is_null($cancelada)) {
+    // if (!is_null($cancelada) || $cancelada !== false) {
+    if ($cancelada == true) {
       $query->where('cancelada', $cancelada);
     }
 

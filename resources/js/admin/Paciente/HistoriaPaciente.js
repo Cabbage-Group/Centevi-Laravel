@@ -108,7 +108,7 @@ const HistoriaPaciente = () => {
     dispatch(fetchTerapiasBajaVision(id));
     dispatch(fetchVerDocumentosSlice(id));
     setTerapiaModificada(false);
-    
+
 
 
   }, [id, terapiaModificada]);

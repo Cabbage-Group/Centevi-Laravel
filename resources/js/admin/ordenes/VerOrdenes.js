@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 import { setFechaRange } from '../../redux/features/ordenes/ordenesSlice';
-import { Modal, Skeleton, Select, Table, Button } from 'antd';
+import { Modal, Skeleton, Select, Table, Button, Tooltip } from 'antd';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangePicker from '../reportes/DateRangePicker';
 import { fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
@@ -247,57 +247,62 @@ const VerOrdenes = () => {
                           Agregar Orden
                         </Link>
 
-                        <button
-                          className="btn"
-                          style={{
-                            backgroundColor: cancelarOrdenFilter ? '#d9534f' : '#5cb85c',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginLeft: '10px',
-                            padding: '0 10px',
-                            height: '35px',
-                          }}
-                          onClick={() => {
-                            const newValue = !cancelarOrdenFilter;
-                            setCancelarOrdenFilter(newValue);
-                            handleOrdenCancel(newValue ? '1' : '');
-                          }}
+
+                        <Tooltip
+                          title="Ver Ordenes Canceladas"
                         >
-                          {cancelarOrdenFilter ? (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-6 w-6"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="white"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-6 w-6"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="white"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          )}
-                        </button>
+                          <button
+                            className="btn"
+                            style={{
+                              backgroundColor: cancelarOrdenFilter ? '#1ABC9C' : '#e7515a',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              marginLeft: '10px',
+                              padding: '0 10px',
+                              height: '35px',
+                            }}
+                            onClick={() => {
+                              const newValue = !cancelarOrdenFilter;
+                              setCancelarOrdenFilter(newValue);
+                              handleOrdenCancel(newValue ? '1' : '');
+                            }}
+                          >
+                            {cancelarOrdenFilter ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="white"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="white"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </Tooltip>
                       </div>
 
                       <div className="d-flex gap-2">

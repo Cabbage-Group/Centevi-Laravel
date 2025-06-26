@@ -125,10 +125,17 @@ class VentasApiController extends Controller
         'sortColumn' => $sortColumn,
       ];
 
+
+      $data = $reportesPago->items();
+
+      $data = array_map(function ($value) {
+        return is_string($value) ? mb_convert_encoding($value, 'UTF-8', 'UTF-8') : $value;
+      }, $data);
+
       return response()->json([
         'success' => true,
         'message' => 'Operación exitosa',
-        'data' => $reportesPago->items(),
+        'data' => $data,
         'meta' => $meta,
       ]);
     } catch (\Exception $e) {
