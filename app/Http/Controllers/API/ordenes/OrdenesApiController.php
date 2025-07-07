@@ -154,6 +154,7 @@ class OrdenesApiController extends Controller
     $laboratorio = $request->input('laboratorio', []);
     $fase = $request->input('fase', []);
     $proveedor = $request->input('proveedor', []);
+    $serviciosFiltrados = $request->input('serviciosFiltrados', []);
     $fecha = $request->input('fecha', '');
     $cancelada = $request->input('cancelada', null);
 
@@ -238,6 +239,14 @@ class OrdenesApiController extends Controller
       });
     }
 
+    if (!empty($serviciosFiltrados)) {
+      $query->whereIn('tipo_cristal_od', (array) $serviciosFiltrados);
+    }
+
+    if (!empty($serviciosFiltrados)) {
+      $query->whereIn('tipo_cristal_oi', (array) $serviciosFiltrados);
+    }
+
     // if (!is_null($cancelada) || $cancelada !== false) {
     if ($cancelada == true) {
       $query->where('cancelada', $cancelada);
@@ -290,7 +299,7 @@ class OrdenesApiController extends Controller
         'pagado' => $orden->pagado,
         'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
         'laboratorio' => $orden->fasesOrdenes->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
-        'proveedor_material' => $orden->fasesOrdenes->whereNotNull('proveedor_material')->pluck('proveedor_material')->first()  ?? null,
+        'proveedor_material' => $orden->fasesOrdenes->whereNotNull('proveedor_material')->pluck('proveedor_material')->first() ?? null,
         'tipo_fase_orden' => $siguienteFase,
         'elaborado_por_fase' => $ultimaFase->usuario->nombre ?? null,
         'siguiente_fase' => $siguienteFase,
@@ -343,7 +352,8 @@ class OrdenesApiController extends Controller
 
     if (!empty($fase)) { {
         $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $fase)->values();
-      };
+      }
+      ;
     }
 
     if (!empty($estados)) {

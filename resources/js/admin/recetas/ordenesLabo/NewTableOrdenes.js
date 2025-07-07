@@ -82,6 +82,7 @@ const NewTableOrdenes = () => {
   const [selectedOrdenId, setSelectedOrdenId] = useState(null);
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [cancelarOrdenFilter, setCancelarOrdenFilter] = useState(false);
+  const [serviciosFiltrados, setServiciosFiltrados] = useState([]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -97,6 +98,7 @@ const NewTableOrdenes = () => {
         lenteContacto: lenteContactoFilter,
         estados: statusFilter,
         proveedor: proveedorFilter,
+        serviciosFiltrados: serviciosFiltrados,
         startDate,
         endDate,
         cancelada: cancelarOrdenFilter,
@@ -118,6 +120,7 @@ const NewTableOrdenes = () => {
     statusFilter,
     faseFilter,
     proveedorFilter,
+    serviciosFiltrados,
     startDate,
     endDate,
     cancelarOrdenFilter
@@ -429,6 +432,41 @@ const NewTableOrdenes = () => {
   return (
     <div className="widget-content-area br-4">
       <div className="widget-one">
+
+
+
+
+        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center" style={{ marginTop: '-40px' }}>
+          <div
+            className="card absolute"
+            style={{
+              width: '10rem', height: '3rem', padding: '0.5rem', display: 'flex',
+              justifyContent: 'center', alignItems: 'center', position: 'absolute', top: '-10px'
+            }}
+          >
+            <div
+              className="card-body"
+              style={{
+                display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem'
+              }}
+            >
+              <span
+                style={{
+                  fontSize: '1rem', fontWeight: 'bold',
+                  textAlign: 'center'
+                }}
+
+                onClick={() => console.log(ordenes)}
+              >
+                Órdenes: {meta?.total}
+              </span>
+            </div>
+          </div>
+        </div>
+
+
+
+
         <div className="row layout-top-spacing" id="cancel-row">
           <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
             <div className="widget-content widget-content-area br-6">
@@ -436,6 +474,8 @@ const NewTableOrdenes = () => {
                 style={{ width: "100%", marginBottom: "20px" }}
               >
                 <div className="d-flex justify-content-between">
+
+
                   <div
                     className="d-flex flex-column"
                     style={{ width: "30%" }}
@@ -496,6 +536,7 @@ const NewTableOrdenes = () => {
                       />
                     </div>
                   </div>
+
                   <OptionsOrdenesLabo
                     laboratorioFilter={laboratorioFilter}
                     sucursalFilter={sucursalFilter}
@@ -515,6 +556,8 @@ const NewTableOrdenes = () => {
                     setStatusFilter={setStatusFilter}
                     setFaseFilter={setFaseFilter}
                     setProveedorFilter={setProveedorFilter}
+                    setServiciosFiltrados={setServiciosFiltrados}
+                    serviciosFiltrados={serviciosFiltrados}
                   />
                 </div>
               </div>

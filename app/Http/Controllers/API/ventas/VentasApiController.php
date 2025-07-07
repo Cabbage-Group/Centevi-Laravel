@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use DB;
 
 class VentasApiController extends Controller
 {
@@ -147,9 +148,14 @@ class VentasApiController extends Controller
     }
   }
 
-  public function export()
+  public function exportv1()
   {
     return Excel::download(new ReportesPagosExport, 'reporte.xlsx');
+  }
+
+  public function export(Request $request)
+  {
+    return Excel::download(new ReportesPagosExport($request), 'reporte.xlsx');
   }
 
 }

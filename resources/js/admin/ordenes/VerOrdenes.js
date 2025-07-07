@@ -223,7 +223,14 @@ const VerOrdenes = () => {
         <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center" style={{ marginTop: '-40px' }}>
           <div className="card" style={{ width: '10rem', height: '3rem', padding: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <div className="card-body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem' }}>
-              <span style={{ fontSize: '1rem', fontWeight: 'bold', textAlign: 'center' }}>Órdenes: {total}</span>
+              <span
+                style={{
+                  fontSize: '1rem', fontWeight: 'bold',
+                  textAlign: 'center'
+                }}
+              >
+                Órdenes: {total}
+              </span>
             </div>
           </div>
         </div>

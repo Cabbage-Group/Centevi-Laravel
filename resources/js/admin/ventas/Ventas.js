@@ -9,7 +9,7 @@ import API from '../../config/config';
 const Ventas = () => {
 
   const dispatch = useDispatch();
-  const { meta, data, status, error, totalPages, searchDateAbono,searchDateFactura, searchAbono, searchFactura } = useSelector((state) => state.ventasSlice);
+  const { meta, data, status, error, totalPages, searchDateAbono, searchDateFactura, searchAbono, searchFactura } = useSelector((state) => state.ventasSlice);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState('asc');
@@ -28,7 +28,15 @@ const Ventas = () => {
       setDownloadingExcel(true)
       const response = await axios.post(
         `${API}/ventas/download-data`,
-        {},
+        {
+          page: currentPage,
+          limit: 10,
+          sortOrder,
+          searchDateAbono: localSearchDateAbono,
+          searchDateFactura: localSearchDateFactura,
+          searchAbono: localSearchAbono,
+          searchFactura: localSearchFactura
+        },
         {
           responseType: 'blob',
           headers: {
@@ -112,16 +120,16 @@ const Ventas = () => {
       </div>
       <div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
         <div style={{ marginRight: '3px' }}>Buscar:</div>
-        <DatePicker 
+        <DatePicker
           placeholder='Fecha abono'
-          onChange={(date, dateString)=>{
-          setLocalSearchDateAbono(dateString)
-        }} picker="month" />
-        <DatePicker 
+          onChange={(date, dateString) => {
+            setLocalSearchDateAbono(dateString)
+          }} picker="month" />
+        <DatePicker
           placeholder='Fecha factura'
-          onChange={(date, dateString)=>{
-          setLocalSearchDateFactura(dateString)
-        }} picker="month" />
+          onChange={(date, dateString) => {
+            setLocalSearchDateFactura(dateString)
+          }} picker="month" />
         <Input style={{ width: '200px' }} onChange={handleSearchAbonoChange} placeholder='Buscar Abono' />
         <Input style={{ width: '200px' }} onChange={handleSearchFacturaChange} placeholder='Buscar Factura' />
 
