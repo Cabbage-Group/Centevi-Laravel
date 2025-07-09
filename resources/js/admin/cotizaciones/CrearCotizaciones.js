@@ -303,7 +303,7 @@ const CrearCotizacion = () => {
         DiscountFactor: 0,
         TaxID: '1',
         TaxName: 'ITBMS',
-        TaxFactor: 0,
+        TaxFactor:  0.07,
         TaxValue: 0,
         Total: 0
       }
@@ -330,6 +330,7 @@ const CrearCotizacion = () => {
     if (['Unidades', 'Precio_Unitario', 'DiscountFactor'].includes(field)) {
       const subtotal = unidades * precio;
       const descuento = precio * unidades * discountFactor;
+  
 
       const taxableAmount = subtotal - descuento;
       const impuesto = taxableAmount * TAX_RATE;
