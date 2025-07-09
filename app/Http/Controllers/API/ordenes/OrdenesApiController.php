@@ -352,8 +352,7 @@ class OrdenesApiController extends Controller
 
     if (!empty($fase)) { {
         $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $fase)->values();
-      }
-      ;
+      };
     }
 
     if (!empty($estados)) {
@@ -1947,17 +1946,6 @@ class OrdenesApiController extends Controller
       ], 404);
     }
 
-    $limit = $request->input('limit', 10);
-    $page = $request->input('page', 1);
-    $sortColumn = $request->input('sortColumn', 'created_at');
-    $sortOrder = $request->input('sortOrder', 'desc');
-    $nroOrdenId = $request->query('nro_orden_id');
-
-    $validSortColumns = ['id_orden', 'created_at', 'nro_orden', 'nro_orden_id'];
-    if (!in_array($sortColumn, $validSortColumns)) {
-      $sortColumn = 'created_at';
-    }
-
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre,ubicacion_maps',
@@ -1965,28 +1953,54 @@ class OrdenesApiController extends Controller
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->where('ordenes.id_paciente', $id_paciente);
 
+    $nroOrdenId = $request->query('nro_orden_id');
     if (!empty($nroOrdenId)) {
       $ordenes->where('ordenes.nro_orden_id', $nroOrdenId);
     }
 
-    $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
-      ->paginate($limit, ['*'], 'page', $page);
+    $limit = $request->input('limit');
+    $page = $request->input('page');
+    $sortColumn = $request->input('sortColumn');
+    $sortOrder = $request->input('sortOrder', 'desc');
 
-    return response()->json([
-      'data' => $paginatedData->items(),
-      'meta' => [
-        'page' => $paginatedData->currentPage(),
-        'limit' => $paginatedData->perPage(),
-        'total' => $paginatedData->total(),
-      ],
-      'respuesta' => true,
-      'status' => [
-        'code' => 200,
-        'message' => 'Patient orders retrieved successfully',
-      ],
-      'mensaje' => 'Órdenes del paciente obtenidas correctamente',
-    ], 200);
+    if ($limit && $page) {
+      $validSortColumns = ['id_orden', 'created_at', 'nro_orden', 'nro_orden_id'];
+      if (!in_array($sortColumn, $validSortColumns)) {
+        $sortColumn = 'created_at';
+      }
+
+      $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
+        ->paginate($limit, ['*'], 'page', $page);
+
+      return response()->json([
+        'data' => $paginatedData->items(),
+        'meta' => [
+          'page' => $paginatedData->currentPage(),
+          'limit' => (int) $paginatedData->perPage(),
+          'total' => $paginatedData->total(),
+        ],
+        'respuesta' => true,
+        'status' => [
+          'code' => 200,
+          'message' => 'Patient orders retrieved successfully',
+        ],
+        'mensaje' => 'Órdenes del paciente obtenidas correctamente',
+      ]);
+    } else {
+      $allData = $ordenes->orderBy('created_at', 'desc')->get();
+
+      return response()->json([
+        'data' => $allData,
+        'respuesta' => true,
+        'status' => [
+          'code' => 200,
+          'message' => 'Patient orders retrieved successfully',
+        ],
+        'mensaje' => 'Órdenes del paciente obtenidas correctamente (sin paginación)',
+      ]);
+    }
   }
+
 
   public function obtenerOrdenPaciente($id_paciente, $nroOrdenId)
   {

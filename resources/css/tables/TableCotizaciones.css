@@ -1,0 +1,33 @@
+/* Aplicar a celdas */
+.compact-table .ant-table-cell {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+  line-height: 1.2 !important;
+}
+
+/* Aplicar a las filas directamente */
+.compact-table .ant-table-tbody > tr {
+  min-height: 0 !important;
+  height: 28px !important; /* Puedes ajustar según lo que necesites */
+}
+
+/* Encabezados también */
+.compact-table .ant-table-thead > tr > th {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* Botones más compactos */
+.compact-table .ant-btn {
+  height: 34px !important;
+  width: 34px !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Texto */
+.compact-table .ant-typography,
+.compact-table span {
+  line-height: 1.2 !important;
+  font-size: 12px !important;
+}

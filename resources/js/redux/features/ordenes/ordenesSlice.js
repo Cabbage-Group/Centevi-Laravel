@@ -222,9 +222,18 @@ export const updateOrdeneCancelada = createAsyncThunk(
 
 export const fetchOrdenesDelPaciente = createAsyncThunk(
   'ordenes/fetchOrdenesDelPaciente',
-  async (id_paciente) => {
-    const response = await axios.get(`${API}/ordenes/${id_paciente}`);
-    return response.data;
+  async ({ id_paciente, page, limit }, thunkAPI) => {
+    try {
+      const response = await axios.get(`${API}/ordenes/${id_paciente}`, {
+        params: {
+          page,
+          limit,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || 'Error desconocido');
+    }
   }
 );
 

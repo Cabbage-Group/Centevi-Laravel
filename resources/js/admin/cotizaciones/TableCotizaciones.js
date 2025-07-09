@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { createInterfuerzaQuotes } from "../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice";
 import { generatePdfPreview, downloadPDF, formatDate } from './GeneradorPDF.js';
+import '../../../css/tables/TableCotizaciones.css';
+
 
 const { Text } = Typography;
 
@@ -32,7 +34,6 @@ const TableCotizaciones = () => {
   const [syncing, setSyncing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  console.log('codigoInterfuerzaList:', codigoInterfuerzaList)
   useEffect(() => {
     dispatch(fetchQuotes({ page, limit, sortColumn, sortOrder, searchTerm }));
   }, [page, limit, sortColumn, sortOrder, searchTerm]);
@@ -559,6 +560,10 @@ const TableCotizaciones = () => {
     },
   ];
 
+
+
+
+
   return (
     <div>
       <div style={{ display: 'flex' }}>
@@ -598,7 +603,7 @@ const TableCotizaciones = () => {
         dataSource={quotes}
         rowKey="id"
         onChange={handleTableChange}
-        className="dataTables_wrapper container-fluid dt-bootstrap4"
+        className="compact-table"
         id="zero-config_wrapper"
         pagination={{
           current: meta?.page || 1,
@@ -606,6 +611,7 @@ const TableCotizaciones = () => {
           pageSize: limit,
           showSizeChanger: false,
         }}
+     
       />
 
       <Modal

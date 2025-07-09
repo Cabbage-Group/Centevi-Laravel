@@ -5,7 +5,7 @@ import { message } from 'laravel-mix/src/Log';
 
 export const fetchQuotes = createAsyncThunk(
   'quotes/fetchQuotes',
-  async ({ page = 1, limit = 10, sortColumn = 'created_at', sortOrder = 'desc', searchTerm }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 18, sortColumn = 'created_at', sortOrder = 'desc', searchTerm }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API}/obtener/quotes/centevi`, {
         params: {
@@ -110,7 +110,7 @@ const quotesSlice = createSlice({
     quotes: [],
     quote: {},
     page: 1,
-    limit: 10,
+    limit: 18,
     sortColumn: 'created_at',
     sortOrder: 'desc',
     total: 0,
