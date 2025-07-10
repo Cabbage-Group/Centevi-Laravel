@@ -133,7 +133,7 @@ const PacienteAtendidoDia = ({
                   <div className="widget widget-one">
                     <div className="widget-heading">
                       <h6 className="">
-                        Reporte de pacientes atendidos por día
+                        Reporte de pacientes atendidos por dia
                       </h6>
                     </div>
                     <div className="w-chart">

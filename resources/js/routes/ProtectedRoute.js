@@ -23,6 +23,8 @@ const ProtectedRoute = () => {
       dispatch(validateUserAuth())
       if(!usuario){
         navigate('/login');
+        window.location.replace('/login');
+        window.location.reload(); 
       }else{
         navigate('/home');
       }

@@ -39,6 +39,8 @@ const Sidebar = (props) => {
       dispatch(validateUserAuth())
       if (!usuario) {
         navigate('/login');
+        window.location.replace('/login');
+        window.location.reload(); 
       } else {
         navigate('/home');
       }

@@ -12,7 +12,7 @@ import { Modal, Tooltip, Skeleton, Table, Typography, Button, message } from 'an
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes.js';
-import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
+import { funPermisosObtenidos, funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 import '../../../css/tables/TableOrdenes.css'
 import API_LOCAL from '../../config/configSvLocal.js';
 
@@ -763,56 +763,64 @@ const TableOrdenesCorrecciones = (
                             </button>
                             : null
                         }
-                        <Tooltip
-                          title="Cancelar Orden"
-                        >
-                          <button
-                            onClick={() => toggleEstado(orden.id_orden)}
-                            className="btnAccionesOrdenes"
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: orden?.cancelada ? '#1ABC9C' : '#E7515A',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            {orden?.cancelada ? (
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="white"
+
+                        {
+                          funPermisosObtenidos(
+                            permisos,
+                            "orden.bloqueada",
+                            <Tooltip
+                              title="Cancelar Orden"
+                            >
+                              <button
+                                onClick={() => toggleEstado(orden.id_orden)}
+                                className="btnAccionesOrdenes"
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  backgroundColor: orden?.cancelada ? '#1ABC9C' : '#E7515A',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            ) : (
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="white"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M6 18L18 6M6 6l12 12"
-                                />
-                              </svg>
-                            )}
-                          </button>
-                        </Tooltip>
+                                {orden?.cancelada ? (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="white"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="white"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
+                                  </svg>
+                                )}
+                              </button>
+                            </Tooltip>
+                          )
+                        }
+
                       </div>
                     </td>
 
