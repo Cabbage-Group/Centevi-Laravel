@@ -156,9 +156,11 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const [rangeTimeEndDateSelected, setRangeTimeEndDateSelected] = useState(60)
 
+
+
   const debouncedSetCedula = useMemo(() =>
     debounce((val) => {
-      setPacienteId(null);
+      // setPacienteId(null);
       setCreateCedula(val);
     }, 100), []
   );
@@ -949,7 +951,8 @@ Tarjeta (Clave,Visa o Mastercard)
 
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
 
-    if (createCedula !== null) {
+    if (createCedula !== null && values.nroCedula.trim() !== "") {
+      console.log('values1:', values)
       try {
         const response = await dispatch(verificarCedula(createCedula)).unwrap();
 
@@ -1025,7 +1028,10 @@ Tarjeta (Clave,Visa o Mastercard)
           text: "Hubo un error al verificar la cédula.",
         });
       }
-    } else {
+
+    }
+    if (createCedula == null || values.nroCedula.trim() == "") {
+      console.log('values2:', values)
       if (!values.tipoAgenda || values.tipoAgenda === "proxima_cita") {
         Swal.fire({
           icon: "warning",
@@ -1070,6 +1076,9 @@ Tarjeta (Clave,Visa o Mastercard)
           confirmado: values.confirmado,
           agendado_por: usuario,
           servicios_id: serviciosRealizadosSubmit,
+          apellidos: values.apellidos ?? '',
+          celular: values.celular ?? '',
+          nombres: values.paciente ?? ''
         };
 
         setIsModalOpen(false);
@@ -1095,6 +1104,7 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const continueAgendarEvent = async (values, newPacienteId) => {
+    console.log('values3:', values)
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const data = {
       cita_existente_id: currentEventId,
@@ -1159,6 +1169,8 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleUpdateEvent = async (values) => {
+    console.log('values update', values)
+    console.log('createCedula', createCedula)
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
 
@@ -1176,6 +1188,10 @@ Tarjeta (Clave,Visa o Mastercard)
       agendado_por: usuario,
       servicios_ids: serviciosRealizadosSubmit,
       fecha_hora_fin: values.fechaAgendaFin.format("YYYY-MM-DD HH:mm"),
+      nroCedula: values.nroCedula,
+      celular: values.celular,
+      nombres: values.paciente,
+      apellidos: values.apellidos
     };
 
     if (currentEventId) {
@@ -1859,6 +1875,16 @@ Tarjeta (Clave,Visa o Mastercard)
           form={form}
           layout="vertical"
           onFinish={handleAgendarEvent}
+          onValuesChange={(changedValues, allValues) => {
+            if (changedValues.fechaAgenda && rangeTimeEndDateSelected) {
+              const nuevaFechaInicio = dayjs(changedValues.fechaAgenda);
+              const nuevaFechaFin = nuevaFechaInicio.add(rangeTimeEndDateSelected, 'minutes');
+
+              form.setFieldsValue({
+                fechaAgendaFin: nuevaFechaFin,
+              });
+            }
+          }}
         >
           <Row gutter={[16, 16]}>
             <Col xxl={12} xl={12} md={12}>
@@ -1886,7 +1912,7 @@ Tarjeta (Clave,Visa o Mastercard)
                   }}
                 >
                   {[
-                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "REAGENDADO"
+                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO", "REAGENDADO"
                   ].map((sucursal) => (
                     <Select.Option key={sucursal} value={sucursal}>
                       {sucursal}
@@ -1905,7 +1931,6 @@ Tarjeta (Clave,Visa o Mastercard)
               <label style={{ marginTop: '10px' }}>Cedula:</label>
               <Form.Item
                 name="nroCedula"
-                rules={[{ required: true, message: "La cédula es requerida" }]}
               >
                 <AutoComplete
                   allowClear
@@ -1934,6 +1959,11 @@ Tarjeta (Clave,Visa o Mastercard)
                     const words = inputValue.toLowerCase().split(" ");
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
                     return words.every(word => fullText.includes(word));
+                  }}
+                  onChange={(value) => {
+                    if (!value) {
+                      setPacienteId(null);
+                    }
                   }}
                 >
                 </AutoComplete>
@@ -2151,6 +2181,7 @@ Tarjeta (Clave,Visa o Mastercard)
               <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 {/* <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button> */}
+                <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={() => setTimeEndDate(15)}>15min</Button>
                 <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={() => setTimeEndDate(30)}>30min</Button>
                 <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={() => setTimeEndDate(45)}>45min</Button>
                 <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={() => setTimeEndDate(60)}>1h</Button>

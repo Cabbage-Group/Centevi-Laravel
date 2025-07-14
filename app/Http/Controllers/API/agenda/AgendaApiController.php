@@ -107,6 +107,10 @@ class AgendaApiController extends Controller
       'servicios_id' => 'nullable|array',
       'servicios_id.*' => 'integer|exists:servicios,id',
       'confirmado' => 'nullable|string',
+      'nombres' => 'nullable|string',
+      'apellidos' => 'nullable|string',
+      'celular' => 'nullable|string',
+
     ]);
 
     $nuevaCita = Citas::create([
@@ -122,6 +126,9 @@ class AgendaApiController extends Controller
       'ex_proxima_cita' => false,
       'comentarios' => $request->comentarios,
       'confirmado' => $request->confirmado,
+      'nombres' => $request->nombres,
+      'apellidos' => $request->apellidos,
+      'celular' => $request->celular
     ]);
 
     $nuevaCita->update([
@@ -176,12 +183,12 @@ class AgendaApiController extends Controller
         'doctor' => $nuevaCita->doctor,
         'agendado_por' => $nuevaCita->agendado_por,
         'comentarios' => $nuevaCita->comentarios,
-        'nro_cedula' => $nro_cedula,
-        'title' => $pacienteNombre,
-        'paciente' => $pacienteNombre,
+        'nro_cedula' => $nro_cedula ?? '',
+        'title' => $pacienteNombre ?? $nuevaCita->nombres,
+        'paciente' => $pacienteNombre ?? $nuevaCita->nombres,
         'sucursal' => $sucursalNombre,
-        'apellidos' => $apellidos,
-        'celular' => $celular,
+        'apellidos' => $apellidos ?? $nuevaCita->apellidos,
+        'celular' => $celular ?? $nuevaCita->celular,
         'ex_proxima_cita' => $nuevaCita->ex_proxima_cita,
         'confirmado' => $nuevaCita->confirmado
       ],
@@ -280,7 +287,14 @@ class AgendaApiController extends Controller
       'agendado_por' => 'nullable|string',
       'servicios_ids' => 'nullable|array',
       'confirmado' => 'nullable|string',
+      'nombres' => 'nullable|string',
+      'apellidos' => 'nullable|string',
+      'celular' => 'nullable|string',
+      'nroCedula' => 'nullable|string'
     ]);
+
+    $nuevaCedula = $request->input('nroCedula');
+    $pacienteId = $request->input('paciente_id');
 
     if ($validator->fails()) {
       return response()->json(['errors' => $validator->errors()], 422);
@@ -291,6 +305,56 @@ class AgendaApiController extends Controller
     if (!$cita) {
       return response()->json(['message' => 'Cita no encontrada'], 404);
     }
+
+    if ($nuevaCedula && !$pacienteId) {
+      $cedulaYaExiste = Pacientes::where('nro_cedula', $nuevaCedula)->exists();
+
+      if (!$cedulaYaExiste) {
+        $nuevoPaciente = Pacientes::create([
+          'nro_cedula' => $nuevaCedula,
+          'nombres' => $request->input('nombres', ''),
+          'apellidos' => $request->input('apellidos', ''),
+          'celular' => $request->input('celular', null),
+          'doctor' => $request->input('doctor', ''),
+          'email' => $request->input('email', ''),
+          'nro_seguro' => $request->input('nro_seguro', ''),
+          'genero' => $request->input('genero', ''),
+          'lugar_nacimiento' => $request->input('lugar_nacimiento', ''),
+          'direccion' => $request->input('direccion', ''),
+          'ocupacion' => $request->input('ocupacion', ''),
+          'telefono' => $request->input('telefono', ''),
+          'medico' => $request->input('medico', ''),
+          'urgencia' => $request->input('urgencia', ''),
+          'menor' => $request->input('menor', ''),
+          'estado' => $request->input('estado', 0)
+        ]);
+
+        $request->merge(['paciente_id' => $nuevoPaciente->id_paciente]);
+        $pacienteId = $nuevoPaciente->id_paciente;
+      }
+    }
+
+    if ($nuevaCedula && $pacienteId) {
+      $pacienteActual = Pacientes::find($pacienteId);
+
+      if (!$pacienteActual) {
+        return response()->json(['message' => 'Paciente no encontrado'], 404);
+      }
+
+      if ($pacienteActual->nro_cedula !== $nuevaCedula) {
+        $cedulaExiste = Pacientes::where('nro_cedula', $nuevaCedula)
+          ->where('id_paciente', '!=', $pacienteId)
+          ->exists();
+
+        if ($cedulaExiste) {
+          return response()->json([
+            'message' => 'La cédula ingresada ya está registrada en otro paciente.'
+          ], 409);
+        }
+      }
+    }
+
+
 
     // Actualizar cita
     $cita->update($request->all());
@@ -404,11 +468,11 @@ class AgendaApiController extends Controller
         'doctor' => $cita->doctor,
         'agendado_por' => $cita->agendado_por,
         'comentarios' => $cita->comentarios,
-        'nro_cedula' => $nro_cedula,
-        'title' => $pacienteNombre,
-        'paciente' => $pacienteNombre,
+        'nro_cedula' => $nro_cedula ?? $nuevoPaciente->nro_cedula ?? '',
+        'title' => $pacienteNombre ?? $nuevoPaciente->nombres,
+        'paciente' => $pacienteNombre ?? $nuevoPaciente->nombres,
         'sucursal' => $sucursalNombre,
-        'apellidos' => $apellidos,
+        'apellidos' => $apellidos ?? $nuevoPaciente->apellidos,
         'ex_proxima_cita' => $cita->ex_proxima_cita,
         'confirmado' => $cita->confirmado,
       ]

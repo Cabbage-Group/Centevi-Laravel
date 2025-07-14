@@ -26,7 +26,7 @@ export const fetchCitasAgenda = createAsyncThunk(
 
             // console.log("citasData: -------------------");
             // console.log(citasData);
-            
+
 
             return citasData.map(cita => ({
                 id: cita.id || `sin-id-${Math.random().toString(36).substr(2, 9)}`,
@@ -41,14 +41,14 @@ export const fetchCitasAgenda = createAsyncThunk(
                 origen_id: cita.origen_id || 'Sin ID',
                 origen_tabla: cita.origen_tabla || 'Desconocido',
                 tipo: cita.tipo || 'Desconocido',
-                paciente_id: cita.paciente_id || 'No registrado',
-                nro_cedula: cita.paciente?.nro_cedula || 'Sin datos',
+                paciente_id: cita.paciente_id || null,
+                nro_cedula: cita.paciente?.nro_cedula || '',
                 sucursal_id: cita?.sucursal_id || 'Sin sucursal',
                 doctor: cita?.doctor || 'Sin datos',
-                paciente: cita.paciente?.nombres || 'Sin Nombre',
+                paciente: cita.paciente?.nombres || cita.nombres || 'Sin Nombre',
                 sucursal: cita.sucursal?.nombre || 'Sin Sucursal',
-                apellidos: cita.paciente?.apellidos || 'No registrado',
-                celular: cita.paciente?.celular || "00000000",
+                apellidos: cita.paciente?.apellidos || cita.apellidos || 'No registrado',
+                celular: cita.paciente?.celular || cita.celular || "00000000",
                 comentarios: cita.comentarios?.trim() || 'Sin comentarios',
                 confirmado: cita.confirmado?.trim() || 'SIN STATUS',
                 agendado_por: cita.agendado_por?.trim() || '',
@@ -209,7 +209,7 @@ const citasAgendaSlice = createSlice({
 
                 // console.log("finalEvents: ----------");
                 // console.log(finalEvents);
-                
+
                 state.citasAgenda = finalEvents
             })
             .addCase(fetchCitasAgenda.rejected, (state, action) => {

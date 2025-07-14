@@ -98,6 +98,8 @@ import TableProductsInterfuerza from '../admin/products_interfuerza/TableProduct
 import MentionComponent from '../admin/chat/MentionComponent.js';
 import Ventas from '../admin/ventas/Ventas.js';
 import VerServicios from '../admin/servicios/VerServicios.js';
+import CrearCobro from '../admin/cobros/CrearCobros.js';
+import TableCobros from '../admin/cobros/TableCobros.js';
 
 
 const RoutesApp = () => {
@@ -286,6 +288,11 @@ const RoutesApp = () => {
           <Route path="/ventas" element={<Sidebar component={<Ventas />} />} />
 
           <Route path="/servicios" element={<Sidebar component={<VerServicios />} />} />
+
+          <Route path="/crear-cobro" element={<Sidebar component={<CrearCobro />} />} />
+
+          <Route path="/table-cobro" element={<Sidebar component={<TableCobros />} />} />
+
         </Route>
 
 
