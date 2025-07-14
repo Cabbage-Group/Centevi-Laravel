@@ -301,7 +301,7 @@ const CrearCotizacion = () => {
         Precio_Unitario: 0,
         Discount: 0,
         DiscountFactor: 0,
-        TaxID: '1',
+        TaxID: '6',
         TaxName: 'ITBMS',
         TaxFactor:  0.07,
         TaxValue: 0,
