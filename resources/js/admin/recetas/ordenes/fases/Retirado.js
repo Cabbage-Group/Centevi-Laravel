@@ -211,7 +211,7 @@ const Retirado = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
               textAlign: 'center',
             }}
           >
-            Se completó todas las fases
+            Se completo todas las fases
             <br />
             {
               ValidarPermisos(

@@ -249,7 +249,7 @@ const VerConsultaGenerica = () => {
                           <Col xxl={12} xl={12} md={12}>
                             <div className="form-row mb-4">
                               <div className="form-group col-md-12">
-                                <label htmlFor="tags">Próximos Servicios</label>
+                                <label htmlFor="tags">Proximos Servicios</label>
                                 <Select
                                   disabled
                                   value={null}
