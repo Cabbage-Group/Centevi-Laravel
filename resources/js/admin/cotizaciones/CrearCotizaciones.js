@@ -42,6 +42,7 @@ const CrearCotizacion = () => {
   const { interfuerzaWareHouses } = useSelector((state) => state.interfuerzaWareHouses);
   const { exchangeRate, exchangeRateStatus } = useSelector((state) => state.quotes);
   const location = useLocation();
+  const [noDiscount, setNoDiscount] = useState(false);
   const record = location.state?.record;
   const nombre = localStorage.getItem('nombre');
   const {
@@ -147,15 +148,19 @@ const CrearCotizacion = () => {
   };
 
   const onFinish = async (values) => {
-    console.log('values:', values)
     const formattedValues = {
       ...values,
       Date: values.Date?.format('YYYY-MM-DD'),
       Expira: values.Expira?.format('YYYY-MM-DD'),
       Reservar_Productos: values.Reservar_Productos ? 'YES' : 'NO',
-      Lines: lines,
+      Lines: noDiscount
+        ? lines.map((line) => ({
+          ...line,
+          Discount: 0,
+          DiscountFactor: 0,
+        }))
+        : lines,
     };
-
     let responseQuote = null;
     try {
       Swal.fire({
@@ -303,7 +308,7 @@ const CrearCotizacion = () => {
         DiscountFactor: 0,
         TaxID: '6',
         TaxName: 'ITBMS',
-        TaxFactor:  0.07,
+        TaxFactor: 0.07,
         TaxValue: 0,
         Total: 0
       }
@@ -330,7 +335,7 @@ const CrearCotizacion = () => {
     if (['Unidades', 'Precio_Unitario', 'DiscountFactor'].includes(field)) {
       const subtotal = unidades * precio;
       const descuento = precio * unidades * discountFactor;
-  
+
 
       const taxableAmount = subtotal - descuento;
       const impuesto = taxableAmount * TAX_RATE;
@@ -349,8 +354,6 @@ const CrearCotizacion = () => {
 
   const handleSelectProduct = (index, value) => {
     const selectedWrapper = productsInterfuerza.find(p => p.item_number === value);
-    console.log('valor:', value)
-    console.log('selectedWrapper:', selectedWrapper)
     const selectedProduct = selectedWrapper;
 
     if (selectedProduct) {
@@ -874,6 +877,16 @@ const CrearCotizacion = () => {
                 </Form.Item>
               </Col>
             </Row>
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}></Col>
+              <Col xxl={12} xl={12} md={12}>
+                <Form.Item>
+                  <Switch style={{ float: 'right' }} checked={noDiscount} onChange={setNoDiscount} />
+                </Form.Item>
+              </Col>
+            </Row>
+
           </Col>
         </Row>
         <Row justify="end">
