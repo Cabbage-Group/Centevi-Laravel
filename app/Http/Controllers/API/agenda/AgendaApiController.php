@@ -295,6 +295,7 @@ class AgendaApiController extends Controller
 
     $nuevaCedula = $request->input('nroCedula');
     $pacienteId = $request->input('paciente_id');
+    $nuevoPaciente = null;
 
     if ($validator->fails()) {
       return response()->json(['errors' => $validator->errors()], 422);
@@ -468,11 +469,12 @@ class AgendaApiController extends Controller
         'doctor' => $cita->doctor,
         'agendado_por' => $cita->agendado_por,
         'comentarios' => $cita->comentarios,
-        'nro_cedula' => $nro_cedula ?? $nuevoPaciente->nro_cedula ?? '',
-        'title' => $pacienteNombre ?? $nuevoPaciente->nombres,
-        'paciente' => $pacienteNombre ?? $nuevoPaciente->nombres,
+        'nro_cedula' => $nro_cedula ?? ($nuevoPaciente?->nro_cedula) ?? '',
+        'title' => $pacienteNombre ?? ($nuevoPaciente?->nombres) ?? ($cita->nombres) ?? '',
+        'paciente' => $pacienteNombre ?? ($nuevoPaciente?->nombres) ?? ($cita->nombres) ?? '',
         'sucursal' => $sucursalNombre,
-        'apellidos' => $apellidos ?? $nuevoPaciente->apellidos,
+        'apellidos' => $apellidos ?? ($nuevoPaciente?->apellidos) ?? ($cita->apellidos) ?? '',
+        'celular' => ($cita->celular) ?? '',
         'ex_proxima_cita' => $cita->ex_proxima_cita,
         'confirmado' => $cita->confirmado,
       ]

@@ -1170,7 +1170,6 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const handleUpdateEvent = async (values) => {
     console.log('values update', values)
-    console.log('createCedula', createCedula)
     const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
     const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
 
