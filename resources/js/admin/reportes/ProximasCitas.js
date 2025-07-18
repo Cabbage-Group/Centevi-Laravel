@@ -655,7 +655,7 @@ const ProximasCitas = () => {
         <Row gutter={[16, 16]}>
           <Col span={12}>
             <div style={{ marginBottom: '20px' }}>
-              <div><b>Próximos Servicios</b></div>
+              <div><b>Proximos Servicios</b></div>
               <List
                 size="small"
                 bordered

@@ -148,7 +148,7 @@ const VerUnaCorrecionOrdenes = () => {
                   textAlign: 'center',
                 }}
               >
-                Se completó todas las fases
+                Se completo todas las fases
               </div>
             )}
             <div
