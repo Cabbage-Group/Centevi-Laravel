@@ -20,6 +20,7 @@ use App\Http\Controllers\API\agenda\AgendaApiController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
+use App\Http\Controllers\API\diagnostico_pacientes\DiagnosticoPacienteController;
 use App\Http\Controllers\API\download\DownloadController;
 use App\Http\Controllers\API\email\EmailController;
 use App\Http\Controllers\API\interfuerza\interfuerzaApiControllerCustomers;
@@ -82,7 +83,7 @@ Route::get('/api/pacientes-menores', [PacientesApiController::class, 'pacientesM
 
 Route::get('/api/pacientes-adultos', [PacientesApiController::class, 'pacientesAdultos']);
 // php artisan optimize
-// 
+//
 Route::get('/api/tipos-usuarios', [TiposUsuariosController::class, 'index']);
 
 Route::post('/api/tipos-usuarios', [TiposUsuariosController::class, 'create']);
@@ -540,6 +541,9 @@ Route::post('/api/verify/quotes', [interfuerzaApiControllerQuotes::class, 'findQ
 Route::get('/api/ventas', [VentasApiController::class, 'reportes']);
 
 Route::post('/api/ventas/download-data', [VentasApiController::class, 'export']);
+
+
+Route::get('/api/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
 
 Route::get('/{any}', function () {
   return view('app');

@@ -881,9 +881,16 @@ const CrearCotizacion = () => {
             <Row gutter={16}>
               <Col xxl={12} xl={12} md={12}></Col>
               <Col xxl={12} xl={12} md={12}>
-                <Form.Item>
-                  <Switch style={{ float: 'right' }} checked={noDiscount} onChange={setNoDiscount} />
-                </Form.Item>
+
+              {/* {
+                true == false && ( */}
+                  <Form.Item>
+                    <Switch
+                      style={{ float: 'right' }}
+                      checked={noDiscount} onChange={setNoDiscount} />
+                  </Form.Item>
+                {/* )
+              } */}
               </Col>
             </Row>
 

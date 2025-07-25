@@ -125,7 +125,10 @@ class QuoterApiController extends Controller
         'errors' => $e->errors()
       ], 422);
     } catch (QueryException $e) {
-      Log::error('Database error on quote creation', ['error' => $e->getMessage()]);
+      Log::error(
+        'Database error on quote creation',
+        ['error' => $e->getMessage()]
+      );
       return response()->json([
         'message' => 'Database error while creating quote',
         'error' => $e->getMessage()
