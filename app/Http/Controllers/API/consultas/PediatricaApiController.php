@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Citas;
+use App\Models\DiagnosticoOptometriaPediatrica;
 use Illuminate\Http\Request;
 use App\Models\OptometriaPediatrica;
 use App\Models\ServiciosRealizadosOptometriaPediatrica;
@@ -25,6 +26,7 @@ class PediatricaApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_pediatrica' => 'array',
       'servicios_proximos_optometria_pediatrica' => 'array',
+      'diagnosticos_optometria_pediatrica' => 'array',
       'fecha_proxima_consulta' => 'nullable|date',
       'agendado_por' => 'required|string|max:255',
 
@@ -64,6 +66,15 @@ class PediatricaApiController extends Controller
           ServiciosProximosOptometriaPediatrica::create([
             'optometriaPediatrica_id' => $optometriaPediatrica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
             'servicios_id' => $servicioId,
+          ]);
+        }
+      }
+
+      if (isset($request->diagnosticos_optometria_pediatrica)) {
+        foreach ($request->diagnosticos_optometria_pediatrica as $servicioId) {
+          DiagnosticoOptometriaPediatrica::create([
+            'optometria_pediatrica_id' => $optometriaPediatrica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
+            'diagnostico_id' => $servicioId,
           ]);
         }
       }
@@ -120,7 +131,8 @@ class PediatricaApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_historias_clinicas' => 'array',
-      'servicios_proximos_historias_clinicas' => 'array'
+      'servicios_proximos_historias_clinicas' => 'array',
+      'diagnosticos_optometria_pediatrica' => 'array',
       // Agrega las reglas para los demás campos...
     ]);
 
@@ -172,6 +184,19 @@ class PediatricaApiController extends Controller
         }
       }
 
+      if ($request->has('diagnosticos_optometria_pediatrica')) {
+        // Eliminar los diagnósticos existentes
+        DiagnosticoOptometriaPediatrica::where('optometria_pediatrica_id', $optometriaPediatrica->id_consulta)->delete();
+
+        // Insertar los nuevos servicios próximos
+        foreach ($request->diagnosticos_optometria_pediatrica as $servicioId) {
+          DiagnosticoOptometriaPediatrica::create([
+            'optometria_pediatrica_id' => $optometriaPediatrica->id_consulta,
+            'diagnostico_id' => $servicioId,
+          ]);
+        }
+      }
+
       return response()->json([
         'success' => true,
         'message' => 'Registro actualizado exitosamente',
@@ -212,7 +237,7 @@ class PediatricaApiController extends Controller
       'message' => 'Registro eliminado exitosamente',
     ], 200);
   }
-  
+
   public function mostrarOptometriaPediatrica(Request $request)
   {
     // Obtén los parámetros de la solicitud
@@ -244,6 +269,7 @@ class PediatricaApiController extends Controller
       ->where('id_consulta', $id_consulta)
       ->with('serviciosProximos.servicio')
       ->with('serviciosRealizados.servicio')
+      ->with('diagnosticosOptometriaPediatrica.diagnosticos')
       ->first();
 
     // Verificar si el registro existe

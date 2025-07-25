@@ -21,9 +21,9 @@ const OptometriaNeonatos = () => {
   const { sucursales } = useSelector((state) => state.sucursales);
   const { servicios } = useSelector((state) => state.servicios);
   const { status, error } = useSelector((state) => state.optometriaNeonatos);
-  const { diagnosticos } = useSelector((state) => state.diagnostico);
-
-  const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
+  const [diagnosticosSelect, setDiagnosticosSelect] = useState([]);
+  const [selectedPaciente, setSelectedPaciente] = useState([null]);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [proximosServicios, setProximosServicios] = useState([]);
   const [mostrarErrores, setMostrarErrores] = useState(false);
@@ -123,6 +123,9 @@ const OptometriaNeonatos = () => {
     fecha_creacion: "",
     editado: "",
     fecha_proxima_consulta: "",
+    diagnosticos_optometria_neonatos: [],
+    servicios_realizados_optometria_neonatos: [],
+    servicios_proximos_optometria_neonatos: [],
   };
 
   useEffect(() => {
@@ -151,6 +154,18 @@ const OptometriaNeonatos = () => {
     sucursal: Yup.number().required("Required"),
     paciente: Yup.number().required("Required"),
     fecha_atencion: Yup.date().required("Required"),
+    diagnosticos_optometria_neonatos: Yup.array()
+      .of(Yup.number())
+      .min(1, "Debes seleccionar al menos un diagnóstico")
+      .required("Debes seleccionar al menos un diagnóstico"),
+    servicios_realizados_optometria_neonatos: Yup.array()
+      .of(Yup.number())
+      .min(1, "Debes seleccionar al menos un servicio realizado")
+      .required("Debes seleccionar al menos un servicio realizado"),
+    servicios_proximos_optometria_neonatos: Yup.array()
+      .of(Yup.number())
+      .min(1, "Debes seleccionar al menos un servicio próximo")
+      .required("Debes seleccionar al menos un servicio próximo"),
   });
 
   const handlePacienteChange = (e, setFieldValue) => {
@@ -169,6 +184,13 @@ const OptometriaNeonatos = () => {
 
   return (
     <div className="row layout-top-spacing">
+      <button
+        onClick={() => {
+          console.log("Button clicked", diagnosticosSelect);
+        }}
+      >
+
+      </button>
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
         <div className="widget-content-area br-4">
           <div className="widget-one">
@@ -191,7 +213,7 @@ const OptometriaNeonatos = () => {
                         console.log("Form values:", values);
 
                         if (proximosServicios.length > 0 && serviciosRealizados.length > 0) {
-                          const rpta = await dispatch(crearNeonato(values));
+                          await dispatch(crearNeonato(values));
                           setSubmitting(false);
 
                           Swal.fire({
@@ -957,7 +979,6 @@ const OptometriaNeonatos = () => {
                             </div>
 
                             <div
-                              onClick={() => console.log(diagnosticos)}
                               className="form-group col-md-6"
                             >
                               <label>Diagnostico de pacientes</label>
@@ -970,11 +991,81 @@ const OptometriaNeonatos = () => {
                                   height: "45px",
                                   background: "white !important",
                                 }}
-                                options={diagnosticos}
-                              ></Select>
+                                onChange={(value, val) => {
+                                  if (
+                                    !diagnosticosSelect.find(
+                                      (diagnostico) => diagnostico.value === value
+                                    )
+                                  ) {
+                                    const newDiagnosticos = [...diagnosticosSelect, val];
+                                    setDiagnosticosSelect(newDiagnosticos);
+                                    setFieldValue(
+                                      "diagnosticos_optometria_neonatos",
+                                      newDiagnosticos.map((d) => d.value)
+                                    );
+                                  }
+                                }}
+                                options={options_diagnosticos}
+                                filterOption={(input, option) => {
+                                  const searchTerms = input.toLowerCase().split(" ");
+                                  return searchTerms.every((term) =>
+                                    (option?.label ?? "").toLowerCase().includes(term)
+                                  );
+                                }}
+                              />
+                              <div
+                                style={{
+                                  display: "ruby",
+                                  marginTop: "10px",
+                                  marginBottom: "10px",
+                                }}>
+                                {diagnosticosSelect.map((diagnostico) => {
+                                  return (
+                                    <div
+                                      style={{
+                                        color: "black",
+                                        background: "white",
+                                        border: "1px solid gray",
+                                        paddingTop: "5px",
+                                        paddingBottom: "5px",
+                                        paddingLeft: "10px",
+                                        paddingRight: "10px",
+                                        borderRadius: "20px",
+                                        display: "flex",
+                                        marginRight: "5px",
+                                        marginTop: "5px",
+                                      }}
+                                    >
+                                      {diagnostico.label}
+                                      <div
+                                        style={{
+                                          marginLeft: "5px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() => {
+                                          const newDiagnosticos = diagnosticosSelect.filter(
+                                            (diag) => diag.value !== diagnostico.value
+                                          );
+                                          setDiagnosticosSelect(newDiagnosticos);
+                                          setFieldValue(
+                                            "diagnosticos_optometria_neonatos",
+                                            newDiagnosticos.map((d) => d.value)
+                                          );
+                                        }}
+                                      >
+                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                <ErrorMessage
+                                  name="diagnosticos_optometria_neonatos"
+                                  component="div"
+                                  className="text-danger"
+                                />
+                              </div>
                             </div>
                           </div>
-
                           {/* Selector de Tags */}
 
                           <Row gutter={[16, 16]}>
@@ -991,6 +1082,7 @@ const OptometriaNeonatos = () => {
                                       background: "white !important",
                                     }}
                                     onChange={(value, val) => {
+                                      console.log('servicios seleccionado:', val, '+', value);
                                       if (
                                         !serviciosRealizados.find(
                                           (servicio) => servicio.value === value
@@ -1014,14 +1106,14 @@ const OptometriaNeonatos = () => {
                                         (option?.label ?? "").toLowerCase().includes(term)
                                       );
                                     }}
-                                  ></Select>
+                                  />
                                   <div
                                     style={{
                                       display: "ruby",
                                       marginTop: "10px",
                                       marginBottom: "10px",
                                     }}
-                                    onClick={() => {}}
+                                    onClick={() => { }}
                                   >
                                     {serviciosRealizados.map((servicio) => {
                                       return (
@@ -1062,16 +1154,11 @@ const OptometriaNeonatos = () => {
                                         </div>
                                       );
                                     })}
-
-                                    {mostrarErrores && serviciosRealizados.length <= 0 && (
-                                      <div
-                                        style={{
-                                          color: "red",
-                                        }}
-                                      >
-                                        Lo sentimos debes seleccionar por lo menos un servicio
-                                      </div>
-                                    )}
+                                    <ErrorMessage
+                                      name="servicios_realizados_optometria_neonatos"
+                                      component="div"
+                                      className="text-danger"
+                                    />
                                   </div>
                                 </div>
                               </div>
@@ -1120,7 +1207,7 @@ const OptometriaNeonatos = () => {
                                       marginTop: "10px",
                                       marginBottom: "10px",
                                     }}
-                                    onClick={() => {}}
+                                    onClick={() => { }}
                                   >
                                     {proximosServicios.map((servicio) => {
                                       return (
@@ -1161,16 +1248,11 @@ const OptometriaNeonatos = () => {
                                         </div>
                                       );
                                     })}
-
-                                    {mostrarErrores && proximosServicios.length <= 0 && (
-                                      <div
-                                        style={{
-                                          color: "red",
-                                        }}
-                                      >
-                                        Lo sentimos debes seleccionar por lo menos un servicio
-                                      </div>
-                                    )}
+                                    <ErrorMessage
+                                      name="servicios_proximos_optometria_neonatos"
+                                      component="div"
+                                      className="text-danger"
+                                    />
                                   </div>
                                 </div>
                               </div>
@@ -1201,7 +1283,7 @@ const OptometriaNeonatos = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

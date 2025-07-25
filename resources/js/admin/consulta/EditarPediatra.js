@@ -14,6 +14,7 @@ import { formatDate } from '../../utils/DateUtils.js';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
+import { fectchDiagnosticos } from '../../redux/features/diagnosticos/DiagnosticosSlice.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -32,9 +33,10 @@ const EditarPediatra = () => {
   const { data: pediatrica } = useSelector((state) => state.verPediatrica)
   const [doctorActual, setDoctorActual] = useState('');
   const { servicios } = useSelector((state) => state.servicios);
+  const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
   const [proximosServicios, setProximosServicios] = useState([])
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
-
+  const [diagnosticosRealizados, setDiagnosticosRealizados] = useState([]);
   const [formData, setFormData] = useState({
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -165,7 +167,8 @@ const EditarPediatra = () => {
     },
     fecha_proxima_consulta: '',
     servicios_realizados_optometria_pediatrica: [],
-    servicios_proximos_optometria_pediatrica: []
+    servicios_proximos_optometria_pediatrica: [],
+    diagnosticos_optometria_pediatrica: []
   });
 
   useEffect(() => {
@@ -236,6 +239,21 @@ const EditarPediatra = () => {
         setServiciosRealizados(serviciosRealizados)
       }
 
+
+      if (pediatrica.diagnosticos_optometria_pediatrica && pediatrica.diagnosticos_optometria_pediatrica.length > 0) {
+        const diagnosticosRealizados = pediatrica.diagnosticos_optometria_pediatrica.map(item => {
+          const diagnostico = item.diagnosticos; // Suponiendo que `diagnostico` es una propiedad anidada
+          if (diagnostico) {
+            return {
+              value: diagnostico.id,
+              label: `${diagnostico.codigo} | ${diagnostico.diagnostico}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        setDiagnosticosRealizados(diagnosticosRealizados)
+      }
+
     }
   }, [pediatrica]);
 
@@ -247,6 +265,7 @@ const EditarPediatra = () => {
       dispatch(fetchSucursales({ page: 1, limit: 100 }));
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
       dispatch(fetchServicios())
+      dispatch(fectchDiagnosticos());
     }
   }, [dispatch, id, id_consulta]);
 
@@ -2365,7 +2384,10 @@ const EditarPediatra = () => {
                             }
                           />
                         </div>
-                        <div className="form-group col-md-4">
+
+                      </div>
+                      <div className="form-row mb-12">
+                        <div className="form-group col-md-6">
                           <label htmlFor="inputAddress">
                             Fecha de proxima cita
                           </label>
@@ -2386,6 +2408,90 @@ const EditarPediatra = () => {
                               )
                             }
                           />
+                        </div>
+
+                        <div
+                          className="form-group col-md-6"
+                        >
+                          <label>Diagnostico de pacientes</label>
+                          <Select
+                            showSearch
+                            value={null}
+                            style={{
+                              width: "100%",
+                              color: "transparent",
+                              height: "45px",
+                              background: "white !important",
+                            }}
+                            onChange={(value, val) => {
+                              if (
+                                !diagnosticosRealizados.find(
+                                  (diagnostico) => diagnostico.value === value
+                                )
+                              ) {
+                                const newDiagnosticos = [...diagnosticosRealizados, val];
+                                setDiagnosticosRealizados(newDiagnosticos);
+                                setFormData(prevState => ({
+                                  ...prevState,
+                                  diagnosticos_optometria_pediatrica: newDiagnosticos.map(d => d.value)
+                                }));
+                              }
+                            }}
+                            options={options_diagnosticos}
+                            filterOption={(input, option) => {
+                              const searchTerms = input.toLowerCase().split(" ");
+                              return searchTerms.every((term) =>
+                                (option?.label ?? "").toLowerCase().includes(term)
+                              );
+                            }}
+                          />
+                          <div
+                            style={{
+                              display: "ruby",
+                              marginTop: "10px",
+                              marginBottom: "10px",
+                            }}>
+                            {diagnosticosRealizados.map((diagnostico) => {
+                              return (
+                                <div
+                                  style={{
+                                    color: "black",
+                                    background: "white",
+                                    border: "1px solid gray",
+                                    paddingTop: "5px",
+                                    paddingBottom: "5px",
+                                    paddingLeft: "10px",
+                                    paddingRight: "10px",
+                                    borderRadius: "20px",
+                                    display: "flex",
+                                    marginRight: "5px",
+                                    marginTop: "5px",
+                                  }}
+                                >
+                                  {diagnostico.label}
+                                  <div
+                                    style={{
+                                      marginLeft: "5px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() => {
+                                      const newDiagnosticos = diagnosticosRealizados.filter(
+                                        (diag) => diag.value !== diagnostico.value
+                                      );
+                                      setDiagnosticosRealizados(newDiagnosticos);                                
+                                      setFormData(prevState => ({
+                                        ...prevState,
+                                        diagnosticos_optometria_pediatrica: newDiagnosticos.map(d => d.value)
+                                      }));
+                                    }}
+                                  >
+                                    <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                          </div>
                         </div>
                       </div>
                       <Row gutter={[16, 16]} >

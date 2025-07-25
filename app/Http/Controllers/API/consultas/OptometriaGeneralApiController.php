@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Citas;
+use App\Models\DiagnosticoOptometriaGeneral;
 use Illuminate\Http\Request;
 use App\Models\RefraccionGeneral;
 use App\Models\ServiciosProximosOptometriaGeneral;
@@ -25,6 +26,7 @@ class OptometriaGeneralApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_general' => 'array',
       'servicios_proximos_optometria_general' => 'array',
+      'diagnosticos_optometria_general' => 'array',
       'fecha_proxima_consulta' => 'nullable|date',
       'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
@@ -63,6 +65,15 @@ class OptometriaGeneralApiController extends Controller
           ServiciosProximosOptometriaGeneral::create([
             'optometriageneral_id' => $refraccionGeneral->id_consulta,
             'servicios_id' => $servicioId,
+          ]);
+        }
+      }
+
+      if (isset($request->diagnosticos_optometria_general)) {
+        foreach ($request->diagnosticos_optometria_general as $diagnosticoId) {
+          DiagnosticoOptometriaGeneral::create([
+            'optometria_general_id' => $refraccionGeneral->id_consulta,
+            'diagnostico_id' => $diagnosticoId,
           ]);
         }
       }
@@ -120,7 +131,8 @@ class OptometriaGeneralApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_historias_clinicas' => 'array',
-      'servicios_proximos_historias_clinicas' => 'array'
+      'servicios_proximos_historias_clinicas' => 'array',
+      'diagnostico_optometria' => 'array'
       // Otras validaciones aquí...
     ]);
 
@@ -167,6 +179,19 @@ class OptometriaGeneralApiController extends Controller
         ServiciosProximosOptometriaGeneral::create([
           'optometriageneral_id' => $refraccionGeneral->id_consulta,
           'servicios_id' => $servicioId,
+        ]);
+      }
+    }
+
+    if ($request->has('diagnostico_optometria')) {
+      // Eliminar los servicios próximos existentes
+      DiagnosticoOptometriaGeneral::where('optometria_general_id', $refraccionGeneral->id_consulta)->delete();
+
+      // Insertar los nuevos servicios próximos
+      foreach ($request->diagnostico_optometria as $servicioId) {
+        DiagnosticoOptometriaGeneral::create([
+          'optometria_general_id' => $refraccionGeneral->id_consulta,
+          'diagnostico_id' => $servicioId,
         ]);
       }
     }
@@ -237,6 +262,7 @@ class OptometriaGeneralApiController extends Controller
       ->where('id_consulta', $id_consulta)
       ->with('serviciosProximos.servicio')
       ->with('serviciosRealizados.servicio')
+      ->with('diagnosticoOptometria.diagnosticos')
       ->first();
 
     // Verificar si el registro existe

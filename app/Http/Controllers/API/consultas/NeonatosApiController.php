@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Citas;
+use App\Models\DiagnosticoOptometriaNeonatos;
 use Illuminate\Http\Request;
 use App\Models\OptometriaNeonatos;
 use App\Models\ServiciosRealizadosOptometriaNeonatos;
@@ -24,7 +25,7 @@ class NeonatosApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_optometria_neonatos' => 'array',
       'servicios_proximos_optometria_neonatos' => 'array',
-      'servicios_proximos_historias_clinicas' => 'array',
+      'diagnosticos_optometria_neonatos' => 'array',
       'fecha_proxima_consulta' => 'nullable|date',
       'agendado_por' => 'required|string|max:255',
       // Añadir validaciones para los demás campos necesarios
@@ -55,6 +56,15 @@ class NeonatosApiController extends Controller
           ServiciosProximosOptometriaNeonatos::create([
             'optometriaNeonatos_id' => $neonato->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
             'servicios_id' => $servicioId,
+          ]);
+        }
+      }
+
+      if (isset($request->diagnosticos_optometria_neonatos)) {
+        foreach ($request->diagnosticos_optometria_neonatos as $servicioId) {
+          DiagnosticoOptometriaNeonatos::create([
+            'optometria_neonatos_id' => $neonato->id_consulta,
+            'diagnostico_id' => $servicioId,
           ]);
         }
       }
@@ -112,6 +122,9 @@ class NeonatosApiController extends Controller
       'id_terapia' => 'required|integer',
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
+      'servicios_realizados_optometria_neonatos' => 'array',
+      'servicios_proximos_optometria_neonatos' => 'array',
+      'diagnosticos_optometria_neonatos' => 'array',
       // Añadir validaciones para los demás campos necesarios
     ]);
 
@@ -150,6 +163,19 @@ class NeonatosApiController extends Controller
         ServiciosProximosOptometriaNeonatos::create([
           'optometriaNeonatos_id' => $neonato->id_consulta,
           'servicios_id' => $servicioId,
+        ]);
+      }
+    }
+
+    if ($request->has('diagnostico_optometria_neonatos')) {
+      // Eliminar los servicios próximos existentes
+      DiagnosticoOptometriaNeonatos::where('optometria_neonatos_id', $neonato->id_consulta)->delete();
+
+      // Insertar los nuevos servicios próximos
+      foreach ($request->diagnostico_optometria_neonatos as $servicioId) {
+        DiagnosticoOptometriaNeonatos::create([
+          'optometria_neonatos_id' => $neonato->id_consulta,
+          'diagnostico_id' => $servicioId,
         ]);
       }
     }
@@ -221,6 +247,7 @@ class NeonatosApiController extends Controller
       ->where('id_consulta', $id_consulta)
       ->with('serviciosProximos.servicio')
       ->with('serviciosRealizados.servicio')
+      ->with('diagnosticoOptometriaNeonatos.diagnosticos')
       ->first();
 
     // Verificar si el registro existe

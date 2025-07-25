@@ -67,7 +67,12 @@ class OptometriaPediatrica extends Model
     return $this->hasMany(ServiciosProximosOptometriaPediatrica::class, 'optometriaPediatrica_id');
   }
 
-  
+  public function diagnosticosOptometriaPediatrica()
+  {
+    return $this->hasMany(DiagnosticoOptometriaPediatrica::class, 'optometria_pediatrica_id');
+  }
+
+
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'sucursal' => 'integer',
@@ -77,4 +82,3 @@ class OptometriaPediatrica extends Model
     'fecha_proxima_consulta' => 'datetime',
   ];
 }
-

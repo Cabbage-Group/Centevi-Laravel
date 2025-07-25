@@ -16,6 +16,7 @@ const diagnosticosSlice = createSlice({
   name: "diagnosticos",
   initialState: {
     diagnosticos: [],
+    options_diagnosticos: [],
     status: "idle",
     error: null,
     loading: false,
@@ -28,8 +29,13 @@ const diagnosticosSlice = createSlice({
         state.loading = true;
       })
       .addCase(fectchDiagnosticos.fulfilled, (state, action) => {
+        console.log(0, "Diagnosticos fetched successfully:", action.payload);
         state.status = "succeeded";
-        state.diagnosticos = action.payload.data;
+        state.diagnosticos = action.payload.diagnosticos;
+        state.options_diagnosticos = action.payload.diagnosticos.map((diagnostico) => ({
+          label: `${diagnostico.codigo} | ${diagnostico.diagnostico}`,
+          value: diagnostico.id,
+        }));
         state.loading = false;
       })
       .addCase(fectchDiagnosticos.rejected, (state, action) => {

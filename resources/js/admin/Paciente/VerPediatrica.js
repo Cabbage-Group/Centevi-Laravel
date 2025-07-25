@@ -1503,7 +1503,10 @@ const VerPediatrica = () => {
                             rows="12"
                           />
                         </div>
-                        <div className="form-group col-md-4">
+                      </div>
+
+                      <div className="form-row mb-12">
+                        <div className="form-group col-md-6">
                           <label htmlFor="inputAddress">
                             Fecha de proxima cita
                           </label>
@@ -1518,6 +1521,52 @@ const VerPediatrica = () => {
                             name="fecha_proxima_consulta"
                             type="text"
                           />
+                        </div>
+
+                        <div className="form-group col-md-6">
+                          <label>Diagnostico de pacientes</label>
+                          <Select
+                            disabled
+                            value={null}
+                            style={{
+                              width: '100%',
+                              color: 'transparent',
+                              background: 'white !important'
+                            }}
+                          >
+                          </Select>
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              marginTop: '10px',
+                              marginBottom: '10px'
+                            }}
+                          >
+                            {pediatrica && pediatrica.diagnosticos_optometria_pediatrica ? (
+                              pediatrica.diagnosticos_optometria_pediatrica.map((diagnostico, index) => (
+                                <div
+                                  key={index}
+                                  style={{
+                                    color: 'black',
+                                    background: 'white',
+                                    border: '1px solid gray',
+                                    paddingTop: '5px',
+                                    paddingBottom: '5px',
+                                    paddingLeft: '10px',
+                                    paddingRight: '10px',
+                                    borderRadius: '20px',
+                                    marginRight: '5px',
+                                    marginTop: '5px'
+                                  }}
+                                >
+                                  {diagnostico.diagnosticos.codigo + " | " + diagnostico.diagnosticos.diagnostico}
+                                </div>
+                              ))
+                            ) : (
+                              <p>No hay servicios Realizados disponibles</p>
+                            )}
+                          </div>
                         </div>
 
 
@@ -1634,8 +1683,8 @@ const VerPediatrica = () => {
 
         </div>
 
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
 

@@ -14,6 +14,7 @@ import { formatDate } from '../../utils/DateUtils.js';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
+import { fectchDiagnosticos } from '../../redux/features/diagnosticos/DiagnosticosSlice.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -33,9 +34,10 @@ const EditarConsultaGenerica = () => {
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [doctorActual, setDoctorActual] = useState('');
   const { servicios } = useSelector((state) => state.servicios);
+  const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
   const [proximosServicios, setProximosServicios] = useState([])
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
-
+  const [diagnosticosRealizados, setDiagnosticosRealizados] = useState([]);
   const [formData, setFormData] = useState({
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -51,7 +53,8 @@ const EditarConsultaGenerica = () => {
     },
     fecha_proxima_consulta: '',
     servicios_realizados_historias_clinicas: [],
-    servicios_proximos_historias_clinicas: []
+    servicios_proximos_historias_clinicas: [],
+    diagnostico_historia_clinica: []
   });
 
   useEffect(() => {
@@ -67,8 +70,7 @@ const EditarConsultaGenerica = () => {
         m_c: consultagenerica.m_c || '',
         fecha_creacion: consultagenerica.fecha_creacion || '',
         editado: consultagenerica.editado ? JSON.parse(consultagenerica.editado) : {},
-        fecha_proxima_consulta: moment.utc(consultagenerica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
-        servicios_proximos_historias_clinicas: consultagenerica?.servicios_proximos
+        fecha_proxima_consulta: moment.utc(consultagenerica.fecha_proxima_consulta).format('YYYY-MM-DD') || ''
       });
 
 
@@ -103,6 +105,20 @@ const EditarConsultaGenerica = () => {
         setServiciosRealizados(serviciosRealizados)
       }
 
+      if (consultagenerica.diagnostico_historia_clinica && consultagenerica.diagnostico_historia_clinica.length > 0) {
+        const diagnosticosRealizados = consultagenerica.diagnostico_historia_clinica.map(item => {
+          const diagnostico = item.diagnosticos; // Suponiendo que `diagnostico` es una propiedad anidada
+          if (diagnostico) {
+            return {
+              value: diagnostico.id,
+              label: `${diagnostico.codigo} | ${diagnostico.diagnostico}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        setDiagnosticosRealizados(diagnosticosRealizados)
+      }
+
     } else {
       console.log('El array data.servicios_proximos está vacío o no existe.')
     }
@@ -118,6 +134,7 @@ const EditarConsultaGenerica = () => {
       dispatch(fetchSucursales({ page: 1, limit: 100 }));
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
       dispatch(fetchServicios())
+      dispatch(fectchDiagnosticos());
     }
   }, [dispatch, id, id_consulta]);
 
@@ -188,8 +205,9 @@ const EditarConsultaGenerica = () => {
 
       if (result.isConfirmed) {
         // Despachar la acción
-        dispatch(fetchEditarConsultaGenerica({ id, id_consulta, data: formData }));
+        await dispatch(fetchEditarConsultaGenerica({ id, id_consulta, data: formData }));
 
+        await dispatch(fetchVerConsultaGenerica({ id, id_consulta }));
         // Mostrar alerta de éxito
         await Swal.fire(
           'Guardado!',
@@ -442,7 +460,10 @@ const EditarConsultaGenerica = () => {
                               }
                             />
                           </div>
-                          <div className="form-group col-md-4">
+                        </div>
+
+                        <div className="form-row mb-12">
+                          <div className="form-group col-md-6">
                             <label htmlFor="inputAddress">
                               Fecha de proxima cita
                             </label>
@@ -466,6 +487,89 @@ const EditarConsultaGenerica = () => {
                           </div>
 
 
+                          <div
+                            className="form-group col-md-6"
+                          >
+                            <label>Diagnostico de pacientes</label>
+                            <Select
+                              showSearch
+                              value={null}
+                              style={{
+                                width: "100%",
+                                color: "transparent",
+                                height: "45px",
+                                background: "white !important",
+                              }}
+                              onChange={(value, val) => {
+                                if (
+                                  !diagnosticosRealizados.find(
+                                    (diagnostico) => diagnostico.value === value
+                                  )
+                                ) {
+                                  const newDiagnosticos = [...diagnosticosRealizados, val];
+                                  setDiagnosticosRealizados(newDiagnosticos);
+                                  setFormData((prevState) => ({
+                                    ...prevState,
+                                    diagnostico_historia_clinica: newDiagnosticos.map((d) => d.value)
+                                  }));
+                                }
+                              }}
+                              options={options_diagnosticos}
+                              filterOption={(input, option) => {
+                                const searchTerms = input.toLowerCase().split(" ");
+                                return searchTerms.every((term) =>
+                                  (option?.label ?? "").toLowerCase().includes(term)
+                                );
+                              }}
+                            />
+                            <div
+                              style={{
+                                display: "ruby",
+                                marginTop: "10px",
+                                marginBottom: "10px",
+                              }}>
+                              {diagnosticosRealizados.map((diagnostico) => {
+                                return (
+                                  <div
+                                    style={{
+                                      color: "black",
+                                      background: "white",
+                                      border: "1px solid gray",
+                                      paddingTop: "5px",
+                                      paddingBottom: "5px",
+                                      paddingLeft: "10px",
+                                      paddingRight: "10px",
+                                      borderRadius: "20px",
+                                      display: "flex",
+                                      marginRight: "5px",
+                                      marginTop: "5px",
+                                    }}
+                                  >
+                                    {diagnostico.label}
+                                    <div
+                                      style={{
+                                        marginLeft: "5px",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() => {
+                                        const newDiagnosticos = diagnosticosRealizados.filter(
+                                          (diag) => diag.value !== diagnostico.value
+                                        );
+                                        setDiagnosticosRealizados(newDiagnosticos);
+                                        setFormData((prevState) => ({
+                                          ...prevState,
+                                          diagnostico_historia_clinica: newDiagnosticos.map((d) => d.value)
+                                        }));
+                                      }}
+                                    >
+                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+
+                            </div>
+                          </div>
                         </div>
                         <Row gutter={[16, 16]} >
                           <Col xxl={12} xl={12} md={12}>
@@ -480,7 +584,7 @@ const EditarConsultaGenerica = () => {
                                     background: 'white !important'
                                   }}
                                   onChange={(value, val) => {
-                                    if (!serviciosRealizados.find(servicio => servicio.value == value)) {
+                                    if (!serviciosRealizados.find(servicio => servicio.value === value)) {
                                       const newServicios = [...serviciosRealizados, val];
                                       setServiciosRealizados(newServicios)
                                       setFormData(prevState => ({
@@ -568,7 +672,7 @@ const EditarConsultaGenerica = () => {
                                     background: 'white !important'
                                   }}
                                   onChange={(value, val) => {
-                                    if (!proximosServicios.find(servicio => servicio.value == value)) {
+                                    if (!proximosServicios.find(servicio => servicio.value === value)) {
                                       const newServicios = [...proximosServicios, val];
                                       setProximosServicios(newServicios)
                                       setFormData(prevState => ({
@@ -628,8 +732,7 @@ const EditarConsultaGenerica = () => {
                                                   ...prevState,
                                                   servicios_proximos_historias_clinicas: newServicios.map(s => s.value)
                                                 }));
-                                                console.log('proximosServicios:', proximosServicios)
-                                                console.log('newServicios después del filtro:', newServicios);
+
                                               }}
                                             >
                                               <CloseCircleTwoTone twoToneColor="#eb2f96" />

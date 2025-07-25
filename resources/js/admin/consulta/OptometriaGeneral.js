@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
 import { CloseCircleTwoTone } from '@ant-design/icons';
+import { fectchDiagnosticos } from '../../redux/features/diagnosticos/DiagnosticosSlice.js';
 
 
 const OptometriaGeneral = () => {
@@ -19,10 +20,12 @@ const OptometriaGeneral = () => {
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { servicios } = useSelector((state) => state.servicios);
   const { sucursales } = useSelector((state) => state.sucursales);
+  const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
   const { status, error } = useSelector((state) => state.optometriaGeneral);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [proximosServicios, setProximosServicios] = useState([]);
+  const [diagnosticosSelect, setDiagnosticosSelect] = useState([]);
   const initialValues = {
     sucursal: '',
     doctor: localStorage.getItem('nombre'),
@@ -154,12 +157,16 @@ const OptometriaGeneral = () => {
     fecha_creacion: '',
     editado: '',
     fecha_proxima_consulta: '',
+    diagnosticos_optometria_general: [],
+    servicios_realizados_optometria_general: [],
+    servicios_proximos_optometria_general: [],
   };
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchServicios())
+    dispatch(fectchDiagnosticos());
   }, [dispatch]);
 
   const calculateAge = (birthDate) => {
@@ -177,6 +184,18 @@ const OptometriaGeneral = () => {
     sucursal: Yup.number().required('Required'),
     paciente: Yup.number().required('Required'),
     fecha_atencion: Yup.date().required('Required'),
+    diagnosticos_optometria_general: Yup.array()
+      .of(Yup.number())
+      .min(1, "Debes seleccionar al menos un diagnóstico")
+      .required("Debes seleccionar al menos un diagnóstico"),
+    servicios_realizados_optometria_general: Yup.array()
+      .of(Yup.number())
+      .min(1, "Debes seleccionar al menos un servicio realizado")
+      .required("Debes seleccionar al menos un servicio realizado"),
+    servicios_proximos_optometria_general: Yup.array()
+      .of(Yup.number())
+      .min(1, "Debes seleccionar al menos un servicio próximo")
+      .required("Debes seleccionar al menos un servicio próximo"),
   });
 
   const handlePacienteChange = (e, setFieldValue) => {
@@ -1204,7 +1223,7 @@ const OptometriaGeneral = () => {
                               </div>
                             </div>
                             <div className="form-row mb-12">
-                              <div className="form-group col-md-4">
+                              <div className="form-group col-md-6">
                                 <label htmlFor="inputFehaProxCita">
                                   Fecha de proxima cita
                                 </label>
@@ -1214,6 +1233,94 @@ const OptometriaGeneral = () => {
                                   required
                                   type="date"
                                 />
+                              </div>
+
+                              <div
+                                className="form-group col-md-6"
+                              >
+                                <label>Diagnostico de pacientes</label>
+                                <Select
+                                  showSearch
+                                  value={null}
+                                  style={{
+                                    width: "100%",
+                                    color: "transparent",
+                                    height: "45px",
+                                    background: "white !important",
+                                  }}
+                                  onChange={(value, val) => {
+                                    if (
+                                      !diagnosticosSelect.find(
+                                        (diagnostico) => diagnostico.value === value
+                                      )
+                                    ) {
+                                      const newDiagnosticos = [...diagnosticosSelect, val];
+                                      setDiagnosticosSelect(newDiagnosticos);
+                                      setFieldValue(
+                                        "diagnosticos_optometria_general",
+                                        newDiagnosticos.map((d) => d.value)
+                                      );
+                                    }
+                                  }}
+                                  options={options_diagnosticos}
+                                  filterOption={(input, option) => {
+                                    const searchTerms = input.toLowerCase().split(" ");
+                                    return searchTerms.every((term) =>
+                                      (option?.label ?? "").toLowerCase().includes(term)
+                                    );
+                                  }}
+                                />
+                                <div
+                                  style={{
+                                    display: "ruby",
+                                    marginTop: "10px",
+                                    marginBottom: "10px",
+                                  }}>
+                                  {diagnosticosSelect.map((diagnostico) => {
+                                    return (
+                                      <div
+                                        style={{
+                                          color: "black",
+                                          background: "white",
+                                          border: "1px solid gray",
+                                          paddingTop: "5px",
+                                          paddingBottom: "5px",
+                                          paddingLeft: "10px",
+                                          paddingRight: "10px",
+                                          borderRadius: "20px",
+                                          display: "flex",
+                                          marginRight: "5px",
+                                          marginTop: "5px",
+                                        }}
+                                      >
+                                        {diagnostico.label}
+                                        <div
+                                          style={{
+                                            marginLeft: "5px",
+                                            cursor: "pointer",
+                                          }}
+                                          onClick={() => {
+                                            const newDiagnosticos = diagnosticosSelect.filter(
+                                              (diag) => diag.value !== diagnostico.value
+                                            );
+                                            setDiagnosticosSelect(newDiagnosticos);
+                                            setFieldValue(
+                                              "diagnosticos_optometria_general",
+                                              newDiagnosticos.map((d) => d.value)
+                                            );
+                                          }}
+                                        >
+                                          <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                  <ErrorMessage
+                                    name="diagnosticos_optometria_general"
+                                    component="div"
+                                    className="text-danger"
+                                  />
+                                </div>
                               </div>
                             </div>
 
@@ -1295,6 +1402,11 @@ const OptometriaGeneral = () => {
                                           )
                                         })
                                       }
+                                      <ErrorMessage
+                                        name="servicios_realizados_optometria_general"
+                                        component="div"
+                                        className="text-danger"
+                                      />
 
                                     </div>
                                   </div>
@@ -1376,7 +1488,11 @@ const OptometriaGeneral = () => {
                                           )
                                         })
                                       }
-
+                                      <ErrorMessage
+                                        name="servicios_proximos_optometria_general"
+                                        component="div"
+                                        className="text-danger"
+                                      />
                                     </div>
                                   </div>
                                 </div>

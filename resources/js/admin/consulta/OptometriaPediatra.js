@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentMMYYYYDate } from "../../utils/DateUtils.js";
 import { CloseCircleTwoTone } from "@ant-design/icons";
 import { fetchServicios } from "../../redux/features/servicios/serviciosSlice.js";
+import { fectchDiagnosticos } from "../../redux/features/diagnosticos/DiagnosticosSlice.js";
 
 const OptometriaPediatra = () => {
     const navigate = useNavigate();
@@ -20,12 +21,14 @@ const OptometriaPediatra = () => {
     );
     const { sucursales } = useSelector((state) => state.sucursales);
     const { servicios } = useSelector((state) => state.servicios);
+    const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
     const { status, error } = useSelector(
         (state) => state.optometriaPediatrica
     );
     const [selectedPaciente, setSelectedPaciente] = useState(null);
     const [serviciosRealizados, setServiciosRealizados] = useState([]);
     const [proximosServicios, setProximosServicios] = useState([]);
+    const [diagnosticosSelect, setDiagnosticosSelect] = useState([]);
     const initialValues = {
         sucursal: "",
         doctor: localStorage.getItem("nombre"),
@@ -64,37 +67,37 @@ const OptometriaPediatra = () => {
         ojo_dominante: "",
         mano_dominante: "",
         lensometria:
-            // [
-            {
-                esfera_od: "",
-                cilindro_od: "",
-                eje_od: "",
-                p_base_od: "",
-                add_od: "",
-                esfera_oi: "",
-                cilindro_oi: "",
-                eje_oi: "",
-                p_base_oi: "",
-                add_oi: "",
-            },
+        // [
+        {
+            esfera_od: "",
+            cilindro_od: "",
+            eje_od: "",
+            p_base_od: "",
+            add_od: "",
+            esfera_oi: "",
+            cilindro_oi: "",
+            eje_oi: "",
+            p_base_oi: "",
+            add_oi: "",
+        },
         // ],
         lensometria_extra:
-            // [
-            {
-                len_tipo_lentes: "",
-                len_filtros: "",
-                len_tiempo: "",
-                len_tipo_aro: "",
-            },
+        // [
+        {
+            len_tipo_lentes: "",
+            len_filtros: "",
+            len_tiempo: "",
+            len_tipo_aro: "",
+        },
         // ],
         sa_pp:
-            // [
-            {
-                sa_od: "",
-                pp_od: "",
-                sa_oi: "",
-                pp_oi: "",
-            },
+        // [
+        {
+            sa_od: "",
+            pp_od: "",
+            sa_oi: "",
+            pp_oi: "",
+        },
         // ],
         visuscopia: {
             viscopia_od: "",
@@ -160,12 +163,16 @@ const OptometriaPediatra = () => {
         fecha_creacion: "",
         editado: "",
         fecha_proxima_consulta: "",
+        diagnosticos_optometria_neonatos: [],
+        servicios_realizados_optometria_pediatrica: [],
+        servicios_proximos_optometria_pediatrica: [],
     };
 
     useEffect(() => {
         dispatch(fetchSucursales({ page: 1, limit: 100 }));
         dispatch(fetchPacientes({ page: 1, limit: 50000 }));
         dispatch(fetchServicios());
+        dispatch(fectchDiagnosticos());
     }, [dispatch]);
 
     const calculateAge = (birthDate) => {
@@ -186,6 +193,18 @@ const OptometriaPediatra = () => {
         sucursal: Yup.number().required("Required"),
         paciente: Yup.number().required("Required"),
         fecha_atencion: Yup.date().required("Required"),
+        diagnosticos_optometria_pediatrica: Yup.array()
+            .of(Yup.number())
+            .min(1, "Debes seleccionar al menos un diagnóstico")
+            .required("Debes seleccionar al menos un diagnóstico"),
+        servicios_realizados_optometria_pediatrica: Yup.array()
+            .of(Yup.number())
+            .min(1, "Debes seleccionar al menos un servicio realizado")
+            .required("Debes seleccionar al menos un servicio realizado"),
+        servicios_proximos_optometria_pediatrica: Yup.array()
+            .of(Yup.number())
+            .min(1, "Debes seleccionar al menos un servicio próximo")
+            .required("Debes seleccionar al menos un servicio próximo"),
     });
 
     const handlePacienteChange = (e, setFieldValue) => {
@@ -226,10 +245,7 @@ const OptometriaPediatra = () => {
                                         <Formik
                                             initialValues={initialValues}
                                             validationSchema={validationSchema}
-                                            onSubmit={async (
-                                                values,
-                                                { setSubmitting }
-                                            ) => {
+                                            onSubmit={async (values, { setSubmitting }) => {
                                                 setSubmitting(true);
                                                 console.log(
                                                     "Form values:",
@@ -393,7 +409,7 @@ const OptometriaPediatra = () => {
                                                                 name="fecha_atencion"
                                                                 className="form-control"
                                                                 id="fecha_atencion"
-                                                                // max="2024-07-04"
+                                                            // max="2024-07-04"
                                                             />
                                                             <ErrorMessage
                                                                 name="fecha_atencion"
@@ -1513,8 +1529,7 @@ const OptometriaPediatra = () => {
 
                                                         <div className="form-group col-md-6">
                                                             <label>
-                                                                Diagnostico de
-                                                                pacientes
+                                                                Diagnostico de pacientes
                                                             </label>
                                                             <Select
                                                                 showSearch
@@ -1526,305 +1541,79 @@ const OptometriaPediatra = () => {
                                                                     background:
                                                                         "white !important",
                                                                 }}
-                                                                options={[
-                                                                    {
-                                                                        label: "H49 - Estrabismo Paralítico",
-                                                                        value: "H49",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.0 - Parálisis del tercer par craneal (III: Motor ocular común)",
-                                                                        value: "H49.0",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.1 - Parálisis del cuarto par craneal (IV: Patético o Troclear)",
-                                                                        value: "H49.1",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.2 - Parálisis del sexto par craneal (VI: Abductor)",
-                                                                        value: "H49.2",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.3 - Oftalmoplejia total (externa)",
-                                                                        value: "H49.3",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.4 - Oftalmoplejia progresiva externa",
-                                                                        value: "H49.4",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.8 - Otros estrabismos paralíticos",
-                                                                        value: "H49.8",
-                                                                    },
-                                                                    {
-                                                                        label: "H49.9 - Estrabismo Paralítico sin especificar",
-                                                                        value: "H49.9",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.0 - Estrabismo concomitante convergente",
-                                                                        value: "H50.0",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.1 - Estrabismo concomitante divergente",
-                                                                        value: "H50.1",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.2 - Estrabismo vertical",
-                                                                        value: "H50.2",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.3 - Heterotropia intermitente",
-                                                                        value: "H50.3",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.4 - Otras heterotropia y heterotropias sin especificar",
-                                                                        value: "H50.4",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.5 - Heteroforia",
-                                                                        value: "H50.5",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.6 - Estrabismo Mecánica",
-                                                                        value: "H50.6",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.8 - Otros estrabismos especificados",
-                                                                        value: "H50.8",
-                                                                    },
-                                                                    {
-                                                                        label: "H50.9 - Estrabismos sin especificar",
-                                                                        value: "H50.9",
-                                                                    },
-                                                                    {
-                                                                        label: "H51.0 - Parálisis de la mirada conjugada",
-                                                                        value: "H51.0",
-                                                                    },
-                                                                    {
-                                                                        label: "H51.1 - Exceso e insuficiencia de convergencia",
-                                                                        value: "H51.1",
-                                                                    },
-                                                                    {
-                                                                        label: "H51.2 - Oftalmoplejia internuclear",
-                                                                        value: "H51.2",
-                                                                    },
-                                                                    {
-                                                                        label: "H51.8 - Otros trastornos del movimiento binocular especificados",
-                                                                        value: "H51.8",
-                                                                    },
-                                                                    {
-                                                                        label: "H51.9 - Trastornos del movimiento binocular sin especificar",
-                                                                        value: "H51.9",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.0 - Hipermetropía",
-                                                                        value: "H52.0",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.1 - Miopía",
-                                                                        value: "H52.1",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.2 - Astigmatismo",
-                                                                        value: "H52.2",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.3 - Anisometropía o aniseiconia",
-                                                                        value: "H52.3",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.4 - Presbicia",
-                                                                        value: "H52.4",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.5 - Trastorno de acomodación",
-                                                                        value: "H52.5",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.6 - Otros trastornos de refracción",
-                                                                        value: "H52.6",
-                                                                    },
-                                                                    {
-                                                                        label: "H52.7 - Trastorno de refracción sin especificar",
-                                                                        value: "H52.7",
-                                                                    },
-                                                                    {
-                                                                        label: "H53 - Problemas visuales",
-                                                                        value: "H53",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.0 - Ambliopía ex anopsia",
-                                                                        value: "H53.0",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.00 - Ambliopía no especificada",
-                                                                        value: "H53.00",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.001 - Ambliopía no especificada, ojo derecho",
-                                                                        value: "H53.001",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.002 - Ambliopía no especificada, ojo izquierdo",
-                                                                        value: "H53.002",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.003 - Ambliopía no especificada, bilateral",
-                                                                        value: "H53.003",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.009 - Ambliopía no especificada, ojo no especificado",
-                                                                        value: "H53.009",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.01 - Ambliopía por deprivación",
-                                                                        value: "H53.01",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.011 - Ambliopía por deprivación, ojo derecho",
-                                                                        value: "H53.011",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.012 - Ambliopía por deprivación, ojo izquierdo",
-                                                                        value: "H53.012",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.013 - Ambliopía por deprivación, bilateral",
-                                                                        value: "H53.013",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.019 - Ambliopía por deprivación ojo no especificado",
-                                                                        value: "H53.019",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.02 - Ambliopía Refractiva",
-                                                                        value: "H53.02",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.021 - Ambliopía refractiva, ojo derecho",
-                                                                        value: "H53.021",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.022 - Ambliopía refractiva, ojo izquierdo",
-                                                                        value: "H53.022",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.023 - Ambliopía refractiva bilateral",
-                                                                        value: "H53.023",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.029 - Ambliopía refractiva, ojo no especificado",
-                                                                        value: "H53.029",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.03 - Ambliopía estrábica",
-                                                                        value: "H53.03",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.031 - Ambliopía estrábica, ojo derecho",
-                                                                        value: "H53.031",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.032 - Ambliopía estrábica, ojo izquierdo",
-                                                                        value: "H53.032",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.033 - Ambliopía estrábica, bilateral",
-                                                                        value: "H53.033",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.039 - Ambliopía estrábica, ojo no especificado",
-                                                                        value: "H53.039",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.1 - Trastorno de visión subjetiva",
-                                                                        value: "H53.1",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.10 - Alteraciones de visión subjetiva no especificada",
-                                                                        value: "H53.10",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.11 - Ceguera diurna",
-                                                                        value: "H53.11",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.12 - Perdida de visión transitoria",
-                                                                        value: "H53.12",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.121 - Perdida de visión transitoria, ojo derecho",
-                                                                        value: "H53.121",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.122 - Perdida de visión transitoria, ojo izquierdo",
-                                                                        value: "H53.122",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.123 - Perdida de visión transitoria, bilateral",
-                                                                        value: "H53.123",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.129 - Perdida de visión transitoria, ojo no especificado",
-                                                                        value: "H53.129",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.13 - Perdida brusca de visión",
-                                                                        value: "H53.13",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.131 - Perdida brusca de visión, ojo derecho",
-                                                                        value: "H53.131",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.132 - Perdida brusca de visión, ojo izquierdo",
-                                                                        value: "H53.132",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.133 - Perdida brusca de visión, bilateral",
-                                                                        value: "H53.133",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.139 - Perdida brusca de visión, ojo no especificado",
-                                                                        value: "H53.139",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.14 - Molestias visuales",
-                                                                        value: "H53.14",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.141 - Molestias visuales, ojo derecho",
-                                                                        value: "H53.141",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.142 - Molestias visuales, ojo izquierdo",
-                                                                        value: "H53.142",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.143 - Molestias visuales, bilaterales",
-                                                                        value: "H53.143",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.149 - Molestias visuales, no especificadas",
-                                                                        value: "H53.149",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.15 - Distorsiones visuales de forma y tamaño",
-                                                                        value: "H53.15",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.16 - Trastornos visuales psicofísicos",
-                                                                        value: "H53.16",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.19 - Otros trastornos visuales subjetiva",
-                                                                        value: "H53.19",
-                                                                    },
-                                                                    {
-                                                                        label: "H53.2 - Diplopía",
-                                                                        value: "H53.2",
-                                                                    },
-                                                                ]}
-                                                            ></Select>
+                                                                onChange={(value, val) => {
+                                                                    if (
+                                                                        !diagnosticosSelect.find(
+                                                                            (diagnostico) => diagnostico.value === value
+                                                                        )
+                                                                    ) {
+                                                                        const newDiagnosticos = [...diagnosticosSelect, val];
+                                                                        setDiagnosticosSelect(newDiagnosticos);
+                                                                        setFieldValue(
+                                                                            "diagnosticos_optometria_pediatrica",
+                                                                            newDiagnosticos.map((d) => d.value)
+                                                                        );
+                                                                    }
+                                                                }}
+                                                                options={options_diagnosticos}
+                                                                filterOption={(input, option) => {
+                                                                    const searchTerms = input.toLowerCase().split(" ");
+                                                                    return searchTerms.every((term) =>
+                                                                        (option?.label ?? "").toLowerCase().includes(term)
+                                                                    );
+                                                                }}
+                                                            />
+                                                            <div
+                                                                style={{
+                                                                    display: "ruby",
+                                                                    marginTop: "10px",
+                                                                    marginBottom: "10px",
+                                                                }}>
+                                                                {diagnosticosSelect.map((diagnostico) => {
+                                                                    return (
+                                                                        <div
+                                                                            style={{
+                                                                                color: "black",
+                                                                                background: "white",
+                                                                                border: "1px solid gray",
+                                                                                paddingTop: "5px",
+                                                                                paddingBottom: "5px",
+                                                                                paddingLeft: "10px",
+                                                                                paddingRight: "10px",
+                                                                                borderRadius: "20px",
+                                                                                display: "flex",
+                                                                                marginRight: "5px",
+                                                                                marginTop: "5px",
+                                                                            }}
+                                                                        >
+                                                                            {diagnostico.label}
+                                                                            <div
+                                                                                style={{
+                                                                                    marginLeft: "5px",
+                                                                                    cursor: "pointer",
+                                                                                }}
+                                                                                onClick={() => {
+                                                                                    const newDiagnosticos = diagnosticosSelect.filter(
+                                                                                        (diag) => diag.value !== diagnostico.value
+                                                                                    );
+                                                                                    setDiagnosticosSelect(newDiagnosticos);
+                                                                                    setFieldValue(
+                                                                                        "diagnosticos_optometria_pediatrica",
+                                                                                        newDiagnosticos.map((d) => d.value)
+                                                                                    );
+                                                                                }}
+                                                                            >
+                                                                                <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                                <ErrorMessage
+                                                                    name="diagnosticos_optometria_pediatrica"
+                                                                    component="div"
+                                                                    className="text-danger"
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -1844,26 +1633,17 @@ const OptometriaPediatra = () => {
                                                                     </label>
                                                                     <Select
                                                                         showSearch
-                                                                        value={
-                                                                            null
-                                                                        }
+                                                                        value={null}
                                                                         style={{
                                                                             width: "100%",
                                                                             color: "transparent",
-                                                                            background:
-                                                                                "white !important",
+                                                                            background: "white !important",
                                                                         }}
-                                                                        onChange={(
-                                                                            value,
-                                                                            val
+                                                                        onChange={(value, val
                                                                         ) => {
                                                                             if (
                                                                                 !serviciosRealizados.find(
-                                                                                    (
-                                                                                        servicio
-                                                                                    ) =>
-                                                                                        servicio.value ===
-                                                                                        value
+                                                                                    (servicio) => servicio.value === value
                                                                                 )
                                                                             ) {
                                                                                 const newServicios =
@@ -1876,12 +1656,7 @@ const OptometriaPediatra = () => {
                                                                                 );
                                                                                 setFieldValue(
                                                                                     "servicios_realizados_optometria_pediatrica",
-                                                                                    newServicios.map(
-                                                                                        (
-                                                                                            s
-                                                                                        ) =>
-                                                                                            s.value
-                                                                                    )
+                                                                                    newServicios.map((s) => s.value)
                                                                                 );
                                                                             }
                                                                         }}
@@ -1896,109 +1671,62 @@ const OptometriaPediatra = () => {
                                                                                     servicio.servicio,
                                                                             })
                                                                         )}
-                                                                        filterOption={(
-                                                                            input,
-                                                                            option
-                                                                        ) => {
-                                                                            const searchTerms =
-                                                                                input
-                                                                                    .toLowerCase()
-                                                                                    .split(
-                                                                                        " "
-                                                                                    );
-                                                                            return searchTerms.every(
-                                                                                (
-                                                                                    term
-                                                                                ) =>
-                                                                                    (
-                                                                                        option?.label ??
-                                                                                        ""
-                                                                                    )
-                                                                                        .toLowerCase()
-                                                                                        .includes(
-                                                                                            term
-                                                                                        )
-                                                                            );
+                                                                        filterOption={(input, option) => {
+                                                                            const searchTerms = input.toLowerCase().split(" ");
+                                                                            return searchTerms.every((term) =>
+                                                                                (option?.label ?? "").toLowerCase().includes(term));
                                                                         }}
                                                                     ></Select>
                                                                     <div
                                                                         style={{
-                                                                            display:
-                                                                                "ruby",
-                                                                            marginTop:
-                                                                                "10px",
-                                                                            marginBottom:
-                                                                                "10px",
+                                                                            display: "ruby",
+                                                                            marginTop: "10px",
+                                                                            marginBottom: "10px",
                                                                         }}
-                                                                        onClick={() => {}}
+                                                                        onClick={() => { }}
                                                                     >
-                                                                        {serviciosRealizados.map(
-                                                                            (
-                                                                                servicio
-                                                                            ) => {
-                                                                                return (
+                                                                        {serviciosRealizados.map((servicio) => {
+                                                                            return (
+                                                                                <div
+                                                                                    style={{
+                                                                                        color: "black",
+                                                                                        background: "white",
+                                                                                        border: "1px solid gray",
+                                                                                        paddingTop: "5px",
+                                                                                        paddingBottom: "5px",
+                                                                                        paddingLeft: "10px",
+                                                                                        paddingRight: "10px",
+                                                                                        borderRadius: "20px",
+                                                                                        display: "flex",
+                                                                                        marginRight: "5px",
+                                                                                        marginTop: "5px",
+                                                                                    }}
+                                                                                >
+                                                                                    {servicio.label}
                                                                                     <div
                                                                                         style={{
-                                                                                            color: "black",
-                                                                                            background:
-                                                                                                "white",
-                                                                                            border: "1px solid gray",
-                                                                                            paddingTop:
-                                                                                                "5px",
-                                                                                            paddingBottom:
-                                                                                                "5px",
-                                                                                            paddingLeft:
-                                                                                                "10px",
-                                                                                            paddingRight:
-                                                                                                "10px",
-                                                                                            borderRadius:
-                                                                                                "20px",
-                                                                                            display:
-                                                                                                "flex",
-                                                                                            marginRight:
-                                                                                                "5px",
-                                                                                            marginTop:
-                                                                                                "5px",
+                                                                                            marginLeft: "5px",
+                                                                                            cursor: "pointer",
+                                                                                        }}
+                                                                                        onClick={() => {
+                                                                                            const newServicios = serviciosRealizados.filter((serv) => serv.value !== servicio.value);
+                                                                                            setServiciosRealizados(newServicios);
+                                                                                            setFieldValue(
+                                                                                                "servicios_realizados_optometria_pediatrica",
+                                                                                                newServicios.map((s) => s.value)
+                                                                                            );
                                                                                         }}
                                                                                     >
-                                                                                        {
-                                                                                            servicio.label
-                                                                                        }
-                                                                                        <div
-                                                                                            style={{
-                                                                                                marginLeft:
-                                                                                                    "5px",
-                                                                                                cursor: "pointer",
-                                                                                            }}
-                                                                                            onClick={() => {
-                                                                                                const newServicios =
-                                                                                                    serviciosRealizados.filter(
-                                                                                                        (
-                                                                                                            serv
-                                                                                                        ) =>
-                                                                                                            serv.value !==
-                                                                                                            servicio.value
-                                                                                                    );
-                                                                                                setServiciosRealizados(
-                                                                                                    newServicios
-                                                                                                );
-                                                                                                setFieldValue(
-                                                                                                    "servicios_realizados_optometria_pediatrica",
-                                                                                                    newServicios.map(
-                                                                                                        (
-                                                                                                            s
-                                                                                                        ) =>
-                                                                                                            s.value
-                                                                                                    )
-                                                                                                );
-                                                                                            }}
-                                                                                        >
-                                                                                            <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                                                        </div>
+                                                                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                                                     </div>
-                                                                                );
-                                                                            }
-                                                                        )}
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                        <ErrorMessage
+                                                                            name="servicios_realizados_optometria_pediatrica"
+                                                                            component="div"
+                                                                            className="text-danger"
+                                                                        />
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2093,7 +1821,7 @@ const OptometriaPediatra = () => {
                                                                                         )
                                                                             );
                                                                         }}
-                                                                    ></Select>
+                                                                    />
                                                                     <div
                                                                         style={{
                                                                             display:
@@ -2103,75 +1831,76 @@ const OptometriaPediatra = () => {
                                                                             marginBottom:
                                                                                 "10px",
                                                                         }}
-                                                                        onClick={() => {}}
+                                                                        onClick={() => { }}
                                                                     >
-                                                                        {proximosServicios.map(
-                                                                            (
-                                                                                servicio
-                                                                            ) => {
-                                                                                return (
+                                                                        {proximosServicios.map((servicio) => {
+                                                                            return (
+                                                                                <div
+                                                                                    style={{
+                                                                                        color: "black",
+                                                                                        background:
+                                                                                            "white",
+                                                                                        border: "1px solid gray",
+                                                                                        paddingTop:
+                                                                                            "5px",
+                                                                                        paddingBottom:
+                                                                                            "5px",
+                                                                                        paddingLeft:
+                                                                                            "10px",
+                                                                                        paddingRight:
+                                                                                            "10px",
+                                                                                        borderRadius:
+                                                                                            "20px",
+                                                                                        display:
+                                                                                            "flex",
+                                                                                        marginRight:
+                                                                                            "5px",
+                                                                                        marginTop:
+                                                                                            "5px",
+                                                                                    }}
+                                                                                >
+                                                                                    {
+                                                                                        servicio.label
+                                                                                    }
                                                                                     <div
                                                                                         style={{
-                                                                                            color: "black",
-                                                                                            background:
-                                                                                                "white",
-                                                                                            border: "1px solid gray",
-                                                                                            paddingTop:
+                                                                                            marginLeft:
                                                                                                 "5px",
-                                                                                            paddingBottom:
-                                                                                                "5px",
-                                                                                            paddingLeft:
-                                                                                                "10px",
-                                                                                            paddingRight:
-                                                                                                "10px",
-                                                                                            borderRadius:
-                                                                                                "20px",
-                                                                                            display:
-                                                                                                "flex",
-                                                                                            marginRight:
-                                                                                                "5px",
-                                                                                            marginTop:
-                                                                                                "5px",
+                                                                                            cursor: "pointer",
+                                                                                        }}
+                                                                                        onClick={() => {
+                                                                                            const newServicios =
+                                                                                                proximosServicios.filter(
+                                                                                                    (
+                                                                                                        serv
+                                                                                                    ) =>
+                                                                                                        serv.value !==
+                                                                                                        servicio.value
+                                                                                                );
+                                                                                            setProximosServicios(
+                                                                                                newServicios
+                                                                                            );
+                                                                                            setFieldValue(
+                                                                                                "servicios_proximos_optometria_pediatrica",
+                                                                                                newServicios.map(
+                                                                                                    (
+                                                                                                        s
+                                                                                                    ) =>
+                                                                                                        s.value
+                                                                                                )
+                                                                                            );
                                                                                         }}
                                                                                     >
-                                                                                        {
-                                                                                            servicio.label
-                                                                                        }
-                                                                                        <div
-                                                                                            style={{
-                                                                                                marginLeft:
-                                                                                                    "5px",
-                                                                                                cursor: "pointer",
-                                                                                            }}
-                                                                                            onClick={() => {
-                                                                                                const newServicios =
-                                                                                                    proximosServicios.filter(
-                                                                                                        (
-                                                                                                            serv
-                                                                                                        ) =>
-                                                                                                            serv.value !==
-                                                                                                            servicio.value
-                                                                                                    );
-                                                                                                setProximosServicios(
-                                                                                                    newServicios
-                                                                                                );
-                                                                                                setFieldValue(
-                                                                                                    "servicios_proximos_optometria_pediatrica",
-                                                                                                    newServicios.map(
-                                                                                                        (
-                                                                                                            s
-                                                                                                        ) =>
-                                                                                                            s.value
-                                                                                                    )
-                                                                                                );
-                                                                                            }}
-                                                                                        >
-                                                                                            <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                                                        </div>
+                                                                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                                                                     </div>
-                                                                                );
-                                                                            }
-                                                                        )}
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                        <ErrorMessage
+                                                                            name="servicios_proximos_optometria_pediatrica"
+                                                                            component="div"
+                                                                            className="text-danger"
+                                                                        />
                                                                     </div>
                                                                 </div>
                                                             </div>

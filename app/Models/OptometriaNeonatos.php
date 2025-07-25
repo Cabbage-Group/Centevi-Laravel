@@ -63,6 +63,11 @@ class OptometriaNeonatos extends Model
   {
     return $this->hasMany(ServiciosProximosOptometriaNeonatos::class, 'optometriaNeonatos_id');
   }
+  
+  public function diagnosticoOptometriaNeonatos()
+  {
+    return $this->hasMany(DiagnosticoOptometriaNeonatos::class, 'optometria_neonatos_id');
+  }
 
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [

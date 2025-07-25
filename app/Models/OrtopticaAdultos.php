@@ -65,6 +65,11 @@ class OrtopticaAdultos extends Model
     return $this->hasMany(ServiciosProximosOrtopticaAdultos::class, 'ortopticaAdultos_id');
   }
 
+  public function diagnosticosOrtopticaAdultos()
+  {
+    return $this->hasMany(DiagnosticoOrtopticaAdultos::class, 'ortoptica_adulto_id');
+  }
+
 
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
@@ -75,5 +80,4 @@ class OrtopticaAdultos extends Model
     'fecha_proxima_consulta' => 'datetime',
 
   ];
-
 }

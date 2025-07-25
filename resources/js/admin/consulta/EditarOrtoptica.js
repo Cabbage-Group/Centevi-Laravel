@@ -14,6 +14,7 @@ import { formatDate } from '../../utils/DateUtils.js';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
 import { CloseCircleTwoTone } from '@ant-design/icons';
+import { fectchDiagnosticos } from '../../redux/features/diagnosticos/DiagnosticosSlice.js';
 
 
 const formatToDateDisplay = (dateStr) => {
@@ -34,8 +35,10 @@ const EditarOrtoptica = () => {
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [doctorActual, setDoctorActual] = useState('');
   const { servicios } = useSelector((state) => state.servicios);
+  const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
   const [proximosServicios, setProximosServicios] = useState([])
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [diagnosticosRealizados, setDiagnosticosRealizados] = useState([]);
 
   const [formData, setFormData] = useState({
     sucursal: '',
@@ -185,8 +188,22 @@ const EditarOrtoptica = () => {
     },
     fecha_proxima_consulta: '',
     servicios_realizados_ortoptica_adultos: [],
-    servicios_proximos_ortoptica_adultos: []
+    servicios_proximos_ortoptica_adultos: [],
+    diagnosticos_ortoptica_adultos: [],
   });
+
+  useEffect(() => {
+    const nombreUsuarioActual = localStorage.getItem('nombre');
+    setDoctorActual(nombreUsuarioActual);
+    if (id && id_consulta) {
+      dispatch(fetchVerOrtoptica({ id, id_consulta }));
+      dispatch(fetchSucursales({ page: 1, limit: 100 }));
+      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+      dispatch(fetchServicios())
+      dispatch(fectchDiagnosticos());
+    }
+  }, [dispatch, id]);
+
 
   useEffect(() => {
     if (ortoptica) {
@@ -223,9 +240,9 @@ const EditarOrtoptica = () => {
         plan_versiones: ortoptica.plan_versiones || '',
         fecha_creacion: ortoptica.fecha_creacion || '',
         editado: ortoptica.editado ? JSON.parse(ortoptica.editado) : {},
-
         fecha_proxima_consulta: moment.utc(ortoptica.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
       });
+
 
       if (ortoptica.servicios_proximos && ortoptica.servicios_proximos.length > 0) {
         const serviciosProximos = ortoptica.servicios_proximos.map(item => {
@@ -255,19 +272,25 @@ const EditarOrtoptica = () => {
 
         setServiciosRealizados(serviciosRealizados)
       }
+
+      if (ortoptica.diagnosticos_ortoptica_adultos && ortoptica.diagnosticos_ortoptica_adultos.length > 0) {
+        console.log('enreseaeaasdadasdasdasdasdasdasdasdasdasd')
+        const diagnosticosRealizados = ortoptica.diagnosticos_ortoptica_adultos.map(item => {
+          const diagnostico = item.diagnosticos; // Suponiendo que `diagnostico` es una propiedad anidada
+          if (diagnostico) {
+            return {
+              value: diagnostico.id,
+              label: `${diagnostico.codigo} | ${diagnostico.diagnostico}`
+            };
+          }
+          return null;
+        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        setDiagnosticosRealizados(diagnosticosRealizados)
+      }
     }
   }, [ortoptica]);
 
-  useEffect(() => {
-    const nombreUsuarioActual = localStorage.getItem('nombre');
-    setDoctorActual(nombreUsuarioActual);
-    if (id && id_consulta) {
-      dispatch(fetchVerOrtoptica({ id, id_consulta }));
-      dispatch(fetchSucursales({ page: 1, limit: 100 }));
-      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-      dispatch(fetchServicios())
-    }
-  }, [dispatch, id, id_consulta]);
+
 
 
   const handleChange = (e) => {
@@ -423,12 +446,13 @@ const EditarOrtoptica = () => {
         confirmButtonText: 'Sí, guardar',
         cancelButtonText: 'Cancelar'
       });
+
+      console.log('Form Data:', formData);
       if (result.isConfirmed) {
-        if (formData && formData.pruebas_extra) {
-          // formData.pruebas_extra = formData.pruebas_extra.replace(/\\\\/g, '\\')
-        }
-        // Despachar la acción
-        dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
+
+        await dispatch(fetchEditarOrtoptica({ id, id_consulta, data: formData }));
+
+        await dispatch(fetchVerOrtoptica({ id, id_consulta }));
 
         // Mostrar alerta de éxito
         await Swal.fire(
@@ -474,6 +498,8 @@ const EditarOrtoptica = () => {
       setFieldValue('edad', edad);
     }
   };
+
+  console.log('Selected:', serviciosRealizados);
 
   return (
     <div
@@ -2837,7 +2863,12 @@ const EditarOrtoptica = () => {
                           }
                         />
                       </div>
-                      <div className="form-group col-md-4">
+
+
+                    </div>
+                    <div className="form-row mb-12">
+
+                      <div className="form-group col-md-6">
                         <label htmlFor="inputAddress">
                           Fecha de proxima cita
                         </label>
@@ -2860,6 +2891,90 @@ const EditarOrtoptica = () => {
                         />
                       </div>
 
+                      <div
+                        className="form-group col-md-6"
+                      >
+                        <label>Diagnostico de pacientes</label>
+                        <Select
+                          showSearch
+                          value={null}
+                          style={{
+                            width: "100%",
+                            color: "transparent",
+                            height: "45px",
+                            background: "white !important",
+                          }}
+                          onChange={(value, val) => {
+                            if (
+                              !diagnosticosRealizados.find(
+                                (diagnostico) => diagnostico.value === value
+                              )
+                            ) {
+                              const newDiagnosticos = [...diagnosticosRealizados, val];
+                              setDiagnosticosRealizados(newDiagnosticos);
+                              setFormData(prevState => ({
+                                ...prevState,
+                                diagnosticos_ortoptica_adultos: newDiagnosticos.map(d => d.value)
+                              }));
+                            }
+                          }}
+                          options={options_diagnosticos}
+                          filterOption={(input, option) => {
+                            const searchTerms = input.toLowerCase().split(" ");
+                            return searchTerms.every((term) =>
+                              (option?.label ?? "").toLowerCase().includes(term)
+                            );
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "ruby",
+                            marginTop: "10px",
+                            marginBottom: "10px",
+                          }}>
+                          {diagnosticosRealizados.map((diagnostico) => {
+                            return (
+                              <div
+                                style={{
+                                  color: "black",
+                                  background: "white",
+                                  border: "1px solid gray",
+                                  paddingTop: "5px",
+                                  paddingBottom: "5px",
+                                  paddingLeft: "10px",
+                                  paddingRight: "10px",
+                                  borderRadius: "20px",
+                                  display: "flex",
+                                  marginRight: "5px",
+                                  marginTop: "5px",
+                                }}
+                              >
+                                {diagnostico.label}
+                                <div
+                                  style={{
+                                    marginLeft: "5px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => {
+                                    const newDiagnosticos = diagnosticosRealizados.filter(
+                                      (diag) => diag.value !== diagnostico.value
+                                    );
+                                    setDiagnosticosRealizados(newDiagnosticos);
+                                    setFormData(prevState => ({
+                                      ...prevState,
+                                      diagnosticos_ortoptica_adultos: newDiagnosticos.map(d => d.value)
+                                    }));
+                                  }}
+                                >
+                                  <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                        </div>
+                      </div>
+
                     </div>
                     <Row gutter={[16, 16]} >
                       <Col xxl={12} xl={12} md={12}>
@@ -2874,7 +2989,7 @@ const EditarOrtoptica = () => {
                                 background: 'white !important'
                               }}
                               onChange={(value, val) => {
-                                if (!serviciosRealizados.find(servicio => servicio.value == value)) {
+                                if (!serviciosRealizados.find(servicio => servicio.value === value)) {
                                   const newServicios = [...serviciosRealizados, val];
                                   setServiciosRealizados(newServicios)
                                   setFormData(prevState => ({
@@ -2901,7 +3016,7 @@ const EditarOrtoptica = () => {
 
                               {
 
-                                serviciosRealizados.map((servicio) => {
+                                serviciosRealizados?.map((servicio) => {
                                   if (servicio) {
                                     return (
                                       <div
@@ -2989,7 +3104,7 @@ const EditarOrtoptica = () => {
 
                               {
 
-                                proximosServicios.map((servicio) => {
+                                proximosServicios?.map((servicio) => {
                                   if (servicio) {
                                     return (
                                       <div
@@ -3016,7 +3131,6 @@ const EditarOrtoptica = () => {
 
                                           onClick={() => {
                                             const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
-                                            console.log('Filtros aplicados:', newServicios);
                                             setProximosServicios(newServicios)
                                             setFormData(prevState => ({
                                               ...prevState,

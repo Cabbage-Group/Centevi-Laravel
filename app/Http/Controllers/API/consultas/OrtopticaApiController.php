@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\consultas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Citas;
+use App\Models\DiagnosticoOrtopticaAdultos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ServiciosRealizadosOrtopticaAdultos;
@@ -25,6 +26,7 @@ class OrtopticaApiController extends Controller
       'fecha_atencion' => 'required|date',
       'servicios_realizados_ortoptica_adultos' => 'array',
       'servicios_proximos_ortoptica_adultos' => 'array',
+      'diagnosticos_ortoptica_adultos' => 'array',
       'fecha_proxima_consulta' => 'nullable|date',
       'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
@@ -63,6 +65,16 @@ class OrtopticaApiController extends Controller
           ServiciosProximosOrtopticaAdultos::create([
             'ortopticaAdultos_id' => $ortoptica->id_consulta,
             'servicios_id' => $servicioId,
+          ]);
+        }
+      }
+
+
+      if (isset($request->diagnosticos_ortoptica_adultos)) {
+        foreach ($request->diagnosticos_ortoptica_adultos as $diagnosticoId) {
+          DiagnosticoOrtopticaAdultos::create([
+            'ortoptica_adulto_id' => $ortoptica->id_consulta,
+            'diagnostico_id' => $diagnosticoId,
           ]);
         }
       }
@@ -120,7 +132,8 @@ class OrtopticaApiController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_historias_clinicas' => 'array',
-      'servicios_proximos_historias_clinicas' => 'array'
+      'servicios_proximos_historias_clinicas' => 'array',
+      'diagnosticos_ortoptica_adultos' => 'array',
       // Otras validaciones aquí...
     ]);
 
@@ -172,6 +185,20 @@ class OrtopticaApiController extends Controller
         }
       }
 
+
+      if ($request->has('diagnosticos_ortoptica_adultos')) {
+        // Eliminar los servicios próximos existentes
+        DiagnosticoOrtopticaAdultos::where('ortoptica_adulto_id', $ortoptica->id_consulta)->delete();
+
+        // Insertar los nuevos servicios próximos
+        foreach ($request->diagnosticos_ortoptica_adultos as $servicioId) {
+          DiagnosticoOrtopticaAdultos::create([
+            'ortoptica_adulto_id' => $ortoptica->id_consulta,
+            'diagnostico_id' => $servicioId,
+          ]);
+        }
+      }
+
       return response()->json([
         'success' => true,
         'message' => 'Registro actualizado exitosamente',
@@ -218,6 +245,7 @@ class OrtopticaApiController extends Controller
       ->where('id_consulta', $id_consulta)
       ->with('serviciosProximos.servicio')
       ->with('serviciosRealizados.servicio')
+      ->with('diagnosticosOrtopticaAdultos.diagnosticos')
       ->first();
 
     // Verificar si el registro existe

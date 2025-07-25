@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\ConsultaGenerica;
+use App\Models\DiagnosticoHistoriaClinica;
 use App\Models\ServiciosRealizadosHistoriasClinicas;
 use App\Models\ServiciosProximosHistoriasClinicas;
 use Illuminate\Support\Facades\Validator;
@@ -28,6 +29,7 @@ class ConsultaGenericaController extends Controller
       'm_c' => 'required|string',
       'servicios_realizados_historias_clinicas' => 'array',
       'servicios_proximos_historias_clinicas' => 'array',
+      'diagnosticos_historias_clinicas' => 'array',
       'fecha_proxima_consulta' => 'nullable|date',
       'agendado_por' => 'required|string|max:255',
       // Otras validaciones aquí...
@@ -67,6 +69,15 @@ class ConsultaGenericaController extends Controller
         ServiciosProximosHistoriasClinicas::create([
           'historiaclinica_id' => $consultaGenerica->id_consulta, // Usar el ID de la consulta generica como historiaclinica_id
           'servicios_id' => $servicioId,
+        ]);
+      }
+    }
+
+    if (isset($request->diagnosticos_historias_clinicas)) {
+      foreach ($request->diagnosticos_historias_clinicas as $diagnosticoId) {
+        DiagnosticoHistoriaClinica::create([
+          'historia_clinica_id' => $consultaGenerica->id_consulta,
+          'diagnostico_id' => $diagnosticoId,
         ]);
       }
     }
@@ -122,7 +133,8 @@ class ConsultaGenericaController extends Controller
       'edad' => 'required|integer',
       'fecha_atencion' => 'required|date',
       'servicios_realizados_historias_clinicas' => 'array',
-      'servicios_proximos_historias_clinicas' => 'array'
+      'servicios_proximos_historias_clinicas' => 'array',
+      'diagnostico_historia_clinica' => 'array',
       // Otras validaciones aquí...
     ]);
 
@@ -169,6 +181,19 @@ class ConsultaGenericaController extends Controller
         ServiciosProximosHistoriasClinicas::create([
           'historiaclinica_id' => $consultaGenerica->id_consulta,
           'servicios_id' => $servicioId,
+        ]);
+      }
+    }
+
+    if ($request->has('diagnostico_historia_clinica')) {
+
+      DiagnosticoHistoriaClinica::where('historia_clinica_id', $consultaGenerica->id_consulta)->delete();
+
+      // Insertar los nuevos servicios próximos
+      foreach ($request->diagnostico_historia_clinica as $servicioId) {
+        DiagnosticoHistoriaClinica::create([
+          'historia_clinica_id' => $consultaGenerica->id_consulta,
+          'diagnostico_id' => $servicioId,
         ]);
       }
     }
@@ -238,6 +263,7 @@ class ConsultaGenericaController extends Controller
       ->where('id_consulta', $id_consulta)
       ->with('serviciosProximos.servicio')
       ->with('serviciosRealizados.servicio')
+      ->with('diagnosticoHistoriaClinica.diagnosticos')
       ->first();
 
     // Verificar si el registro existe

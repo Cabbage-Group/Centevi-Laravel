@@ -43,6 +43,12 @@ class ConsultaGenerica extends Model
     return $this->hasMany(ServiciosProximosHistoriasClinicas::class, 'historiaclinica_id');
   }
 
+  public function diagnosticoHistoriaClinica()
+  {
+    return $this->hasMany(DiagnosticoHistoriaClinica::class, 'historia_clinica_id');
+  }
+
+
 
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
