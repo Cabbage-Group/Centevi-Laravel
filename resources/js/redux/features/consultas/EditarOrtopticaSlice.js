@@ -10,7 +10,8 @@ export const fetchEditarOrtoptica = createAsyncThunk(
 
             // Definir un valor predeterminado para id_terapia si no se proporciona
             if (!data.id_terapia) {
-                data.id_terapia = '0'; // Valor predeterminado
+                data.id_terapia = '0'; 
+                data.pruebas_extra = '{}';
             }
 
             data['av_sc'] = JSON.stringify(data.av_sc);
