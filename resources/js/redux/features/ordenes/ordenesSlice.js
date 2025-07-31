@@ -222,12 +222,13 @@ export const updateOrdeneCancelada = createAsyncThunk(
 
 export const fetchOrdenesDelPaciente = createAsyncThunk(
   'ordenes/fetchOrdenesDelPaciente',
-  async ({ id_paciente, page, limit }, thunkAPI) => {
+  async ({ id_paciente, page, limit, cancelada = false }, thunkAPI) => {
     try {
       const response = await axios.get(`${API}/ordenes/${id_paciente}`, {
         params: {
           page,
           limit,
+          cancelada
         },
       });
       return response.data;
@@ -270,6 +271,15 @@ export const fetchOrdenesMenciones = createAsyncThunk(
 );
 
 
+export const fetchOrdenTiempoSinOrden = createAsyncThunk(
+  'ordenes/fetchOrdenTiempoSinOrden',
+  async (id) => {
+    const response = await axios.get(`${API}/ordenes/${id}/tiempo-sin-orden`);
+    return response.data;
+  }
+);
+
+
 
 const ordenesSlice = createSlice({
   name: 'ordenes',
@@ -284,6 +294,7 @@ const ordenesSlice = createSlice({
     ordenes_menciones: [],
     nro_orden_auto: [],
     ordenes_prueba: [],
+    ordenes_tiempo: '',
     OrderId: null,
     total: 0,
     meta: {},
@@ -448,6 +459,18 @@ const ordenesSlice = createSlice({
       .addCase(updateOrdeneCancelada.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+      })
+      .addCase(fetchOrdenTiempoSinOrden.pending, (state) => {
+        state.status_prueba = 'loading';
+      })
+      .addCase(fetchOrdenTiempoSinOrden.fulfilled, (state, action) => {
+        console.log('Tiempo sin orden:', action.payload);
+        state.status_prueba = 'succeeded';
+        state.ordenes_tiempo = action.payload.tiempo;
+      })
+      .addCase(fetchOrdenTiempoSinOrden.rejected, (state, action) => {
+        state.status_prueba = 'failed';
+        state.error_prueba = action.error.message;
       });
   },
 });

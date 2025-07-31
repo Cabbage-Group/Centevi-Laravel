@@ -1953,9 +1953,16 @@ class OrdenesApiController extends Controller
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->where('ordenes.id_paciente', $id_paciente);
 
+    // Filtro por nro_orden_id
     $nroOrdenId = $request->query('nro_orden_id');
     if (!empty($nroOrdenId)) {
       $ordenes->where('ordenes.nro_orden_id', $nroOrdenId);
+    }
+
+    // ✅ Filtro por orden cancelada (campo booleano)
+    if ($request->has('cancelada')) {
+      $cancelada = filter_var($request->query('cancelada'), FILTER_VALIDATE_BOOLEAN);
+      $ordenes->where('ordenes.cancelada', $cancelada);
     }
 
     $limit = $request->input('limit');
@@ -2000,6 +2007,7 @@ class OrdenesApiController extends Controller
       ]);
     }
   }
+
 
 
   public function obtenerOrdenPaciente($id_paciente, $nroOrdenId)
@@ -2562,5 +2570,40 @@ class OrdenesApiController extends Controller
       'mensaje' => 'Orden actualizada correctamente',
       'data' => $orden
     ], 200);
+  }
+
+  public function diasOMesesDesdeUltimaOrden($id_paciente)
+  {
+    $ultimaOrden = Ordenes::where('id_paciente', $id_paciente)
+      ->orderBy('created_at', 'desc')
+      ->first();
+
+    if (!$ultimaOrden) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'El paciente no tiene órdenes registradas'
+      ], 404);
+    }
+
+    $fechaUltimaOrden = Carbon::parse($ultimaOrden->created_at);
+    $fechaActual = Carbon::now();
+
+    $diff = $fechaUltimaOrden->diff($fechaActual);
+
+    // Si es menor o igual a 31 días
+    if ($diff->y === 0 && $diff->m === 0 && $diff->d <= 31) {
+      return response()->json([
+        'respuesta' => true,
+        'tiempo' => $diff->d . ' días'
+      ]);
+    }
+
+    // Convertir años a meses + meses del intervalo
+    $totalMeses = ($diff->y * 12) + $diff->m;
+
+    return response()->json([
+      'respuesta' => true,
+      'tiempo' => $totalMeses . ' meses ' . $diff->d . ' días'
+    ]);
   }
 }

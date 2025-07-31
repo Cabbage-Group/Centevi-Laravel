@@ -98,6 +98,7 @@ import quotes from "./features/quotes/quotesSlice";
 import productsInterfuerza from "./features/productsInterfuerza/ProductsInterfuerza";
 import ventasSlice from "./features/ventas/VentasSlice";
 import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
+import warehousesSlice from "./features/warehouses/warehousesSlice";
 
 const store = configureStore({
   reducer: {
@@ -231,7 +232,10 @@ const store = configureStore({
     quotes: quotes,
 
     productsInterfuerza: productsInterfuerza,
+
     ventasSlice: ventasSlice,
+
+    warehousesSlice: warehousesSlice,
 
     diagnosticos: DiagnosticosReducer,
   },

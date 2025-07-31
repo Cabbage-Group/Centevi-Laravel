@@ -100,6 +100,8 @@ import Ventas from '../admin/ventas/Ventas.js';
 import VerServicios from '../admin/servicios/VerServicios.js';
 import CrearCobro from '../admin/cobros/CrearCobros.js';
 import TableCobros from '../admin/cobros/TableCobros.js';
+import TableWareHouses from '../admin/cotizaciones/wareHouses/TableWareHouses.js';
+
 
 
 const RoutesApp = () => {
@@ -292,6 +294,8 @@ const RoutesApp = () => {
           <Route path="/crear-cobro" element={<Sidebar component={<CrearCobro />} />} />
 
           <Route path="/table-cobro" element={<Sidebar component={<TableCobros />} />} />
+
+          <Route path="/table-bodegas" element={<Sidebar component={<TableWareHouses/>} />} />
 
         </Route>
 

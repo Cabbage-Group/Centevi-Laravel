@@ -40,7 +40,7 @@ const Sidebar = (props) => {
       if (!usuario) {
         navigate('/login');
         window.location.replace('/login');
-        window.location.reload(); 
+        window.location.reload();
       } else {
         navigate('/home');
       }
@@ -181,6 +181,49 @@ const Sidebar = (props) => {
                 </a>
               </li>
 
+              <li className="menu">
+                <a href="#cotizaciones" data-active="false" className="menu-toggle">
+                  <div className="base-menu">
+                    <div className="base-icons">
+                      <svg
+                        width={20}
+                        height={20}
+                        viewBox="0 0 60 60"
+                        fill={"#009688"}
+                        stroke={"#009688"}
+                        className={""}
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlnsXlink="http://www.w3.org/1999/xlink"
+                        xmlSpace="preserve"
+                      >
+                        <g id="SVGRepo_iconCarrier">
+                          <g>
+                            <g>
+                              <path d="M45.9,11.7v-0.1c-0.1-0.1-0.1-0.2-0.2-0.3l-11-11c-0.1-0.1-0.2-0.1-0.3-0.2h-0.1C34.2,0.1,34.1,0,34,0l0,0H1 C0.4,0,0,0.4,0,1v58c0,0.6,0.4,1,1,1h44c0.6,0,1-0.4,1-1V12l0,0C46,11.9,46,11.8,45.9,11.7z M42.6,11H35V3.4L42.6,11z M2,58V2h31 v10c0,0.6,0.4,1,1,1h10v45H2z" />
+                              <path d="M59,38V11c0-0.3-0.1-0.5-0.2-0.7l-2.9-7.6c-0.1-0.3-0.5-0.6-0.9-0.6s-0.8,0.2-0.9,0.6l-2.9,7.6C51.1,10.5,51,10.7,51,11 v27c-0.6,0-1,0.4-1,1v20c0,0.6,0.4,1,1,1h8c0.6,0,1-0.4,1-1V39C60,38.4,59.6,38,59,38z M54.9,5.8l1.6,4.2h-3.1L54.9,5.8z M53,12h4 v26h-1V22h-2v16h-1V12z M52,40h2v18h-2V40z M58,58h-2V40h2V58z" />
+                              <polygon points="8,13 10,13 10,10 13,10 13,8 10,8 10,5 8,5 8,8 5,8 5,10 8,10 " />
+                              <rect x="16" y="6" width="6" height="2" />
+                              <rect x="16" y="10" width="10" height="2" />
+                              <rect x="27" y="49" width="14" height="2" />
+                              <rect x="27" y="53" width="2" height="2" />
+                              <rect x="31" y="53" width="2" height="2" />
+                              <rect x="35" y="53" width="2" height="2" />
+                              <rect x="39" y="53" width="2" height="2" />
+                              <rect x="5" y="18" width="24" height="2" />
+                              <rect x="5" y="24" width="36" height="2" />
+                              <rect x="5" y="30" width="36" height="2" />
+                              <rect x="5" y="36" width="36" height="2" />
+                              <rect x="5" y="42" width="36" height="2" />
+                            </g>
+                          </g>
+                        </g>
+                      </svg>
+                    </div>
+                    <span>Cotizaciones</span>
+                  </div>
+                </a>
+              </li>
+
 
               <li className="menu">
                 <a href="#reportes" data-active="false" className="menu-toggle">
@@ -201,62 +244,7 @@ const Sidebar = (props) => {
                 </a>
               </li>
 
-              {
-                ValidarPermisos(
-                  "sidebar.cotizaciones",
-                  <li
-                    className="menu"
-                    onClick={() => {
-                      navigate("/table-cotizaciones")
-                    }}
-                  >
-                    <Link
-                      to="/usuarios"
-                      className="menu-toggle"
-                      style={{ width: '100%' }}
-                    >
-                      <div className="base-menu">
-                        <div className="base-icons">
-                          <svg
-                            width={20}
-                            height={20}
-                            viewBox="0 0 60 60"
-                            fill={"#009688"}
-                            stroke={"#009688"}
-                            className={""}
-                            xmlns="http://www.w3.org/2000/svg"
-                            xmlnsXlink="http://www.w3.org/1999/xlink"
-                            xmlSpace="preserve"
-                          >
-                            <g id="SVGRepo_iconCarrier">
-                              <g>
-                                <g>
-                                  <path d="M45.9,11.7v-0.1c-0.1-0.1-0.1-0.2-0.2-0.3l-11-11c-0.1-0.1-0.2-0.1-0.3-0.2h-0.1C34.2,0.1,34.1,0,34,0l0,0H1 C0.4,0,0,0.4,0,1v58c0,0.6,0.4,1,1,1h44c0.6,0,1-0.4,1-1V12l0,0C46,11.9,46,11.8,45.9,11.7z M42.6,11H35V3.4L42.6,11z M2,58V2h31 v10c0,0.6,0.4,1,1,1h10v45H2z" />
-                                  <path d="M59,38V11c0-0.3-0.1-0.5-0.2-0.7l-2.9-7.6c-0.1-0.3-0.5-0.6-0.9-0.6s-0.8,0.2-0.9,0.6l-2.9,7.6C51.1,10.5,51,10.7,51,11 v27c-0.6,0-1,0.4-1,1v20c0,0.6,0.4,1,1,1h8c0.6,0,1-0.4,1-1V39C60,38.4,59.6,38,59,38z M54.9,5.8l1.6,4.2h-3.1L54.9,5.8z M53,12h4 v26h-1V22h-2v16h-1V12z M52,40h2v18h-2V40z M58,58h-2V40h2V58z" />
-                                  <polygon points="8,13 10,13 10,10 13,10 13,8 10,8 10,5 8,5 8,8 5,8 5,10 8,10 " />
-                                  <rect x="16" y="6" width="6" height="2" />
-                                  <rect x="16" y="10" width="10" height="2" />
-                                  <rect x="27" y="49" width="14" height="2" />
-                                  <rect x="27" y="53" width="2" height="2" />
-                                  <rect x="31" y="53" width="2" height="2" />
-                                  <rect x="35" y="53" width="2" height="2" />
-                                  <rect x="39" y="53" width="2" height="2" />
-                                  <rect x="5" y="18" width="24" height="2" />
-                                  <rect x="5" y="24" width="36" height="2" />
-                                  <rect x="5" y="30" width="36" height="2" />
-                                  <rect x="5" y="36" width="36" height="2" />
-                                  <rect x="5" y="42" width="36" height="2" />
-                                </g>
-                              </g>
-                            </g>
-                          </svg>
-                        </div>
-                        <span>Cotizaciones</span>
-                      </div>
-                    </Link>
-                  </li>
-                )
-              }
+
 
 
               {/* {
@@ -910,6 +898,49 @@ const Sidebar = (props) => {
               </ul>
             </div>
 
+            <div className="submenu" id="cotizaciones">
+              <ul className="submenu-list" data-parent-element="#uiKit">
+                {
+                  ValidarPermisos(
+                    "sidebar.cotizaciones",
+                    <li>
+                      <Link
+                        to="/table-cotizaciones"
+                      >
+                        <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                          height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className="feather feather-git-commit">
+                          <circle cx="12" cy="12" r="4" />
+                          <line x1="1.05" y1="12" x2="7" y2="12" />
+                          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                        </svg></span> Ver Cotizaciones
+                      </Link>
+                    </li>
+                  )
+                }
+                {
+                  ValidarPermisos(
+                    "sidebar.cotizaciones",
+                    <li>
+                      <Link
+                        to="/table-bodegas"
+                      >
+                        <span className="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                          height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          className="feather feather-git-commit">
+                          <circle cx="12" cy="12" r="4" />
+                          <line x1="1.05" y1="12" x2="7" y2="12" />
+                          <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                        </svg></span> Ver Bodegas
+                      </Link>
+                    </li>
+                  )
+                }
+              </ul>
+            </div>
+
             <div className="submenu" id="idusuarios">
               <ul className="submenu-list" data-parent-element="#uiKit">
                 <li>
@@ -969,7 +1000,6 @@ const Sidebar = (props) => {
 
               </ul>
             </div>
-
 
             <div className="submenu" id="ver-kpis">
               <ul className="submenu-list" data-parent-element="#uiKit">

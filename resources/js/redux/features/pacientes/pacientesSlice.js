@@ -66,6 +66,15 @@ export const fetchMentionUsers = createAsyncThunk(
   }
 );
 
+export const fetchPacientesTiempoSinConsultas = createAsyncThunk(
+  'pacientes/fetchPacientesTiempoSinConsultas',
+  async (id) => {
+    const response = await axios.get(`${API}/pacientes/${id}/tiempo-sin-consulta`);
+    return response.data;
+  }
+);
+
+
 const pacientesSlice = createSlice({
   name: 'pacientes',
   initialState: {
@@ -76,6 +85,7 @@ const pacientesSlice = createSlice({
     pacientes_menciones: [],
     pacientes_options_cotizacion: [],
     users: [],
+    pacientes_consultas_tiempo: '',
     meta: {},
     status: 'idle',
     statusInterfuerza: 'idle',
@@ -187,6 +197,19 @@ const pacientesSlice = createSlice({
         state.users = action.payload;
       })
       .addCase(fetchMentionUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchPacientesTiempoSinConsultas.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPacientesTiempoSinConsultas.fulfilled, (state, action) => {
+        console.log('Tiempo sin consultas:', action.payload);
+        state.loading = false;
+        state.pacientes_consultas_tiempo = action.payload.tiempo;
+      })
+      .addCase(fetchPacientesTiempoSinConsultas.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\pacientes;
 
 use App\Http\Controllers\Controller;
+use App\Models\BajaVision;
 use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\Pacientes;
@@ -19,6 +20,7 @@ use App\Services\InterfuerzaClientCreator;
 use App\Services\InterfuerzaCreateService;
 use App\Services\InterfuerzaService;
 use Carbon\Carbon;
+use DateTime;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -2690,5 +2692,67 @@ class PacientesApiController extends Controller
         'display' => "{$p->nombres} {$p->apellidos}"
       ])
     ], 200);
+  }
+
+  public function diasOMesesDesdeUltimaConsulta($id_paciente)
+  {
+    Log::info("🔍 Buscando última consulta del paciente ID: {$id_paciente}");
+
+    $modelos = [
+      BajaVision::class,
+      ConsultaGenerica::class,
+      OptometriaNeonatos::class,
+      OptometriaPediatrica::class,
+      RefraccionGeneral::class,
+      OrtopticaAdultos::class
+    ];
+
+    $fechas = [];
+
+    foreach ($modelos as $modelo) {
+      $consulta = $modelo::where('paciente', $id_paciente)
+        ->orderBy('fecha_creacion', 'desc')
+        ->first();
+
+      if ($consulta) {
+        Log::info("✅ Última consulta encontrada en {$modelo}", [
+          'fecha_creacion' => $consulta->fecha_creacion
+        ]);
+        $fechas[] = new DateTime($consulta->fecha_creacion);
+      } else {
+        Log::info("❌ No hay consultas en {$modelo}");
+      }
+    }
+
+    if (empty($fechas)) {
+      Log::warning("⚠️ Paciente {$id_paciente} no tiene consultas registradas");
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'El paciente no tiene consultas registradas'
+      ], 404);
+    }
+
+    usort($fechas, fn($a, $b) => $b <=> $a);
+    $ultimaFecha = $fechas[0];
+
+    $fechaActual = new DateTime();
+    $diff = $ultimaFecha->diff($fechaActual);
+
+    if ($diff->y === 0 && $diff->m === 0 && $diff->d <= 31) {
+      Log::info("➡️ Resultado final: {$diff->d} días");
+      return response()->json([
+        'respuesta' => true,
+        'tiempo' => $diff->d . ' días'
+      ]);
+    }
+
+    $totalMeses = ($diff->y * 12) + $diff->m;
+
+    Log::info("➡️ Resultado final: {$totalMeses} meses {$diff->d} días");
+
+    return response()->json([
+      'respuesta' => true,
+      'tiempo' => $totalMeses . ' meses ' . $diff->d . ' días'
+    ]);
   }
 }

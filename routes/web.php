@@ -53,6 +53,7 @@ use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
+use App\Http\Controllers\API\warehouse\WarehouseController;
 use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -82,6 +83,8 @@ Route::put('/api/pacientes/{id}', [PacientesApiController::class, 'editarpacient
 Route::get('/api/pacientes-menores', [PacientesApiController::class, 'pacientesMenores']);
 
 Route::get('/api/pacientes-adultos', [PacientesApiController::class, 'pacientesAdultos']);
+
+Route::get('/api/pacientes/{id}/tiempo-sin-consulta', [PacientesApiController::class, 'diasOMesesDesdeUltimaConsulta']);
 // php artisan optimize
 //
 Route::get('/api/tipos-usuarios', [TiposUsuariosController::class, 'index']);
@@ -315,6 +318,8 @@ Route::get('/api/reporte-ordenes-2', [OrdenesApiController::class, 'reportesOrde
 
 Route::get('/api/ordenes/{id}', [OrdenesApiController::class, 'ordenesDelPaciente']);
 
+Route::get('/api/ordenes/{id}/tiempo-sin-orden', [OrdenesApiController::class, 'diasOMesesDesdeUltimaOrden']);
+
 Route::get('/api/paciente/orden/{id_paciente}/{nro_orden}', [OrdenesApiController::class, 'obtenerOrdenPaciente']);
 
 Route::post('/api/whatsapp-link', [WhatsappApiController::class, 'getWhatsAppLink']);
@@ -542,8 +547,13 @@ Route::get('/api/ventas', [VentasApiController::class, 'reportes']);
 
 Route::post('/api/ventas/download-data', [VentasApiController::class, 'export']);
 
+Route::get('/api/warehouses/index', [WarehouseController::class, 'index']);
 
-Route::get('/api/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterfuerza']);
+
+Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterfuerza']);
+
+Route::patch('/api/warehouses/{id}/send-discount', [WarehouseController::class, 'updateSendDiscount']);
 
 Route::get('/{any}', function () {
   return view('app');

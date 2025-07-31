@@ -262,6 +262,9 @@ class VerifyCsrfToken extends Middleware
 
 
     'http://127.0.0.1:8000/api/verify/quotes',
+
+    'http://127.0.0.1:8000/api/warehouses/sync',
+
     'http://127.0.0.1:8000/api/obtener-diagnosticos',
 
   ];

@@ -6,13 +6,14 @@
 }
 
 /* Aplicar a las filas directamente */
-.compact-table .ant-table-tbody > tr {
+.compact-table .ant-table-tbody>tr {
   min-height: 0 !important;
-  height: 28px !important; /* Puedes ajustar según lo que necesites */
+  height: 28px !important;
+  /* Puedes ajustar según lo que necesites */
 }
 
 /* Encabezados también */
-.compact-table .ant-table-thead > tr > th {
+.compact-table .ant-table-thead>tr>th {
   padding-top: 4px !important;
   padding-bottom: 4px !important;
 }
@@ -30,4 +31,13 @@
 .compact-table span {
   line-height: 1.2 !important;
   font-size: 12px !important;
+}
+
+.compact-table .discount-btn {
+  height: 26px !important;
+  font-size: 11px !important;
+  padding: 0 6px !important;
+  line-height: 1.1 !important;
+  min-width: 90px;
+  /* suficiente para abreviaciones */
 }

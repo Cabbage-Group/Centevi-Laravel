@@ -24,10 +24,11 @@ import { fetchTerapiasOrtopticaAdultos, createTerapiasOrtopticaAdultos, deleteTe
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
-import { deleteOrdenes, fetchOrdenesDelPaciente, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fetchOrdenesDelPaciente, fetchOrdenTiempoSinOrden, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
 import { Button, Modal, Skeleton, Tooltip } from 'antd';
 import PaginationPacientes from './PaginationPacientes';
 import PaginationOrdenesPacientes from './PaginationOrdenesPacientes';
+import { fetchPacientes, fetchPacientesTiempoSinConsultas } from '../../redux/features/pacientes/pacientesSlice';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -69,7 +70,8 @@ const HistoriaPaciente = () => {
   const { ortoptica } = useSelector((state) => state.terapiasOrtoptica);
   const [terapiaModificada, setTerapiaModificada] = useState(false);
   const [age, setAge] = useState(null);
-  const { pacienteOrdenes, meta, totalPages, statusPacienteOrdenes } = useSelector((state) => state.ordenes);
+  const { pacienteOrdenes, meta, totalPages, statusPacienteOrdenes, ordenes_tiempo } = useSelector((state) => state.ordenes);
+  const { pacientes_consultas_tiempo } = useSelector((state) => state.pacientes);
   const [showOrden, setShowOrden] = useState(false)
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
@@ -104,6 +106,8 @@ const HistoriaPaciente = () => {
       return;
     }
     dispatch(fetchVerPaciente(id));
+    dispatch(fetchOrdenTiempoSinOrden(id));
+    dispatch(fetchPacientesTiempoSinConsultas(id));
     dispatch(fetchMostrarOrtoptica({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
     dispatch(fetchMostrarBajaVision({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
     dispatch(fetchMostrarGeneral({ item: 'id_terapia', item2: 'paciente', valor: '0', valor2: id }));
@@ -117,9 +121,9 @@ const HistoriaPaciente = () => {
     dispatch(fetchVerDocumentosSlice(id));
     setTerapiaModificada(false);
 
-
-
   }, [id, terapiaModificada]);
+
+  console.log('ordenes_tiempo:', ordenes_tiempo);
 
   useEffect(() => {
     if (id && id !== undefined) {
@@ -607,12 +611,57 @@ const HistoriaPaciente = () => {
     <div
       className="admin-data-content"
       style={{
-        marginTop: '50px',
+        marginTop: '20px',
       }}
     >
       <div className="row layout-top-spacing">
         <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-          <div className="widget-content-area br-4">
+          <div
+            className="col-xl-12 col-lg-12 col-md-12 col-12 d-flex justify-content-start align-items-center"
+            style={{ gap: '1rem', marginBottom: '0.5rem' }} 
+          >
+            <div
+              className="card"
+              style={{
+                width: '15rem',
+                height: '3rem',
+                padding: '0.5rem',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <div
+                className="card-body"
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem' }}
+              >
+                <span style={{ fontSize: '1rem', fontWeight: 'bold', textAlign: 'center' }}>
+                  {ordenes_tiempo || '0'} {'sin ordenes creadas'}
+                </span>
+              </div>
+            </div>
+            <div
+              className="card"
+              style={{
+                width: '15rem',
+                height: '3rem',
+                padding: '0.5rem',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <div
+                className="card-body"
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem' }}
+              >
+                <span style={{ fontSize: '1rem', fontWeight: 'bold', textAlign: 'center' }}>
+                  {pacientes_consultas_tiempo || '0'} {'sin consultas creadas'}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="widget-content-area br-4" style={{ marginTop: '0' }}>
             <div className="widget-one">
               <div className="row">
                 <div

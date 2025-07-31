@@ -82,3 +82,23 @@ export function funPermisosObtenidosBoolean(permisos, permiso) {
     return false
   }
 }
+
+export function getMaxDiscountFromPermisos(permisos) {
+  if (localStorage.getItem("tpuprivilegio") === "todo") {
+    return 100;
+  }
+
+  let maxDiscount = 0;
+
+  permisos.forEach((pem) => {
+    if (pem.slug.startsWith("cotizaciones.descuentos.productos.")) {
+      const parts = pem.slug.split(".");
+      const value = parseFloat(parts[parts.length - 1]);
+      if (!isNaN(value) && value > maxDiscount) {
+        maxDiscount = value;
+      }
+    }
+  });
+
+  return maxDiscount;
+}

@@ -28,6 +28,8 @@ import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { fetchProductsInterfuerza } from '../../redux/features/productsInterfuerza/ProductsInterfuerza';
+import { fetchWareHouses } from '../../redux/features/warehouses/warehousesSlice';
+import { getMaxDiscountFromPermisos } from '../../utils/ValidarPermisos';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -37,10 +39,12 @@ const CrearCotizacion = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { permisos } = useSelector(({ auth }) => auth);
   const [form] = Form.useForm();
   const { interfuerzaQuotes } = useSelector((state) => state.interfuerzaQuotes);
   const { interfuerzaWareHouses } = useSelector((state) => state.interfuerzaWareHouses);
   const { exchangeRate, exchangeRateStatus } = useSelector((state) => state.quotes);
+  const { warehouses } = useSelector((state) => state.warehousesSlice);
   const location = useLocation();
   const [noDiscount, setNoDiscount] = useState(false);
   const record = location.state?.record;
@@ -69,8 +73,11 @@ const CrearCotizacion = () => {
   const [lines, setLines] = useState([]);
   const [searchValue, setSearchValue] = useState('');
   const [searchValueProducts, setSearchValueProducts] = useState('');
+  const [selectedBodega, setSelectedBodega] = useState(null);
+  const maxDiscount = getMaxDiscountFromPermisos(permisos);
 
 
+  console.log('permisos', permisos);
   useEffect(() => {
     if (exchangeRate) {
       form.setFieldsValue({
@@ -121,12 +128,16 @@ const CrearCotizacion = () => {
     dispatch(fetchExchangeRate());
   }, []);
 
-  useEffect(() => {
-    dispatch(fetchInterfuerzaProducts({}))
-  }, [dispatch])
+  // useEffect(() => {
+  //   dispatch(fetchInterfuerzaProducts({}))
+  // }, [dispatch])
+
+  // useEffect(() => {
+  //   dispatch(fetchInterfuerzaWareHouses())
+  // }, [dispatch])
 
   useEffect(() => {
-    dispatch(fetchInterfuerzaWareHouses())
+    dispatch(fetchWareHouses({}))
   }, [dispatch])
 
   useEffect(() => {
@@ -136,6 +147,15 @@ const CrearCotizacion = () => {
   // useEffect(() => {
   //   dispatch(fetchInterfuerzaCustomers({ page: 1 }));
   // }, [dispatch]);
+
+  const handleBodegaChange = (value) => {
+    setSelectedBodega(value);
+  };
+
+  const currentBodega = warehouses.find(
+    (w) => w.nombre === selectedBodega
+  );
+
 
   const handleSearch = (inputValue) => {
     setSearchValue(inputValue);
@@ -153,13 +173,13 @@ const CrearCotizacion = () => {
       Date: values.Date?.format('YYYY-MM-DD'),
       Expira: values.Expira?.format('YYYY-MM-DD'),
       Reservar_Productos: values.Reservar_Productos ? 'YES' : 'NO',
-      Lines: noDiscount
-        ? lines.map((line) => ({
+      Lines: currentBodega?.send_discount
+        ? lines
+        : lines.map((line) => ({
           ...line,
           Discount: 0,
           DiscountFactor: 0,
-        }))
-        : lines,
+        })),
     };
     let responseQuote = null;
     try {
@@ -520,14 +540,13 @@ const CrearCotizacion = () => {
       render: (text, record, index) => (
         <InputNumber
           style={{ width: '100%' }}
-          value={parseFloat(text) * 100}
+          value={parseFloat((parseFloat(text) * 100).toFixed(2))}
           onChange={(value) => updateLine(index, 'DiscountFactor', value / 100)}
           min={0}
-          max={100}
+          max={maxDiscount}
           precision={2}
-          formatter={(value) => `${value}%`}
+          formatter={(value) => `${Number(value).toFixed(2)}%`}
           parser={(value) => value.replace('%', '')}
-          title={parseFloat(text)}
         />
       )
     },
@@ -701,10 +720,11 @@ const CrearCotizacion = () => {
                 placeholder="Seleccione una Bodega"
                 showSearch
                 optionFilterProp='children'
+                onChange={handleBodegaChange}
               >
-                {interfuerzaWareHouses?.map((wareHouse) => (
-                  <Option key={wareHouse.Nombre} value={wareHouse.Nombre}>
-                    {wareHouse.Nombre}
+                {warehouses?.map((wareHouse) => (
+                  <Option key={wareHouse.nombre} value={wareHouse.nombre}>
+                    {wareHouse.nombre}
                   </Option>
                 ))}
 
@@ -879,16 +899,21 @@ const CrearCotizacion = () => {
             </Row>
 
             <Row gutter={16}>
-              <Col xxl={12} xl={12} md={12}></Col>
+              <Col xxl={12} xl={12} md={12}>
+                Permite Descuento
+              </Col>
               <Col xxl={12} xl={12} md={12}>
 
-              {/* {
+                {/* {
                 true == false && ( */}
-                  <Form.Item>
-                    <Switch
-                      style={{ float: 'right' }}
-                      checked={noDiscount} onChange={setNoDiscount} />
-                  </Form.Item>
+                <Form.Item>
+
+                  <Switch
+                    style={{ float: 'right' }}
+                    checked={currentBodega?.send_discount || false}
+                    disabled
+                  />
+                </Form.Item>
                 {/* )
               } */}
               </Col>
