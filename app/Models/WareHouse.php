@@ -9,7 +9,7 @@ class Warehouse extends Model
 {
     use HasFactory;
 
-    protected $table = 'warehouses'; 
+    protected $table = 'warehouses';
 
     protected $fillable = [
         'nombre',
@@ -17,5 +17,9 @@ class Warehouse extends Model
         'tienda',
         'type',
         'venta_post',
+    ];
+
+    protected $casts = [
+        'send_discount' => 'integer'
     ];
 }

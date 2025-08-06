@@ -457,7 +457,7 @@ Route::get('/api/ordenes/pdf/small/{id}', [OrdenesApiController::class, 'verOrde
 Route::put('/api/ordenes/cancelada/{id}', [OrdenesApiController::class, 'updateOrdenCancelada']);
 
 Route::get('/preview-email', function () {
-  return View::make('emails.verify', ['code' => '123456']);
+    return View::make('emails.verify', ['code' => '123456']);
 });
 
 Route::post('/api/send-verification-email', [EmailController::class, 'sendVerificationEmail']);
@@ -554,7 +554,9 @@ Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterf
 Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterfuerza']);
 
 Route::patch('/api/warehouses/{id}/send-discount', [WarehouseController::class, 'updateSendDiscount']);
+Route::get('/api/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+
 
 Route::get('/{any}', function () {
-  return view('app');
+    return view('app');
 })->where('any', '.*');
