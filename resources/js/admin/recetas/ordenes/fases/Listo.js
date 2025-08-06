@@ -236,7 +236,7 @@ const Listo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
           </div>
           <Divider />
           <label htmlFor="inputAddress">
-            Fecha de la fase confección
+            Fecha de la fase confeccion
           </label>
           <div>
             {fechaFaseConfeccion ? moment(fechaFaseConfeccion).format('YYYY-MM-DD HH:mm:ss') : ""}

@@ -313,7 +313,7 @@ const OptometriaNeonatos = () => {
                               <ErrorMessage name="edad" component="div" className="text-danger" />
                             </div>
                             <div className="form-group col-md-3">
-                              <label>Fecha de atención</label>
+                              <label>Fecha de atencion</label>
                               <Field type="date" name="fecha_atencion" className="form-control" />
                               <ErrorMessage
                                 name="fecha_atencion"

@@ -220,7 +220,7 @@ const TerapiasPediatrica = () => {
                               <th>Sesión</th>
                               <th>Pagado</th>
                               <th>Terapeuta</th>
-                              <th>Fecha de Atención</th>
+                              <th>Fecha de Atencion</th>
                               <th className="no-content">Acción</th>
                             </tr>
                           </thead>

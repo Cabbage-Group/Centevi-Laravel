@@ -333,7 +333,7 @@ const PacienteAtendidoDia = ({
                                 onClick={() => handleSort('FECHA_ATENCION')}
 
                               >
-                                Fecha de atención
+                                Fecha de atencion
                               </th>
                               <th
                                 aria-controls="zero-config"

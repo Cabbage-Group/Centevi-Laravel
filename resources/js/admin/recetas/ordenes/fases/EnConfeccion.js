@@ -220,7 +220,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
           }}
         >
           <label htmlFor="inputAddress">
-            Fecha de la fase confección
+            Fecha de la fase confeccion
           </label>
           <div>
             <Tooltip title="Actualizar Fecha">
