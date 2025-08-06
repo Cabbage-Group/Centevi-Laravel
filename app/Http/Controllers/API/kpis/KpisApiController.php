@@ -322,7 +322,7 @@ class KpisApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
+        DB::raw('CASE
               WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
@@ -331,9 +331,9 @@ class KpisApiController extends Controller
           END as status_primera_fase')
       )
       ->whereRaw('fo.id = (
-          SELECT MIN(id) 
-          FROM fases_ordenes 
-          WHERE ordenes_id = fo.ordenes_id 
+          SELECT MIN(id)
+          FROM fases_ordenes
+          WHERE ordenes_id = fo.ordenes_id
           AND tipo_fase_orden_id = 1
       )');
 
@@ -344,21 +344,21 @@ class KpisApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-          CASE 
-              WHEN fo.status = 1 THEN 
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+          CASE
+              WHEN fo.status = 1 THEN
+                  CASE
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                      WHEN fo.tipo_fase_orden_id = 4 THEN
                           tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+                      ELSE
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                   END
-              ELSE 
+              ELSE
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
         ),
@@ -367,8 +367,8 @@ class KpisApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-      SELECT MAX(id) 
-      FROM fases_ordenes 
+      SELECT MAX(id)
+      FROM fases_ordenes
       WHERE ordenes_id = fo.ordenes_id
   )');
 
@@ -441,7 +441,7 @@ class KpisApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
+        DB::raw('CASE
               WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
@@ -450,9 +450,9 @@ class KpisApiController extends Controller
           END as status_primera_fase')
       )
       ->whereRaw('fo.id = (
-          SELECT MIN(id) 
-          FROM fases_ordenes 
-          WHERE ordenes_id = fo.ordenes_id 
+          SELECT MIN(id)
+          FROM fases_ordenes
+          WHERE ordenes_id = fo.ordenes_id
           AND tipo_fase_orden_id = 1
       )');
 
@@ -463,21 +463,21 @@ class KpisApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-          CASE 
-              WHEN fo.status = 1 THEN 
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+          CASE
+              WHEN fo.status = 1 THEN
+                  CASE
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                      WHEN fo.tipo_fase_orden_id = 4 THEN
                           tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+                      ELSE
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                   END
-              ELSE 
+              ELSE
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
         ),
@@ -486,8 +486,8 @@ class KpisApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-      SELECT MAX(id) 
-      FROM fases_ordenes 
+      SELECT MAX(id)
+      FROM fases_ordenes
       WHERE ordenes_id = fo.ordenes_id
   )');
 
@@ -591,7 +591,7 @@ class KpisApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
+        DB::raw('CASE
               WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
@@ -600,9 +600,9 @@ class KpisApiController extends Controller
           END as status_primera_fase')
       )
       ->whereRaw('fo.id = (
-          SELECT MIN(id) 
-          FROM fases_ordenes 
-          WHERE ordenes_id = fo.ordenes_id 
+          SELECT MIN(id)
+          FROM fases_ordenes
+          WHERE ordenes_id = fo.ordenes_id
           AND tipo_fase_orden_id = 1
       )');
 
@@ -613,21 +613,21 @@ class KpisApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-          CASE 
-              WHEN fo.status = 1 THEN 
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+          CASE
+              WHEN fo.status = 1 THEN
+                  CASE
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                      WHEN fo.tipo_fase_orden_id = 4 THEN
                           tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+                      ELSE
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                   END
-              ELSE 
+              ELSE
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
         ),
@@ -636,8 +636,8 @@ class KpisApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-      SELECT MAX(id) 
-      FROM fases_ordenes 
+      SELECT MAX(id)
+      FROM fases_ordenes
       WHERE ordenes_id = fo.ordenes_id
   )');
 
@@ -711,7 +711,7 @@ class KpisApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
+        DB::raw('CASE
               WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
@@ -720,9 +720,9 @@ class KpisApiController extends Controller
           END as status_primera_fase')
       )
       ->whereRaw('fo.id = (
-          SELECT MIN(id) 
-          FROM fases_ordenes 
-          WHERE ordenes_id = fo.ordenes_id 
+          SELECT MIN(id)
+          FROM fases_ordenes
+          WHERE ordenes_id = fo.ordenes_id
           AND tipo_fase_orden_id = 1
       )');
 
@@ -733,21 +733,21 @@ class KpisApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-          CASE 
-              WHEN fo.status = 1 THEN 
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+          CASE
+              WHEN fo.status = 1 THEN
+                  CASE
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                      WHEN fo.tipo_fase_orden_id = 4 THEN
                           tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+                      ELSE
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                   END
-              ELSE 
+              ELSE
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
         ),
@@ -756,8 +756,8 @@ class KpisApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-      SELECT MAX(id) 
-      FROM fases_ordenes 
+      SELECT MAX(id)
+      FROM fases_ordenes
       WHERE ordenes_id = fo.ordenes_id
   )');
 
@@ -1100,8 +1100,8 @@ class KpisApiController extends Controller
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
       ->select('fo.ordenes_id', 'fo.fecha_fase as fecha_primera_fase')
       ->whereRaw('fo.id = (
-            SELECT MIN(id) 
-            FROM fases_ordenes 
+            SELECT MIN(id)
+            FROM fases_ordenes
             WHERE ordenes_id = fo.ordenes_id
         )');
 
@@ -1112,29 +1112,29 @@ class KpisApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-                CASE 
-                    WHEN fo.status = 1 THEN 
-                        CASE 
-                            WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                                (SELECT tipo_fase_orden 
-                                FROM tipos_fases_ordenes 
+                CASE
+                    WHEN fo.status = 1 THEN
+                        CASE
+                            WHEN fo.tipo_fase_orden_id IS NULL THEN
+                                (SELECT tipo_fase_orden
+                                FROM tipos_fases_ordenes
                                 ORDER BY id ASC LIMIT 1)
-                            WHEN fo.tipo_fase_orden_id = 4 THEN 
-                                tfo.tipo_fase_orden  
-                            ELSE 
-                                (SELECT tipo_fase_orden 
-                                FROM tipos_fases_ordenes 
+                            WHEN fo.tipo_fase_orden_id = 4 THEN
+                                tfo.tipo_fase_orden
+                            ELSE
+                                (SELECT tipo_fase_orden
+                                FROM tipos_fases_ordenes
                                 WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                         END
-                    ELSE 
+                    ELSE
                         tfo.tipo_fase_orden
                 END as fase_actual'
         ),
         DB::raw(
           '
-                CASE 
-                    WHEN fo.status = 1 THEN 
-                        CASE 
+                CASE
+                    WHEN fo.status = 1 THEN
+                        CASE
                             WHEN fo.tipo_fase_orden_id IS NULL THEN 1
                             WHEN fo.tipo_fase_orden_id = 4 THEN 4
                             ELSE fo.tipo_fase_orden_id + 1
@@ -1147,8 +1147,8 @@ class KpisApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-            SELECT MAX(id) 
-            FROM fases_ordenes 
+            SELECT MAX(id)
+            FROM fases_ordenes
             WHERE ordenes_id = fo.ordenes_id
         )');
 
@@ -1694,6 +1694,16 @@ class KpisApiController extends Controller
       ->whereIn('sucursal', $sucursalesIds)
       ->groupBy('sucursal');
 
+
+    $optometriaPediatricaQuery = $applyDateFilter(OptometriaPediatrica::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+    $ortopticaAdultosQuery = $applyDateFilter(OrtopticaAdultos::selectRaw('sucursal, COUNT(*) as total'))
+      ->whereIn('sucursal', $sucursalesIds)
+      ->groupBy('sucursal');
+
+
     $optometriaQuery = $applyDateFilter(OptometriaNeonatos::selectRaw('sucursal, COUNT(*) as total'))
       ->whereIn('sucursal', $sucursalesIds)
       ->groupBy('sucursal');
@@ -1719,6 +1729,8 @@ class KpisApiController extends Controller
     $consultasUnion = DB::table(DB::raw("({$consultasQuery->toSql()}) as consultas"))
       ->mergeBindings($consultasQuery->getQuery())
       ->unionAll(DB::table(DB::raw("({$optometriaQuery->toSql()}) as optometria"))->mergeBindings($optometriaQuery->getQuery()))
+      ->unionAll(DB::table(DB::raw("({$optometriaPediatricaQuery->toSql()}) as optometriaPediatrica"))->mergeBindings($optometriaPediatricaQuery->getQuery()))
+      ->unionAll(DB::table(DB::raw("({$ortopticaAdultosQuery->toSql()}) as ortopticaVisionBinocul"))->mergeBindings($ortopticaAdultosQuery->getQuery()))
       ->unionAll(DB::table(DB::raw("({$refraccionGeneralQuery->toSql()}) as refraccion"))->mergeBindings($refraccionGeneralQuery->getQuery()));
 
     // Unir solo terapias
