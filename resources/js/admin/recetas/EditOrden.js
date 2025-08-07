@@ -328,11 +328,11 @@ const EditOrden = ({ fecha_solicitud, pacientesData, pacienteOrden }) => {
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    dispatch(fetchCristales())
-    dispatch(fetchMateriales())
-    dispatch(fetchTratamientos())
-    dispatch(fetchTiposAros())
-    dispatch(fetchMarcas())
+    dispatch(fetchCristales({}))
+    dispatch(fetchMateriales({}))
+    dispatch(fetchTratamientos({}))
+    dispatch(fetchTiposAros({}))
+    dispatch(fetchMarcas({}))
   }, []);
 
   const handleSubmit = async (values) => {

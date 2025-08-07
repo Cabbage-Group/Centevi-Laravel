@@ -165,7 +165,7 @@ const OptometriaGeneral = () => {
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-    dispatch(fetchServicios())
+    dispatch(fetchServicios({}))
     dispatch(fectchDiagnosticos());
   }, [dispatch]);
 

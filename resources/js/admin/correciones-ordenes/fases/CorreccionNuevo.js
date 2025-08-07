@@ -34,7 +34,7 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchProveedorMaterial())
+    dispatch(fetchProveedorMaterial({}))
   }, [])
 
 

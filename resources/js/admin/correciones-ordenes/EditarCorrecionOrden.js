@@ -62,11 +62,11 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   }, [serviciosRealizados]);
 
   useEffect(() => {
-    dispatch(fetchMarcas())
-    dispatch(fetchTratamientos())
-    dispatch(fetchCristales())
-    dispatch(fetchMateriales())
-    dispatch(fetchTiposAros())
+    dispatch(fetchMarcas({}))
+    dispatch(fetchTratamientos({}))
+    dispatch(fetchCristales({}))
+    dispatch(fetchMateriales({}))
+    dispatch(fetchTiposAros({}))
   }, [])
 
   const [formValues, setFormValues] = useState({

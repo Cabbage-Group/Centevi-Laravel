@@ -68,7 +68,7 @@ const ProximasCitas = () => {
 
     };
     dispatch(fetchProximasCitas(fetchParams));
-    dispatch(fetchServicios());
+    dispatch(fetchServicios({}));
   }, [dispatch,
     localSearch,
     currentPage,

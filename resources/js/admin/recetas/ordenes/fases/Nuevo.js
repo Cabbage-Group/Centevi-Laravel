@@ -37,7 +37,7 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchProveedorMaterial())
+    dispatch(fetchProveedorMaterial({}))
   }, [])
 
   useEffect(() => {

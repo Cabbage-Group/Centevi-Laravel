@@ -1278,7 +1278,7 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   useEffect(() => {
-    dispatch(fetchServicios());
+    dispatch(fetchServicios({}));
   }, []);
 
   const handleShowMore = (hiddenEvents, event) => {

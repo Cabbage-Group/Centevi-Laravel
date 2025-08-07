@@ -208,11 +208,11 @@ const CreateOrden = () => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchUsuarios({}))
-    dispatch(fetchCristales())
-    dispatch(fetchMateriales())
-    dispatch(fetchTratamientos())
-    dispatch(fetchTiposAros())
-    dispatch(fetchMarcas())
+    dispatch(fetchCristales({}))
+    dispatch(fetchMateriales({}))
+    dispatch(fetchTratamientos({}))
+    dispatch(fetchTiposAros({}))
+    dispatch(fetchMarcas({}))
   }, []);
 
   const handleSubmit = async (values) => {
