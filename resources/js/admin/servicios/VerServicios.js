@@ -7,18 +7,30 @@ import Swal from "sweetalert2";
 
 const VerServicios = () => {
   const dispatch = useDispatch();
-  const servicios = useSelector((state) => state.servicios.servicios);
+  const { servicios, status_servicios } = useSelector((state) => state.servicios);
   const [selectedTable, setSelectedTable] = useState("Servicios");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const [form] = Form.useForm();
   const dataSource = {
     Servicios: servicios || [],
   };
-  console.log("Servicios:", servicios);
+
   useEffect(() => {
-    dispatch(fetchServicios());
-  }, []);
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText]);
+
+  useEffect(() => {
+    dispatch(fetchServicios({ search: debouncedSearchText }));
+  }, [debouncedSearchText,dispatch]);
 
   const showModal = (record = null) => {
     setEditingItem(record);
@@ -127,19 +139,35 @@ const VerServicios = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Segmented
-        options={["Servicios"]}
-        value={selectedTable}
-        onChange={setSelectedTable}
-        style={{ marginBottom: 20, marginRight: 20 }}
-      />
-      <Button
-        className="btn btn-success"
-        onClick={() => showModal()}
-        style={{ marginBottom: 16, lineHeight: "1", padding: "8px 16px" }}
-      >
-        Crear {selectedTable}
-      </Button>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Segmented
+            options={["Servicios"]}
+            value={selectedTable}
+            onChange={setSelectedTable}
+            style={{ marginRight: 5 }}
+          />
+          <Input
+            placeholder={`Buscar en ${selectedTable}`}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            allowClear
+            style={{ marginBottom: 16, width: 300 }}
+          />
+        </div>
+
+        <Button
+          className="btn btn-success"
+          onClick={() => showModal()}
+          style={{
+            marginLeft: "auto",
+            lineHeight: "1",
+            padding: "8px 16px",
+          }}
+        >
+          Crear {selectedTable}
+        </Button>
+      </div>
 
       <Table
         columns={columns}
@@ -147,6 +175,7 @@ const VerServicios = () => {
         rowKey="id"
         className="dataTables_wrapper container-fluid dt-bootstrap4"
         id="zero-config_wrapper"
+        loading={status_servicios}
         pagination={{
           showSizeChanger: false,
           pageSize: 10,

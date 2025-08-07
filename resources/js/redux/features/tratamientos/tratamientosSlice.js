@@ -4,9 +4,13 @@ import API from '../../../config/config.js';
 
 export const fetchTratamientos = createAsyncThunk(
   'tratamientos/fetchTratamientos',
-  async () => {
+  async ({ search }) => {
     try {
-      const response = await axios.get(`${API}/tratamientos`);
+      const response = await axios.get(`${API}/tratamientos`, {
+        params: {
+          search: search || ''
+        }
+      });
       return response.data;
     } catch (error) {
 
@@ -15,7 +19,7 @@ export const fetchTratamientos = createAsyncThunk(
     }
   }
 );
- 
+
 export const createTratamientos = createAsyncThunk(
   'tratamientos/createTratamientos',
   async (values) => {
@@ -65,17 +69,17 @@ const tratamientosSlice = createSlice({
   initialState: {
     tratamientos: [],
     tratamientos_options_selecteds: [],
-    status: 'idle',
+    status_tratamientos: true,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchTratamientos.pending, (state) => {
-        state.status = 'loading';
+        state.status_tratamientos = true;
       })
       .addCase(fetchTratamientos.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_tratamientos = false;
         state.tratamientos = action.payload.data;
 
         state.tratamientos_options_selecteds = action.payload.data
@@ -87,7 +91,7 @@ const tratamientosSlice = createSlice({
           }));
       })
       .addCase(fetchTratamientos.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_tratamientos = true;
         state.error = action.error.message;
       })
       .addCase(createTratamientos.pending, (state) => {

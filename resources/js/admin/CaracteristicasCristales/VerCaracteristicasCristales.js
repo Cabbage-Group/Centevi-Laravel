@@ -31,25 +31,60 @@ const CristalesMaterialesTratamientos = () => {
   const [filterLenteContacto, setFilterLenteContacto] = useState(0);
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
 
 
   const [isLenteContacto, setIsLenteContacto] = useState(false);
 
-  const { cristales } = useSelector((state) => state.cristales);
-  const { materiales } = useSelector((state) => state.materiales);
-  const { tratamientos } = useSelector((state) => state.tratamientos);
-  const { tiposAros } = useSelector((state) => state.tiposAros)
-  const { marcas_lente_contacto, marcas_lente_normal } = useSelector((state) => state.marcas)
-  const { proveedorMaterial } = useSelector((state) => state.proveedorMaterial)
+  const { cristales, status_cristales } = useSelector((state) => state.cristales);
+  const { materiales, status_materiales } = useSelector((state) => state.materiales);
+  const { tratamientos, status_tratamientos } = useSelector((state) => state.tratamientos);
+  const { tiposAros, status_tiposAros } = useSelector((state) => state.tiposAros)
+  const { marcas_lente_contacto, marcas_lente_normal, status_marcas } = useSelector((state) => state.marcas)
+  const { proveedorMaterial, status_proveedorMaterial } = useSelector((state) => state.proveedorMaterial)
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    dispatch(fetchCristales());
-    dispatch(fetchMateriales());
-    dispatch(fetchTratamientos());
-    dispatch(fetchMarcas());
-    dispatch(fetchTiposAros());
-    dispatch(fetchProveedorMaterial());
-  }, [dispatch]);
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText]);
+
+  useEffect(() => {
+    setSearchText("");
+  }, [selectedTable]);
+
+  useEffect(() => {
+    switch (selectedTable) {
+      case "Cristales":
+        dispatch(fetchCristales({ search: debouncedSearchText }));
+        break;
+      case "Materiales":
+        dispatch(fetchMateriales({ search: debouncedSearchText }));
+        break;
+      case "Tratamientos":
+        dispatch(fetchTratamientos({ search: debouncedSearchText }));
+        break;
+      case "MarcasLenteContacto":
+        dispatch(fetchMarcas({ search: debouncedSearchText }));
+        break;
+      case "MarcasLenteNormal":
+        dispatch(fetchMarcas({ search: debouncedSearchText }));
+        break;
+      case "TiposAros":
+        dispatch(fetchTiposAros({ search: debouncedSearchText }));
+        break;
+      case "ProveedorMaterial":
+        dispatch(fetchProveedorMaterial({ search: debouncedSearchText }));
+        break;
+      default:
+        break;
+    }
+  }, [debouncedSearchText, selectedTable, dispatch]);
 
   // Manejo del modal
   const showModal = (record = null) => {
@@ -199,27 +234,53 @@ const CristalesMaterialesTratamientos = () => {
     ProveedorMaterial: proveedorMaterial || []
   };
 
+  const tableLoading = {
+    Cristales: status_cristales,
+    Materiales: status_materiales,
+    Tratamientos: status_tratamientos,
+    MarcasLenteContacto: status_marcas,
+    MarcasLenteNormal: status_marcas,
+    TiposAros: status_tiposAros,
+    ProveedorMaterial: status_proveedorMaterial,
+  }[selectedTable];
+
 
   return (
     <div style={{ padding: "20px" }}>
-      <Segmented
-        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal", "TiposAros", "ProveedorMaterial"]}
-        value={selectedTable}
-        onChange={setSelectedTable}
-        style={{ marginBottom: 20 }}
-      />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <Segmented
+          options={[
+            "Cristales",
+            "Materiales",
+            "Tratamientos",
+            "MarcasLenteContacto",
+            "MarcasLenteNormal",
+            "TiposAros",
+            "ProveedorMaterial",
+          ]}
+          value={selectedTable}
+          onChange={setSelectedTable}
+        />
+        <Input
+          placeholder={`Buscar en ${selectedTable}`}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          allowClear
+          style={{ marginBottom: 16, width: 300 }}
+        />
 
-      <Button
-        className="btn btn-success"
-        onClick={() => showModal()}
-        style={{ marginBottom: 16, lineHeight: "1", padding: "8px 16px" }}
-      >
-        Crear {selectedTable}
-      </Button>
-
+        <Button
+          className="btn btn-success"
+          onClick={showModal}
+          style={{ lineHeight: "1", padding: "8px 16px" }}
+        >
+          Crear {selectedTable}
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={dataSource[selectedTable]}
+        loading={tableLoading}
         rowKey="id"
         className="dataTables_wrapper container-fluid dt-bootstrap4"
         id="zero-config_wrapper"

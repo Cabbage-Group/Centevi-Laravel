@@ -5,9 +5,13 @@ import API from '../../../config/config';
 
 export const fetchTiposAros = createAsyncThunk(
   'tiposAros/fetchTiposAros',
-  async () => {
+  async ({ search }) => {
     try {
-      const response = await axios.get(`${API}/tipos-aros`);
+      const response = await axios.get(`${API}/tipos-aros`, {
+        params: {
+          search: search || ''
+        }
+      });
       return response.data;
     } catch (error) {
 
@@ -64,17 +68,17 @@ const tiposArosSlice = createSlice({
   initialState: {
     tiposAros: [],
     tipo_aro_options_selecteds: [],
-    status: 'idle',
+    status_tiposAros: true,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchTiposAros.pending, (state) => {
-        state.status = 'loading';
+        state.status_tiposAros = true;
       })
       .addCase(fetchTiposAros.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_tiposAros = false;
         state.tiposAros = action.payload.data;
         state.tipo_aro_options_selecteds = action.payload.data
           .filter(({ id, nombre }) => id && nombre)
@@ -86,7 +90,7 @@ const tiposArosSlice = createSlice({
 
       })
       .addCase(fetchTiposAros.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_tiposAros = true;
         state.error = action.error.message;
       })
       .addCase(createTiposAros.pending, (state) => {

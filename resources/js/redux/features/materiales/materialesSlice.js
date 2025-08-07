@@ -4,9 +4,13 @@ import API from '../../../config/config.js';
 
 export const fetchMateriales = createAsyncThunk(
   'materiales/fetchMateriales',
-  async () => {
+  async ({ search }) => {
     try {
-      const response = await axios.get(`${API}/materiales`);
+      const response = await axios.get(`${API}/materiales`, {
+        params: {
+          search: search || ''
+        }
+      });
       return response.data;
     } catch (error) {
 
@@ -15,7 +19,7 @@ export const fetchMateriales = createAsyncThunk(
     }
   }
 );
- 
+
 export const createMateriales = createAsyncThunk(
   'materiales/createMateriales',
   async (values) => {
@@ -64,17 +68,17 @@ const materialesSlice = createSlice({
   initialState: {
     materiales: [],
     materiales_options_selecteds: [],
-    status: 'idle',
+    status_materiales: true,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchMateriales.pending, (state) => {
-        state.status = 'loading';
+        state.status_materiales = true;
       })
       .addCase(fetchMateriales.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_materiales = false;
         state.materiales = action.payload.data;
 
         state.materiales_options_selecteds = action.payload.data
@@ -86,7 +90,7 @@ const materialesSlice = createSlice({
           }));
       })
       .addCase(fetchMateriales.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_materiales = true;
         state.error = action.error.message;
       })
       .addCase(createMateriales.pending, (state) => {

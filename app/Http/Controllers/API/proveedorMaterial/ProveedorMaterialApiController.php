@@ -14,13 +14,37 @@ class ProveedorMaterialApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+    public function index(Request $request)
     {
+        $proveedorMateriales = ProveedorMaterial::query();
+
+        if ($search = $request->input('search')) {
+            $normalizedSearch = $this->normalizeString($search);
+
+            $proveedorMateriales = $proveedorMateriales->get()->filter(function ($proveedorMaterial) use ($normalizedSearch) {
+                $normalizedNombre = $this->normalizeString($proveedorMaterial->nombre);
+
+                return str_contains($normalizedNombre, $normalizedSearch);
+            });
+            $proveedorMateriales = $proveedorMateriales->values();
+        } else {
+            $proveedorMateriales = $proveedorMateriales->get();
+        }
         return response()->json([
-            'data' => ProveedorMaterial::all()
+            'success' => true,
+            'message' => 'Operación exitosa',
+            'data' => $proveedorMateriales
         ], Response::HTTP_OK);
     }
 
+
+    private function normalizeString($string)
+    {
+        $string = mb_strtolower($string);
+        $string = preg_replace('/[^a-z0-9]/u', '', $string);
+        return $string;
+    }
 
     public function store(Request $request)
     {

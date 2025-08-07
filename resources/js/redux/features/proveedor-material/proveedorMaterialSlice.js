@@ -5,9 +5,13 @@ import API from '../../../config/config';
 
 export const fetchProveedorMaterial = createAsyncThunk(
     'proveedorMaterial/fetchProveedorMaterial',
-    async () => {
+    async ({ search }) => {
         try {
-            const response = await axios.get(`${API}/proveedor-material`);
+            const response = await axios.get(`${API}/proveedor-material`, {
+                params: {
+                    search: search || ''
+                }
+            });
             return response.data;
         } catch (error) {
 
@@ -25,7 +29,7 @@ export const createProveedorMaterial = createAsyncThunk(
             return response.data;
         } catch (error) {
             if (error.response && error.response.data) {
-                return rejectWithValue(error.response.data); 
+                return rejectWithValue(error.response.data);
             }
             throw error;
         }
@@ -65,17 +69,17 @@ const proveedorMaterialSlice = createSlice({
     initialState: {
         proveedorMaterial: [],
         proveedor_material_options_selecteds: [],
-        status: 'idle',
+        status_proveedorMaterial: true,
         error: null,
     },
     reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchProveedorMaterial.pending, (state) => {
-                state.status = 'loading';
+                state.status_proveedorMaterial = true;
             })
             .addCase(fetchProveedorMaterial.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+                state.status_proveedorMaterial = false;
                 state.proveedorMaterial = action.payload.data;
                 state.proveedor_material_options_selecteds = action.payload.data
                     .map(({ id, nombre }) => ({
@@ -85,7 +89,7 @@ const proveedorMaterialSlice = createSlice({
 
             })
             .addCase(fetchProveedorMaterial.rejected, (state, action) => {
-                state.status = 'failed';
+                state.status_proveedorMaterial = true;
                 state.error = action.error.message;
             })
             .addCase(createProveedorMaterial.pending, (state) => {

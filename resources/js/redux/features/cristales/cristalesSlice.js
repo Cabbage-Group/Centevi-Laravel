@@ -4,18 +4,21 @@ import API from '../../../config/config.js';
 
 export const fetchCristales = createAsyncThunk(
   'cristales/fetchCristales',
-  async () => {
+  async ({ search }) => {
     try {
-      const response = await axios.get(`${API}/cristales`);
+      const response = await axios.get(`${API}/cristales`, {
+        params: {
+          search: search || '',
+        },
+      });
       return response.data;
     } catch (error) {
-
-      console.error('Error fetching Cristales:', error.response.data);
+      console.error('Error fetching Cristales:', error.response?.data || error.message);
       throw error;
     }
   }
 );
- 
+
 export const createCristales = createAsyncThunk(
   'cristales/createCristales',
   async (values) => {
@@ -63,17 +66,17 @@ const cristalesSlice = createSlice({
   initialState: {
     cristales: [],
     cristales_options_selecteds: [],
-    status: 'idle',
+    status_cristales: true,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchCristales.pending, (state) => {
-        state.status = 'loading';
+        state.status_cristales = true;
       })
       .addCase(fetchCristales.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_cristales = false;
         state.cristales = action.payload.data;
 
         state.cristales_options_selecteds = action.payload.data
@@ -85,7 +88,7 @@ const cristalesSlice = createSlice({
           }));
       })
       .addCase(fetchCristales.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_cristales = true;
         state.error = action.error.message;
       })
       .addCase(createCristales.pending, (state) => {

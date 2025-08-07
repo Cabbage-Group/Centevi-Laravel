@@ -5,9 +5,13 @@ import Swal from 'sweetalert2';
 
 export const fetchServicios = createAsyncThunk(
   'servicios/fetchServicios',
-  async () => {
+  async ({ search }) => {
     try {
-      const response = await axios.get(`${API}/servicios`);
+      const response = await axios.get(`${API}/servicios`, {
+        params: {
+          search: search
+        }
+      });
       return response.data;
     } catch (error) {
 
@@ -107,22 +111,22 @@ const serviciosSlice = createSlice({
     servicios: [],
     serviciosProximos: [],
     serviciosProximos_options: [],
-    status: 'idle',
+    status_servicios: true,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchServicios.pending, (state) => {
-        state.status = 'loading';
+        state.status_servicios = true;
         state.metaSucursales = {};
       })
       .addCase(fetchServicios.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_servicios = false;
         state.servicios = action.payload.data;
       })
       .addCase(fetchServicios.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_servicios = true;
         state.error = action.error.message;
       })
       .addCase(fetchServiciosProximosAgenda.pending, (state) => {

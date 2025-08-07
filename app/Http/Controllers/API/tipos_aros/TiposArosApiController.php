@@ -12,7 +12,30 @@ class TiposArosApiController extends Controller
   public function index(Request $request)
   {
     try {
-      $tiposAros = TiposAros::all();
+      $search = $request->input('search');
+
+      $tiposAros = TiposAros::query();
+
+      foreach ($tiposAros as $tipo) {
+        $tipo->nombre = utf8_encode($tipo->nombre);
+      }
+
+      if ($search) {
+        $normalizedSearch = $this->normalizeString($search);
+
+        $tiposAros = $tiposAros->get()->filter(function ($tiposAro) use ($normalizedSearch) {
+          $normalizedNombre = $this->normalizeString($tiposAro->nombre);
+          $normalizedCodigo = $this->normalizeString($tiposAro->codigo);
+
+          return str_contains($normalizedNombre, $normalizedSearch) ||
+            str_contains($normalizedCodigo, $normalizedSearch);
+        });
+
+        $tiposAros = $tiposAros->values();
+      } else {
+        $tiposAros = $tiposAros->get();
+      }
+
 
       foreach ($tiposAros as $tipoAro) {
         foreach ($tipoAro->getAttributes() as $key => $value) {
@@ -26,9 +49,6 @@ class TiposArosApiController extends Controller
         }
       }
 
-      foreach ($tiposAros as $tipo) {
-        $tipo->nombre = utf8_encode($tipo->nombre);
-      }
 
       return response()->json([
         'success' => true,
@@ -43,6 +63,15 @@ class TiposArosApiController extends Controller
       ], 500);
     }
   }
+
+
+  private function normalizeString($string)
+  {
+    $string = mb_strtolower($string);
+    $string = preg_replace('/[^a-z0-9]/u', '', $string);
+    return $string;
+  }
+
 
   public function create(Request $request)
   {
@@ -146,5 +175,4 @@ class TiposArosApiController extends Controller
       ], 500);
     }
   }
-
 }

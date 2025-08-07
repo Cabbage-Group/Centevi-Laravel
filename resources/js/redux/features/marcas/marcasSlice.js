@@ -5,9 +5,13 @@ import API from '../../../config/config';
 
 export const fetchMarcas = createAsyncThunk(
   'marcas/fetchMarcas',
-  async () => {
+  async ({ search }) => {
     try {
-      const response = await axios.get(`${API}/marcas`);
+      const response = await axios.get(`${API}/marcas`, {
+        params: {
+          search: search || ''
+        }
+      });
       return response.data;
     } catch (error) {
 
@@ -25,7 +29,7 @@ export const createMarcas = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error('Error creating marcas:', error.response.data);
-      return rejectWithValue(error.response.data); 
+      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -66,17 +70,17 @@ const marcasSlice = createSlice({
     marcas_lente_normal_options_selecteds: [],
     marcas_lente_contacto: [],
     marcas_lente_normal: [],
-    status: 'idle',
+    status_marcas: true,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchMarcas.pending, (state) => {
-        state.status = 'loading';
+        state.status_marcas = true;
       })
       .addCase(fetchMarcas.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_marcas = false;
         state.marcas = action.payload.data;
         state.marcas_lente_contacto = action.payload.data
           .filter(({ id, codigo, nombre, lente_contacto }) => id && codigo && nombre && lente_contacto === 1)
@@ -101,7 +105,7 @@ const marcasSlice = createSlice({
 
       })
       .addCase(fetchMarcas.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_marcas = true;
         state.error = action.error.message;
       })
       .addCase(createMarcas.pending, (state) => {
