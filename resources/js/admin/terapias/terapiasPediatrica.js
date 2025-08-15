@@ -1,19 +1,19 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import Swal from 'sweetalert2';
-import { fetchVerPaciente } from '../../redux/features/pacientes/VerPacienteSlice';
-import { editTerapiasOptometriaPediatrica } from '../../redux/features/terapias/TerapiaOptometriaPediatricaSlice';
-import { VerUnaTerapiaPediatrica } from '../../redux/features/terapias/verUnaTerapiaPediatricaSlice';
-import { useParams, Link } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import Swal from "sweetalert2";
+import { fetchVerPaciente } from "../../redux/features/pacientes/VerPacienteSlice";
+import { editTerapiasOptometriaPediatrica } from "../../redux/features/terapias/TerapiaOptometriaPediatricaSlice";
+import { VerUnaTerapiaPediatrica } from "../../redux/features/terapias/verUnaTerapiaPediatricaSlice";
+import { useParams, Link } from "react-router-dom";
 import {
   SesionTerapiaPediatrica,
   agregarSesionTerapiaPediatrica,
   editarSesionTerapiaPediatrica,
-  eliminarSesionTerapiaPediatrica
-} from '../../redux/features/terapias/terapiaSesionPediatricaSlice';
-import moment from 'moment';
-import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
+  eliminarSesionTerapiaPediatrica,
+} from "../../redux/features/terapias/terapiaSesionPediatricaSlice";
+import moment from "moment";
+import { funPermisosObtenidos } from "../../utils/ValidarPermisos";
 
 const TerapiasPediatrica = () => {
   const formikRef = useRef(null);
@@ -40,38 +40,38 @@ const TerapiasPediatrica = () => {
   const getDataTerapia = async () => {
     const data = await dispatch(VerUnaTerapiaPediatrica({ id_paciente: id, id_terapia }));
     if (formikRef.current) {
-      formikRef.current.setFieldValue('motivo', data.payload.data.motivo);
-      formikRef.current.setFieldValue('evaluacion', data.payload.data.evaluacion);
+      formikRef.current.setFieldValue("motivo", data.payload.data.motivo);
+      formikRef.current.setFieldValue("evaluacion", data.payload.data.evaluacion);
 
-      formikRefEvaluacion.current.setFieldValue('motivo', data.payload.data.motivo);
-      formikRefEvaluacion.current.setFieldValue('evaluacion', data.payload.data.evaluacion);
+      formikRefEvaluacion.current.setFieldValue("motivo", data.payload.data.motivo);
+      formikRefEvaluacion.current.setFieldValue("evaluacion", data.payload.data.evaluacion);
     }
-  }
+  };
 
   const handleAgregarSesion = async (event) => {
     event.preventDefault();
     try {
       const nuevaSesion = {
         id_terapia: id_terapia,
-        doctor: localStorage.getItem('nombre')
+        doctor: localStorage.getItem("nombre"),
       };
       await dispatch(agregarSesionTerapiaPediatrica(nuevaSesion)).unwrap();
       // Muestra un mensaje de éxito
       Swal.fire({
-        title: 'Éxito!',
-        text: 'La sesión ha sido agregada correctamente.',
-        icon: 'success',
-        confirmButtonText: 'Ok'
+        title: "Éxito!",
+        text: "La sesión ha sido agregada correctamente.",
+        icon: "success",
+        confirmButtonText: "Ok",
       });
       // Actualiza los datos después de agregar la sesión
       dispatch(SesionTerapiaPediatrica(id_terapia));
     } catch (err) {
       // Muestra un mensaje de error
       Swal.fire({
-        title: 'Error!',
-        text: 'Hubo un problema al agregar la sesión.',
-        icon: 'error',
-        confirmButtonText: 'Ok'
+        title: "Error!",
+        text: "Hubo un problema al agregar la sesión.",
+        icon: "error",
+        confirmButtonText: "Ok",
       });
     }
   };
@@ -82,56 +82,48 @@ const TerapiasPediatrica = () => {
       const nuevoPagado = !pagado;
       await dispatch(editarSesionTerapiaPediatrica({ id, pagado: nuevoPagado })).unwrap();
     } catch (err) {
-      console.error('Error al actualizar el estado de pagado:', err);
+      console.error("Error al actualizar el estado de pagado:", err);
     }
   };
 
   const handleEliminarSesion = async (tipo, id_sesion) => {
     const sesionInfo = {
-      'sesion': {
-        title: 'Sesión',
+      sesion: {
+        title: "Sesión",
         action: eliminarSesionTerapiaPediatrica,
-        fetchAction: SesionTerapiaPediatrica
+        fetchAction: SesionTerapiaPediatrica,
       },
     };
 
     const { title, action, fetchAction } = sesionInfo[tipo];
 
     const resultado = await Swal.fire({
-      title: '¿Estás seguro?',
+      title: "¿Estás seguro?",
       text: "No podrás revertir esta acción",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
     });
 
     if (resultado.isConfirmed) {
       try {
         await dispatch(action(id_sesion)).unwrap();
-        Swal.fire(
-          'Eliminado',
-          `Terapia de ${title} eliminada exitosamente`,
-          'success'
-        );
+        Swal.fire("Eliminado", `Terapia de ${title} eliminada exitosamente`, "success");
         // Vuelve a cargar las sesiones para asegurarte de que el estado esté actualizado
         dispatch(fetchAction(id_terapia));
         setSesionModificada(true);
       } catch (error) {
         console.error(`Error al eliminar la terapia de ${title}:`, error);
-        Swal.fire(
-          'Error',
-          `Hubo un error al intentar eliminar la terapia de ${title}.`,
-          'error'
-        );
+        Swal.fire("Error", `Hubo un error al intentar eliminar la terapia de ${title}.`, "error");
       }
     }
   };
 
   return (
-    <div className="admin-data-content" style={{ marginTop: '50px' }}>
+    <div className="admin-data-content" style={{ marginTop: "50px" }}>
       <div className="row layout-top-spacing">
         <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
           <div className="widget-content-area br-4">
@@ -140,30 +132,32 @@ const TerapiasPediatrica = () => {
                 <div className="col-md-12">
                   <div className="widget-content widget-content-area">
                     <div className="col-md-12">
-                      <p style={{ fontSize: '16px' }}>
+                      <p style={{ fontSize: "16px" }}>
                         <b>Paciente:</b> {verPaciente?.nombres} {verPaciente?.apellidos}
                       </p>
-                      <p style={{ fontSize: '16px' }}>
+                      <p style={{ fontSize: "16px" }}>
                         <b>Cedula:</b> {verPaciente?.nro_cedula}
                       </p>
                       <Formik
                         innerRef={formikRef}
                         initialValues={{
-                          motivo: verTerapia?.motivo || '',
-                          evaluacion: verTerapia?.evaluacion || ''
+                          motivo: verTerapia?.motivo || "",
+                          evaluacion: verTerapia?.evaluacion || "",
                         }}
                         onSubmit={async (values, { setSubmitting }) => {
                           try {
-                            await dispatch(editTerapiasOptometriaPediatrica({ id_terapia, terapiaData: values })).unwrap();
+                            await dispatch(
+                              editTerapiasOptometriaPediatrica({ id_terapia, terapiaData: values })
+                            ).unwrap();
                             Swal.fire({
-                              icon: 'success',
-                              title: 'Edit Successful',
-                              text: 'Terapia Baja Vision has been successfully updated!',
+                              icon: "success",
+                              title: "Edit Successful",
+                              text: "Terapia Baja Vision has been successfully updated!",
                             });
                           } catch (error) {
                             Swal.fire({
-                              icon: 'error',
-                              title: 'Edit Failed',
+                              icon: "error",
+                              title: "Edit Failed",
                               text: `There was an error updating the Terapia Baja Vision: ${error.message}`,
                             });
                           } finally {
@@ -183,38 +177,40 @@ const TerapiasPediatrica = () => {
                               />
                               <ErrorMessage name="motivo" component="div" className="text-danger" />
                             </div>
-                            {
-                              funPermisosObtenidos(
-                                permisos,
-                                "terapias.actualizarmotivo",
-                                <button
-                                  className="btn btn-success mt-3"
-                                  type="submit"
-                                  disabled={isSubmitting}
-                                >
-                                  Actualizar Motivo
-                                </button>
-                              )
-                            }
-
+                            {funPermisosObtenidos(
+                              permisos,
+                              "terapias.actualizarmotivo",
+                              <button
+                                className="btn btn-success mt-3"
+                                type="submit"
+                                disabled={isSubmitting}
+                              >
+                                Actualizar Motivo
+                              </button>
+                            )}
                           </Form>
                         )}
                       </Formik>
                     </div>
-                    {
-                      funPermisosObtenidos(
-                        permisos,
-                        "terapias.agregarsesion",
-                        <form method="post" role="form" onSubmit={handleAgregarSesion}>
-                          <button className="btn btn-success mb-4 ml-3 mt-4">Agregar Sesión</button>
-                        </form>
-                      )
-                    }
+                    {funPermisosObtenidos(
+                      permisos,
+                      "terapias.agregarsesion",
+                      <form method="post" role="form" onSubmit={handleAgregarSesion}>
+                        <button className="btn btn-success mb-4 ml-3 mt-4">Agregar Sesión</button>
+                      </form>
+                    )}
 
                     <h5 className="p-3">Sesiones:</h5>
-                    <div className="card component-card_7" style={{ background: 'rgb(0 150 136 / 11%)', width: '100%' }}>
+                    <div
+                      className="card component-card_7"
+                      style={{ background: "rgb(0 150 136 / 11%)", width: "100%" }}
+                    >
                       <div className="table-responsive-md">
-                        <table className="table dt-table-hover sesiones" id="zero-config" style={{ width: '100%' }}>
+                        <table
+                          className="table dt-table-hover sesiones"
+                          id="zero-config"
+                          style={{ width: "100%" }}
+                        >
                           <thead>
                             <tr>
                               <th>Sesión</th>
@@ -225,49 +221,101 @@ const TerapiasPediatrica = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {data.length > 0 ? (data.map((OP, index) => (
-                              <tr key={OP.id || index}>
-                                <td className="text-center">Sesión {index + 1}</td>
-                                <td>
-                                  <button
-                                    className={`btn btn-xs ${OP.pagado ? 'btn-success' : 'btn-danger'}`}
-                                    onClick={() => handlePagoToggle(OP.id, OP.pagado)}
-                                  >
-                                    {OP.pagado ? 'Pagado' : 'Sin Pago'}
-                                  </button>
-                                </td>
-                                <td>{OP.doctor}</td>
-                                <td>
-                                  {/* {new Date(OP.fecha_creacion)} */}
-                                  {moment.utc(OP.fecha_creacion).format('DD-MM-YYYY')}
-                                </td>
-                                <td>
-                                  <Link to={`/ver-sesion-terapia-pediatrica/${id}/${id_terapia}/${OP.id}`}>
-                                    <button className="btnVerTerapia btn btn-primary mb-2 p-1 mr-2 rounded-circle">
-                                      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                            {data.length > 0 ? (
+                              data.map((OP, index) => (
+                                <tr key={OP.id || index}>
+                                  <td className="text-center">Sesión {index + 1}</td>
+                                  <td>
+                                    <button
+                                      className={`btn btn-xs ${
+                                        OP.pagado ? "btn-success" : "btn-danger"
+                                      }`}
+                                      onClick={() => handlePagoToggle(OP.id, OP.pagado)}
+                                    >
+                                      {OP.pagado ? "Pagado" : "Sin Pago"}
+                                    </button>
+                                  </td>
+                                  <td>{OP.doctor}</td>
+                                  <td>
+                                    {/* {new Date(OP.fecha_creacion)} */}
+                                    {moment.utc(OP.fecha_creacion).format("DD-MM-YYYY")}
+                                  </td>
+                                  <td>
+                                    <Link
+                                      to={`/ver-sesion-terapia-pediatrica/${id}/${id_terapia}/${OP.id}`}
+                                    >
+                                      <button className="btnVerTerapia btn btn-primary mb-2 p-1 mr-2 rounded-circle">
+                                        <svg
+                                          className="h-6 w-6"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                          />
+                                          <path
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </Link>
+                                    <Link
+                                      to={`/editar-sesion-terapia-pediatrica/${id}/${id_terapia}/${OP.id}`}
+                                    >
+                                      <button className="btnEditarTerapia btn btn-warning mb-2 p-1 mr-2 rounded-circle">
+                                        <svg
+                                          className="h-6 w-6"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                          <path
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                          />
+                                        </svg>
+                                      </button>
+                                    </Link>
+                                    <button
+                                      className="btnEliminarTerapia btn btn-danger mb-2 p-1 mr-2 rounded-circle"
+                                      onClick={() => handleEliminarSesion("sesion", OP.id)}
+                                    >
+                                      <svg
+                                        className="h-6 w-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                        />
                                       </svg>
                                     </button>
-                                  </Link>
-                                  <Link to={`/editar-sesion-terapia-pediatrica/${id}/${id_terapia}/${OP.id}`}>
-                                    <button className="btnEditarTerapia btn btn-warning mb-2 p-1 mr-2 rounded-circle">
-                                      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                                      </svg>
-                                    </button>
-                                  </Link>
-                                  <button className="btnEliminarTerapia btn btn-danger mb-2 p-1 mr-2 rounded-circle" onClick={() => handleEliminarSesion('sesion', OP.id)}>
-                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                                    </svg>
-                                  </button>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="5" className="text-center">
+                                  No hay sesiones disponibles
                                 </td>
                               </tr>
-                            ))) : (
-                              <tr>
-                                <td colSpan="5" className="text-center">No hay sesiones disponibles</td>
-                              </tr>)}
+                            )}
                           </tbody>
                         </table>
                       </div>
@@ -278,21 +326,23 @@ const TerapiasPediatrica = () => {
                       <Formik
                         innerRef={formikRefEvaluacion}
                         initialValues={{
-                          motivo: verTerapia?.motivo || '',
-                          evaluacion: verTerapia?.evaluacion || '',
+                          motivo: verTerapia?.motivo || "",
+                          evaluacion: verTerapia?.evaluacion || "",
                         }}
                         onSubmit={async (values, { setSubmitting }) => {
                           try {
-                            await dispatch(editTerapiasOptometriaPediatrica({ id_terapia, terapiaData: values })).unwrap();
+                            await dispatch(
+                              editTerapiasOptometriaPediatrica({ id_terapia, terapiaData: values })
+                            ).unwrap();
                             Swal.fire({
-                              icon: 'success',
-                              title: 'Edit Successful',
-                              text: 'Terapia Baja Vision has been successfully updated!',
+                              icon: "success",
+                              title: "Edit Successful",
+                              text: "Terapia Baja Vision has been successfully updated!",
                             });
                           } catch (error) {
                             Swal.fire({
-                              icon: 'error',
-                              title: 'Edit Failed',
+                              icon: "error",
+                              title: "Edit Failed",
                               text: `There was an error updating the Terapia Baja Vision: ${error.message}`,
                             });
                           } finally {
@@ -309,22 +359,23 @@ const TerapiasPediatrica = () => {
                                 name="evaluacion"
                                 rows="15"
                               />
-                              <ErrorMessage name="evaluacion" component="div" className="text-danger" />
+                              <ErrorMessage
+                                name="evaluacion"
+                                component="div"
+                                className="text-danger"
+                              />
                             </div>
-                            {
-                              funPermisosObtenidos(
-                                permisos,
-                                "terapias.actualizarevaluacion",
-                                <button
-                                  className="btn btn-success mt-3"
-                                  type="submit"
-                                  disabled={isSubmitting}
-                                >
-                                  Actualizar Evaluación
-                                </button>
-                              )
-                            }
-
+                            {funPermisosObtenidos(
+                              permisos,
+                              "terapias.actualizarevaluacion",
+                              <button
+                                className="btn btn-success mt-3"
+                                type="submit"
+                                disabled={isSubmitting}
+                              >
+                                Actualizar Evaluación
+                              </button>
+                            )}
                           </Form>
                         )}
                       </Formik>
@@ -332,8 +383,6 @@ const TerapiasPediatrica = () => {
                   </div>
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>

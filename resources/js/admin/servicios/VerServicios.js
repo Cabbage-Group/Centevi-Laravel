@@ -1,7 +1,12 @@
 import { Button, Form, Input, Modal, Segmented, Table } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createServicios, deleteServicios, fetchServicios, updateServicios } from "../../redux/features/servicios/serviciosSlice";
+import {
+  createServicios,
+  deleteServicios,
+  fetchServicios,
+  updateServicios,
+} from "../../redux/features/servicios/serviciosSlice";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import Swal from "sweetalert2";
 
@@ -30,7 +35,7 @@ const VerServicios = () => {
 
   useEffect(() => {
     dispatch(fetchServicios({ search: debouncedSearchText }));
-  }, [debouncedSearchText,dispatch]);
+  }, [debouncedSearchText, dispatch]);
 
   const showModal = (record = null) => {
     setEditingItem(record);
@@ -46,7 +51,8 @@ const VerServicios = () => {
   const handleSave = () => {
     form.validateFields().then((values) => {
       if (editingItem) {
-        if (selectedTable === "Servicios") dispatch(updateServicios({ id: editingItem.id, ...values }));
+        if (selectedTable === "Servicios")
+          dispatch(updateServicios({ id: editingItem.id, ...values }));
         console.log("Actualizando servicio:", { ...editingItem, ...values });
       } else {
         if (selectedTable === "Servicios") dispatch(createServicios(values));
@@ -57,37 +63,36 @@ const VerServicios = () => {
 
   const handleDelete = (id) => {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el servicio permanentemente.',
-      icon: 'warning',
+      title: "¿Estás seguro?",
+      text: "Esta acción eliminará el servicio permanentemente.",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(deleteServicios(id))
           .unwrap()
           .then(() => {
             Swal.fire({
-              icon: 'success',
-              title: 'Servicio eliminado',
-              text: 'El servicio se ha eliminado correctamente',
-              confirmButtonColor: '#3085d6'
+              icon: "success",
+              title: "Servicio eliminado",
+              text: "El servicio se ha eliminado correctamente",
+              confirmButtonColor: "#3085d6",
             });
           })
           .catch((error) => {
             Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo eliminar el servicio',
+              icon: "error",
+              title: "Error",
+              text: "No se pudo eliminar el servicio",
             });
           });
       }
     });
   };
-
 
   const columns = [
     {
@@ -118,7 +123,7 @@ const VerServicios = () => {
             style={{
               marginRight: 8,
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           />
           <Button
@@ -129,13 +134,13 @@ const VerServicios = () => {
             onClick={() => handleDelete(record.id)}
             style={{
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           />
         </>
-      )
-    }
-  ]
+      ),
+    },
+  ];
 
   return (
     <div style={{ padding: "20px" }}>
@@ -181,8 +186,7 @@ const VerServicios = () => {
           pageSize: 10,
           hideOnSinglePage: true,
         }}
-      >
-      </Table>
+      ></Table>
 
       <Modal
         title={editingItem ? "Editar " + selectedTable : "Crear " + selectedTable}
@@ -208,8 +212,8 @@ const VerServicios = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div >
+    </div>
   );
-}
+};
 
 export default VerServicios;

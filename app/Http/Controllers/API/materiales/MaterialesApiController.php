@@ -32,6 +32,19 @@ class MaterialesApiController extends Controller
         $materiales = $materiales->get();
       }
 
+
+      foreach ($materiales as $material) {
+        foreach ($material->getAttributes() as $key => $value) {
+          if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+            return response()->json([
+              'success' => false,
+              'message' => "Caracteres mal codificados en el campo '$key'",
+              'data' => $value,
+            ], 500);
+          }
+        }
+      }
+
       return response()->json([
         'success' => true,
         'message' => 'Operación exitosa',
