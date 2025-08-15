@@ -78,6 +78,17 @@ const CrearCotizacion = () => {
   const maxDiscount = getMaxDiscountFromPermisos(permisos);
 
   useEffect(() => {
+    if (lines.length === 0) return;
+    const discounts = lines.map(line => parseFloat(line.DiscountFactor || 0));
+    const allEqual = discounts.every(d => d === discounts[0]);
+
+    if (allEqual) {
+      setTotalDiscount(parseFloat((discounts[0] * 100).toFixed(2)));
+    } else {
+    }
+  }, [lines]);
+
+  useEffect(() => {
     if (exchangeRate) {
       form.setFieldsValue({
         Vendedor: nombre || '',
@@ -314,7 +325,7 @@ const CrearCotizacion = () => {
         Unidades: 0,
         Precio_Unitario: 0,
         Discount: 0,
-        DiscountFactor: 0,
+        DiscountFactor: totalDiscount / 100 || 0,
         TaxID: '6',
         TaxName: 'ITBMS',
         TaxFactor: 0.07,
