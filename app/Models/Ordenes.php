@@ -19,6 +19,7 @@ class Ordenes extends Model
   protected $fillable = [
     'nro_orden_id',
     'codigo_cristal',
+    'nro_cotizacion',
     'nro_orden',
     'id_paciente',
     'id_sucursal',
@@ -105,18 +106,5 @@ class Ordenes extends Model
   {
     return $this->hasMany(FasesOrdenes::class, 'ordenes_id', 'id_orden');
   }
-
-  // protected static function boot()
-  // {
-  //     parent::boot();
-
-  //     static::creating(function ($orden) {
-  //         $ultimoNumero = self::max('nro_orden') ?? 99;
-  //         $orden->nro_orden = ($ultimoNumero < 99) ? 99 : $ultimoNumero + 1;
-  //     });
-  // }
-
-
-
 
 }

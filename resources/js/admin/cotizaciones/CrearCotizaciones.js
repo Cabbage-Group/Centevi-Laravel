@@ -49,6 +49,7 @@ const CrearCotizacion = () => {
   const [noDiscount, setNoDiscount] = useState(false);
   const record = location.state?.record;
   const nombre = localStorage.getItem('nombre');
+  const [totalDiscount, setTotalDiscount] = useState(0);
   const {
     pacientes_options_cotizacion
   } = useSelector((state) => state.pacientes);
@@ -76,8 +77,6 @@ const CrearCotizacion = () => {
   const [selectedBodega, setSelectedBodega] = useState(null);
   const maxDiscount = getMaxDiscountFromPermisos(permisos);
 
-
-  console.log('permisos', permisos);
   useEffect(() => {
     if (exchangeRate) {
       form.setFieldsValue({
@@ -128,13 +127,7 @@ const CrearCotizacion = () => {
     dispatch(fetchExchangeRate());
   }, []);
 
-  // useEffect(() => {
-  //   dispatch(fetchInterfuerzaProducts({}))
-  // }, [dispatch])
 
-  // useEffect(() => {
-  //   dispatch(fetchInterfuerzaWareHouses())
-  // }, [dispatch])
 
   useEffect(() => {
     dispatch(fetchWareHouses({}))
@@ -143,10 +136,6 @@ const CrearCotizacion = () => {
   useEffect(() => {
     dispatch(fetchProductsInterfuerza({}))
   }, [])
-
-  // useEffect(() => {
-  //   dispatch(fetchInterfuerzaCustomers({ page: 1 }));
-  // }, [dispatch]);
 
   const handleBodegaChange = (value) => {
     setSelectedBodega(value);
@@ -368,8 +357,39 @@ const CrearCotizacion = () => {
     }
 
     setLines(newLines);
-
     calculateTotals(newLines);
+
+    if (field === 'DiscountFactor') {
+      setTotalDiscount(0);
+    }
+  };
+
+  const handleTotalDiscountChange = (value) => {
+    setTotalDiscount(value);
+
+    const updatedLines = lines.map((line) => {
+      const unidades = parseFloat(line.Unidades || 0);
+      const precio = parseFloat(line.Precio_Unitario || 0);
+      const discountFactor = value / 100;
+
+      const subtotal = unidades * precio;
+      const descuento = precio * unidades * discountFactor;
+      const taxableAmount = subtotal - descuento;
+      const impuesto = taxableAmount * TAX_RATE;
+      const total = subtotal - descuento;
+
+      return {
+        ...line,
+        DiscountFactor: discountFactor,
+        Discount: descuento,
+        TaxValue: impuesto.toFixed(2),
+        subTotal: subtotal,
+        Total: total.toFixed(2)
+      };
+    });
+
+    setLines(updatedLines);
+    calculateTotals(updatedLines);
   };
 
   const handleSelectProduct = (index, value) => {
@@ -773,15 +793,35 @@ const CrearCotizacion = () => {
 
         <Divider>Líneas de Factura</Divider>
 
-        <div style={{ marginBottom: 16 }}>
-          <Button
-            type="dashed"
-            onClick={addLine}
-            icon={<PlusOutlined />}
-          >
-            Agregar Línea
-          </Button>
-        </div>
+        <Row style={{ marginBottom: 16 }}>
+          <Col>
+            <Button
+              type="dashed"
+              onClick={addLine}
+              icon={<PlusOutlined />}
+            >
+              Agregar Línea
+            </Button>
+          </Col>
+
+          <Col offset={9}>
+            <label style={{ marginRight: 5, fontWeight: "bold", fontSize: '12px' }}>
+              Aplicar Descuento Total:
+            </label>
+          </Col>
+
+          <Col>
+            <InputNumber
+              value={totalDiscount}
+              min={0}
+              max={maxDiscount}
+              precision={2}
+              formatter={(value) => `${Number(value).toFixed(2)}%`}
+              parser={(value) => value.replace('%', '')}
+              onChange={handleTotalDiscountChange}
+            />
+          </Col>
+        </Row>
 
         <Table
           columns={columns}
