@@ -18,15 +18,15 @@ const EditarSesionTerapiaPediatrica = () => {
 
     const [formData, setFormData] = useState({
         sesion: {
-            actividad_1:"",
-            resultado_1:"",
-            actividad_2:"",
-            resultado_2:"",
-            actividad_3:"",
-            resultado_3:"",
-            actividad_4:"",
-            resultado_4:"",
-            actividad_casa:""
+            actividad_1: "",
+            resultado_1: "",
+            actividad_2: "",
+            resultado_2: "",
+            actividad_3: "",
+            resultado_3: "",
+            actividad_4: "",
+            resultado_4: "",
+            actividad_casa: ""
         },
         sucursal: null
     });
@@ -51,6 +51,14 @@ const EditarSesionTerapiaPediatrica = () => {
                 sesion: JSON.parse(terapia.sesion) || {},
                 pagado: terapia.pagado,
                 sucursal: terapia.sucursal
+                    ? terapia.sucursal
+                    : (localStorage.getItem('ip') === '186.74.2.218'
+                        ? "7"
+                        : localStorage.getItem('ip') === '190.219.45.142'
+                            ? "3"
+                            : localStorage.getItem('ip') === '45.229.196.9'
+                                ? "4"
+                                : "")
             });
         }
     }, [terapia]);
@@ -76,7 +84,7 @@ const EditarSesionTerapiaPediatrica = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         Swal.fire({
             title: '¿Estás seguro?',
             text: "¿Quieres guardar los cambios?",

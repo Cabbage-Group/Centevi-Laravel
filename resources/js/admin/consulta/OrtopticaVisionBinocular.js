@@ -26,7 +26,15 @@ const OrtopticaVisionBinocular = () => {
   const [proximosServicios, setProximosServicios] = useState([]);
   const [diagnosticosSelect, setDiagnosticosSelect] = useState([]);
   const initialValues = {
-    sucursal: '',
+    sucursal:
+      localStorage.getItem('ip') == '186.74.2.218'
+        ? "7"
+        : localStorage.getItem('ip') == '190.219.45.142'
+          ? "3"
+          : localStorage.getItem('ip') == '45.229.196.9'
+            ? "4"
+            : ""
+    ,
     doctor: localStorage.getItem('nombre'),
     agendado_por: localStorage.getItem('nombre'),
     id_terapia: '0',
