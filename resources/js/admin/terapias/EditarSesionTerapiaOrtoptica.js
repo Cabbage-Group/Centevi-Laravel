@@ -51,6 +51,14 @@ const EditarSesionTerapiaOrtoptica = () => {
         sesion: JSON.parse(terapia.sesion) || {},
         pagado: terapia.pagado,
         sucursal: terapia.sucursal
+          ? terapia.sucursal
+          : (localStorage.getItem('ip') === '186.74.2.218'
+            ? "7"
+            : localStorage.getItem('ip') === '190.219.45.142'
+              ? "3"
+              : localStorage.getItem('ip') === '45.229.196.9'
+                ? "4"
+                : "")
       });
     }
   }, [terapia]);

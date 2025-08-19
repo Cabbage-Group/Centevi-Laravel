@@ -597,6 +597,7 @@ class OrdenesApiController extends Controller
     $validator = Validator::make($request->all(), [
       "id_paciente" => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
+      'nro_cotizacion'=> 'required|integer',
       'elaborado_por' => 'nullable|integer',
       'esfera_od' => 'nullable|string|max:255',
       'esfera_oi' => 'nullable|string|max:255',
@@ -685,6 +686,7 @@ class OrdenesApiController extends Controller
         'pagado' => 2,
         'lente_contacto' => 0,
         'nro_orden_id' => $nroOrden->id,
+        'nro_cotizacion' => 0
       ];
 
       $tipoCristalOd = $request->input('tipo_cristal_od');
