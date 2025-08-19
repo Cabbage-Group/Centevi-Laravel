@@ -14,19 +14,28 @@ const ListaPaciente = () => {
   const { permisos } = useSelector((state) => state.auth);
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const usuario = localStorage.getItem("usuario");
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+      setCurrentPage(1);
+    }, 500);
 
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText]);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
-  }, [currentPage, localSearch]);
+    dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
+  }, [currentPage, debouncedSearchText, dispatch]);
 
-  const handleSearchChange = (event) => {
-    const newSearch = event.target.value;
-    setLocalSearch(newSearch);
-    setCurrentPage(1);
-  };
+  // const handleSearchChange = (event) => {
+  //   setSearchText(event.target.value);
+  // };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -101,7 +110,7 @@ const ListaPaciente = () => {
               text: resultAction.payload.message,
               icon: 'error'
             });
-            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
+            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
           } else {
             const data = resultAction.payload;
             Swal.fire({
@@ -109,7 +118,7 @@ const ListaPaciente = () => {
               text: data.message,
               icon: 'success'
             });
-            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: localSearch }));
+            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
           }
         } catch (error) {
           Swal.close();
@@ -156,9 +165,8 @@ const ListaPaciente = () => {
                           className="form-control txt-buscar-cedula"
                           name=""
                           placeholder="Buscar por Cedula"
-
-                          value={localSearch}
-                          onChange={handleSearchChange}
+                          value={searchText}
+                          onChange={(e) => setSearchText(e.target.value)}
                           style={{
                             marginTop: '16px',
                             width: '50%'

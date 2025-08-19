@@ -158,7 +158,7 @@ const usuariosSlice = createSlice({
     usuario_conversaciones_mensajes: [],
     usuarios_except_one: [],
     meta: {},
-    status: 'idle',
+    status_usuarios: 'idle',
     error: null,
     search: ''
   },
@@ -166,10 +166,10 @@ const usuariosSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsuarios.pending, (state) => {
-        state.status = 'loading';
+        state.status_usuarios = 'loading';
       })
       .addCase(fetchUsuarios.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status_usuarios = 'succeeded';
         state.usuarios = action.payload.data;
         state.meta = action.payload.meta;
 
@@ -193,7 +193,7 @@ const usuariosSlice = createSlice({
           .filter(usuario => usuario.estado === 1);
       })
       .addCase(fetchUsuarios.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status_usuarios = 'failed';
         state.error = action.error.message;
       })
       .addCase(updateUsuario.pending, (state) => {

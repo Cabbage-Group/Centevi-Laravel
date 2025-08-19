@@ -136,8 +136,6 @@ const pacientesSlice = createSlice({
             (item, index, self) =>
               index === self.findIndex((t) => t.label === item.label)
           );
-
-
         state.pacientes_options_cotizacion = action.payload.data
           .filter(({ codigo }) => codigo !== null)
           .map(({ id_paciente, nro_cedula, nombres, apellidos, codigo, ...rest }) =>

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field } from 'formik';
 import Swal from 'sweetalert2';
 import { crearPacientes, verificarCedula } from '../../redux/features/pacientes/crearPacientesSlice';
-import { fetchInterfuerza } from '../../redux/features/pacientes/pacientesSlice';
+import { fetchInterfuerza, fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 
 const CrearPaciente = () => {
   const dispatch = useDispatch();
@@ -86,6 +86,7 @@ const CrearPaciente = () => {
       });
 
       await dispatch(crearPacientes({ ...cleanedValues, usuario })).unwrap();
+      await dispatch(fetchPacientes({ page: 1, limit: 50000 }));
 
       await Swal.fire({
         icon: 'success',
