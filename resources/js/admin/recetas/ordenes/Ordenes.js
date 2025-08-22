@@ -240,17 +240,16 @@ const Ordenes = () => {
   }, [selectedPaciente, pacientes]);
 
   useEffect(() => {
-    if (status === "idle" || pacientes.length === 0) {
+    if (status === "idle" || pacientes.length < 11) {
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     }
-  }, [dispatch, pacientes.length, status]);
-
+  }, []);
 
   useEffect(() => {
     if (status_usuarios === "idle" || usuarios.length === 0) {
       dispatch(fetchUsuarios({}));
     }
-  }, [dispatch, usuarios.length, status]);
+  }, []);
 
   useEffect(() => { }, [nuevaData, orderId]);
 
