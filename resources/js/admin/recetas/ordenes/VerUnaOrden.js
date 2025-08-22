@@ -31,8 +31,8 @@ const VerUnaOrden = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
   const { pacienteOrden } = useSelector((state) => state.ordenes);
+  const { status } = useSelector((state) => state.pacientes);
 
-  console.log('pacienteOrden:', pacienteOrden)
 
   useEffect(() => {
     if (pacienteOrden) {
@@ -42,8 +42,11 @@ const VerUnaOrden = () => {
 
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+    if (status === "idle" || pacientes.length < 11) {
+      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+    }
   }, []);
+
 
   useEffect(() => {
     if (idPaciente && nroOrden) {

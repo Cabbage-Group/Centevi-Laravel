@@ -63,6 +63,7 @@ class ServiciosApiController extends Controller
       ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
   }
+  
   private function normalizeString($string)
   {
     $string = mb_strtolower($string);

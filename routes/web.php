@@ -559,7 +559,10 @@ Route::patch('/api/warehouses/{id}/send-discount', [WarehouseController::class, 
 
 Route::patch('/api/warehouses/{id}/updateSucursal', [WarehouseController::class, 'updateSucursal']);
 
-Route::get('/api/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+Route::get('/api/diagnosticos/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+Route::post('/api/diagnosticos/crearDiagnosticos', [DiagnosticoPacienteController::class, 'store']);
+Route::put('/api/diagnosticos/{id}/actualizarDiagnosticos', [DiagnosticoPacienteController::class, 'update']);
+Route::delete('/api/diagnosticos/{id}/eliminarDiagnosticos', [DiagnosticoPacienteController::class, 'destroy']);
 
 
 

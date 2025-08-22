@@ -192,13 +192,6 @@ const OptometriaNeonatos = () => {
 
   return (
     <div className="row layout-top-spacing">
-      <button
-        onClick={() => {
-          console.log("Button clicked", diagnosticosSelect);
-        }}
-      >
-
-      </button>
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
         <div className="widget-content-area br-4">
           <div className="widget-one">
