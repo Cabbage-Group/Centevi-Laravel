@@ -519,6 +519,8 @@ Route::get('/api/customers/get', [interfuerzaApiControllerCustomers::class, 'get
 
 Route::get('/api/ware-houses/get', [interfuerzaApiControllerWareHouses::class, 'getWareHouses']);
 
+
+
 Route::get('/api/products/get', [interfuerzaApiControllerProducts::class, 'getProducts']);
 
 Route::get('/api/obtener/quotes/centevi', [QuoterApiController::class, 'obtenerQuotes']);
@@ -554,7 +556,12 @@ Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterf
 Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterfuerza']);
 
 Route::patch('/api/warehouses/{id}/send-discount', [WarehouseController::class, 'updateSendDiscount']);
+
+Route::patch('/api/warehouses/{id}/updateSucursal', [WarehouseController::class, 'updateSucursal']);
+
 Route::get('/api/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+
+
 
 
 Route::get('/{any}', function () {

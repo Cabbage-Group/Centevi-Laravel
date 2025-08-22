@@ -17,6 +17,7 @@ class Warehouse extends Model
         'tienda',
         'type',
         'venta_post',
+        'sucursal_id'
     ];
 
     protected $casts = [

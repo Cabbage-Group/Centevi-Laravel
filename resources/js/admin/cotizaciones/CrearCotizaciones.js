@@ -44,21 +44,16 @@ const CrearCotizacion = () => {
   const { interfuerzaQuotes } = useSelector((state) => state.interfuerzaQuotes);
   const { interfuerzaWareHouses } = useSelector((state) => state.interfuerzaWareHouses);
   const { exchangeRate, exchangeRateStatus } = useSelector((state) => state.quotes);
-  const { warehouses } = useSelector((state) => state.warehousesSlice);
+  const { warehouses, status_warehouses } = useSelector((state) => state.warehousesSlice);
   const location = useLocation();
   const [noDiscount, setNoDiscount] = useState(false);
   const record = location.state?.record;
   const nombre = localStorage.getItem('nombre');
   const [totalDiscount, setTotalDiscount] = useState(0);
   const {
-    pacientes_options_cotizacion
+    pacientes_options_cotizacion,
+    status: status_pacientes
   } = useSelector((state) => state.pacientes);
-  const {
-    interfuerzaProducts,
-    page_products,
-    hasMore_products
-  } = useSelector((state) => state.interfuerzaProducts);
-
   const {
     productsInterfuerza,
     limit,
@@ -78,6 +73,16 @@ const CrearCotizacion = () => {
   const maxDiscount = getMaxDiscountFromPermisos(permisos);
 
   useEffect(() => {
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }))
+  }, []);
+
+  useEffect(() => {
+    dispatch(fetchExchangeRate());
+    dispatch(fetchWareHouses({}))
+    dispatch(fetchProductsInterfuerza({}))
+  }, []);
+
+  useEffect(() => {
     if (lines.length === 0) return;
     const discounts = lines.map(line => parseFloat(line.DiscountFactor || 0));
     const allEqual = discounts.every(d => d === discounts[0]);
@@ -88,7 +93,24 @@ const CrearCotizacion = () => {
     }
   }, [lines]);
 
+  const getWarehouseNameByIP = (warehouses) => {
+    if (!warehouses || warehouses.length === 0) return '';
+
+    const ip = localStorage.getItem('ip');
+
+    const ipToSucursalId = {
+      '186.74.2.218': 7,
+      '190.219.45.142': 3,
+      '45.229.196.9': 4
+    };
+
+    const sucursalId = ipToSucursalId[ip] || null;
+    if (!sucursalId) return '';
+    const warehouseSelected = warehouses.find(w => w.sucursal_id === sucursalId);
+    return warehouseSelected?.nombre || '';
+  };
   useEffect(() => {
+
     if (exchangeRate) {
       form.setFieldsValue({
         Vendedor: nombre || '',
@@ -99,9 +121,11 @@ const CrearCotizacion = () => {
       Status: "ACTIVE",
       Type: "CUSTOMER",
       Date: dayjs(),
-      Expira: dayjs().add(30, 'day')
+      Expira: dayjs().add(30, 'day'),
+      Bodega: getWarehouseNameByIP(warehouses)
     });
-  }, [form, nombre, exchangeRate]);
+
+  }, [form, nombre, exchangeRate, warehouses]);
 
   useEffect(() => {
     if (record) {
@@ -111,7 +135,7 @@ const CrearCotizacion = () => {
         Type: record.Type || '',
         Date: record.Date ? dayjs(record.Date) : null,
         Expira: record.Expira ? dayjs(record.Expira) : null,
-        Bodega: record.Bodega || '',
+        Bodega: record.Bodega || getWarehouseNameByIP(warehouses) || '',
         Vendedor: record.Vendedor || '',
         Reservar_Productos: record?.Reservar_Productos === 'YES',
         Comentario: record.Comentario || '',
@@ -130,23 +154,7 @@ const CrearCotizacion = () => {
     }
   }, [record]);
 
-  useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }))
-  }, [dispatch])
 
-  useEffect(() => {
-    dispatch(fetchExchangeRate());
-  }, []);
-
-
-
-  useEffect(() => {
-    dispatch(fetchWareHouses({}))
-  }, [dispatch])
-
-  useEffect(() => {
-    dispatch(fetchProductsInterfuerza({}))
-  }, [])
 
   const handleBodegaChange = (value) => {
     setSelectedBodega(value);
@@ -729,6 +737,7 @@ const CrearCotizacion = () => {
                     form.setFieldsValue({ Expira: null });
                   }
                 }}
+
               />
             </Form.Item>
           </Col>
@@ -752,6 +761,7 @@ const CrearCotizacion = () => {
                 showSearch
                 optionFilterProp='children'
                 onChange={handleBodegaChange}
+                loading={status_warehouses === 'loading'}
               >
                 {warehouses?.map((wareHouse) => (
                   <Option key={wareHouse.nombre} value={wareHouse.nombre}>
