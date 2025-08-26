@@ -50,6 +50,7 @@ use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
 use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
+use App\Http\Controllers\API\quotes\QuotePdfController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
@@ -300,6 +301,8 @@ Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden'])
 
 Route::get('/api/ordenes/pdf/{id}', [OrdenesApiController::class, 'verOrdenPdf']);
 Route::get('/api/ordenes/correcion/pdf/{id}/{numero_correcion}', [OrdenesApiController::class, 'verCorrecionPdf']);
+
+Route::get('/api/quote/pdf/{id}', [QuotePdfController::class, 'verCotizacionPdf']);
 
 Route::get('/api/ordenes/contacto-orden/{id}', [OrdenesApiController::class, 'verContactoOrden']);
 

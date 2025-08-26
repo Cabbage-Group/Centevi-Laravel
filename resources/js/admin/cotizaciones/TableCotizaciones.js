@@ -8,7 +8,8 @@ import Swal from "sweetalert2";
 import { createInterfuerzaQuotes } from "../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice";
 import { generatePdfPreview, downloadPDF, formatDate } from './GeneradorPDF.js';
 import '../../../css/tables/TableCotizaciones.css';
-
+import { verCotizacionPdf } from '../../redux/features/quotes/quotesSlice';
+import { constant, set } from "lodash";
 
 const { Text } = Typography;
 
@@ -33,6 +34,8 @@ const TableCotizaciones = () => {
   const [currentQuoteDetails, setCurrentQuoteDetails] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [urlPdf, setUrlPdf] = useState(null);
+  const [pdfViewMode, setPdfViewMode] = useState('pdf');
 
   useEffect(() => {
     dispatch(fetchQuotes({ page, limit, sortColumn, sortOrder, searchTerm }));
@@ -88,6 +91,21 @@ const TableCotizaciones = () => {
     }
   };
 
+  const handleVerCotizacionPdf = async (id, record) => {
+    try {
+      setPdfViewMode('pdf');
+      setLoadingPdf(true);
+      setPdfModalVisible(true);
+      setSelectedQuote(record);
+      const url = await dispatch(verCotizacionPdf(id))
+      if (url) {
+        setUrlPdf(url.payload);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setLoadingPdf(false);
+  };
 
 
   const handleSearchChange = (value) => {
@@ -161,6 +179,19 @@ const TableCotizaciones = () => {
       setPdfModalVisible(false);
       setLoadingPdf(false);
     }
+    setLoadingPdf(false);
+  };
+  const handleShowPreview = async () => {
+    setPdfViewMode('preview');
+    setLoadingPdf(true);
+
+    try {
+      await dispatch(VerUnaQuote(selectedQuote.id));
+    } catch (error) {
+      console.error('Error obteniendo detalles:', error);
+    }
+
+    setLoadingPdf(false);
   };
 
   const handleDownloadPdf = async () => {
@@ -545,7 +576,7 @@ const TableCotizaciones = () => {
           <Button
             size="large"
             icon={<FilePdfOutlined style={{ width: '15px' }} />}
-            onClick={() => showPdfModal(record)}
+            onClick={() => handleVerCotizacionPdf(record.id, record)} 
             style={{
               alignItems: "center",
               justifyContent: "center",
@@ -611,45 +642,89 @@ const TableCotizaciones = () => {
           pageSize: limit,
           showSizeChanger: false,
         }}
-     
+
       />
 
       <Modal
-        title={`Vista previa PDF - Cotización #${selectedQuote?.id || 'N/A'}`}
-        visible={pdfModalVisible}
-        onCancel={handleCloseModal}
-        width={900}
-        footer={[
-          <Button key="cancel" onClick={handleCloseModal}>
+        open={pdfModalVisible}
+        width={pdfViewMode === 'preview' ? 900 : 1600}
+        closable={false}
+        footer={pdfViewMode === 'preview' ? [ 
+          <button key="cancel" onClick={() => setPdfModalVisible(false)}
+          className="btn btn-danger">
             Cancelar
-          </Button>,
-          <Button
+          </button>,
+          <button
             key="download"
             type="primary"
             onClick={handleDownloadPdf}
             loading={loadingPdf}
             disabled={!currentQuoteDetails}
-            style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+            className="btn btn-danger"
           >
             Descargar PDF
-          </Button>,
-        ]}
+          </button>,
+        ] : null}
+        height={pdfViewMode === 'preview' ? '80%' : '100%'}
+        centered={pdfViewMode === 'preview'}
+
       >
-        <div style={{
-          height: '70vh',
-          overflow: 'auto',
-          border: '1px solid #eee',
-          padding: '10px',
-          backgroundColor: '#f9f9f9'
-        }}>
-          {loadingPdf ? (
-            <div style={{ textAlign: 'center', padding: '50px' }}>
-              Cargando vista previa...
+        {pdfViewMode === 'preview' ? (
+          <div style={{
+            height: '70vh',
+            overflow: 'auto',
+            border: '1px solid #eee',
+            padding: '10px',
+            backgroundColor: '#f9f9f9'
+          }}>
+            {loadingPdf ? (
+              <div style={{ textAlign: 'center', padding: '50px' }}>
+                Cargando vista previa...
+              </div>
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: pdfPreviewContent }} />
+            )}
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+              <button
+                onClick={() => handleShowPreview()}
+                className="btn btn-danger"
+              >
+                Modo Ventana
+              </button>
             </div>
-          ) : (
-            <div dangerouslySetInnerHTML={{ __html: pdfPreviewContent }} />
-          )}
-        </div>
+
+            {loadingPdf ? (
+              <div style={{ textAlign: 'center', padding: '50px' }}>
+                Cargando PDF...
+              </div>
+            ) : urlPdf ? (
+              <iframe
+                src={urlPdf}
+                width="100%"
+                height="800px"
+                style={{ border: 'none' }}
+              />
+            ) : (
+              'PDF no disponible'
+            )}
+          </>
+        )}
+
+        {pdfViewMode === 'pdf' && (
+          <div style={{ display: 'flex', justifyContent: 'end', marginTop: '10px' }}>
+            <button onClick={() => {
+              setPdfModalVisible(false);
+              setUrlPdf(null);
+              setPdfViewMode('pdf');
+            }}
+            className="btn btn-danger">
+              Cerrar
+            </button>
+          </div>
+        )}
       </Modal>
     </div>
   );
