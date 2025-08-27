@@ -18,8 +18,8 @@ const Sucursales = () => {
   const [formValues, setFormValues] = useState({
     nombre: '',
     ubicacion: '',
-    ubicacion_maps: ''
-
+    ubicacion_maps: '',
+    correo: ''
   });
 
   useEffect(() => {
@@ -27,14 +27,17 @@ const Sucursales = () => {
       setFormValues({
         nombre: selectedSucursal.nombre || '',
         ubicacion: selectedSucursal.ubicacion || '',
-        ubicacion_maps: selectedSucursal.ubicacion_maps || ''
+        ubicacion_maps: selectedSucursal.ubicacion_maps || '',
+        correo: selectedSucursal.correo || ''
 
 
       });
     } else {
       setFormValues({
         nombre: '',
-        ubicacion: ''
+        ubicacion: '',
+        ubicacion_maps: '',
+        correo:''
       });
     }
   }, [selectedSucursal, isEditMode]);
@@ -119,7 +122,8 @@ const Sucursales = () => {
     const newSucursalData = {
       nombre: formValues.nombre,
       ubicacion: formValues.ubicacion,
-      ubicacion_maps: formValues.ubicacion_maps
+      ubicacion_maps: formValues.ubicacion_maps,
+      correo: formValues.correo
     };
 
     try {
@@ -150,6 +154,7 @@ const Sucursales = () => {
           icon: 'success',
           confirmButtonText: 'OK'
         });
+        handleModalClose(); 
       }
     } catch (error) {
       const errorMessage = error?.message || 'Hubo un problema al procesar la sucursal.';
@@ -302,6 +307,11 @@ const Sucursales = () => {
                                 tabIndex="0"
                                 aria-controls="zero-config"
                                 onClick={() => handleSort('ubicacion')}>Ubicacion</th>
+                                <th
+                                className={`sorting_${sortColumn === 'correo' ? sortOrder : ''}`}
+                                tabIndex="0"
+                                aria-controls="zero-config"
+                                onClick={() => handleSort('correo')}>correo</th>
                               <th
                                 className={`sorting_${sortColumn === 'fecha_creacion' ? sortOrder : ''}`}
                                 tabIndex="0"
@@ -315,6 +325,7 @@ const Sucursales = () => {
                               <tr key={sucursal.id_sucursal}>
                                 <td>{sucursal.nombre}</td>
                                 <td>{sucursal.ubicacion}</td>
+                                <td>{sucursal.correo}</td>
                                 <td>{new Date(sucursal.fecha_creacion).toLocaleDateString()}</td>
 
                                 <td>
@@ -343,13 +354,13 @@ const Sucursales = () => {
                             ))}
                           </tbody>
                           <tfoot>
-                            <tr>
+                            {/*<tr>
                               <th>Nombre Sucursal</th>
                               <th>Ubicacion</th>
                               <th>Estado</th>
                               <th>Fecha de creacion</th>
                               <th className="invisible"></th>
-                            </tr>
+                            </tr>*/}
                           </tfoot>
                         </table>
 
@@ -433,6 +444,21 @@ const Sucursales = () => {
                             placeholder="Ingresar ubicacion"
                             required
                             type="text"
+                            onChange={handleChange}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-addon">
+                            <i className="fa fa-lock" />
+                          </span>
+                          <input
+                            className="form-control input-lg"
+                            name="correo"
+                            placeholder="Ingresar correo"
+                            required
+                            type="email"
                             onChange={handleChange}
                           />
                         </div>
@@ -542,6 +568,22 @@ const Sucursales = () => {
                             name="ubicacion"
                             onChange={handleChange}
                             type="text"
+                          />
+
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <div className="input-group">
+                          <span className="input-group-addon">
+                            <i className="fa fa-lock" />
+                          </span>
+                          <input
+                            className="form-control input-lg"
+                            value={formValues?.correo || ''}
+                            name="correo"
+                            onChange={handleChange}
+                            type="email"
                           />
 
                         </div>

@@ -22,7 +22,7 @@ class SucursalesApiController extends Controller
       'page' => 'integer|min:1',
       'limit' => 'integer|min:1|max:100',
       'sortOrder' => 'in:asc,desc',
-      'sortColumn' => 'string|in:id_sucursal,nombre,ubicacion,fecha_creacion',
+      'sortColumn' => 'string|in:id_sucursal,nombre,ubicacion,fecha_creacion,correo',
       'search' => 'nullable|string|max:255',
     ]);
 
@@ -31,7 +31,8 @@ class SucursalesApiController extends Controller
     if (!empty($search)) {
       $query->where(function ($q) use ($search) {
         $q->where('nombre', 'LIKE', '%' . $search . '%')
-          ->orWhere('ubicacion', 'LIKE', '%' . $search . '%');
+          ->orWhere('ubicacion', 'LIKE', '%' . $search . '%')
+          ->orWhere('correo', 'LIKE', '%' . $search . '%');
       });
     }
 
@@ -61,6 +62,7 @@ class SucursalesApiController extends Controller
       'ubicacion' => 'required|string|max:255',
       'ubicacion_maps' => 'required|string|max:800',
       'fecha_creacion' => 'date',
+      'correo' => 'nullable|email|max:255',
 
     ]);
 
@@ -69,6 +71,7 @@ class SucursalesApiController extends Controller
       'nombre' => $request->nombre,
       'ubicacion' => $request->ubicacion,
       'ubicacion_maps' => $request->ubicacion_maps,
+      'correo' => $request->correo,
       'fecha_creacion' => now(),
     ]);
 
@@ -90,6 +93,7 @@ class SucursalesApiController extends Controller
       'ubicacion' => 'string|max:255',
       'ubicacion_maps' => 'required|string|max:800',
       'fecha_creacion' => 'date',
+      'correo' => 'nullable|email|max:255',
 
     ]);
 

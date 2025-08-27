@@ -128,7 +128,7 @@
                     <p class="bold" style="font-size: 18px; margin-bottom: 10px;"><strong>CENTEVI PANAMA, S.A.</strong></p>
                     <p style="font-size: 15px">155659660-2-2017 DV0</p>
                     <p style="font-size: 15px">Tel.: 310-8222</p>
-                    <p style="font-size: 15px">centevipanama@email.com</p>
+                    <p style="font-size: 15px">{{ $quoteDetails['sucursal']['correo'] ?? 'centevipanamasdasda@email.com' }}</p>
                 </td>
             </tr>
         </table>
@@ -228,7 +228,7 @@
 
                 <td style="border: none; width: 30%; text-align: center;">
                     <img src="{{ public_path('img/correo.png') }}" alt="Correo" style="vertical-align: middle; margin-right: 5px; width: 12px;">
-                    centevipanama@email.com
+                    {{ $quoteDetails['sucursal']['correo'] ?? 'centevipanaasdasdasdma@email.com' }}
                 </td>
 
                 <td style="border: none; width: 25%; text-align: right;">

@@ -44,7 +44,7 @@ export const generatePdfPreview = (quoteDetails) => {
           <p style="font-size: 18px; color: #333; margin-bottom: 10px; font-weight: bold;">CENTEVI PANAMA, S.A.</p>
           <p style="margin: 5px 0;">155659660-2-2017 DV0</p>
           <p style="margin: 5px 0;">Tel.: 310-8222</p>
-          <p style="margin: 5px 0;">centevipanama@email.com</p>
+          <span style="margin-right: 5px;"></span> ${quoteDetails?.sucursal?.correo || 'asdasdsaaa@email.com'}
         </div>
       </div>
 
@@ -138,7 +138,7 @@ export const generatePdfPreview = (quoteDetails) => {
           <span style="margin-right: 5px;">📍</span> CENTEVI PANAMA, S.A. - PANAMA
         </div>
         <div style="display: flex; align-items: center;">
-          <span style="margin-right: 5px;">📧</span> centevipanama@email.com
+          <span style="margin-right: 5px;">📧</span> ${quoteDetails?.sucursal?.correo || 'asdasdsaaa@email.com'}
         </div>
         <div style="display: flex; align-items: center;">
           <span style="margin-right: 5px;">📞</span> 310-8222 /
