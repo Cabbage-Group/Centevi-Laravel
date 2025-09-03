@@ -77,6 +77,7 @@ const EditOrden = ({
   const [formValues, setFormValues] = useState({
     nro_orden: '',
     nro_orden_id: '',
+    nro_cotizacion: '',
     id_paciente: '',
     id_sucursal: '',
     esfera_od: '',
@@ -165,6 +166,7 @@ const EditOrden = ({
         ...prevValues,
         nro_orden: pacienteOrden.nro_orden || '',
         nro_orden_id: pacienteOrden.nro_orden_id || '',
+        nro_cotizacion: pacienteOrden.nro_cotizacion || '',
         id_paciente: pacienteOrden.id_paciente || '',
         id_sucursal: pacienteOrden.id_sucursal || '',
         esfera_od: pacienteOrden.esfera_od || '',
@@ -558,7 +560,7 @@ const EditOrden = ({
                                     </div>
                                   </div>
 
-                                  <div className="col-md-4">
+                                  <div className="col-md-2">
                                     <h4>
                                       Fecha de solicitud
                                     </h4>
@@ -568,6 +570,36 @@ const EditOrden = ({
                                       </b>
                                     </p>
                                   </div>
+                                  <div className="col-md-2">
+                                    <h4>Nro. Cotización*</h4>
+                                    <Field name="nro_cotizacion">
+                                      {({ field }) => (
+                                        <input
+                                          {...field}
+                                          type="text"
+                                          placeholder="Ingrese el número de cotización"
+                                          className="form-control"
+                                          style={{
+                                            fontWeight: "bold",
+                                            marginBottom: "1rem",
+                                            height: "40px",
+                                            fontSize: "12px",
+                                            paddingLeft: "8px",
+                                            "::placeholder": {
+                                              fontSize: "12px"
+                                            }
+                                          }}
+                                        />
+                                      )}
+                                    </Field>
+                                    <ErrorMessage
+                                      name="nro_cotizacion"
+                                      component="div"
+                                      style={{ color: "red", fontSize: "12px" }}
+                                    />
+
+                                  </div>
+
                                   <div class="col-md-2"  >
                                     <h4>Nro. pacienteOrden*</h4>
                                     <Input

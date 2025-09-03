@@ -101,6 +101,7 @@ import VerServicios from '../admin/servicios/VerServicios.js';
 import CrearCobro from '../admin/cobros/CrearCobros.js';
 import TableCobros from '../admin/cobros/TableCobros.js';
 import TableWareHouses from '../admin/cotizaciones/wareHouses/TableWareHouses.js';
+import VerDiagnosticos from '../admin/diagnosticos/VerDiagnosticos.js';
 
 
 
@@ -295,7 +296,9 @@ const RoutesApp = () => {
 
           <Route path="/table-cobro" element={<Sidebar component={<TableCobros />} />} />
 
-          <Route path="/table-bodegas" element={<Sidebar component={<TableWareHouses/>} />} />
+          <Route path="/table-bodegas" element={<Sidebar component={<TableWareHouses />} />} />
+
+          <Route path="/diagnosticos" element={<Sidebar component={<VerDiagnosticos />} />} />
 
         </Route>
 

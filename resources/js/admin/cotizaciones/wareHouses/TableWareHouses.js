@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Select, Button, Row, Col, Table, Typography, Progress, message } from "antd";
-import { fetchWareHouses, setPage, syncWarehouses, updateSendDiscount } from "../../../redux/features/warehouses/warehousesSlice";
+import { fetchWareHouses, setPage, syncWarehouses, updateSendDiscount, updateSucursalWareHouse } from "../../../redux/features/warehouses/warehousesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import '../../../../css/tables/TableCotizaciones.css';
+import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 
 const { Option } = Select;
 const { Text } = Typography;
 
 const TableWareHouses = () => {
     const dispatch = useDispatch();
-    const { warehouses, meta, limit, page } = useSelector((state) => state.warehousesSlice);
+    const { warehouses, meta, limit, page, status_warehouses } = useSelector((state) => state.warehousesSlice);
+    const { sucursales_option_selects, status_updateSucursal } = useSelector((state) => state.sucursales);
     const [progress, setProgress] = useState(0);
     const [syncing, setSyncing] = useState(false);
-
+    const [selectedBranches, setSelectedBranches] = useState();
     useEffect(() => {
         dispatch(fetchWareHouses({ page, limit }));
     }, [page, limit, dispatch]);
+
+    useEffect(() => {
+        dispatch(fetchSucursales({}));
+    }, [])
 
     const handleTableChange = (pagination, filters, sorter) => {
         const newPage = pagination.current;
@@ -25,8 +31,6 @@ const TableWareHouses = () => {
         if (newPage !== page) dispatch(setPage(newPage));
         // dispatch(setSort({ sortColumn: newSortColumn, sortOrder: newSortOrder }));
     };
-
-
     const handleSyncWarehouses = async () => {
         setSyncing(true);
         setProgress(0);
@@ -225,7 +229,38 @@ const TableWareHouses = () => {
                     </Button>
                 );
             },
-        }
+        },
+        {
+            title: 'Sucursal',
+            key: 'sucursal_id',
+            render: (_, record) => {
+                const value = record.sucursal_id ?? null;
+                const handleChange = async (val) => {
+                    try {
+                        await dispatch(updateSucursalWareHouse({ id: record.id, sucursal_id: val })).unwrap();
+                        message.success("Sucursal actualizada correctamente");
+                    } catch (error) {
+                        message.error(`Error al actualizar sucursal: ${error.message}`);
+                        dispatch(fetchWareHouses({ page, limit }));
+                    }
+                };
+
+                return (
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        <Select
+                            style={{ width: 300 }}
+                            placeholder="Seleccionar sucursal"
+                            value={value || undefined}
+                            onChange={handleChange}
+                            options={sucursales_option_selects}
+                            loading={status_updateSucursal === 'loading'}
+                            disabled={status_updateSucursal === 'loading'}
+                            allowClear
+                        />
+                    </div>
+                );
+            },
+        },
 
     ]
 
@@ -259,6 +294,7 @@ const TableWareHouses = () => {
                     pageSize: limit,
                     showSizeChanger: false,
                 }}
+                loading={status_warehouses}
             >
 
             </Table>

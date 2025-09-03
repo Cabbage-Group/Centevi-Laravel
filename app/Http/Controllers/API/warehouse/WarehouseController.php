@@ -116,4 +116,43 @@ class WarehouseController extends Controller
             'data' => $warehouse,
         ]);
     }
+
+    public function updateSucursal(Request $request, $id)
+    {
+        $request->validate([
+            'sucursal_id' => 'nullable|exists:sucursales,id_sucursal',
+        ]);
+
+        $warehouse = Warehouse::find($id);
+
+        if (!$warehouse) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Warehouse no encontrado',
+            ], 404);
+        }
+
+        if ($request->filled('sucursal_id')) {
+            $sucursalAsignada = Warehouse::where('sucursal_id', $request->sucursal_id)
+                ->where('id', '!=', $id) 
+                ->exists();
+
+            if ($sucursalAsignada) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La sucursal ya está asignada a otra bodega',
+                    'warehouse_id_conflict' => $id
+                ], 409); 
+            }
+        }
+
+        $warehouse->sucursal_id = $request->sucursal_id;
+        $warehouse->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sucursal actualizada correctamente',
+            'data' => $warehouse,
+        ]);
+    }
 }

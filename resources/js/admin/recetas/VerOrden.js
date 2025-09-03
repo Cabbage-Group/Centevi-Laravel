@@ -22,7 +22,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { orderId } = useParams();
-  const { pacientes_options_selecteds, pacientes } = useSelector((state) => state.pacientes);
+  const { pacientes_options_selecteds, pacientes, status } = useSelector((state) => state.pacientes);
   const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
@@ -65,6 +65,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
   const [formValues, setFormValues] = useState({
     nro_orden: '',
     nro_orden_id: '',
+    nro_cotizacion: '',
     id_paciente: '',
     id_sucursal: '',
     esfera_od: '',
@@ -154,6 +155,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
         ...prevValues,
         nro_orden: pacienteOrden.nro_orden || '',
         nro_orden_id: pacienteOrden.nro_orden_id || '',
+        nro_cotizacion: pacienteOrden.nro_cotizacion || '',
         id_paciente: pacienteOrden.id_paciente || '',
         id_sucursal: pacienteOrden.id_sucursal || '',
         esfera_od: pacienteOrden.esfera_od || '',
@@ -310,11 +312,15 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
     }
   }, [selectedPaciente, pacientes]);
 
-
+  console.log('status',status)
+  useEffect(() => {
+    if (status === "idle" || pacientes.length < 11) {
+      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+    }
+  }, []);
 
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchUsuarios({}))
   }, []);
 
@@ -469,6 +475,36 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
                                       {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
                                     </b>
                                   </p>
+                                </div>
+                                <div className="col-md-2">
+                                  <h4>Nro. Cotización*</h4>
+                                  <Field name="nro_cotizacion">
+                                    {({ field }) => (
+                                      <input
+                                        {...field}
+                                        type="text"
+                                        placeholder="Ingrese el número de cotización"
+                                        className="form-control"
+                                        readOnly
+                                        style={{
+                                          fontWeight: "bold",
+                                          marginBottom: "1rem",
+                                          height: "40px",
+                                          fontSize: "12px",
+                                          paddingLeft: "8px",
+                                          "::placeholder": {
+                                            fontSize: "12px"
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                  </Field>
+                                  <ErrorMessage
+                                    name="nro_cotizacion"
+                                    component="div"
+                                    style={{ color: "red", fontSize: "12px" }}
+                                  />
+
                                 </div>
                                 <div class="col-md-2"  >
                                   <h4>Nro. Orden*</h4>
