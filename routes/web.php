@@ -50,6 +50,7 @@ use App\Http\Controllers\API\terapias\Terapias_Ortoptica_Adultos_ApiController;
 use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
 use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
+use App\Http\Controllers\API\quotes\QuotePdfController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
@@ -301,6 +302,8 @@ Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden'])
 Route::get('/api/ordenes/pdf/{id}', [OrdenesApiController::class, 'verOrdenPdf']);
 Route::get('/api/ordenes/correcion/pdf/{id}/{numero_correcion}', [OrdenesApiController::class, 'verCorrecionPdf']);
 
+Route::get('/api/quote/pdf/{id}', [QuotePdfController::class, 'verCotizacionPdf']);
+
 Route::get('/api/ordenes/contacto-orden/{id}', [OrdenesApiController::class, 'verContactoOrden']);
 
 Route::get('/api/tipos-fases-ordenes/{idOrden}', [OrdenesApiController::class, 'tipoFasesOrdenes']);
@@ -519,6 +522,8 @@ Route::get('/api/customers/get', [interfuerzaApiControllerCustomers::class, 'get
 
 Route::get('/api/ware-houses/get', [interfuerzaApiControllerWareHouses::class, 'getWareHouses']);
 
+
+
 Route::get('/api/products/get', [interfuerzaApiControllerProducts::class, 'getProducts']);
 
 Route::get('/api/obtener/quotes/centevi', [QuoterApiController::class, 'obtenerQuotes']);
@@ -554,7 +559,15 @@ Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterf
 Route::post('/api/warehouses/sync', [WarehouseController::class, 'syncFromInterfuerza']);
 
 Route::patch('/api/warehouses/{id}/send-discount', [WarehouseController::class, 'updateSendDiscount']);
-Route::get('/api/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+
+Route::patch('/api/warehouses/{id}/updateSucursal', [WarehouseController::class, 'updateSucursal']);
+
+Route::get('/api/diagnosticos/obtener-diagnosticos', [DiagnosticoPacienteController::class, 'mostrarDiagnosticos']);
+Route::post('/api/diagnosticos/crearDiagnosticos', [DiagnosticoPacienteController::class, 'store']);
+Route::put('/api/diagnosticos/{id}/actualizarDiagnosticos', [DiagnosticoPacienteController::class, 'update']);
+Route::delete('/api/diagnosticos/{id}/eliminarDiagnosticos', [DiagnosticoPacienteController::class, 'destroy']);
+
+
 
 
 Route::get('/{any}', function () {

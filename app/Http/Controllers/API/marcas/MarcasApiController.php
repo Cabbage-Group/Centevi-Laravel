@@ -12,13 +12,31 @@ class MarcasApiController extends Controller
   public function index(Request $request)
   {
     try {
-      // Obtener todos los tipos de usuarios
-      $cristales = Marcas::all();
+      $search = $request->input('search');
+
+      $marcas = Marcas::query();
+
+      if ($search) {
+        $normalizedSearch = $this->normalizeString($search);
+
+        $marcas = $marcas->get()->filter(function ($marca) use ($normalizedSearch) {
+          $normalizedNombre = $this->normalizeString($marca->nombre);
+          $normalizedCodigo = $this->normalizeString($marca->codigo);
+
+          return str_contains($normalizedNombre, $normalizedSearch) ||
+            str_contains($normalizedCodigo, $normalizedSearch);
+        });
+
+        $marcas = $marcas->values();
+      } else {
+        $marcas = $marcas->get();
+      }
+
 
       return response()->json([
         'success' => true,
         'message' => 'Operación exitosa',
-        'data' => $cristales,
+        'data' => $marcas,
       ]);
     } catch (\Exception $e) {
       return response()->json([
@@ -27,6 +45,13 @@ class MarcasApiController extends Controller
         'errors' => $e->getMessage(),
       ], 500);
     }
+  }
+
+  private function normalizeString($string)
+  {
+    $string = mb_strtolower($string);
+    $string = preg_replace('/[^a-z0-9]/u', '', $string);
+    return $string;
   }
 
   public function create(Request $request)

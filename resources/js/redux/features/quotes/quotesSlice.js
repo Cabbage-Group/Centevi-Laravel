@@ -44,6 +44,25 @@ export const createQuotes = createAsyncThunk(
   }
 );
 
+export const verCotizacionPdf = createAsyncThunk(
+  'quotes/viewPdf',
+  async (id, { rejectWithValue }) => {
+    let urlPdf = null;
+    try {
+      const response = await axios.get(`${API}/quote/pdf/${id}`, {  
+        responseType: 'blob' 
+      });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      urlPdf = url;
+    } catch (error) {
+      console.error('Error al visualizar la cotización:', error.response?.data);
+      return rejectWithValue(error.response?.data || 'Error al obtener PDF');
+    }
+    return urlPdf;
+  }
+);
+
 export const VerUnaQuote = createAsyncThunk(
   'quotes/VerUnaQuote',
   async (id, { rejectWithValue }) => {

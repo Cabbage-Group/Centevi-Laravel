@@ -14,9 +14,26 @@ class CristalesApiController extends Controller
   public function index(Request $request)
   {
     try {
-      $cristales = Cristales::all();
+      $search = $request->input('search');
 
-      // Verificar la codificación de los datos
+      $cristales = Cristales::query();
+
+      if ($search) {
+        $normalizedSearch = $this->normalizeString($search);
+
+        $cristales = $cristales->get()->filter(function ($cristal) use ($normalizedSearch) {
+          $normalizedNombre = $this->normalizeString($cristal->nombre);
+          $normalizedCodigo = $this->normalizeString($cristal->codigo);
+
+          return str_contains($normalizedNombre, $normalizedSearch) ||
+            str_contains($normalizedCodigo, $normalizedSearch);
+        });
+
+        $cristales = $cristales->values();
+      } else {
+        $cristales = $cristales->get();
+      }
+
       foreach ($cristales as $cristal) {
         foreach ($cristal->getAttributes() as $key => $value) {
           if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
@@ -42,6 +59,14 @@ class CristalesApiController extends Controller
       ], 500);
     }
   }
+
+  private function normalizeString($string)
+  {
+    $string = mb_strtolower($string);
+    $string = preg_replace('/[^a-z0-9]/u', '', $string);
+    return $string;
+  }
+
 
   public function create(Request $request)
   {
@@ -186,6 +211,4 @@ class CristalesApiController extends Controller
 
     return response()->json(['message' => 'Datos actualizados correctamente'], 200);
   }
-
-
 }

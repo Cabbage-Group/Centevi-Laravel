@@ -1,24 +1,41 @@
 import { Button, Form, Input, Modal, Segmented, Table } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createServicios, deleteServicios, fetchServicios, updateServicios } from "../../redux/features/servicios/serviciosSlice";
+import {
+  createServicios,
+  deleteServicios,
+  fetchServicios,
+  updateServicios,
+} from "../../redux/features/servicios/serviciosSlice";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined } from "@ant-design/icons";
 import Swal from "sweetalert2";
 
 const VerServicios = () => {
   const dispatch = useDispatch();
-  const servicios = useSelector((state) => state.servicios.servicios);
+  const { servicios, status_servicios } = useSelector((state) => state.servicios);
   const [selectedTable, setSelectedTable] = useState("Servicios");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const [form] = Form.useForm();
   const dataSource = {
     Servicios: servicios || [],
   };
-  console.log("Servicios:", servicios);
+
   useEffect(() => {
-    dispatch(fetchServicios());
-  }, []);
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText]);
+
+  useEffect(() => {
+    dispatch(fetchServicios({ search: debouncedSearchText }));
+  }, [debouncedSearchText, dispatch]);
 
   const showModal = (record = null) => {
     setEditingItem(record);
@@ -34,7 +51,8 @@ const VerServicios = () => {
   const handleSave = () => {
     form.validateFields().then((values) => {
       if (editingItem) {
-        if (selectedTable === "Servicios") dispatch(updateServicios({ id: editingItem.id, ...values }));
+        if (selectedTable === "Servicios")
+          dispatch(updateServicios({ id: editingItem.id, ...values }));
         console.log("Actualizando servicio:", { ...editingItem, ...values });
       } else {
         if (selectedTable === "Servicios") dispatch(createServicios(values));
@@ -45,37 +63,36 @@ const VerServicios = () => {
 
   const handleDelete = (id) => {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción eliminará el servicio permanentemente.',
-      icon: 'warning',
+      title: "¿Estás seguro?",
+      text: "Esta acción eliminará el servicio permanentemente.",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(deleteServicios(id))
           .unwrap()
           .then(() => {
             Swal.fire({
-              icon: 'success',
-              title: 'Servicio eliminado',
-              text: 'El servicio se ha eliminado correctamente',
-              confirmButtonColor: '#3085d6'
+              icon: "success",
+              title: "Servicio eliminado",
+              text: "El servicio se ha eliminado correctamente",
+              confirmButtonColor: "#3085d6",
             });
           })
           .catch((error) => {
             Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'No se pudo eliminar el servicio',
+              icon: "error",
+              title: "Error",
+              text: "No se pudo eliminar el servicio",
             });
           });
       }
     });
   };
-
 
   const columns = [
     {
@@ -106,7 +123,7 @@ const VerServicios = () => {
             style={{
               marginRight: 8,
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           />
           <Button
@@ -117,29 +134,45 @@ const VerServicios = () => {
             onClick={() => handleDelete(record.id)}
             style={{
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           />
         </>
-      )
-    }
-  ]
+      ),
+    },
+  ];
 
   return (
     <div style={{ padding: "20px" }}>
-      <Segmented
-        options={["Servicios"]}
-        value={selectedTable}
-        onChange={setSelectedTable}
-        style={{ marginBottom: 20, marginRight: 20 }}
-      />
-      <Button
-        className="btn btn-success"
-        onClick={() => showModal()}
-        style={{ marginBottom: 16, lineHeight: "1", padding: "8px 16px" }}
-      >
-        Crear {selectedTable}
-      </Button>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Segmented
+            options={["Servicios"]}
+            value={selectedTable}
+            onChange={setSelectedTable}
+            style={{ marginRight: 5 }}
+          />
+          <Input
+            placeholder={`Buscar en ${selectedTable}`}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            allowClear
+            style={{ marginBottom: 16, width: 300 }}
+          />
+        </div>
+
+        <Button
+          className="btn btn-success"
+          onClick={() => showModal()}
+          style={{
+            marginLeft: "auto",
+            lineHeight: "1",
+            padding: "8px 16px",
+          }}
+        >
+          Crear {selectedTable}
+        </Button>
+      </div>
 
       <Table
         columns={columns}
@@ -147,13 +180,13 @@ const VerServicios = () => {
         rowKey="id"
         className="dataTables_wrapper container-fluid dt-bootstrap4"
         id="zero-config_wrapper"
+        loading={status_servicios}
         pagination={{
           showSizeChanger: false,
           pageSize: 10,
           hideOnSinglePage: true,
         }}
-      >
-      </Table>
+      ></Table>
 
       <Modal
         title={editingItem ? "Editar " + selectedTable : "Crear " + selectedTable}
@@ -179,8 +212,8 @@ const VerServicios = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </div >
+    </div>
   );
-}
+};
 
 export default VerServicios;

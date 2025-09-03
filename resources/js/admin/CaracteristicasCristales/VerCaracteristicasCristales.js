@@ -12,17 +12,32 @@ import {
   createMateriales,
   deleteMateriales,
   fetchMateriales,
-  updateMateriales
+  updateMateriales,
 } from "../../redux/features/materiales/materialesSlice";
 import {
   createTratamientos,
   deleteTratamientos,
   fetchTratamientos,
-  updateTratamientos
+  updateTratamientos,
 } from "../../redux/features/tratamientos/tratamientosSlice";
-import { createMarcas, deleteMarcas, fetchMarcas, updateMarcas } from "../../redux/features/marcas/marcasSlice";
-import { createTiposAros, deleteTiposAros, fetchTiposAros, updateTiposAros } from "../../redux/features/tipos-aros/tiposArosSlice";
-import { createProveedorMaterial, deleteProveedorMaterial, fetchProveedorMaterial, updateProveedorMaterial } from "../../redux/features/proveedor-material/proveedorMaterialSlice";
+import {
+  createMarcas,
+  deleteMarcas,
+  fetchMarcas,
+  updateMarcas,
+} from "../../redux/features/marcas/marcasSlice";
+import {
+  createTiposAros,
+  deleteTiposAros,
+  fetchTiposAros,
+  updateTiposAros,
+} from "../../redux/features/tipos-aros/tiposArosSlice";
+import {
+  createProveedorMaterial,
+  deleteProveedorMaterial,
+  fetchProveedorMaterial,
+  updateProveedorMaterial,
+} from "../../redux/features/proveedor-material/proveedorMaterialSlice";
 
 const CristalesMaterialesTratamientos = () => {
   const dispatch = useDispatch();
@@ -31,29 +46,67 @@ const CristalesMaterialesTratamientos = () => {
   const [filterLenteContacto, setFilterLenteContacto] = useState(0);
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
-
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
 
   const [isLenteContacto, setIsLenteContacto] = useState(false);
 
-  const { cristales } = useSelector((state) => state.cristales);
-  const { materiales } = useSelector((state) => state.materiales);
-  const { tratamientos } = useSelector((state) => state.tratamientos);
-  const { tiposAros } = useSelector((state) => state.tiposAros)
-  const { marcas_lente_contacto, marcas_lente_normal } = useSelector((state) => state.marcas)
-  const { proveedorMaterial } = useSelector((state) => state.proveedorMaterial)
+  const { cristales, status_cristales } = useSelector((state) => state.cristales);
+  const { materiales, status_materiales } = useSelector((state) => state.materiales);
+  const { tratamientos, status_tratamientos } = useSelector((state) => state.tratamientos);
+  const { tiposAros, status_tiposAros } = useSelector((state) => state.tiposAros);
+  const { marcas_lente_contacto, marcas_lente_normal, status_marcas } = useSelector(
+    (state) => state.marcas
+  );
+  const { proveedorMaterial, status_proveedorMaterial } = useSelector(
+    (state) => state.proveedorMaterial
+  );
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
-    dispatch(fetchCristales());
-    dispatch(fetchMateriales());
-    dispatch(fetchTratamientos());
-    dispatch(fetchMarcas());
-    dispatch(fetchTiposAros());
-    dispatch(fetchProveedorMaterial());
-  }, [dispatch]);
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchText]);
+
+  useEffect(() => {
+    setSearchText("");
+  }, [selectedTable]);
+
+  useEffect(() => {
+    switch (selectedTable) {
+      case "Cristales":
+        dispatch(fetchCristales({ search: debouncedSearchText }));
+        break;
+      case "Materiales":
+        dispatch(fetchMateriales({ search: debouncedSearchText }));
+        break;
+      case "Tratamientos":
+        dispatch(fetchTratamientos({ search: debouncedSearchText }));
+        break;
+      case "MarcasLenteContacto":
+        dispatch(fetchMarcas({ search: debouncedSearchText }));
+        break;
+      case "MarcasLenteNormal":
+        dispatch(fetchMarcas({ search: debouncedSearchText }));
+        break;
+      case "TiposAros":
+        dispatch(fetchTiposAros({ search: debouncedSearchText }));
+        break;
+      case "ProveedorMaterial":
+        dispatch(fetchProveedorMaterial({ search: debouncedSearchText }));
+        break;
+      default:
+        break;
+    }
+  }, [debouncedSearchText, selectedTable, dispatch]);
 
   // Manejo del modal
   const showModal = (record = null) => {
-    console.log('record:', record)
+    console.log("record:", record);
     setEditingItem(record);
     form.setFieldsValue(record || { codigo: "", nombre: "", lente_contacto: "" });
     setIsModalOpen(true);
@@ -66,15 +119,22 @@ const CristalesMaterialesTratamientos = () => {
   };
 
   const handleSave = () => {
-    form.validateFields().then(values => {
+    form.validateFields().then((values) => {
       if (editingItem) {
-        if (selectedTable === "Cristales") dispatch(updateCristales({ id: editingItem.id, ...values }));
-        if (selectedTable === "Materiales") dispatch(updateMateriales({ id: editingItem.id, ...values }));
-        if (selectedTable === "Tratamientos") dispatch(updateTratamientos({ id: editingItem.id, ...values }));
-        if (selectedTable === "MarcasLenteContacto") dispatch(updateMarcas({ id: editingItem.id, ...values }));
-        if (selectedTable === "MarcasLenteNormal") dispatch(updateMarcas({ id: editingItem.id, ...values }));
-        if (selectedTable === "TiposAros") dispatch(updateTiposAros({ id: editingItem.id, ...values }))
-        if (selectedTable === "ProveedorMaterial") dispatch(updateProveedorMaterial({ id: editingItem.id, ...values }))
+        if (selectedTable === "Cristales")
+          dispatch(updateCristales({ id: editingItem.id, ...values }));
+        if (selectedTable === "Materiales")
+          dispatch(updateMateriales({ id: editingItem.id, ...values }));
+        if (selectedTable === "Tratamientos")
+          dispatch(updateTratamientos({ id: editingItem.id, ...values }));
+        if (selectedTable === "MarcasLenteContacto")
+          dispatch(updateMarcas({ id: editingItem.id, ...values }));
+        if (selectedTable === "MarcasLenteNormal")
+          dispatch(updateMarcas({ id: editingItem.id, ...values }));
+        if (selectedTable === "TiposAros")
+          dispatch(updateTiposAros({ id: editingItem.id, ...values }));
+        if (selectedTable === "ProveedorMaterial")
+          dispatch(updateProveedorMaterial({ id: editingItem.id, ...values }));
         message.success("Actualizado correctamente!");
       } else {
         if (selectedTable === "Cristales") dispatch(createCristales(values));
@@ -83,10 +143,6 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "MarcasLenteContacto") {
           dispatch(createMarcas(values))
             .unwrap()
-            .then(() => {
-              message.success("Creado correctamente!");
-              handleCancel();
-            })
             .catch((error) => {
               if (error.errors?.codigo) {
                 message.error("El código ya ha sido registrado.");
@@ -98,12 +154,13 @@ const CristalesMaterialesTratamientos = () => {
             });
         }
         if (selectedTable === "MarcasLenteNormal") dispatch(createMarcas(values));
-        if (selectedTable === "TiposAros") dispatch(createTiposAros(values));
+        if (selectedTable === "TiposAros") {
+          dispatch(createTiposAros(values));
+        }
         if (selectedTable === "ProveedorMaterial") {
           dispatch(createProveedorMaterial(values))
             .unwrap()
             .then(() => {
-              message.success("Creado correctamente!");
               handleCancel();
             })
             .catch((error) => {
@@ -114,6 +171,7 @@ const CristalesMaterialesTratamientos = () => {
               }
             });
         }
+        message.success("Creado correctamente!");
       }
       handleCancel();
     });
@@ -134,7 +192,7 @@ const CristalesMaterialesTratamientos = () => {
         if (selectedTable === "TiposAros") dispatch(deleteTiposAros(id));
         if (selectedTable === "ProveedorMaterial") dispatch(deleteProveedorMaterial(id));
         message.success("Eliminado correctamente!");
-      }
+      },
     });
   };
 
@@ -145,14 +203,14 @@ const CristalesMaterialesTratamientos = () => {
       : []),
     ...(selectedTable === "MarcasLenteContacto" || selectedTable === "MarcasLenteNormal"
       ? [
-        { title: "Código", dataIndex: "codigo", key: "codigo" },
-        {
-          title: "Lente de Contacto",
-          dataIndex: "lente_contacto",
-          key: "lente_contacto",
-          render: (value) => (value ? "Sí" : "No"),
-        }
-      ]
+          { title: "Código", dataIndex: "codigo", key: "codigo" },
+          {
+            title: "Lente de Contacto",
+            dataIndex: "lente_contacto",
+            key: "lente_contacto",
+            render: (value) => (value ? "Sí" : "No"),
+          },
+        ]
       : []),
     { title: "Nombre", dataIndex: "nombre", key: "nombre" },
     {
@@ -168,7 +226,7 @@ const CristalesMaterialesTratamientos = () => {
             style={{
               marginRight: 8,
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           />
 
@@ -180,10 +238,9 @@ const CristalesMaterialesTratamientos = () => {
             onClick={() => handleDelete(record.id)}
             style={{
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           />
-
         </>
       ),
     },
@@ -196,30 +253,62 @@ const CristalesMaterialesTratamientos = () => {
     MarcasLenteContacto: marcas_lente_contacto || [],
     MarcasLenteNormal: marcas_lente_normal || [],
     TiposAros: tiposAros || [],
-    ProveedorMaterial: proveedorMaterial || []
+    ProveedorMaterial: proveedorMaterial || [],
   };
 
+  const tableLoading = {
+    Cristales: status_cristales,
+    Materiales: status_materiales,
+    Tratamientos: status_tratamientos,
+    MarcasLenteContacto: status_marcas,
+    MarcasLenteNormal: status_marcas,
+    TiposAros: status_tiposAros,
+    ProveedorMaterial: status_proveedorMaterial,
+  }[selectedTable];
 
   return (
     <div style={{ padding: "20px" }}>
-      <Segmented
-        options={["Cristales", "Materiales", "Tratamientos", "MarcasLenteContacto", "MarcasLenteNormal", "TiposAros", "ProveedorMaterial"]}
-        value={selectedTable}
-        onChange={setSelectedTable}
-        style={{ marginBottom: 20 }}
-      />
-
-      <Button
-        className="btn btn-success"
-        onClick={() => showModal()}
-        style={{ marginBottom: 16, lineHeight: "1", padding: "8px 16px" }}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
       >
-        Crear {selectedTable}
-      </Button>
+        <Segmented
+          options={[
+            "Cristales",
+            "Materiales",
+            "Tratamientos",
+            "MarcasLenteContacto",
+            "MarcasLenteNormal",
+            "TiposAros",
+            "ProveedorMaterial",
+          ]}
+          value={selectedTable}
+          onChange={setSelectedTable}
+        />
+        <Input
+          placeholder={`Buscar en ${selectedTable}`}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          allowClear
+          style={{ marginBottom: 16, width: 300 }}
+        />
 
+        <Button
+          className="btn btn-success"
+          onClick={() => showModal()}
+          style={{ lineHeight: "1", padding: "8px 16px" }}
+        >
+          Crear {selectedTable}
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={dataSource[selectedTable]}
+        loading={tableLoading}
         rowKey="id"
         className="dataTables_wrapper container-fluid dt-bootstrap4"
         id="zero-config_wrapper"
@@ -247,7 +336,7 @@ const CristalesMaterialesTratamientos = () => {
             </Form.Item>
           )}
 
-          {(selectedTable === "MarcasLenteContacto") && (
+          {selectedTable === "MarcasLenteContacto" && (
             <>
               <Form.Item
                 name="codigo"
@@ -269,7 +358,7 @@ const CristalesMaterialesTratamientos = () => {
             </>
           )}
 
-          {(selectedTable === "MarcasLenteNormal") && (
+          {selectedTable === "MarcasLenteNormal" && (
             <>
               <Form.Item
                 name="codigo"

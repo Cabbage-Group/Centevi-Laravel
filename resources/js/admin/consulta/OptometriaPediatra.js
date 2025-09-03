@@ -26,7 +26,15 @@ const OptometriaPediatra = () => {
   const [proximosServicios, setProximosServicios] = useState([]);
   const [diagnosticosSelect, setDiagnosticosSelect] = useState([]);
   const initialValues = {
-    sucursal: "",
+    sucursal:
+      localStorage.getItem('ip') == '186.74.2.218'
+        ? "7"
+        : localStorage.getItem('ip') == '190.219.45.142'
+          ? "3"
+          : localStorage.getItem('ip') == '45.229.196.9'
+            ? "4"
+            : ""
+    ,
     doctor: localStorage.getItem("nombre"),
     agendado_por: localStorage.getItem("nombre"),
     id_terapia: "0",
@@ -63,37 +71,37 @@ const OptometriaPediatra = () => {
     ojo_dominante: "",
     mano_dominante: "",
     lensometria:
-      // [
-      {
-        esfera_od: "",
-        cilindro_od: "",
-        eje_od: "",
-        p_base_od: "",
-        add_od: "",
-        esfera_oi: "",
-        cilindro_oi: "",
-        eje_oi: "",
-        p_base_oi: "",
-        add_oi: "",
-      },
+    // [
+    {
+      esfera_od: "",
+      cilindro_od: "",
+      eje_od: "",
+      p_base_od: "",
+      add_od: "",
+      esfera_oi: "",
+      cilindro_oi: "",
+      eje_oi: "",
+      p_base_oi: "",
+      add_oi: "",
+    },
     // ],
     lensometria_extra:
-      // [
-      {
-        len_tipo_lentes: "",
-        len_filtros: "",
-        len_tiempo: "",
-        len_tipo_aro: "",
-      },
+    // [
+    {
+      len_tipo_lentes: "",
+      len_filtros: "",
+      len_tiempo: "",
+      len_tipo_aro: "",
+    },
     // ],
     sa_pp:
-      // [
-      {
-        sa_od: "",
-        pp_od: "",
-        sa_oi: "",
-        pp_oi: "",
-      },
+    // [
+    {
+      sa_od: "",
+      pp_od: "",
+      sa_oi: "",
+      pp_oi: "",
+    },
     // ],
     visuscopia: {
       viscopia_od: "",
@@ -167,7 +175,7 @@ const OptometriaPediatra = () => {
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-    dispatch(fetchServicios());
+    dispatch(fetchServicios({}));
     dispatch(fectchDiagnosticos());
   }, [dispatch]);
 
@@ -335,7 +343,7 @@ const OptometriaPediatra = () => {
                                 name="fecha_atencion"
                                 className="form-control"
                                 id="fecha_atencion"
-                                // max="2024-07-04"
+                              // max="2024-07-04"
                               />
                               <ErrorMessage
                                 name="fecha_atencion"
@@ -1370,7 +1378,7 @@ const OptometriaPediatra = () => {
                                       marginTop: "10px",
                                       marginBottom: "10px",
                                     }}
-                                    onClick={() => {}}
+                                    onClick={() => { }}
                                   >
                                     {serviciosRealizados.map((servicio) => {
                                       return (
@@ -1464,7 +1472,7 @@ const OptometriaPediatra = () => {
                                       marginTop: "10px",
                                       marginBottom: "10px",
                                     }}
-                                    onClick={() => {}}
+                                    onClick={() => { }}
                                   >
                                     {proximosServicios.map((servicio) => {
                                       return (

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API\warehouse;
 
 use App\Http\Controllers\Controller;
-use App\Models\Warehouse;
+use App\Models\WareHouse;
 use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 
@@ -24,7 +24,7 @@ class WarehouseController extends Controller
         $limit = $request->input('limit');
 
         if ($limit === null && $page === null) {
-            $warehouses = Warehouse::all();
+            $warehouses = WareHouse::all();
 
             return response()->json([
                 'data' => $warehouses,
@@ -39,7 +39,7 @@ class WarehouseController extends Controller
         $limit = (int) ($limit ?? 10);
         $page = (int) ($page ?? 1);
 
-        $warehouses = Warehouse::paginate($limit, ['*'], 'page', $page);
+        $warehouses = WareHouse::paginate($limit, ['*'], 'page', $page);
 
         return response()->json([
             'data' => $warehouses->items(),
@@ -73,8 +73,8 @@ class WarehouseController extends Controller
         $created = [];
 
         foreach ($warehouses as $w) {
-            if (!Warehouse::where('nombre', $w['Nombre'])->exists()) {
-                $new = Warehouse::create([
+            if (!WareHouse::where('nombre', $w['Nombre'])->exists()) {
+                $new = WareHouse::create([
                     'nombre' => $w['Nombre'],
                     'status' => $w['Status'] ?? true,
                     'tienda' => $w['Tienda'] ?? null,
@@ -98,7 +98,7 @@ class WarehouseController extends Controller
             'send_discount' => 'required|boolean',
         ]);
 
-        $warehouse = Warehouse::find($id);
+        $warehouse = WareHouse::find($id);
 
         if (!$warehouse) {
             return response()->json([
@@ -113,6 +113,45 @@ class WarehouseController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Campo send_discount actualizado correctamente',
+            'data' => $warehouse,
+        ]);
+    }
+
+    public function updateSucursal(Request $request, $id)
+    {
+        $request->validate([
+            'sucursal_id' => 'nullable|exists:sucursales,id_sucursal',
+        ]);
+
+        $warehouse = Warehouse::find($id);
+
+        if (!$warehouse) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Warehouse no encontrado',
+            ], 404);
+        }
+
+        if ($request->filled('sucursal_id')) {
+            $sucursalAsignada = Warehouse::where('sucursal_id', $request->sucursal_id)
+                ->where('id', '!=', $id) 
+                ->exists();
+
+            if ($sucursalAsignada) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La sucursal ya está asignada a otra bodega',
+                    'warehouse_id_conflict' => $id
+                ], 409); 
+            }
+        }
+
+        $warehouse->sucursal_id = $request->sucursal_id;
+        $warehouse->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sucursal actualizada correctamente',
             'data' => $warehouse,
         ]);
     }

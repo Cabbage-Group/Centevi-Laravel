@@ -61,10 +61,10 @@ const CreateCorrecionOrden = () => {
   useEffect(() => {
     dispatch(fetchUsuarios({}))
     dispatch(fecthOrdenes({}))
-    dispatch(fetchCristales())
-    dispatch(fetchMateriales())
-    dispatch(fetchTratamientos())
-    dispatch(fetchMarcas())
+    dispatch(fetchCristales({}))
+    dispatch(fetchMateriales({}))
+    dispatch(fetchTratamientos({}))
+    dispatch(fetchMarcas({}))
   }, []);
 
   useEffect(() => {

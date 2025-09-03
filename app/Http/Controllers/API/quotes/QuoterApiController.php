@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\quotes;
 
 use App\Http\Controllers\Controller;
 use App\Models\Quote;
+use App\Models\Usuarios;
+use App\Models\Sucursales;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -72,6 +74,16 @@ class QuoterApiController extends Controller
   public function verUnaCotizacion($id)
   {
     $quote = Quote::with(['lines', 'paciente'])->findOrFail($id);
+
+     $sucursal = null;
+    if ($quote->Vendedor) {
+        $usuario = Usuarios::find($quote->Vendedor);
+        if ($usuario && $usuario->sucursal) {
+            $sucursal = Sucursales::find($usuario->sucursal);
+        }
+    }
+    $quote->sucursal = $sucursal;
+    
     return response()->json($quote);
   }
 

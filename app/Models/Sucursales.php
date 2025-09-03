@@ -21,6 +21,7 @@ class Sucursales extends Model
     'nombre',
     'ubicacion',
     'ubicacion_maps',
+    'correo',
     'fecha_creacion',
   ];
 

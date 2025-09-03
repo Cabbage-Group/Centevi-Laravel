@@ -66,6 +66,7 @@ const Ordenes = () => {
   const [nivelStep, setNivelStep] = useState(0);
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const usuarios = useSelector((state) => state.usuarios.usuarios);
+  const status_usuarios = useSelector((state) => state.usuarios.status_usuarios);
   const [initialized, setInitialized] = useState(false);
   const [fechaSolicitud, setFechaSolicitud] = useState("");
   const [mensaje, setMensaje] = useState(
@@ -73,12 +74,12 @@ const Ordenes = () => {
   );
   const [celular, setCelular] = useState("");
   const [selectedPaciente, setSelectedPaciente] = useState("");
-  const { pacientes } = useSelector((state) => state.pacientes);
+  const { pacientes, status } = useSelector((state) => state.pacientes);
   const [selectedSucursal, setSelectedSucursal] = useState("");
   const [ubicacionMaps, setUbicacionMaps] = useState();
   const [nombrePaciente, setNombrePaciente] = useState("");
   const idUsuario = localStorage.getItem("id_usuario");
-  const { pacienteOrden } = useSelector((state) => state.ordenes);
+  const { pacienteOrden, statusPacienteOrden } = useSelector((state) => state.ordenes);
 
   const { permisos } = useSelector((state) => state.auth);
   const {
@@ -105,7 +106,7 @@ const Ordenes = () => {
     proveedorFilterLabo,
     startDateLabo,
     endDateLabo,
-    
+
   } = location.state || {};
 
   useEffect(() => {
@@ -202,24 +203,24 @@ const Ordenes = () => {
     if (sucursalFilterLabo !== false) {
       dispatch(setsucursalFilterLabo(sucursalFilterLabo));
     }
-    if (lenteContactoFilterLabo !== false) {  
+    if (lenteContactoFilterLabo !== false) {
       dispatch(setlenteContactoFilterLabo(lenteContactoFilterLabo));
     }
     if (statusFilterLabo !== false) {
       dispatch(setstatusFilterLabo(statusFilterLabo));
     }
-    if (faseFilterLabo !== false) {   
+    if (faseFilterLabo !== false) {
       dispatch(setfaseFilterLabo(faseFilterLabo));
     }
     if (proveedorFilterLabo !== false) {
-      dispatch(setproveedorFilterLabo(proveedorFilterLabo));  
+      dispatch(setproveedorFilterLabo(proveedorFilterLabo));
     }
-    if (startDateLabo !== false) {    
+    if (startDateLabo !== false) {
       dispatch(setstartDateLabo(startDateLabo));
     }
-    if (endDateLabo !== false) {  
+    if (endDateLabo !== false) {
       dispatch(setendDateLabo(endDateLabo));
-    }    
+    }
   }, []);
 
   useEffect(() => {
@@ -239,11 +240,15 @@ const Ordenes = () => {
   }, [selectedPaciente, pacientes]);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+    if (status === "idle" || pacientes.length < 11) {
+      dispatch(fetchPacientes({ page: 1, limit: 50000 }));
+    }
   }, []);
 
   useEffect(() => {
-    dispatch(fetchUsuarios({}));
+    if (status_usuarios === "idle" || usuarios.length === 0) {
+      dispatch(fetchUsuarios({}));
+    }
   }, []);
 
   useEffect(() => { }, [nuevaData, orderId]);
@@ -669,6 +674,8 @@ const Ordenes = () => {
         fecha_solicitud={fechaSolicitud}
         pacientesData={pacientes}
         usuariosData={usuarios}
+        status={status}
+        statusPacienteOrden={statusPacienteOrden}
       />
     </div>
   )

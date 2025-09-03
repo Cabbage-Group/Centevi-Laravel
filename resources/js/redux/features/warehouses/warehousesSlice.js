@@ -56,6 +56,19 @@ export const updateSendDiscount = createAsyncThunk(
     }
 );
 
+export const updateSucursalWareHouse = createAsyncThunk(
+    'warehouses/updateSucursal',
+    async ({ id, sucursal_id }, { rejectWithValue }) => {
+        try {
+            const response = await axios.patch(`${API}/warehouses/${id}/updateSucursal`, { sucursal_id });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || { message: 'Error desconocido' });
+        }
+    }
+);
+
+
 
 const warehousesSlice = createSlice({
     name: 'warehouses',
@@ -64,9 +77,11 @@ const warehousesSlice = createSlice({
         page: 1,
         limit: 18,
         total: 0,
-        status: 'idle',
+        status_warehouses: 'idle',
+        status_updateSucursal: 'idle',
         meta: {},
-        error: null,
+        error_warehouses: null,
+        error_updateSucursal: null,
     },
     reducers: {
         setPage: (state, action) => {
@@ -76,17 +91,17 @@ const warehousesSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchWareHouses.pending, (state) => {
-                state.status = 'loading';
+                state.status_warehouses = 'loading';
             })
             .addCase(fetchWareHouses.fulfilled, (state, action) => {
                 console.log('action.payload', action.payload);
-                state.status = 'succeeded';
+                state.status_warehouses = 'succeeded';
                 state.warehouses = action.payload.data;
                 state.meta = action.payload.meta
             })
             .addCase(fetchWareHouses.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
+                state.status_warehouses = 'failed';
+                state.error_warehouses = action.error.message;
             })
             .addCase(syncWarehouses.pending, (state) => {
                 state.status = 'loading';
@@ -110,7 +125,21 @@ const warehousesSlice = createSlice({
             })
             .addCase(updateSendDiscount.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.error.message;
+                state.error_updateSucursal = action.error.message;
+            })
+            .addCase(updateSucursalWareHouse.pending, (state) => {
+                state.status_updateSucursal = 'loading';
+            })
+            .addCase(updateSucursalWareHouse.fulfilled, (state, action) => {
+                state.status_updateSucursal = 'succeeded';
+                const updatedWarehouse = action.payload.data;
+                state.warehouses = state.warehouses.map((w) =>
+                    w.id === updatedWarehouse.id ? updatedWarehouse : w
+                );
+            })
+            .addCase(updateSucursalWareHouse.rejected, (state, action) => {
+                state.status_updateSucursal = 'failed';
+                state.error_updateSucursal = action.error.message;
             });
 
     },

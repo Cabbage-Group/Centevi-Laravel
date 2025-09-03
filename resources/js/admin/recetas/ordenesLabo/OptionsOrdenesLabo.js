@@ -42,11 +42,11 @@ const OptionsOrdenesLabo = ({
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
-    dispatch(fetchCristales())
+    dispatch(fetchCristales({}))
   }, [])
 
   useEffect(() => {
-    dispatch(fetchProveedorMaterial())
+    dispatch(fetchProveedorMaterial({}))
   }, [])
 
 

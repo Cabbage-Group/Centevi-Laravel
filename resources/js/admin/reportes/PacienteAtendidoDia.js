@@ -66,7 +66,7 @@ const PacienteAtendidoDia = ({
     };
 
     dispatch(fetchAtendidosPorDia(fetchParams));
-    dispatch(fetchServicios());
+    dispatch(fetchServicios({}));
   }, [localSearch, currentPage, startDate, endDate, orden, ordenPor, selectedDoctor]);
 
   console.log('atendidosPorDia:', atendidosPorDia)

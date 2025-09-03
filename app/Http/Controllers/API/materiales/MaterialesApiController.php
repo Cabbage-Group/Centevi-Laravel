@@ -6,14 +6,44 @@ use App\Http\Controllers\Controller;
 use App\Models\Materiales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
- 
+
 class MaterialesApiController extends Controller
 {
   public function index(Request $request)
   {
     try {
-      // Obtener todos los tipos de usuarios
-      $materiales = Materiales::all();
+      $search = $request->input('search');
+
+      $materiales = Materiales::query();
+
+      if ($search) {
+        $normalizedSearch = $this->normalizeString($search);
+
+        $materiales = $materiales->get()->filter(function ($material) use ($normalizedSearch) {
+          $normalizedNombre = $this->normalizeString($material->nombre);
+          $normalizedCodigo = $this->normalizeString($material->codigo);
+
+          return str_contains($normalizedNombre, $normalizedSearch) ||
+            str_contains($normalizedCodigo, $normalizedSearch);
+        });
+
+        $materiales = $materiales->values();
+      } else {
+        $materiales = $materiales->get();
+      }
+
+
+      foreach ($materiales as $material) {
+        foreach ($material->getAttributes() as $key => $value) {
+          if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+            return response()->json([
+              'success' => false,
+              'message' => "Caracteres mal codificados en el campo '$key'",
+              'data' => $value,
+            ], 500);
+          }
+        }
+      }
 
       return response()->json([
         'success' => true,
@@ -28,6 +58,15 @@ class MaterialesApiController extends Controller
       ], 500);
     }
   }
+
+  private function normalizeString($string)
+  {
+    $string = mb_strtolower($string);
+    $string = preg_replace('/[^a-z0-9]/u', '', $string);
+    return $string;
+  }
+
+
 
   public function create(Request $request)
   {

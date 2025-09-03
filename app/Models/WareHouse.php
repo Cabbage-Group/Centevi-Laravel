@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Warehouse extends Model
+class WareHouse extends Model
 {
     use HasFactory;
 
@@ -17,6 +17,7 @@ class Warehouse extends Model
         'tienda',
         'type',
         'venta_post',
+        'sucursal_id'
     ];
 
     protected $casts = [

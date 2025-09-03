@@ -106,6 +106,7 @@ const CreateOrden = () => {
     l_cuatro: "",
     l_cinco: "",
     isRowVisible: isAroVisible,
+    nro_cotizacion: ""
   };
 
   const validationSchema = Yup.object().shape({
@@ -128,11 +129,9 @@ const CreateOrden = () => {
     doctor: Yup.string()
       .nullable()
       .required("Seleccione un doctor"),
+    nro_cotizacion: Yup.string()
+      .required("Coloque un número de cotización"),
   });
-
-
-
-
 
   const toggleEye = () => {
     setIsLeftEye(!isLeftEye);
@@ -208,11 +207,11 @@ const CreateOrden = () => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchUsuarios({}))
-    dispatch(fetchCristales())
-    dispatch(fetchMateriales())
-    dispatch(fetchTratamientos())
-    dispatch(fetchTiposAros())
-    dispatch(fetchMarcas())
+    dispatch(fetchCristales({}))
+    dispatch(fetchMateriales({}))
+    dispatch(fetchTratamientos({}))
+    dispatch(fetchTiposAros({}))
+    dispatch(fetchMarcas({}))
   }, []);
 
   const handleSubmit = async (values) => {
@@ -373,7 +372,7 @@ const CreateOrden = () => {
                                     }}
                                   />
                                 </div>
-                                <div className="col-md-4">
+                                <div className="col-md-2">
                                   <h4>
                                     Fecha de solicitud
                                   </h4>
@@ -382,6 +381,35 @@ const CreateOrden = () => {
                                       {moment().format('YYYY-MM-DD')}
                                     </b>
                                   </p>
+                                </div>
+                                <div className="col-md-2">
+                                  <h4>Nro. Cotización*</h4>
+                                  <Field name="nro_cotizacion">
+                                    {({ field }) => (
+                                      <input
+                                        {...field}
+                                        type="text"
+                                        placeholder="Ingrese el número de cotización"
+                                        className="form-control"
+                                        style={{
+                                          fontWeight: "bold",
+                                          marginBottom: "1rem",
+                                          height: "40px",
+                                          fontSize: "12px",
+                                          paddingLeft: "8px",
+                                          "::placeholder": {
+                                            fontSize: "12px"
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                  </Field>
+                                  <ErrorMessage
+                                    name="nro_cotizacion"
+                                    component="div"
+                                    style={{ color: "red", fontSize: "12px" }}
+                                  />
+
                                 </div>
                                 <div class="col-md-2"  >
                                   <h4>Nro. Orden*</h4>

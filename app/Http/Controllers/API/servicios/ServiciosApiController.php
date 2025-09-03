@@ -13,20 +13,65 @@ use App\Models\ServiciosProximosOptometriaPediatrica;
 use App\Models\ServiciosProximosOrtopticaAdultos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Response;
 
 class ServiciosApiController extends Controller
 {
-  public function index()
+  public function index(Request $request)
   {
-    // Obtener todos los servicios
-    $servicios = Servicio::all();
+    try {
+      $search = $request->input('search');
+      $servicios = Servicio::query();
 
-    // Retornar la respuesta estructurada
-    return response()->json([
-      'data' => $servicios,
-      'status' => 'success',
-    ]);
+      if ($search) {
+        $normalizedSearch = $this->normalizeString($search);
+
+        $servicios = $servicios->get()->filter(function ($servicio) use ($normalizedSearch) {
+          $normalizedCodigo = $this->normalizeString($servicio->codigo ?? '');
+          $normalizedServicio = $this->normalizeString($servicio->servicio ?? '');
+
+          return
+            str_contains($normalizedCodigo, $normalizedSearch) ||
+            str_contains($normalizedServicio, $normalizedSearch);
+        })->values();
+      } else {
+        $servicios = $servicios->get();
+      }
+
+      foreach ($servicios as $servicio) {
+        foreach ($servicio->getAttributes() as $key => $value) {
+          if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+            return response()->json([
+              'success' => false,
+              'message' => "Caracteres mal codificados en el campo '$key'",
+              'data' => $value,
+            ], 500);
+          }
+        }
+      }
+
+      return response()->json([
+        'success' => true,
+        'message' => 'Operación exitosa',
+        'data' => $servicios
+      ], Response::HTTP_OK);
+    } catch (\Throwable $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Error interno del servidor',
+        'error' => $e->getMessage(),
+      ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
   }
+  
+  private function normalizeString($string)
+  {
+    $string = mb_strtolower($string);
+    $string = preg_replace('/[^a-z0-9]/u', '', $string);
+    return $string;
+  }
+
+
 
   public function getServiciosProximos(Request $request)
   {

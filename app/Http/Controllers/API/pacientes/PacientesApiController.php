@@ -63,13 +63,16 @@ class PacientesApiController extends Controller
     $data = Pacientes::query();
 
     if (!empty($search)) {
+      $searchClean = preg_replace('/[^A-Za-z0-9]/', '', $search); 
       $nameParts = explode(' ', $search);
-      $data->where(function ($query) use ($nameParts) {
+
+      $data->where(function ($query) use ($nameParts, $searchClean) {
         foreach ($nameParts as $part) {
-          $query->where(function ($subQuery) use ($part) {
-            $subQuery->where('nombres', 'like', "%{$part}%")
+          $query->where(function ($subQuery) use ($part, $searchClean) {
+            $subQuery
+              ->where('nombres', 'like', "%{$part}%")
               ->orWhere('apellidos', 'like', "%{$part}%")
-              ->orWhere('nro_cedula', 'like', "%{$part}%")
+              ->orWhereRaw("REPLACE(REPLACE(REPLACE(nro_cedula, '-', ''), ' ', ''), 'PE', '') LIKE ?", ["%{$searchClean}%"]) 
               ->orWhere('direccion', 'like', "%{$part}%")
               ->orWhere('fecha_creacion', 'like', "%{$part}%");
           });

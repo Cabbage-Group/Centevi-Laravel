@@ -12,9 +12,26 @@ class TratamientosApiController extends Controller
   public function index(Request $request)
   {
     try {
-      $tratamientos = Tratamientos::all();
+      $search = $request->input('search');
 
-      // Verificar la codificación de los datos
+      $tratamientos = Tratamientos::query();
+
+      if ($search) {
+        $normalizedSearch = $this->normalizeString($search);
+
+        $tratamientos = $tratamientos->get()->filter(function ($tratamiento) use ($normalizedSearch) {
+          $normalizedNombre = $this->normalizeString($tratamiento->nombre);
+          $normalizedCodigo = $this->normalizeString($tratamiento->codigo);
+
+          return str_contains($normalizedNombre, $normalizedSearch) ||
+            str_contains($normalizedCodigo, $normalizedSearch);
+        });
+
+        $tratamientos = $tratamientos->values();
+      } else {
+        $tratamientos = $tratamientos->get();
+      }
+
       foreach ($tratamientos as $tratamiento) {
         foreach ($tratamiento->getAttributes() as $key => $value) {
           if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
@@ -40,6 +57,15 @@ class TratamientosApiController extends Controller
       ], 500);
     }
   }
+
+  private function normalizeString($string)
+  {
+    $string = mb_strtolower($string);
+    $string = preg_replace('/[^a-z0-9]/u', '', $string);
+    return $string;
+  }
+
+
 
   public function create(Request $request)
   {
