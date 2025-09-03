@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API\warehouse;
 
 use App\Http\Controllers\Controller;
-use App\Models\Warehouse;
+use App\Models\WareHouse;
 use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 
@@ -24,7 +24,7 @@ class WarehouseController extends Controller
         $limit = $request->input('limit');
 
         if ($limit === null && $page === null) {
-            $warehouses = Warehouse::all();
+            $warehouses = WareHouse::all();
 
             return response()->json([
                 'data' => $warehouses,
@@ -39,7 +39,7 @@ class WarehouseController extends Controller
         $limit = (int) ($limit ?? 10);
         $page = (int) ($page ?? 1);
 
-        $warehouses = Warehouse::paginate($limit, ['*'], 'page', $page);
+        $warehouses = WareHouse::paginate($limit, ['*'], 'page', $page);
 
         return response()->json([
             'data' => $warehouses->items(),
@@ -73,8 +73,8 @@ class WarehouseController extends Controller
         $created = [];
 
         foreach ($warehouses as $w) {
-            if (!Warehouse::where('nombre', $w['Nombre'])->exists()) {
-                $new = Warehouse::create([
+            if (!WareHouse::where('nombre', $w['Nombre'])->exists()) {
+                $new = WareHouse::create([
                     'nombre' => $w['Nombre'],
                     'status' => $w['Status'] ?? true,
                     'tienda' => $w['Tienda'] ?? null,
@@ -98,7 +98,7 @@ class WarehouseController extends Controller
             'send_discount' => 'required|boolean',
         ]);
 
-        $warehouse = Warehouse::find($id);
+        $warehouse = WareHouse::find($id);
 
         if (!$warehouse) {
             return response()->json([
