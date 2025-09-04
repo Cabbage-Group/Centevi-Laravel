@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import DateRangeSeparate from "../../../reportes/DateRange";
 import { useDispatch, useSelector } from "react-redux";
-import { Checkbox, Col, Row, Select } from 'antd';
+import { Checkbox, Col, Row, Select, Dropdown, Button, Input, Space  } from 'antd';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, } from 'recharts';
 import { fetchKpisConsultasPorDoctores, fetchKpisTerapiasPorDoctores, setFechaRangeConsultasPorDoctores, setFechaRangeTerapiasPorDoctores } from "../../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice";
+import { DownOutlined } from '@ant-design/icons';
 
 const KpisConsultasTerapiasDoctores = (
   { doctores_activados }
@@ -26,6 +27,8 @@ const KpisConsultasTerapiasDoctores = (
   const [localEndDateTerapiasPorDoctores, setLocalEndDateTerapiasPorDoctores] = useState();
   const [activeLinesTerapiasPorDoctores, setActiveLinesTerapiasPorDoctores] = useState([]);
   const [terapiasFilter, setTerapiasFilter] = useState([]);
+  // Dropdown
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (doctores_activados?.length > 0) {
@@ -253,7 +256,8 @@ const KpisConsultasTerapiasDoctores = (
               dataKey={doctor.nombre}
               stackId="a"
               fill={doctorColor}
-              barSize={70}
+              // barSize={70}
+              barSize={40}
             />
           );
         }
@@ -263,6 +267,32 @@ const KpisConsultasTerapiasDoctores = (
 
     return lines;
   };
+
+  // nuevo menu para doctores
+  const { Search } = Input;
+  const filteredDoctors = (doctores_activados || []).filter(d =>
+    !searchTerm || d.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const dropdownOverlay = (
+    <div style={{ padding: 12, width: 320, backgroundColor:"white" }} onClick={(e) => e.stopPropagation()}>
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <Search placeholder="Buscar doctor" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} allowClear />
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <Button size="small" onClick={() => setActiveLinesTerapiasPorDoctores((doctores_activados || []).map(d => d.id_usuario))}>Seleccionar todos</Button>
+          <Button size="small" onClick={() => setActiveLinesTerapiasPorDoctores([])}>Limpiar</Button>
+        </div>
+        <div style={{ maxHeight: 260, overflowY: 'auto', paddingTop: 6 }}>
+          <Checkbox.Group value={activeLinesTerapiasPorDoctores} onChange={(vals) => setActiveLinesTerapiasPorDoctores(vals)} style={{ width: '100%' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {filteredDoctors.map(d => (
+                <Checkbox key={d.id_usuario} value={d.id_usuario}>{d.nombre}</Checkbox>
+              ))}
+            </div>
+          </Checkbox.Group>
+        </div>
+      </Space>
+    </div>
+  );
 
 
   const handleChangeConsultas = (value) => {
@@ -406,6 +436,13 @@ const KpisConsultasTerapiasDoctores = (
                 >
                 </Select>
               </div>
+              <div>
+                <Dropdown overlay={dropdownOverlay} trigger={['click']} placement="bottomRight">
+                  <Button>
+                    Filtrar doctores <DownOutlined />
+                  </Button>
+                </Dropdown>
+              </div>
             </div>
 
             <div style={{ flex: 1, }}>
@@ -424,11 +461,12 @@ const KpisConsultasTerapiasDoctores = (
                   />
                   <YAxis tick={{ fontSize: 10 }} />
                   <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} />
-                  <Legend
+                  {/* <Legend
                     verticalAlign="top"
                     align="center"
                     content={renderLegendTerapiasPorDoctores}
-                  />
+                  /> */}
+
                   {renderLinesTerapiasPorDoctores()}
                 </BarChart>
               </ResponsiveContainer>
