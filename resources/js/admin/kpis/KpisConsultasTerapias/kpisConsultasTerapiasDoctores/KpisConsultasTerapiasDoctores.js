@@ -205,25 +205,28 @@ const KpisConsultasTerapiasDoctores = (
   };
 
   const renderLegendTerapiasPorDoctores = () => (
-    <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
-      {doctores_activados?.map((doctor) => (
-        <div key={doctor.id_usuario} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
-            style={{
-              width: '15px',
-              height: '15px',
-              backgroundColor: '#6C5CE7',
-              borderRadius: '3px',
-            }}
-          ></div>
-          <Checkbox
-            checked={activeLinesTerapiasPorDoctores.includes(doctor.id_usuario)}
-            onChange={(e) => handleCheckboxChangeTerapiasPorDoctores(doctor.id_usuario, e.target.checked)}
-          >
-            {doctor.nombre}
-          </Checkbox>
-        </div>
-      ))}
+    <div style={{
+      display: 'block',
+      marginBottom: '15px',
+      overflowX: 'auto',
+      whiteSpace: 'nowrap',
+      paddingBottom: '6px'
+    }}>
+      <div style={{ display: 'inline-flex', gap: '12px' }}>
+        {doctores_activados?.map((doctor) => (
+          <div key={doctor.id_usuario} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '15px', height: '15px', backgroundColor: '#6C5CE7', borderRadius: '3px' }} />
+            <Checkbox
+              checked={activeLinesTerapiasPorDoctores.includes(doctor.id_usuario)}
+              onChange={(e) => handleCheckboxChangeTerapiasPorDoctores(doctor.id_usuario, e.target.checked)}
+            >
+              <span style={{ display: 'inline-block', verticalAlign: 'middle', maxWidth: 120, textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                {doctor.nombre}
+              </span>
+            </Checkbox>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
