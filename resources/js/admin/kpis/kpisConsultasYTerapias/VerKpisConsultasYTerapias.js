@@ -259,37 +259,46 @@ const VerKpisConsultasYTerapias = () => {
                   >
                     Sucursales
                   </div>
-                  
-                  <div style={{ display: 'flex', alignItems: "center", gap: "10px" }}>
-                    <DateRangeSeparate
-                      onApply={handleDateApplyCYTSucursales}
-                      onReset={handleDateResetCYTSucursales}
-                      isMonthPicker={true}
-                    />
-                    <div
-                      style={{
-                        display: "flex", flexDirection: "column", marginTop: '-32px',
-                        borderLeft: '1px solid gray',
-                        paddingLeft: '12px'
-                      }}
-                    >
-                      <label>Filtrar por Sucursal:</label>
-                      <Select
-                        mode="multiple"
-                        style={{ width: '200px' }}
-                        placeholder="Selecciona la sucursal"
-                        onChange={handleChangeCYTSucursales}
-                        value={cytsucursalFilter || undefined}
-                        allowClear
-                      >
-                        {sucursales.map(sucursal => (
-                          <Select.Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
-                            {sucursal.nombre}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </div>
-                  </div>
+                  <Row gutter={[12, 12]} align="">
+                    {/* DateRange: ocupa toda la fila en xs/sm, y ~60%-65% en md+ */}
+                    <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <DateRangeSeparate
+                          onApply={handleDateApplyCYTSucursales}
+                          onReset={handleDateResetCYTSucursales}
+                          isMonthPicker={true}
+                        />
+                      </div>
+                    </Col>
+
+                    {/* Filtro de sucursal: ocupa toda la fila en xs/sm, y el resto en md+ */}
+                    <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
+                        <label style={{ marginBottom: 4 }}>Filtrar por Sucursal:</label>
+                        <Select
+                          mode="multiple"
+                          style={{ width: '100%' }}
+                          width={'100%'}
+                          placeholder="Selecciona la sucursal"
+                          onChange={handleChangeCYTSucursales}
+                          value={cytsucursalFilter || undefined}
+                          allowClear
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            (option?.children || '').toString().toLowerCase().includes(input.toLowerCase())
+                          }
+                        >
+                          {sucursales.map(sucursal => (
+                            <Select.Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                              {sucursal.nombre}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </div>
+                    </Col>
+                  </Row>
+
                       
                   <div style={{ flex: 1 }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -341,36 +350,50 @@ const VerKpisConsultasYTerapias = () => {
                   >
                     Doctores
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <DateRangeSeparate
-                      onApply={handleDateApplyCYTDoctores}
-                      onReset={handleDateResetCYTDoctores}
-                      isMonthPicker={true}
-                    />
-                    <div
-                      style={{
-                        display: "flex", flexDirection: "column", marginTop: '-32px',
-                        borderLeft: '1px solid gray',
-                        paddingLeft: '12px'
-                      }}
-                    >
-                      <label>Filtrar por Doctor:</label>
-                      <Select
-                        mode="multiple"
-                        style={{ width: '200px' }}
-                        placeholder="Selecciona el doctor"
-                        onChange={handleChangeCYTDoctores}
-                        value={cytdoctorFilter || undefined}
-                        allowClear
+                  <Row gutter={[12, 12]} align="">
+                    {/* DateRange: ocupa toda la fila en xs/sm, y ~60%-65% en md+ */}
+                    <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <DateRangeSeparate
+                          onApply={handleDateApplyCYTDoctores}
+                          onReset={handleDateResetCYTDoctores}
+                          isMonthPicker={false}
+                        />
+                      </div>
+                    </Col>
+
+                    {/* Filtro de doctor: ocupa toda la fila en xs/sm, y el resto en md+ */}
+                    <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 6,
+                        }}
                       >
-                        {doctores_activados.map(doctor => (
-                          <Select.Option key={doctor.id_usuario} value={doctor.nombre}>
-                            {doctor.nombre}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </div>
-                  </div>
+                        <label style={{ marginBottom: 4 }}>Filtrar por Doctor:</label>
+                        <Select
+                          mode="multiple"
+                          style={{ width: '100%' }}
+                          placeholder="Selecciona el doctor"
+                          onChange={handleChangeCYTDoctores}
+                          value={cytdoctorFilter || undefined}
+                          allowClear
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            option?.children?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
+                        >
+                          {doctores_activados.map(doctor => (
+                            <Select.Option key={doctor.id_usuario} value={doctor.nombre}>
+                              {doctor.nombre}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </div>
+                    </Col>
+                  </Row>
                       
                   <div style={{ flex: 1, }}>
                     <ResponsiveContainer width="100%" height="100%">

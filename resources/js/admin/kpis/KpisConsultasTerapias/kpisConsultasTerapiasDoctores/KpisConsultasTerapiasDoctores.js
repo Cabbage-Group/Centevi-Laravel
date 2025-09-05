@@ -397,7 +397,7 @@ const KpisConsultasTerapiasDoctores = (
 
 
         <Col xxl={12} xl={12} md={12}>
-          <div style={{ color: 'black', fontWeight: 'bold' }}>Reporteria de Terapias de doctores</div>
+          <div style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>Reporteria de Terapias de doctores</div>
           <div
             style={{
               background: 'white',
@@ -409,24 +409,21 @@ const KpisConsultasTerapiasDoctores = (
               flexDirection: 'column',
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Row gutter={[12, 12]} align="">
+              <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
               <DateRangeSeparate
                 onApply={handleDateApplyTerapiasPorDoctores}
                 onReset={handleDateResetTerapiasPorDoctores}
                 isMonthPicker={true}
               />
-              <div
-                style={{
-                  display: "flex", flexDirection: "column", marginTop: '-32px',
-                  borderLeft: '1px solid gray',
-                  paddingLeft: '12px'
-                }}
-              >
+              </Col>
 
+              <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
                 <label>Filtrar por Terapias:</label>
                 <Select
                   mode="multiple"
-                  style={{ width: '200px' }}
+                  style={{ width: '100%' }}
+                  width={'100%'}
                   placeholder="Selecciona las terapias"
                   onChange={handleChangeTerapias}
                   value={terapiasFilter || undefined}
@@ -435,16 +432,18 @@ const KpisConsultasTerapiasDoctores = (
                   options={opcionesTerapias}
                 >
                 </Select>
-              </div>
-              <div>
+              </Col>
+              <Col xs={24} sm={24}>
                 <Dropdown overlay={dropdownOverlay} trigger={['click']} placement="bottomRight">
                   <Button>
                     Filtrar doctores <DownOutlined />
                   </Button>
                 </Dropdown>
-              </div>
-            </div>
+              </Col>
 
+            </Row>
+
+            
             <div style={{ flex: 1, }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
