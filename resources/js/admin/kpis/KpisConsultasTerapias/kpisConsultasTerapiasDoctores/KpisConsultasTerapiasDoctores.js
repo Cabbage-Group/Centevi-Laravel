@@ -322,82 +322,12 @@ const KpisConsultasTerapiasDoctores = (
 
 
   return (
-    <div>
-
+    <div style={{width: '100%'}}>
+      <div style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+        Reporteria de Terapias de doctores
+      </div>
       <Row gutter={[16, 16]}>
-
-        {/* <Col xxl={12} xl={12} md={12}>
-          <div style={{ color: 'black', fontWeight: 'bold' }}>Reporteria de Consultas de doctores</div>
-          <div
-            style={{
-              background: 'white',
-              padding: '15px',
-              height: '600px',
-              borderRadius: '15px',
-              marginTop: '15px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <DateRangeSeparate
-                onApply={handleDateApplyConsultasPorDoctores}
-                onReset={handleDateResetConsultasPorDoctores}
-                isMonthPicker={true}
-              />
-              <div
-                style={{
-                  display: "flex", flexDirection: "column", marginTop: '-32px',
-                  borderLeft: '1px solid gray',
-                  paddingLeft: '12px'
-                }}
-              >
-                <label>Filtrar por Consultas:</label>
-                <Select
-                  mode="multiple"
-                  style={{ width: '200px' }}
-                  placeholder="Selecciona las consultas"
-                  onChange={handleChangeConsultas}
-                  value={consultasFilter || undefined}
-                  allowClear
-                  direction="vertical"
-                  options={opcionesConsultas}
-                >
-                </Select>
-              </div>
-            </div>
-
-            <div style={{ flex: 1, }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={kpisConsultasPorDoctores}
-                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
-                  isAnimationActive={false}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                    interval={0}
-                    tickFormatter={truncateXAxisConsultasPorDoctores}
-                  />
-                  <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: 'transparent' }} />
-                  <Legend
-                    verticalAlign="top"
-                    align="center"
-                    content={renderLegendConsultasPorDoctores}
-                  />
-                  {renderLinesConsultasPorDoctores()}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div >
-        </Col> */}
-
-
         <Col xxl={12} xl={12} md={12}>
-          <div style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>Reporteria de Terapias de doctores</div>
           <div
             style={{
               background: 'white',
@@ -433,16 +363,16 @@ const KpisConsultasTerapiasDoctores = (
                 >
                 </Select>
               </Col>
-              <Col xs={24} sm={24}>
+            </Row>
+            <Row justify="end" marginBottom={6} marginTop={12}>
+              <Col xs={6} sm={6} >
                 <Dropdown overlay={dropdownOverlay} trigger={['click']} placement="bottomRight">
                   <Button>
                     Filtrar doctores <DownOutlined />
                   </Button>
                 </Dropdown>
               </Col>
-
             </Row>
-
             
             <div style={{ flex: 1, }}>
               <ResponsiveContainer width="100%" height="100%">
