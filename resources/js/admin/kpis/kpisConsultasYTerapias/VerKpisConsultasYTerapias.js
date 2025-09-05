@@ -209,28 +209,71 @@ const VerKpisConsultasYTerapias = () => {
 
   const renderLinesCYTSucursales = () => {
     const lines = [];
+    const activeCount = activeLinesCYTSucursales.length;
+    const size = activeCount > 1 ? 14 : 28; // más delgadas si hay varias series
+
     if (activeLinesCYTSucursales.includes("consultas")) {
-      lines.push(<Bar key="consultas" dataKey="consultas" stackId="a" fill="#6C5CE7" barSize={40} />);
+      lines.push(
+        <Bar
+          key="consultas"
+          dataKey="consultas"
+          fill="#6C5CE7"
+          barSize={size}
+          maxBarSize={48}
+          shape={(props) => <rect {...props} />}
+        />
+      );
     }
     if (activeLinesCYTSucursales.includes("terapia")) {
-      lines.push(<Bar key="terapia" dataKey="terapia" stackId="a" fill="#00B894" barSize={40} />);
+      lines.push(
+        <Bar
+          key="terapia"
+          dataKey="terapia"
+          fill="#00B894"
+          barSize={size}
+          maxBarSize={48}
+          shape={(props) => <rect {...props} />}
+        />
+      );
     }
     return lines;
   };
 
   const renderLinesCYTDoctores = () => {
     const lines = [];
+    const activeCount = activeLinesCYTDoctores.length;
+    const size = activeCount > 1 ? 14 : 28;
+
     if (activeLinesCYTDoctores.includes("consultas")) {
-      lines.push(<Bar key="consultas" dataKey="consultas" stackId="a" fill="#6C5CE7" barSize={40} />);
+      lines.push(
+        <Bar
+          key="consultas"
+          dataKey="consultas"
+          fill="#6C5CE7"
+          barSize={size}
+          maxBarSize={48}
+          // shape={(props) => <rect {...props} rx={6} ry={6} />}
+          shape={(props) => <rect {...props} />}
+        />
+      );
     }
     if (activeLinesCYTDoctores.includes("terapia")) {
-      lines.push(<Bar key="terapia" dataKey="terapia" stackId="a" fill="#00B894" barSize={40} />);
+      lines.push(
+        <Bar
+          key="terapia"
+          dataKey="terapia"
+          fill="#00B894"
+          barSize={size}
+          maxBarSize={48}
+          shape={(props) => <rect {...props}/>}
+        />
+      );
     }
     return lines;
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ width: "100%", marginBottom: '30px' }}>
       <Row justify="center">
         <Col xs={24} sm={24} md={22} lg={22} xl={20} xxl={18}>
           
@@ -331,12 +374,15 @@ const VerKpisConsultasYTerapias = () => {
                   </Select>
                 </div>
 
+                {/* ---------------------- Grafico de Barras ---------------------- */}
                 <div style={{ flex: 1 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={kpisTerapiasConsultasSucursales}
                       margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
                       isAnimationActive={false}
+                      barCategoryGap="50%"
+                      barGap={0}
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis
@@ -444,12 +490,15 @@ const VerKpisConsultasYTerapias = () => {
                   </Select>
                 </div>
 
+                {/* ---------------------- Grafico de Barras ---------------------- */}
                 <div style={{ flex: 1 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={kpisTerapiasConsultasDoctor}
                       margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
                       isAnimationActive={false}
+                      barCategoryGap="50%"
+                      barGap={0}
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis
@@ -471,7 +520,7 @@ const VerKpisConsultasYTerapias = () => {
           <Divider />
 
           <Row>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+            <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}>
               <KpisConsultasTerapiasDoctores doctores_activados={doctores_activados} />
             </Col>
           </Row>

@@ -326,55 +326,63 @@ const KpisConsultasTerapiasDoctores = (
       <div style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
         Reporteria de Terapias de doctores
       </div>
-      <Row gutter={[16, 16]}>
-        <Col xxl={12} xl={12} md={12}>
-          <div
-            style={{
-              background: 'white',
-              padding: '15px',
-              height: '600px',
-              borderRadius: '15px',
-              marginTop: '15px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <Row gutter={[12, 12]} align="">
-              <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
-              <DateRangeSeparate
-                onApply={handleDateApplyTerapiasPorDoctores}
-                onReset={handleDateResetTerapiasPorDoctores}
-                isMonthPicker={true}
-              />
-              </Col>
+      <div
+        style={{
+          background: 'white',
+          padding: '15px',
+          height: '600px',
+          borderRadius: '15px',
+          marginTop: '15px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Row gutter={[16, 16]} width={'100%'}>
+          <Col>
 
-              <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
-                <label>Filtrar por Terapias:</label>
-                <Select
-                  mode="multiple"
-                  style={{ width: '100%' }}
-                  width={'100%'}
-                  placeholder="Selecciona las terapias"
-                  onChange={handleChangeTerapias}
-                  value={terapiasFilter || undefined}
-                  allowClear
-                  direction="vertical"
-                  options={opcionesTerapias}
-                >
-                </Select>
-              </Col>
-            </Row>
-            <Row justify="end" marginBottom={6} marginTop={12}>
-              <Col xs={6} sm={6} >
-                <Dropdown overlay={dropdownOverlay} trigger={['click']} placement="bottomRight">
-                  <Button>
-                    Filtrar doctores <DownOutlined />
-                  </Button>
-                </Dropdown>
-              </Col>
-            </Row>
-            
-            <div style={{ flex: 1, }}>
+              <Row gutter={[12, 12]} align="">
+                <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
+                  <DateRangeSeparate
+                    onApply={handleDateApplyTerapiasPorDoctores}
+                    onReset={handleDateResetTerapiasPorDoctores}
+                    isMonthPicker={true}
+                  />
+                </Col>
+
+                <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
+                  <label>Filtrar por Terapias:</label>
+                  <Select
+                    mode="multiple"
+                    style={{ width: '100%' }}
+                    width={'100%'}
+                    placeholder="Selecciona las terapias"
+                    onChange={handleChangeTerapias}
+                    value={terapiasFilter || undefined}
+                    allowClear
+                    direction="vertical"
+                    options={opcionesTerapias}
+                  >
+                  </Select>
+                </Col>
+              </Row>
+              <Row >
+                <Col style={{marginBottom: '6px', marginTop: '12px'}}>
+                  <Dropdown overlay={dropdownOverlay} trigger={['click']} placement="bottomRight">
+                    <Button>
+                      Filtrar doctores <DownOutlined />
+                    </Button>
+                  </Dropdown>
+                </Col>
+              </Row>
+
+
+
+          </Col>
+        </Row>
+
+        <Row style={{width: '100%', height: '100%'}}>
+          <Col style={{width: '100%', height: '100%'}}>
+            <div style={{ flex: 1, width: '100%', height: '100%'}}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={kpisTerapiasPorDoctores}
@@ -400,12 +408,10 @@ const KpisConsultasTerapiasDoctores = (
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </div >
-        </Col>
-      </Row>
-
-
-
+          </Col>
+        </Row>
+        
+      </div >
     </div>
   );
 };
