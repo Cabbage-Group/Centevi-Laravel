@@ -1,5 +1,5 @@
 // src/components/HorizontalBarChart.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DateRangeSeparate from "../../../../admin/reportes/DateRange";
 import { Row, Col, Select } from "antd";
 import {
@@ -18,48 +18,124 @@ import {
  * - title: string (texto del badge)
  * - data: array (datos del chart)
  * - isMonthPicker: bool (para DateRangeSeparate)
- * - onDateApply(newStart, newEnd)
- * - onDateReset()
- * - filterTitle: string (para el titulo del filtro)
- * - filterList: array (lista para el Select de filtrado, p.e. sucursales)
- * - filterValueKey: string (clave del id en filterList, ej 'id_sucursal')
- * - filterLabelKey: string (clave del label en filterList, ej 'nombre')
- * - filterValue: array (valor seleccionado)
+ * - onDateApply(newStart, newEnd) (function al aplicar rango de fecha)
+ * - onDateReset() (function al restear el filtro de fecha)
+ * - filterList: array (lista para el Select de filtrado, p.e. sucursales=[{id, label}]) (ojo busqueeda servidor)
+ * - filterValueKey: string (clave del campo id en filterList, ej 'id_sucursal')
+ * - filterLabelKey: string (clave del campo que hace de label en filterList, ej 'nombre')
+ * - filterValue: array (valor/es seleccionado/s )
  * - onFilterChange(vals)
- * - seriesOptions: [{ label, value, color }]
- * - activeSeries: array (series activas)
- * - onSeriesChange(vals)
- * - tagRender: fn opcional para custom tags del Select de series
- * - tickFormatter: fn para X axis
- * - responsiveBarSize: number
- * - barCategoryGap, barGap: opcionales
- * - xDataKey: default 'name'
- * - tooltipComponent: componente o elemento para Tooltip content
+ * - metricsOptions: [{ label, value, color }] (cierto campo de la data que se quiere mostrar en una barra) (importante para mostrar data)
+ * - activeMetrics: array (series activas) (barras que se mostraran en el grafico) (importante para mostrar data)
+ * - renderMetricSelector: boolean (renderiza el select paara filtrar metricas localmente)
+ * - onMetricsChange(vals) (si cambia las barras que se quieren mostrar) (ojo: busqueda local)
+ * - xDataKey: default 'name' (etiqueta que sale en el eje x de la grafica, debe estar en la "data")
  */
 const HorizontalBarChart = ({
   title,
   data = [],
+
   isMonthPicker = true,
   onDateApply,
   onDateReset,
+  
   filterTitle = "Filtrar:",
   filterList = [],
   filterValueKey = "id",
   filterLabelKey = "name",
   filterValue = [],
   onFilterChange,
-  seriesOptions = [],
-  activeSeries = [],
-  onSeriesChange,
-  tagRender,
-  tickFormatter,
-  responsiveBarSize = 28,
+
+  metricsOptions = [],
+  activeMetrics = [],
+
+  renderMetricSelector = false,
+  onMetricsChange,
+  
   barCategoryGap = "50%",
   barGap = 0,
   xDataKey = "name",
-  tooltipComponent = null,
 }) => {
-  const activeCount = activeSeries.length || 1;
+  // responsive bar size (inside component)
+  const [responsiveBarSize, setResponsiveBarSize] = useState(28);
+
+  useEffect(() => {
+    const calc = () => {
+      const w = window.innerWidth;
+      let size = 28;
+      // breakpoints based on Ant Design
+      if (w < 576) size = 12;       // xs
+      else if (w < 768) size = 14;  // sm
+      else if (w < 992) size = 20;  // md
+      else if (w < 1200) size = 24; // lg
+      else if (w < 1600) size = 28; // xl
+      else size = 32;               // xxl
+      setResponsiveBarSize(size);
+    };
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, []);
+
+  // internal tagRender (uses seriesOptions to show color)
+  const internalTagRender = (props) => {
+    const { label, value, closable, onClose } = props;
+    const opt = metricsOptions.find((o) => o.value === value) || {};
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "2px 8px",
+          borderRadius: 12,
+          border: "1px solid #c7c7c7",
+          background: "#ededed",
+          fontSize: 12,
+        }}
+      >
+        {/* <span
+          style={{
+            width: 8,
+            height: 8,
+            background: opt.color || "#ccc",
+            borderRadius: 4,
+            display: "inline-block",
+          }}
+        /> */}
+        {label}
+      </span>
+    );
+  };
+
+  // internal tooltip
+  const CustomTooltipBarras = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div
+          style={{
+            background: "#f9f9f9",
+            color: "#000",
+            padding: "10px",
+            borderRadius: "5px",
+            border: "1px solid #ddd",
+            boxShadow: "0px 2px 5px rgba(0,0,0,0.2)",
+          }}
+        >
+          <p style={{ margin: 0, fontWeight: "bold" }}>{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} style={{ margin: "5px 0", color: entry.color }}>
+              {entry.name}: <strong>{entry.value}</strong>
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // compute barSize depending on how many active series
+  const activeCount = activeMetrics.length || 1;
   const barSize = activeCount > 1 ? Math.max(8, Math.round(responsiveBarSize / activeCount)) : responsiveBarSize;
 
   return (
@@ -130,39 +206,41 @@ const HorizontalBarChart = ({
         </Col>
       </Row>
 
-      {/* Series control */}
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, marginBottom: 6 }}>
-        <Select
-          mode="multiple"
-          placeholder="Series"
-          value={activeSeries}
-          onChange={onSeriesChange}
-          style={{ minWidth: 160 }}
-          tagRender={tagRender}
-          aria-label="Seleccionar series"
-        >
-          {seriesOptions.map((opt) => (
-            <Select.Option key={opt.value} value={opt.value}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <span style={{ width: 10, height: 10, background: opt.color, borderRadius: 3 }} />
-                {opt.label}
-              </span>
-            </Select.Option>
-          ))}
-        </Select>
-      </div>
+      {/* Select para las Metricas de control - rendizado opcional con renderMetricSelector */}
+      {renderMetricSelector && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, marginBottom: 6 }}>
+          <Select
+            mode="multiple"
+            placeholder="Series"
+            value={activeMetrics}
+            onChange={onMetricsChange}
+            style={{ minWidth: 160 }}
+            tagRender={internalTagRender}
+            aria-label="Seleccionar series"
+          >
+            {metricsOptions.map((opt) => (
+              <Select.Option key={opt.value} value={opt.value}>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 10, height: 10, background: opt.color, borderRadius: 3 }} />
+                  {opt.label}
+                </span>
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+      )}
 
       {/* Chart */}
       <div style={{ flex: 1 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 80 }} isAnimationActive={false} barCategoryGap={barCategoryGap} barGap={barGap}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey={xDataKey} tick={{ fontSize: 10, angle: -45, textAnchor: "end" }} interval={0} tickFormatter={tickFormatter} />
+            <XAxis dataKey={xDataKey} tick={{ fontSize: 10, angle: -45, textAnchor: "end" }} interval={0} tickFormatter={(v) => (typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v)} />
             <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip content={tooltipComponent} cursor={{ fill: "transparent" }} />
+            <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: "transparent" }} />
 
-            {seriesOptions.map((s) => {
-              if (!activeSeries.includes(s.value)) return null;
+            {metricsOptions.map((s) => {
+              if (!activeMetrics.includes(s.value)) return null;
               return (
                 <Bar key={s.value} dataKey={s.value} fill={s.color} barSize={barSize} maxBarSize={48} shape={(props) => <rect {...props} />}>
                   {data.map((entry, idx) => (
