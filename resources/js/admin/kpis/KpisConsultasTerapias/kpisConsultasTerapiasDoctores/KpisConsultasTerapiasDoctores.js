@@ -367,16 +367,33 @@ const KpisConsultasTerapiasDoctores = (
         </Row>
 
 
-        {/* Filtro grafico por doctores */}
-        <Row >
-          <Col style={{marginBottom: '6px', marginTop: '12px'}}>
-            <Dropdown overlay={dropdownOverlay} trigger={['click']} placement="bottomRight">
-              <Button>
-                Filtrar doctores <DownOutlined />
-              </Button>
-            </Dropdown>
+        {/* Filtro grafico por doctores (Select múltiple simple) */}
+        <Row style={{ marginTop: 12 }}>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} xxl={24}>
+            <label style={{ marginBottom: 8, display: 'block' }}>Filtrar por Doctor:</label>
+            <Select
+              mode="multiple"
+              placeholder="Selecciona los doctores"
+              value={activeLinesTerapiasPorDoctores}
+              onChange={(vals) => setActiveLinesTerapiasPorDoctores(vals)}
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children || '').toString().toLowerCase().includes(input.toLowerCase())
+              }
+              style={{ width: '100%' }}
+            >
+              {doctores_activados?.map((doctor) => (
+                <Select.Option key={doctor.id_usuario} value={doctor.id_usuario}>
+                  {doctor.nombre}
+                </Select.Option>
+              ))}
+            </Select>
           </Col>
         </Row>
+
+        {/* Grafico */}
         <Row style={{width: '100%', height: '100%'}}>
           <Col style={{width: '100%', height: '100%'}}>
             <div style={{ flex: 1, width: '100%', height: '100%'}}>

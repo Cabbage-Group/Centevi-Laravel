@@ -23,6 +23,7 @@ import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpisConsultasTerapiasDoctores from "../KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores";
 // import KpisConsultasTerapiasSucursales from "../KpisConsultasTerapias/kpisConsultasTerapiasSucursales/KpisConsultasTerapiasSucursales";
 
+
 const SERIES_OPTIONS = [
   { label: "Consultas", value: "consultas", color: "#6C5CE7" },
   { label: "Terapias", value: "terapia", color: "#00B894" },
@@ -51,7 +52,13 @@ const tagRender = (props) => {
 };
 
 const VerKpisConsultasYTerapias = () => {
+  /* ------------------------------------------------------------------------------
+                                Redux: Dispatch
+  ------------------------------------------------------------------------------ */
   const dispatch = useDispatch();
+  /* ------------------------------------------------------------------------------
+                              Redux: Store y data
+  ------------------------------------------------------------------------------ */
   const { sucursales } = useSelector((state) => state.sucursales);
   const { doctores_activados } = useSelector((state) => state.usuarios);
   const {
@@ -59,6 +66,9 @@ const VerKpisConsultasYTerapias = () => {
     kpisTerapiasConsultasDoctor,
   } = useSelector((state) => state.kpisConsultasTerapias);
 
+  /* ------------------------------------------------------------------------------
+                                UseStates
+  ------------------------------------------------------------------------------ */
   const [activeLinesCYTSucursales, setActiveLinesCYTSucursales] = useState([
     "consultas",
     "terapia",
@@ -76,7 +86,12 @@ const VerKpisConsultasYTerapias = () => {
   const [localEndDateCYTDoctores, setLocalEndDateCYTDoctores] = useState();
   const [cytsucursalFilter, setCYTSucursalFilter] = useState([]);
   const [cytdoctorFilter, setCYTDoctorFilter] = useState([]);
+  // responsive bar size (ajusta automáticamente según ancho de pantalla)
+  const [responsiveBarSize, setResponsiveBarSize] = useState(28);
 
+  /* ------------------------------------------------------------------------------
+                                UseEffects
+  ------------------------------------------------------------------------------ */
   useEffect(() => {
     dispatch(fetchSucursales({}));
   }, [dispatch]);
@@ -105,12 +120,38 @@ const VerKpisConsultasYTerapias = () => {
     );
   }, [dispatch, localStartDateCYTDoctores, localEndDateCYTDoctores, cytdoctorFilter]);
 
+  useEffect(() => {
+    const calc = () => {
+      const w = window.innerWidth;
+      let size = 28;
+
+      if (w < 576) size = 14;       // xs
+      else if (w < 768) size = 24;  // sm
+      else if (w < 992) size = 36;  // md
+      else if (w < 1200) size = 24; // lg
+      else if (w < 1600) size = 36; // xl
+      else size = 36;               // xxl
+
+      setResponsiveBarSize(size);
+    };
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, []);
+
+
+  /* ------------------------------------------------------------------------------
+                                function Utils
+  ------------------------------------------------------------------------------ */
   const truncateXAxisCYTSucursales = (value) =>
     value && value.length > 10 ? value.substring(0, 10) + "..." : value;
 
   const truncateXAxisCYTDoctores = (value) =>
     value && value.length > 10 ? value.substring(0, 10) + "..." : value;
 
+  /* ------------------------------------------------------------------------------
+                                  Handlers
+  ------------------------------------------------------------------------------ */
   const handleDateApplyCYTSucursales = (newStartDate, newEndDate) => {
     setLocalStartDateCYTSucursales(newStartDate);
     setLocalEndDateCYTSucursales(newEndDate);
@@ -174,6 +215,9 @@ const VerKpisConsultasYTerapias = () => {
     setActiveLinesCYTDoctores(values);
   };
 
+  /* ------------------------------------------------------------------------------
+                              Custom JSX functions
+  ------------------------------------------------------------------------------ */
   const CustomTooltipBarras = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -202,7 +246,10 @@ const VerKpisConsultasYTerapias = () => {
   const renderLinesCYTSucursales = () => {
     const lines = [];
     const activeCount = activeLinesCYTSucursales.length;
-    const size = activeCount > 1 ? 14 : 28; // más delgadas si hay varias series
+    // const size = activeCount > 1 ? 14 : 28; // más delgadas si hay varias series
+    const size = activeCount > 1
+    ? (responsiveBarSize / activeCount) // más delgadas si hay varias series
+    : responsiveBarSize;
 
     if (activeLinesCYTSucursales.includes("consultas")) {
       lines.push(
@@ -234,7 +281,11 @@ const VerKpisConsultasYTerapias = () => {
   const renderLinesCYTDoctores = () => {
     const lines = [];
     const activeCount = activeLinesCYTDoctores.length;
-    const size = activeCount > 1 ? 14 : 28;
+    // const size = activeCount > 1 ? 14 : 28; // más delgadas si hay varias series
+    const size = activeCount > 1
+    ? (responsiveBarSize / activeCount) // más delgadas si hay varias series
+    : responsiveBarSize;
+
 
     if (activeLinesCYTDoctores.includes("consultas")) {
       lines.push(
@@ -264,6 +315,9 @@ const VerKpisConsultasYTerapias = () => {
     return lines;
   };
 
+  /* ------------------------------------------------------------------------------
+                                Return Main View
+  ------------------------------------------------------------------------------ */
   return (
     <div style={{ width: "100%", marginBottom: '30px' }}>
       <Row justify="center">
@@ -277,6 +331,7 @@ const VerKpisConsultasYTerapias = () => {
           </Row>
           <Row gutter={[16, 16]}>
             
+            {/* 1ra CARD Grafico Suscursales */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
               <div
                 style={{
@@ -321,7 +376,7 @@ const VerKpisConsultasYTerapias = () => {
 
                   <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
                     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                      <label style={{ marginBottom: 8 }}>Filtrar por Sucursal:</label>
+                      <label style={{ marginBottom: 8, width: '100%', display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Filtrar por Sucursal:</label>
                       <Select
                         mode="multiple"
                         style={{ width: "100%" }}
@@ -393,6 +448,7 @@ const VerKpisConsultasYTerapias = () => {
               </div>
             </Col>
 
+            {/* 2da CARD Grafico doctores */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
               <div
                 style={{
@@ -512,8 +568,10 @@ const VerKpisConsultasYTerapias = () => {
 
           <Divider />
 
+          {/* Grafico doctores */}
           <Row gutter={[16, 16]}>
-            <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}>
+            {/* <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}> */}
+            <Col xs={24} sm={24}>
               <KpisConsultasTerapiasDoctores doctores_activados={doctores_activados} />
             </Col>
           </Row>
