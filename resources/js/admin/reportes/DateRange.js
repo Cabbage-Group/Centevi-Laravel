@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { DatePicker, Button, ConfigProvider, Col, Row } from "antd";
+import { DatePicker, Button, ConfigProvider, Col, Row, Tooltip } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import locale from "antd/es/locale/es_ES";
+
+import { ClearOutlined } from "@ant-design/icons";
 
 dayjs.locale("es");
 
@@ -105,14 +107,14 @@ const DateRangeSeparate = ({
       <Row>
         <Col span={24}>
           <ConfigProvider locale={locale}>
-            <Row gutter={[16, 16]}>
+            <Row gutter={[8, 8]}>
               {/* Columna del RangePicker */}
               <Col
-                xxl={showOneLine ? 16 : 24}
-                xl={showOneLine ? 16 : 24}
-                lg={showOneLine ? 16 : 24}
-                md={showOneLine ? 16 : 24}
-                sm={showOneLine ? 16 : 24}
+                xxl={showOneLine ? 24 : 24}
+                xl={showOneLine ? 24 : 24}
+                lg={showOneLine ? 24 : 24}
+                md={showOneLine ? 24 : 24}
+                sm={showOneLine ? 24 : 24}
                 xs={24}
               >
                 <RangePicker
@@ -129,33 +131,34 @@ const DateRangeSeparate = ({
               </Col>
 
               {/* Columna del botón */}
-              <Col
-                xxl={showOneLine ? 8 : 24}
-                xl={showOneLine ? 8 : 24}
-                lg={showOneLine ? 8 : 24}
-                md={showOneLine ? 8 : 24}
-                sm={showOneLine ? 8 : 24}
+              {/* <Col
+                xxl={showOneLine ? 4 : 24}
+                xl={showOneLine ? 4 : 24}
+                lg={showOneLine ? 4 : 24}
+                md={showOneLine ? 4 : 24}
+                sm={showOneLine ? 4 : 24}
                 xs={24}
               >
-                <Button
-                type="default"
-                  style={{
-                    width: "100%",
-                    borderColor: hovered ? "#00ab9b" : "#006b61",
-                    color: hovered ? "#00ab9b" : "#006b61",
-                    borderRadius: "6px",
-                  }}
-                  onMouseEnter={() => setHovered(true)}
-                  onMouseLeave={() => setHovered(false)}
-                  onClick={() => {
-                    setStartDate(null);
-                    setEndDate(null);
-                    onReset?.();
-                  }}
-                >
-                  Limpiar
-                </Button>
-              </Col>
+                <Tooltip title='Limpiar fecha'>
+                  <Button
+                  type="default"
+                    style={{
+                      width: "32px",
+                      borderColor: hovered ? "#00ab9b" : "#006b61",
+                      color: hovered ? "#00ab9b" : "#006b61",
+                      borderRadius: "12px",
+                    }}
+                    icon={<ClearOutlined />}
+                    onMouseEnter={() => setHovered(true)}
+                    onMouseLeave={() => setHovered(false)}
+                    onClick={() => {
+                      setStartDate(null);
+                      setEndDate(null);
+                      onReset?.();
+                    }}
+                  />
+                </Tooltip>
+              </Col> */}
             </Row>
           </ConfigProvider>
         </Col>

@@ -44,15 +44,7 @@ const tagRender = (props) => {
         fontSize: 12,
       }}
     >
-      <span
-        style={{
-          width: 8,
-          height: 8,
-          background: opt.color || "#ccc",
-          borderRadius: 4,
-          display: "inline-block",
-        }}
-      />
+      {/* <span style={{width: 10,height: 10,background: opt.color || "#ccc",borderRadius: 3,display: "inline-block",}}/> */}
       {label}
     </span>
   );
@@ -276,14 +268,15 @@ const VerKpisConsultasYTerapias = () => {
     <div style={{ width: "100%", marginBottom: '30px' }}>
       <Row justify="center">
         <Col xs={24} sm={24} md={22} lg={22} xl={20} xxl={18}>
-          
-
-          <Row gutter={[16, 16]}>
+          <Row>
             <Col sm={24} xs={24}>
               <div style={{ color: "black", fontWeight: "bold", fontSize: 16 }}>
                 Reporteria de Consultas & Terapias
               </div>
             </Col>
+          </Row>
+          <Row gutter={[16, 16]}>
+            
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
               <div
                 style={{
@@ -315,7 +308,7 @@ const VerKpisConsultasYTerapias = () => {
                   Sucursales
                 </div>
 
-                <Row gutter={[12, 12]}>
+                <Row gutter={[32, 12]}>
                   <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <DateRangeSeparate
@@ -431,13 +424,13 @@ const VerKpisConsultasYTerapias = () => {
                   Doctores
                 </div>
 
-                <Row gutter={[12, 12]}>
+                <Row gutter={[32, 12]}>
                   <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
                     <div style={{ display: "flex", alignItems: "center" }}>
                       <DateRangeSeparate
                         onApply={handleDateApplyCYTDoctores}
                         onReset={handleDateResetCYTDoctores}
-                        isMonthPicker={false}
+                        isMonthPicker={true}
                       />
                     </div>
                   </Col>
@@ -519,7 +512,7 @@ const VerKpisConsultasYTerapias = () => {
 
           <Divider />
 
-          <Row>
+          <Row gutter={[16, 16]}>
             <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}>
               <KpisConsultasTerapiasDoctores doctores_activados={doctores_activados} />
             </Col>
