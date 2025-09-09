@@ -463,31 +463,43 @@ const CrearCotizacion = () => {
   };
 
   const handleRowDiscountChange = (index, value) => {
-    // value viene como number | null desde InputNumber
+    // Permitir escribir libremente, solo validar negativos
     if (value === null || value === undefined || value === '') {
       setTempRowDiscounts(prev => ({ ...prev, [index]: '' }));
       return;
     }
-
-    let numeric = Number(value);
+    const numeric = Number(value);
     if (isNaN(numeric)) {
       setTempRowDiscounts(prev => ({ ...prev, [index]: '' }));
       return;
     }
 
-    // Cap inmediato mientras se edita
-    if (numeric > maxDiscount) numeric = maxDiscount;
-    if (numeric < 0) numeric = 0;
-
-    setTempRowDiscounts(prev => ({ ...prev, [index]: String(Number(numeric.toFixed(2))) }));
+    if (numeric < 0) {
+      setTempRowDiscounts(prev => ({ ...prev, [index]: '0' }));
+    } else {
+      // No limitar por máximo aquí, permitir escribir
+      setTempRowDiscounts(prev => ({ ...prev, [index]: String(numeric) }));
+    }
   };
 
-  const handleRowDiscountBlur = (index) => {
-    let str = tempRowDiscounts[index];
-    let normalized = (str === '' || str == null) ? 0 : Number(str);
-    if (isNaN(normalized)) normalized = 0;
-    if (normalized > maxDiscount) normalized = maxDiscount;
-    if (normalized < 0) normalized = 0;
+  const handleRowDiscountBlur = (index, e) => {
+    // Obtener el valor real del input DOM
+    const inputValue = e.target.value;
+    let normalized;
+    
+    if (inputValue === '' || inputValue == null) {
+      normalized = 0;
+    } else {
+      const numericValue = Number(inputValue);
+      if (isNaN(numericValue)) {
+        normalized = 0;
+      } else {
+        normalized = numericValue;
+        if (normalized < 0) normalized = 0;
+        if (normalized > maxDiscount) normalized = maxDiscount;
+      }
+    }
+
     normalized = Number(normalized.toFixed(2));
 
     // actualizamos la línea usando tu updateLine (espera DiscountFactor en decimal 0..1)
@@ -644,7 +656,6 @@ const CrearCotizacion = () => {
       render: (text, record, index) => {
         const parsed = parseFloat(text || 0);
         const displayValue = !isNaN(parsed) ? Number((parsed * 100).toFixed(2)) : null;
-
         return (
           <InputNumber
             style={{ width: '100%' }}
@@ -655,12 +666,12 @@ const CrearCotizacion = () => {
             }
             onFocus={() => handleRowDiscountFocus(index)}
             onChange={(value) => handleRowDiscountChange(index, value)}
-            onBlur={() => handleRowDiscountBlur(index)}
+            onBlur={(e) => handleRowDiscountBlur(index, e)} // Pasar el evento aquí
             min={0}
             max={maxDiscount}
             precision={2}
             formatter={(value) => {
-              // Solo mostrar "%"" cuando NO estamos editando
+              // Solo mostrar "%" cuando NO estamos editando
               if (editingRows[index] || value === '' || value == null) return value;
               return `${Number(value).toFixed(2)}%`;
             }}
@@ -950,7 +961,7 @@ const CrearCotizacion = () => {
                 );
               }}
               onChange={(value) => {
-                // value puede venir como number o null
+                // Permitir escribir cualquier valor durante la edición
                 if (value === null || value === undefined || value === '') {
                   setTempDiscount('');
                   return;
@@ -960,23 +971,34 @@ const CrearCotizacion = () => {
                   setTempDiscount('');
                   return;
                 }
-                // limitamos en tiempo real al max permitido
-                if (numeric > maxDiscount) {
-                  setTempDiscount(String(maxDiscount));
-                } else if (numeric < 0) {
+
+                // Solo validar que no sea negativo, pero permitir exceder máximo temporalmente
+                if (numeric < 0) {
                   setTempDiscount('0');
                 } else {
-                  // guardamos número limpio (sin formateo)
-                  // guardamos con máximo 2 decimales para evitar números raros
+                  // Guardar el valor tal como viene, sin limitar por maxDiscount
                   setTempDiscount(String(Number(numeric.toFixed(2))));
                 }
               }}
-              onBlur={() => {
-                let normalized =
-                  tempDiscount === '' || tempDiscount == null ? 0 : Number(tempDiscount);
-                if (isNaN(normalized)) normalized = 0;
-                if (normalized > maxDiscount) normalized = maxDiscount;
-                // asegurar 2 decimales
+
+              onBlur={(e) => {
+                // Obtener el valor real del input DOM
+                const inputValue = e.target.value;
+                let normalized;
+
+                if (inputValue === '' || inputValue == null) {
+                  normalized = 0;
+                } else {
+                  const numericValue = Number(inputValue);
+                  if (isNaN(numericValue)) {
+                    normalized = 0;
+                  } else {
+                    normalized = numericValue;
+                    if (normalized < 0) normalized = 0;
+                    if (normalized > maxDiscount) normalized = maxDiscount;
+                  }
+                }
+
                 normalized = Number(normalized.toFixed(2));
                 setTotalDiscount(normalized);
                 setTempDiscount(String(normalized));
