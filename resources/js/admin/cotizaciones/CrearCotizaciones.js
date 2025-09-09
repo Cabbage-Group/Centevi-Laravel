@@ -51,8 +51,12 @@ const CrearCotizacion = () => {
   const nombre = localStorage.getItem('nombre');
   const [totalDiscount, setTotalDiscount] = useState(0);
 
-  const [tempDiscount, setTempDiscount] = useState(totalDiscount); // valor temporal mientras escribe
-  const [isEditing, setIsEditing] = useState(false); // indica si el usuario está editando
+  const [tempDiscount, setTempDiscount] = useState(''); // guardar como string mientras escribe
+  const [isEditing, setIsEditing] = useState(false);
+
+  // para los inputs % por fila (temporal y edición por índice)
+  const [tempRowDiscounts, setTempRowDiscounts] = useState({}); // { [index]: '12.34' }
+  const [editingRows, setEditingRows] = useState({}); // { [index]: true }
 
   const {
     pacientes_options_cotizacion,
@@ -157,7 +161,6 @@ const CrearCotizacion = () => {
       }
     }
   }, [record]);
-
 
 
   const handleBodegaChange = (value) => {
@@ -449,6 +452,52 @@ const CrearCotizacion = () => {
     });
   };
 
+  // NNuevo handlers para manejar inputNumber descuento
+  const handleRowDiscountFocus = (index) => {
+    setEditingRows(prev => ({ ...prev, [index]: true }));
+    const current = lines[index]?.DiscountFactor;
+    setTempRowDiscounts(prev => ({
+      ...prev,
+      [index]: current !== undefined && current !== null ? String(Number(current * 100)) : ''
+    }));
+  };
+
+  const handleRowDiscountChange = (index, value) => {
+    // value viene como number | null desde InputNumber
+    if (value === null || value === undefined || value === '') {
+      setTempRowDiscounts(prev => ({ ...prev, [index]: '' }));
+      return;
+    }
+
+    let numeric = Number(value);
+    if (isNaN(numeric)) {
+      setTempRowDiscounts(prev => ({ ...prev, [index]: '' }));
+      return;
+    }
+
+    // Cap inmediato mientras se edita
+    if (numeric > maxDiscount) numeric = maxDiscount;
+    if (numeric < 0) numeric = 0;
+
+    setTempRowDiscounts(prev => ({ ...prev, [index]: String(Number(numeric.toFixed(2))) }));
+  };
+
+  const handleRowDiscountBlur = (index) => {
+    let str = tempRowDiscounts[index];
+    let normalized = (str === '' || str == null) ? 0 : Number(str);
+    if (isNaN(normalized)) normalized = 0;
+    if (normalized > maxDiscount) normalized = maxDiscount;
+    if (normalized < 0) normalized = 0;
+    normalized = Number(normalized.toFixed(2));
+
+    // actualizamos la línea usando tu updateLine (espera DiscountFactor en decimal 0..1)
+    updateLine(index, 'DiscountFactor', normalized / 100);
+
+    // sincronizamos estados temporales y salimos de edición
+    setTempRowDiscounts(prev => ({ ...prev, [index]: String(normalized) }));
+    setEditingRows(prev => ({ ...prev, [index]: false }));
+  };
+
   const columns = [
     {
       title: 'Código',
@@ -580,18 +629,46 @@ const CrearCotizacion = () => {
       title: '% Descuento',
       dataIndex: 'DiscountFactor',
       key: 'DiscountFactor',
-      render: (text, record, index) => (
-        <InputNumber
-          style={{ width: '100%' }}
-          value={parseFloat((parseFloat(text) * 100).toFixed(2))}
-          onChange={(value) => updateLine(index, 'DiscountFactor', value / 100)}
-          min={0}
-          max={maxDiscount}
-          precision={2}
-          formatter={(value) => `${Number(value).toFixed(2)}%`}
-          parser={(value) => value.replace('%', '')}
-        />
-      )
+      // render: (text, record, index) => (
+      //   <InputNumber
+      //     style={{ width: '100%' }}
+      //     value={parseFloat((parseFloat(text) * 100).toFixed(2))}
+      //     onChange={(value) => updateLine(index, 'DiscountFactor', value / 100)}
+      //     min={0}
+      //     max={maxDiscount}
+      //     precision={2}
+      //     formatter={(value) => `${Number(value).toFixed(2)}%`}
+      //     parser={(value) => value.replace('%', '')}
+      //   />
+      // )
+      render: (text, record, index) => {
+        const parsed = parseFloat(text || 0);
+        const displayValue = !isNaN(parsed) ? Number((parsed * 100).toFixed(2)) : null;
+
+        return (
+          <InputNumber
+            style={{ width: '100%' }}
+            value={
+              editingRows[index]
+                ? (tempRowDiscounts[index] === '' ? null : Number(tempRowDiscounts[index]))
+                : (displayValue !== null ? displayValue : null)
+            }
+            onFocus={() => handleRowDiscountFocus(index)}
+            onChange={(value) => handleRowDiscountChange(index, value)}
+            onBlur={() => handleRowDiscountBlur(index)}
+            min={0}
+            max={maxDiscount}
+            precision={2}
+            formatter={(value) => {
+              // Solo mostrar "%"" cuando NO estamos editando
+              if (editingRows[index] || value === '' || value == null) return value;
+              return `${Number(value).toFixed(2)}%`;
+            }}
+            parser={(value) => (value ? value.toString().replace('%', '') : '')}
+            placeholder='0.00%'
+          />
+        );
+      }
     },
     {
       title: 'Descuento ($)',
@@ -835,8 +912,8 @@ const CrearCotizacion = () => {
             </label>
           </Col>
 
-          {/* <Col>
-            <InputNumber
+          <Col>
+            {/* <InputNumber
               value={totalDiscount}
               min={0}
               max={maxDiscount}
@@ -844,34 +921,72 @@ const CrearCotizacion = () => {
               formatter={(value) => `${Number(value).toFixed(2)}%`}
               parser={(value) => value.replace('%', '')}
               onChange={handleTotalDiscountChange}
-            />
-          </Col> */}
-          <Col>
+              s
+            /> */}
+
             <InputNumber
-              value={isEditing ? tempDiscount : totalDiscount} // mientras editas muestra solo el número
+              // Mientras editas mostramos tempDiscount; fuera de edición mostramos totalDiscount
+              value={
+                isEditing
+                  ? (tempDiscount === '' ? null : Number(tempDiscount))
+                  : (totalDiscount === '' ? null : Number(totalDiscount))
+              }
               min={0}
               max={maxDiscount}
               precision={2}
-              formatter={(value) =>
-                !isEditing && value != null && value !== ''
-                  ? `${Number(value).toFixed(2)}%` // solo al perder foco
-                  : value
-              }
-              parser={(value) => value.replace('%', '')}
-              onFocus={() => setIsEditing(true)} // empieza a editar
-              onChange={(value) => setTempDiscount(value)} // actualiza el valor temporal
+              // Solo aplicamos formato con % cuando NO estamos editando
+              formatter={(value) => {
+                if (isEditing || value === '' || value == null) return value;
+                return `${Number(value).toFixed(2)}%`;
+              }}
+              parser={(value) => (value ? value.toString().replace('%', '') : '')}
+              onFocus={() => {
+                setIsEditing(true);
+                // al abrir el input ponemos el valor actual en temp para editar
+                setTempDiscount(
+                  totalDiscount !== null && totalDiscount !== undefined
+                    ? String(totalDiscount)
+                    : ''
+                );
+              }}
+              onChange={(value) => {
+                // value puede venir como number o null
+                if (value === null || value === undefined || value === '') {
+                  setTempDiscount('');
+                  return;
+                }
+                const numeric = Number(value);
+                if (isNaN(numeric)) {
+                  setTempDiscount('');
+                  return;
+                }
+                // limitamos en tiempo real al max permitido
+                if (numeric > maxDiscount) {
+                  setTempDiscount(String(maxDiscount));
+                } else if (numeric < 0) {
+                  setTempDiscount('0');
+                } else {
+                  // guardamos número limpio (sin formateo)
+                  // guardamos con máximo 2 decimales para evitar números raros
+                  setTempDiscount(String(Number(numeric.toFixed(2))));
+                }
+              }}
               onBlur={() => {
-                const normalized = tempDiscount !== '' && tempDiscount != null ? Number(tempDiscount) : 0;
-                setTotalDiscount(normalized); // valor real
-                setTempDiscount(normalized); // actualiza temp
-                handleTotalDiscountChange(normalized); // aplica descuento a líneas
-                setIsEditing(false); // deja de editar y se formatea
+                let normalized =
+                  tempDiscount === '' || tempDiscount == null ? 0 : Number(tempDiscount);
+                if (isNaN(normalized)) normalized = 0;
+                if (normalized > maxDiscount) normalized = maxDiscount;
+                // asegurar 2 decimales
+                normalized = Number(normalized.toFixed(2));
+                setTotalDiscount(normalized);
+                setTempDiscount(String(normalized));
+                handleTotalDiscountChange(normalized);
+                setIsEditing(false);
               }}
               placeholder="0.00%"
               style={{ width: '100%' }}
             />
           </Col>
-
         </Row>
 
         <Table
