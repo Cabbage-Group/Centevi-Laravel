@@ -198,12 +198,13 @@ const VerKpisConsultasYTerapias = () => {
               <HorizontalBarChart
                 title="Sucursales"
                 data={kpisTerapiasConsultasSucursales}
+                needCardWrapper={true}
 
                 isMonthPicker={true}
                 onDateApply={handleDateApplyCYTSucursales}
                 onDateReset={handleDateResetCYTSucursales}
                 
-                filterTitle="Filtrar por sucursal"
+                filterTitle="Filtrar por sucursal:"
                 filterList={sucursales}
                 filterValueKey="id_sucursal"
                 filterLabelKey="nombre"
@@ -228,12 +229,13 @@ const VerKpisConsultasYTerapias = () => {
               <HorizontalBarChart
                 title="Doctores"
                 data={kpisTerapiasConsultasDoctor}
+                needCardWrapper={true}
               
                 isMonthPicker={true}
                 onDateApply={handleDateApplyCYTDoctores}
                 onDateReset={handleDateResetCYTDoctores}
               
-                filterTitle="Filtrar por Doctor"
+                filterTitle="Filtrar por Doctor:"
                 filterList={doctores_activados}
                 filterValueKey="nombre"
                 filterLabelKey="nombre"

@@ -16,7 +16,7 @@ import {
 /**
  * Props:
  * - title: string (texto del badge)
- * - data: array (datos del chart)
+ * - data: array (set de datos para la grafica)
  * - isMonthPicker: bool (para DateRangeSeparate)
  * - onDateApply(newStart, newEnd) (function al aplicar rango de fecha)
  * - onDateReset() (function al restear el filtro de fecha)
@@ -34,6 +34,9 @@ import {
 const HorizontalBarChart = ({
   title,
   data = [],
+
+  needCardWrapper = false,
+  height = "600px",
 
   isMonthPicker = true,
   onDateApply,
@@ -134,6 +137,19 @@ const HorizontalBarChart = ({
     return null;
   };
 
+  const cardStyles = needCardWrapper
+  ? {
+      background: "white",
+      padding: "15px",
+      borderRadius: "15px",
+      boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
+    }
+  : {
+      background: "transparent",
+      padding: 0,
+      borderRadius: 0,
+    };
+
   // compute barSize depending on how many active series
   const activeCount = activeMetrics.length || 1;
   const barSize = activeCount > 1 ? Math.max(8, Math.round(responsiveBarSize / activeCount)) : responsiveBarSize;
@@ -141,13 +157,10 @@ const HorizontalBarChart = ({
   return (
     <div
       style={{
-        background: "white",
-        padding: "15px",
-        height: "600px",
-        borderRadius: "15px",
+        ...cardStyles,
+        height: height,
         display: "flex",
         flexDirection: "column",
-        marginTop: "15px",
         position: "relative",
       }}
     >
