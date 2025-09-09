@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchKpisTiposLente, fetchKpisTiposLenteAsesores, fetchKpisTiposLenteDoctores, setFechaRangeTipoLente, setFechaRangeTipoLenteAsesores, setFechaRangeTipoLenteDoctores } from "../../../redux/features/kpis/kpisTiposLente/kpisTiposLente";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import DateRangeSeparate from "../../reportes/DateRange";
-import { Checkbox, Col, Divider, Row, Select, Grid  } from "antd";
+import { Checkbox, Col, Divider, Row, Select, Grid, Button  } from "antd";
 import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
 import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
+
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import {KpisTiposLentesChartReport} from "../../../pdf/kpisTiposLentes/KpisTiposLentesChartReport";
+
 
 const VerKpisTipoLente = () => {
   const dispatch = useDispatch();
@@ -27,6 +31,8 @@ const VerKpisTipoLente = () => {
   const [asesorFilter, setAsesorFilter] = useState([]);
   const [doctorFilter, setDoctorFilter] = useState([]);
 
+  const [showModalPdf, setShowModalPdf] = useState(false)
+
   const metricsOptionsAsesores = [
     {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
     {label: 'Lente Normal', value: 'lente_normal', color: '#00B894'},
@@ -41,6 +47,12 @@ const VerKpisTipoLente = () => {
     {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
     {label: 'Lente Normal', value: 'lente_normal', color: '#00B894'},
   ]
+
+  const chartAsesoresExportRef = useRef(null);
+  const chartSucursalesExportRef = useRef(null);
+  const chartDoctoresExportRef = useRef(null);
+
+
 
   const { useBreakpoint } = Grid;
   const breakpoints = useBreakpoint();
@@ -382,6 +394,22 @@ const VerKpisTipoLente = () => {
   //   return null;
   // };
 
+  /* ------------------------------------------------------------------------------------------ 
+                                    Funciones utilitarias
+   ------------------------------------------------------------------------------------------*/
+  
+
+  const handlePreviewPdf = async () => {
+    const elements = [
+      chartAsesoresExportRef.current,
+      chartSucursalesExportRef.current,
+      chartDoctoresExportRef.current,
+    ].filter(Boolean);
+    const pdfUrl = await ChartReportToPdfUrl(elements, { title: "KPI Tipo Lente" });
+
+    // Abrir en nueva pestaña
+    window.open(pdfUrl, "_blank");
+  };
 
   return (
     
@@ -408,11 +436,13 @@ const VerKpisTipoLente = () => {
               >
                 {/* Grafico */}
                 {/* <Col xs={24} sm={24} md={14} lg={16} xl={18}> */}
-                <Col xs={24} sm={24} md={15} lg={13} xl={15}>
+                <Col xs={24} sm={24} md={15} lg={13} xl={15} >
                   <HorizontalBarChart
                     // title="tag"
                     data={kpisTipoLenteAsesores}
                     needCardWrapper={false}
+
+                    exportRef={chartAsesoresExportRef}
     
                     isMonthPicker={true}
                     onDateApply={handleDateApplyAsesores}
@@ -428,7 +458,8 @@ const VerKpisTipoLente = () => {
                     metricsOptions={metricsOptionsAsesores}
                     // activeMetrics={activeLinesLenteDoctores}
                     activeMetrics={activeLinesLenteAsesores}
-    
+
+
                     renderMetricSelector={true}
                     onMetricsChange={onMetricSelectorAsesorChange}
                     
@@ -469,6 +500,8 @@ const VerKpisTipoLente = () => {
                 // title="tag"
                 data={kpisTipoLente}
                 needCardWrapper={true}
+
+                exportRef={chartSucursalesExportRef}
     
                 isMonthPicker={true}
                 onDateApply={handleDateApply}
@@ -502,6 +535,8 @@ const VerKpisTipoLente = () => {
                 // title="tag"
                 data={kpisTipoLenteDoctores}
                 needCardWrapper={true}
+
+                exportRef={chartDoctoresExportRef}
     
                 isMonthPicker={true}
                 onDateApply={handleDateApplyDoctores}
@@ -530,6 +565,19 @@ const VerKpisTipoLente = () => {
         </ResponsiveContainer>
 
       </Col>
+      {/* <Col sm={24} xs={24}>
+        <PDFDownloadLink
+          document={<KpisTiposLentesChartReport />}
+          fileName="KPI_Tipos_Lentes.pdf"
+          style={{ textDecoration: "none" }}
+        >
+          {({ loading }) => (
+            <Button type="primary">
+              {loading ? "Generando PDF..." : "Descargar Reporte"}
+            </Button>
+          )}
+        </PDFDownloadLink>
+      </Col> */}
     </Row>
   );
 };

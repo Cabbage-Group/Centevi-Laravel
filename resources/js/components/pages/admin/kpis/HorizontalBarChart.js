@@ -17,6 +17,8 @@ import {
  * Props:
  * - title: string (texto del badge)
  * - data: array (set de datos para la grafica)
+ * - needCardWrapper: boolean (agrega estilos de card o no)
+ * - height: string (aumenta el tamaño de todo el contenedor del grafico)
  * - isMonthPicker: bool (para DateRangeSeparate)
  * - onDateApply(newStart, newEnd) (function al aplicar rango de fecha)
  * - onDateReset() (function al restear el filtro de fecha)
@@ -37,6 +39,9 @@ const HorizontalBarChart = ({
 
   needCardWrapper = false,
   height = "600px",
+
+  exportRef = null,       // ref para exportar solo el area del chart
+  exportTitle = null,     // titulo alternativo para el PDF (opcional)
 
   isMonthPicker = true,
   onDateApply,
@@ -244,7 +249,7 @@ const HorizontalBarChart = ({
       )}
 
       {/* Chart */}
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 }} ref={exportRef}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 80 }} isAnimationActive={false} barCategoryGap={barCategoryGap} barGap={barGap}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
