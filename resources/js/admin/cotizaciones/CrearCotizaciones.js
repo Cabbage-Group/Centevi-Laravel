@@ -50,6 +50,10 @@ const CrearCotizacion = () => {
   const record = location.state?.record;
   const nombre = localStorage.getItem('nombre');
   const [totalDiscount, setTotalDiscount] = useState(0);
+
+  const [tempDiscount, setTempDiscount] = useState(totalDiscount); // valor temporal mientras escribe
+  const [isEditing, setIsEditing] = useState(false); // indica si el usuario está editando
+
   const {
     pacientes_options_cotizacion,
     status: status_pacientes
@@ -831,7 +835,7 @@ const CrearCotizacion = () => {
             </label>
           </Col>
 
-          <Col>
+          {/* <Col>
             <InputNumber
               value={totalDiscount}
               min={0}
@@ -841,7 +845,33 @@ const CrearCotizacion = () => {
               parser={(value) => value.replace('%', '')}
               onChange={handleTotalDiscountChange}
             />
+          </Col> */}
+          <Col>
+            <InputNumber
+              value={isEditing ? tempDiscount : totalDiscount} // mientras editas muestra solo el número
+              min={0}
+              max={maxDiscount}
+              precision={2}
+              formatter={(value) =>
+                !isEditing && value != null && value !== ''
+                  ? `${Number(value).toFixed(2)}%` // solo al perder foco
+                  : value
+              }
+              parser={(value) => value.replace('%', '')}
+              onFocus={() => setIsEditing(true)} // empieza a editar
+              onChange={(value) => setTempDiscount(value)} // actualiza el valor temporal
+              onBlur={() => {
+                const normalized = tempDiscount !== '' && tempDiscount != null ? Number(tempDiscount) : 0;
+                setTotalDiscount(normalized); // valor real
+                setTempDiscount(normalized); // actualiza temp
+                handleTotalDiscountChange(normalized); // aplica descuento a líneas
+                setIsEditing(false); // deja de editar y se formatea
+              }}
+              placeholder="0.00%"
+              style={{ width: '100%' }}
+            />
           </Col>
+
         </Row>
 
         <Table

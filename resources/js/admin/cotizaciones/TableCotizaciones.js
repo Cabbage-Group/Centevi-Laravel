@@ -1,4 +1,4 @@
-import { AutoComplete, Button, Table, Modal, Typography, Progress, message } from "antd";
+import { AutoComplete, Button, Table, Modal, Typography, Progress, message, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CopyOutlined, EyeOutlined, FilePdfOutlined } from "@ant-design/icons";
@@ -10,7 +10,6 @@ import { generatePdfPreview, downloadPDF, formatDate } from './GeneradorPDF.js';
 import '../../../css/tables/TableCotizaciones.css';
 import { verCotizacionPdf } from '../../redux/features/quotes/quotesSlice';
 import { constant, set } from "lodash";
-
 const { Text } = Typography;
 
 const TableCotizaciones = () => {
@@ -24,6 +23,7 @@ const TableCotizaciones = () => {
     meta,
     searchTerm,
     quote,
+    status,
     codigoInterfuerzaList
   } = useSelector((state) => state.quotes);
   const navigate = useNavigate();
@@ -592,9 +592,6 @@ const TableCotizaciones = () => {
   ];
 
 
-
-
-
   return (
     <div>
       <div style={{ display: 'flex' }}>
@@ -628,23 +625,26 @@ const TableCotizaciones = () => {
       </div>
 
 
-
-      <Table
-        columns={columns}
-        dataSource={quotes}
-        rowKey="id"
-        onChange={handleTableChange}
-        className="compact-table"
-        id="zero-config_wrapper"
-        pagination={{
-          current: meta?.page || 1,
-          total: meta?.total || 0,
-          pageSize: limit,
-          showSizeChanger: false,
-        }}
-
-      />
-
+      <Spin spinning={status === 'loading'}  tip="Cargando datos..." size="large">
+        <Table
+          columns={columns}
+          dataSource={quotes}
+          rowKey="id"
+          onChange={handleTableChange}
+          className="compact-table"
+          id="zero-config_wrapper"
+          pagination={{
+            current: meta?.page || 1,
+            total: meta?.total || 0,
+            pageSize: limit,
+            showSizeChanger: false,
+          }}
+          // loading={{
+          //   spinning: status === 'loading',
+          //   tip: 'Cargando datos...', // mensaje que aparece junto al spinner
+          // }}
+        />
+      </Spin>
       <Modal
         open={pdfModalVisible}
         width={pdfViewMode === 'preview' ? 900 : 1600}
