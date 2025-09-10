@@ -10,8 +10,7 @@ import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
 import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
 
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import {KpisTiposLentesChartReport} from "../../../pdf/kpisTiposLentes/KpisTiposLentesChartReport";
-
+import ChartsTiposLentesPdfReport from "../../../services/pdf/kpis/kpisTiposLentes/ChartsTiposLentesPdfReport";
 
 const VerKpisTipoLente = () => {
   const dispatch = useDispatch();
@@ -399,17 +398,17 @@ const VerKpisTipoLente = () => {
    ------------------------------------------------------------------------------------------*/
   
 
-  const handlePreviewPdf = async () => {
-    const elements = [
-      chartAsesoresExportRef.current,
-      chartSucursalesExportRef.current,
-      chartDoctoresExportRef.current,
-    ].filter(Boolean);
-    const pdfUrl = await ChartReportToPdfUrl(elements, { title: "KPI Tipo Lente" });
+  // const handlePreviewPdf = async () => {
+  //   const elements = [
+  //     chartAsesoresExportRef.current,
+  //     chartSucursalesExportRef.current,
+  //     chartDoctoresExportRef.current,
+  //   ].filter(Boolean);
+  //   const pdfUrl = await ChartReportToPdfUrl(elements, { title: "KPI Tipo Lente" });
 
-    // Abrir en nueva pestaña
-    window.open(pdfUrl, "_blank");
-  };
+  //   // Abrir en nueva pestaña
+  //   window.open(pdfUrl, "_blank");
+  // };
 
   return (
     
@@ -487,7 +486,7 @@ const VerKpisTipoLente = () => {
 
                 {/*Tiempo promedio */}
                 <Col xs={24} sm={24} md={8} lg={10} xl={8}>
-                  <KpiTiempoPromedio />
+                  {/* <KpiTiempoPromedio /> */}
                 </Col>
                 
               </Row>
@@ -565,9 +564,9 @@ const VerKpisTipoLente = () => {
         </ResponsiveContainer>
 
       </Col>
-      {/* <Col sm={24} xs={24}>
+      <Col sm={24} xs={24}>
         <PDFDownloadLink
-          document={<KpisTiposLentesChartReport />}
+          document={<ChartsTiposLentesPdfReport />}
           fileName="KPI_Tipos_Lentes.pdf"
           style={{ textDecoration: "none" }}
         >
@@ -577,7 +576,7 @@ const VerKpisTipoLente = () => {
             </Button>
           )}
         </PDFDownloadLink>
-      </Col> */}
+      </Col>
     </Row>
   );
 };
