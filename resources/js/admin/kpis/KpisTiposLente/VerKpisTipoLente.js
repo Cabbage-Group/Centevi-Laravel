@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchKpisTiposLente, fetchKpisTiposLenteAsesores, fetchKpisTiposLenteDoctores, setFechaRangeTipoLente, setFechaRangeTipoLenteAsesores, setFechaRangeTipoLenteDoctores } from "../../../redux/features/kpis/kpisTiposLente/kpisTiposLente";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import DateRangeSeparate from "../../reportes/DateRange";
-import { Checkbox, Col, Divider, Row, Select, Grid, Button  } from "antd";
+import { Checkbox, Col, Divider, Row, Select, Grid, Button, Modal, Spin, Space  } from "antd";
+import { Tooltip as TooltipAntd } from "antd";
 import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
@@ -11,6 +12,11 @@ import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalB
 
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ChartsTiposLentesPdfReport from "../../../services/pdf/kpis/kpisTiposLentes/ChartsTiposLentesPdfReport";
+import { generateChartsImages } from "../../../utils/generateChartImages";
+import { BlobProvider } from "@react-pdf/renderer";
+import { EyeOutlined, DownloadOutlined } from '@ant-design/icons';
+
+import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
 
 const VerKpisTipoLente = () => {
   const dispatch = useDispatch();
@@ -30,7 +36,10 @@ const VerKpisTipoLente = () => {
   const [asesorFilter, setAsesorFilter] = useState([]);
   const [doctorFilter, setDoctorFilter] = useState([]);
 
+  // para generacion y muestra de pdfs
   const [showModalPdf, setShowModalPdf] = useState(false)
+  const [chartsImages, setChartsImages] = useState(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const metricsOptionsAsesores = [
     {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
@@ -396,19 +405,65 @@ const VerKpisTipoLente = () => {
   /* ------------------------------------------------------------------------------------------ 
                                     Funciones utilitarias
    ------------------------------------------------------------------------------------------*/
-  
 
-  // const handlePreviewPdf = async () => {
-  //   const elements = [
-  //     chartAsesoresExportRef.current,
-  //     chartSucursalesExportRef.current,
-  //     chartDoctoresExportRef.current,
-  //   ].filter(Boolean);
-  //   const pdfUrl = await ChartReportToPdfUrl(elements, { title: "KPI Tipo Lente" });
+  // función para generar las imágenes (await correcto)
+  const handleGenerateChartsImages = async () => {
+    setIsGeneratingPdf(true);
+    setChartsImages(null);
+    try {
+      const itemsToCapture = [
+        { ref: chartAsesoresExportRef, title: "Gráfico - Asesores" },
+        { ref: chartSucursalesExportRef, title: "Gráfico - Sucursales" },
+        { ref: chartDoctoresExportRef, title: "Gráfico - Doctores" },
+      ];
 
-  //   // Abrir en nueva pestaña
-  //   window.open(pdfUrl, "_blank");
-  // };
+      const charts = await generateChartsImages(itemsToCapture, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        delay: 120, // opcional, ajusta si ves artefactos
+        // captureFn: myAlternativeCaptureFn, // opcional fallback
+      });
+
+      setChartsImages(charts);
+    } catch (err) {
+      console.error("Error generando imágenes:", err);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  const handlePreviewPdf = async () => {
+    try {
+      // si ya generaste imágenes, no vuelvas a generarlas
+      if (!chartsImages || chartsImages.length === 0) {
+        setIsGeneratingPdf(true);
+        const itemsToCapture = [
+          { ref: chartAsesoresExportRef, title: "Gráfico - Asesores" },
+          { ref: chartSucursalesExportRef, title: "Gráfico - Sucursales" },
+          { ref: chartDoctoresExportRef, title: "Gráfico - Doctores" },
+        ];
+
+        const charts = await generateChartsImages(itemsToCapture, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          delay: 120,
+        });
+
+        setChartsImages(charts);
+        setIsGeneratingPdf(false);
+        // abre modal una vez que tengamos las imágenes
+        setShowModalPdf(true);
+      } else {
+        // ya hay imágenes -> solo abrir modal
+        setShowModalPdf(true);
+      }
+    } catch (err) {
+      console.error("Error generando imágenes para preview:", err);
+      setIsGeneratingPdf(false);
+    }
+  };
 
   return (
     
@@ -486,7 +541,62 @@ const VerKpisTipoLente = () => {
 
                 {/*Tiempo promedio */}
                 <Col xs={24} sm={24} md={8} lg={10} xl={8}>
-                  {/* <KpiTiempoPromedio /> */}
+                  <Row gutter={[24, 24]}>
+                    <Col xs={24} sm={24}>
+                      <KpiTiempoPromedio />
+                    </Col>
+
+                    <Col xs={24} sm={24}>
+                      <Divider type="horizontal" style={{ width: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}}/>
+                    </Col>
+
+                    <Col sm={24} xs={24} style={breakpoints.md ? { display: 'flex',justifyContent: 'flex-end' } : { display: 'flex' }}>
+                      <Space size="small" align="center">
+                        {/* Ver / Previsualizar PDF */}
+                        <TooltipAntd title={isGeneratingPdf ? "Preparando preview..." : "Ver PDF"}>
+                          <Button
+                            type="primary"
+                            icon={<EyeOutlined />}
+                            onClick={handlePreviewPdf}
+                            loading={isGeneratingPdf}
+                            // texto solo en pantallas md+
+                          >
+                            {breakpoints.md ? "Ver PDF" : "Ver reporte PDF"}
+                          </Button>
+                        </TooltipAntd>
+                              
+                        {/* Descargar PDF */}
+                        {chartsImages && chartsImages.length > 0 ? (
+                          <PDFDownloadLink
+                            document={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+                            fileName="KPI_Tipos_Lentes.pdf"
+                            style={{ textDecoration: "none" }}
+                          >
+                            {({ loading }) => (
+                              <TooltipAntd title={loading ? "Generando archivo..." : "Descargar PDF"}>
+                                <Button
+                                  icon={<DownloadOutlined />}
+                                  loading={loading}
+                                >
+                                  {breakpoints.lg ? "Descargar" : null}
+                                </Button>
+                              </TooltipAntd>
+                            )}
+                          </PDFDownloadLink>
+                        ) : (
+                          <TooltipAntd title="Previsualiza el PDF primero para poder descargar">
+                            <Button
+                              icon={<DownloadOutlined />}
+                              disabled
+                            >
+                              {breakpoints.lg ? "Descargar" : null}
+                            </Button>
+                          </TooltipAntd>
+                        )}
+                      </Space>
+                    </Col>
+                  </Row>
+                  
                 </Col>
                 
               </Row>
@@ -564,19 +674,41 @@ const VerKpisTipoLente = () => {
         </ResponsiveContainer>
 
       </Col>
-      <Col sm={24} xs={24}>
-        <PDFDownloadLink
-          document={<ChartsTiposLentesPdfReport />}
-          fileName="KPI_Tipos_Lentes.pdf"
-          style={{ textDecoration: "none" }}
+      {/* <Col sm={24} xs={24} style={{ marginTop: 16 }}>
+        <Button
+          type="primary"
+          onClick={handleGenerateChartsImages}
+          disabled={isGeneratingPdf}
         >
-          {({ loading }) => (
-            <Button type="primary">
-              {loading ? "Generando PDF..." : "Descargar Reporte"}
-            </Button>
-          )}
-        </PDFDownloadLink>
-      </Col>
+          {isGeneratingPdf ? "Capturando gráficos..." : "Generar imágenes para PDF"}
+        </Button>
+
+        {chartsImages && chartsImages.length > 0 && (
+          <PDFDownloadLink
+            document={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+            fileName="KPI_Tipos_Lentes.pdf"
+            style={{ textDecoration: "none", marginLeft: 8 }}
+          >
+            {({ loading }) => (
+              <Button type="primary" style={{ marginLeft: 8 }}>
+                {loading ? "Generando PDF..." : "Descargar Reporte PDF"}
+              </Button>
+            )}
+          </PDFDownloadLink>
+        )}
+      </Col> */}
+
+      {/* Extra fuera del contenido principal: modals - etc */}
+      <PdfPreviewModal
+        open={showModalPdf}
+        onClose={() => setShowModalPdf(false)}
+        document={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+        loading={isGeneratingPdf || !chartsImages} // muestra loader si estamos generando las imágenes
+        title="Vista previa - KPI Tipos de Lentes"
+        downloadFileName="KPI_Tipos_Lentes.pdf"
+        width="90%"
+        height="80vh"
+      />
     </Row>
   );
 };
