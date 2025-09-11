@@ -30,14 +30,13 @@ const OptometriaNeonatos = () => {
 
   const initialValues = {
     sucursal:
-      localStorage.getItem('ip') == '186.74.2.218'
+      localStorage.getItem("ip") == "186.74.2.218"
         ? "7"
-        : localStorage.getItem('ip') == '190.219.45.142'
-          ? "3"
-          : localStorage.getItem('ip') == '45.229.196.9'
-            ? "4"
-            : ""
-    ,
+        : localStorage.getItem("ip") == "190.219.45.142"
+        ? "3"
+        : localStorage.getItem("ip") == "45.229.196.9"
+        ? "4"
+        : "",
     doctor: localStorage.getItem("nombre"),
     agendado_por: localStorage.getItem("nombre"),
     id_terapia: "0",
@@ -137,10 +136,10 @@ const OptometriaNeonatos = () => {
   };
 
   useEffect(() => {
+    dispatch(fectchDiagnosticos({ page: 1, limit: 50000 }));
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchServicios({}));
-    dispatch(fectchDiagnosticos());
   }, []);
 
   const calculateAge = (birthDate) => {
@@ -979,9 +978,7 @@ const OptometriaNeonatos = () => {
                               />
                             </div>
 
-                            <div
-                              className="form-group col-md-6"
-                            >
+                            <div className="form-group col-md-6">
                               <label>Diagnostico de pacientes</label>
                               <Select
                                 showSearch
@@ -1019,7 +1016,8 @@ const OptometriaNeonatos = () => {
                                   display: "ruby",
                                   marginTop: "10px",
                                   marginBottom: "10px",
-                                }}>
+                                }}
+                              >
                                 {diagnosticosSelect.map((diagnostico) => {
                                   return (
                                     <div
@@ -1083,7 +1081,7 @@ const OptometriaNeonatos = () => {
                                       background: "white !important",
                                     }}
                                     onChange={(value, val) => {
-                                      console.log('servicios seleccionado:', val, '+', value);
+                                      console.log("servicios seleccionado:", val, "+", value);
                                       if (
                                         !serviciosRealizados.find(
                                           (servicio) => servicio.value === value
@@ -1114,7 +1112,7 @@ const OptometriaNeonatos = () => {
                                       marginTop: "10px",
                                       marginBottom: "10px",
                                     }}
-                                    onClick={() => { }}
+                                    onClick={() => {}}
                                   >
                                     {serviciosRealizados.map((servicio) => {
                                       return (
@@ -1208,7 +1206,7 @@ const OptometriaNeonatos = () => {
                                       marginTop: "10px",
                                       marginBottom: "10px",
                                     }}
-                                    onClick={() => { }}
+                                    onClick={() => {}}
                                   >
                                     {proximosServicios.map((servicio) => {
                                       return (
@@ -1284,7 +1282,7 @@ const OptometriaNeonatos = () => {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

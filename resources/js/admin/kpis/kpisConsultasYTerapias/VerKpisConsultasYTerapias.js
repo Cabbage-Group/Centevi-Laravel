@@ -27,7 +27,7 @@ import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalB
 import PdfActionButtons from "../../../components/butttons/PdfActionButtons";
 import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
 import ChartsConsultasYTerapias from "../../../services/pdf/kpis/kpisConsultasYTerapias/ChartsConsultasYTerapias";
-import { generateChartsImages } from "../../../utils/generateChartImages";
+import { generateChartsImages } from "../../../utils/GenerateChartImages";
 
 const VerKpisConsultasYTerapias = () => {
   /* ------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ const VerKpisConsultasYTerapias = () => {
             </Col>
           </Row>
           <Row gutter={[16, 16]}>
-            
+
             {/* 1ra CARD Grafico Suscursales */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
               <HorizontalBarChart
@@ -259,7 +259,7 @@ const VerKpisConsultasYTerapias = () => {
                 isMonthPicker={true}
                 onDateApply={handleDateApplyCYTSucursales}
                 onDateReset={handleDateResetCYTSucursales}
-                
+
                 filterTitle="Filtrar por sucursal:"
                 filterList={sucursales}
                 filterValueKey="id_sucursal"
@@ -272,7 +272,7 @@ const VerKpisConsultasYTerapias = () => {
 
                 renderMetricSelector={true}
                 onMetricsChange={onMetricsChangeCYTSucursales}
-                
+
                 barCategoryGap="50%"
                 barGap={0}
                 xDataKey="name"
@@ -288,24 +288,24 @@ const VerKpisConsultasYTerapias = () => {
                 needCardWrapper={true}
 
                 exportRef={chartDoctoresExportRef}
-              
+
                 isMonthPicker={true}
                 onDateApply={handleDateApplyCYTDoctores}
                 onDateReset={handleDateResetCYTDoctores}
-              
+
                 filterTitle="Filtrar por Doctor:"
                 filterList={doctores_activados}
                 filterValueKey="nombre"
                 filterLabelKey="nombre"
                 filterValue={cytdoctorFilter}
                 onFilterChange={handleChangeCYTDoctores}
-              
+
                 metricsOptions={metricsOptions}
                 activeMetrics={activeLinesCYTDoctores}
 
                 renderMetricSelector={true}
                 onMetricsChange={onLegendChangeCYTDoctores}
-              
+
                 barCategoryGap="50%"
                 barGap={0}
                 xDataKey="name"
@@ -319,8 +319,8 @@ const VerKpisConsultasYTerapias = () => {
           <Row gutter={[16, 16]}>
             {/* <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}> */}
             <Col xs={24} sm={24}>
-              <KpisConsultasTerapiasDoctores 
-                doctores_activados={doctores_activados} 
+              <KpisConsultasTerapiasDoctores
+                doctores_activados={doctores_activados}
                 exportRef={chartTerapiasDoctoresExportRef}
               />
             </Col>

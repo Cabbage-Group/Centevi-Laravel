@@ -1,142 +1,136 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { fetchEditarNeonato } from '../../redux/features/consultas/EditarNeonatoSlice.js';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice.js';
-import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice.js';
-import { fetchVerNeonatos } from '../../redux/features/pacientes/VerNeonatosSlice.js';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { Select, Button, Row, Col } from 'antd';
-import Swal from 'sweetalert2';
-import { formatDate, getCurrentMMYYYYDate } from '../../utils/DateUtils.js';
-import moment from 'moment';
-import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
-import { CloseCircleTwoTone } from '@ant-design/icons';
-import { fetchServicios } from '../../redux/features/servicios/serviciosSlice.js';
-import { fectchDiagnosticos } from '../../redux/features/diagnosticos/DiagnosticosSlice.js';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { fetchEditarNeonato } from "../../redux/features/consultas/EditarNeonatoSlice.js";
+import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice.js";
+import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice.js";
+import { fetchVerNeonatos } from "../../redux/features/pacientes/VerNeonatosSlice.js";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { Select, Button, Row, Col } from "antd";
+import Swal from "sweetalert2";
+import { formatDate, getCurrentMMYYYYDate } from "../../utils/DateUtils.js";
+import moment from "moment";
+import { funPermisosObtenidosBoolean } from "../../utils/ValidarPermisos.js";
+import { CloseCircleTwoTone } from "@ant-design/icons";
+import { fetchServicios } from "../../redux/features/servicios/serviciosSlice.js";
+import { fectchDiagnosticos } from "../../redux/features/diagnosticos/DiagnosticosSlice.js";
 
 const formatToDateDisplay = (dateStr) => {
-  if (!dateStr) return '';
-  const [year, month, day] = dateStr.split('T')[0].split('-');
+  if (!dateStr) return "";
+  const [year, month, day] = dateStr.split("T")[0].split("-");
   return `${day}/${month}/${year}`;
 };
 
 const EditarNeonatos = () => {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id, id_consulta } = useParams();
   const { permisos } = useSelector((state) => state.auth);
   const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
-  const { data: neonato } = useSelector((state) => state.verNeonatos)
+  const { data: neonato } = useSelector((state) => state.verNeonatos);
   const [selectedPaciente, setSelectedPaciente] = useState(null);
-  const [doctorActual, setDoctorActual] = useState('');
+  const [doctorActual, setDoctorActual] = useState("");
   const { servicios } = useSelector((state) => state.servicios);
   const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
-  const [proximosServicios, setProximosServicios] = useState([])
+  const [proximosServicios, setProximosServicios] = useState([]);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [diagnosticosRealizados, setDiagnosticosRealizados] = useState([]);
 
   const [formData, setFormData] = useState({
-    sucursal: '',
-    doctor: localStorage.getItem('nombre'),
-    paciente: '',
-    edad: '',
-    fecha_atencion: '',
-    m_c: '',
-    a_o: '',
-    a_p: '',
-    a_f: '',
-    medicamentos: '',
-    tratamientos: '',
-    desarrollo: '',
-    nacimiento: '',
-    parto: '',
-    gateo: '',
-    lenguaje: '',
-    complicaciones: '',
-    perinatales: '',
-    postnatales: '',
-    agudeza_visual:
-    {
-      tambor: '',
-      fija: '',
-      sigue: '',
-      mantiene: '',
-      test: '',
-      a_oi: '',
-      a_ao: ''
+    sucursal: "",
+    doctor: localStorage.getItem("nombre"),
+    paciente: "",
+    edad: "",
+    fecha_atencion: "",
+    m_c: "",
+    a_o: "",
+    a_p: "",
+    a_f: "",
+    medicamentos: "",
+    tratamientos: "",
+    desarrollo: "",
+    nacimiento: "",
+    parto: "",
+    gateo: "",
+    lenguaje: "",
+    complicaciones: "",
+    perinatales: "",
+    postnatales: "",
+    agudeza_visual: {
+      tambor: "",
+      fija: "",
+      sigue: "",
+      mantiene: "",
+      test: "",
+      a_oi: "",
+      a_ao: "",
     },
-    lensometria:
-    {
-      esfera_od: '',
-      cilindro_od: '',
-      eje_od: '',
-      p_base_od: '',
-      add_od: '',
-      esfera_oi: '',
-      cilindro_oi: '',
-      eje_oi: '',
-      p_base_oi: '',
-      add_oi: ''
+    lensometria: {
+      esfera_od: "",
+      cilindro_od: "",
+      eje_od: "",
+      p_base_od: "",
+      add_od: "",
+      esfera_oi: "",
+      cilindro_oi: "",
+      eje_oi: "",
+      p_base_oi: "",
+      add_oi: "",
     },
-    lensometria_extra:
-    {
-      len_tipo_lentes: '',
-      len_filtros: '',
-      len_tiempo: '',
-      len_tipo_aro: ''
+    lensometria_extra: {
+      len_tipo_lentes: "",
+      len_filtros: "",
+      len_tiempo: "",
+      len_tipo_aro: "",
     },
-    sa_pp:
-    {
-      sa_od: '',
-      pp_od: '',
-      sa_oi: '',
-      pp_oi: ''
+    sa_pp: {
+      sa_od: "",
+      pp_od: "",
+      sa_oi: "",
+      pp_oi: "",
     },
     pruebas_extras: {
-      hirschberg: '',
-      krismsky: '',
-      plan_versiones: '',
-      ct_vp: '',
-      ct_reflejo: '',
-      ducciones_od: '',
-      ducciones_oi: '',
-      posicion_compensatoria: '',
-      fotomotor_od: '',
-      consensual: '',
-      fotomotor_oi: '',
-      fotomotor_consensual: ''
+      hirschberg: "",
+      krismsky: "",
+      plan_versiones: "",
+      ct_vp: "",
+      ct_reflejo: "",
+      ducciones_od: "",
+      ducciones_oi: "",
+      posicion_compensatoria: "",
+      fotomotor_od: "",
+      consensual: "",
+      fotomotor_oi: "",
+      fotomotor_consensual: "",
     },
-    refraccion:
-    {
-      refraccion_tipo_lentes: '',
-      refraccion_pd: '',
-      refraccion_uso: '',
-      reflejo_r_od: '',
-      reflejo_r_oi: '',
-      reflejo_r_ao: '',
-      esfera_od_f: '',
-      cilindro_od_f: '',
-      eje_od_f: '',
-      p_base_od_f: '',
-      add_od_f: '',
-      esfera_oi_f: '',
-      cilindro_oi_f: '',
-      eje_oi_f: '',
-      p_base_oi_f: '',
-      add_oi_f: ''
+    refraccion: {
+      refraccion_tipo_lentes: "",
+      refraccion_pd: "",
+      refraccion_uso: "",
+      reflejo_r_od: "",
+      reflejo_r_oi: "",
+      reflejo_r_ao: "",
+      esfera_od_f: "",
+      cilindro_od_f: "",
+      eje_od_f: "",
+      p_base_od_f: "",
+      add_od_f: "",
+      esfera_oi_f: "",
+      cilindro_oi_f: "",
+      eje_oi_f: "",
+      p_base_oi_f: "",
+      add_oi_f: "",
     },
-    conducta_seguir: '',
-    plan_versiones: '',
-    fecha_creacion: '',
+    conducta_seguir: "",
+    plan_versiones: "",
+    fecha_creacion: "",
     editado: {
-      doctor: '',
-      fecha_edicion: ''
+      doctor: "",
+      fecha_edicion: "",
     },
-    fecha_proxima_consulta: '',
+    fecha_proxima_consulta: "",
     servicios_realizados_optometria_neonatos: [],
     servicios_proximos_optometria_neonatos: [],
     diagnostico_optometria_neonatos: [],
@@ -145,26 +139,26 @@ const EditarNeonatos = () => {
   useEffect(() => {
     if (neonato) {
       setFormData({
-        sucursal: neonato.sucursal || '',
-        doctor: neonato.doctor || '',
-        paciente: neonato.paciente || '',
-        id_terapia: neonato.id_terapia || '',
-        edad: neonato.edad || '',
-        fecha_atencion: neonato.fecha_atencion || '',
-        m_c: neonato.m_c || '',
-        a_o: neonato.a_o || '',
-        a_p: neonato.a_p || '',
-        a_f: neonato.a_f || '',
-        medicamentos: neonato.medicamentos || '',
-        tratamientos: neonato.tratamientos || '',
-        desarrollo: neonato.desarrollo || '',
-        nacimiento: neonato.nacimiento || '',
-        parto: neonato.parto || '',
-        gateo: neonato.gateo || '',
-        lenguaje: neonato.lenguaje || '',
-        complicaciones: neonato.complicaciones || '',
-        perinatales: neonato.perinatales || '',
-        postnatales: neonato.postnatales || '',
+        sucursal: neonato.sucursal || "",
+        doctor: neonato.doctor || "",
+        paciente: neonato.paciente || "",
+        id_terapia: neonato.id_terapia || "",
+        edad: neonato.edad || "",
+        fecha_atencion: neonato.fecha_atencion || "",
+        m_c: neonato.m_c || "",
+        a_o: neonato.a_o || "",
+        a_p: neonato.a_p || "",
+        a_f: neonato.a_f || "",
+        medicamentos: neonato.medicamentos || "",
+        tratamientos: neonato.tratamientos || "",
+        desarrollo: neonato.desarrollo || "",
+        nacimiento: neonato.nacimiento || "",
+        parto: neonato.parto || "",
+        gateo: neonato.gateo || "",
+        lenguaje: neonato.lenguaje || "",
+        complicaciones: neonato.complicaciones || "",
+        perinatales: neonato.perinatales || "",
+        postnatales: neonato.postnatales || "",
         agudeza_visual: neonato.agudeza_visual ? JSON.parse(neonato.agudeza_visual) : {},
         lensometria: neonato.lensometria ? JSON.parse(neonato.lensometria) : {},
         lensometria_extra: neonato.lensometria_extra ? JSON.parse(neonato.lensometria_extra) : {},
@@ -172,72 +166,79 @@ const EditarNeonatos = () => {
         pruebas_extras: neonato.pruebas_extras ? JSON.parse(neonato.pruebas_extras) : {},
         refraccion: neonato.refraccion ? JSON.parse(neonato.refraccion) : {},
         acomodacion_extra: neonato.acomodacion_extra ? JSON.parse(neonato.acomodacion_extra) : {},
-        conducta_seguir: neonato.conducta_seguir || '',
-        plan_versiones: neonato.plan_versiones || '',
-        fecha_creacion: neonato.fecha_creacion || '',
+        conducta_seguir: neonato.conducta_seguir || "",
+        plan_versiones: neonato.plan_versiones || "",
+        fecha_creacion: neonato.fecha_creacion || "",
         editado: neonato.editado ? JSON.parse(neonato.editado) : {},
 
-
-        fecha_proxima_consulta: moment.utc(neonato.fecha_proxima_consulta).format('YYYY-MM-DD') || '',
+        fecha_proxima_consulta:
+          moment.utc(neonato.fecha_proxima_consulta).format("YYYY-MM-DD") || "",
       });
 
       if (neonato.servicios_proximos && neonato.servicios_proximos.length > 0) {
-        const serviciosProximos = neonato.servicios_proximos.map(item => {
-          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-          if (servicio) {
-            return {
-              value: servicio.id,
-              label: `${servicio.codigo} | ${servicio.servicio}`
-            };
-          }
-          return null;
-        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        const serviciosProximos = neonato.servicios_proximos
+          .map((item) => {
+            const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+            if (servicio) {
+              return {
+                value: servicio.id,
+                label: `${servicio.codigo} | ${servicio.servicio}`,
+              };
+            }
+            return null;
+          })
+          .filter((item) => item !== null); // Filtra los nulls si algún item no cumple
 
         setProximosServicios(serviciosProximos);
       }
 
       if (neonato.servicios_realizados && neonato.servicios_realizados.length > 0) {
-        const serviciosRealizados = neonato.servicios_realizados.map(item => {
-          const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
-          if (servicio) {
-            return {
-              value: servicio.id,
-              label: `${servicio.codigo} | ${servicio.servicio}`
-            };
-          }
-          return null;
-        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
+        const serviciosRealizados = neonato.servicios_realizados
+          .map((item) => {
+            const servicio = item.servicio; // Suponiendo que `servicio` es una propiedad anidada
+            if (servicio) {
+              return {
+                value: servicio.id,
+                label: `${servicio.codigo} | ${servicio.servicio}`,
+              };
+            }
+            return null;
+          })
+          .filter((item) => item !== null); // Filtra los nulls si algún item no cumple
 
-        setServiciosRealizados(serviciosRealizados)
+        setServiciosRealizados(serviciosRealizados);
       }
 
-
-      if (neonato.diagnostico_optometria_neonatos && neonato.diagnostico_optometria_neonatos.length > 0) {
-        const diagnosticosRealizados = neonato.diagnostico_optometria_neonatos.map(item => {
-          const diagnostico = item.diagnosticos; // Suponiendo que `diagnostico` es una propiedad anidada
-          if (diagnostico) {
-            return {
-              value: diagnostico.id,
-              label: `${diagnostico.codigo} | ${diagnostico.diagnostico}`
-            };
-          }
-          return null;
-        }).filter(item => item !== null); // Filtra los nulls si algún item no cumple
-        setDiagnosticosRealizados(diagnosticosRealizados)
+      if (
+        neonato.diagnostico_optometria_neonatos &&
+        neonato.diagnostico_optometria_neonatos.length > 0
+      ) {
+        const diagnosticosRealizados = neonato.diagnostico_optometria_neonatos
+          .map((item) => {
+            const diagnostico = item.diagnosticos; // Suponiendo que `diagnostico` es una propiedad anidada
+            if (diagnostico) {
+              return {
+                value: diagnostico.id,
+                label: `${diagnostico.codigo} | ${diagnostico.diagnostico}`,
+              };
+            }
+            return null;
+          })
+          .filter((item) => item !== null); // Filtra los nulls si algún item no cumple
+        setDiagnosticosRealizados(diagnosticosRealizados);
       }
-
     }
   }, [neonato]);
 
   useEffect(() => {
-    const nombreUsuarioActual = localStorage.getItem('nombre');
+    const nombreUsuarioActual = localStorage.getItem("nombre");
     setDoctorActual(nombreUsuarioActual);
     if (id && id_consulta) {
       dispatch(fetchVerNeonatos({ id, id_consulta }));
       dispatch(fetchSucursales({ page: 1, limit: 100 }));
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-      dispatch(fetchServicios({}))
-      dispatch(fectchDiagnosticos());
+      dispatch(fetchServicios({}));
+      dispatch(fectchDiagnosticos({ page: 1, limit: 50000 }));
     }
   }, [dispatch, id, id_consulta]);
 
@@ -247,7 +248,7 @@ const EditarNeonatos = () => {
 
     setFormData((prevFormData) => {
       switch (dataset.group) {
-        case 'agudeza_visual':
+        case "agudeza_visual":
           return {
             ...prevFormData,
             agudeza_visual: {
@@ -255,7 +256,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'lensometria':
+        case "lensometria":
           return {
             ...prevFormData,
             lensometria: {
@@ -263,7 +264,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'lensometria_extra':
+        case "lensometria_extra":
           return {
             ...prevFormData,
             lensometria_extra: {
@@ -271,7 +272,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'sa_pp':
+        case "sa_pp":
           return {
             ...prevFormData,
             sa_pp: {
@@ -279,7 +280,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'pruebas_extras':
+        case "pruebas_extras":
           return {
             ...prevFormData,
             pruebas_extras: {
@@ -287,7 +288,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'refraccion':
+        case "refraccion":
           return {
             ...prevFormData,
             refraccion: {
@@ -295,7 +296,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'acomodacion_extra':
+        case "acomodacion_extra":
           return {
             ...prevFormData,
             acomodacion_extra: {
@@ -303,7 +304,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'editado':
+        case "editado":
           return {
             ...prevFormData,
             editado: {
@@ -311,7 +312,7 @@ const EditarNeonatos = () => {
               [name]: value,
             },
           };
-        case 'fecha_proxima_consulta':
+        case "fecha_proxima_consulta":
           return {
             ...prevFormData,
             fecha_proxima_consulta: {
@@ -334,14 +335,14 @@ const EditarNeonatos = () => {
 
     try {
       const result = await Swal.fire({
-        title: '¿Estás seguro?',
+        title: "¿Estás seguro?",
         text: "¡Confirmarás los cambios en los datos!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: 'white',
-        confirmButtonText: 'Sí, guardar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "white",
+        confirmButtonText: "Sí, guardar",
+        cancelButtonText: "Cancelar",
       });
 
       if (result.isConfirmed) {
@@ -349,20 +350,16 @@ const EditarNeonatos = () => {
         dispatch(fetchEditarNeonato({ id, id_consulta, data: formData }));
 
         // Mostrar alerta de éxito
-        await Swal.fire(
-          'Guardado!',
-          'Los datos han sido actualizados.',
-          'success'
-        );
+        await Swal.fire("Guardado!", "Los datos han sido actualizados.", "success");
 
         // Redirigir a la página anterior
         navigate(-1);
       }
     } catch (error) {
       Swal.fire(
-        'Error',
-        'Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.',
-        'error'
+        "Error",
+        "Ocurrió un error al actualizar los datos. Por favor, inténtalo de nuevo.",
+        "error"
       );
     }
   };
@@ -373,7 +370,10 @@ const EditarNeonatos = () => {
     let age = today.getFullYear() - birthDateObj.getFullYear();
 
     const monthDifference = today.getMonth() - birthDateObj.getMonth();
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDateObj.getDate())) {
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDateObj.getDate())
+    ) {
       age--;
     }
     return age;
@@ -384,12 +384,12 @@ const EditarNeonatos = () => {
     // const { value } = e.target;
     const value = e;
     setSelectedPaciente(value);
-    setFieldValue('paciente', value);
-    const paciente = pacientes.find(p => p.id_paciente == value);
+    setFieldValue("paciente", value);
+    const paciente = pacientes.find((p) => p.id_paciente == value);
 
     if (paciente && paciente.fecha_nacimiento) {
       const edad = calculateAge(paciente.fecha_nacimiento);
-      setFieldValue('edad', edad);
+      setFieldValue("edad", edad);
     }
   };
 
@@ -398,87 +398,61 @@ const EditarNeonatos = () => {
       className="admin-data-content"
       data-select2-id="8"
       style={{
-        marginTop: '50px'
+        marginTop: "50px",
       }}
     >
       <div className="row layout-top-spacing">
         <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
           <div className="widget-content-area br-4">
-            <form
-              method="put"
-              role="form"
-              onSubmit={handleSubmit}
-            >
-              <div
-                className="widget-one"
-                data-select2-id="7"
-              >
+            <form method="put" role="form" onSubmit={handleSubmit}>
+              <div className="widget-one" data-select2-id="7">
                 <div className="row">
-                  <div
-                    className="col-lg-12 layout-spacing"
-                    id="flFormsGrid"
-                  >
-                    <div
-                      className="statbox widget box box-shadow"
-                      data-select2-id="6"
-                    >
+                  <div className="col-lg-12 layout-spacing" id="flFormsGrid">
+                    <div className="statbox widget box box-shadow" data-select2-id="6">
                       <div className="widget-header">
                         <div className="row">
                           <div className="col-xl-12 col-md-12 col-sm-12 col-12">
-                            <h4>
-                              {' '}Editar Optometría Neonatos
-                            </h4>
+                            <h4> Editar Optometría Neonatos</h4>
                           </div>
                         </div>
                       </div>
                       <nav aria-label="breadcrumb" className="breadcrumb-one">
-                        <ol className="breadcrumb" style={{ background: '#0096881c' }}>
+                        <ol className="breadcrumb" style={{ background: "#0096881c" }}>
                           <li className="breadcrumb-item">
                             <a href="javascript:void(0);">Doctor actual:</a>
                           </li>
                           <li aria-current="page" className="breadcrumb-item active">
-                            <b>{ }</b>
-                            {doctorActual === neonato.doctor ? " (mismo doctor)" : " (doctor diferente)"}
+                            <b>{}</b>
+                            {doctorActual === neonato.doctor
+                              ? " (mismo doctor)"
+                              : " (doctor diferente)"}
                           </li>
                         </ol>
                       </nav>
-                      <nav
-                        aria-label="breadcrumb"
-                        className="breadcrumb-one"
-                      >
+                      <nav aria-label="breadcrumb" className="breadcrumb-one">
                         <ol
                           className="breadcrumb"
                           style={{
-                            background: '#0096881c'
+                            background: "#0096881c",
                           }}
                         >
                           <li className="breadcrumb-item">
-                            <a href="javascript:void(0);">
-                              Creado por:
-                            </a>
+                            <a href="javascript:void(0);">Creado por:</a>
                           </li>
-                          <li
-                            aria-current="page"
-                            className="breadcrumb-item active"
-                          >
-                            <b>
-                              {neonato.doctor}
-                            </b>
+                          <li aria-current="page" className="breadcrumb-item active">
+                            <b>{neonato.doctor}</b>
                           </li>
                         </ol>
                       </nav>
                       <div className="widget-content widget-content-area">
-
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">
-                            <label htmlFor="paciente">
-                              Paciente:
-                            </label>
+                            <label htmlFor="paciente">Paciente:</label>
                             <Select
                               showSearch
                               placeholder="Seleccione el paciente"
                               filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
                               }
                               options={pacientes_options_selecteds}
                               style={{
@@ -488,21 +462,18 @@ const EditarNeonatos = () => {
                                 fontWeight: "bold",
                               }}
                               onChange={(e) => {
-                                handlePacienteChange(e, setFieldValue)
+                                handlePacienteChange(e, setFieldValue);
                               }}
                               value={neonato.paciente}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                             {/* <select
                               className="form-control"
                               name="paciente"
-                              value={formData.paciente || ''} 
-                              onChange={(e) => setFormData({ ...formData, paciente: e.target.value })} 
+                              value={formData.paciente || ''}
+                              onChange={(e) => setFormData({ ...formData, paciente: e.target.value })}
                             >
                               <option value="">Seleccione un paciente</option>
                               {pacientes.filter(paciente => paciente.id_paciente === neonato.paciente).map((paciente) => (
@@ -515,33 +486,31 @@ const EditarNeonatos = () => {
                         </div>
                         <div className="form-row mb-12">
                           <div className="form-group col-md-6">
-                            <label htmlFor="sucursal">
-                              Sucursal
-                            </label>
+                            <label htmlFor="sucursal">Sucursal</label>
                             <select
                               className="form-control"
                               name="sucursal"
-                              value={formData.sucursal || ''} // Asigna el valor de la sucursal seleccionada
-                              onChange={(e) => setFormData({ ...formData, sucursal: e.target.value })} // Manejo del cambio
+                              value={formData.sucursal || ""} // Asigna el valor de la sucursal seleccionada
+                              onChange={(e) =>
+                                setFormData({ ...formData, sucursal: e.target.value })
+                              } // Manejo del cambio
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             >
-                              <option value="">Seleccione una sucursal</option> {/* Opción por defecto */}
-                              {sucursales.filter(sucursal => sucursal.id_sucursal).map((sucursal) => (
-                                <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
-                                  {sucursal.nombre}
-                                </option>
-                              ))}
+                              <option value="">Seleccione una sucursal</option>{" "}
+                              {/* Opción por defecto */}
+                              {sucursales
+                                .filter((sucursal) => sucursal.id_sucursal)
+                                .map((sucursal) => (
+                                  <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                                    {sucursal.nombre}
+                                  </option>
+                                ))}
                             </select>
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="edad">
-                              Edad
-                            </label>
+                            <label htmlFor="edad">Edad</label>
                             <input
                               className="form-control"
                               value={formData.edad}
@@ -549,41 +518,36 @@ const EditarNeonatos = () => {
                               type="text"
                               onChange={handleChange}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="inputAddress" onClick={() => console.log(neonato.fecha_atencion)}>
+                            <label
+                              htmlFor="inputAddress"
+                              onClick={() => console.log(neonato.fecha_atencion)}
+                            >
                               Fecha de atencion
                             </label>
                             <input
                               className="form-control"
                               value={
                                 neonato
-                                  ? moment.utc(neonato.fecha_atencion).format('YYYY-MM-DD') || ''
-                                  : ''
+                                  ? moment.utc(neonato.fecha_atencion).format("YYYY-MM-DD") || ""
+                                  : ""
                               }
                               name="fecha_atencion"
                               type="date"
                               onChange={handleChange}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">
-                            <label htmlFor="inputAddress">
-                              Motivo de Consulta:
-                            </label>
+                            <label htmlFor="inputAddress">Motivo de Consulta:</label>
                             <textarea
                               className="form-control textarea"
                               maxLength="10000"
@@ -593,19 +557,14 @@ const EditarNeonatos = () => {
                               rows="15"
                               onChange={handleChange}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-4">
-                            <label htmlFor="lugarNacimiento">
-                              Antecedentes Oculares
-                            </label>
+                            <label htmlFor="lugarNacimiento">Antecedentes Oculares</label>
                             <input
                               className="form-control"
                               value={formData.a_o}
@@ -614,17 +573,12 @@ const EditarNeonatos = () => {
                               type="text"
                               onChange={handleChange}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-4">
-                            <label htmlFor="inputAddress2">
-                              Antecedentes Personales
-                            </label>
+                            <label htmlFor="inputAddress2">Antecedentes Personales</label>
                             <input
                               className="form-control"
                               value={formData.a_p}
@@ -633,17 +587,12 @@ const EditarNeonatos = () => {
                               type="text"
                               onChange={handleChange}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-4">
-                            <label htmlFor="inputAddress2">
-                              Antecedentes Familiares
-                            </label>
+                            <label htmlFor="inputAddress2">Antecedentes Familiares</label>
                             <input
                               className="form-control"
                               value={formData.a_f}
@@ -652,19 +601,14 @@ const EditarNeonatos = () => {
                               placeholder="A/F"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">
-                            <label htmlFor="medicamentos">
-                              Medicamentos
-                            </label>
+                            <label htmlFor="medicamentos">Medicamentos</label>
                             <input
                               className="form-control"
                               value={formData.medicamentos}
@@ -673,19 +617,14 @@ const EditarNeonatos = () => {
                               placeholder="Medicamentos"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">
-                            <label htmlFor="tratamientos">
-                              Tratamientos anteriores
-                            </label>
+                            <label htmlFor="tratamientos">Tratamientos anteriores</label>
                             <input
                               className="form-control"
                               value={formData.tratamientos}
@@ -694,19 +633,14 @@ const EditarNeonatos = () => {
                               placeholder="Tratamientos"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">
-                            <label htmlFor="tratamientos">
-                              Desarrollo del infante
-                            </label>
+                            <label htmlFor="tratamientos">Desarrollo del infante</label>
                             <input
                               className="form-control"
                               value={formData.desarrollo}
@@ -715,19 +649,14 @@ const EditarNeonatos = () => {
                               placeholder="Desarrollo del infante"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-3">
-                            <label htmlFor="tratamientos">
-                              Nacimiento
-                            </label>
+                            <label htmlFor="tratamientos">Nacimiento</label>
                             <input
                               className="form-control"
                               value={formData.nacimiento}
@@ -736,17 +665,12 @@ const EditarNeonatos = () => {
                               placeholder="Nacimiento"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="tratamientos">
-                              Parto
-                            </label>
+                            <label htmlFor="tratamientos">Parto</label>
                             <input
                               className="form-control"
                               value={formData.parto}
@@ -755,17 +679,12 @@ const EditarNeonatos = () => {
                               placeholder="Parto"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="tratamientos">
-                              Gateo
-                            </label>
+                            <label htmlFor="tratamientos">Gateo</label>
                             <input
                               className="form-control"
                               value={formData.gateo}
@@ -774,17 +693,12 @@ const EditarNeonatos = () => {
                               placeholder="Gateo"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="tratamientos">
-                              Lenguaje
-                            </label>
+                            <label htmlFor="tratamientos">Lenguaje</label>
                             <input
                               className="form-control"
                               value={formData.lenguaje}
@@ -793,19 +707,14 @@ const EditarNeonatos = () => {
                               placeholder="Lenguaje"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-4">
-                            <label htmlFor="tratamientos">
-                              Complicaciones Prenatales
-                            </label>
+                            <label htmlFor="tratamientos">Complicaciones Prenatales</label>
                             <input
                               className="form-control"
                               value={formData.complicaciones}
@@ -814,17 +723,12 @@ const EditarNeonatos = () => {
                               placeholder="Complicaciones Prenatales"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-4">
-                            <label htmlFor="tratamientos">
-                              Perinatales
-                            </label>
+                            <label htmlFor="tratamientos">Perinatales</label>
                             <input
                               className="form-control"
                               value={formData.perinatales}
@@ -833,17 +737,12 @@ const EditarNeonatos = () => {
                               placeholder="Perinatales"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-4">
-                            <label htmlFor="tratamientos">
-                              Postnatales
-                            </label>
+                            <label htmlFor="tratamientos">Postnatales</label>
                             <input
                               className="form-control"
                               value={formData.postnatales}
@@ -852,22 +751,15 @@ const EditarNeonatos = () => {
                               placeholder="Postnatales"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
-                        <h6>
-                          AGUDEZA VISUAL:
-                        </h6>
+                        <h6>AGUDEZA VISUAL:</h6>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-3">
-                            <label htmlFor="tambor">
-                              Tambor Optocinético AO{' '}
-                            </label>
+                            <label htmlFor="tambor">Tambor Optocinético AO </label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.tambor}
@@ -877,17 +769,12 @@ const EditarNeonatos = () => {
                               type="text"
                               data-group="agudeza_visual"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="fija">
-                              Fija
-                            </label>
+                            <label htmlFor="fija">Fija</label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.fija}
@@ -897,17 +784,12 @@ const EditarNeonatos = () => {
                               placeholder="Fija"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="sigue">
-                              Sigue
-                            </label>
+                            <label htmlFor="sigue">Sigue</label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.sigue}
@@ -917,17 +799,12 @@ const EditarNeonatos = () => {
                               placeholder="Sigue"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="mantiene">
-                              Mantiene
-                            </label>
+                            <label htmlFor="mantiene">Mantiene</label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.mantiene}
@@ -937,19 +814,14 @@ const EditarNeonatos = () => {
                               placeholder="Mantiene"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-4">
-                            <label htmlFor="test">
-                              Test mirada prefencial OD{' '}
-                            </label>
+                            <label htmlFor="test">Test mirada prefencial OD </label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.test}
@@ -959,17 +831,12 @@ const EditarNeonatos = () => {
                               placeholder="Test"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-4">
-                            <label htmlFor="oi">
-                              OI
-                            </label>
+                            <label htmlFor="oi">OI</label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.a_oi}
@@ -979,17 +846,12 @@ const EditarNeonatos = () => {
                               placeholder="OI"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-4">
-                            <label htmlFor="ao">
-                              AO
-                            </label>
+                            <label htmlFor="ao">AO</label>
                             <input
                               className="form-control"
                               value={formData.agudeza_visual.a_ao}
@@ -999,47 +861,28 @@ const EditarNeonatos = () => {
                               placeholder="AO"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-group">
-                          <h5>
-                            RECETA
-                          </h5>
+                          <h5>RECETA</h5>
                           <div className="table-responsive">
                             <table className="table table-bordered">
                               <thead>
                                 <tr>
-                                  <th className="text-center">
-                                    RX
-                                  </th>
-                                  <th>
-                                    ESFERA
-                                  </th>
-                                  <th>
-                                    CILINDRO
-                                  </th>
-                                  <th>
-                                    EJE
-                                  </th>
-                                  <th>
-                                    P/BASE
-                                  </th>
-                                  <th>
-                                    ADD
-                                  </th>
+                                  <th className="text-center">RX</th>
+                                  <th>ESFERA</th>
+                                  <th>CILINDRO</th>
+                                  <th>EJE</th>
+                                  <th>P/BASE</th>
+                                  <th>ADD</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 <tr>
-                                  <td className="text-center">
-                                    Ojo Derecho{' '}
-                                  </td>
+                                  <td className="text-center">Ojo Derecho </td>
                                   <td>
                                     <input
                                       className="form-control"
@@ -1127,9 +970,7 @@ const EditarNeonatos = () => {
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td className="text-center">
-                                    Ojo Izquierdo
-                                  </td>
+                                  <td className="text-center">Ojo Izquierdo</td>
                                   <td>
                                     <input
                                       className="form-control"
@@ -1222,9 +1063,7 @@ const EditarNeonatos = () => {
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-3">
-                            <label htmlFor="objetivos">
-                              Tipo de lentes
-                            </label>
+                            <label htmlFor="objetivos">Tipo de lentes</label>
                             <input
                               className="form-control"
                               value={formData.lensometria_extra.len_tipo_lentes}
@@ -1233,17 +1072,12 @@ const EditarNeonatos = () => {
                               name="len_tipo_lentes"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="objetivos">
-                              Filtros
-                            </label>
+                            <label htmlFor="objetivos">Filtros</label>
                             <input
                               className="form-control"
                               value={formData.lensometria_extra.len_filtros}
@@ -1252,17 +1086,12 @@ const EditarNeonatos = () => {
                               name="len_filtros"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="objetivos">
-                              Tiempo
-                            </label>
+                            <label htmlFor="objetivos">Tiempo</label>
                             <input
                               className="form-control"
                               value={formData.lensometria_extra.len_tiempo}
@@ -1271,17 +1100,12 @@ const EditarNeonatos = () => {
                               name="len_tiempo"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                           <div className="form-group col-md-3">
-                            <label htmlFor="objetivos">
-                              Tipo de Aro
-                            </label>
+                            <label htmlFor="objetivos">Tipo de Aro</label>
                             <input
                               className="form-control"
                               value={formData.lensometria_extra.len_tipo_aro}
@@ -1290,24 +1114,17 @@ const EditarNeonatos = () => {
                               name="len_tipo_aro"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-3">
-                            <h5>
-                              Segmento Anterior
-                            </h5>
+                            <h5>Segmento Anterior</h5>
                           </div>
                           <div className="form-group col-md-3">
-                            <h5>
-                              Polo Posterior
-                            </h5>
+                            <h5>Polo Posterior</h5>
                           </div>
                         </div>
                         <div className="form-row mb-4">
@@ -1321,10 +1138,7 @@ const EditarNeonatos = () => {
                               placeholder="SA_OD"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
@@ -1338,10 +1152,7 @@ const EditarNeonatos = () => {
                               placeholder="PP_OD"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
@@ -1357,10 +1168,7 @@ const EditarNeonatos = () => {
                               placeholder="SA_OI"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
@@ -1374,21 +1182,15 @@ const EditarNeonatos = () => {
                               placeholder="PP_OI"
                               type="text"
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
                         </div>
-
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-6">
-                          <label htmlFor="tratamientos">
-                            Hirschberg
-                          </label>
+                          <label htmlFor="tratamientos">Hirschberg</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.hirschberg}
@@ -1398,17 +1200,12 @@ const EditarNeonatos = () => {
                             placeholder="Hirschberg"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-6">
-                          <label htmlFor="tratamientos">
-                            Krismsky
-                          </label>
+                          <label htmlFor="tratamientos">Krismsky</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.krismsky}
@@ -1418,19 +1215,14 @@ const EditarNeonatos = () => {
                             placeholder="Krismsky"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-12">
-                          <label htmlFor="inputAddress">
-                            VERSIONES:
-                          </label>
+                          <label htmlFor="inputAddress">VERSIONES:</label>
                           <textarea
                             className="form-control textarea"
                             value={formData.pruebas_extras.plan_versiones}
@@ -1441,19 +1233,14 @@ const EditarNeonatos = () => {
                             placeholder="limite de 10000* caracteres."
                             rows="15"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            CT: VP:
-                          </label>
+                          <label htmlFor="tratamientos">CT: VP:</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.ct_vp}
@@ -1463,17 +1250,12 @@ const EditarNeonatos = () => {
                             placeholder="VP"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            Reflejo Cocleopalpebral
-                          </label>
+                          <label htmlFor="tratamientos">Reflejo Cocleopalpebral</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.ct_reflejo}
@@ -1483,17 +1265,12 @@ const EditarNeonatos = () => {
                             placeholder="Reflejo Cocleopalpebral"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            Ducciones:OD
-                          </label>
+                          <label htmlFor="tratamientos">Ducciones:OD</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.ducciones_od}
@@ -1503,17 +1280,12 @@ const EditarNeonatos = () => {
                             placeholder="OD"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            OI
-                          </label>
+                          <label htmlFor="tratamientos">OI</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.ducciones_oi}
@@ -1523,19 +1295,14 @@ const EditarNeonatos = () => {
                             placeholder="OI"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-8">
-                          <label htmlFor="tratamientos">
-                            Posición Compensatoria
-                          </label>
+                          <label htmlFor="tratamientos">Posición Compensatoria</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.posicion_compensatoria}
@@ -1545,19 +1312,14 @@ const EditarNeonatos = () => {
                             placeholder="Posicion Compensatoria"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            Reflejos Pupilares: Fotomotor/OD{' '}
-                          </label>
+                          <label htmlFor="tratamientos">Reflejos Pupilares: Fotomotor/OD </label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.fotomotor_od}
@@ -1567,17 +1329,12 @@ const EditarNeonatos = () => {
                             placeholder="Fotomotor/OD"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            Consensual
-                          </label>
+                          <label htmlFor="tratamientos">Consensual</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.consensual}
@@ -1587,17 +1344,12 @@ const EditarNeonatos = () => {
                             placeholder="Consensual"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            Fotomotor:OI
-                          </label>
+                          <label htmlFor="tratamientos">Fotomotor:OI</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.fotomotor_oi}
@@ -1607,17 +1359,12 @@ const EditarNeonatos = () => {
                             placeholder="Fotomotor OI"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="tratamientos">
-                            Consensual
-                          </label>
+                          <label htmlFor="tratamientos">Consensual</label>
                           <input
                             className="form-control"
                             value={formData.pruebas_extras.fotomotor_consensual}
@@ -1627,19 +1374,14 @@ const EditarNeonatos = () => {
                             placeholder="Fotomotor Consensual"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                       </div>
                       <div className="form-row mb-4">
                         <div className="form-group col-md-6">
-                          <label htmlFor="inputAddress">
-                            Reflejo retinoscopico OD:
-                          </label>
+                          <label htmlFor="inputAddress">Reflejo retinoscopico OD:</label>
                           <input
                             className="form-control"
                             value={formData.refraccion.reflejo_r_od}
@@ -1649,17 +1391,12 @@ const EditarNeonatos = () => {
                             placeholder="Reflejo retinoscopico OD"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="inputAddress">
-                            OI:
-                          </label>
+                          <label htmlFor="inputAddress">OI:</label>
                           <input
                             className="form-control"
                             value={formData.refraccion.reflejo_r_oi}
@@ -1669,17 +1406,12 @@ const EditarNeonatos = () => {
                             placeholder="OI"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                         <div className="form-group col-md-3">
-                          <label htmlFor="inputAddress">
-                            AO:
-                          </label>
+                          <label htmlFor="inputAddress">AO:</label>
                           <input
                             className="form-control"
                             value={formData.refraccion.reflejo_r_ao}
@@ -1689,46 +1421,27 @@ const EditarNeonatos = () => {
                             placeholder="AO"
                             type="text"
                             disabled={
-                              !funPermisosObtenidosBoolean(
-                                permisos,
-                                "consultas.editartodo"
-                              )
+                              !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                             }
                           />
                         </div>
                       </div>
-                      <h5>
-                        RECETA FINAL
-                      </h5>
+                      <h5>RECETA FINAL</h5>
                       <div className="table-responsive">
                         <table className="table table-bordered">
                           <thead>
                             <tr>
-                              <th className="text-center">
-                                RX
-                              </th>
-                              <th>
-                                ESFERA
-                              </th>
-                              <th>
-                                CILINDRO
-                              </th>
-                              <th>
-                                EJE
-                              </th>
-                              <th>
-                                P/BASE
-                              </th>
-                              <th>
-                                ADD
-                              </th>
+                              <th className="text-center">RX</th>
+                              <th>ESFERA</th>
+                              <th>CILINDRO</th>
+                              <th>EJE</th>
+                              <th>P/BASE</th>
+                              <th>ADD</th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
-                              <td className="text-center">
-                                Ojo Derecho
-                              </td>
+                              <td className="text-center">Ojo Derecho</td>
                               <td>
                                 <input
                                   className="form-control"
@@ -1739,10 +1452,7 @@ const EditarNeonatos = () => {
                                   placeholder="esfera_od"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1756,10 +1466,7 @@ const EditarNeonatos = () => {
                                   placeholder="cilindro_od"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1773,10 +1480,7 @@ const EditarNeonatos = () => {
                                   placeholder="eje_od"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1790,10 +1494,7 @@ const EditarNeonatos = () => {
                                   placeholder="p_base_od"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1807,18 +1508,13 @@ const EditarNeonatos = () => {
                                   placeholder="add_od"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
                             </tr>
                             <tr>
-                              <td className="text-center">
-                                Ojo Izquierdo
-                              </td>
+                              <td className="text-center">Ojo Izquierdo</td>
                               <td>
                                 <input
                                   className="form-control"
@@ -1829,10 +1525,7 @@ const EditarNeonatos = () => {
                                   placeholder="esfera_oi"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1846,10 +1539,7 @@ const EditarNeonatos = () => {
                                   placeholder="cilindro_oi"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1863,10 +1553,7 @@ const EditarNeonatos = () => {
                                   placeholder="eje_oi"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1880,10 +1567,7 @@ const EditarNeonatos = () => {
                                   placeholder="p_base_oi"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1897,10 +1581,7 @@ const EditarNeonatos = () => {
                                   placeholder="add_oi"
                                   type="text"
                                   disabled={
-                                    !funPermisosObtenidosBoolean(
-                                      permisos,
-                                      "consultas.editartodo"
-                                    )
+                                    !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                                   }
                                 />
                               </td>
@@ -1911,9 +1592,7 @@ const EditarNeonatos = () => {
                     </div>
                     <div className="form-row mb-4">
                       <div className="form-group col-md-6">
-                        <label htmlFor="inputAddress">
-                          Tipo Lentes
-                        </label>
+                        <label htmlFor="inputAddress">Tipo Lentes</label>
                         <input
                           className="form-control"
                           value={formData.refraccion.refraccion_tipo_lentes}
@@ -1922,18 +1601,11 @@ const EditarNeonatos = () => {
                           name="refraccion_tipo_lentes"
                           placeholder="Tipo Lentes"
                           type="text"
-                          disabled={
-                            !funPermisosObtenidosBoolean(
-                              permisos,
-                              "consultas.editartodo"
-                            )
-                          }
+                          disabled={!funPermisosObtenidosBoolean(permisos, "consultas.editartodo")}
                         />
                       </div>
                       <div className="form-group col-md-3">
-                        <label htmlFor="inputAddress">
-                          PD:
-                        </label>
+                        <label htmlFor="inputAddress">PD:</label>
                         <input
                           className="form-control"
                           value={formData.refraccion.refraccion_pd}
@@ -1942,18 +1614,11 @@ const EditarNeonatos = () => {
                           name="refraccion_pd"
                           placeholder="PD"
                           type="text"
-                          disabled={
-                            !funPermisosObtenidosBoolean(
-                              permisos,
-                              "consultas.editartodo"
-                            )
-                          }
+                          disabled={!funPermisosObtenidosBoolean(permisos, "consultas.editartodo")}
                         />
                       </div>
                       <div className="form-group col-md-3">
-                        <label htmlFor="inputAddress">
-                          USO:
-                        </label>
+                        <label htmlFor="inputAddress">USO:</label>
                         <input
                           className="form-control"
                           value={formData.refraccion.refraccion_uso}
@@ -1962,20 +1627,13 @@ const EditarNeonatos = () => {
                           name="refraccion_uso"
                           placeholder="USO"
                           type="text"
-                          disabled={
-                            !funPermisosObtenidosBoolean(
-                              permisos,
-                              "consultas.editartodo"
-                            )
-                          }
+                          disabled={!funPermisosObtenidosBoolean(permisos, "consultas.editartodo")}
                         />
                       </div>
                     </div>
                     <div className="form-row mb-4">
                       <div className="form-group col-md-12">
-                        <label htmlFor="inputAddress">
-                          CONDUCTA A SEGUIR:
-                        </label>
+                        <label htmlFor="inputAddress">CONDUCTA A SEGUIR:</label>
                         <textarea
                           className="form-control textarea"
                           value={formData.conducta_seguir}
@@ -1984,30 +1642,21 @@ const EditarNeonatos = () => {
                           name="conducta_seguir"
                           placeholder="Esta área tiene un limite de 10000 caracteres."
                           rows="15"
-                          disabled={
-                            !funPermisosObtenidosBoolean(
-                              permisos,
-                              "consultas.editartodo"
-                            )
-                          }
+                          disabled={!funPermisosObtenidosBoolean(permisos, "consultas.editartodo")}
                         />
                       </div>
-
-
-
                     </div>
                     <div className="form-row mb-12">
                       <div className="form-group col-md-6">
-                        <label htmlFor="inputAddress" onClick={() => console.log(formData.fecha_proxima_consulta)}>
+                        <label
+                          htmlFor="inputAddress"
+                          onClick={() => console.log(formData.fecha_proxima_consulta)}
+                        >
                           Fecha de proxima cita
                         </label>
                         <input
                           className="form-control"
-                          value={
-                            neonato
-                              ? formData.fecha_proxima_consulta
-                              : ''
-                          }
+                          value={neonato ? formData.fecha_proxima_consulta : ""}
                           name="fecha_proxima_consulta"
                           type="date"
                           onChange={handleChange}
@@ -2020,9 +1669,7 @@ const EditarNeonatos = () => {
                         />
                       </div>
 
-                      <div
-                        className="form-group col-md-6"
-                      >
+                      <div className="form-group col-md-6">
                         <label>Diagnostico de pacientes</label>
                         <Select
                           showSearch
@@ -2041,9 +1688,11 @@ const EditarNeonatos = () => {
                             ) {
                               const newDiagnosticos = [...diagnosticosRealizados, val];
                               setDiagnosticosRealizados(newDiagnosticos);
-                              setFormData(prevState => ({
+                              setFormData((prevState) => ({
                                 ...prevState,
-                                diagnostico_optometria_neonatos: newDiagnosticos.map(d => d.value)
+                                diagnostico_optometria_neonatos: newDiagnosticos.map(
+                                  (d) => d.value
+                                ),
                               }));
                             }
                           }}
@@ -2060,7 +1709,8 @@ const EditarNeonatos = () => {
                             display: "ruby",
                             marginTop: "10px",
                             marginBottom: "10px",
-                          }}>
+                          }}
+                        >
                           {diagnosticosRealizados.map((diagnostico) => {
                             return (
                               <div
@@ -2089,9 +1739,11 @@ const EditarNeonatos = () => {
                                       (diag) => diag.value !== diagnostico.value
                                     );
                                     setDiagnosticosRealizados(newDiagnosticos);
-                                    setFormData(prevState => ({
+                                    setFormData((prevState) => ({
                                       ...prevState,
-                                      diagnostico_optometria_neonatos: newDiagnosticos.map(d => d.value)
+                                      diagnostico_optometria_neonatos: newDiagnosticos.map(
+                                        (d) => d.value
+                                      ),
                                     }));
                                   }}
                                 >
@@ -2100,13 +1752,11 @@ const EditarNeonatos = () => {
                               </div>
                             );
                           })}
-
                         </div>
                       </div>
-
                     </div>
 
-                    <Row gutter={[16, 16]} >
+                    <Row gutter={[16, 16]}>
                       <Col xxl={12} xl={12} md={12}>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-12">
@@ -2115,82 +1765,80 @@ const EditarNeonatos = () => {
                               showSearch
                               value={null}
                               style={{
-                                width: '100%', color: 'transparent',
-                                background: 'white !important'
+                                width: "100%",
+                                color: "transparent",
+                                background: "white !important",
                               }}
                               onChange={(value, val) => {
-                                if (!serviciosRealizados.find(servicio => servicio.value == value)) {
+                                if (
+                                  !serviciosRealizados.find((servicio) => servicio.value == value)
+                                ) {
                                   const newServicios = [...serviciosRealizados, val];
-                                  setServiciosRealizados(newServicios)
-                                  setFormData(prevState => ({
+                                  setServiciosRealizados(newServicios);
+                                  setFormData((prevState) => ({
                                     ...prevState,
-                                    servicios_realizados_optometria_neonatos: newServicios.map(s => s.value)
+                                    servicios_realizados_optometria_neonatos: newServicios.map(
+                                      (s) => s.value
+                                    ),
                                   }));
                                 }
                               }}
-                              options={servicios.map(servicio => ({
+                              options={servicios.map((servicio) => ({
                                 value: servicio.id,
-                                label: servicio.codigo + " | " + servicio.servicio
+                                label: servicio.codigo + " | " + servicio.servicio,
                               }))}
-                            >
-                            </Select>
+                            ></Select>
                             <div
                               style={{
-                                display: 'ruby',
-                                marginTop: '10px',
-                                marginBottom: '10px'
+                                display: "ruby",
+                                marginTop: "10px",
+                                marginBottom: "10px",
                               }}
-                              onClick={() => {
-                              }}
+                              onClick={() => {}}
                             >
-
-                              {
-
-                                serviciosRealizados.map((servicio) => {
-                                  if (servicio) {
-                                    return (
+                              {serviciosRealizados.map((servicio) => {
+                                if (servicio) {
+                                  return (
+                                    <div
+                                      style={{
+                                        color: "black",
+                                        background: "white",
+                                        border: "1px solid gray",
+                                        paddingTop: "5px",
+                                        paddingBottom: "5px",
+                                        paddingLeft: "10px",
+                                        paddingRight: "10px",
+                                        borderRadius: "20px",
+                                        display: "flex",
+                                        marginRight: "5px",
+                                        marginTop: "5px",
+                                      }}
+                                    >
+                                      {servicio.label}
                                       <div
                                         style={{
-                                          color: 'black',
-                                          background: 'white',
-                                          border: '1px solid gray',
-                                          paddingTop: '5px',
-                                          paddingBottom: '5px',
-                                          paddingLeft: '10px',
-                                          paddingRight: '10px',
-                                          borderRadius: '20px',
-                                          display: 'flex',
-                                          marginRight: '5px',
-                                          marginTop: '5px'
+                                          marginLeft: "5px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() => {
+                                          const newServicios = serviciosRealizados.filter(
+                                            (serv) => serv.value !== servicio.value
+                                          );
+                                          setServiciosRealizados(newServicios);
+                                          setFormData((prevState) => ({
+                                            ...prevState,
+                                            servicios_realizados_optometria_neonatos:
+                                              newServicios.map((s) => s.value),
+                                          }));
                                         }}
                                       >
-                                        {servicio.label}
-                                        <div
-                                          style={{
-                                            marginLeft: '5px',
-                                            cursor: 'pointer'
-                                          }}
-
-                                          onClick={() => {
-                                            const newServicios = serviciosRealizados.filter(serv => serv.value !== servicio.value);
-                                            setServiciosRealizados(newServicios)
-                                            setFormData(prevState => ({
-                                              ...prevState,
-                                              servicios_realizados_optometria_neonatos: newServicios.map(s => s.value)
-                                            }));
-                                          }}
-                                        >
-                                          <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                        </div>
+                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                       </div>
-                                    )
-                                  } return null;
+                                    </div>
+                                  );
                                 }
-                                )
-
-                              }
-
-
+                                return null;
+                              })}
                             </div>
                           </div>
                         </div>
@@ -2203,93 +1851,88 @@ const EditarNeonatos = () => {
                               showSearch
                               value={null}
                               style={{
-                                width: '100%', color: 'transparent',
-                                background: 'white !important'
+                                width: "100%",
+                                color: "transparent",
+                                background: "white !important",
                               }}
                               onChange={(value, val) => {
-                                if (!proximosServicios.find(servicio => servicio.value == value)) {
+                                if (
+                                  !proximosServicios.find((servicio) => servicio.value == value)
+                                ) {
                                   const newServicios = [...proximosServicios, val];
-                                  setProximosServicios(newServicios)
-                                  setFormData(prevState => ({
+                                  setProximosServicios(newServicios);
+                                  setFormData((prevState) => ({
                                     ...prevState,
-                                    servicios_proximos_optometria_neonatos: newServicios.map(s => s.value)
+                                    servicios_proximos_optometria_neonatos: newServicios.map(
+                                      (s) => s.value
+                                    ),
                                   }));
                                 }
                               }}
-                              options={servicios.map(servicio => ({
+                              options={servicios.map((servicio) => ({
                                 value: servicio.id,
-                                label: servicio.codigo + " | " + servicio.servicio
+                                label: servicio.codigo + " | " + servicio.servicio,
                               }))}
-                            >
-                            </Select>
+                            ></Select>
                             <div
                               style={{
-                                display: 'ruby',
-                                marginTop: '10px',
-                                marginBottom: '10px'
+                                display: "ruby",
+                                marginTop: "10px",
+                                marginBottom: "10px",
                               }}
-                              onClick={() => {
-                              }}
+                              onClick={() => {}}
                             >
-
-                              {
-
-                                proximosServicios.map((servicio) => {
-                                  if (servicio) {
-                                    return (
+                              {proximosServicios.map((servicio) => {
+                                if (servicio) {
+                                  return (
+                                    <div
+                                      style={{
+                                        color: "black",
+                                        background: "white",
+                                        border: "1px solid gray",
+                                        paddingTop: "5px",
+                                        paddingBottom: "5px",
+                                        paddingLeft: "10px",
+                                        paddingRight: "10px",
+                                        borderRadius: "20px",
+                                        display: "flex",
+                                        marginRight: "5px",
+                                        marginTop: "5px",
+                                      }}
+                                    >
+                                      {servicio.label}
                                       <div
                                         style={{
-                                          color: 'black',
-                                          background: 'white',
-                                          border: '1px solid gray',
-                                          paddingTop: '5px',
-                                          paddingBottom: '5px',
-                                          paddingLeft: '10px',
-                                          paddingRight: '10px',
-                                          borderRadius: '20px',
-                                          display: 'flex',
-                                          marginRight: '5px',
-                                          marginTop: '5px'
+                                          marginLeft: "5px",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() => {
+                                          const newServicios = proximosServicios.filter(
+                                            (serv) => serv.value !== servicio.value
+                                          );
+                                          console.log("Filtros aplicados:", newServicios);
+                                          setProximosServicios(newServicios);
+                                          setFormData((prevState) => ({
+                                            ...prevState,
+                                            servicios_proximos_optometria_neonatos:
+                                              newServicios.map((s) => s.value),
+                                          }));
                                         }}
                                       >
-                                        {servicio.label}
-                                        <div
-                                          style={{
-                                            marginLeft: '5px',
-                                            cursor: 'pointer'
-                                          }}
-
-                                          onClick={() => {
-                                            const newServicios = proximosServicios.filter(serv => serv.value !== servicio.value);
-                                            console.log('Filtros aplicados:', newServicios);
-                                            setProximosServicios(newServicios)
-                                            setFormData(prevState => ({
-                                              ...prevState,
-                                              servicios_proximos_optometria_neonatos: newServicios.map(s => s.value)
-                                            }));
-                                          }}
-                                        >
-                                          <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                        </div>
+                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
                                       </div>
-                                    )
-                                  } return null;
+                                    </div>
+                                  );
                                 }
-                                )
-
-                              }
-
-
+                                return null;
+                              })}
                             </div>
                           </div>
                         </div>
                       </Col>
                     </Row>
 
-                    <button
-                      className="btn btn-success mt-3"
-                      type="submit"
-                    >
+                    <button className="btn btn-success mt-3" type="submit">
                       Editar Consulta
                     </button>
                   </div>
@@ -2300,7 +1943,7 @@ const EditarNeonatos = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EditarNeonatos
+export default EditarNeonatos;

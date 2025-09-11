@@ -10,7 +10,7 @@
             background: white;
             color: #333;
             font-size: 14px;
-            
+
         }
         .pdf-content {
             width: 100%;
@@ -81,7 +81,7 @@
             padding: 10px 5px;
         }
 
-        
+
     </style>
 </head>
 <body>
@@ -128,11 +128,11 @@
                     <p class="bold" style="font-size: 18px; margin-bottom: 10px;"><strong>CENTEVI PANAMA, S.A.</strong></p>
                     <p style="font-size: 15px">155659660-2-2017 DV0</p>
                     <p style="font-size: 15px">Tel.: 310-8222</p>
-                    <p style="font-size: 15px">{{ $quoteDetails['sucursal']['correo'] ?? 'centevipanamasdasda@email.com' }}</p>
+                    <p style="font-size: 15px">{{ $quoteDetails['sucursal']['correo'] ?? 'centevipanama' }}</p>
                 </td>
             </tr>
         </table>
-        
+
         <table>
             <thead>
                 <tr>
@@ -218,7 +218,7 @@
                 </td>
             </tr>
         </table>
-        
+
         <table style="width: 100%; border: none; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; font-size: 12px; color: #666;">
             <tr>
                 <td style="border: none; width: 45%; text-align: left; padding-left: 0;">
