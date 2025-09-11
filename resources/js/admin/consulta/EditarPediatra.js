@@ -265,7 +265,7 @@ const EditarPediatra = () => {
       dispatch(fetchSucursales({ page: 1, limit: 100 }));
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
       dispatch(fetchServicios({}))
-      dispatch(fectchDiagnosticos());
+      dispatch(fectchDiagnosticos({ page: 1, limit: 50000 }));
     }
   }, [dispatch, id, id_consulta]);
 
@@ -2478,7 +2478,7 @@ const EditarPediatra = () => {
                                       const newDiagnosticos = diagnosticosRealizados.filter(
                                         (diag) => diag.value !== diagnostico.value
                                       );
-                                      setDiagnosticosRealizados(newDiagnosticos);                                
+                                      setDiagnosticosRealizados(newDiagnosticos);
                                       setFormData(prevState => ({
                                         ...prevState,
                                         diagnosticos_optometria_pediatrica: newDiagnosticos.map(d => d.value)

@@ -2,20 +2,22 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import API from "../../../config/config.js";
 
-export const fectchDiagnosticos = createAsyncThunk("diagnosticos/fectchDiagnosticos", async (
-  { search }) => {
-  try {
-    const response = await axios.get(`${API}/diagnosticos/obtener-diagnosticos`, {
-      params: {
-        search: search,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching diagnosticos:", error.response.data);
-    throw error;
+export const fectchDiagnosticos = createAsyncThunk(
+  "diagnosticos/fectchDiagnosticos",
+  async ({ search }) => {
+    try {
+      const response = await axios.get(`${API}/diagnosticos/obtener-diagnosticos`, {
+        params: {
+          search: search,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching diagnosticos:", error.response.data);
+      throw error;
+    }
   }
-});
+);
 
 export const createDiagnosticos = createAsyncThunk(
   "diagnosticos/createDiagnosticos",
@@ -84,7 +86,6 @@ export const deleteDiagnosticos = createAsyncThunk(
     }
   }
 );
-
 
 const diagnosticosSlice = createSlice({
   name: "diagnosticos",

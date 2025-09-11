@@ -194,7 +194,7 @@ const OrtopticaVisionBinocular = () => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     dispatch(fetchServicios({}));
-    dispatch(fectchDiagnosticos());
+    dispatch(fectchDiagnosticos({ page: 1, limit: 50000 }));
   }, [dispatch]);
 
   const calculateAge = (birthDate) => {
