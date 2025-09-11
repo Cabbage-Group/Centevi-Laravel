@@ -19,6 +19,7 @@ import {
  * - data: array (set de datos para la grafica)
  * - needCardWrapper: boolean (agrega estilos de card o no)
  * - height: string (aumenta el tamaño de todo el contenedor del grafico)
+ * - exportRef: useRef (es la referencia al grafico para poder extraerlo para pdfs, etc)
  * - isMonthPicker: bool (para DateRangeSeparate)
  * - onDateApply(newStart, newEnd) (function al aplicar rango de fecha)
  * - onDateReset() (function al restear el filtro de fecha)
@@ -41,7 +42,6 @@ const HorizontalBarChart = ({
   height = "600px",
 
   exportRef = null,       // ref para exportar solo el area del chart
-  exportTitle = null,     // titulo alternativo para el PDF (opcional)
 
   isMonthPicker = true,
   onDateApply,

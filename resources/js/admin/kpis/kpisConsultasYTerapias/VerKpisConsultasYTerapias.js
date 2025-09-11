@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import DateRangeSeparate from "../../reportes/DateRange";
 import { Checkbox, Col, Row, Select, Divider } from "antd";
 import {
@@ -24,6 +24,10 @@ import KpisConsultasTerapiasDoctores from "../KpisConsultasTerapias/kpisConsulta
 // import KpisConsultasTerapiasSucursales from "../KpisConsultasTerapias/kpisConsultasTerapiasSucursales/KpisConsultasTerapiasSucursales";
 
 import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
+import PdfActionButtons from "../../../components/butttons/PdfActionButtons";
+import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
+import ChartsConsultasYTerapias from "../../../services/pdf/kpis/kpisConsultasYTerapias/ChartsConsultasYTerapias";
+import { generateChartsImages } from "../../../utils/generateChartImages";
 
 const VerKpisConsultasYTerapias = () => {
   /* ------------------------------------------------------------------------------
@@ -60,6 +64,14 @@ const VerKpisConsultasYTerapias = () => {
   const [localEndDateCYTDoctores, setLocalEndDateCYTDoctores] = useState();
   const [cytsucursalFilter, setCYTSucursalFilter] = useState([]);
   const [cytdoctorFilter, setCYTDoctorFilter] = useState([]);
+
+  // para generacion y muestra de pdfs
+  const [showModalPdf, setShowModalPdf] = useState(false)
+  const [chartsImages, setChartsImages] = useState(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const chartDoctoresExportRef = useRef(null);
+  const chartSucursalesExportRef = useRef(null);
+  const chartTerapiasDoctoresExportRef = useRef(null);
 
   // funciona para ambos graficos de doctores y sucursales
   const metricsOptions = [
@@ -173,6 +185,38 @@ const VerKpisConsultasYTerapias = () => {
     setActiveLinesCYTDoctores(values);
   };
 
+  const handlePreviewPdf = async () => {
+    try {
+      // si ya generaste imágenes, no vuelvas a generarlas
+      if (!chartsImages || chartsImages.length === 0) {
+        setIsGeneratingPdf(true);
+        const itemsToCapture = [
+          { ref: chartDoctoresExportRef, title: "Terapias y consultas - Doctores" },
+          { ref: chartSucursalesExportRef, title: "Terapias y consultas - Sucursales" },
+          { ref: chartTerapiasDoctoresExportRef, title: "Reporteria de Terapias de doctores" },
+        ];
+
+        const charts = await generateChartsImages(itemsToCapture, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          delay: 120,
+        });
+
+        setChartsImages(charts);
+        setIsGeneratingPdf(false);
+        // abre modal una vez que tengamos las imágenes
+        setShowModalPdf(true);
+      } else {
+        // ya hay imágenes -> solo abrir modal
+        setShowModalPdf(true);
+      }
+    } catch (err) {
+      console.error("Error generando imágenes para preview:", err);
+      setIsGeneratingPdf(false);
+    }
+  };
+
   /* ------------------------------------------------------------------------------
                               Custom JSX functions
   ------------------------------------------------------------------------------ */
@@ -184,11 +228,21 @@ const VerKpisConsultasYTerapias = () => {
     <div style={{ width: "100%", marginBottom: '30px' }}>
       <Row justify="center">
         <Col xs={24} sm={24} md={22} lg={22} xl={20} xxl={18}>
-          <Row>
-            <Col sm={24} xs={24}>
-              <div style={{ color: "black", fontWeight: "bold", fontSize: 16 }}>
+          <Row style={{marginBottom: 9}} gutter={[12, 12]}>
+            <Col xs={24} sm={16} style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+              <h1 style={{ color: "black", fontWeight: "bold", fontSize: 16, margin: '0 0 0 0', display: 'block' }}>
                 Reporteria de Consultas & Terapias
-              </div>
+              </h1>
+            </Col>
+            <Col xs={24} sm={8} style={{display: 'flex', justifyContent: 'flex-end'}}>
+              <PdfActionButtons
+                onPreview={handlePreviewPdf}
+                isGenerating={isGeneratingPdf}
+                ready={!!(chartsImages && chartsImages.length > 0)}
+                downloadDocument={<ChartsConsultasYTerapias charts={chartsImages} />}
+                titleFilename="KPI_terapias_consultas.pdf"
+                size="middle"
+              />
             </Col>
           </Row>
           <Row gutter={[16, 16]}>
@@ -199,6 +253,8 @@ const VerKpisConsultasYTerapias = () => {
                 title="Sucursales"
                 data={kpisTerapiasConsultasSucursales}
                 needCardWrapper={true}
+
+                exportRef={chartSucursalesExportRef}
 
                 isMonthPicker={true}
                 onDateApply={handleDateApplyCYTSucursales}
@@ -230,6 +286,8 @@ const VerKpisConsultasYTerapias = () => {
                 title="Doctores"
                 data={kpisTerapiasConsultasDoctor}
                 needCardWrapper={true}
+
+                exportRef={chartDoctoresExportRef}
               
                 isMonthPicker={true}
                 onDateApply={handleDateApplyCYTDoctores}
@@ -261,13 +319,29 @@ const VerKpisConsultasYTerapias = () => {
           <Row gutter={[16, 16]}>
             {/* <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}> */}
             <Col xs={24} sm={24}>
-              <KpisConsultasTerapiasDoctores doctores_activados={doctores_activados} />
+              <KpisConsultasTerapiasDoctores 
+                doctores_activados={doctores_activados} 
+                exportRef={chartTerapiasDoctoresExportRef}
+              />
             </Col>
           </Row>
 
 
         </Col>
       </Row>
+
+      {/* Extra fuera del contenido principal: modals - etc */}
+      <PdfPreviewModal
+        open={showModalPdf}
+        onClose={() => setShowModalPdf(false)}
+        document={<ChartsConsultasYTerapias charts={chartsImages} />}
+        loading={isGeneratingPdf || !chartsImages} // muestra loader si estamos generando las imágenes
+        title="Vista previa - KPIs Terapias y consultas"
+        titleFilename="KPIs_terapias_consultas"
+        width="85%"
+        height="80vh"
+      />
+
     </div>
   );
 };

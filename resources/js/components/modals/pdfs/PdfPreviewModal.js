@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, Spin, Button, Space } from "antd";
 import { BlobProvider } from "@react-pdf/renderer";
 import { DownloadOutlined, ExportOutlined, CloseOutlined } from "@ant-design/icons";
-
+import { filenameFactory } from "../../../utils/FilenameFactory";
 /**
  * Props:
  * - open: boolean
@@ -23,7 +23,8 @@ const PdfPreviewModal = ({
   width = "90%",
   height = "80vh",
   title = "",
-  downloadFileName = "document.pdf",
+  titleFilename = "document",
+  userFilename,
   loader = null,
 
 }) => {
@@ -34,6 +35,8 @@ const PdfPreviewModal = ({
     </div>
   );
 
+  const newFilenameRefactorized = filenameFactory(titleFilename, "pdf", {user: userFilename})
+
   return (
     <Modal
       open={open}
@@ -41,20 +44,7 @@ const PdfPreviewModal = ({
       footer={null}
       centered
       width={width}
-      // styles={{
-      //   // controla el padding del body (antes bodyStyle)
-      //   body: { padding: 0 },
-
-      //   // controla la capa de contenido / contenedor general del modal
-      //   // aquí metes la altura y el layout flex que antes ponías en bodyStyle
-      //   content: { height: height, display: "flex", flexDirection: "column" },
-      // }}
-
-      // bodyStyle={{ padding: 0, height: "80vh", display: "flex", flexDirection: "column" }}
-
-    styles={{body: { padding: 0, height: "80vh", display: "flex", flexDirection: "column" }}}
-
-      // reemplaza destroyOnClose
+      styles={{body: { padding: 0, height: height, display: "flex", flexDirection: "column" }}}
       destroyOnHidden={true}
       closable={false}
     >
@@ -106,7 +96,7 @@ const PdfPreviewModal = ({
                       Abrir en nueva pestaña
                     </Button>
 
-                    <a href={url} download={downloadFileName} style={{ display: "inline-block" }}>
+                    <a href={url} download={newFilenameRefactorized} style={{ display: "inline-block" }}>
                       <Button icon={<DownloadOutlined />}>Descargar</Button>
                     </a>
 

@@ -7,7 +7,7 @@ import { fetchKpisConsultasPorDoctores, fetchKpisTerapiasPorDoctores, setFechaRa
 import { DownOutlined } from '@ant-design/icons';
 
 const KpisConsultasTerapiasDoctores = (
-  { doctores_activados }
+  { doctores_activados, exportRef = null }
 ) => {
 
 
@@ -396,7 +396,7 @@ const KpisConsultasTerapiasDoctores = (
         {/* Grafico */}
         <Row style={{width: '100%', height: '100%'}}>
           <Col style={{width: '100%', height: '100%'}}>
-            <div style={{ flex: 1, width: '100%', height: '100%'}}>
+            <div style={{ flex: 1, width: '100%', height: '100%'}} ref={exportRef}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={kpisTerapiasPorDoctores}
