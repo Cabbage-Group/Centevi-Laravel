@@ -450,6 +450,25 @@ const VerKpisTipoLente = () => {
         {/* Contenido */}
         <ResponsiveContainer width="100%">
           <Row gutter={[16, 16]} >
+            <Col>
+              <Row>
+                <Col xs={24} sm={16} style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                  <h1 style={{ color: "black", fontWeight: "bold", fontSize: 16, margin: '0 0 0 0', display: 'block' }}>
+                    Titulo temporal
+                  </h1>
+                </Col>
+                <Col xs={24} sm={8} style={{display: 'flex', justifyContent: 'flex-end'}}>
+                  <PdfActionButtons
+                    onPreview={handlePreviewPdf}
+                    isGenerating={isGeneratingPdf}
+                    ready={!!(chartsImages && chartsImages.length > 0)}
+                    downloadDocument={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+                    titleFilename="KPI_Tipos_Lentes"
+                    size="middle"
+                  />
+                </Col>
+              </Row>
+            </Col>
 
             {/* Contenedor Grafico  */}
             <Col xs={24} sm={24}>
@@ -522,20 +541,11 @@ const VerKpisTipoLente = () => {
                       <KpiTiempoPromedio />
                     </Col>
 
-                    <Col xs={24} sm={24}>
+                    {/* <Col xs={24} sm={24}>
                       <Divider type="horizontal" style={{ width: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}}/>
-                    </Col>
+                    </Col> */}
 
-                    <Col sm={24} xs={24} style={breakpoints.md ? { display: 'flex',justifyContent: 'flex-end' } : { display: 'flex' }}>
-                      <PdfActionButtons
-                        onPreview={handlePreviewPdf}
-                        isGenerating={isGeneratingPdf}
-                        ready={!!(chartsImages && chartsImages.length > 0)}
-                        downloadDocument={<ChartsTiposLentesPdfReport charts={chartsImages} />}
-                        titleFilename="KPI_Tipos_Lentes"
-                        size="middle"
-                      />
-                    </Col>
+                    
                   </Row>
                   
                 </Col>
