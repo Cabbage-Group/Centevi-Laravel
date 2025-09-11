@@ -1,18 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef  } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchKpisTiposLente, fetchKpisTiposLenteAsesores, fetchKpisTiposLenteDoctores, setFechaRangeTipoLente, setFechaRangeTipoLenteAsesores, setFechaRangeTipoLenteDoctores } from "../../../redux/features/kpis/kpisTiposLente/kpisTiposLente";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import DateRangeSeparate from "../../reportes/DateRange";
-import { Checkbox, Col, Divider, Row, Select } from "antd";
+import { Checkbox, Col, Divider, Row, Select, Grid, Button, Modal, Spin, Space  } from "antd";
+import { Tooltip as TooltipAntd } from "antd";
 import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
+import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
+
+import ChartsTiposLentesPdfReport from "../../../services/pdf/kpis/kpisTiposLentes/ChartsTiposLentesPdfReport";
+import { generateChartsImages } from "../../../utils/generateChartImages";
+
+import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
+
+import PdfActionButtons from "../../../components/butttons/PdfActionButtons";
 
 const VerKpisTipoLente = () => {
   const dispatch = useDispatch();
   const { kpisTipoLente, kpisTipoLenteAsesores, kpisTipoLenteDoctores } = useSelector((state) => state.kpisTipoLente);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { asesores_activados, doctores_activados } = useSelector((state) => state.usuarios);
+
+
   const [localStartDate, setLocalStartDate] = useState();
   const [localEndDate, setLocalEndDate] = useState();
   const [localStartDateAsesores, setLocalStartDateAsesores] = useState();
@@ -25,6 +36,36 @@ const VerKpisTipoLente = () => {
   const [sucursalFilter, setSucursalFilter] = useState([]);
   const [asesorFilter, setAsesorFilter] = useState([]);
   const [doctorFilter, setDoctorFilter] = useState([]);
+
+  // para generacion y muestra de pdfs
+  const [showModalPdf, setShowModalPdf] = useState(false)
+  const [chartsImages, setChartsImages] = useState(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const chartAsesoresExportRef = useRef(null);
+  const chartSucursalesExportRef = useRef(null);
+  const chartDoctoresExportRef = useRef(null);
+
+  const metricsOptionsAsesores = [
+    {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
+    {label: 'Lente Normal', value: 'lente_normal', color: '#00B894'},
+  ]
+
+  const metricsOptionsSucursales = [
+    {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
+    {label: 'Lente Normal', value: 'lente_normal', color: '#00B894'},
+  ]
+
+  const metricsOptionsDoctores = [
+    {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
+    {label: 'Lente Normal', value: 'lente_normal', color: '#00B894'},
+  ]
+
+  
+
+
+
+  const { useBreakpoint } = Grid;
+  const breakpoints = useBreakpoint();
 
   useEffect(() => {
     dispatch(fetchKpisTiposLente({
@@ -205,6 +246,16 @@ const VerKpisTipoLente = () => {
     });
   };
 
+  const onMetricSelectorAsesorChange = (values) => {
+    setActiveLinesLenteAsesores(values);
+  } 
+  const onMetricSelectorSucursalChange = (values) => {
+    setActiveLinesLente(values);
+  } 
+  const onMetricSelectorDoctorlChange = (values) => {
+    setActiveLinesLenteDoctores(values);
+  } 
+
   const renderLinesLente = () => {
     const lines = [];
     if (activeLinesLente.includes("lente_contacto")) {
@@ -303,6 +354,8 @@ const VerKpisTipoLente = () => {
     </div>
   );
 
+  
+
   const renderLegendLenteDoctores = () => (
     <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -351,241 +404,230 @@ const VerKpisTipoLente = () => {
   //   return null;
   // };
 
+  /* ------------------------------------------------------------------------------------------ 
+                                    Funciones utilitarias
+   ------------------------------------------------------------------------------------------*/
+
+
+  const handlePreviewPdf = async () => {
+    try {
+      // si ya generaste imágenes, no vuelvas a generarlas
+      if (!chartsImages || chartsImages.length === 0) {
+        setIsGeneratingPdf(true);
+        const itemsToCapture = [
+          { ref: chartAsesoresExportRef, title: "Gráfico - Asesores" },
+          { ref: chartSucursalesExportRef, title: "Gráfico - Sucursales" },
+          { ref: chartDoctoresExportRef, title: "Gráfico - Doctores" },
+        ];
+
+        const charts = await generateChartsImages(itemsToCapture, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          delay: 120,
+        });
+
+        setChartsImages(charts);
+        setIsGeneratingPdf(false);
+        // abre modal una vez que tengamos las imágenes
+        setShowModalPdf(true);
+      } else {
+        // ya hay imágenes -> solo abrir modal
+        setShowModalPdf(true);
+      }
+    } catch (err) {
+      console.error("Error generando imágenes para preview:", err);
+      setIsGeneratingPdf(false);
+    }
+  };
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    
+    // Contenedor principal
+    <Row justify="center" style={{marginBottom: '30px'}}>
+      <Col xs={24} sm={24} md={22} lg={22} xl={20} xxl={18}>
 
-      <Row
-        gutter={[16, 16]}
-      >
+        {/* Contenido */}
+        <ResponsiveContainer width="100%">
+          <Row gutter={[16, 16]} >
 
-        <Col xxl={18} xl={18} md={18}>
-          <div
-            style={{
-              background: 'white',
-              height: '600px',
-              padding: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative'
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <DateRangeSeparate
-                onApply={handleDateApplyAsesores}
-                onReset={handleDateResetAsesores}
-                isMonthPicker={true}
-              />
-              <div
+            {/* Contenedor Grafico  */}
+            <Col xs={24} sm={24}>
+              <Row gutter={[16, 16] } 
                 style={{
-                  display: "flex", flexDirection: "column", marginTop: '-32px',
-                  position: 'absolute',
-                  right: '10px'
+                  background: 'white',
+                  padding: "15px",
+                  borderRadius: "15px",
+                  marginLeft: '0px',
+                  marginRight: '0px',
+                  position: 'relative',
+                  boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
                 }}
               >
-                <label>
-                  Filtrar por Asesor:
-                </label>
-                <Select
-                  mode="multiple"
-                  style={{ width: '200px' }}
-                  placeholder="Selecciona el asesor"
-                  onChange={handleChangeAsesores}
-                  value={asesorFilter || undefined}
-                  allowClear
-                >
-                  {asesores_activados.map(asesor => (
-                    <Select.Option
-                      key={asesor.id_usuario}
-                      value={asesor.id_usuario}
-                    >
-                      {asesor.nombre}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-            </div>
+                {/* Grafico */}
+                {/* <Col xs={24} sm={24} md={14} lg={16} xl={18}> */}
+                <Col xs={24} sm={24} md={15} lg={13} xl={15} >
+                  <HorizontalBarChart
+                    // title="tag"
+                    data={kpisTipoLenteAsesores}
+                    needCardWrapper={false}
 
-            <div style={{ flex: 1 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={kpisTipoLenteAsesores}
-                  margin={{ top: 20, right: 50, left: 20, bottom: 50 }}
-                  isAnimationActive={false} 
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 12 }}
-                    tickFormatter={truncateXAxisAsesores}
+                    exportRef={chartAsesoresExportRef}
+    
+                    isMonthPicker={true}
+                    onDateApply={handleDateApplyAsesores}
+                    onDateReset={handleDateResetAsesores}
+                    
+                    filterTitle="Filtrar por Asesor:"
+                    filterList={asesores_activados}
+                    filterValueKey="id_usuario"
+                    filterLabelKey="nombre"
+                    filterValue={asesorFilter}
+                    onFilterChange={handleChangeAsesores}
+    
+                    metricsOptions={metricsOptionsAsesores}
+                    // activeMetrics={activeLinesLenteDoctores}
+                    activeMetrics={activeLinesLenteAsesores}
+
+
+                    renderMetricSelector={true}
+                    onMetricsChange={onMetricSelectorAsesorChange}
+                    
+                    barCategoryGap="50%"
+                    barGap={0}
+                    xDataKey="name"
                   />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
-                  <Legend
-                    verticalAlign="top"
-                    align="center"
-                    content={renderLegendLenteAsesores}
+
+                </Col>
+
+                {/* Divider responsivo */}
+                <Col xs={24} sm={24} md={1} style={{display:'flex', justifyContent: 'end', alignItems: 'center'}}>
+                  <Divider
+                    type={breakpoints.md ? "vertical" : "horizontal"}
+                    style={breakpoints.md ? { height: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5} 
+                      : { width: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}
+                    }
                   />
-                  {renderLinesLenteAsesores()}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </Col>
+                </Col>
 
-        <Col xxl={6} xl={6} md={6}>
-          <KpiTiempoPromedio />
-        </Col>
+                {/* <Divider
+                  type={breakpoints.md ? "vertical" : "horizontal"}
+                  style={breakpoints.md ? { height: "100%", margin: "0 0 0 0",  } : { width: "100%", margin: "0 0 0 0"}}
+                /> */}
 
+                {/*Tiempo promedio */}
+                <Col xs={24} sm={24} md={8} lg={10} xl={8}>
+                  <Row gutter={[24, 24]}>
+                    <Col xs={24} sm={24}>
+                      <KpiTiempoPromedio />
+                    </Col>
 
-        {/*  */}
+                    <Col xs={24} sm={24}>
+                      <Divider type="horizontal" style={{ width: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}}/>
+                    </Col>
 
-        <Col xxl={12} xl={12} md={12}>
-          <div
-            style={{
-              background: 'white',
-              height: '600px',
-              padding: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <DateRangeSeparate
-                onApply={handleDateApply}
-                onReset={handleDateReset}
+                    <Col sm={24} xs={24} style={breakpoints.md ? { display: 'flex',justifyContent: 'flex-end' } : { display: 'flex' }}>
+                      <PdfActionButtons
+                        onPreview={handlePreviewPdf}
+                        isGenerating={isGeneratingPdf}
+                        ready={!!(chartsImages && chartsImages.length > 0)}
+                        downloadDocument={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+                        titleFilename="KPI_Tipos_Lentes"
+                        size="middle"
+                      />
+                    </Col>
+                  </Row>
+                  
+                </Col>
+                
+              </Row>
+            </Col>
+                    
+                    
+            {/* grafica por sucursal */}
+            <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
+              <HorizontalBarChart
+                // title="tag"
+                data={kpisTipoLente}
+                needCardWrapper={true}
+
+                exportRef={chartSucursalesExportRef}
+    
                 isMonthPicker={true}
+                onDateApply={handleDateApply}
+                onDateReset={handleDateReset}
+                
+                filterTitle="Filtrar por Sucursal:"
+                filterList={sucursales}
+                filterValueKey="id_sucursal"
+                filterLabelKey="nombre"
+                filterValue={sucursalFilter}
+                onFilterChange={handleChange}
+    
+                metricsOptions={metricsOptionsSucursales}
+                activeMetrics={activeLinesLente}
+    
+                renderMetricSelector={true}
+                onMetricsChange={onMetricSelectorSucursalChange}
+                
+                barCategoryGap="50%"
+                barGap={0}
+                xDataKey="name"
               />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  marginTop: '-32px',
-                  borderLeft: '1px solid gray',
-                  paddingLeft: '12px'
-                }}
-              >
-                <label>Filtrar por Sucursal:</label>
-                <Select
-                  mode="multiple"
-                  style={{ width: '200px' }}
-                  placeholder="Selecciona la sucursal"
-                  onChange={handleChange}
-                  value={sucursalFilter || undefined}
-                  allowClear
-                >
-                  {sucursales.map(sucursal => (
-                    <Select.Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
-                      {sucursal.nombre}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-            </div>
+              
+            </Col>
+                    
 
-            <div style={{ flex: 1, marginTop: '0px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={kpisTipoLente}
-                  margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
-                  isAnimationActive={false} // Desactiva la animación para hover
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                    interval={0}
-                  />
-                  <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
-                  <Legend
-                    verticalAlign="top"
-                    align="center"
-                    content={renderLegendLente}
-                  />
-                  {renderLinesLente()}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </Col>
+                    
+            {/* grafica por doctor */}
+            <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
+              <HorizontalBarChart
+                // title="tag"
+                data={kpisTipoLenteDoctores}
+                needCardWrapper={true}
 
-
-
-
-
-
-        <Col xxl={12} xl={12} md={12}>
-          <div
-            style={{
-              background: 'white',
-              height: '600px',
-              padding: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <DateRangeSeparate
-                onApply={handleDateApplyDoctores}
-                onReset={handleDateResetDoctores}
+                exportRef={chartDoctoresExportRef}
+    
                 isMonthPicker={true}
+                onDateApply={handleDateApplyDoctores}
+                onDateReset={handleDateResetDoctores}
+                
+                filterTitle="Filtrar por Doctor:"
+                filterList={doctores_activados}
+                filterValueKey="nombre"
+                filterLabelKey="nombre"
+                filterValue={doctorFilter}
+                onFilterChange={handleChangeDoctores}
+    
+                metricsOptions={metricsOptionsDoctores}
+                activeMetrics={activeLinesLenteDoctores}
+    
+                renderMetricSelector={true}
+                onMetricsChange={onMetricSelectorDoctorlChange}
+                
+                barCategoryGap="50%"
+                barGap={0}
+                xDataKey="name"
               />
-              <div
-                style={{
-                  display: "flex", flexDirection: "column", marginTop: '-32px',
-                  borderLeft: '1px solid gray',
-                  paddingLeft: '12px'
-                }}
-              >
-                <label>Filtrar por Doctor:</label>
-                <Select
-                  mode="multiple"
-                  style={{ width: '200px' }}
-                  placeholder="Selecciona el doctor"
-                  onChange={handleChangeDoctores}
-                  value={doctorFilter || undefined}
-                  allowClear
-                >
-                  {doctores_activados.map(doctor => (
-                    <Select.Option key={doctor.id_usuario} value={doctor.nombre}>
-                      {doctor.nombre}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-            </div>
 
-            <div style={{ flex: 1, }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={kpisTipoLenteDoctores}
-                  margin={{ top: 20, right: 50, left: 20, bottom: 5 }}
-                  isAnimationActive={false} // Desactiva la animación para hover
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}
-                    interval={0}
-                    tickFormatter={truncateXAxisDoctores}
-                  />
-                  <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} /> {/* Sin fondo al hacer hover */}
-                  <Legend
-                    verticalAlign="top"
-                    align="center"
-                    content={renderLegendLenteDoctores}
-                  />
-                  {renderLinesLenteDoctores()}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </Col>
-      </Row>
-    </ResponsiveContainer>
+            </Col>
+          </Row>
+        </ResponsiveContainer>
 
+      </Col>
+
+      {/* Extra fuera del contenido principal: modals - etc */}
+      <PdfPreviewModal
+        open={showModalPdf}
+        onClose={() => setShowModalPdf(false)}
+        document={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+        loading={isGeneratingPdf || !chartsImages} // muestra loader si estamos generando las imágenes
+        title="Vista previa - KPIs Tipos de Lentes"
+        titleFilename="KPIs_Tipos_Lentes.pdf"
+        width="85%"
+        height="80vh"
+      />
+    </Row>
   );
 };
 

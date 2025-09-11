@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import DateRangeSeparate from '../../reportes/DateRange'
-import { Button, Card, Col, Row, Select, Spin } from 'antd'
+import { Col, Row, Select, Spin, Space, Typography, Divider, Tooltip } from 'antd'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   fetchKpisPromedioFasesOrdenes,
   setFasesRangePromedioFasesOrdenes,
   setFechaRangePromedioFasesOrdenes
 } from '../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice'
+
+const { Text, Title } = Typography;
 
 const KpiTiempoPromedio = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,11 @@ const KpiTiempoPromedio = () => {
   const [localStartDateFasesOrdenes, setLocalStartDateFasesOrdenes] = useState();
   const [localEndDateFasesOrdenes, setLocalEndDateFasesOrdenes] = useState();
 
+  // refs y control para abrir/focar el Select de Fase Final
+  const finalSelectRef = useRef(null);
+  const [openFinal, setOpenFinal] = useState(false);
+
+  const fases = ["Nuevo", "En confeccion", "Listo", "Retirado"];
   const faseMapping = {
     Nuevo: 1,
     "En confeccion": 2,
@@ -33,39 +40,11 @@ const KpiTiempoPromedio = () => {
     ? `${tiempoPromedio.dias} días, ${tiempoPromedio.horas} horas, ${tiempoPromedio.minutos} minutos`
     : "No disponible";
 
-  const getFasesDisponibles = (faseInicial) => {
-    const fases = ["Nuevo", "En confeccion", "Listo", "Retirado"];
-    return fases.slice(fases.indexOf(faseInicial) + 1);
-  };
-
-  const handleDateApplyPromedioFasesOrdenes = (newStartDate, newEndDate) => {
-    setLocalStartDateFasesOrdenes(newStartDate);
-    setLocalEndDateFasesOrdenes(newEndDate);
-
-    dispatch(setFechaRangePromedioFasesOrdenes({ startDate: newStartDate, endDate: newEndDate }));
-  };
-
-  const handleDateResetPromedioFasesOrdenes = () => {
-    setLocalStartDateFasesOrdenes(null);
-    setLocalEndDateFasesOrdenes(null);
-
-    dispatch(setFechaRangePromedioFasesOrdenes({ startDate: null, endDate: null }));
-  };
-
-  const handleLenteContactoChange = (value) => {
-    setLenteContactoFilter(value);
-  };
-
-  const handleFaseInicialChange = (value) => {
-    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: value, faseFinal: null }));
-  };
-
-  const handleFaseFinalChange = (value) => {
-    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial, faseFinal: value }));
-  };
-
-  const handleLimpiar = () => {
-    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: null, faseFinal: null }));
+  const getFasesDisponibles = (faseInicialVal) => {
+    if (!faseInicialVal) return [];
+    const idx = fases.indexOf(faseInicialVal);
+    if (idx === -1) return [];
+    return fases.slice(idx + 1); // solo posteriores
   };
 
   useEffect(() => {
@@ -78,120 +57,198 @@ const KpiTiempoPromedio = () => {
     }));
   }, [dispatch, localStartDateFasesOrdenes, localEndDateFasesOrdenes, lenteContactoFilter, faseInicial, faseFinal]);
 
-  return (
-    <div>
+  const handleDateApplyPromedioFasesOrdenes = (newStartDate, newEndDate) => {
+    setLocalStartDateFasesOrdenes(newStartDate);
+    setLocalEndDateFasesOrdenes(newEndDate);
+    dispatch(setFechaRangePromedioFasesOrdenes({ startDate: newStartDate, endDate: newEndDate }));
+  };
 
-      {/* Card de tiempo promedio */}
-      <Row>
-        <Col xxl={24} xl={24} md={24}>
-          <Card title="Tiempo Promedio" bordered={false}>
+  const handleDateResetPromedioFasesOrdenes = () => {
+    setLocalStartDateFasesOrdenes(null);
+    setLocalEndDateFasesOrdenes(null);
+    dispatch(setFechaRangePromedioFasesOrdenes({ startDate: null, endDate: null }));
+  };
+
+  const handleLenteContactoChange = (value) => {
+    setLenteContactoFilter(value);
+  };
+
+  // Al cambiar fase inicial: ajusta faseFinal si ya no es válida, abre y enfoca el select final
+  const handleFaseInicialChange = (value) => {
+    // value puede ser undefined (clear)
+    if (!value) {
+      dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: null, faseFinal: null }));
+      setOpenFinal(false);
+      return;
+    }
+
+    const disponibles = getFasesDisponibles(value);
+    const newFinal = (faseFinal && disponibles.includes(faseFinal)) ? faseFinal : null;
+
+    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: value, faseFinal: newFinal }));
+
+    // abrir y enfocar el select final para que el usuario continúe
+    setTimeout(() => {
+      setOpenFinal(true);
+      if (finalSelectRef.current?.focus) finalSelectRef.current.focus();
+    }, 80);
+  };
+
+  // Al cambiar fase final: si se limpia, solo limpia la fase final; si selecciona, la guarda
+  const handleFaseFinalChange = (value) => {
+    if (!value) {
+      dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: faseInicial || null, faseFinal: null }));
+      return;
+    }
+    dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: faseInicial || null, faseFinal: value }));
+    setOpenFinal(false);
+  };
+
+  // Texto que muestra el rango seleccionado (ej: "Nuevo → Listo")
+  const renderFaseRangeText = () => {
+    if (faseInicial && faseFinal) return `${faseInicial} → ${faseFinal}`;
+    if (faseInicial) return `Desde: ${faseInicial}`;
+    if (faseFinal) return `Hasta: ${faseFinal}`;
+    return "No hay rango de fases seleccionado";
+  };
+
+  // opciones para fase final (solo posteriores)
+  const opcionesFinal = getFasesDisponibles(faseInicial);
+
+  return (
+    <Row gutter={[12,12]}>
+
+      {/* Header + valor grande (sin Card) */}
+      <Col xs={24} sm={24}>
+        <Row gutter={[6, 6]}>
+          <Col xs={24} sm={24}>
+            <Title level={5} style={{ margin: 0 }}>Tiempo Promedio</Title>
+          </Col>
+          <Col xs={24} sm={24}>
             {statusPromedioFasesOrdenes === 'loading' ? (
               <Spin size="large" />
             ) : (
-              <h3>{tiempo}</h3>
+              <Title level={3} style={{ margin: "8px 0", color: "#009688" }}>
+                {tiempo}
+              </Title>
             )}
-          </Card>
-        </Col>
-      </Row>
+          </Col>
+          <Col xs={24} sm={24}>
+            <Divider style={{margin: "0 0 0 0"}}/>
+          </Col>
+        </Row>
+      </Col>
 
 
-      <div
-        style={{
-          marginTop: '10px',
-          background: 'white',
-          padding: '10px'
-        }}
-      >
-        <DateRangeSeparate
-          onApply={handleDateApplyPromedioFasesOrdenes}
-          onReset={handleDateResetPromedioFasesOrdenes}
-        />
-
-        <div style={{ width: "100%", marginTop: "10px" }}>
-          <div style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "10px",
-            flexWrap: "wrap"
-          }}>
+      {/* Filtro DateRange  */}
+      <Col xs={24} sm={24}>
+        <Row gutter={[12, 12]}>
+          <Col xs={24} sm={24}>
+             <DateRangeSeparate
+             onApply={handleDateApplyPromedioFasesOrdenes}
+             onReset={handleDateResetPromedioFasesOrdenes}
+           />
+          </Col>
+          <Col xs={24} sm={24}>
+            <Divider style={{margin: "0 0 0 0"}}/>
+          </Col>
+        </Row>
+      </Col>
 
 
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label>Fase Inicial:</label>
-              <Select
-                style={{ width: '200px' }}
-                placeholder="Selecciona una fase inicial"
-                value={faseInicial}
+
+      {/* Contenedor unificado para ambos selects fase inicial - fase final */}
+      <Col xs={24} sm={24}>
+        <Row gutter={[0, 12]}>
+          <Col xs={24} sm={24}>
+            <Text strong style={{ marginBottom: 6, fontSize: 16 }}>Filtrar por Fase Inicial - Final</Text>
+          </Col>
+          <Col xs={12} sm={12}>
+            <Tooltip title='Selecciona una fase inicial'>
+                <Select
+                style={{ width: "100%"}}
+                placeholder="Fase inicial"
+                value={faseInicial || undefined}
                 onChange={handleFaseInicialChange}
-              >
-                <Select.Option value="Nuevo">Nuevo</Select.Option>
-                <Select.Option value="En confeccion">En confección</Select.Option>
-                <Select.Option value="Listo">Listo</Select.Option>
-                <Select.Option value="Retirado">Retirado</Select.Option>
-              </Select>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label>Fase Final:</label>
-              <Select
-                style={{ width: '200px' }}
-                placeholder="Selecciona una fase final"
-                value={faseFinal}
-                onChange={handleFaseFinalChange}
-                disabled={!faseInicial}
-              >
-                {faseInicial && getFasesDisponibles(faseInicial).map(fase => (
-                  <Select.Option key={fase} value={fase}>{fase}</Select.Option>
-                ))}
-              </Select>
-            </div>
-
-            <Button
-              onClick={handleLimpiar}
-              type="primary"
-              danger
-              disabled={!faseInicial && !faseFinal}
-              style={{ marginTop: '30px' }}
-            >
-              Limpiar
-            </Button>
-
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <label>Filtrar por Tipo de Lente:</label>
-              <Select
-                mode="multiple"
-                style={{ width: '100%' }}
-                placeholder="Selecciona el tipo de lente"
-                onChange={handleLenteContactoChange}
-                value={lenteContactoFilter || undefined}
                 allowClear
               >
-                <Select.Option value="1">
-                  <img
-                    src="assets/img/recetas/lentesdecontacto.png"
-                    alt="Lente On"
-                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                  />
-                  Lente de Contacto
-                </Select.Option>
-                <Select.Option value="0">
-                  <img
-                    src="assets/img/recetas/lentenormal.png"
-                    alt="Lente Off"
-                    style={{ width: '20px', height: '20px', marginRight: '5px' }}
-                  />
-                  Lente Normal
-                </Select.Option>
+                {fases.map(f => <Select.Option key={f} value={f}>{f}</Select.Option>)}
               </Select>
-            </div>
+            </Tooltip>
+          </Col>
+          <Col xs={12} sm={12}>
+            <Tooltip title='Selecciona una fase final'>
+              <Select
+                ref={finalSelectRef}
+                open={openFinal}
+                onDropdownVisibleChange={(open) => setOpenFinal(open)}
+                style={{ width: "100%" }}
+                placeholder={faseInicial ? "Fase final" : "Primero Fase inicial"}
+                value={faseFinal || undefined}
+                onChange={handleFaseFinalChange}
+                allowClear
+                disabled={!faseInicial}
+              >
+                {opcionesFinal.map(f => <Select.Option key={f} value={f}>{f}</Select.Option>)}
+              </Select>
+            </Tooltip>
+            
+          </Col>
 
-          </div>
-        </div>
-      </div>
+          <Col xs={24} sm={24}>
+            <Text type="secondary" style={{fontSize: 12}}>Rango: </Text>
+            <Space>
+              <Text type="secondary" style={{fontSize: 12}}>{renderFaseRangeText()}</Text>
+            </Space>
+          </Col>
+          <Col xs={24} sm={24}>
+            <Divider style={{margin: "0 0 0 0"}}/>
+          </Col>
+        </Row>
+      </Col>
 
 
+      {/* Contenedor Filtro Tipo lente */}
+      <Col xs={24} sm={24}>
+        <Row gutter={[12, 12]}>
+          {/* titulo */}
+          <Col xs={24} sm={24}>
+            <Text strong>Filtrar por Tipo de Lente</Text>
+          </Col>
 
+          {/* titulo select */}
+          <Col xs={24} sm={24}>
+            <Select
+              mode="multiple"
+              style={{ width: "100%" }}
+              placeholder="Selecciona el tipo de lente"
+              onChange={handleLenteContactoChange}
+              value={lenteContactoFilter || undefined}
+              allowClear
+            >
+              <Select.Option value="1">
+                <img
+                  src="assets/img/recetas/lentesdecontacto.png"
+                  alt="Lente On"
+                  style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                />
+                Lente de Contacto
+              </Select.Option>
+              <Select.Option value="0">
+                <img
+                  src="assets/img/recetas/lentenormal.png"
+                  alt="Lente Off"
+                  style={{ width: '20px', height: '20px', marginRight: '8px' }}
+                />
+                Lente Normal
+              </Select.Option>
+            </Select>
+          </Col>
 
-    </div>
+        </Row>
+      </Col>
+
+    </Row>
   )
 }
 
