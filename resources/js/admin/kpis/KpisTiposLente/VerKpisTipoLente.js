@@ -11,7 +11,7 @@ import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
 import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
 
 import ChartsTiposLentesPdfReport from "../../../services/pdf/kpis/kpisTiposLentes/ChartsTiposLentesPdfReport";
-import { generateChartsImages } from "../../../utils/generateChartImages";
+import { generateChartsImages } from "../../../utils/GenerateChartImages";
 
 import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
 
@@ -59,10 +59,6 @@ const VerKpisTipoLente = () => {
     {label: 'Lente contacto', value: 'lente_contacto', color: '#6C5CE7'},
     {label: 'Lente Normal', value: 'lente_normal', color: '#00B894'},
   ]
-
-  
-
-
 
   const { useBreakpoint } = Grid;
   const breakpoints = useBreakpoint();
@@ -248,13 +244,13 @@ const VerKpisTipoLente = () => {
 
   const onMetricSelectorAsesorChange = (values) => {
     setActiveLinesLenteAsesores(values);
-  } 
+  }
   const onMetricSelectorSucursalChange = (values) => {
     setActiveLinesLente(values);
-  } 
+  }
   const onMetricSelectorDoctorlChange = (values) => {
     setActiveLinesLenteDoctores(values);
-  } 
+  }
 
   const renderLinesLente = () => {
     const lines = [];
@@ -354,7 +350,7 @@ const VerKpisTipoLente = () => {
     </div>
   );
 
-  
+
 
   const renderLegendLenteDoctores = () => (
     <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
@@ -404,7 +400,7 @@ const VerKpisTipoLente = () => {
   //   return null;
   // };
 
-  /* ------------------------------------------------------------------------------------------ 
+  /* ------------------------------------------------------------------------------------------
                                     Funciones utilitarias
    ------------------------------------------------------------------------------------------*/
 
@@ -442,7 +438,7 @@ const VerKpisTipoLente = () => {
   };
 
   return (
-    
+
     // Contenedor principal
     <Row justify="center" style={{marginBottom: '30px'}}>
       <Col xs={24} sm={24} md={22} lg={22} xl={20} xxl={18}>
@@ -453,7 +449,7 @@ const VerKpisTipoLente = () => {
 
             {/* Contenedor Grafico  */}
             <Col xs={24} sm={24}>
-              <Row gutter={[16, 16] } 
+              <Row gutter={[16, 16] }
                 style={{
                   background: 'white',
                   padding: "15px",
@@ -473,18 +469,18 @@ const VerKpisTipoLente = () => {
                     needCardWrapper={false}
 
                     exportRef={chartAsesoresExportRef}
-    
+
                     isMonthPicker={true}
                     onDateApply={handleDateApplyAsesores}
                     onDateReset={handleDateResetAsesores}
-                    
+
                     filterTitle="Filtrar por Asesor:"
                     filterList={asesores_activados}
                     filterValueKey="id_usuario"
                     filterLabelKey="nombre"
                     filterValue={asesorFilter}
                     onFilterChange={handleChangeAsesores}
-    
+
                     metricsOptions={metricsOptionsAsesores}
                     // activeMetrics={activeLinesLenteDoctores}
                     activeMetrics={activeLinesLenteAsesores}
@@ -492,7 +488,7 @@ const VerKpisTipoLente = () => {
 
                     renderMetricSelector={true}
                     onMetricsChange={onMetricSelectorAsesorChange}
-                    
+
                     barCategoryGap="50%"
                     barGap={0}
                     xDataKey="name"
@@ -504,7 +500,7 @@ const VerKpisTipoLente = () => {
                 <Col xs={24} sm={24} md={1} style={{display:'flex', justifyContent: 'end', alignItems: 'center'}}>
                   <Divider
                     type={breakpoints.md ? "vertical" : "horizontal"}
-                    style={breakpoints.md ? { height: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5} 
+                    style={breakpoints.md ? { height: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}
                       : { width: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}
                     }
                   />
@@ -537,13 +533,13 @@ const VerKpisTipoLente = () => {
                       />
                     </Col>
                   </Row>
-                  
+
                 </Col>
-                
+
               </Row>
             </Col>
-                    
-                    
+
+
             {/* grafica por sucursal */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
               <HorizontalBarChart
@@ -552,33 +548,33 @@ const VerKpisTipoLente = () => {
                 needCardWrapper={true}
 
                 exportRef={chartSucursalesExportRef}
-    
+
                 isMonthPicker={true}
                 onDateApply={handleDateApply}
                 onDateReset={handleDateReset}
-                
+
                 filterTitle="Filtrar por Sucursal:"
                 filterList={sucursales}
                 filterValueKey="id_sucursal"
                 filterLabelKey="nombre"
                 filterValue={sucursalFilter}
                 onFilterChange={handleChange}
-    
+
                 metricsOptions={metricsOptionsSucursales}
                 activeMetrics={activeLinesLente}
-    
+
                 renderMetricSelector={true}
                 onMetricsChange={onMetricSelectorSucursalChange}
-                
+
                 barCategoryGap="50%"
                 barGap={0}
                 xDataKey="name"
               />
-              
-            </Col>
-                    
 
-                    
+            </Col>
+
+
+
             {/* grafica por doctor */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
               <HorizontalBarChart
@@ -587,24 +583,24 @@ const VerKpisTipoLente = () => {
                 needCardWrapper={true}
 
                 exportRef={chartDoctoresExportRef}
-    
+
                 isMonthPicker={true}
                 onDateApply={handleDateApplyDoctores}
                 onDateReset={handleDateResetDoctores}
-                
+
                 filterTitle="Filtrar por Doctor:"
                 filterList={doctores_activados}
                 filterValueKey="nombre"
                 filterLabelKey="nombre"
                 filterValue={doctorFilter}
                 onFilterChange={handleChangeDoctores}
-    
+
                 metricsOptions={metricsOptionsDoctores}
                 activeMetrics={activeLinesLenteDoctores}
-    
+
                 renderMetricSelector={true}
                 onMetricsChange={onMetricSelectorDoctorlChange}
-                
+
                 barCategoryGap="50%"
                 barGap={0}
                 xDataKey="name"
