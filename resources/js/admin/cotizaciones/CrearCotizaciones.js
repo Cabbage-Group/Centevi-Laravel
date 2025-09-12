@@ -109,11 +109,13 @@ const CrearCotizacion = () => {
     const ipToSucursalId = {
       '186.74.2.218': 7,
       '190.219.45.142': 3,
-      '45.229.196.9': 4
+      '45.229.196.9': 4,
     };
 
-    const sucursalId = ipToSucursalId[ip] || null;
-    if (!sucursalId) return '';
+    // const sucursalId = ipToSucursalId[ip] || null; // aca devolvemos por defecto null si no se encontro registrada la ip
+    const sucursalId = ipToSucursalId[ip] || 3; 
+    if (!sucursalId) return ''; 
+    if (!sucursalId) return ''; 
     const warehouseSelected = warehouses.find(w => w.sucursal_id === sucursalId);
     return warehouseSelected?.nombre || '';
   };
@@ -233,94 +235,94 @@ const CrearCotizacion = () => {
       return;
     }
 
-    if (responseQuote) {
-      try {
-        Swal.fire({
-          title: 'Enviando a Interfuerza...',
-          text: 'Creando cotización en Interfuerza',
-          icon: 'info',
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
+    // if (responseQuote) {
+    //   try {
+    //     Swal.fire({
+    //       title: 'Enviando a Interfuerza...',
+    //       text: 'Creando cotización en Interfuerza',
+    //       icon: 'info',
+    //       showConfirmButton: false,
+    //       allowOutsideClick: false,
+    //       didOpen: () => {
+    //         Swal.showLoading();
+    //       },
+    //     });
 
-        const responseInterfuerzaQuote = await dispatch(createInterfuerzaQuotes(formattedValues)).unwrap();
-        Swal.close();
+    //     const responseInterfuerzaQuote = await dispatch(createInterfuerzaQuotes(formattedValues)).unwrap();
+    //     Swal.close();
 
-        await Swal.fire({
-          icon: 'success',
-          title: 'Cotización enviada a Interfuerza',
-          text: 'Se guardó también en Interfuerza.',
-          confirmButtonText: 'Continuar'
-        });
+    //     await Swal.fire({
+    //       icon: 'success',
+    //       title: 'Cotización enviada a Interfuerza',
+    //       text: 'Se guardó también en Interfuerza.',
+    //       confirmButtonText: 'Continuar'
+    //     });
 
-        try {
-          Swal.fire({
-            title: 'Actualizando estado...',
-            text: 'Registrando información en el sistema',
-            icon: 'info',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-          });
+    //     try {
+    //       Swal.fire({
+    //         title: 'Actualizando estado...',
+    //         text: 'Registrando información en el sistema',
+    //         icon: 'info',
+    //         showConfirmButton: false,
+    //         allowOutsideClick: false,
+    //         didOpen: () => {
+    //           Swal.showLoading();
+    //         },
+    //       });
 
-          await dispatch(updateEstadoQuote({
-            id: responseQuote.quote.id,
-            data: {
-              estado: 1,
-              codigo_interfuerza: responseInterfuerzaQuote.data.response.id
-            }
-          })).unwrap();
+    //       await dispatch(updateEstadoQuote({
+    //         id: responseQuote.quote.id,
+    //         data: {
+    //           estado: 1,
+    //           codigo_interfuerza: responseInterfuerzaQuote.data.response.id
+    //         }
+    //       })).unwrap();
 
-          Swal.close();
-          navigate('/table-cotizaciones');
-        } catch (updateError) {
-          console.error('Error al actualizar estado:', updateError);
-          Swal.close();
-        }
+    //       Swal.close();
+    //       navigate('/table-cotizaciones');
+    //     } catch (updateError) {
+    //       console.error('Error al actualizar estado:', updateError);
+    //       Swal.close();
+    //     }
 
-      } catch (interfuerzaError) {
-        console.error('Error en Interfuerza:', interfuerzaError);
-        Swal.close();
+    //   } catch (interfuerzaError) {
+    //     console.error('Error en Interfuerza:', interfuerzaError);
+    //     Swal.close();
 
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error al crear en Interfuerza',
-          text: interfuerzaError?.message || 'No se pudo crear la cotización en Interfuerza.',
-          confirmButtonText: 'Entendido'
-        });
+    //     await Swal.fire({
+    //       icon: 'error',
+    //       title: 'Error al crear en Interfuerza',
+    //       text: interfuerzaError?.message || 'No se pudo crear la cotización en Interfuerza.',
+    //       confirmButtonText: 'Entendido'
+    //     });
 
-        try {
-          Swal.fire({
-            title: 'Actualizando estado...',
-            text: 'Registrando el error en el sistema',
-            icon: 'info',
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-          });
+    //     try {
+    //       Swal.fire({
+    //         title: 'Actualizando estado...',
+    //         text: 'Registrando el error en el sistema',
+    //         icon: 'info',
+    //         showConfirmButton: false,
+    //         allowOutsideClick: false,
+    //         didOpen: () => {
+    //           Swal.showLoading();
+    //         },
+    //       });
 
-          await dispatch(updateEstadoQuote({
-            id: responseQuote.quote.id,
-            data: {
-              estado: 0
-            }
-          })).unwrap();
+    //       await dispatch(updateEstadoQuote({
+    //         id: responseQuote.quote.id,
+    //         data: {
+    //           estado: 0
+    //         }
+    //       })).unwrap();
 
-          Swal.close();
-          navigate('/table-cotizaciones');
-        } catch (updateError) {
-          console.error('Error al actualizar estado después del fallo:', updateError);
-          Swal.close();
-        }
-      }
-    }
+    //       Swal.close();
+    //       navigate('/table-cotizaciones');
+    //     } catch (updateError) {
+    //       console.error('Error al actualizar estado después del fallo:', updateError);
+    //       Swal.close();
+    //     }
+    //   }
+    // }
   };
 
 
@@ -854,6 +856,7 @@ const CrearCotizacion = () => {
                 optionFilterProp='children'
                 onChange={handleBodegaChange}
                 loading={status_warehouses === 'loading'}
+                disabled={status_warehouses === 'loading'}
               >
                 {warehouses?.map((wareHouse) => (
                   <Option key={wareHouse.nombre} value={wareHouse.nombre}>
