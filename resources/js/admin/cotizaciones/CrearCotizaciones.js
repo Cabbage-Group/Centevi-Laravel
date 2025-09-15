@@ -159,10 +159,13 @@ const CrearCotizacion = () => {
       });
 
       if (record?.lines && Array.isArray(record.lines)) {
-        setLines(record.lines.map((line, index) => ({
-          key: index,
-          ...line
-        })));
+        const mapped = record.lines.map((line, index) => ({ key: index, ...line }));
+        setLines(mapped);
+        // recalcular totales con las líneas cargadas
+        calculateTotals(mapped);
+        // actualizar saldo con el abono del record (si existe)
+        const abonoFromRecord = record.Abono ? Number(record.Abono) : 0;
+        updateSaldoPendiente(abonoFromRecord, Number(form.getFieldValue('Total')) || null);
       }
     }
   }, [record]);
@@ -239,94 +242,94 @@ const CrearCotizacion = () => {
       return;
     }
 
-    // if (responseQuote) {
-    //   try {
-    //     Swal.fire({
-    //       title: 'Enviando a Interfuerza...',
-    //       text: 'Creando cotización en Interfuerza',
-    //       icon: 'info',
-    //       showConfirmButton: false,
-    //       allowOutsideClick: false,
-    //       didOpen: () => {
-    //         Swal.showLoading();
-    //       },
-    //     });
+    if (responseQuote) {
+      try {
+        Swal.fire({
+          title: 'Enviando a Interfuerza...',
+          text: 'Creando cotización en Interfuerza',
+          icon: 'info',
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
-    //     const responseInterfuerzaQuote = await dispatch(createInterfuerzaQuotes(formattedValues)).unwrap();
-    //     Swal.close();
+        const responseInterfuerzaQuote = await dispatch(createInterfuerzaQuotes(formattedValues)).unwrap();
+        Swal.close();
 
-    //     await Swal.fire({
-    //       icon: 'success',
-    //       title: 'Cotización enviada a Interfuerza',
-    //       text: 'Se guardó también en Interfuerza.',
-    //       confirmButtonText: 'Continuar'
-    //     });
+        await Swal.fire({
+          icon: 'success',
+          title: 'Cotización enviada a Interfuerza',
+          text: 'Se guardó también en Interfuerza.',
+          confirmButtonText: 'Continuar'
+        });
 
-    //     try {
-    //       Swal.fire({
-    //         title: 'Actualizando estado...',
-    //         text: 'Registrando información en el sistema',
-    //         icon: 'info',
-    //         showConfirmButton: false,
-    //         allowOutsideClick: false,
-    //         didOpen: () => {
-    //           Swal.showLoading();
-    //         },
-    //       });
+        try {
+          Swal.fire({
+            title: 'Actualizando estado...',
+            text: 'Registrando información en el sistema',
+            icon: 'info',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
 
-    //       await dispatch(updateEstadoQuote({
-    //         id: responseQuote.quote.id,
-    //         data: {
-    //           estado: 1,
-    //           codigo_interfuerza: responseInterfuerzaQuote.data.response.id
-    //         }
-    //       })).unwrap();
+          await dispatch(updateEstadoQuote({
+            id: responseQuote.quote.id,
+            data: {
+              estado: 1,
+              codigo_interfuerza: responseInterfuerzaQuote.data.response.id
+            }
+          })).unwrap();
 
-    //       Swal.close();
-    //       navigate('/table-cotizaciones');
-    //     } catch (updateError) {
-    //       console.error('Error al actualizar estado:', updateError);
-    //       Swal.close();
-    //     }
+          Swal.close();
+          navigate('/table-cotizaciones');
+        } catch (updateError) {
+          console.error('Error al actualizar estado:', updateError);
+          Swal.close();
+        }
 
-    //   } catch (interfuerzaError) {
-    //     console.error('Error en Interfuerza:', interfuerzaError);
-    //     Swal.close();
+      } catch (interfuerzaError) {
+        console.error('Error en Interfuerza:', interfuerzaError);
+        Swal.close();
 
-    //     await Swal.fire({
-    //       icon: 'error',
-    //       title: 'Error al crear en Interfuerza',
-    //       text: interfuerzaError?.message || 'No se pudo crear la cotización en Interfuerza.',
-    //       confirmButtonText: 'Entendido'
-    //     });
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al crear en Interfuerza',
+          text: interfuerzaError?.message || 'No se pudo crear la cotización en Interfuerza.',
+          confirmButtonText: 'Entendido'
+        });
 
-    //     try {
-    //       Swal.fire({
-    //         title: 'Actualizando estado...',
-    //         text: 'Registrando el error en el sistema',
-    //         icon: 'info',
-    //         showConfirmButton: false,
-    //         allowOutsideClick: false,
-    //         didOpen: () => {
-    //           Swal.showLoading();
-    //         },
-    //       });
+        try {
+          Swal.fire({
+            title: 'Actualizando estado...',
+            text: 'Registrando el error en el sistema',
+            icon: 'info',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+          });
 
-    //       await dispatch(updateEstadoQuote({
-    //         id: responseQuote.quote.id,
-    //         data: {
-    //           estado: 0
-    //         }
-    //       })).unwrap();
+          await dispatch(updateEstadoQuote({
+            id: responseQuote.quote.id,
+            data: {
+              estado: 0
+            }
+          })).unwrap();
 
-    //       Swal.close();
-    //       navigate('/table-cotizaciones');
-    //     } catch (updateError) {
-    //       console.error('Error al actualizar estado después del fallo:', updateError);
-    //       Swal.close();
-    //     }
-    //   }
-    // }
+          Swal.close();
+          navigate('/table-cotizaciones');
+        } catch (updateError) {
+          console.error('Error al actualizar estado después del fallo:', updateError);
+          Swal.close();
+        }
+      }
+    }
   };
 
 
@@ -442,21 +445,27 @@ const CrearCotizacion = () => {
 
 
   const calculateTotals = (currentLines) => {
-
     const linesArray = currentLines || lines;
     const subtotal = linesArray.reduce((sum, line) => sum + parseFloat(line.subTotal || 0), 0);
     const discount_total = linesArray.reduce((sum, line) => sum + parseFloat(line.Discount || 0), 0);
-    const subTotalMenosDescuento = subtotal - discount_total
-    const impuesto_total = subTotalMenosDescuento * 0.07
-    const total = (impuesto_total + subTotalMenosDescuento).toFixed(2);
+    const subTotalMenosDescuento = subtotal - discount_total;
+    const impuesto_total = subTotalMenosDescuento * TAX_RATE;
+    const totalNumber = Number((impuesto_total + subTotalMenosDescuento).toFixed(2)); // número
+    
     form.setFieldsValue({
-      Taxes: impuesto_total.toFixed(2),
-      SubTotal: subtotal.toFixed(2),
-      Discount: discount_total.toFixed(2),
-      Total: total,
-      SubTotalMenosDescuento: subTotalMenosDescuento.toFixed(2),
+      Taxes: Number(impuesto_total.toFixed(2)),
+      SubTotal: Number(subtotal.toFixed(2)),
+      Discount: Number(discount_total.toFixed(2)),
+      Total: totalNumber,
+      SubTotalMenosDescuento: Number(subTotalMenosDescuento.toFixed(2)),
     });
-    setMaxAbono(total);
+  
+    // maxAbono y saldo pendiente
+    setMaxAbono(totalNumber);
+  
+    // Actualizamos saldo pendiente respetando el Abono actual del formulario
+    updateSaldoPendiente(null, totalNumber);
+  
     console.log(linesArray);
   };
 
@@ -517,6 +526,43 @@ const CrearCotizacion = () => {
     setTempRowDiscounts(prev => ({ ...prev, [index]: String(normalized) }));
     setEditingRows(prev => ({ ...prev, [index]: false }));
   };
+ 
+  // ----------------------------------- Para Abono -----------------------------------
+  // Actualiza el campo SaldoPendiente en el formulario
+  const updateSaldoPendiente = (abonoValue = null, totalValue = null) => {
+    const abono = abonoValue !== null
+      ? Number(abonoValue || 0)
+      : (Number(form.getFieldValue('Abono')) || 0);
+
+    const total = totalValue !== null
+      ? Number(totalValue || 0)
+      : (Number(form.getFieldValue('Total')) || 0);
+
+    let saldo = total - abono;
+    if (saldo < 0) saldo = 0;
+
+    // Guardamos como número con 2 decimales
+    const saldoFixed = Number(saldo.toFixed(2));
+    const abonoFixed = Number(abono.toFixed(2));
+
+    form.setFieldsValue({
+      SaldoPendiente: saldoFixed,
+      Abono: abonoFixed,
+      Total: Number(total), // asegurar que Total sea number
+    });
+
+    setMaxAbono(Number(total));
+  };
+
+  // Handler que enlazamos al InputNumber de "Abono" (el editable)
+  const handleAbonoChange = (value) => {
+    const numeric = value === null || value === undefined ? 0 : Number(value);
+    if (isNaN(numeric)) return;
+    // Actualiza el saldo usando el total actual del form
+    const totalActual = Number(form.getFieldValue('Total')) || 0;
+    updateSaldoPendiente(numeric, totalActual);
+  };
+  
 
   const columns = [
     {
@@ -1021,17 +1067,14 @@ const CrearCotizacion = () => {
               </Col>  
 
               <Col style={{display: 'flex', flexDirection:'column'}} sm={12} xs={12}>
-                <Form.Item
-                  name="Abono"
-                  label="Abono:"
-                  // rules={[{ required: true, message: 'Campo requerido' }]}
-                  style={{ marginBottom: 5, fontWeight: "bold", fontSize: '12px' }}
-                >
+                <Form.Item name="Abono" label="Abono:" style={{ marginBottom: 5, fontWeight: "bold", fontSize: '12px' }}>
                   <InputNumber
-                  precision={2}
-                  min={0}
-                  style={{ width: '100%' }}
-                />
+                    precision={2}
+                    min={0}
+                    max={maxAbono}
+                    style={{ width: '100%' }}
+                    onChange={handleAbonoChange}
+                  />
                 </Form.Item>
               </Col>
 
