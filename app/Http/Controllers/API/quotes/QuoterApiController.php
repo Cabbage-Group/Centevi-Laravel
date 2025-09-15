@@ -105,6 +105,7 @@ class QuoterApiController extends Controller
         'Discount' => 'nullable|numeric',
         'Taxes' => 'nullable|numeric',
         'Total' => 'nullable|numeric',
+        'Abono' => 'nullable|numeric',
         'Reservar_Productos' => 'nullable|string',
         'Type' => 'nullable|string',
         'Vendedor' => 'nullable|string',

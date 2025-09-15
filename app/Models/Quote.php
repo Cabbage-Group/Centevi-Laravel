@@ -17,6 +17,7 @@ class Quote extends Model
     'Discount',
     'Taxes',
     'Total',
+    'Abono',
     'Reservar_Productos',
     'Type',
     'Vendedor',

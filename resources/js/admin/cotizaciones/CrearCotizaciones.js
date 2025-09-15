@@ -50,6 +50,7 @@ const CrearCotizacion = () => {
   const record = location.state?.record;
   const nombre = localStorage.getItem('nombre');
   const [totalDiscount, setTotalDiscount] = useState(0);
+  const [maxAbono, setMaxAbono] = useState(null);
 
   const [tempDiscount, setTempDiscount] = useState(''); // guardar como string mientras escribe
   const [isEditing, setIsEditing] = useState(false);
@@ -119,6 +120,7 @@ const CrearCotizacion = () => {
     const warehouseSelected = warehouses.find(w => w.sucursal_id === sucursalId);
     return warehouseSelected?.nombre || '';
   };
+
   useEffect(() => {
 
     if (exchangeRate) {
@@ -151,6 +153,7 @@ const CrearCotizacion = () => {
         Comentario: record.Comentario || '',
         Taxes: record.Taxes || '',
         SubTotal: record.SubTotal || '',
+        Abono: record.Abono || '',
         Total: record.Total || ''
 
       });
@@ -190,6 +193,7 @@ const CrearCotizacion = () => {
       Date: values.Date?.format('YYYY-MM-DD'),
       Expira: values.Expira?.format('YYYY-MM-DD'),
       Reservar_Productos: values.Reservar_Productos ? 'YES' : 'NO',
+      Abono: String(values.Abono),
       Lines: currentBodega?.send_discount
         ? lines
         : lines.map((line) => ({
@@ -444,14 +448,16 @@ const CrearCotizacion = () => {
     const discount_total = linesArray.reduce((sum, line) => sum + parseFloat(line.Discount || 0), 0);
     const subTotalMenosDescuento = subtotal - discount_total
     const impuesto_total = subTotalMenosDescuento * 0.07
-
+    const total = (impuesto_total + subTotalMenosDescuento).toFixed(2);
     form.setFieldsValue({
       Taxes: impuesto_total.toFixed(2),
       SubTotal: subtotal.toFixed(2),
       Discount: discount_total.toFixed(2),
-      Total: (impuesto_total + subTotalMenosDescuento).toFixed(2),
-      SubTotalMenosDescuento: subTotalMenosDescuento.toFixed(2)
+      Total: total,
+      SubTotalMenosDescuento: subTotalMenosDescuento.toFixed(2),
     });
+    setMaxAbono(total);
+    console.log(linesArray);
   };
 
   // NNuevo handlers para manejar inputNumber descuento
@@ -909,8 +915,8 @@ const CrearCotizacion = () => {
 
         <Divider>Líneas de Factura</Divider>
 
-        <Row style={{ marginBottom: 16 }}>
-          <Col>
+        <Row style={{ marginBottom: 16 }} justify={'space-between'}>
+          <Col style={{display: 'flex', flexDirection: 'row', alignItems: 'end'}}>
             <Button
               type="dashed"
               onClick={addLine}
@@ -919,98 +925,117 @@ const CrearCotizacion = () => {
               Agregar Línea
             </Button>
           </Col>
-
-          <Col offset={9}>
-            <label style={{ marginRight: 5, fontWeight: "bold", fontSize: '12px' }}>
-              Aplicar Descuento Total:
-            </label>
-          </Col>
-
           <Col>
-            {/* <InputNumber
-              value={totalDiscount}
-              min={0}
-              max={maxDiscount}
-              precision={2}
-              formatter={(value) => `${Number(value).toFixed(2)}%`}
-              parser={(value) => value.replace('%', '')}
-              onChange={handleTotalDiscountChange}
-              s
-            /> */}
+            <Row gutter={[16,16]}>
+              <Col style={{display: 'flex', flexDirection:'column'}} sm={12} xs={12}>
+                <label style={{ paddingBottom: 8, margin: '0 0 0 0', fontWeight: "500", fontSize: '14px', fontFamily: 'Segoe UI' }}>
+                  Aplicar Descuento Total:
+                </label>
 
-            <InputNumber
-              // Mientras editas mostramos tempDiscount; fuera de edición mostramos totalDiscount
-              value={
-                isEditing
-                  ? (tempDiscount === '' ? null : Number(tempDiscount))
-                  : (totalDiscount === '' ? null : Number(totalDiscount))
-              }
-              min={0}
-              max={maxDiscount}
-              precision={2}
-              // Solo aplicamos formato con % cuando NO estamos editando
-              formatter={(value) => {
-                if (isEditing || value === '' || value == null) return value;
-                return `${Number(value).toFixed(2)}%`;
-              }}
-              parser={(value) => (value ? value.toString().replace('%', '') : '')}
-              onFocus={() => {
-                setIsEditing(true);
-                // al abrir el input ponemos el valor actual en temp para editar
-                setTempDiscount(
-                  totalDiscount !== null && totalDiscount !== undefined
-                    ? String(totalDiscount)
-                    : ''
-                );
-              }}
-              onChange={(value) => {
-                // Permitir escribir cualquier valor durante la edición
-                if (value === null || value === undefined || value === '') {
-                  setTempDiscount('');
-                  return;
-                }
-                const numeric = Number(value);
-                if (isNaN(numeric)) {
-                  setTempDiscount('');
-                  return;
-                }
-
-                // Solo validar que no sea negativo, pero permitir exceder máximo temporalmente
-                if (numeric < 0) {
-                  setTempDiscount('0');
-                } else {
-                  // Guardar el valor tal como viene, sin limitar por maxDiscount
-                  setTempDiscount(String(Number(numeric.toFixed(2))));
-                }
-              }}
-
-              onBlur={(e) => {
-                // Obtener el valor real del input DOM
-                const inputValue = e.target.value;
-                let normalized;
-
-                if (inputValue === '' || inputValue == null) {
-                  normalized = 0;
-                } else {
-                  const numericValue = Number(inputValue);
-                  if (isNaN(numericValue)) {
-                    normalized = 0;
-                  } else {
-                    normalized = numericValue;
-                    if (normalized < 0) normalized = 0;
-                    if (normalized > maxDiscount) normalized = maxDiscount;
+                {/* <InputNumber
+                  value={totalDiscount}
+                  min={0}
+                  max={maxDiscount}
+                  precision={2}
+                  // formatter={(value) => `${Number(value).toFixed(2)}%`}
+                  // parser={(value) => value.replace('%', '')}
+                  step={0.5}
+                  onChange={handleTotalDiscountChange}
+                  addonAfter="%"
+                /> */}
+                
+                <InputNumber
+                  // Mientras editas mostramos tempDiscount; fuera de edición mostramos totalDiscount
+                  value={
+                    isEditing
+                      ? (tempDiscount === '' ? null : Number(tempDiscount))
+                      : (totalDiscount === '' ? null : Number(totalDiscount))
                   }
-                }
+                  min={0}
+                  max={maxDiscount}
+                  precision={2}
+                  // Solo aplicamos formato con % cuando NO estamos editando
+                  formatter={(value) => {
+                    if (isEditing || value === '' || value == null) return value;
+                    return `${Number(value).toFixed(2)}%`;
+                  }}
+                  parser={(value) => (value ? value.toString().replace('%', '') : '')}
+                  onFocus={() => {
+                    setIsEditing(true);
+                    // al abrir el input ponemos el valor actual en temp para editar
+                    setTempDiscount(
+                      totalDiscount !== null && totalDiscount !== undefined
+                        ? String(totalDiscount)
+                        : ''
+                    );
+                  }}
+                  onChange={(value) => {
+                    // Permitir escribir cualquier valor durante la edición
+                    if (value === null || value === undefined || value === '') {
+                      setTempDiscount('');
+                      return;
+                    }
+                    const numeric = Number(value);
+                    if (isNaN(numeric)) {
+                      setTempDiscount('');
+                      return;
+                    }
+                  
+                    // Solo validar que no sea negativo, pero permitir exceder máximo temporalmente
+                    if (numeric < 0) {
+                      setTempDiscount('0');
+                    } else {
+                      // Guardar el valor tal como viene, sin limitar por maxDiscount
+                      setTempDiscount(String(Number(numeric.toFixed(2))));
+                    }
+                  }}
+                
+                  onBlur={(e) => {
+                    // Obtener el valor real del input DOM
+                    const inputValue = e.target.value;
+                    let normalized;
+                  
+                    if (inputValue === '' || inputValue == null) {
+                      normalized = 0;
+                    } else {
+                      const numericValue = Number(inputValue);
+                      if (isNaN(numericValue)) {
+                        normalized = 0;
+                      } else {
+                        normalized = numericValue;
+                        if (normalized < 0) normalized = 0;
+                        if (normalized > maxDiscount) normalized = maxDiscount;
+                      }
+                    }
+                  
+                    normalized = Number(normalized.toFixed(2));
+                    setTotalDiscount(normalized);
+                    setTempDiscount(String(normalized));
+                    handleTotalDiscountChange(normalized);
+                    setIsEditing(false);
+                  }}
+                  placeholder="0.00%"
+                  style={{ width: '100%' }}
+                />
 
-                normalized = Number(normalized.toFixed(2));
-                setTotalDiscount(normalized);
-                setTempDiscount(String(normalized));
-                handleTotalDiscountChange(normalized);
-                setIsEditing(false);
-              }}
-              placeholder="0.00%"
-              style={{ width: '100%' }}
-            />
+              </Col>  
+
+              <Col style={{display: 'flex', flexDirection:'column'}} sm={12} xs={12}>
+                <Form.Item
+                  name="Abono"
+                  label="Abono:"
+                  // rules={[{ required: true, message: 'Campo requerido' }]}
+                  style={{ marginBottom: 5, fontWeight: "bold", fontSize: '12px' }}
+                >
+                  <InputNumber
+                  precision={2}
+                  min={0}
+                  style={{ width: '100%' }}
+                />
+                </Form.Item>
+              </Col>
+
+            </Row>
           </Col>
         </Row>
 
@@ -1117,6 +1142,47 @@ const CrearCotizacion = () => {
                 <Form.Item
                   name="Total"
                   // label="Total"
+                  layout="horizontal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Abono
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="Abono"
+                  // label="Abono"
+                  layout="horizontal"
+                >
+                  <InputNumber
+                    style={{ width: '100%', color: 'black', textAlign: 'right' }}
+                    disabled
+                    max={maxAbono}
+                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+            
+            <Row gutter={16}>
+              <Col xxl={12} xl={12} md={12}>
+                Saldo pendiente
+              </Col>
+              <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
+                <Form.Item
+                  name="SaldoPendiente"
+                  // label="Abono"
                   layout="horizontal"
                 >
                   <InputNumber

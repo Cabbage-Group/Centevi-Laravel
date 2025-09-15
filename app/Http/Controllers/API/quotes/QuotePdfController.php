@@ -25,7 +25,8 @@ class QuotePdfController extends Controller
     }
     $sucursal = null;
     if ($quote->Vendedor) {
-      $usuario = Usuarios::find($quote->Vendedor);
+      // $usuario = Usuarios::find($quote->Vendedor);
+      $usuario = Usuarios::where('nombre',$quote->Vendedor)->first();
       if ($usuario && $usuario->sucursal) {
         $sucursal = Sucursales::find($usuario->sucursal);
       }

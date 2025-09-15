@@ -4,81 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cotización - {{ $quoteDetails['id'] ?? '' }}</title>
+    {{-- estilos de fuentes montserrat --}}
+    @include('pdf.css.fontMonserrat') 
     <style>
+        
+        /* ----------------- configuracion pagina ----------------- */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat';
             background: white;
-            color: #333;
+            color:#1E2837;
             font-size: 14px;
-
         }
         .pdf-content {
             width: 100%;
             margin: 0 auto;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            font-size: 34px;
-            margin: 0;
-            font-weight: 400;
-        }
-        .header .logo {
-            text-align: right;
-        }
-        .header .logo img {
-            height: 64px;
-        }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .info-grid p {
-            margin: 5px 0;
-        }
-        .info-grid .bold {
-            font-weight: bold;
-        }
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }
-        th, td {
-            border: 1px solid #ccc;
+        
+        /* ----------------- tabla/seccion info inicial ----------------- */
+        .title{
+          font-size: 38px;
+          font-weight: 500;
+          margin: 0;
+        }
+        .info-table {
+          width: 100%; 
+          border: none; 
+          font-size: 9px;
+          border-collapse: collapse;
+        }
+        .info-table .header {
+          font-weight: 500;
+          font-size: 11px; 
+          margin-bottom: 5px;
+        }
+
+        .info-table .header-bussiness {
+          font-weight: 500;
+          font-size: 13px; 
+          margin-bottom: 5px;
+        }
+
+        .info-table .highlight {
+          font-weight: 500;
+          font-size: 13px; 
+          line-height: 1;
+        }
+
+        .info-table p {
+          margin: 0 0 0 0;
+          font-size: 9px; 
+        }
+        
+        
+        /* ----------------- tabla de venta ----------------- */
+        .sales-table {
+          
+        }
+
+        .sales-table th {
+            border: 0px solid white;
             padding: 8px;
             text-align: left;
+            font-size: 11px;
+            font-weight: 500;
         }
-        thead tr {
-            background-color: #e6e6e6;
+
+        .sales-table td {
+            border: 0px solid white;
+            padding: 8px;
+            text-align: left;
+            border-bottom: 2px solid #E6E6E6;
+            font-size: 9px;
         }
-        thead th {
-            font-weight: normal;
+
+        .sales-table thead tr {
+            background-color: #D1D4D9;
+            padding-top: 1px;
+            padding-bottom: 6px;
         }
+
+
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-        .totals-grid {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 30px;
-        }
+
+        /* ----------------- tabla/seccion de precios ----------------- */
+
         .totals-table td {
             border: none;
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
+            font-size: 11px;
         }
         .totals-table .total-row {
-            background-color: #e6e6e6;
-            font-weight: bold;
+            background-color: #D1D4D9;
+            font-weight: 500;
         }
         .totals-table .total-row td {
             padding: 10px 5px;
+        }
+
+        /* ----------------- tabla/seccion footer ----------------- */
+
+        .footer-table {
+          width: 100%; 
+          border: none;
+          border-top: 1.5px solid #D1D4D9; 
+          font-size: 12px; 
+          color: #666;
+        }
+
+        .footer-table td {
+          font-size: 9px;
+          padding-top: 2px;
+          
+        }
+        .footer-table td p {
+          font-size: 9px;
+          margin: 0 25px 0 0;
+          display: inline;
+          text
         }
 
 
@@ -86,10 +132,10 @@
 </head>
 <body>
     <div class="pdf-content">
-        <table style="width: 100%; border: none; margin-bottom: 30px;">
+        <table style="width: 100%; border: none; margin-bottom: 10px;">
             <tr>
                 <td style="border: none; vertical-align: middle;">
-                    <h1 style="font-size: 34px; margin: 0; font-weight: 400;">COTIZACIÓN</h1>
+                    <h1 class="title">COTIZACIÓN</h1>
                 </td>
                 <td style="border: none; text-align: right;">
                     <img src="{{ public_path('img/centevi.png') }}" alt="CENTEVI Logo" style="height: 64px;" />
@@ -97,11 +143,11 @@
             </tr>
         </table>
 
-        <table style="width: 100%; border: none; margin-bottom: 30px; font-size: 13px;">
+        <table class="info-table">
             <tr>
-                <td style="border: none; width: 33%; vertical-align: top;">
-                    <p class="bold" style="font-size: 15px; margin-bottom: 10px;"><strong>Para:</strong></p>
-                    <p>
+                <td style="border: none; width: 37%; vertical-align: top; padding-right: 40px">
+                    <p class="header">Para:</p>
+                    <p class="highlight">
                         @if(isset($quoteDetails['paciente']) && isset($quoteDetails['paciente']['nombres']) && isset($quoteDetails['paciente']['apellidos']))
                             {{ trim($quoteDetails['paciente']['nombres']) }} {{ trim($quoteDetails['paciente']['apellidos']) }}
                         @else
@@ -113,27 +159,26 @@
                     <p>C: {{ $quoteDetails['paciente']['celular'] ?? $quoteDetails['Celular'] ?? '' }}</p>
                 </td>
                 <td style="border: none; width: 33%; vertical-align: top;">
-                    <p style="font-size: 15px; margin-bottom: 10px;">
-                        <strong>Cotización:</strong>
-                    </p>
-                    <p><strong># {{ $quoteDetails['id'] ?? '' }}</strong></p>
-                    <p><strong>Tipo:</strong> {{ $quoteDetails['Type'] ?? '' }}</p>
-                    <p><strong>Fecha:</strong> {{ isset($quoteDetails['Date']) ? \Carbon\Carbon::parse($quoteDetails['Date'])->format('d/m/Y') : '' }}</p>
-                    <p><strong>Expira:</strong> {{ isset($quoteDetails['Expira']) ? \Carbon\Carbon::parse($quoteDetails['Expira'])->format('d/m/Y') : '' }}</p>
-                    <p><strong>Bodega:</strong> {{ $quoteDetails['Bodega'] ?? '' }}</p>
-                    <p><strong>Vendedor:</strong> {{ $quoteDetails['Vendedor'] ?? '' }}</p>
-                    <p><strong>Contacto:</strong> {{ $quoteDetails['Contacto'] ?? '' }}</p>
+                    <p class="header">Cotización:</p>
+                    <p class="highlight"># {{ $quoteDetails['id'] ?? '' }}</p>
+                     {{-- <p class="highlight"># {{ $quoteDetails['codigo_interfuerza'] ?? 'SINCODIGO' }}</p> --}}
+                    <p>Tipo: {{ $quoteDetails['Type'] ?? '' }}</p>
+                    <p>Fecha: {{ isset($quoteDetails['Date']) ? \Carbon\Carbon::parse($quoteDetails['Date'])->format('d/m/Y') : '' }}</p>
+                    <p>Expira: {{ isset($quoteDetails['Expira']) ? \Carbon\Carbon::parse($quoteDetails['Expira'])->format('d/m/Y') : '' }}</p>
+                    <p>Bodega: {{ $quoteDetails['Bodega'] ?? '' }}</p>
+                    <p>Vendedor: {{ $quoteDetails['Vendedor'] ?? '' }}</p>
+                    <p>Contacto: {{ $quoteDetails['Contacto'] ?? '' }}</p>
                 </td>
-                <td style="border: none; width: 33%; vertical-align: top;">
-                    <p class="bold" style="font-size: 18px; margin-bottom: 10px;"><strong>CENTEVI PANAMA, S.A.</strong></p>
-                    <p style="font-size: 15px">155659660-2-2017 DV0</p>
-                    <p style="font-size: 15px">Tel.: 310-8222</p>
-                    <p style="font-size: 15px">{{ $quoteDetails['sucursal']['correo'] ?? 'centevipanama' }}</p>
+                <td style="border: none; width: 30%; vertical-align: top;">
+                    <p class="header-bussiness">CENTEVI PANAMA, S.A.</p>
+                    <p >155659660-2-2017 DV0</p>
+                    <p >Tel.: 310-8222</p>
+                    <p >{{ $quoteDetails['sucursal']['correo'] ?? 'centevipanama' }}</p>
                 </td>
             </tr>
         </table>
 
-        <table>
+        <table class="sales-table">
             <thead>
                 <tr>
                     <th>Código</th>
@@ -175,10 +220,10 @@
         <table style="width: 100%; border: none;">
             <tr>
                 <td style="border: none; vertical-align: top;">
-                    <p style="font-size: 15px; margin-bottom: 10px;">
-                        <strong>Notas adicionales:</strong>
+                    <p style="font-size: 13px; margin: 0 0 10px 0; font-weight: 500;">
+                        Notas adicionales:
                     </p>
-                    <p>{{ $quoteDetails['Comentario'] ?? '-- No hay notas adicionales --' }}</p>
+                    <p style="font-size: 9px;">{{ $quoteDetails['Comentario'] ?? '-- No hay notas adicionales --' }}</p>
                 </td>
                 <td style="border: none; width: 300px; vertical-align: top;">
                     <table class="totals-table" style="margin-bottom: 0;">
@@ -219,21 +264,23 @@
             </tr>
         </table>
 
-        <table style="width: 100%; border: none; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; font-size: 12px; color: #666;">
-            <tr>
-                <td style="border: none; width: 45%; text-align: left; padding-left: 0;">
-                    <img src="{{ public_path('img/ubicacion.png') }}" alt="Ubicación" style="vertical-align: middle; margin-right: 5px; width: 10px;">
-                    CENTEVI PANAMA, S.A. - PANAMA
-                </td>
-
-                <td style="border: none; width: 30%; text-align: center;">
-                    <img src="{{ public_path('img/correo.png') }}" alt="Correo" style="vertical-align: middle; margin-right: 5px; width: 12px;">
-                    {{ $quoteDetails['sucursal']['correo'] ?? 'centevipanaasdasdasdma@email.com' }}
-                </td>
-
-                <td style="border: none; width: 25%; text-align: right;">
-                    <img src="{{ public_path('img/telefono.png') }}" alt="Correo" style="vertical-align: middle; margin-right: 5px; width: 12px;">
-                    310-8222/
+        <table class="footer-table">
+            <tr style="width: 100%;">
+                <td>
+                    <p>
+                        <img src="{{ public_path('img/ubicacion-simple.png') }}" alt="Ubicación" style="vertical-align: middle; margin-right: 5px; width: 10px;">
+                        CENTEVI PANAMA, S.A. - PANAMA 
+                    </p>
+                  
+                    <p>
+                        <img src="{{ public_path('img/arroba.png') }}" alt="Correo" style="vertical-align: middle; margin-right: 5px; width: 12px;">
+                        {{ $quoteDetails['sucursal']['correo'] ?? 'centevipanama' }}
+                    </p>
+                  
+                    <p>
+                        <img src="{{ public_path('img/telefono-simple.png') }}" alt="Correo" style="vertical-align: middle; margin-right: 5px; width: 12px;">
+                        310-8222/
+                    </p>
                 </td>
             </tr>
         </table>

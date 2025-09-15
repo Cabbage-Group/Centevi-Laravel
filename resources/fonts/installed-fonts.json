@@ -1,0 +1,22 @@
+{
+    "montserrat": {
+        "100": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_100_fcb54dba058360bfcbcdaa4acd388059",
+        "100_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_100_italic_93baaf337f6f238d891b3262a4fdb535",
+        "200": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_200_3c1127da72d79e6588ad0fa0b205af7a",
+        "200_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_200_italic_14defa7cdb0396ceb8a6093fe32e4463",
+        "300": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_300_f4cfe3a981fa71701ee594db326e2e50",
+        "300_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_300_italic_c3fec826e1703d2a5cffaf071a9cc510",
+        "normal": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_normal_eedec4d94853eb54ac246a88ba0cf9a0",
+        "italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_italic_cf1e53e5e85e47003d301d817fad3899",
+        "500": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_500_8b2eed036e17da8dc308571bf639c8dd",
+        "500_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_500_italic_da44de5adc7bfc604196aa0643e80906",
+        "600": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_600_68a615a9732000ab789753fc70b51ae3",
+        "600_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_600_italic_f46b9703c20375667b88c4273835760b",
+        "bold": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_bold_ecb1e752726112575ba5e209e4beb3e4",
+        "bold_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_bold_italic_2e54e6a97de62c0cfc2936447314a7df",
+        "800": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_800_8473fb9804a300ce2bfe1e52b4e7d7f3",
+        "800_italic": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_800_italic_503082ee5de435e7c2ec2e2d8fd0f0e1",
+        "900": "D:\\Programacion\\Practicas\\centevi\\Centevi-Laravel\\resources\\fonts\/montserrat_900_973d2d4aec681cf47a90edc4b273a052",
+        "900_italic": "montserrat_900_italic_56a2b088d82935c1d3eea6221f0f7d36"
+    }
+}

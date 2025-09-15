@@ -46,7 +46,7 @@ return array(
      * Times-Roman, Times-Bold, Times-BoldItalic, Times-Italic,
      * Symbol, ZapfDingbats.
      */
-    "font_dir" => storage_path('fonts'), // advised by dompdf (https://github.com/dompdf/dompdf/pull/782)
+    "font_dir" => resource_path('fonts'), // advised by dompdf (https://github.com/dompdf/dompdf/pull/782)
 
     /**
      * The location of the DOMPDF font cache directory
@@ -281,5 +281,28 @@ return array(
     "enable_html5_parser" => true,
   ),
 
+  // Configuración ded feuntes persoanalizadas
+  'fonts' => array(
+    'Montserrat' => array(
+      'thin'              => resource_path('fonts/Montserrat/Montserrat-Thin.ttf'),
+      'thin_italic'       => resource_path('fonts/Montserrat/Montserrat-ThinItalic.ttf'),
+      'extralight'        => resource_path('fonts/Montserrat/Montserrat-ExtraLight.ttf'),
+      'extralight_italic' => resource_path('fonts/Montserrat/Montserrat-ExtraLightItalic.ttf'),
+      'light'             => resource_path('fonts/Montserrat/Montserrat-Light.ttf'),
+      'light_italic'      => resource_path('fonts/Montserrat/Montserrat-LightItalic.ttf'),
+      'regular'           => resource_path('fonts/Montserrat/Montserrat-Regular.ttf'),
+      'italic'            => resource_path('fonts/Montserrat/Montserrat-Italic.ttf'),
+      'medium'            => resource_path('fonts/Montserrat/Montserrat-Medium.ttf'),
+      'medium_italic'     => resource_path('fonts/Montserrat/Montserrat-MediumItalic.ttf'),
+      'semibold'          => resource_path('fonts/Montserrat/Montserrat-SemiBold.ttf'),
+      'semibold_italic'   => resource_path('fonts/Montserrat/Montserrat-SemiBoldItalic.ttf'),
+      'bold'              => resource_path('fonts/Montserrat/Montserrat-Bold.ttf'),
+      'bold_italic'       => resource_path('fonts/Montserrat/Montserrat-BoldItalic.ttf'),
+      'extrabold'         => resource_path('fonts/Montserrat/Montserrat-ExtraBold.ttf'),
+      'extrabold_italic'  => resource_path('fonts/Montserrat/Montserrat-ExtraBoldItalic.ttf'),
+      'black'             => resource_path('fonts/Montserrat/Montserrat-Black.ttf'),
+      'black_italic'      => resource_path('fonts/Montserrat/Montserrat-BlackItalic.ttf'),
+    ),
+  ),
 
 );
