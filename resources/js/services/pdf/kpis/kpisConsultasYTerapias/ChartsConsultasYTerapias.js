@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 
   chartImage: {
     width: "100%",
-    height:270,
+    height:280,
     objectFit: "contain"
   },
 
@@ -144,8 +144,8 @@ const ChartsConsultasYTerapias = ({ chartsData = [] }) => {
                         {c.chartFilters.rangeDate?.start && c.chartFilters.rangeDate?.end && (
                           <>
                             <Text style={styles.filterSubtitle}>Rango de fechas</Text>
-                            <Text style={{ fontSize: 9, marginLeft: 4 }}>Desde : {c.chartFilters.rangeDate.start}</Text>
-                            <Text style={{ fontSize: 9, marginLeft: 4 }}>Hasta : {c.chartFilters.rangeDate.end}</Text>
+                            <Text style={{ fontSize: 9, marginLeft: 4 }}>De: {c.chartFilters.rangeDate.start}</Text>
+                            <Text style={{ fontSize: 9, marginLeft: 4 }}>A : {c.chartFilters.rangeDate.end}</Text>
                           </>
                           )}
                     </View>

@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 
   chartImage: {
     width: "100%",
-    height: 270,
+    height: 260,
     objectFit: "contain"
   },
 
@@ -54,19 +54,135 @@ const styles = StyleSheet.create({
     marginBottom: 1,
     fontWeight: "bold"
   },
-  filterItem: { fontSize: 9, marginBottom: 2, marginLeft: 6 }
+  filterItem: { fontSize: 9, marginBottom: 2, marginLeft: 6 },
+
+  // ----- Estilos nuevos para "Tiempo Promedio" y su bloque de filtros ----
+  timeLeft: {
+    flex: 0.85,
+    paddingRight: 8,
+    justifyContent: "center"
+  },
+  timeLabel: { fontSize: 12, fontWeight: "bold", marginBottom: 6 },
+  timeValue: { fontSize: 16, fontWeight: "bold", color: "#009688", marginBottom: 4 },
+  timeSmallNote: { fontSize: 8, color: "#666", marginTop: 2 },
+
+  // derecha: filtros en fila (horizontal) dentro de una card
+  timeRight: {
+    flex: 1.15,
+    paddingLeft: 8
+  },
+  filtersRow: {
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "flex-start",
+    justifyContent: "space-between"
+  },
+  filterCol: {
+    flex: 1,
+    paddingRight: 6
+  },
+  tinyLabel: { fontSize: 9, fontWeight: "bold", marginBottom: 4 },
+  tinyValue: { fontSize: 9, marginBottom: 4 },
+
+  badgeRow: { flexDirection: "row", flexWrap: "wrap" },
+  badge: {
+    borderRadius: 12,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    fontSize: 8,
+    marginRight: 4,
+    marginBottom: 4
+  }
 });
 
-const ChartsTiposLentesPdfReport = ({ chartsData = [], timeAverage }) => {
+const ChartsTiposLentesPdfReport = ({ chartsData = [], timeAverageData = {} }) => {
+  // timeAverageData puede venir null = no mostrar la card de filtros
+  const hasFiltersApplied = timeAverageData &&
+    (
+      (timeAverageData?.rangeDate?.start && timeAverageData?.rangeDate?.end) ||
+      (timeAverageData?.rangePhase?.start || timeAverageData?.rangePhase?.end) ||
+      (Array.isArray(timeAverageData?.type) && timeAverageData.type.length > 0)
+    );
+
   return (
     <Document>
       <LayoutReportPdf HeaderTitle="Reporte KPIs Tipos de lentes">
-        <Text style={{ marginBottom: 6, fontSize: 12, fontWeight: "bold"}}>
-          Tiempo Promedio
-        </Text>
-        <Text style={{ marginBottom: 16, fontSize: 18, fontWeight: "bold", color: "#009688"}}>
-          {timeAverage}
-        </Text>
+        {/* BLOQUE TIEMPO PROMEDIO: Izquierda (info ~ la mitad menos) - Derecha (card de filtros en fila) */}
+        <View style={{flexDirection: "row",width: "100%",alignItems: "flex-start", marginBottom: 8}}>
+          {/* Izquierda: info (sin card) */}
+          <View style={styles.timeLeft}>
+            <Text style={styles.timeLabel}>Tiempo Promedio</Text>
+            <Text style={styles.timeValue}>
+              {timeAverageData?.info ?? "No definido"}
+            </Text>
+            <Text style={styles.timeSmallNote}>
+              {hasFiltersApplied
+                ? "Mostrado con los filtros aplicados a la derecha."
+                : "Sin filtros aplicados — rango total."}
+            </Text>
+          </View>
+
+          {/* Derecha: solo si timeAverageData existe */}
+          {timeAverageData ? (
+            <View style={styles.timeRight}>
+              <View style={styles.filtersCard}>
+                <Text style={{textAlign:'center', fontSize: 10, fontWeight: "bold", marginBottom: 2}}>
+                  Filtros aplicados
+                </Text>
+
+                <View style={styles.filtersRow}>
+                  {/* Columna 1: Fechas (renderiza líneas solo si existen) */}
+                  <View style={styles.filterCol}>
+                    <Text style={styles.tinyLabel}>Fechas</Text>
+                    {timeAverageData?.rangeDate?.start != null && (
+                      <Text style={styles.tinyValue}>De: {timeAverageData.rangeDate.start}</Text>
+                    )}
+                    {timeAverageData?.rangeDate?.end != null && (
+                      <Text style={styles.tinyValue}>A : {timeAverageData.rangeDate.end}</Text>
+                    )}
+                    {/* Si ninguna existe, muestra 'No definido' */}
+                    {timeAverageData?.rangeDate?.start == null && timeAverageData?.rangeDate?.end == null && (
+                      <Text style={styles.tinyValue}>No definido</Text>
+                    )}
+                  </View>
+
+                  {/* Columna 2: Fases (renderiza líneas solo si existen) */}
+                  <View style={styles.filterCol}>
+                    <Text style={styles.tinyLabel}>Fases</Text>
+                    {timeAverageData?.rangePhase?.start != null && (
+                      <Text style={styles.tinyValue}>De: {timeAverageData.rangePhase.start}</Text>
+                    )}
+                    {timeAverageData?.rangePhase?.end != null && (
+                      <Text style={styles.tinyValue}>A: {timeAverageData.rangePhase.end}</Text>
+                    )}
+                    {timeAverageData?.rangePhase?.start == null && timeAverageData?.rangePhase?.end == null && (
+                      <Text style={styles.tinyValue}>No definido</Text>
+                    )}
+                  </View>
+
+                  {/* Columna 3: Tipos (renderiza badges solo si array tiene items) */}
+                  <View style={styles.filterCol}>
+                    <Text style={styles.tinyLabel}>Tipo(s) de lente</Text>
+                    {Array.isArray(timeAverageData?.type) && timeAverageData.type.length > 0 ? (
+                      <View >
+                        {timeAverageData.type.map((t, i) => (
+                          <Text key={i} style={styles.tinyValue}>{String(t)}</Text>
+                        ))}
+                      </View>
+                    ) : (
+                      <Text style={styles.tinyValue}>No seleccionado</Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : null}
+        </View>
+
+
+        {/* GRÁFICOS */}
         {chartsData.map((c, idx) => {
           const hasFilters =
             c.chartFilters &&
@@ -150,8 +266,8 @@ const ChartsTiposLentesPdfReport = ({ chartsData = [], timeAverage }) => {
                         {c.chartFilters.rangeDate?.start && c.chartFilters.rangeDate?.end && (
                           <>
                             <Text style={styles.filterSubtitle}>Rango de fechas</Text>
-                            <Text style={{ fontSize: 9, marginLeft: 4 }}>Desde : {c.chartFilters.rangeDate.start}</Text>
-                            <Text style={{ fontSize: 9, marginLeft: 4 }}>Hasta : {c.chartFilters.rangeDate.end}</Text>
+                            <Text style={{ fontSize: 9, marginLeft: 4 }}>De: {c.chartFilters.rangeDate.start}</Text>
+                            <Text style={{ fontSize: 9, marginLeft: 4 }}>A : {c.chartFilters.rangeDate.end}</Text>
                           </>
                           )}
                     </View>

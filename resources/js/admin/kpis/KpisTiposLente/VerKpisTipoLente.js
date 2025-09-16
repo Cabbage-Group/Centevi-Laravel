@@ -57,8 +57,12 @@ const VerKpisTipoLente = () => {
   const [showModalPdf, setShowModalPdf] = useState(false)
   const [chartsData, setChartsData] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
   const [asesorFilterToString, setAsesorFilterToString] = useState([]);
   const [sucursalFilterToString, setSucursalFilterToString] = useState([]);
+
+  const [timeAverageFilters, setTimeAverageFilters] = useState(null);
+
   const chartAsesoresExportRef = useRef(null);
   const chartSucursalesExportRef = useRef(null);
   const chartDoctoresExportRef = useRef(null);
@@ -77,7 +81,7 @@ const VerKpisTipoLente = () => {
       rangeDate: {start: localStartDateDoctores, end: localEndDateDoctores}
     }},
   ];
-  const [timeAverageInfo, setTimeAverageInfo] = useState(null)
+  const [timeAverageData, setTimeAverageData] = useState(null)
   // extra responsive antd
   const { useBreakpoint } = Grid;
   const breakpoints = useBreakpoint();
@@ -115,7 +119,7 @@ const VerKpisTipoLente = () => {
     dispatch(fetchUsuarios({}))
   }, [dispatch]);
 
-  // ⚡ Nuevo useEffect para invalidar charts PDF al cambiar filtros/fechas/series
+  // Nuevo useEffect para invalidar charts PDF al cambiar filtros/fechas/series
   useEffect(() => {
     if (chartsData && chartsData.length > 0) {
       setChartsData(null); // resetea para forzar regeneración
@@ -137,6 +141,7 @@ const VerKpisTipoLente = () => {
     localEndDateDoctores,
     doctorFilter,
     activeLinesLenteDoctores,
+    timeAverageFilters
   ]);
 
   /* ------------------------------------------------------------------------------
@@ -240,6 +245,15 @@ const VerKpisTipoLente = () => {
     setActiveLinesLenteDoctores(prev => setMetricsActiveByValues(prev, values));
   }
 
+  // handler que pasas al child
+  const handleTimeAverageFiltersChange = (filters) => {
+    // guarda filtros y forza regeneración de imágenes
+    console.log(filters);
+    
+    setTimeAverageFilters(filters);
+    if (chartsData && chartsData.length > 0) setChartsData(null);
+  };
+
   /* ------------------------------------------------------------------------------------------
                                     Funciones utilitarias
    ------------------------------------------------------------------------------------------*/
@@ -258,7 +272,17 @@ const VerKpisTipoLente = () => {
         });
 
         setChartsData(chartsPrepared);
-        setTimeAverageInfo(timeAverageExportRef.current.innerText ?? 'No definido')
+        const timeAveragePrepared = {
+          info: timeAverageExportRef.current.innerText ?? 'No definido',
+          rangeDate: {
+            start: timeAverageFilters?.startDate ?? undefined, end: timeAverageFilters?.endDate ?? undefined
+          },
+          rangePhase: {
+            start: timeAverageFilters?.faseInicial ?? undefined, end: timeAverageFilters?.faseFinal ?? undefined
+          },
+          type: timeAverageFilters?.lenteContacto ?? [],
+        }
+        setTimeAverageData(timeAveragePrepared)
         setIsGeneratingPdf(false);
         // abre modal una vez que tengamos las imágenes
         setShowModalPdf(true);
@@ -302,7 +326,7 @@ const VerKpisTipoLente = () => {
                     downloadDocument={
                       <ChartsTiposLentesPdfReport 
                         chartsData={chartsData} 
-                        timeAverage={timeAverageInfo}
+                        timeAverageData={timeAverageData}
                       />
                     }
                     titleFilename="KPI_Tipos_Lentes"
@@ -368,6 +392,7 @@ const VerKpisTipoLente = () => {
                     <Col xs={24} sm={24}>
                       <KpiTiempoPromedio 
                         timeRef={timeAverageExportRef}
+                        onFiltersChange={handleTimeAverageFiltersChange}
                       />
                     </Col>
 
@@ -443,7 +468,7 @@ const VerKpisTipoLente = () => {
         document={
           <ChartsTiposLentesPdfReport 
             chartsData={chartsData} 
-            timeAverage={timeAverageInfo}
+            timeAverageData={timeAverageData}
           />
         }
         loading={isGeneratingPdf || !chartsData} // muestra loader si estamos generando las imágenes

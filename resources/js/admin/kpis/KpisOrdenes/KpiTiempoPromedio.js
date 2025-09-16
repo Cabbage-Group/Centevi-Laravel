@@ -12,6 +12,7 @@ const { Text, Title } = Typography;
 
 const KpiTiempoPromedio = ({
   timeRef = null,
+  onFiltersChange = () => {}
 }) => {
   const dispatch = useDispatch();
 
@@ -59,20 +60,36 @@ const KpiTiempoPromedio = ({
     }));
   }, [dispatch, localStartDateFasesOrdenes, localEndDateFasesOrdenes, lenteContactoFilter, faseInicial, faseFinal]);
 
+  // helper para notificar al padre
+  const notifyFiltersChange = (overrides = {}) => {
+    onFiltersChange({
+      startDate: localStartDateFasesOrdenes ?? null,
+      endDate: localEndDateFasesOrdenes ?? null,
+      faseInicial: faseInicial ?? null,
+      faseFinal: faseFinal ?? null,
+      lenteContacto: lenteContactoFilter ?? [],
+      ...overrides
+    });
+  };
+
   const handleDateApplyPromedioFasesOrdenes = (newStartDate, newEndDate) => {
     setLocalStartDateFasesOrdenes(newStartDate);
     setLocalEndDateFasesOrdenes(newEndDate);
     dispatch(setFechaRangePromedioFasesOrdenes({ startDate: newStartDate, endDate: newEndDate }));
+    notifyFiltersChange({ startDate: newStartDate, endDate: newEndDate });
   };
 
   const handleDateResetPromedioFasesOrdenes = () => {
     setLocalStartDateFasesOrdenes(null);
     setLocalEndDateFasesOrdenes(null);
     dispatch(setFechaRangePromedioFasesOrdenes({ startDate: null, endDate: null }));
+    notifyFiltersChange({ startDate: null, endDate: null });
   };
 
-  const handleLenteContactoChange = (value) => {
+  const handleLenteContactoChange = (value, optionsSelected) => {
     setLenteContactoFilter(value);
+    const formated = optionsSelected.map(opt => opt.children[1]);
+    notifyFiltersChange({ lenteContacto: formated });
   };
 
   // Al cambiar fase inicial: ajusta faseFinal si ya no es válida, abre y enfoca el select final
@@ -81,6 +98,7 @@ const KpiTiempoPromedio = ({
     if (!value) {
       dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: null, faseFinal: null }));
       setOpenFinal(false);
+      notifyFiltersChange({ faseInicial: null, faseFinal: null});
       return;
     }
 
@@ -88,6 +106,7 @@ const KpiTiempoPromedio = ({
     const newFinal = (faseFinal && disponibles.includes(faseFinal)) ? faseFinal : null;
 
     dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: value, faseFinal: newFinal }));
+    notifyFiltersChange({ faseInicial: value, faseFinal: newFinal });
 
     // abrir y enfocar el select final para que el usuario continúe
     setTimeout(() => {
@@ -100,10 +119,12 @@ const KpiTiempoPromedio = ({
   const handleFaseFinalChange = (value) => {
     if (!value) {
       dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: faseInicial || null, faseFinal: null }));
+      notifyFiltersChange({ faseFinal: null });
       return;
     }
     dispatch(setFasesRangePromedioFasesOrdenes({ faseInicial: faseInicial || null, faseFinal: value }));
     setOpenFinal(false);
+    notifyFiltersChange({ faseFinal: value });
   };
 
   // Texto que muestra el rango seleccionado (ej: "Nuevo → Listo")
