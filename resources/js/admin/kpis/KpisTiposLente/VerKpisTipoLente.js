@@ -57,19 +57,24 @@ const VerKpisTipoLente = () => {
   const [showModalPdf, setShowModalPdf] = useState(false)
   const [chartsData, setChartsData] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [asesorFilterToString, setAsesorFilterToString] = useState([]);
+  const [sucursalFilterToString, setSucursalFilterToString] = useState([]);
   const chartAsesoresExportRef = useRef(null);
   const chartSucursalesExportRef = useRef(null);
   const chartDoctoresExportRef = useRef(null);
   const timeAverageExportRef = useRef(null);
   const pdfChartsRawData = [
     { ref: chartAsesoresExportRef, title: "Gráfico distribuido por asesores", filters: {
-      metrics: activeLinesLenteAsesores, categories: asesorFilter
+      metrics: activeLinesLenteAsesores, categories: asesorFilterToString, 
+      rangeDate: {start: localStartDateAsesores, end: localEndDateAsesores}
     }},
     { ref: chartSucursalesExportRef, title: "Gráfico distribuido por sucursales", filters: {
-      metrics: activeLinesLente, categories: sucursalFilter
+      metrics: activeLinesLente, categories: sucursalFilterToString,
+      rangeDate: {start: localStartDate, end: localEndDate}
     } },
     { ref: chartDoctoresExportRef, title: "Gráfico distribuido por doctores", filters:{
-      metrics: activeLinesLenteDoctores, categories: doctorFilter
+      metrics: activeLinesLenteDoctores, categories: doctorFilter,
+      rangeDate: {start: localStartDateDoctores, end: localEndDateDoctores}
     }},
   ];
   const [timeAverageInfo, setTimeAverageInfo] = useState(null)
@@ -110,6 +115,30 @@ const VerKpisTipoLente = () => {
     dispatch(fetchUsuarios({}))
   }, [dispatch]);
 
+  // ⚡ Nuevo useEffect para invalidar charts PDF al cambiar filtros/fechas/series
+  useEffect(() => {
+    if (chartsData && chartsData.length > 0) {
+      setChartsData(null); // resetea para forzar regeneración
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    // Asesores chart
+    localStartDateAsesores,
+    localEndDateAsesores,
+    asesorFilter,
+    activeLinesLenteAsesores,
+    // Sucursales chart
+    localStartDate,
+    localEndDate,
+    sucursalFilter,
+    activeLinesLente,
+    // Doctores chart
+    localStartDateDoctores,
+    localEndDateDoctores,
+    doctorFilter,
+    activeLinesLenteDoctores,
+  ]);
+
   /* ------------------------------------------------------------------------------
                                   Handlers
   ------------------------------------------------------------------------------ */
@@ -127,20 +156,26 @@ const VerKpisTipoLente = () => {
     const startDateFormatted = newStartDate.toISOString().split('T')[0];
     const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
 
-    setLocalStartDate(startDateFormatted);
-    setLocalEndDate(endDateFormatted);
+    // setLocalStartDate(startDateFormatted);
+    // setLocalEndDate(endDateFormatted);
+    setLocalStartDate(undefined);
+    setLocalEndDate(undefined);
     dispatch(setFechaRangeTipoLente({
       startDate: startDateFormatted,
       endDate: endDateFormatted
     }));
   };
 
-  const handleChange = (value) => {
+  const handleChange = (value, optionsSelected) => {
     setSucursalFilter(value);
+    const formated = optionsSelected.map(opt => opt.children);
+    setSucursalFilterToString(formated);
   };
 
-  const handleChangeAsesores = (value) => {
+  const handleChangeAsesores = (value, optionsSelected) => {
     setAsesorFilter(value);
+    const formated = optionsSelected.map(opt => opt.children);
+    setAsesorFilterToString(formated);
   };
 
   const handleChangeDoctores = (value) => {
@@ -160,8 +195,10 @@ const VerKpisTipoLente = () => {
     const startDateFormatted = newStartDate.toISOString().split('T')[0];
     const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
 
-    setLocalStartDateAsesores(startDateFormatted);
-    setLocalEndDateAsesores(endDateFormatted);
+    // setLocalStartDateAsesores(startDateFormatted);
+    // setLocalEndDateAsesores(endDateFormatted);
+    setLocalStartDateAsesores(undefined);
+    setLocalEndDateAsesores(undefined);
     dispatch(setFechaRangeTipoLenteAsesores({
       startDate: startDateFormatted,
       endDate: endDateFormatted
@@ -183,8 +220,10 @@ const VerKpisTipoLente = () => {
     const startDateFormatted = newStartDate.toISOString().split('T')[0];
     const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
 
-    setLocalStartDateDoctores(startDateFormatted);
-    setLocalEndDateDoctores(endDateFormatted);
+    // setLocalStartDateDoctores(startDateFormatted);
+    // setLocalEndDateDoctores(endDateFormatted);
+    setLocalStartDateDoctores(undefined);
+    setLocalEndDateDoctores(undefined);
     dispatch(setFechaRangeTipoLenteDoctores({
       startDate: startDateFormatted,
       endDate: endDateFormatted

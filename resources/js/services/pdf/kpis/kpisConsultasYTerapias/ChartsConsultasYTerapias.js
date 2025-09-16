@@ -90,7 +90,7 @@ const ChartsConsultasYTerapias = ({ chartsData = [] }) => {
                         c.chartFilters.metrics.filter(item => item.active).length > 0 && (
                           <>
                             <Text style={styles.filterSubtitle}>Métricas</Text>
-                            <View style={{ flexDirection: "col", flexWrap: "wrap", gap: 2, paddingLeft: 4 }}>
+                            <View style={{ flexDirection: "column", paddingLeft: 4 }}>
                               {c.chartFilters.metrics
                                 .filter(item => item.active)
                                 .map((item, index) => (
@@ -139,6 +139,15 @@ const ChartsConsultasYTerapias = ({ chartsData = [] }) => {
                             </View>
                           </>
                         )}
+
+                        {/* fecha */}
+                        {c.chartFilters.rangeDate?.start && c.chartFilters.rangeDate?.end && (
+                          <>
+                            <Text style={styles.filterSubtitle}>Rango de fechas</Text>
+                            <Text style={{ fontSize: 9, marginLeft: 4 }}>Desde : {c.chartFilters.rangeDate.start}</Text>
+                            <Text style={{ fontSize: 9, marginLeft: 4 }}>Hasta : {c.chartFilters.rangeDate.end}</Text>
+                          </>
+                          )}
                     </View>
                   </View>
                 </View>

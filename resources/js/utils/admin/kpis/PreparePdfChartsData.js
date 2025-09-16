@@ -7,7 +7,7 @@ import { captureElementAsImage } from "../../CaptureElementAsImage";
  * items: Array<RefObject | { 
  *    ref: RefObject, 
  *    title?: string, 
- *    filters?: {rangeDate?: string, metrics?: [{label, value, color, active}], categories: [], dateFilter: []...} 
+ *    filters?: {rangeDate?: {start, end}, metrics?: [{label, value, color, active}], categories: [], dateFilter: []...} 
  *    description?: string, 
  *    notes?: string }>
  * 

@@ -63,10 +63,12 @@ const VerKpisConsultasYTerapias = () => {
   // data para graficos pdf:
   const pdfChartsRawData = [
     { ref: chartSucursalesExportRef, title: "Gráfico distribuido por sucursales", filters: {
-      metrics:  activeLinesCYTSucursales, categories: cytsucursalFilterToString
+      metrics:  activeLinesCYTSucursales, categories: cytsucursalFilterToString, 
+      rangeDate: {start: localStartDateCYTSucursales, end: localEndDateCYTSucursales}
     }},
     { ref: chartDoctoresExportRef, title: "Gráfico distribuido por doctores", filters: {
-      metrics: activeLinesCYTDoctores, categories: cytdoctorFilter
+      metrics: activeLinesCYTDoctores, categories: cytdoctorFilter, 
+      rangeDate: {start: localStartDateCYTDoctores, end: localEndDateCYTDoctores}
     }},
     { ref: chartTerapiasDoctoresExportRef, title: "Gráfico terapias de doctores" },
   ];
@@ -145,8 +147,10 @@ const VerKpisConsultasYTerapias = () => {
     const lastDayOfCurrentMonth = new Date(newEndDate.getFullYear(), newEndDate.getMonth() + 1, 0);
     const startDateFormatted = newStartDate.toISOString().split("T")[0];
     const endDateFormatted = lastDayOfCurrentMonth.toISOString().split("T")[0];
-    setLocalStartDateCYTSucursales(startDateFormatted);
-    setLocalEndDateCYTSucursales(endDateFormatted);
+    // setLocalStartDateCYTSucursales(startDateFormatted);
+    // setLocalEndDateCYTSucursales(endDateFormatted);
+    setLocalStartDateCYTSucursales(undefined);
+    setLocalEndDateCYTSucursales(undefined);
     dispatch(
       setFechaRangeTerapiasConsultasCYTSucursal({
         startDate: startDateFormatted,
@@ -177,8 +181,10 @@ const VerKpisConsultasYTerapias = () => {
     const lastDayOfCurrentMonth = new Date(newEndDate.getFullYear(), newEndDate.getMonth() + 1, 0);
     const startDateFormatted = newStartDate.toISOString().split("T")[0];
     const endDateFormatted = lastDayOfCurrentMonth.toISOString().split("T")[0];
-    setLocalStartDateCYTDoctores(startDateFormatted);
-    setLocalEndDateCYTDoctores(endDateFormatted);
+    // setLocalStartDateCYTDoctores(startDateFormatted);
+    // setLocalEndDateCYTDoctores(endDateFormatted);
+    setLocalStartDateCYTDoctores(undefined);
+    setLocalEndDateCYTDoctores(undefined);
     dispatch(
       setFechaRangeTerapiasConsultasCYTDoctores({
         startDate: startDateFormatted,
