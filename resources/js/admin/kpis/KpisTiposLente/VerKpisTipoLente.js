@@ -232,11 +232,11 @@ const VerKpisTipoLente = () => {
         {/* Contenido */}
         <ResponsiveContainer width="100%">
           <Row gutter={[16, 16]} >
-            <Col>
-              <Row>
+            <Col xs={24} sm={24}>
+              <Row style={{marginBottom: 9}} gutter={[12, 12]}>
                 <Col xs={24} sm={16} style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                   <h1 style={{ color: "black", fontWeight: "bold", fontSize: 16, margin: '0 0 0 0', display: 'block' }}>
-                    Titulo temporal
+                    KPIs Tipos de lentes
                   </h1>
                 </Col>
                 <Col xs={24} sm={8} style={{display: 'flex', justifyContent: 'flex-end'}}>

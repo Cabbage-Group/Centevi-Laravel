@@ -29,9 +29,9 @@ const PdfActionButtons = ({
   const { useBreakpoint } = Grid;
   const screens = useBreakpoint();
 
-  // mostrar texto en botones según ancho: preview -> md+, download -> lg+
-  const showPreviewText = !!screens.md;
-  const showDownloadText = !!screens.lg;
+  // mostrar texto en botones según ancho: preview -> xs+, download -> md+
+  const showPreviewText = !!screens.xs;
+  const showDownloadText = !!screens.md;
 
   const newFilenameRefactorized = filenameFactory(titleFilename, "pdf", {user: userFilename})
 
