@@ -1,5 +1,4 @@
-// src/components/HorizontalBarChart.js
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import DateRangeSeparate from "../../../../admin/reportes/DateRange";
 import { Row, Col, Select } from "antd";
 import {
@@ -12,27 +11,41 @@ import {
   Bar,
   Cell,
 } from "recharts";
+import PropTypes from "prop-types";
 
 /**
- * Props:
- * - title: string (texto del badge)
- * - data: array (set de datos para la grafica)
- * - needCardWrapper: boolean (agrega estilos de card o no)
- * - height: string (aumenta el tamaño de todo el contenedor del grafico)
- * - exportRef: useRef (es la referencia al grafico para poder extraerlo para pdfs, etc)
- * - isMonthPicker: bool (para DateRangeSeparate)
- * - onDateApply(newStart, newEnd) (function al aplicar rango de fecha)
- * - onDateReset() (function al restear el filtro de fecha)
- * - filterList: array (lista para el Select de filtrado, p.e. sucursales=[{id, label}]) (ojo busqueeda servidor)
- * - filterValueKey: string (clave del campo id en filterList, ej 'id_sucursal')
- * - filterLabelKey: string (clave del campo que hace de label en filterList, ej 'nombre')
- * - filterValue: array (valor/es seleccionado/s )
- * - onFilterChange(vals)
- * - metricsOptions: [{ label, value, color }] (cierto campo de la data que se quiere mostrar en una barra) (importante para mostrar data)
- * - activeMetrics: array (series activas) (barras que se mostraran en el grafico) (importante para mostrar data)
- * - renderMetricSelector: boolean (renderiza el select paara filtrar metricas localmente)
- * - onMetricsChange(vals) (si cambia las barras que se quieren mostrar) (ojo: busqueda local)
- * - xDataKey: default 'name' (etiqueta que sale en el eje x de la grafica, debe estar en la "data")
+ * HorizontalBarChart
+ *
+ * Props :
+ * {string} title - Texto pequeño que se muestra en la esquina (decorativo).
+ * {Array<Object>} data - Array de objetos con la estructura usada por Recharts. Ej: [{ name: 'A', metric1: 10, metric2: 20 }, ...]
+ *
+ * Layout / estilo
+ * {boolean} needCardWrapper - Si true, aplica estilo de "card" (background, padding, borderRadius, shadow).
+ * {string|number} chartHeight - Alto del contenedor del chart (ej: "455px" o 400).
+ * {any} exportRef - Ref opcional para exportar/imprimir solo el área del chart.
+ *
+ * Date controls (props separadas - NO objeto)
+ * {boolean} dateIsMonthPicker - Si true, el DateRangeSeparate actúa como picker por meses.
+ * {function|null} onDateApply - Callback cuando se aplica la fecha: (range) => {}
+ * {function|null} onDateReset - Callback cuando se resetea la fecha.
+ *
+ * Filter (props separadas - NO objeto)
+ * {string} filterTitle - Etiqueta encima del Select multiple.
+ * {Array<{value:any,label:string}>} filterOptions - Opciones del Select (value + label).
+ * {Array<any>|any} filterValue - Valor(s) seleccionados. Para mode="multiple" espera array.
+ * {function} onFilterChange - onChange del Select: (vals) => {}
+ *
+ * Metrics / series
+ * {Array<{label:string,value:string,color:string,active?:boolean}>} metrics - Definición de series/metrics.
+ * {function|null} onMetricsChange - Si se provee, el componente es controlado para las series activas: (vals) => {}
+ * {boolean} renderMetricSelector - Muestra u oculta el selector de series.
+ *
+ * Bar config (recharts)
+ * {string|number} barCategoryGap - barCategoryGap para BarChart.
+ * {number} barGap - barGap para BarChart.
+ * {string} xDataKey - key del eje X (ej: "name").
+ *
  */
 const HorizontalBarChart = ({
   title,
@@ -41,50 +54,40 @@ const HorizontalBarChart = ({
   needCardWrapper = false,
   chartHeight = "455px",
 
-  exportRef = null,       // ref para exportar solo el area del chart
+  exportRef = null,
 
-  isMonthPicker = true,
-  onDateApply,
-  onDateReset,
-  
+  dateIsMonthPicker = true,
+  onDateApply = null,
+  onDateReset = null,
+
   filterTitle = "Filtrar:",
-  filterList = [],
-  filterValueKey = "id",
-  filterLabelKey = "name",
-  filterValue = [],
-  onFilterChange,
+  filterOptions = [],
+  filterValue = undefined,
+  onFilterChange = undefined,
 
-  metricsOptions = [],
-  activeMetrics = [],
-
+  // Metrics / series
+  metrics = [],
+  onMetricsChange = null,
   renderMetricSelector = false,
-  onMetricsChange,
-  
+
+  // Bar config
   barCategoryGap = "50%",
   barGap = 0,
   xDataKey = "name",
 }) => {
-
-  /* ------------------------------------------------------------------------------
-                            UseStates y data constante para logica
-  ------------------------------------------------------------------------------ */
+  // --- responsive bar size (same lógica que tenías) ---
   const [responsiveBarSize, setResponsiveBarSize] = useState(28);
 
-
-  /* ------------------------------------------------------------------------------
-                                UseEffects
-  ------------------------------------------------------------------------------ */
   useEffect(() => {
     const calc = () => {
       const w = window.innerWidth;
       let size = 28;
-      // breakpoints based on Ant Design
-      if (w < 576) size = 12;       // xs
-      else if (w < 768) size = 14;  // sm
-      else if (w < 992) size = 20;  // md
-      else if (w < 1200) size = 24; // lg
-      else if (w < 1600) size = 28; // xl
-      else size = 32;               // xxl
+      if (w < 576) size = 12;
+      else if (w < 768) size = 14;
+      else if (w < 992) size = 20;
+      else if (w < 1200) size = 24;
+      else if (w < 1600) size = 28;
+      else size = 32;
       setResponsiveBarSize(size);
     };
     calc();
@@ -92,17 +95,61 @@ const HorizontalBarChart = ({
     return () => window.removeEventListener("resize", calc);
   }, []);
 
-  /* ------------------------------------------------------------------------------
-                              Handlers y helpers
-  ------------------------------------------------------------------------------ */
+  // --- Normalizar metrics: { label, value, color, active } ---
+  const metricsNormalized = useMemo(
+    () =>
+      (metrics || []).map((m) => ({
+        label: m.label,
+        value: m.value,
+        color: m.color,
+        active: !!m.active,
+        original: m,
+      })),
+    [metrics]
+  );
 
-  /* ------------------------------------------------------------------------------
-                              Custom JSX functions
-  ------------------------------------------------------------------------------ */
-  // internal tagRender (uses seriesOptions to show color)
-  const internalTagRender = (props) => {
-    const { label, value, closable, onClose } = props;
-    const opt = metricsOptions.find((o) => o.value === value) || {};
+  // valores activos controlados por prop metrics (si vienen marcados como active)
+  const controlledActiveValues = useMemo(
+    () => metricsNormalized.filter((m) => m.active).map((m) => m.value),
+    [metricsNormalized]
+  );
+
+  // fallback: estado local cuando el padre NO controla la selección de metrics
+  const [localActive, setLocalActive] = useState(
+    controlledActiveValues.length
+      ? controlledActiveValues
+      : metricsNormalized.length
+      ? metricsNormalized.map((m) => m.value)
+      : []
+  );
+
+  useEffect(() => {
+    // si el padre NO controla (onMetricsChange undefined), mantener local en sync con metrics prop
+    if (!onMetricsChange) {
+      setLocalActive(
+        controlledActiveValues.length
+          ? controlledActiveValues
+          : metricsNormalized.length
+          ? metricsNormalized.map((m) => m.value)
+          : []
+      );
+    }
+  }, [metricsNormalized, controlledActiveValues, onMetricsChange]);
+
+  // activeValues: si el padre controla -> derived de metrics; si no -> estado local
+  const activeValues = onMetricsChange ? controlledActiveValues : localActive;
+
+  const handleMetricsChange = useCallback(
+    (vals) => {
+      if (onMetricsChange) onMetricsChange(vals);
+      else setLocalActive(vals);
+    },
+    [onMetricsChange]
+  );
+
+  // render para tags en el Select multiple (estético)
+  const tagRender = useCallback((props) => {
+    const { label } = props;
     return (
       <span
         style={{
@@ -119,10 +166,10 @@ const HorizontalBarChart = ({
         {label}
       </span>
     );
-  };
+  }, []);
 
-  // internal tooltip
-  const CustomTooltipBarras = ({ active, payload, label }) => {
+  // tooltip custom
+  const CustomTooltipBarras = useCallback(({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div
@@ -145,28 +192,25 @@ const HorizontalBarChart = ({
       );
     }
     return null;
-  };
+  }, []);
 
-  const cardStyles = needCardWrapper
-  ? {
-      background: "white",
-      padding: "15px",
-      borderRadius: "15px",
-      boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
-    }
-  : {
-      background: "transparent",
-      padding: 0,
-      borderRadius: 0,
-    };
+  // estilos de "card" condicionales
+  const cardStyles = useMemo(
+    () =>
+      needCardWrapper
+        ? {
+            background: "white",
+            padding: "15px",
+            borderRadius: "15px",
+            boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
+          }
+        : { background: "transparent", padding: 0, borderRadius: 0 },
+    [needCardWrapper]
+  );
 
-  // tamaño ded barra segun la cantidad de barras activas
-  const activeCount = activeMetrics.length || 1;
+  const activeCount = Math.max(1, (activeValues && activeValues.length) || 1);
   const barSize = activeCount > 1 ? Math.max(8, Math.round(responsiveBarSize / activeCount)) : responsiveBarSize;
 
-  /* ------------------------------------------------------------------------------
-                                Return Main View
-  ------------------------------------------------------------------------------ */
   return (
     <div
       style={{
@@ -178,7 +222,6 @@ const HorizontalBarChart = ({
         justifyContent: "space-between",
       }}
     >
-      {/* Badge */}
       {title && (
         <div
           style={{
@@ -199,17 +242,25 @@ const HorizontalBarChart = ({
         </div>
       )}
 
-      {/* Row: DateRange + Filter */}
       <Row gutter={[32, 12]}>
         <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <DateRangeSeparate onApply={onDateApply} onReset={onDateReset} isMonthPicker={isMonthPicker} />
+            <DateRangeSeparate onApply={onDateApply} onReset={onDateReset} isMonthPicker={dateIsMonthPicker} />
           </div>
         </Col>
 
         <Col xs={24} sm={12} md={24} lg={12} xl={12} xxl={12}>
           <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-            <label style={{ marginBottom: 8, width: "100%", display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <label
+              style={{
+                marginBottom: 8,
+                width: "100%",
+                display: "inline-block",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {filterTitle}
             </label>
             <Select
@@ -223,9 +274,9 @@ const HorizontalBarChart = ({
               optionFilterProp="children"
               filterOption={(input, option) => (option?.children || "").toString().toLowerCase().includes(input.toLowerCase())}
             >
-              {filterList.map((item) => (
-                <Select.Option key={item[filterValueKey]} value={item[filterValueKey]}>
-                  {item[filterLabelKey]}
+              {(filterOptions || []).map((item) => (
+                <Select.Option key={item.value} value={item.value}>
+                  {item.label}
                 </Select.Option>
               ))}
             </Select>
@@ -233,21 +284,19 @@ const HorizontalBarChart = ({
         </Col>
       </Row>
 
-      {/* Seccion grafico y filtro local side */}
       <div>
-        {/* Select para las Metricas de control - rendizado opcional con renderMetricSelector */}
         {renderMetricSelector && (
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, marginBottom: 6 }}>
             <Select
               mode="multiple"
               placeholder="Series"
-              value={activeMetrics}
-              onChange={onMetricsChange}
+              value={activeValues}
+              onChange={handleMetricsChange}
               style={{ minWidth: 160 }}
-              tagRender={internalTagRender}
+              tagRender={tagRender}
               aria-label="Seleccionar series"
             >
-              {metricsOptions.map((opt) => (
+              {metricsNormalized.map((opt) => (
                 <Select.Option key={opt.value} value={opt.value}>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                     <span style={{ width: 10, height: 10, background: opt.color, borderRadius: 3 }} />
@@ -258,17 +307,22 @@ const HorizontalBarChart = ({
             </Select>
           </div>
         )}
-        {/* Chart */}
+
         <div style={{ height: chartHeight }} ref={exportRef}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 80 }} isAnimationActive={false} barCategoryGap={barCategoryGap} barGap={barGap}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey={xDataKey} tick={{ fontSize: 10, angle: -45, textAnchor: "end" }} interval={0} tickFormatter={(v) => (typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v)} />
+              <XAxis
+                dataKey={xDataKey}
+                tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
+                interval={0}
+                tickFormatter={(v) => (typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v)}
+              />
               <YAxis tick={{ fontSize: 10 }} />
               <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: "transparent" }} />
 
-              {metricsOptions.map((s) => {
-                if (!activeMetrics.includes(s.value)) return null;
+              {metricsNormalized.map((s) => {
+                if (!activeValues.includes(s.value)) return null;
                 return (
                   <Bar key={s.value} dataKey={s.value} fill={s.color} barSize={barSize} maxBarSize={48} shape={(props) => <rect {...props} />}>
                     {data.map((entry, idx) => (

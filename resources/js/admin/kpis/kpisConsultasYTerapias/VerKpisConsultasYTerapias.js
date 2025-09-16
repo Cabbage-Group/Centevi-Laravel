@@ -14,19 +14,18 @@ import KpisConsultasTerapiasDoctores from "../KpisConsultasTerapias/kpisConsulta
 // import KpisConsultasTerapiasSucursales from "../KpisConsultasTerapias/kpisConsultasTerapiasSucursales/KpisConsultasTerapiasSucursales";
 
 import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
-import PdfActionButtons from "../../../components/butttons/PdfActionButtons";
+import PdfActionButtons from "../../../components/buttons/admin/kpis/PdfActionButtons";
 import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
 import ChartsConsultasYTerapias from "../../../services/pdf/kpis/kpisConsultasYTerapias/ChartsConsultasYTerapias";
-import { generateChartsImages } from "../../../utils/GenerateChartImages";
+import { preparePdfChartsData } from "../../../utils/admin/kpis/PreparePdfChartsData";
+import { setMetricsActiveByValues } from "../../../utils/admin/kpis/setMetricsActiveByValues";
 
 const VerKpisConsultasYTerapias = () => {
   /* ------------------------------------------------------------------------------
-                                Redux: Dispatch
+                                Redux: Dispatch - Store y data
   ------------------------------------------------------------------------------ */
   const dispatch = useDispatch();
-  /* ------------------------------------------------------------------------------
-                              Redux: Store y data
-  ------------------------------------------------------------------------------ */
+
   const { sucursales } = useSelector((state) => state.sucursales);
   const { doctores_activados } = useSelector((state) => state.usuarios);
   const {
@@ -38,12 +37,12 @@ const VerKpisConsultasYTerapias = () => {
                             UseStates y data constante para logica
   ------------------------------------------------------------------------------ */
   const [activeLinesCYTSucursales, setActiveLinesCYTSucursales] = useState([
-    "consultas",
-    "terapia",
+    { label: "Consultas", value: "consultas", color: "#6C5CE7", active: true },
+    { label: "Terapias", value: "terapia", color: "#00B894", active: true },
   ]);
   const [activeLinesCYTDoctores, setActiveLinesCYTDoctores] = useState([
-    "consultas",
-    "terapia",
+    { label: "Consultas", value: "consultas", color: "#fb5607", active: true },
+    { label: "Terapias", value: "terapia", color: "#3a86ff", active: true },
   ]);
   const [localStartDateCYTSucursales, setLocalStartDateCYTSucursales] = useState();
   const [localStartDateCYTDoctores, setLocalStartDateCYTDoctores] = useState();
@@ -55,27 +54,21 @@ const VerKpisConsultasYTerapias = () => {
   // para generacion y muestra de pdfs
   const [cytsucursalFilterToString, setCYTSucursalFilterToString] = useState([]); // formateado para graficos con nombres(number[])
   const [showModalPdf, setShowModalPdf] = useState(false)
-  const [chartsImages, setChartsImages] = useState(null);
+  const [chartsData, setChartsData] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const chartDoctoresExportRef = useRef(null);
   const chartSucursalesExportRef = useRef(null);
   const chartTerapiasDoctoresExportRef = useRef(null);
 
-  // funciona para ambos graficos de doctores y sucursales
-  const metricsOptions = [
-    { label: "Consultas", value: "consultas", color: "#6C5CE7" },
-    { label: "Terapias", value: "terapia", color: "#00B894" },
-  ];
-
   // data para graficos pdf:
-  const itemsToCapture = [
-    { ref: chartSucursalesExportRef, title: "Terapias y consultas - Sucursales", filters: {
-      metricFilter:  activeLinesCYTSucursales, categoryFilter: cytsucursalFilterToString
+  const pdfChartsRawData = [
+    { ref: chartSucursalesExportRef, title: "Gráfico distribuido por sucursales", filters: {
+      metrics:  activeLinesCYTSucursales, categories: cytsucursalFilterToString
     }},
-    { ref: chartDoctoresExportRef, title: "Terapias y consultas - Doctores", filters: {
-      metricFilter: activeLinesCYTDoctores, categoryFilter: cytdoctorFilter
+    { ref: chartDoctoresExportRef, title: "Gráfico distribuido por doctores", filters: {
+      metrics: activeLinesCYTDoctores, categories: cytdoctorFilter
     }},
-    { ref: chartTerapiasDoctoresExportRef, title: "Reporteria de Terapias de doctores" },
+    { ref: chartTerapiasDoctoresExportRef, title: "Gráfico terapias de doctores" },
   ];
 
 
@@ -113,8 +106,8 @@ const VerKpisConsultasYTerapias = () => {
   // Para invalidar imágenes de graficos pdf cuando cambien filtros/fechas/series
   useEffect(() => {
     // Si ya hay imágenes generadas y se cambia algún filtro/fecha/series, limpiarlas
-    if (chartsImages && chartsImages.length > 0) {
-      setChartsImages(null);
+    if (chartsData && chartsData.length > 0) {
+      setChartsData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -168,8 +161,8 @@ const VerKpisConsultasYTerapias = () => {
     const formated = optionsSelected.map(opt => opt.children);
     setCYTSucursalFilterToString(formated);
   }
-  const onMetricsChangeCYTSucursales = (values) => {
-    setActiveLinesCYTSucursales(values);
+  const onMetricsChangeCYTSucursales = (selectedValues = []) => {
+    setActiveLinesCYTSucursales(prev => setMetricsActiveByValues(prev, selectedValues));
   };
 
   // ---------------------- Handler para grafico doctores ----------------------
@@ -197,34 +190,27 @@ const VerKpisConsultasYTerapias = () => {
   // cambio de filtro->local
   const handleChangeCYTDoctores = (value, label) => {
     setCYTDoctorFilter(value);
-    console.log(value);
-    console.log(label);
   };
   
-  const onLegendChangeCYTDoctores = (values) => {
-    setActiveLinesCYTDoctores(values);
+  const onMetricsChangeCYTDoctores = (selectedValues = []) => {
+    setActiveLinesCYTDoctores(prev => setMetricsActiveByValues(prev, selectedValues));
   };
 
   // creacion de pdf
   const handlePreviewPdf = async () => {
     try {
       // si ya generaste imágenes, no vuelvas a generarlas
-      if (!chartsImages || chartsImages.length === 0) {
+      if (!chartsData || chartsData.length === 0) {
         setIsGeneratingPdf(true);
-        // const itemsToCapture = [
-        //   { ref: chartSucursalesExportRef, title: "Terapias y consultas - Sucursales" },
-        //   { ref: chartDoctoresExportRef, title: "Terapias y consultas - Doctores" },
-        //   { ref: chartTerapiasDoctoresExportRef, title: "Reporteria de Terapias de doctores" },
-        // ];
 
-        const charts = await generateChartsImages(itemsToCapture, {
+        const chartsPrepared = await preparePdfChartsData(pdfChartsRawData, {
           scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
           delay: 120,
         });
 
-        setChartsImages(charts);
+        setChartsData(chartsPrepared);
         setIsGeneratingPdf(false);
         // abre modal una vez que tengamos las imágenes
         setShowModalPdf(true);
@@ -259,9 +245,9 @@ const VerKpisConsultasYTerapias = () => {
               <PdfActionButtons
                 onPreview={handlePreviewPdf}
                 isGenerating={isGeneratingPdf}
-                ready={!!(chartsImages && chartsImages.length > 0)}
-                downloadDocument={<ChartsConsultasYTerapias charts={chartsImages} />}
-                titleFilename="KPI_terapias_consultas.pdf"
+                ready={!!(chartsData && chartsData.length > 0)}
+                downloadDocument={<ChartsConsultasYTerapias chartsData={chartsData} />}
+                titleFilename="KPIs_terapias_consultas"
                 size="middle"
               />
             </Col>
@@ -270,66 +256,49 @@ const VerKpisConsultasYTerapias = () => {
 
             {/* 1ra CARD Grafico Suscursales */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
-              <HorizontalBarChart
+              <HorizontalBarChart 
                 title="Sucursales"
                 data={kpisTerapiasConsultasSucursales}
                 needCardWrapper={true}
 
                 exportRef={chartSucursalesExportRef}
 
-                isMonthPicker={true}
+                dateIsMonthPicker={true}
                 onDateApply={handleDateApplyCYTSucursales}
                 onDateReset={handleDateResetCYTSucursales}
 
                 filterTitle="Filtrar por sucursal:"
-                filterList={sucursales}
-                filterValueKey="id_sucursal"
-                filterLabelKey="nombre"
+                filterOptions={sucursales.map(s => ({ value: s.id_sucursal, label: s.nombre }))}
                 filterValue={cytsucursalFilter}
                 onFilterChange={handleChangeCYTSucursales}
 
-                metricsOptions={metricsOptions}
-                activeMetrics={activeLinesCYTSucursales}
-
+                metrics={activeLinesCYTSucursales}
                 renderMetricSelector={true}
                 onMetricsChange={onMetricsChangeCYTSucursales}
-
-                barCategoryGap="50%"
-                barGap={0}
-                xDataKey="name"
               />
-
             </Col>
 
             {/* 2da CARD Grafico doctores */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
-              <HorizontalBarChart
+              <HorizontalBarChart 
                 title="Doctores"
                 data={kpisTerapiasConsultasDoctor}
                 needCardWrapper={true}
 
                 exportRef={chartDoctoresExportRef}
 
-                isMonthPicker={true}
+                dateIsMonthPicker={true}
                 onDateApply={handleDateApplyCYTDoctores}
                 onDateReset={handleDateResetCYTDoctores}
 
                 filterTitle="Filtrar por Doctor:"
-                filterList={doctores_activados}
-                filterValueKey="nombre"
-                filterLabelKey="nombre"
+                filterOptions={doctores_activados.map(d => ({ value: d.nombre, label: d.nombre }))} // el nombre funciona como value y label
                 filterValue={cytdoctorFilter}
                 onFilterChange={handleChangeCYTDoctores}
 
-                metricsOptions={metricsOptions}
-                activeMetrics={activeLinesCYTDoctores}
-
+                metrics={activeLinesCYTDoctores}
                 renderMetricSelector={true}
-                onMetricsChange={onLegendChangeCYTDoctores}
-
-                barCategoryGap="50%"
-                barGap={0}
-                xDataKey="name"
+                onMetricsChange={onMetricsChangeCYTDoctores}
               />
             </Col>
           </Row>
@@ -338,7 +307,6 @@ const VerKpisConsultasYTerapias = () => {
 
           {/* Grafico doctores - separado */}
           <Row gutter={[16, 16]}>
-            {/* <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}> */}
             <Col xs={24} sm={24}>
               <KpisConsultasTerapiasDoctores
                 doctores_activados={doctores_activados}
@@ -355,9 +323,9 @@ const VerKpisConsultasYTerapias = () => {
       <PdfPreviewModal
         open={showModalPdf}
         onClose={() => setShowModalPdf(false)}
-        document={<ChartsConsultasYTerapias charts={chartsImages} />}
-        loading={isGeneratingPdf || !chartsImages} // muestra loader si estamos generando las imágenes
-        title="Vista previa - KPIs Terapias y consultas"
+        document={<ChartsConsultasYTerapias chartsData={chartsData} />}
+        loading={isGeneratingPdf || !chartsData} // muestra loader si estamos generando las imágenes
+        title="Vista previa - Reporte KPIs Terapias y consultas"
         titleFilename="KPIs_terapias_consultas"
         width="85%"
         height="80vh"

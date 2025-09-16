@@ -43,31 +43,31 @@ const styles = StyleSheet.create({
 
   chartImage: {
     width: "100%",
-    height: 227,
+    height:270,
     objectFit: "contain"
   },
 
-  filterTitle: { fontSize: 10, fontWeight: "bold", marginBottom: 4 },
+  filterTitle: { fontSize: 10, fontWeight: "bold", marginBottom: 2 },
   filterSubtitle: {
     fontSize: 9,
-    marginTop: 4,
-    marginBottom: 2,
-    textDecoration: "underline"
+    marginTop: 2,
+    marginBottom: 1,
+    fontWeight: "bold"
   },
   filterItem: { fontSize: 9, marginBottom: 2, marginLeft: 6 }
 });
 
-const ChartsConsultasYTerapias = ({ charts = [] }) => {
+const ChartsConsultasYTerapias = ({ chartsData = [] }) => {
   return (
     <Document>
       <LayoutReportPdf HeaderTitle="Reporte KPIs Terapias y consultas">
-        {charts.map((c, idx) => {
+        {chartsData.map((c, idx) => {
           const hasFilters =
             c.chartFilters &&
-            ((Array.isArray(c.chartFilters.metricFilter) &&
-              c.chartFilters.metricFilter.length > 0) ||
-              (Array.isArray(c.chartFilters.categoryFilter) &&
-                c.chartFilters.categoryFilter.length > 0));
+            ((Array.isArray(c.chartFilters.metrics) &&
+              c.chartFilters.metrics.length > 0) ||
+              (Array.isArray(c.chartFilters.categories) &&
+                c.chartFilters.categories.length > 0));
 
           return (
             <View key={idx} style={styles.itemContainer}>
@@ -86,30 +86,57 @@ const ChartsConsultasYTerapias = ({ charts = [] }) => {
                       <Text style={styles.filterTitle}>Filtros aplicados</Text>
 
                       {/* Métricas */}
-                      {Array.isArray(c.chartFilters.metricFilter) &&
-                        c.chartFilters.metricFilter.length > 0 && (
+                      {Array.isArray(c.chartFilters.metrics) &&
+                        c.chartFilters.metrics.filter(item => item.active).length > 0 && (
                           <>
                             <Text style={styles.filterSubtitle}>Métricas</Text>
-                            {c.chartFilters.metricFilter.map((item, index) => (
-                              <Text key={index} style={styles.filterItem}>
-                                • {item}
-                              </Text>
-                            ))}
+                            <View style={{ flexDirection: "col", flexWrap: "wrap", gap: 2, paddingLeft: 4 }}>
+                              {c.chartFilters.metrics
+                                .filter(item => item.active)
+                                .map((item, index) => (
+                                  <View
+                                    key={index}
+                                    style={{ flexDirection: "row", alignItems: "center", marginBottom: 1, }}
+                                  >
+                                    <View
+                                      style={{
+                                        width:7,
+                                        height: 7,
+                                        borderRadius: 2,
+                                        marginRight: 2,
+                                        backgroundColor: item.color || "#000",
+                                      }}
+                                    />
+                                    <Text style={{fontSize: 9}}>{item.label}</Text>
+                                  </View>
+                                ))}
+                            </View>
                           </>
                         )}
 
                       {/* Categorías */}
-                      {Array.isArray(c.chartFilters.categoryFilter) &&
-                        c.chartFilters.categoryFilter.length > 0 && (
+                      {Array.isArray(c.chartFilters.categories) &&
+                        c.chartFilters.categories.length > 0 && (
                           <>
                             <Text style={styles.filterSubtitle}>Categorías</Text>
-                            {c.chartFilters.categoryFilter.map(
-                              (item, index) => (
-                                <Text key={index} style={styles.filterItem}>
-                                  • {item}
-                                </Text>
-                              )
-                            )}
+                            <View>
+                              {c.chartFilters.categories.map((item, index) => (
+                                <View
+                                  key={index}
+                                  style={{
+                                    flexDirection: "row",
+                                    alignItems: "flex-start",
+                                    marginBottom: 2,
+                                    paddingLeft: 4
+                                  }}
+                                >
+                                  {/* viñeta */}
+                                  <Text style={{ width: 8, fontSize: 9 }}>•</Text>
+                                  {/* texto de la categoría */}
+                                  <Text style={{ flex: 1, fontSize: 9 }}>{item}</Text>
+                                </View>
+                              ))}
+                            </View>
                           </>
                         )}
                     </View>
