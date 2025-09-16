@@ -4,7 +4,13 @@ import { captureElementAsImage } from "./CaptureElementAsImage";
 /**
  * generateChartsImages(items, options)
  *
- * items: Array<RefObject | { ref: RefObject, title?: string, description?: string, notes?: string }>
+ * items: Array<RefObject | { 
+ *    ref: RefObject, 
+ *    title?: string, 
+ *    filters?: {rangeDate?: string, metricFilter?: [], categoryFilter: [], dateFilter: []...} 
+ *    description?: string, 
+ *    notes?: string }>
+ * 
  * options:
  *   - scale (number) - default 2
  *   - useCORS (boolean) - default true
@@ -12,7 +18,7 @@ import { captureElementAsImage } from "./CaptureElementAsImage";
  *   - delay (ms) - wait before capturar (useful if layout necesita tiempo)
  *   - captureFn (async function) - función alternativa (ref, opts) => dataUrl (e.g. dom-to-image-more)
  *
- * Retorna: Promise<Array<{ chartImage, chartTitle?, chartDescription?, chartNotes? }>>
+ * Retorna: Promise<Array<{ chartImage, chartTitle?, chartFilters?, chartDescription?, chartNotes? }>>
  */
 export async function generateChartsImages(items = [], options = {}) {
   const {
@@ -36,7 +42,7 @@ export async function generateChartsImages(items = [], options = {}) {
   const promises = items.map(async (item) => {
     // item puede ser un ref o un objeto con meta
     const meta = item && item.ref ? item : { ref: item };
-    const { ref, title = null, description = null, notes = null } = meta;
+    const { ref, title = null, filters = null, description = null, notes = null } = meta;
 
     if (!ref || !ref.current) {
       console.warn("[generateChartsImages] ref no disponible para:", title || meta);
@@ -50,6 +56,7 @@ export async function generateChartsImages(items = [], options = {}) {
       return {
         chartImage: dataUrl,
         chartTitle: title,
+        chartFilters: filters,
         chartDescription: description,
         chartNotes: notes,
       };

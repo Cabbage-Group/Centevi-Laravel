@@ -10,7 +10,9 @@ import {
 
 const { Text, Title } = Typography;
 
-const KpiTiempoPromedio = () => {
+const KpiTiempoPromedio = ({
+  timeRef = null,
+}) => {
   const dispatch = useDispatch();
 
   const {
@@ -128,7 +130,7 @@ const KpiTiempoPromedio = () => {
             {statusPromedioFasesOrdenes === 'loading' ? (
               <Spin size="large" />
             ) : (
-              <Title level={3} style={{ margin: "8px 0", color: "#009688" }}>
+              <Title level={3} style={{ margin: "8px 0", color: "#009688" }} ref={timeRef}>
                 {tiempo}
               </Title>
             )}

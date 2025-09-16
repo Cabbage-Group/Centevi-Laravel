@@ -1,15 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import DateRangeSeparate from "../../reportes/DateRange";
-import { Checkbox, Col, Row, Select, Divider } from "antd";
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
+import { Col, Row, Divider } from "antd";
 import {
   fetchKpisTerapiasConsultasDoctor,
   fetchKpisTerapiasConsultasSucursales,
@@ -55,17 +45,15 @@ const VerKpisConsultasYTerapias = () => {
     "consultas",
     "terapia",
   ]);
-  const [localStartDateCYTSucursales, setLocalStartDateCYTSucursales] =
-    useState();
-  const [localStartDateCYTDoctores, setLocalStartDateCYTDoctores] =
-    useState();
-  const [localEndDateCYTSucursales, setLocalEndDateCYTSucursales] =
-    useState();
+  const [localStartDateCYTSucursales, setLocalStartDateCYTSucursales] = useState();
+  const [localStartDateCYTDoctores, setLocalStartDateCYTDoctores] = useState();
+  const [localEndDateCYTSucursales, setLocalEndDateCYTSucursales] = useState();
   const [localEndDateCYTDoctores, setLocalEndDateCYTDoctores] = useState();
-  const [cytsucursalFilter, setCYTSucursalFilter] = useState([]);
-  const [cytdoctorFilter, setCYTDoctorFilter] = useState([]);
+  const [cytsucursalFilter, setCYTSucursalFilter] = useState([]); // funciona con ids(number[])
+  const [cytdoctorFilter, setCYTDoctorFilter] = useState([]); // funciona con nombres(string[])
 
   // para generacion y muestra de pdfs
+  const [cytsucursalFilterToString, setCYTSucursalFilterToString] = useState([]); // formateado para graficos con nombres(number[])
   const [showModalPdf, setShowModalPdf] = useState(false)
   const [chartsImages, setChartsImages] = useState(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
@@ -77,6 +65,17 @@ const VerKpisConsultasYTerapias = () => {
   const metricsOptions = [
     { label: "Consultas", value: "consultas", color: "#6C5CE7" },
     { label: "Terapias", value: "terapia", color: "#00B894" },
+  ];
+
+  // data para graficos pdf:
+  const itemsToCapture = [
+    { ref: chartSucursalesExportRef, title: "Terapias y consultas - Sucursales", filters: {
+      metricFilter:  activeLinesCYTSucursales, categoryFilter: cytsucursalFilterToString
+    }},
+    { ref: chartDoctoresExportRef, title: "Terapias y consultas - Doctores", filters: {
+      metricFilter: activeLinesCYTDoctores, categoryFilter: cytdoctorFilter
+    }},
+    { ref: chartTerapiasDoctoresExportRef, title: "Reporteria de Terapias de doctores" },
   ];
 
 
@@ -111,8 +110,25 @@ const VerKpisConsultasYTerapias = () => {
     );
   }, [dispatch, localStartDateCYTDoctores, localEndDateCYTDoctores, cytdoctorFilter]);
 
-
-
+  // Para invalidar imágenes de graficos pdf cuando cambien filtros/fechas/series
+  useEffect(() => {
+    // Si ya hay imágenes generadas y se cambia algún filtro/fecha/series, limpiarlas
+    if (chartsImages && chartsImages.length > 0) {
+      setChartsImages(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    // sucursales chart
+    localStartDateCYTSucursales,
+    localEndDateCYTSucursales,
+    cytsucursalFilter,
+    activeLinesCYTSucursales,
+    // doctores chart
+    localStartDateCYTDoctores,
+    localEndDateCYTDoctores,
+    cytdoctorFilter,
+    activeLinesCYTDoctores,
+  ]);
   /* ------------------------------------------------------------------------------
                                 function Utils
   ------------------------------------------------------------------------------ */
@@ -145,13 +161,14 @@ const VerKpisConsultasYTerapias = () => {
       })
     );
   };
-  const handleChangeCYTSucursales = (value) => {
-    setCYTSucursalFilter(value);
-  };
 
-  // Nuevo: cambio del "legend" por Select
+  // usamos optionsSelected aca porque neecesitamos los nombres de las sucursales, no sus ids 
+  const handleChangeCYTSucursales = (value, optionsSelected) => {
+    setCYTSucursalFilter(value);
+    const formated = optionsSelected.map(opt => opt.children);
+    setCYTSucursalFilterToString(formated);
+  }
   const onMetricsChangeCYTSucursales = (values) => {
-    // si values vacío, conservar ninguno seleccionado -> el chart quedará vacío
     setActiveLinesCYTSucursales(values);
   };
 
@@ -177,24 +194,28 @@ const VerKpisConsultasYTerapias = () => {
     );
   };
 
-  const handleChangeCYTDoctores = (value) => {
+  // cambio de filtro->local
+  const handleChangeCYTDoctores = (value, label) => {
     setCYTDoctorFilter(value);
+    console.log(value);
+    console.log(label);
   };
-
+  
   const onLegendChangeCYTDoctores = (values) => {
     setActiveLinesCYTDoctores(values);
   };
 
+  // creacion de pdf
   const handlePreviewPdf = async () => {
     try {
       // si ya generaste imágenes, no vuelvas a generarlas
       if (!chartsImages || chartsImages.length === 0) {
         setIsGeneratingPdf(true);
-        const itemsToCapture = [
-          { ref: chartDoctoresExportRef, title: "Terapias y consultas - Doctores" },
-          { ref: chartSucursalesExportRef, title: "Terapias y consultas - Sucursales" },
-          { ref: chartTerapiasDoctoresExportRef, title: "Reporteria de Terapias de doctores" },
-        ];
+        // const itemsToCapture = [
+        //   { ref: chartSucursalesExportRef, title: "Terapias y consultas - Sucursales" },
+        //   { ref: chartDoctoresExportRef, title: "Terapias y consultas - Doctores" },
+        //   { ref: chartTerapiasDoctoresExportRef, title: "Reporteria de Terapias de doctores" },
+        // ];
 
         const charts = await generateChartsImages(itemsToCapture, {
           scale: 2,
@@ -315,7 +336,7 @@ const VerKpisConsultasYTerapias = () => {
 
           <Divider />
 
-          {/* Grafico doctores */}
+          {/* Grafico doctores - separado */}
           <Row gutter={[16, 16]}>
             {/* <Col xs={24} sm={24} md={12} lg={12} xl={12} xxl={12}> */}
             <Col xs={24} sm={24}>

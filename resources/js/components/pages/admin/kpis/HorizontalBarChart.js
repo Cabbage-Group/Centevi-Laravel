@@ -1,5 +1,5 @@
 // src/components/HorizontalBarChart.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import DateRangeSeparate from "../../../../admin/reportes/DateRange";
 import { Row, Col, Select } from "antd";
 import {
@@ -39,7 +39,7 @@ const HorizontalBarChart = ({
   data = [],
 
   needCardWrapper = false,
-  height = "600px",
+  chartHeight = "455px",
 
   exportRef = null,       // ref para exportar solo el area del chart
 
@@ -64,9 +64,16 @@ const HorizontalBarChart = ({
   barGap = 0,
   xDataKey = "name",
 }) => {
-  // responsive bar size (inside component)
+
+  /* ------------------------------------------------------------------------------
+                            UseStates y data constante para logica
+  ------------------------------------------------------------------------------ */
   const [responsiveBarSize, setResponsiveBarSize] = useState(28);
 
+
+  /* ------------------------------------------------------------------------------
+                                UseEffects
+  ------------------------------------------------------------------------------ */
   useEffect(() => {
     const calc = () => {
       const w = window.innerWidth;
@@ -85,6 +92,13 @@ const HorizontalBarChart = ({
     return () => window.removeEventListener("resize", calc);
   }, []);
 
+  /* ------------------------------------------------------------------------------
+                              Handlers y helpers
+  ------------------------------------------------------------------------------ */
+
+  /* ------------------------------------------------------------------------------
+                              Custom JSX functions
+  ------------------------------------------------------------------------------ */
   // internal tagRender (uses seriesOptions to show color)
   const internalTagRender = (props) => {
     const { label, value, closable, onClose } = props;
@@ -102,15 +116,6 @@ const HorizontalBarChart = ({
           fontSize: 12,
         }}
       >
-        {/* <span
-          style={{
-            width: 8,
-            height: 8,
-            background: opt.color || "#ccc",
-            borderRadius: 4,
-            display: "inline-block",
-          }}
-        /> */}
         {label}
       </span>
     );
@@ -155,18 +160,22 @@ const HorizontalBarChart = ({
       borderRadius: 0,
     };
 
-  // compute barSize depending on how many active series
+  // tamaño ded barra segun la cantidad de barras activas
   const activeCount = activeMetrics.length || 1;
   const barSize = activeCount > 1 ? Math.max(8, Math.round(responsiveBarSize / activeCount)) : responsiveBarSize;
 
+  /* ------------------------------------------------------------------------------
+                                Return Main View
+  ------------------------------------------------------------------------------ */
   return (
     <div
       style={{
         ...cardStyles,
-        height: height,
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        justifyContent: "space-between",
       }}
     >
       {/* Badge */}
@@ -224,51 +233,53 @@ const HorizontalBarChart = ({
         </Col>
       </Row>
 
-      {/* Select para las Metricas de control - rendizado opcional con renderMetricSelector */}
-      {renderMetricSelector && (
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, marginBottom: 6 }}>
-          <Select
-            mode="multiple"
-            placeholder="Series"
-            value={activeMetrics}
-            onChange={onMetricsChange}
-            style={{ minWidth: 160 }}
-            tagRender={internalTagRender}
-            aria-label="Seleccionar series"
-          >
-            {metricsOptions.map((opt) => (
-              <Select.Option key={opt.value} value={opt.value}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 10, height: 10, background: opt.color, borderRadius: 3 }} />
-                  {opt.label}
-                </span>
-              </Select.Option>
-            ))}
-          </Select>
+      {/* Seccion grafico y filtro local side */}
+      <div>
+        {/* Select para las Metricas de control - rendizado opcional con renderMetricSelector */}
+        {renderMetricSelector && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, marginBottom: 6 }}>
+            <Select
+              mode="multiple"
+              placeholder="Series"
+              value={activeMetrics}
+              onChange={onMetricsChange}
+              style={{ minWidth: 160 }}
+              tagRender={internalTagRender}
+              aria-label="Seleccionar series"
+            >
+              {metricsOptions.map((opt) => (
+                <Select.Option key={opt.value} value={opt.value}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 10, height: 10, background: opt.color, borderRadius: 3 }} />
+                    {opt.label}
+                  </span>
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+        )}
+        {/* Chart */}
+        <div style={{ height: chartHeight }} ref={exportRef}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 80 }} isAnimationActive={false} barCategoryGap={barCategoryGap} barGap={barGap}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey={xDataKey} tick={{ fontSize: 10, angle: -45, textAnchor: "end" }} interval={0} tickFormatter={(v) => (typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v)} />
+              <YAxis tick={{ fontSize: 10 }} />
+              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: "transparent" }} />
+
+              {metricsOptions.map((s) => {
+                if (!activeMetrics.includes(s.value)) return null;
+                return (
+                  <Bar key={s.value} dataKey={s.value} fill={s.color} barSize={barSize} maxBarSize={48} shape={(props) => <rect {...props} />}>
+                    {data.map((entry, idx) => (
+                      <Cell key={`${s.value}-${idx}`} fill={s.color} />
+                    ))}
+                  </Bar>
+                );
+              })}
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-      )}
-
-      {/* Chart */}
-      <div style={{ flex: 1 }} ref={exportRef}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 80 }} isAnimationActive={false} barCategoryGap={barCategoryGap} barGap={barGap}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey={xDataKey} tick={{ fontSize: 10, angle: -45, textAnchor: "end" }} interval={0} tickFormatter={(v) => (typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v)} />
-            <YAxis tick={{ fontSize: 10 }} />
-            <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: "transparent" }} />
-
-            {metricsOptions.map((s) => {
-              if (!activeMetrics.includes(s.value)) return null;
-              return (
-                <Bar key={s.value} dataKey={s.value} fill={s.color} barSize={barSize} maxBarSize={48} shape={(props) => <rect {...props} />}>
-                  {data.map((entry, idx) => (
-                    <Cell key={`${s.value}-${idx}`} fill={s.color} />
-                  ))}
-                </Bar>
-              );
-            })}
-          </BarChart>
-        </ResponsiveContainer>
       </div>
     </div>
   );

@@ -1,15 +1,12 @@
 import React, { useEffect, useState, useRef  } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchKpisTiposLente, fetchKpisTiposLenteAsesores, fetchKpisTiposLenteDoctores, setFechaRangeTipoLente, setFechaRangeTipoLenteAsesores, setFechaRangeTipoLenteDoctores } from "../../../redux/features/kpis/kpisTiposLente/kpisTiposLente";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import DateRangeSeparate from "../../reportes/DateRange";
-import { Checkbox, Col, Divider, Row, Select, Grid, Button, Modal, Spin, Space  } from "antd";
-import { Tooltip as TooltipAntd } from "antd";
+import { Col, Divider, Row, Grid } from "antd";
 import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
 import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
-
+import { ResponsiveContainer } from "recharts";
 import ChartsTiposLentesPdfReport from "../../../services/pdf/kpis/kpisTiposLentes/ChartsTiposLentesPdfReport";
 import { generateChartsImages } from "../../../utils/GenerateChartImages";
 
@@ -62,6 +59,8 @@ const VerKpisTipoLente = () => {
 
   const { useBreakpoint } = Grid;
   const breakpoints = useBreakpoint();
+
+  const timeAverageExportRef = useRef(null);
 
   useEffect(() => {
     dispatch(fetchKpisTiposLente({
@@ -176,72 +175,6 @@ const VerKpisTipoLente = () => {
 
 
 
-
-  const truncateXAxis = (value) => {
-    return value.length > 20 ? value.substring(0, 20) + "..." : value;
-  };
-
-  const truncateXAxisAsesores = (value) => {
-    return value.length > 6 ? value.substring(0, 6) + "..." : value;
-  };
-
-  const truncateXAxisDoctores = (value) => {
-    return value.length > 10 ? value.substring(0, 10) + "..." : value;
-  };
-
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div style={{
-          background: "#f9f9f9",
-          color: "#000",
-          padding: "10px",
-          borderRadius: "5px",
-          border: "1px solid #ddd",
-          boxShadow: "0px 2px 5px rgba(0,0,0,0.2)"
-        }}>
-          <p style={{ margin: 0, fontWeight: "bold" }}>{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} style={{ margin: "5px 0", color: entry.color }}>
-              {entry.name}: <strong>{entry.value}</strong>
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const handleCheckboxChangeLente = (lineKey, checked) => {
-    setActiveLinesLente(prevActiveLines => {
-      if (checked) {
-        return [...prevActiveLines, lineKey];
-      } else {
-        return prevActiveLines.filter(line => line !== lineKey);
-      }
-    });
-  };
-
-  const handleCheckboxChangeLenteAsesores = (lineKey, checked) => {
-    setActiveLinesLenteAsesores(prevActiveLines => {
-      if (checked) {
-        return [...prevActiveLines, lineKey];
-      } else {
-        return prevActiveLines.filter(line => line !== lineKey);
-      }
-    });
-  };
-
-  const handleCheckboxChangeLenteDoctores = (lineKey, checked) => {
-    setActiveLinesLenteDoctores(prevActiveLines => {
-      if (checked) {
-        return [...prevActiveLines, lineKey];
-      } else {
-        return prevActiveLines.filter(line => line !== lineKey);
-      }
-    });
-  };
-
   const onMetricSelectorAsesorChange = (values) => {
     setActiveLinesLenteAsesores(values);
   }
@@ -252,154 +185,7 @@ const VerKpisTipoLente = () => {
     setActiveLinesLenteDoctores(values);
   }
 
-  const renderLinesLente = () => {
-    const lines = [];
-    if (activeLinesLente.includes("lente_contacto")) {
-      lines.push(
-        <Bar
-          dataKey="lente_contacto"
-          stackId="a"
-          fill="#6C5CE7"
-          barSize={70}
-          isAnimationActive={false}
-        />
-      );
-    }
-    if (activeLinesLente.includes("lente_normal")) {
-      lines.push(
-        <Bar
-          dataKey="lente_normal"
-          stackId="a"
-          fill="#00B894"
-          barSize={70}
-          isAnimationActive={false}
-        />
-      );
-    }
-    return lines;
-  };
-
-  const renderLinesLenteAsesores = () => {
-    const lines = [];
-    if (activeLinesLenteAsesores.includes("lente_contacto")) {
-      lines.push(<Bar dataKey="lente_contacto" stackId="a" fill="#6C5CE7" barSize={70} />);
-    }
-    if (activeLinesLenteAsesores.includes("lente_normal")) {
-      lines.push(<Bar dataKey="lente_normal" stackId="a" fill="#00B894" barSize={70} />);
-    }
-    return lines;
-  };
-
-
-  const renderLinesLenteDoctores = () => {
-    const lines = [];
-    if (activeLinesLenteDoctores.includes("lente_contacto")) {
-      lines.push(<Bar dataKey="lente_contacto" stackId="a" fill="#6C5CE7" barSize={70} />);
-    }
-    if (activeLinesLenteDoctores.includes("lente_normal")) {
-      lines.push(<Bar dataKey="lente_normal" stackId="a" fill="#00B894" barSize={70} />);
-    }
-    return lines;
-  };
-
-  const renderLegendLente = () => (
-    <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '15px', height: '15px', backgroundColor: '#6C5CE7', borderRadius: '3px' }}></div>
-        <Checkbox
-          checked={activeLinesLente.includes("lente_contacto")}
-          onChange={(e) => handleCheckboxChangeLente("lente_contacto", e.target.checked)}
-        >
-          Lente Contacto
-        </Checkbox>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '15px', height: '15px', backgroundColor: '#00B894', borderRadius: '3px' }}></div>
-        <Checkbox
-          checked={activeLinesLente.includes("lente_normal")}
-          onChange={(e) => handleCheckboxChangeLente("lente_normal", e.target.checked)}
-        >
-          Lente Normal
-        </Checkbox>
-      </div>
-    </div>
-  );
-
-
-  const renderLegendLenteAsesores = () => (
-
-    <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '15px', height: '15px', backgroundColor: '#6C5CE7', borderRadius: '3px' }}></div>
-        <Checkbox
-          checked={activeLinesLenteAsesores.includes("lente_contacto")}
-          onChange={(e) => handleCheckboxChangeLenteAsesores("lente_contacto", e.target.checked)}
-        >
-          Lente Contacto
-        </Checkbox>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '15px', height: '15px', backgroundColor: '#00B894', borderRadius: '3px' }}></div>
-        <Checkbox
-          checked={activeLinesLenteAsesores.includes("lente_normal")}
-          onChange={(e) => handleCheckboxChangeLenteAsesores("lente_normal", e.target.checked)}
-        >
-          Lente Normal
-        </Checkbox>
-      </div>
-    </div>
-  );
-
-
-
-  const renderLegendLenteDoctores = () => (
-    <div style={{ display: 'flex', gap: '0px', marginBottom: '15px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '15px', height: '15px', backgroundColor: '#6C5CE7', borderRadius: '3px' }}></div>
-        <Checkbox
-          checked={activeLinesLenteDoctores.includes("lente_contacto")}
-          onChange={(e) => handleCheckboxChangeLenteDoctores("lente_contacto", e.target.checked)}
-        >
-          Lente Contacto
-        </Checkbox>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '15px', height: '15px', backgroundColor: '#00B894', borderRadius: '3px' }}></div>
-        <Checkbox
-          checked={activeLinesLenteDoctores.includes("lente_normal")}
-          onChange={(e) => handleCheckboxChangeLenteDoctores("lente_normal", e.target.checked)}
-        >
-          Lente Normal
-        </Checkbox>
-      </div>
-    </div>
-    // <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px' }}>
-    //   <Checkbox
-    //     checked={activeLinesLenteDoctores.includes("lente_contacto")}
-    //     onChange={(e) => handleCheckboxChangeLenteDoctores("lente_contacto", e.target.checked)}
-    //   >
-    //     Lente Contacto
-    //   </Checkbox>
-    //   <Checkbox
-    //     checked={activeLinesLenteDoctores.includes("lente_normal")}
-    //     onChange={(e) => handleCheckboxChangeLenteDoctores("lente_normal", e.target.checked)}
-    //   >
-    //     Lente Normal
-    //   </Checkbox>
-    // </div>
-  );
-
-  // const CustomTooltip = ({ active, payload, label }) => {
-  //   if (active && payload && payload.length) {
-  //     return (
-  //       <div style={{ background: 'transparent', padding: '0' }}>
-  //         <p style={{ margin: 0 }}>{`${label}: ${payload[0].value}`}</p>
-  //       </div>
-  //     );
-  //   }
-  //   return null;
-  // };
-
+  
   /* ------------------------------------------------------------------------------------------
                                     Funciones utilitarias
    ------------------------------------------------------------------------------------------*/
@@ -458,7 +244,7 @@ const VerKpisTipoLente = () => {
                     onPreview={handlePreviewPdf}
                     isGenerating={isGeneratingPdf}
                     ready={!!(chartsImages && chartsImages.length > 0)}
-                    downloadDocument={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+                    downloadDocument={<ChartsTiposLentesPdfReport charts={chartsImages} timeAverage={timeAverageExportRef} />}
                     titleFilename="KPI_Tipos_Lentes"
                     size="middle"
                   />
@@ -480,7 +266,6 @@ const VerKpisTipoLente = () => {
                 }}
               >
                 {/* Grafico */}
-                {/* <Col xs={24} sm={24} md={14} lg={16} xl={18}> */}
                 <Col xs={24} sm={24} md={15} lg={13} xl={15} >
                   <HorizontalBarChart
                     // title="tag"
@@ -525,21 +310,15 @@ const VerKpisTipoLente = () => {
                   />
                 </Col>
 
-                {/* <Divider
-                  type={breakpoints.md ? "vertical" : "horizontal"}
-                  style={breakpoints.md ? { height: "100%", margin: "0 0 0 0",  } : { width: "100%", margin: "0 0 0 0"}}
-                /> */}
 
                 {/*Tiempo promedio */}
                 <Col xs={24} sm={24} md={8} lg={10} xl={8}>
                   <Row gutter={[24, 24]}>
                     <Col xs={24} sm={24}>
-                      <KpiTiempoPromedio />
+                      <KpiTiempoPromedio 
+                        timeRef={timeAverageExportRef}
+                      />
                     </Col>
-
-                    {/* <Col xs={24} sm={24}>
-                      <Divider type="horizontal" style={{ width: "100%", margin: "0 0 0 0", borderColor: "#d9d9d9", borderWidth: 1.5}}/>
-                    </Col> */}
 
                     
                   </Row>
@@ -626,10 +405,10 @@ const VerKpisTipoLente = () => {
       <PdfPreviewModal
         open={showModalPdf}
         onClose={() => setShowModalPdf(false)}
-        document={<ChartsTiposLentesPdfReport charts={chartsImages} />}
+        document={<ChartsTiposLentesPdfReport charts={chartsImages} timeAverage={timeAverageExportRef}/>}
         loading={isGeneratingPdf || !chartsImages} // muestra loader si estamos generando las imágenes
         title="Vista previa - KPIs Tipos de Lentes"
-        titleFilename="KPIs_Tipos_Lentes.pdf"
+        titleFilename="KPIs_Tipos_Lentes"
         width="85%"
         height="80vh"
       />
