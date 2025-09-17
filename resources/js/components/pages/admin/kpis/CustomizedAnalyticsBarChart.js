@@ -329,7 +329,14 @@ const CustomizedAnalyticsBarChart = ({
               {barsOrientation === "horizontal" ? (
                 <>
                   <XAxis type="number" tick={{ fontSize: 10 }} />
-                  <YAxis dataKey={xDataKey} type="category" tick={{ fontSize: 10 }} />
+                  <YAxis 
+                    dataKey={xDataKey} 
+                    type="category" 
+                    tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
+                    tickFormatter={(v) =>
+                      typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v
+                    }
+                  />
                 </>
               ) : (
                 <>

@@ -2,16 +2,23 @@
 import { captureElementAsImage } from "../../CaptureElementAsImage";
 
 /**
- * generateChartsImages(items, options)
+ * preparePdfChartsData(pdfRawData, options)
  *
  * items: Array<RefObject | { 
  *    ref: RefObject, 
  *    title?: string, 
- *    filters?: {rangeDate?: {start, end}, metrics?: [{label, value, color, active}], categories: [], dateFilter: []...} 
+ *    filters?: {
+ *        rangeDate?: {start, end}, 
+ *        metrics?: [{label, value, color, active}],
+ *        categories: [], 
+ *        dateFilter: []...
+ *      },
  *    description?: string, 
- *    notes?: string }>
+ *    notes?: string,
+ *    options?: {orientation: string},
+ * }>
  * 
- * options:
+ * options: (para imagen con html2canvas)
  *   - scale (number) - default 2
  *   - useCORS (boolean) - default true
  *   - backgroundColor (string) - default '#ffffff'
@@ -20,7 +27,7 @@ import { captureElementAsImage } from "../../CaptureElementAsImage";
  *
  * Retorna: Promise<Array<{ chartImage, chartTitle?, chartFilters?, chartDescription?, chartNotes? }>>
  */
-export async function preparePdfChartsData(pdfRawData = [], options = {}) {
+export async function preparePdfChartsData(pdfRawData = [], imageOptions = {}) {
   const {
     scale = 2,
     useCORS = true,
@@ -29,7 +36,7 @@ export async function preparePdfChartsData(pdfRawData = [], options = {}) {
     captureFn = captureElementAsImage, // por defecto usa tu html2canvas wrapper
     // Propiedades específicas que no queremos pasar a captureFn
     ...rest
-  } = options;
+  } = imageOptions;
 
   // util sleep si se quiere esperar
   const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -42,7 +49,7 @@ export async function preparePdfChartsData(pdfRawData = [], options = {}) {
   const promises = pdfRawData.map(async (item) => {
     // item puede ser un ref o un objeto con meta
     const meta = item && item.ref ? item : { ref: item };
-    const { ref, title = null, filters = null, description = null, notes = null } = meta;
+    const { ref, title = null, filters = null, description = null, notes = null, options = null } = meta;
 
     if (!ref || !ref.current) {
       console.warn("[generateChartsImages] ref no disponible para:", title || meta);
@@ -59,6 +66,7 @@ export async function preparePdfChartsData(pdfRawData = [], options = {}) {
         chartFilters: filters,
         chartDescription: description,
         chartNotes: notes,
+        chartOptions: options
       };
     } catch (err) {
       console.error("[generateChartsImages] error capturando:", title, err);

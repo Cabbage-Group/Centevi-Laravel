@@ -63,12 +63,12 @@ const VerKpisConsultasYTerapias = () => {
   // data para graficos pdf:
   const pdfChartsRawData = [
     { ref: chartSucursalesExportRef, title: "Gráfico distribuido por sucursales", filters: {
-      metrics:  activeLinesCYTSucursales, categories: cytsucursalFilterToString, 
-      rangeDate: {start: localStartDateCYTSucursales, end: localEndDateCYTSucursales}
+        metrics:  activeLinesCYTSucursales, categories: cytsucursalFilterToString, 
+        rangeDate: {start: localStartDateCYTSucursales, end: localEndDateCYTSucursales}
     }},
     { ref: chartDoctoresExportRef, title: "Gráfico distribuido por doctores", filters: {
-      metrics: activeLinesCYTDoctores, categories: cytdoctorFilter, 
-      rangeDate: {start: localStartDateCYTDoctores, end: localEndDateCYTDoctores}
+        metrics: activeLinesCYTDoctores, categories: cytdoctorFilter, 
+        rangeDate: {start: localStartDateCYTDoctores, end: localEndDateCYTDoctores}
     }},
     { ref: chartTerapiasDoctoresExportRef, title: "Gráfico terapias de doctores" },
   ];
@@ -124,9 +124,6 @@ const VerKpisConsultasYTerapias = () => {
     cytdoctorFilter,
     activeLinesCYTDoctores,
   ]);
-  /* ------------------------------------------------------------------------------
-                                function Utils
-  ------------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------------
                                   Handlers
@@ -229,6 +226,9 @@ const VerKpisConsultasYTerapias = () => {
       setIsGeneratingPdf(false);
     }
   };
+  /* ------------------------------------------------------------------------------
+                                function Utils
+  ------------------------------------------------------------------------------ */
 
   /* ------------------------------------------------------------------------------
                               Custom JSX functions

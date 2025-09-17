@@ -5,6 +5,9 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Bar,
 import { Button, Col, Row, Select } from "antd";
 import DateRangeSeparate from "../../reportes/DateRange";
 
+/**
+ * En desuso
+ */
 const KpisTiposCristalesVertical = (props) => {
   const {
     limit

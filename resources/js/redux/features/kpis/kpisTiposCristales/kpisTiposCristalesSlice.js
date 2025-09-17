@@ -146,7 +146,7 @@ const kpisSliceTiposCristales = createSlice({
         //   label: item.name
         // }));
 
-        // Pequeño parche para error de select sin options -> Solo llena si está vacío
+        // Pequeño parche para error de select sin options -> Solo llena si está vacío / la primera vez
         if (state.kpisTipos_cristales_select_option.length === 0) {
           state.kpisTipos_cristales_select_option = action.payload.data.map(item => ({
             value: item.name,
@@ -164,10 +164,18 @@ const kpisSliceTiposCristales = createSlice({
       .addCase(fetchKpisTiposCristalesNoLimits.fulfilled, (state, action) => {
         state.statusNolimits = 'succeeded';
         state.kpisTiposCristalesNoLimits = action.payload.data;
-        state.kpisTipos_cristales_select_option_no_limits = action.payload.data.map(item => ({
-          value: item.name,
-          label: item.name
-        }));
+        // state.kpisTipos_cristales_select_option_no_limits = action.payload.data.map(item => ({
+        //   value: item.name,
+        //   label: item.name
+        // }));
+
+        // Pequeño parche para error de select sin options -> Solo llena si está vacío / la primera vez
+        if (state.kpisTipos_cristales_select_option_no_limits.length === 0) {
+          state.kpisTipos_cristales_select_option_no_limits = action.payload.data.map(item => ({
+            value: item.name,
+            label: item.name
+          }));
+        }
       })
       .addCase(fetchKpisTiposCristalesNoLimits.rejected, (state, action) => {
         state.statusNolimits = 'failed';
