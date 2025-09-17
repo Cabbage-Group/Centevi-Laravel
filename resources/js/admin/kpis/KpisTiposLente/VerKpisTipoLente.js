@@ -5,7 +5,7 @@ import { Col, Divider, Row, Grid } from "antd";
 import { fetchSucursales } from "../../../redux/features/sucursales/sucursalesSlice";
 import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpiTiempoPromedio from "../KpisOrdenes/KpiTiempoPromedio";
-import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
+import CustomizedAnalyticsBarChart from "../../../components/pages/admin/kpis/CustomizedAnalyticsBarChart";
 import { ResponsiveContainer } from "recharts";
 import ChartsTiposLentesPdfReport from "../../../services/pdf/kpis/kpisTiposLentes/ChartsTiposLentesPdfReport";
 import { preparePdfChartsData } from "../../../utils/admin/kpis/PreparePdfChartsData";
@@ -352,8 +352,8 @@ const VerKpisTipoLente = () => {
                 {/* Grafico */}
                 <Col xs={24} sm={24} md={15} lg={13} xl={15} >
 
-                  <HorizontalBarChart 
-                    // title="tag"
+                  <CustomizedAnalyticsBarChart 
+                    // badgeLabel="tag"
                     data={kpisTipoLenteAsesores}
                     needCardWrapper={false}
                 
@@ -407,8 +407,8 @@ const VerKpisTipoLente = () => {
 
             {/* grafica por sucursal */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
-              <HorizontalBarChart 
-                // title="tag"
+              <CustomizedAnalyticsBarChart 
+                // badgeLabel="tag"
                 data={kpisTipoLente}
                 needCardWrapper={true}
               
@@ -434,8 +434,8 @@ const VerKpisTipoLente = () => {
 
             {/* grafica por doctor */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
-              <HorizontalBarChart 
-                // title="tag"
+              <CustomizedAnalyticsBarChart 
+                // badgeLabel="tag"
                 data={kpisTipoLenteDoctores}
                 needCardWrapper={true}
               

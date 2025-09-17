@@ -10,6 +10,7 @@ import {
   BarChart,
   Bar,
   Cell,
+  Legend,
 } from "recharts";
 import PropTypes from "prop-types";
 
@@ -47,12 +48,13 @@ import PropTypes from "prop-types";
  * {string} xDataKey - key del eje X (ej: "name").
  *
  */
-const HorizontalBarChart = ({
-  title,
+const CustomizedAnalyticsBarChart = ({
+  badgeLabel,
   data = [],
 
   needCardWrapper = false,
   chartHeight = "455px",
+  
 
   exportRef = null,
 
@@ -74,6 +76,10 @@ const HorizontalBarChart = ({
   barCategoryGap = "50%",
   barGap = 0,
   xDataKey = "name",
+  needLegend = false,
+  legendAlignVertical = "top",
+  legendAlignHorizontal = "center",
+  barsOrientation = "vertical",
 }) => {
   // --- responsive bar size (same lógica que tenías) ---
   const [responsiveBarSize, setResponsiveBarSize] = useState(28);
@@ -222,7 +228,7 @@ const HorizontalBarChart = ({
         justifyContent: "space-between",
       }}
     >
-      {title && (
+      {badgeLabel && (
         <div
           style={{
             position: "absolute",
@@ -238,7 +244,7 @@ const HorizontalBarChart = ({
             borderRadius: "8px",
           }}
         >
-          {title}
+          {badgeLabel}
         </div>
       )}
 
@@ -310,17 +316,42 @@ const HorizontalBarChart = ({
 
         <div style={{ height: chartHeight }} ref={exportRef}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 20, right: 50, left: 20, bottom: 80 }} isAnimationActive={false} barCategoryGap={barCategoryGap} barGap={barGap}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey={xDataKey}
-                tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
-                interval={0}
-                tickFormatter={(v) => (typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v)}
-              />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: "transparent" }} />
+            <BarChart
+              data={data}
+              layout={barsOrientation === "horizontal" ? "vertical" : "horizontal"} //  cambia layout = orienttacion ded las barras
+              margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
+              isAnimationActive={false}
+              barCategoryGap={barCategoryGap}
+              barGap={barGap}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={barsOrientation !== "horizontal"} />
 
+              {barsOrientation === "horizontal" ? (
+                <>
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
+                  <YAxis dataKey={xDataKey} type="category" tick={{ fontSize: 10 }} />
+                </>
+              ) : (
+                <>
+                  <XAxis
+                    dataKey={xDataKey}
+                    tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
+                    interval={0}
+                    tickFormatter={(v) =>
+                      typeof v === "string" && v.length > 10 ? v.substring(0, 10) + "..." : v
+                    }
+                  />
+                  <YAxis tick={{ fontSize: 10 }} />
+                </>
+              )}
+
+              <Tooltip content={<CustomTooltipBarras />} cursor={{ fill: "transparent" }} />
+              {needLegend && (
+                <Legend
+                  verticalAlign={legendAlignVertical}
+                  align={legendAlignHorizontal}
+                />
+              )}
               {metricsNormalized.map((s) => {
                 if (!activeValues.includes(s.value)) return null;
                 return (
@@ -339,4 +370,4 @@ const HorizontalBarChart = ({
   );
 };
 
-export default HorizontalBarChart;
+export default CustomizedAnalyticsBarChart;

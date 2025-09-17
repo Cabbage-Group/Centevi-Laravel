@@ -13,7 +13,7 @@ import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import KpisConsultasTerapiasDoctores from "../KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores";
 // import KpisConsultasTerapiasSucursales from "../KpisConsultasTerapias/kpisConsultasTerapiasSucursales/KpisConsultasTerapiasSucursales";
 
-import HorizontalBarChart from "../../../components/pages/admin/kpis/HorizontalBarChart";
+import CustomizedAnalyticsBarChart from "../../../components/pages/admin/kpis/CustomizedAnalyticsBarChart";
 import PdfActionButtons from "../../../components/buttons/admin/kpis/PdfActionButtons";
 import PdfPreviewModal from "../../../components/modals/pdfs/PdfPreviewModal";
 import ChartsConsultasYTerapias from "../../../services/pdf/kpis/kpisConsultasYTerapias/ChartsConsultasYTerapias";
@@ -41,8 +41,8 @@ const VerKpisConsultasYTerapias = () => {
     { label: "Terapias", value: "terapia", color: "#00B894", active: true },
   ]);
   const [activeLinesCYTDoctores, setActiveLinesCYTDoctores] = useState([
-    { label: "Consultas", value: "consultas", color: "#fb5607", active: true },
-    { label: "Terapias", value: "terapia", color: "#3a86ff", active: true },
+    { label: "Consultas", value: "consultas", color: "#6C5CE7", active: true },
+    { label: "Terapias", value: "terapia", color: "#00B894", active: true },
   ]);
   const [localStartDateCYTSucursales, setLocalStartDateCYTSucursales] = useState();
   const [localStartDateCYTDoctores, setLocalStartDateCYTDoctores] = useState();
@@ -262,8 +262,8 @@ const VerKpisConsultasYTerapias = () => {
 
             {/* 1ra CARD Grafico Suscursales */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
-              <HorizontalBarChart 
-                title="Sucursales"
+              <CustomizedAnalyticsBarChart 
+                badgeLabel="Sucursales"
                 data={kpisTerapiasConsultasSucursales}
                 needCardWrapper={true}
 
@@ -286,8 +286,8 @@ const VerKpisConsultasYTerapias = () => {
 
             {/* 2da CARD Grafico doctores */}
             <Col xxl={12} xl={12} md={12} sm={24} xs={24}>
-              <HorizontalBarChart 
-                title="Doctores"
+              <CustomizedAnalyticsBarChart 
+                badgeLabel="Doctores"
                 data={kpisTerapiasConsultasDoctor}
                 needCardWrapper={true}
 

@@ -141,10 +141,18 @@ const kpisSliceTiposCristales = createSlice({
       .addCase(fetchKpisTiposCristales.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.kpisTiposCristales = action.payload.data;
-        state.kpisTipos_cristales_select_option = action.payload.data.map(item => ({
-          value: item.name,
-          label: item.name
-        }));
+        // state.kpisTipos_cristales_select_option = action.payload.data.map(item => ({
+        //   value: item.name,
+        //   label: item.name
+        // }));
+
+        // Pequeño parche para error de select sin options -> Solo llena si está vacío
+        if (state.kpisTipos_cristales_select_option.length === 0) {
+          state.kpisTipos_cristales_select_option = action.payload.data.map(item => ({
+            value: item.name,
+            label: item.name
+          }));
+        }
       })
       .addCase(fetchKpisTiposCristales.rejected, (state, action) => {
         state.status = 'failed';
