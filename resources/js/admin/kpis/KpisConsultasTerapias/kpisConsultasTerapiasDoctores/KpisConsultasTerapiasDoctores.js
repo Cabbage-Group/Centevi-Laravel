@@ -246,7 +246,7 @@ const KpisConsultasTerapiasDoctores = (
       "#F39C12",
     ];
 
-    if (doctores_activados && doctores_activados.lenght > 0) {
+    if (doctores_activados && doctores_activados.length > 0) {
       doctores_activados?.forEach((doctor, index) => {
         if (activeLinesTerapiasPorDoctores.includes(doctor.id_usuario)) {
           const doctorColor = doctorColors[index % doctorColors.length];
@@ -403,7 +403,7 @@ const KpisConsultasTerapiasDoctores = (
                   margin={{ top: 20, right: 50, left: 20, bottom: 80 }}
                   isAnimationActive={false}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={true} />
                   <XAxis
                     dataKey="name"
                     tick={{ fontSize: 10, angle: -45, textAnchor: 'end' }}

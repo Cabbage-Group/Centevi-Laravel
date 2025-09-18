@@ -80,8 +80,8 @@ export const fetchKpisPromedioFasesOrdenes = createAsyncThunk(
         lente_contacto: lenteContacto
 
       };
-      const response = await axios.post(`${API}/kpis/promedio-fases-ordenes`, requestBody);
-
+      // const response = await axios.post(`${API}/kpis/promedio-fases-ordenes`, requestBody); // carga 2000 registros y tiempo promedio
+      const response = await axios.post(`${API}/kpis/promedio-fases-ordenes-resumen`, requestBody); // carga 1 registro "total" y tiempo promedio
       return response.data;
     } catch (error) {
       console.error('Error fetching Kpis:', error.response.data);
@@ -411,7 +411,7 @@ const kpisSliceConsultasTerapias = createSlice({
       })
       .addCase(fetchKpisPromedioFasesOrdenes.fulfilled, (state, action) => {
         state.statusPromedioFasesOrdenes = 'succeeded';
-        state.kpisPromedioFasesOrdenes = action.payload.data;
+        // state.kpisPromedioFasesOrdenes = action.payload.data; // no cargar 2000 registros
         state.tiempoPromedio = action.payload.tiempo_promedio;
       })
       .addCase(fetchKpisPromedioFasesOrdenes.rejected, (state, action) => {

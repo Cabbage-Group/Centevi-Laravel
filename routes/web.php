@@ -353,7 +353,9 @@ Route::get('/api/kpis/sucursales-consultas', [KpisApiController::class, 'getCons
 
 Route::get('/api/kpis/doctores-consultas', [KpisApiController::class, 'getConsultasPorFechaDoctores']);
 
-Route::post('/api/kpis/promedio-fases-ordenes', [KpisApiController::class, 'PromedioFasesOrdenes']);
+Route::post('/api/kpis/promedio-fases-ordenes', [KpisApiController::class, 'PromedioFasesOrdenes']); // todos los registros + tiempo promedio
+
+Route::post('/api/kpis/promedio-fases-ordenes-resumen', [KpisApiController::class, 'PromedioFasesOrdenesResumen']); // solo tiempo promedio + totalcount
 
 Route::post('/api/kpis/tipo-cristales', [KpisApiController::class, 'countCrystalTypes']);
 

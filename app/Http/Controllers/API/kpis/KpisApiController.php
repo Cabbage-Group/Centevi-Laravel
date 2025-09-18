@@ -1232,6 +1232,114 @@ class KpisApiController extends Controller
     ], 200);
   }
 
+  // Similar a la funcion anterior, pero esta no devuelve todos los registros ()> 2000 aprox)
+  // solo tiempo promedio y total de registros usados
+  public function PromedioFasesOrdenesResumen(Request $request)
+  {
+      $faseInicial = $request->input('faseInicial');
+      $faseFinal   = $request->input('faseFinal');
+      $startDate   = $request->input('startDate');
+      $endDate     = $request->input('endDate');
+      $lenteContacto = $request->input('lente_contacto');
+  
+      // Validar fases
+      $faseInicial = is_numeric($faseInicial) ? max(1, min(4, intval($faseInicial))) : null;
+      $faseFinal   = is_numeric($faseFinal) ? max(1, min(4, intval($faseFinal))) : null;
+  
+      // Subconsulta primera fase
+      $primeraFaseQuery = DB::table('fases_ordenes as fo')
+          ->select('fo.ordenes_id', 'fo.fecha_fase as fecha_primera_fase')
+          ->whereRaw('fo.id = (
+              SELECT MIN(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id
+          )');
+  
+      // Subconsulta última fase
+      $ultimaFaseQuery = DB::table('fases_ordenes as fo')
+          ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+          ->select(
+              'fo.ordenes_id',
+              DB::raw("
+                  CASE
+                      WHEN fo.status = 1 THEN
+                          CASE
+                              WHEN fo.tipo_fase_orden_id IS NULL THEN 1
+                              WHEN fo.tipo_fase_orden_id = 4 THEN 4
+                              ELSE fo.tipo_fase_orden_id + 1
+                          END
+                      ELSE fo.tipo_fase_orden_id
+                  END as fase_actual_numero
+              "),
+              'fo.fecha_fase as fecha_ultima_fase'
+          )
+          ->whereRaw('fo.id = (
+              SELECT MAX(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id
+          )');
+          
+      // Query base
+      $ordenesQuery = Ordenes::leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+          ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id');
+          
+      // Filtro por rango de fases
+      if ($faseInicial !== null && $faseFinal !== null) {
+          $ordenesQuery->where(function ($query) use ($faseInicial, $faseFinal) {
+              $query->whereNull('ultimas_fases.fase_actual_numero')
+                  ->whereRaw('1 >= ? AND 1 <= ?', [$faseInicial, $faseFinal])
+                  ->orWhere(function ($q) use ($faseInicial, $faseFinal) {
+                      $q->whereNotNull('ultimas_fases.fase_actual_numero')
+                          ->whereBetween('ultimas_fases.fase_actual_numero', [$faseInicial, $faseFinal]);
+                  });
+          });
+      }
+    
+      // Filtro por fechas
+      if ($startDate && $endDate) {
+          $ordenesQuery->whereBetween('ordenes.created_at', [
+              $startDate . ' 00:00:00',
+              $endDate . ' 23:59:59'
+          ]);
+      }
+    
+      // Filtro por lente_contacto
+      if (!is_null($lenteContacto) && is_array($lenteContacto)) {
+          if (!empty($lenteContacto)) {
+              $ordenesQuery->whereIn('lente_contacto', $lenteContacto);
+          }
+      } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
+          $ordenesQuery->where('lente_contacto', $lenteContacto);
+      }
+    
+      // Calcular en SQL directo
+      $stats = $ordenesQuery
+          ->selectRaw("COUNT(*) as total_registros, AVG(DATEDIFF(ultimas_fases.fecha_ultima_fase, ordenes.created_at)) as promedio_dias")
+          ->first();
+    
+      $totalRegistros = $stats->total_registros;
+      $promedioTiempo = $stats->promedio_dias ?? 0;
+    
+      // Convertir a días, horas, minutos
+      $promedioTiempoDias = floor($promedioTiempo);
+      $restoHoras = ($promedioTiempo - $promedioTiempoDias) * 24;
+      $promedioTiempoHoras = floor($restoHoras);
+      $promedioTiempoMinutos = round(($restoHoras - $promedioTiempoHoras) * 60);
+    
+      return response()->json([
+          'total' => $totalRegistros,
+          'tiempo_promedio' => [
+              'dias' => $promedioTiempoDias,
+              'horas' => $promedioTiempoHoras,
+              'minutos' => $promedioTiempoMinutos
+          ],
+          'fase_inicial' => $faseInicial,
+          'fase_final' => $faseFinal,
+          'respuesta' => true,
+          'status' => [
+              'code' => 200,
+              'message' => 'Promedio de órdenes calculado exitosamente',
+          ],
+          'mensaje' => 'Tiempo promedio obtenido correctamente',
+      ], 200);
+  }
+
   public function countCrystalTypes(Request $request)
   {
     // Obtener parámetros de fecha si se envían
