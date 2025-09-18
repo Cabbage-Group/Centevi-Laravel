@@ -6,6 +6,13 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarC
 import { fetchKpisConsultasPorDoctores, fetchKpisTerapiasPorDoctores, setFechaRangeConsultasPorDoctores, setFechaRangeTerapiasPorDoctores } from "../../../../redux/features/kpis/kpisConsultasTerapias/kpisConsultasTerapiasSlice";
 import { DownOutlined } from '@ant-design/icons';
 
+
+/**
+ * Componente version antigua / deprecado
+ *  Ya no usar este componente, en su lugar ya se usa en la vista VerKpisConsultasYTerapias.js 
+ *  el componente reutilizable CustomizedAnalyticsBarChart.js con la logica manejada por el padre
+ * 
+ */
 const KpisConsultasTerapiasDoctores = (
   { doctores_activados, exportRef = null }
 ) => {

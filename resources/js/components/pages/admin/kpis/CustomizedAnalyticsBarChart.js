@@ -12,10 +12,9 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import PropTypes from "prop-types";
 
 /**
- * HorizontalBarChart
+ * CustomizedAnalyticsBarChart
  *
  * Props :
  * {string} title - Texto pequeño que se muestra en la esquina (decorativo).
@@ -75,31 +74,35 @@ const CustomizedAnalyticsBarChart = ({
   // Bar config
   barCategoryGap = "50%",
   barGap = 0,
-  xDataKey = "name",
+  barDataKey = "name",
   needLegend = false,
   legendAlignVertical = "top",
   legendAlignHorizontal = "center",
   barsOrientation = "vertical",
+  barsCategorySize = 32,
 }) => {
   // --- responsive bar size (same lógica que tenías) ---
-  const [responsiveBarSize, setResponsiveBarSize] = useState(28);
+  const [responsiveBarSize, setResponsiveBarSize] = useState(barsCategorySize);
 
   useEffect(() => {
     const calc = () => {
       const w = window.innerWidth;
-      let size = 28;
-      if (w < 576) size = 12;
-      else if (w < 768) size = 14;
-      else if (w < 992) size = 20;
-      else if (w < 1200) size = 24;
-      else if (w < 1600) size = 28;
-      else size = 32;
+      let size = barsCategorySize;
+
+      if (w < 576) size = Math.round(barsCategorySize * 0.4);   // ~40%
+      else if (w < 768) size = Math.round(barsCategorySize * 0.5); // ~50%
+      else if (w < 992) size = Math.round(barsCategorySize * 0.65); // ~65%
+      else if (w < 1200) size = Math.round(barsCategorySize * 0.75); // ~75%
+      else if (w < 1600) size = Math.round(barsCategorySize * 0.9); // ~90%
+      else size = barsCategorySize;
+
       setResponsiveBarSize(size);
     };
+
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
-  }, []);
+  }, [barsCategorySize]);
 
   // --- Normalizar metrics: { label, value, color, active } ---
   const metricsNormalized = useMemo(
@@ -330,7 +333,7 @@ const CustomizedAnalyticsBarChart = ({
                 <>
                   <XAxis type="number" tick={{ fontSize: 10 }} />
                   <YAxis 
-                    dataKey={xDataKey} 
+                    dataKey={barDataKey} 
                     type="category" 
                     tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
                     tickFormatter={(v) =>
@@ -341,7 +344,7 @@ const CustomizedAnalyticsBarChart = ({
               ) : (
                 <>
                   <XAxis
-                    dataKey={xDataKey}
+                    dataKey={barDataKey}
                     tick={{ fontSize: 10, angle: -45, textAnchor: "end" }}
                     interval={0}
                     tickFormatter={(v) =>
@@ -362,7 +365,7 @@ const CustomizedAnalyticsBarChart = ({
               {metricsNormalized.map((s) => {
                 if (!activeValues.includes(s.value)) return null;
                 return (
-                  <Bar key={s.value} dataKey={s.value} fill={s.color} barSize={barSize} maxBarSize={48} shape={(props) => <rect {...props} />}>
+                  <Bar key={s.value} dataKey={s.value} fill={s.color} barSize={barSize} maxBarSize={barSize*1.3} shape={(props) => <rect {...props} />}>
                     {data.map((entry, idx) => (
                       <Cell key={`${s.value}-${idx}`} fill={s.color} />
                     ))}

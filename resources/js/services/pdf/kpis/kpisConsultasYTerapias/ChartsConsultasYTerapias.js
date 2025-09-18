@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 
   chartImage: {
     width: "100%",
-    height:280,
+    height:295,
     objectFit: "contain"
   },
 

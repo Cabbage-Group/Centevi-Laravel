@@ -3,6 +3,7 @@ import { Col, Row, Divider } from "antd";
 import {
   fetchKpisTerapiasConsultasDoctor,
   fetchKpisTerapiasConsultasSucursales,
+  fetchKpisTerapiasPorDoctores,
   setFechaRangeTerapiasConsultasCYTDoctores,
   setFechaRangeTerapiasConsultasCYTSucursal,
   setFechaRangeTerapiasPorDoctores,
@@ -31,6 +32,7 @@ const VerKpisConsultasYTerapias = () => {
   const {
     kpisTerapiasConsultasSucursales,
     kpisTerapiasConsultasDoctor,
+    kpisTerapiasPorDoctores,
   } = useSelector((state) => state.kpisConsultasTerapias);
 
   /* ------------------------------------------------------------------------------
@@ -51,6 +53,19 @@ const VerKpisConsultasYTerapias = () => {
   const [cytsucursalFilter, setCYTSucursalFilter] = useState([]); // funciona con ids(number[])
   const [cytdoctorFilter, setCYTDoctorFilter] = useState([]); // funciona con nombres(string[])
 
+  // teercer grafico terapias de doctor
+  const [localStartDateTerapiasPorDoctores, setLocalStartDateTerapiasPorDoctores] = useState();
+  const [localEndDateTerapiasPorDoctores, setLocalEndDateTerapiasPorDoctores] = useState();
+  const [activeLinesTerapiasPorDoctores, setActiveLinesTerapiasPorDoctores] = useState([]);
+  const [terapiasFilter, setTerapiasFilter] = useState([]);
+
+  const opcionesTerapias = [
+    { label: 'Terapia Baja Visión', value: 'terapia_baja_vision' },
+    { label: 'Terapia Optometria Neonatos', value: 'terapia_optometria_neonatos' },
+    { label: 'Terapia Ortoptica Adultos', value: 'terapia_ortoptica_adultos' },
+    { label: 'Terapia Optometria Pediatrica', value: 'terapia_optometria_pediatrica' },
+  ];
+
   // para generacion y muestra de pdfs
   const [cytsucursalFilterToString, setCYTSucursalFilterToString] = useState([]); // formateado para graficos con nombres(number[])
   const [showModalPdf, setShowModalPdf] = useState(false)
@@ -70,7 +85,10 @@ const VerKpisConsultasYTerapias = () => {
         metrics: activeLinesCYTDoctores, categories: cytdoctorFilter, 
         rangeDate: {start: localStartDateCYTDoctores, end: localEndDateCYTDoctores}
     }},
-    { ref: chartTerapiasDoctoresExportRef, title: "Gráfico terapias de doctores" },
+    { ref: chartTerapiasDoctoresExportRef, title: "Gráfico terapias de doctores", filters: {
+        metrics: activeLinesTerapiasPorDoctores, categories: terapiasFilter, 
+        rangeDate: {start: localStartDateTerapiasPorDoctores, end: localEndDateTerapiasPorDoctores}
+    }},
   ];
 
 
@@ -123,7 +141,48 @@ const VerKpisConsultasYTerapias = () => {
     localEndDateCYTDoctores,
     cytdoctorFilter,
     activeLinesCYTDoctores,
+    // terapias doctores chart
+    localStartDateTerapiasPorDoctores,
+    localEndDateTerapiasPorDoctores,
+    activeLinesTerapiasPorDoctores,
+    terapiasFilter,
   ]);
+
+  useEffect(() => {
+    if (doctores_activados?.length > 0) {
+      const doctorColors = [
+        "#FF6347",
+        "#FF9800",
+        "#4CAF50",
+        "#2196F3",
+        "#9C27B0",
+        "#9B59B6", 
+        "#16A085", 
+        "#F1C40F", 
+        "#D35400", 
+        "#7F8C8D", 
+        "#27AE60", 
+      ];
+      const formattedData = doctores_activados.map((doctor, index) => {
+        const color = doctorColors[index % doctorColors.length]; 
+        return {
+          label: doctor.nombre,
+          value: doctor.nombre,
+          color,
+          active: true,
+        };
+      });
+      setActiveLinesTerapiasPorDoctores(formattedData);
+    }
+  }, [doctores_activados]);
+
+  useEffect(() => {
+    dispatch(fetchKpisTerapiasPorDoctores({
+      startDate: localStartDateTerapiasPorDoctores,
+      endDate: localEndDateTerapiasPorDoctores,
+      terapias: terapiasFilter
+    }));
+  }, [localStartDateTerapiasPorDoctores, localEndDateTerapiasPorDoctores, terapiasFilter]);
 
   /* ------------------------------------------------------------------------------
                                   Handlers
@@ -199,12 +258,49 @@ const VerKpisConsultasYTerapias = () => {
     setActiveLinesCYTDoctores(prev => setMetricsActiveByValues(prev, selectedValues));
   };
 
+  // handler tercer grafico terapias doctor
+  const handleDateApplyTerapiasPorDoctores = (newStartDate, newEndDate) => {
+    setLocalStartDateTerapiasPorDoctores(newStartDate);
+    setLocalEndDateTerapiasPorDoctores(newEndDate);
+    dispatch(setFechaRangeTerapiasPorDoctores({ startDate: newStartDate, endDate: newEndDate }));
+  };
+  const handleDateResetTerapiasPorDoctores = () => {
+    const newEndDate = new Date();
+    const newStartDate = new Date(newEndDate.getFullYear(), newEndDate.getMonth() - 12, 1);
+    const lastDayOfCurrentMonth = new Date(newEndDate.getFullYear(), newEndDate.getMonth() + 1, 0);
+    const startDateFormatted = newStartDate.toISOString().split('T')[0];
+    const endDateFormatted = lastDayOfCurrentMonth.toISOString().split('T')[0];
+
+    // setLocalStartDateTerapiasPorDoctores(startDateFormatted);
+    // setLocalEndDateTerapiasPorDoctores(endDateFormatted);
+    setLocalStartDateTerapiasPorDoctores(undefined);
+    setLocalEndDateTerapiasPorDoctores(undefined);
+    dispatch(setFechaRangeTerapiasPorDoctores({
+      startDate: startDateFormatted,
+      endDate: endDateFormatted
+    }));
+  };
+
+  const handleOnMetricChangeTerapiasPorDoctores = (selectedValues = []) => {
+    setActiveLinesTerapiasPorDoctores(prev => setMetricsActiveByValues(prev, selectedValues));
+  }
+
+  const handleChangeTerapias = (value) => {
+    setTerapiasFilter(value);
+  };
+    
+
   // creacion de pdf
   const handlePreviewPdf = async () => {
     try {
       // si ya generaste imágenes, no vuelvas a generarlas
       if (!chartsData || chartsData.length === 0) {
         setIsGeneratingPdf(true);
+        const chartEl = chartTerapiasDoctoresExportRef.current;
+        const prevWidth = chartEl.style.width;
+
+        chartEl.style.width = "530px";
+        await new Promise(resolve => setTimeout(resolve, 300)); // espera 0.3seg
 
         const chartsPrepared = await preparePdfChartsData(pdfChartsRawData, {
           scale: 2,
@@ -212,6 +308,9 @@ const VerKpisConsultasYTerapias = () => {
           backgroundColor: "#ffffff",
           delay: 120,
         });
+        
+        // Restaurar tamaño original
+        chartEl.style.width = prevWidth;
 
         setChartsData(chartsPrepared);
         setIsGeneratingPdf(false);
@@ -311,12 +410,42 @@ const VerKpisConsultasYTerapias = () => {
 
           <Divider />
 
+          <Row style={{marginBottom: '15px'}}>
+            <Col sm={24} xs={24}>
+              <div style={{ color: 'black', fontWeight: 'bold', fontSize: 16 }}>
+                Reporteria de Terapias de doctores
+              </div>
+            </Col>
+          </Row>
+
           {/* Grafico doctores - separado */}
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={24}>
-              <KpisConsultasTerapiasDoctores
+              {/* <KpisConsultasTerapiasDoctores
                 doctores_activados={doctores_activados}
                 exportRef={chartTerapiasDoctoresExportRef}
+              /> */}
+              <CustomizedAnalyticsBarChart 
+                // badgeLabel="tag"
+                data={kpisTerapiasPorDoctores}
+                needCardWrapper={true}
+            
+                exportRef={chartTerapiasDoctoresExportRef}
+            
+                dateIsMonthPicker={true}
+                onDateApply={handleDateApplyTerapiasPorDoctores}
+                onDateReset={handleDateResetTerapiasPorDoctores}
+            
+                filterTitle="Filtrar por Terapias:"
+                filterOptions={opcionesTerapias}
+                filterValue={terapiasFilter}
+                onFilterChange={handleChangeTerapias}
+            
+                metrics={activeLinesTerapiasPorDoctores}
+                renderMetricSelector={true}
+                onMetricsChange={handleOnMetricChangeTerapiasPorDoctores}
+                barCategoryGap={"10%"}
+                barsCategorySize={60}
               />
             </Col>
           </Row>
