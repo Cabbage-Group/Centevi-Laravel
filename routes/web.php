@@ -51,6 +51,7 @@ use App\Http\Controllers\API\tipos_usuarios\TiposUsuariosController;
 use App\Http\Controllers\API\servicios\ServiciosApiController;
 use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
 use App\Http\Controllers\API\quotes\QuotePdfController;
+use App\Http\Controllers\API\quotes_timelines\QuoteTimelineApiController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
@@ -535,6 +536,15 @@ Route::get('/api/ver/quote/centevi/{id}', [QuoterApiController::class, 'verUnaCo
 Route::post('/api/crear/quote/centevi', [QuoterApiController::class, 'crearQoute']);
 
 Route::put('/api/update/quote/centevi/{id}', [QuoterApiController::class, 'updateEstadoInterfuerza']);
+
+// rutas quoteTimeline - seguimiento de cotizacion
+Route::get('/api/quote-timeline/for-quote/{quoteId}', [QuoteTimelineApiController::class, 'getAllQuoteTimelinesByQuoteId']);
+
+Route::post('/api/quote-timeline', [QuoteTimelineApiController::class, 'createQuoteTimeline']);
+
+Route::put('/api/quote-timeline/{id}', [QuoteTimelineApiController::class, 'updateQuoteTimeline']);
+
+Route::delete('/api/quote-timeline/{id}', [QuoteTimelineApiController::class, 'destroyQuoteTimeline']);
 
 Route::post('/api/prueba/orden', [OrdenesApiController::class, 'pruebaobtenerOrdenes']);
 

@@ -1,7 +1,7 @@
 import { AutoComplete, Button, Table, Modal, Typography, Progress, message, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { CopyOutlined, EyeOutlined, FilePdfOutlined } from "@ant-design/icons";
+import { CopyOutlined, EyeOutlined, FilePdfOutlined, ProfileOutlined } from "@ant-design/icons";
 import { fetchQuotes, findQuotesByIdAndUpdate, setPage, setSearchTerm, setSort, updateEstadoQuote, VerUnaQuote } from "../../redux/features/quotes/quotesSlice";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -9,7 +9,8 @@ import { createInterfuerzaQuotes } from "../../redux/features/interfuerza/interf
 import { generatePdfPreview, downloadPDF, formatDate } from './GeneradorPDF.js';
 import '../../../css/tables/TableCotizaciones.css';
 import { verCotizacionPdf } from '../../redux/features/quotes/quotesSlice';
-import { constant, set } from "lodash";
+import { constant, forEach, set } from "lodash";
+import SeguimientoCotizacionModal from "./SeguimientoCotizacionModal.js";
 const { Text } = Typography;
 
 const TableCotizaciones = () => {
@@ -26,7 +27,9 @@ const TableCotizaciones = () => {
     status,
     codigoInterfuerzaList
   } = useSelector((state) => state.quotes);
+  const { usuario } = useSelector(({ auth }) => auth);
   const navigate = useNavigate();
+  const [seguimientoModalVisible, setSeguimientoModalVisible] = useState(false);
   const [pdfModalVisible, setPdfModalVisible] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState(null);
   const [pdfPreviewContent, setPdfPreviewContent] = useState('');
@@ -237,6 +240,16 @@ const TableCotizaciones = () => {
     setPdfPreviewContent('');
     setLoadingPdf(false);
   };
+
+  const handleSeguimientoCotizacion = (id, record) =>{
+    setSelectedQuote(record);
+    setSeguimientoModalVisible(true);
+    // console.log(id, record);
+
+  }
+  const handleOnCloseSeguimientoModal = () => {
+    setSeguimientoModalVisible(false);
+  }
 
   const columns = [
     {
@@ -578,9 +591,23 @@ const TableCotizaciones = () => {
             icon={<FilePdfOutlined style={{ width: '15px' }} />}
             onClick={() => handleVerCotizacionPdf(record.id, record)} 
             style={{
+              marginRight: 8,
               alignItems: "center",
               justifyContent: "center",
               backgroundColor: '#52c41a',
+              color: '#fff',
+              width: "30px",
+              height: "30px"
+            }}
+          />
+          <Button
+            size="large"
+            icon={<ProfileOutlined style={{ width: '15px' }} />}
+            onClick={() => handleSeguimientoCotizacion(record.id, record)} 
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: '#13c2c2',
               color: '#fff',
               width: "30px",
               height: "30px"
@@ -726,6 +753,14 @@ const TableCotizaciones = () => {
           </div>
         )}
       </Modal>
+      {seguimientoModalVisible && selectedQuote && (
+        <SeguimientoCotizacionModal
+          quoteId={selectedQuote.id}
+          open={seguimientoModalVisible}
+          usuario_id={usuario.usuario.id_usuario}
+          onClose={handleOnCloseSeguimientoModal}
+        />
+      )}
     </div>
   );
 };

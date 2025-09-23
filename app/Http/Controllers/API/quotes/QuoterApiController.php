@@ -192,6 +192,7 @@ class QuoterApiController extends Controller
   {
     $quote = Quote::findOrFail($id);
     $quote->lines()->delete();
+    $quote->timelines()->delete();
     $quote->delete();
 
     return response()->json(['message' => 'Quote deleted']);

@@ -62,6 +62,11 @@ class Usuarios extends Model
     return $this->hasMany(Conversaciones::class, 'usuario2Id', 'id_usuario');
   }
 
+  public function timelines()
+  {
+    return $this->hasMany(QuoteTimeline::class, 'usuario_id', 'id_usuario');
+  }
+
   /**
    * The attributes that should be hidden for serialization.
    *

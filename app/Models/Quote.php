@@ -37,6 +37,11 @@ class Quote extends Model
     return $this->hasMany(QuoteLine::class);
   }
 
+  public function timelines()
+  {
+    return $this->hasMany(QuoteTimeline::class, 'quote_id', 'id');
+  }
+
   public function paciente()
   {
     return $this->belongsTo(Pacientes::class, 'Cliente', 'codigo');

@@ -95,6 +95,7 @@ import interfuerzaCustomers from "./features/interfuerza/interfuerzaCustomers/in
 import interfuerzaWareHouses from "./features/interfuerza/interfuerzaWareHouses/interfuerzaWareHousesSlice";
 import interfuerzaProducts from "./features/interfuerza/interfuerzaProducts/interfuerzaproductsSlice";
 import quotes from "./features/quotes/quotesSlice";
+import quotesTimelines from "./features/quotesTimelines/quotesTimelinesSlice";
 import productsInterfuerza from "./features/productsInterfuerza/ProductsInterfuerza";
 import ventasSlice from "./features/ventas/VentasSlice";
 import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
@@ -230,6 +231,8 @@ const store = configureStore({
     interfuerzaProducts: interfuerzaProducts,
 
     quotes: quotes,
+
+    quotesTimelines: quotesTimelines,
 
     productsInterfuerza: productsInterfuerza,
 
