@@ -86,14 +86,14 @@ const CotizacionesHistoria = ({
       >
         <Row gutter={[4,4]}>
           <Col xs={24} sm={24}>
-            <div style={{fontSize: '10px', color: 'gray', fontStyle: 'italic', }}>
-              Ocurrido en: {formatDate(data.occurred_at) || 'no fecha'}
+            <div style={{fontSize: '10px', color: 'gray', fontStyle: 'italic', marginTop: '2px'}}>
+              Ocurrido en: {formatDate(data.occurred_at) || 'Sin fecha disponible.'}
             </div>
             
           </Col>
           <Col xs={24} sm={24}>
             <div style={{fontSize: '12px', fontWeight: 'bold'}}>
-              {data.context_title || 'no title data'}
+              {data.context_title || 'Titulo no disponible.'}
             </div>
             <div style={{fontSize: '10px'}}>
               {data.details || 'Sin detalles adicionales.'}
@@ -107,12 +107,6 @@ const CotizacionesHistoria = ({
               {data.communication_info || 'Sin informacion de comunicacion adicional.'}
             </div>
           </Col>
-
-          {/* <Col xs={24} sm={24} style={{}}>
-            <div style={{fontSize: '10px'}}>
-              Ocurrido el:
-            </div>
-          </Col> */}
 
         </Row>
       </Col>

@@ -7,14 +7,26 @@ import CotizacionesHistoria from '../../components/pages/admin/cotizaciones/coti
 import { PlusCircleOutlined, CloseOutlined  } from "@ant-design/icons"; 
 import dayjs from 'dayjs';
 import { generateLighterPalette, getColorByIdWithHash } from '../../utils/colorUtils';
+import styled from '@emotion/styled';
+import { css, Global } from '@emotion/react';
 
 const { useBreakpoint } = Grid;
+
+const spinStyles = css`
+    .custom-col-for-spin .ant-spin-nested-loading {
+      height: 100% !important;
+    }
+    
+    .custom-full-height-spin .ant-spin-container {
+      height: 100% !important;
+    }
+  `;
+
 
 const SeguimientoCotizacionModal = ({
   quoteId,
   usuario_id,
   open,
-  loading = false,
   onClose
 }) => {
 
@@ -56,7 +68,7 @@ const SeguimientoCotizacionModal = ({
   const [messageApi, contextHolder] = message.useMessage();
 
   
-  const optionsPalette = { stepAmount: 4, maxSteps: 4, strategy: 'clamp' };
+  const optionsPalette = { stepAmount: 6, maxSteps: 6, strategy: 'clamp' };
   
   const communicationChannelOptions = [
     {label: 'WhatsApp', value: 'whatsapp'},
@@ -67,8 +79,8 @@ const SeguimientoCotizacionModal = ({
   ]
 
   const modalBodyStyle = expandModalBody
-  // ? { height: '90vh', overflowY: 'auto', padding: 16 } // puedes ajustar padding si quieres
-  ? { height: '90vh'}
+  // ? { height: '75vh', overflowY: 'auto', padding: 16 } // puedes ajustar padding si quieres
+  ? { height: '75vh'}
   : {};
 
   // colores de los puntos del historial
@@ -227,19 +239,20 @@ const SeguimientoCotizacionModal = ({
         sm: '95%',
         md: '90%',
         lg: '80%',
-        xl: '80%',
-        xxl: '80%',
+        xl: '70%',
+        xxl: '60%',
       }}
       styles={{body: modalBodyStyle}}
       destroyOnHidden={true}
       // closable={false}
     >
+      <Global styles={spinStyles} />
       {contextHolder}
       {/* Contenedor principal */}
       <Row gutter={[16, 16]} style={{width: '100%', height: '100%'}}>
 
-        {/* Title container */}
-        <Col xs={24} sm={24} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+        {/* Title Header container */}
+        <Col xs={24} sm={24} style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', height: '32px'}}>
 
           <div style={{fontSize: '16px', fontWeight: 'bold', }}>
             Seguimientos de cotizacion {quoteId}
@@ -270,196 +283,210 @@ const SeguimientoCotizacionModal = ({
 
         </Col>
 
-        {/* Formulario container */}
-        <Col xs={24} sm={11} style={{width: '100%', height: '100%'}}>
-          {/* Grid manager */}
-          <Row gutter={[12, 12]}>
-            {/* Titulo del formulario */}
-            <Col xs={24} sm={24}>
-              <div style={{fontSize: '16px', fontWeight: 'bold'}}>
-                {formAction === 'create' ? 'Nuevo seguimiento' : 'Actualizar seguimiento...'}
-              </div>
-            </Col>
+        {/* Body content */}
+        <Col xs={24} sm={24} style={{height: 'calc(100% - 32px - 16px)',}}>
+          <Row style={{width: '100%', height: '100%'}}>
 
-            {/* Cuerpo del formulario */}
-            <Col xs={24} sm={24}>
-              <Spin
-                spinning={create_status === 'loading' || update_status === 'loading'}
-                tip="Cargando..."
-                size="large"
-              >
-                <Form
-                  form={form}
-                  onFinish={onFinish}
-                >
-                  <Row>
+            {/* Formulario container */}
+            <Col xs={24} sm={11} style={{height: '100%'}}>
+              {/* Grid manager */}
+              <Row gutter={[12, 12]} style={{height: '100%'}}>
+                {/* Titulo del formulario */}
+                <Col xs={24} sm={24} style={{height: '25px'}}>
+                  <div style={{fontSize: '16px', fontWeight: 'bold'}}>
+                    {formAction === 'create' ? 'Nuevo seguimiento' : 'Actualizar seguimiento...'}
+                  </div>
+                </Col>
 
-                    <Col xs={24} sm={24}>
-                      <Form.Item
-                        label='Titulo contextual'
-                        name='context_title'
-                        layout='vertical'
-                        required
-                        rules={[{ required: true, message: 'El título contextual es obligatorio' }]}
-                      >
-                        <Input/>
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} sm={24}>
-                      <Form.Item
-                        label='Detalles'
-                        name='details'
-                        layout='vertical'
-                        tooltip="Este campo es opcional"
-                      >
-                        <Input.TextArea/>
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} sm={24}>
-                      <Form.Item
-                        label='Medio de comunicación'
-                        name='communication_channel'
-                        layout='vertical'
-                        required
-                        rules={[{ required: true, message: 'Seleccione un medio de comunicación' }]}
-                      >
-                        <Select
-                          onChange={()=>{}}
-                          options={communicationChannelOptions}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} sm={24}>
-                      <Form.Item
-                        label='Información de la comunicación'
-                        name='communication_info'
-                        layout='vertical'
-                        tooltip="Este campo es opcional"
-                      >
-                        <Input/>
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} sm={24}>
-                      <Form.Item
-                        label='Ocurrido en'
-                        name='occurred_at'
-                        layout='vertical'
-                        required
-                        rules={[{ required: true, message: 'Debe seleccionar la fecha y hora' }]}
-                      >
-                        <DatePicker
-                          format="DD-MM-YYYY HH:mm:ss"
-                          showTime={true}
-                          style={{width: '100%'}}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    {/* Campos invisibles */}
-                    <Form.Item name="usuario_id" initialValue={usuario_id} hidden>
-                      <Input />
-                    </Form.Item>
-                    <Form.Item name="quote_id" initialValue={quoteId} hidden>
-                      <Input />
-                    </Form.Item>
-
-                    {/* boton para enviar */}
-                    <Col xs={24} sm={24} 
-                      style={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}}
+                {/* Cuerpo del formulario */}
+                <Col xs={24} sm={24} style={{height: 'calc(100% - 25px - 12px)'}} className='custom-col-for-spin'>
+                  <Spin
+                    spinning={create_status === 'loading' || update_status === 'loading'}
+                    tip="Cargando..."
+                    size="large"
+                    rootClassName="custom-full-height-spin"
+                    wrapperClassName='custom-full-height-spin'
+                    className='custom-full-height-spin'
+                  >
+                    <Form
+                      form={form}
+                      onFinish={onFinish}
+                      style={{height: '100%'}}
                     >
+                      <Row style={{maxHeight: '100%', overflowY: 'auto'}}>
 
-                      <Button 
-                        type="primary" 
-                        htmlType="submit"
-                        disabled={create_status === 'loading' || update_status === 'loading' || fetch_status === 'loading'}
-                        style={breakPoint.md ? {
-                          borderRadius: "8px",
-                          fontWeight: "bold",
-                          transition: "all 0.3s ease",
-                          width: "200px"
-                        } : {
-                          borderRadius: "8px",
-                          fontWeight: "bold",
-                          transition: "all 0.3s ease",
-                          width: "100%"
-                        }}
-                      >
-                        {getButtonLabel()}
-                      </Button>
+                        <Col xs={24} sm={24}>
+                          <Form.Item
+                            label='Titulo contextual'
+                            name='context_title'
+                            layout='vertical'
+                            required
+                            rules={[{ required: true, message: 'El título contextual es obligatorio' }]}
+                          >
+                            <Input/>
+                          </Form.Item>
+                        </Col>
 
-                    </Col>
-                  </Row>
-                </Form>
-              </Spin>
-            </Col>
-          </Row>
-        </Col>
+                        <Col xs={24} sm={24}>
+                          <Form.Item
+                            label='Detalles'
+                            name='details'
+                            layout='vertical'
+                            tooltip="Este campo es opcional"
+                          >
+                            <Input.TextArea/>
+                          </Form.Item>
+                        </Col>
 
-        {/* divisor */}
-        <Col xs={24} sm={1} style={{display: 'flex', flexDirection: 'row', justifyContent: 'center'}}>
-          <Divider 
-            type={breakPoint.sm ? 'vertical' : 'horizontal'} 
-            style={breakPoint.sm ? {margin: '0 0 0 0', height: '100%', borderInlineWidth: '2px',} : 
-            {margin: '0 0 0 0', width: '100%', borderInlineWidth: '2px',}}
-          />
-        </Col>
-        
+                        <Col xs={24} sm={24}>
+                          <Form.Item
+                            label='Medio de comunicación'
+                            name='communication_channel'
+                            layout='vertical'
+                            required
+                            rules={[{ required: true, message: 'Seleccione un medio de comunicación' }]}
+                          >
+                            <Select
+                              onChange={()=>{}}
+                              options={communicationChannelOptions}
+                            />
+                          </Form.Item>
+                        </Col>
 
-        {/* Seguimiento cotizacion container */}
-        <Col xs={24} sm={12} style={{width: '100%', height: '100%'}}>
-          {/* Grid manager */}
-          <Row gutter={[12, 12]} style={{width: '100%', height: '100%', display: 'inline-block'}}>
-            {/* Titulo seguimiento */}
-            <Col xs={24} sm={24} 
-              style={{ marginBottom: '12px', height: '25px'}}
-            >
-              <div style={{fontSize: '16px', fontWeight: 'bold'}}>
-                Historial de seguimientos
-              </div>
-            </Col>
+                        <Col xs={24} sm={24}>
+                          <Form.Item
+                            label='Información de la comunicación'
+                            name='communication_info'
+                            layout='vertical'
+                            tooltip="Este campo es opcional"
+                          >
+                            <Input/>
+                          </Form.Item>
+                        </Col>
 
-            {/* Cuerpo de seguimiento */}
-            <Col xs={24} sm={24} style={{width: '100%', height: '85%', overflowY: 'auto'}}>
-              <Row gutter={[12, 12]}>
-                {fetch_status === 'loading' ? (
-                  <Col xs={24} sm={24}>
-                  {/* Cargando... */}
-                    <Card style={{ width: '100%' }}>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px" }}>
-                        <Spin size="large" style={{ marginBottom: "20px" }} />
-                        <Skeleton active paragraph={{ rows: 3 }} style={{ width: "100%" }} />
-                      </div>
-                    </Card>
-                  </Col>
-                ) : quotes_timelines && quotes_timelines.length > 0 ? (
-                  <Col xs={24} sm={24}>
-                    {quotes_timelines.map((qt, idx) => (
-                      <CotizacionesHistoria
-                        key={qt.id}
-                        data={qt}
-                        color={colors[idx] || baseIntense}
-                        onClick={handleSeguimientoEditTouched}
-                      />
-                    ))}
-                    
-                  </Col>
-                ) : (
-                  <Col xs={24} sm={24} style={{display: 'flex', justifyContent: 'center'}}>
-                    {/* Sin data */}
-                    <Empty description="Sin datos" />
-                  </Col>
-                )}
+                        <Col xs={24} sm={24}>
+                          <Form.Item
+                            label='Ocurrido en'
+                            name='occurred_at'
+                            layout='vertical'
+                            required
+                            rules={[{ required: true, message: 'Debe seleccionar la fecha y hora' }]}
+                          >
+                            <DatePicker
+                              format="DD-MM-YYYY HH:mm:ss"
+                              showTime={true}
+                              style={{width: '100%'}}
+                            />
+                          </Form.Item>
+                        </Col>
+
+                        {/* Campos invisibles */}
+                        <Form.Item name="usuario_id" initialValue={usuario_id} hidden>
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="quote_id" initialValue={quoteId} hidden>
+                          <Input />
+                        </Form.Item>
+
+                        {/* boton para enviar */}
+                        <Col xs={24} sm={24} 
+                          style={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}}
+                        >
+                        
+                          <Button 
+                            type="primary" 
+                            htmlType="submit"
+                            disabled={create_status === 'loading' || update_status === 'loading' || fetch_status === 'loading'}
+                            style={breakPoint.md ? {
+                              borderRadius: "8px",
+                              fontWeight: "bold",
+                              transition: "all 0.3s ease",
+                              width: "200px"
+                            } : {
+                              borderRadius: "8px",
+                              fontWeight: "bold",
+                              transition: "all 0.3s ease",
+                              width: "100%"
+                            }}
+                          >
+                            {getButtonLabel()}
+                          </Button>
+                          
+                        </Col>
+                      </Row>
+                    </Form>
+                  </Spin>
+                </Col>
               </Row>
             </Col>
+                          
+            {/* divisor */}
+            <Col xs={24} sm={1} style={breakPoint.sm ? {display: 'flex', flexDirection: 'row', justifyContent: 'center', height: '100%'} 
+                : {display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: '15px 0 15px 0', height:'4px'}}
+            >
+              <Divider 
+                type={breakPoint.sm ? 'vertical' : 'horizontal'} 
+                style={breakPoint.sm ? {margin: '0 0 0 0', height: '100%', borderInlineWidth: '2px',} : 
+                {margin: '0 0 0 0', width: '100%', borderInlineWidth: '2px',}}
+              />
+            </Col>
+                          
+            {/* Seguimiento cotizacion container */}
+            <Col xs={24} sm={12} style={{height: '100%'}}>
+              {/* Grid manager */}
+              <Row gutter={[12, 12]} style={{width: '100%', height: '100%'}}>
+                {/* Titulo seguimiento */}
+                <Col xs={24} sm={24} 
+                  style={{ height: '25px'}}
+                >
+                  <div style={{fontSize: '16px', fontWeight: 'bold'}}>
+                    Historial de seguimientos
+                  </div>
+                </Col>
+                          
+                {/* Cuerpo de seguimiento */}
+                <Col xs={24} sm={24} style={{width: '100%', height: 'calc(100% - 25px - 12px)', overflowY: 'auto'}}>
+                  <Row gutter={[12, 12]}>
+                    {fetch_status === 'loading' ? (
+                      <Col xs={24} sm={24}>
+                      {/* Cargando... */}
+                        <Card style={{ width: '100%' }}>
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px" }}>
+                            <Spin size="large" style={{ marginBottom: "20px" }} />
+                            <Skeleton active paragraph={{ rows: 3 }} style={{ width: "100%" }} />
+                          </div>
+                        </Card>
+                      </Col>
+                    ) : quotes_timelines && quotes_timelines.length > 0 ? (
+                      <Col xs={24} sm={24}>
+                        {quotes_timelines.map((qt, idx) => (
+                          <CotizacionesHistoria
+                            key={qt.id}
+                            data={qt}
+                            color={colors[idx] || baseIntense}
+                            onClick={handleSeguimientoEditTouched}
+                          />
+                        ))}
+
+                      </Col>
+                    ) : (
+                      <Col xs={24} sm={24} style={{display: 'flex', justifyContent: 'center'}}>
+                        {/* Sin data */}
+                        <Empty description="Sin datos" />
+                      </Col>
+                    )}
+                  </Row>
+                </Col>
+              </Row>
+            </Col>
+
           </Row>
         </Col>
+
       </Row>
     </Modal>
   );
 };
 
 export default SeguimientoCotizacionModal;
+
