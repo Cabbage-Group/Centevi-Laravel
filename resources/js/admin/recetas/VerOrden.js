@@ -54,6 +54,11 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
       setIsRowVisible(false);
       setIsImageVisible(false);
       setIsAroVisible(false);
+    } else {
+      setLenteContacto(false);
+      setIsRowVisible(true);
+      setIsImageVisible(true);
+      setIsAroVisible(true);
     }
   }, [pacienteOrden]);
 

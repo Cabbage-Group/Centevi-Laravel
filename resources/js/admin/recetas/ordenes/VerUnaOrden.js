@@ -16,7 +16,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
-import { fetchOrdenDelPaciente } from '../../../redux/features/ordenes/ordenesSlice';
+import { fetchOrdenDelPaciente, clearPacienteOrden } from '../../../redux/features/ordenes/ordenesSlice';
 
 const VerUnaOrden = () => {
 
@@ -44,14 +44,29 @@ const VerUnaOrden = () => {
   useEffect(() => {
     if (status === "idle" || pacientes.length < 11) {
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
-    }
+    } 
   }, []);
 
 
+  // useEffect(() => {
+    // if (idPaciente && nroOrden) {
+      // dispatch(clearPacienteOrden());
+      // dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden }));
+    // }
+  // }, [idPaciente, nroOrden, dispatch]);
+
   useEffect(() => {
-    if (idPaciente && nroOrden) {
-      dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden }));
-    }
+    const loadData = async () => {
+      if (idPaciente && nroOrden) {
+        dispatch(clearPacienteOrden());
+        await dispatch(fetchOrdenDelPaciente({ 
+          id_paciente: idPaciente, 
+          nro_orden_id: nroOrden 
+        }));
+      }
+    };
+
+    loadData();
   }, [idPaciente, nroOrden, dispatch]);
 
 

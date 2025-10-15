@@ -51,6 +51,7 @@ import { fetchUsuarios } from "../../../redux/features/usuarios/usuariosSlice";
 import {
   fetchOrdenDelPaciente,
   updateOrden,
+  clearPacienteOrden,
 } from "../../../redux/features/ordenes/ordenesSlice";
 import { funPermisosObtenidosBoolean } from "../../../utils/ValidarPermisos";
 
@@ -118,16 +119,36 @@ const Ordenes = () => {
     }
   }, [pacienteOrden]);
 
+  // useEffect(() => {
+  //   if (idPaciente && nroOrden) {
+  //     dispatch(
+  //       fetchOrdenDelPaciente({
+  //         id_paciente: idPaciente,
+  //         nro_orden_id: nroOrden,
+  //       })
+  //     );
+  //   }
+  // }, [idPaciente, nroOrden, dispatch]);
+
   useEffect(() => {
+  const loadPacienteOrden = async () => {
     if (idPaciente && nroOrden) {
-      dispatch(
-        fetchOrdenDelPaciente({
-          id_paciente: idPaciente,
-          nro_orden_id: nroOrden,
-        })
-      );
+      dispatch(clearPacienteOrden()); 
+      try {
+        await dispatch(
+          fetchOrdenDelPaciente({
+            id_paciente: idPaciente,
+            nro_orden_id: nroOrden,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error('Error al obtener la orden del paciente:', error);
+      }
     }
-  }, [idPaciente, nroOrden, dispatch]);
+  };
+
+  loadPacienteOrden();
+}, [idPaciente, nroOrden, dispatch]);
 
   const retroceder = () => {
     navigate(-1);

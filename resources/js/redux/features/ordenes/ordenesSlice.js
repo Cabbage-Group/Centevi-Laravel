@@ -340,6 +340,10 @@ const ordenesSlice = createSlice({
     setSearchTermPruebaOrdenes: (state, action) => {
       state.search_prueba = action.payload;
     },
+    clearPacienteOrden: (state) => {
+      state.pacienteOrden = {};
+      state.statusPacienteOrden = 'idle';
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -483,6 +487,7 @@ export const {
   clearOrderId,
   setSearch,
   setSearchTermOrdenes,
-  setSearchTermPruebaOrdenes
+  setSearchTermPruebaOrdenes,
+  clearPacienteOrden
 } = ordenesSlice.actions;
 export default ordenesSlice.reducer;
