@@ -292,7 +292,12 @@ Route::get('/api/reportes-servicios-realizados', [PacientesApiController::class,
 
 Route::get('/api/reportes-servicios-proximos', [PacientesApiController::class, 'obtenerConsultasConServiciosProximos']);
 
-Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
+// Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
+Route::middleware(['audit'])
+    ->group(function () {
+        Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes'])
+            ->defaults('tablas', ['ordenes', 'nro_ordenes']);
+    });
 
 Route::post('/api/verOrdenes', [OrdenesApiController::class, 'ordenes']);
 
