@@ -65,5 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'audit.context' => \App\Http\Middleware\AuditContextMiddleware::class,
         'audit.finalize' =>\App\Http\Middleware\AuditFinalizeMiddleware::class,
+        'custom-auth' => \App\Http\Middleware\CustomAuthenticateWithToken::class, // no en uso, pero autentica bien
+        'get-user-info' => \App\Http\Middleware\GetUserInfoJWT::class,
     ];
 }

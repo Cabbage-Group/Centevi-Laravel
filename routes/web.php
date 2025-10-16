@@ -292,14 +292,11 @@ Route::get('/api/reportes-servicios-realizados', [PacientesApiController::class,
 
 Route::get('/api/reportes-servicios-proximos', [PacientesApiController::class, 'obtenerConsultasConServiciosProximos']);
 
-Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
-// Route::middleware(['audit'])
-    // ->group(function () {
-        // Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes'])
-            // ->defaults('tablas', ['ordenes', 'nro_ordenes']);
-    // });
+// Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
 
-Route::middleware(['audit.context', 'audit.finalize']) // importante llamar primero a context y luego a finalize
+// OJO:: para sacar informacion del usuario el front tiene que enviar su token JWT
+// de lo contrario los campso de usuario seran nullos
+Route::middleware(['get-user-info', 'audit.context', 'audit.finalize']) // importante llamar primero a get-user-info, luego context y finalmente a finalize
     ->group(function () {
         Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
         Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);

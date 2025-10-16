@@ -1,24 +1,32 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Usuarios;
+use Illuminate\Support\Facades\Log;
 
 class AuditContextMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */
     public function handle(Request $request, Closure $next)
     {
         // Solo auditar métodos de escritura
         if (in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+            
+            // usuario del request (establecido por CustomAuthenticateWithToken)
+            $usuario = $request->user();
+            
+            // Si no está en el request, intenta obtenerlo del token
+            if (!$usuario) {
+                $token = $request->bearerToken();
+                if ($token) {
+                    $usuario = Usuarios::where('token', $token)->first();
+                }
+            }
+            
+            // Extrae los datos del usuario
+            $usuarioId = $usuario?->id_usuario;
+            $usuarioNombre = $usuario?->nombre;
 
             // Guardamos el contexto inicial de auditoría
             app()->instance('audit.context', [
@@ -26,11 +34,17 @@ class AuditContextMiddleware
                 'method'         => $request->method(),
                 'ip'             => $request->ip(),
                 'user_agent'     => $request->userAgent(),
-                'usuario_id'     => Auth::id(),
-                'usuario_nombre' => Auth::user()?->nombre,
+                'usuario_id'     => $usuarioId,
+                'usuario_nombre' => $usuarioNombre,
                 'request_json'   => json_encode($this->filterSensitiveData($request->all())),
                 'tablas'         => [], // se llenará dinámicamente
             ]);
+            
+            // Log::info('Audit context creado', [
+                // 'usuario_id' => $usuarioId,
+                // 'usuario_nombre' => $usuarioNombre,
+                // 'endpoint' => $request->path(),
+            // ]);
         }
 
         return $next($request);

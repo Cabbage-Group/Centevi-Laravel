@@ -3,6 +3,7 @@ import axios from 'axios';
 import API from '../../../config/config.js';
 import API_LOCAL from '../../../config/configSvLocal.js';
 import { update } from 'lodash';
+import axiosInstance from '../../../api/axiosInstance.js';
 
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
@@ -75,7 +76,7 @@ export const createOrdenes = createAsyncThunk(
   'ordenes/createOrdenes',
   async (data) => {
     try {
-      const response = await axios.post(`${API}/ordenes`, data);
+      const response = await axiosInstance.post(`/ordenes`, data);
       return response.data;
     } catch (error) {
       console.error('Error creating orden:', error.response.data);
@@ -197,7 +198,7 @@ export const updateOrden = createAsyncThunk(
   async ({ id_orden, data }) => {
     try {
       console.log('data:', data)
-      const response = await axios.put(`${API}/ordenes/${id_orden}`, data);
+      const response = await axiosInstance.put(`/ordenes/${id_orden}`, data);
 
       return response.data;
     } catch (error) {
