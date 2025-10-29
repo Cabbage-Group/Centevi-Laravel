@@ -17,10 +17,10 @@ class WareHouse extends Model
         'tienda',
         'type',
         'venta_post',
-        'sucursal_id'
     ];
 
     protected $casts = [
-        'send_discount' => 'integer'
+        'send_discount' => 'integer',
+        'sucursal_id' => 'integer',
     ];
 }

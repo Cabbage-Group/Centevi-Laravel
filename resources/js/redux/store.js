@@ -100,6 +100,7 @@ import productsInterfuerza from "./features/productsInterfuerza/ProductsInterfue
 import ventasSlice from "./features/ventas/VentasSlice";
 import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
 import warehousesSlice from "./features/warehouses/warehousesSlice";
+import diagnosticosSlice from "./features/reportes/Diagnosticos/diagnosticosSlice";
 
 const store = configureStore({
   reducer: {
@@ -241,6 +242,7 @@ const store = configureStore({
     warehousesSlice: warehousesSlice,
 
     diagnosticos: DiagnosticosReducer,
+    reporteDiagnosticos: diagnosticosSlice,
   },
 });
 

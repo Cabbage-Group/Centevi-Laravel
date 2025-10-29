@@ -273,6 +273,11 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/cristales',
     'http://127.0.0.1:8000/api/materiales',
     'http://127.0.0.1:8000/api/tratamientos',
+    'http://127.0.0.1:8000/api/kpis/promedio-fases-ordenes-resumen',
+
+    'http://127.0.0.1:8000/api/reportes/reporte-diagnosticos',
+    'http://127.0.0.1:8000/api/reportes/reporte-diagnosticos/exportar',
+    'http://127.0.0.1:8000/api/exportar-pacientes'
 
   ];
 }

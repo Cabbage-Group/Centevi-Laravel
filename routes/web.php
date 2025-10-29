@@ -52,6 +52,7 @@ use App\Http\Controllers\API\servicios\ServiciosApiController;
 use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
 use App\Http\Controllers\API\quotes\QuotePdfController;
 use App\Http\Controllers\API\quotes_timelines\QuoteTimelineApiController;
+use App\Http\Controllers\API\reportes\ReporteDiagnosticosController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
@@ -61,6 +62,8 @@ use Illuminate\Support\Facades\View;
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/usuarios-doctor', [UsuariosApiController::class, 'usuariosDoctor']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
+// Route::get('/api/exportar-pacientes', [PacientesApiController::class, 'exportPacientesExcel']);
+
 Route::get('/api/pacientes/{id}', [PacientesApiController::class, 'VerPaciente']);
 
 Route::get('/api/sucursales', [SucursalesApiController::class, 'sucursales']);
@@ -171,6 +174,10 @@ Route::get('/api/mostrar-refraccion', [OptometriaGeneralApiController::class, 'm
 Route::post('/api/ObtometriaGeneral', [OptometriaGeneralApiController::class, 'CrearRefraccionGeneral']);
 Route::put('/api/ObtometriaGeneral/{id}/{id_consulta}', [OptometriaGeneralApiController::class, 'EditarRefraccionGeneral']);
 Route::delete('/api/ObtometriaGeneral/{id}', [OptometriaGeneralApiController::class, 'DeleteRefraccionGeneral']);
+
+// REPORTE DE DIAGNOSTICOS
+Route::get('/api/reportes/reporte-diagnosticos', [ReporteDiagnosticosController::class, 'obtenerReporteDiagnosticos']);
+Route::get('/api/reportes/reporte-diagnosticos/exportar', [ReporteDiagnosticosController::class, 'exportarExcelDiagnosticos']);
 
 Route::get('/api/ver-consultagenerica/{id}/{id_consulta}', [ConsultaGenericaController::class, 'VerConsultaGenerica']);
 Route::get('/api/mostrar-consultagenerica', [ConsultaGenericaController::class, 'mostrarconsultagenerica']);

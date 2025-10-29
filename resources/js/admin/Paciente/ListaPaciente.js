@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchPacientes, eliminarPaciente, fetchInterfuerza } from '../../redux/features/pacientes/pacientesSlice.js';
-import { Link } from 'react-router-dom';
-import PaginationPacientes from './PaginationPacientes.js';
-import Swal from 'sweetalert2';
-import moment from 'moment';
-import { funPermisosObtenidos } from '../../utils/ValidarPermisos.js';
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchPacientes,
+  eliminarPaciente,
+  fetchInterfuerza,
+} from "../../redux/features/pacientes/pacientesSlice.js";
+import { Link } from "react-router-dom";
+import PaginationPacientes from "./PaginationPacientes.js";
+import Swal from "sweetalert2";
+import moment from "moment";
+import { funPermisosObtenidos } from "../../utils/ValidarPermisos.js";
+import { FaFileExcel } from "react-icons/fa";
 
 const ListaPaciente = () => {
-
   const dispatch = useDispatch();
-  const { meta, pacientes, status, error, totalPages, search } = useSelector((state) => state.pacientes);
+  const { meta, pacientes, status, error, totalPages } = useSelector((state) => state.pacientes);
   const { permisos } = useSelector((state) => state.auth);
   const [currentPage, setCurrentPage] = useState(1);
-  const [localSearch, setLocalSearch] = useState(search);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const usuario = localStorage.getItem("usuario");
@@ -23,345 +26,316 @@ const ListaPaciente = () => {
       setDebouncedSearchText(searchText);
       setCurrentPage(1);
     }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
+    return () => clearTimeout(handler);
   }, [searchText]);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
+    dispatch(fetchPacientes({ page: currentPage, limit: 20, search: debouncedSearchText }));
   }, [currentPage, debouncedSearchText, dispatch]);
 
-  // const handleSearchChange = (event) => {
-  //   setSearchText(event.target.value);
-  // };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleEliminarPaciente = (id_paciente) => {
-    // Mostrar alerta de confirmación
     Swal.fire({
-      title: '¿Estás seguro?',
+      title: "¿Estás seguro?",
       text: "Esta acción no se puede deshacer",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        // Dispatch the eliminarPaciente thunk
         dispatch(eliminarPaciente(id_paciente))
-          .then(() => {
-            Swal.fire(
-              'Eliminado',
-              'El paciente ha sido eliminado.',
-              'success'
-            );
-          })
-          .catch((error) => {
-            Swal.fire(
-              'Error',
-              'Hubo un problema al eliminar el paciente.',
-              'error'
-            );
-          });
+          .then(() => Swal.fire("Eliminado", "El paciente ha sido eliminado.", "success"))
+          .catch(() => Swal.fire("Error", "Hubo un problema al eliminar el paciente.", "error"));
       }
     });
   };
 
   const handleVerificarInterfuerza = (ruc) => {
     Swal.fire({
-      title: '¿Deseas verificar este paciente en el sistema externo?',
+      title: "¿Deseas verificar este paciente en el sistema externo?",
       text: `RUC: ${ruc}`,
-      icon: 'question',
+      icon: "question",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, verificar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, verificar",
+      cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-
         Swal.fire({
-          title: 'Verificando...',
-          text: 'Por favor espera',
+          title: "Verificando...",
+          text: "Por favor espera",
           allowOutsideClick: false,
           allowEscapeKey: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
+          didOpen: () => Swal.showLoading(),
         });
-
         try {
-          const resultAction = await dispatch(fetchInterfuerza({ ruc: ruc, usuario: usuario }));
-
+          const resultAction = await dispatch(fetchInterfuerza({ ruc, usuario }));
           Swal.close();
-
-          console.log('resultAction', resultAction);
-
-          if (resultAction.type === 'pacientes/fetchInterfuerza/rejected') {
-            Swal.fire({
-              title: 'Error',
-              text: resultAction.payload.message,
-              icon: 'error'
-            });
-            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
+          if (resultAction.type === "pacientes/fetchInterfuerza/rejected") {
+            Swal.fire("Error", resultAction.payload.message, "error");
           } else {
-            const data = resultAction.payload;
-            Swal.fire({
-              title: 'Verificación exitosa',
-              text: data.message,
-              icon: 'success'
-            });
-            dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
+            Swal.fire("Verificación exitosa", resultAction.payload.message, "success");
           }
+          dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
         } catch (error) {
           Swal.close();
-          Swal.fire({
-            title: 'Error',
-            text: error.response?.data?.message || 'Hubo un problema al verificar',
-            icon: 'error'
-          });
+          Swal.fire(
+            "Error",
+            error.response?.data?.message || "Hubo un problema al verificar",
+            "error"
+          );
         }
       }
     });
   };
 
+  const handleDescargarExcel = async () => {
+    Swal.fire({
+      title: "Descargando...",
+      text: "Generando archivo Excel, por favor espera.",
+      icon: "info",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await fetch("/api/exportar-pacientes", {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al generar el archivo");
+      }
+
+      // Convertir respuesta a Blob (archivo)
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Crear enlace temporal para descarga
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        "Pacientes_" + new Date().toISOString().slice(0, 19).replace(/:/g, "-") + ".xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(url);
+
+      Swal.fire({
+        title: "Éxito",
+        text: "El archivo Excel se ha descargado correctamente.",
+        icon: "success",
+        timer: 2500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo generar el archivo Excel.",
+        icon: "error",
+      });
+      console.error(error);
+    }
+  };
+
   return (
-    <div className="admin-data-content" style={{ marginTop: '-50px' }}>
-      <div className="row layout-top-spacing">
-        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-          <div className="widget-content-area br-4">
-            <div className="widget-one">
-              <div
-                className="row layout-top-spacing"
-                id="cancel-row"
-              >
-                <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                  <div className="widget-content widget-content-area br-6">
-                    <div className="form-row mb-1">
-                      <div
-                        className="form-group col-md-12"
-                        style={{
-                          display: 'flex',
-                        }}
-                      >
-                        <a className="btn btn-success mb-4 ml-3 mt-4">
-                          <Link
-                            to={"/crear-paciente"}
-                            style={{
-                              color: 'white'
-                            }}
-                          >
-                            Agregar Paciente
-                          </Link>
-                        </a>
-                        <input
-                          className="form-control txt-buscar-cedula"
-                          name=""
-                          placeholder="Buscar por Cedula"
-                          value={searchText}
-                          onChange={(e) => setSearchText(e.target.value)}
-                          style={{
-                            marginTop: '16px',
-                            width: '50%'
-                          }}
-                          type="search"
-                        />
-                      </div>
-                    </div>
-                    <div className="table-responsive">
-                      {status === 'loading' && <p>Loading...</p>}
-                      {status === 'failed' && <p>Error: {error}</p>}
-                      {status === 'succeeded' && (
-                        <table
-                          className="table dt-table-hover tabla_pacientes"
-                          id="zero-config"
-                          style={{
-                            width: '100%'
-                          }}
-                        >
-                          <thead>
-                            <tr>
-                              <th>
-                                Nombres de Paciente
-                              </th>
-                              <th>
-                                Cedula
-                              </th>
-                              <th>
-                                Direccion
-                              </th>
-                              <th>
-                                Fecha de creacion
-                              </th>
-                              <th>
-                                Interfuerza
-                              </th>
-                              <th className="text-center dt-no-sorting">
-                                Action
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {
-                              pacientes.length <= 10
-                                ? pacientes.map((paciente) => (
-                                  <tr key={paciente.id_paciente}>
-                                    <td>{`${paciente.nombres} ${paciente.apellidos}`}</td>
-                                    <td>{paciente.nro_cedula}</td>
-                                    <td>{`${paciente.direccion}, ${paciente.lugar_nacimiento}`}</td>
-                                    <td>
-                                      {
-                                        moment(paciente?.fecha_creacion).format('YYYY-MM-DD')
-                                      }
-                                    </td>
-                                    <td
-                                      style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                                      onClick={() => handleVerificarInterfuerza(paciente.nro_cedula)}
-                                    >
-                                      {
-                                        paciente.interfuerza === null
-                                          ? 'Sin verificar'
-                                          : paciente.interfuerza
-                                            ? 'Sí'
-                                            : 'No'
-                                      }
-                                    </td>
-
-                                    <td>
-                                      <div className="btn-group">
-
-                                        <Link to={`/historia-paciente/${paciente.id_paciente}`}>
-                                          <button
-                                            className="btn btn-primary btnVerHistoria"
-                                            data-target="hitoriapaciente"
-                                            data-toggle="modal"
-
-                                          >
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-
-                                          </button>
-                                        </Link>
-                                        <Link to={`/editar-paciente/${paciente.id_paciente}`}>
-                                          <button
-                                            className="btn btn-warning btnEditarPaciente"
-                                            data-target="#modalEditarUsuario"
-                                            data-toggle="modal"
-                                            id_paciente="1"
-                                          >
-
-                                            <svg
-                                              className="h-6 w-6"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              viewBox="0 0 24 24"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <path
-                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                              />
-                                            </svg>
-
-                                          </button>
-                                        </Link>
-
-                                        {
-                                          funPermisosObtenidos(
-                                            permisos,
-                                            "pacientes.eliminarpaciente",
-                                            <button
-                                              borrar_paciente="1"
-                                              className="btn btn-danger btnEliminarPaciente"
-                                              onClick={() => handleEliminarPaciente(paciente.id_paciente)}
-                                            >
-                                              <svg
-                                                className="h-6 w-6"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                              >
-                                                <path
-                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  strokeWidth="2"
-                                                />
-                                              </svg>
-                                            </button>
-                                          )
-                                        }
-
-                                      </div>
-                                    </td>
-                                  </tr>
-                                ))
-                                : null
-                            }
-                          </tbody>
-                          <tfoot>
-                            <tr>
-                              <th>
-                                Nombres de Paciente
-                              </th>
-                              <th>
-                                Cedula
-                              </th>
-                              <th>
-                                Direccion
-                              </th>
-                              <th>
-                                Fecha de creacion
-                              </th>
-                              <th>
-                                Interfuerza
-                              </th>
-                              <th className="text-center dt-no-sorting">
-                                Action
-                              </th>
-                            </tr>
-                          </tfoot>
-                        </table>
-                      )}
-                    </div>
-
-                    <PaginationPacientes
-                      meta={meta}
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <div style={styles.header}>
+          <h4 style={styles.title}>Lista de Pacientes</h4>
+          <div style={styles.searchSection}>
+            <input
+              style={styles.searchInput}
+              type="search"
+              placeholder="Buscar por cédula o nombre..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            {/* <button style={styles.excelButton} onClick={handleDescargarExcel}>
+              <FaFileExcel size={16} style={{ marginRight: 6 }} />
+              Descargar Excel
+            </button> */}
           </div>
         </div>
+
+        <div style={styles.tableContainer}>
+          {status === "loading" && <p>Cargando...</p>}
+          {status === "failed" && <p>Error: {error}</p>}
+          {status === "succeeded" && (
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Nombres</th>
+                  <th style={styles.th}>Cédula</th>
+                  <th style={styles.th}>Dirección</th>
+                  <th style={styles.th}>Fecha</th>
+                  {/* <th style={styles.th}>N° Bl Baja Vision</th>
+                  <th style={styles.th}>N° Bl Ortop. Adultos</th>
+                  <th style={styles.th}>N° Bl Ortop. Neonatos</th>
+                  <th style={styles.th}>N° Bl Total</th> */}
+                  <th style={styles.th}>Interfuerza</th>
+                  <th style={styles.th}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pacientes.map((p) => (
+                  <tr key={p.id_paciente} style={styles.tr}>
+                    <td style={styles.td}>{`${p.nombres} ${p.apellidos}`}</td>
+                    <td style={styles.td}>{p.nro_cedula}</td>
+                    <td style={styles.td}>{p.direccion}</td>
+                    <td style={styles.td}>{moment(p?.fecha_creacion).format("YYYY-MM-DD")}</td>
+                    {/* <td style={styles.td}>{p.N_Bloques_Baja_Vision}</td>
+                    <td style={styles.td}>{p.N_Bloques_Ortoptica_Adultos}</td>
+                    <td style={styles.td}>{p.N_Bloques_Ortoptica_Neonatos}</td>
+                    <td style={styles.td}>{p.N_Bloques_Total}</td> */}
+                    <td
+                      style={{
+                        ...styles.td,
+                        color: "blue",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                      onClick={() => handleVerificarInterfuerza(p.nro_cedula)}
+                    >
+                      {p.interfuerza === null ? "Sin verificar" : p.interfuerza ? "Sí" : "No"}
+                    </td>
+                    <td style={styles.actions}>
+                      <Link to={`/historia-paciente/${p.id_paciente}`}>
+                        <button style={styles.iconBtn}>📖</button>
+                      </Link>
+                      <Link to={`/editar-paciente/${p.id_paciente}`}>
+                        <button style={styles.iconBtn}>✏️</button>
+                      </Link>
+                      {funPermisosObtenidos(
+                        permisos,
+                        "pacientes.eliminarpaciente",
+                        <button
+                          style={{ ...styles.iconBtn, background: "#e74c3c" }}
+                          onClick={() => handleEliminarPaciente(p.id_paciente)}
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <PaginationPacientes
+          meta={meta}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ListaPaciente
+export default ListaPaciente;
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+  },
+  card: {
+    background: "#fff",
+    borderRadius: "12px",
+    boxShadow: "0 3px 12px rgba(0,0,0,0.1)",
+    padding: "20px 30px",
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+    flexWrap: "wrap",
+    backgroundColor: "#eff5ff",
+    borderRadius: "8px",
+    padding: "12px 16px",
+  },
+  title: {
+    margin: 0,
+    color: "#1f2937",
+    fontWeight: "600",
+  },
+  searchSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "wrap",
+  },
+  searchInput: {
+    padding: "6px 12px",
+    fontSize: "14px",
+    border: "1px solid #ccc",
+    borderRadius: "6px",
+    width: "250px",
+    outline: "none",
+  },
+  excelButton: {
+    background: "#2ecc71",
+    border: "none",
+    color: "white",
+    fontSize: "13px",
+    borderRadius: "6px",
+    padding: "7px 14px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+  },
+  tableContainer: {
+    overflowX: "auto",
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: "13px",
+    color: "#000",
+  },
+  th: {
+    textAlign: "left",
+    padding: "8px 12px",
+    backgroundColor: "#eff5ff",
+    color: "#000",
+    fontWeight: "600",
+    whiteSpace: "nowrap",
+  },
+  tr: {
+    backgroundColor: "#fff",
+    borderBottom: "1px solid #eee",
+    transition: "background 0.2s ease",
+  },
+  td: {
+    padding: "6px 10px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: "160px",
+  },
+  actions: {
+    display: "flex",
+    gap: "5px",
+  },
+  iconBtn: {
+    border: "none",
+    background: "#3498db",
+    color: "#fff",
+    padding: "4px 6px",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontSize: "12px",
+  },
+};

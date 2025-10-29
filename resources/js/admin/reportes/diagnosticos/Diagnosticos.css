@@ -1,0 +1,237 @@
+/* Card */
+.report-card {
+
+    margin: 24px auto;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #ffffff, #f8f9ff);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    overflow-x: auto;
+}
+
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+/* Header */
+.report-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(14, 21, 48, 0.06);
+}
+
+.report-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+.report-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* Table */
+.report-body {
+    padding: 12px 24px;
+    overflow-x: auto;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.report-table th,
+.report-table td {
+    text-align: left;
+    padding: 6px 12px;
+    white-space: nowrap;
+    /* filas compactas */
+    border-bottom: 1px solid #e5e7eb;
+    color: #1f2937;
+}
+
+.report-table th {
+    font-weight: 600;
+    font-size: 12px;
+    color: #4b5563;
+    background-color: #f3f4f6;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Row hover */
+.report-row:hover {
+    background: rgba(99, 102, 241, 0.08);
+    transition: background 0.25s ease;
+}
+
+/* Icons */
+.icon-small {
+    margin-right: 4px;
+    vertical-align: middle;
+    color: #6366f1;
+}
+
+/* Scroll bar optional */
+.report-body::-webkit-scrollbar {
+    height: 6px;
+}
+
+.report-body::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 3px;
+}
+
+.report-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.export-btn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    background: #16a34a;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.export-btn:hover {
+    background: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.report-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.report-icon {
+  font-size: 32px;
+  color: white;
+  margin-right: 10px;
+}
+
+.report-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.fecha-filtro {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.ant-picker {
+  width: 250px;
+}
+
+.report-table th {
+  background: #4a90e2;
+  color: white;
+  text-align: center;
+}
+
+.report-table td {
+  text-align: center;
+}
+
+.ant-pagination-item-active {
+  background-color: #4a90e2 !important;
+  border-color: #4a90e2 !important;
+}
+
+.ant-pagination-item a {
+  color: #333 !important;
+}
+
+
+/* TABLA */
+.report-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.report-icon {
+    font-size: 32px;
+    color: white;
+    margin-right: 10px;
+}
+
+.report-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+
+.fecha-filtro {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.ant-picker {
+    width: 250px;
+}
+
+.report-table th {
+    background: #4a90e2;
+    color: white;
+    text-align: center;
+}
+
+.report-table td {
+    text-align: center;
+}
+
+.ant-pagination-item-active {
+    background-color: #4a90e2 !important;
+    border-color: #4a90e2 !important;
+}
+
+.ant-pagination-item a {
+    color: #333 !important;
+}

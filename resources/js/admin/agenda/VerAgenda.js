@@ -5,49 +5,69 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import {
-  Modal, Input, DatePicker, Radio, Button,
-  Space, Popconfirm, Select, Row, Col,
-  List, Form, Spin, AutoComplete,
+  Modal,
+  Input,
+  DatePicker,
+  Radio,
+  Button,
+  Space,
+  Popconfirm,
+  Select,
+  Row,
+  Col,
+  List,
+  Form,
+  Spin,
+  AutoComplete,
   Calendar,
   Checkbox,
   Tooltip,
-  Grid
+  Grid,
 } from "antd";
 import {
-  LeftOutlined, RightOutlined, PlusOutlined,
-  CalendarOutlined, DeleteOutlined, CloseCircleTwoTone,
-  EyeOutlined, PhoneOutlined, EditOutlined, DownloadOutlined
+  LeftOutlined,
+  RightOutlined,
+  PlusOutlined,
+  CalendarOutlined,
+  DeleteOutlined,
+  CloseCircleTwoTone,
+  EyeOutlined,
+  PhoneOutlined,
+  EditOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 import BotonesFiltroAgenda from "./components/BotonesFiltroAgenda";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import {
   fetchServicios,
-  fetchServiciosProximosAgenda
+  fetchServiciosProximosAgenda,
 } from "../../redux/features/servicios/serviciosSlice";
 import {
-  addOrUpdateEvent, deleteCita,
-  fetchAgendarCitas, fetchCitasAgenda,
+  addOrUpdateEvent,
+  deleteCita,
+  fetchAgendarCitas,
+  fetchCitasAgenda,
   fetchConfirmarCita,
-  setCurrentViewAgenda, updateCita
+  setCurrentViewAgenda,
+  updateCita,
 } from "../../redux/features/citas/CitasAgendaSlice";
 import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import { fetchPacientes } from "../../redux/features/pacientes/pacientesSlice";
 import { fetchUsuarios } from "../../redux/features/usuarios/usuariosSlice";
 import axios from "axios";
 import getIp from "../../redux/features/utils/getIp";
 import {
   crearPacientes,
-  verificarCedula
+  verificarCedula,
 } from "../../redux/features/pacientes/crearPacientesSlice";
-import debounce from 'lodash/debounce';
+import debounce from "lodash/debounce";
 import { Link } from "react-router-dom";
 import TimeLine from "./components/TimeLine";
 import * as XLSX from "xlsx";
 import ValidarPermisos from "../../utils/ValidarPermisos";
-
 
 dayjs.locale("es");
 const { useBreakpoint } = Grid;
@@ -55,11 +75,11 @@ const { useBreakpoint } = Grid;
 const VerAgenda = () => {
   const screens = useBreakpoint();
   const dispatch = useDispatch();
-  const [form] = Form.useForm()
-  const {
-    servicios, serviciosProximos, serviciosProximos_options
-  } = useSelector((state) => state.servicios);
-  const [IP, setIp] = useState('');
+  const [form] = Form.useForm();
+  const { servicios, serviciosProximos, serviciosProximos_options } = useSelector(
+    (state) => state.servicios
+  );
+  const [IP, setIp] = useState("");
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
 
   const [selectedIndex, setSelectedIndex] = useState([0]);
@@ -70,7 +90,7 @@ const VerAgenda = () => {
   const [doctor, setDoctor] = useState("");
   const [sucursal, setSucursal] = useState("");
   const [direccion_sucursal, setDireccion_sucursal] = useState("");
-  const [celular, setCelular] = useState()
+  const [celular, setCelular] = useState();
   const [eventDescription, setEventDescription] = useState("");
   const [eventDates, setEventDates] = useState(dayjs());
 
@@ -81,7 +101,7 @@ const VerAgenda = () => {
   const [sucursalId, setSucursalId] = useState();
   // const [pacienteId, setPacienteId] = useState();
   const [eventPaciente, setEventPaciente] = useState(null);
-  const [consultaId, setConsultaId] = useState()
+  const [consultaId, setConsultaId] = useState();
   const [currentView, setCurrentView] = useState("timeGridDay");
   const [currentEventId, setCurrentEventId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -110,7 +130,7 @@ Recomendable confirmar con 24 horas de anticipación porque se mantiene agendas 
 Dirección fisica: {direccion}
 
 *Método de pago*
- 
+
 Yappy, directorio de empresas en BGeneral como Centevi Panamá
 Efectivo
 Tarjeta (Clave,Visa o Mastercard)
@@ -122,7 +142,9 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const { citasAgenda } = useSelector((state) => state.citasAgenda);
 
-  const { sucursales_with_colors, sucursales_option_selects } = useSelector((state) => state.sucursales);
+  const { sucursales_with_colors, sucursales_option_selects } = useSelector(
+    (state) => state.sucursales
+  );
 
   const { pacientes_options_agenda } = useSelector((state) => state.pacientes);
 
@@ -138,61 +160,63 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  const [pacienteInput, setPacienteInput] = useState('');
+  const [pacienteInput, setPacienteInput] = useState("");
 
-  const [pacienteId, setPacienteId] = useState('');
+  const [pacienteId, setPacienteId] = useState("");
 
-  const [createPaciente, setCreatePaciente] = useState(null)
+  const [createPaciente, setCreatePaciente] = useState(null);
 
-  const [createCedula, setCreateCedula] = useState(null)
+  const [createCedula, setCreateCedula] = useState(null);
 
-  const [apellidos, setApellidos] = useState('')
+  const [apellidos, setApellidos] = useState("");
 
-  const [esProximaCita, setEsProximaCita] = useState(null)
+  const [esProximaCita, setEsProximaCita] = useState(null);
 
   const [openCalendar, setOpenCalendar] = useState(false);
 
-  const [enableTimeEndDateForm, setEnableTimeEndDateForm] = useState(false)
+  const [enableTimeEndDateForm, setEnableTimeEndDateForm] = useState(false);
 
-  const [rangeTimeEndDateSelected, setRangeTimeEndDateSelected] = useState(60)
+  const [rangeTimeEndDateSelected, setRangeTimeEndDateSelected] = useState(60);
 
-
-
-  const debouncedSetCedula = useMemo(() =>
-    debounce((val) => {
-      // setPacienteId(null);
-      setCreateCedula(val);
-    }, 100), []
+  const debouncedSetCedula = useMemo(
+    () =>
+      debounce((val) => {
+        // setPacienteId(null);
+        setCreateCedula(val);
+      }, 100),
+    []
   );
 
-  const debouncedSetNombre = useMemo(() =>
-    debounce((val) => {
-      const cedula = form.getFieldValue("nroCedula");
-      setCreateCedula(cedula);
-    }, 100), []
+  const debouncedSetNombre = useMemo(
+    () =>
+      debounce((val) => {
+        const cedula = form.getFieldValue("nroCedula");
+        setCreateCedula(cedula);
+      }, 100),
+    []
   );
 
-
-  const debouncedSetApellidos = useMemo(() =>
-    debounce((val) => {
-      const cedula = form.getFieldValue("nroCedula");
-      setCreateCedula(cedula);
-    }, 100), []
+  const debouncedSetApellidos = useMemo(
+    () =>
+      debounce((val) => {
+        const cedula = form.getFieldValue("nroCedula");
+        setCreateCedula(cedula);
+      }, 100),
+    []
   );
 
-  const debouncedSetCelular = useMemo(() =>
-    debounce((val) => {
-      const cedula = form.getFieldValue("nroCedula");
-      setCreateCedula(cedula);
-    }, 300), []
+  const debouncedSetCelular = useMemo(
+    () =>
+      debounce((val) => {
+        const cedula = form.getFieldValue("nroCedula");
+        setCreateCedula(cedula);
+      }, 300),
+    []
   );
-
-
-
 
   useEffect(() => {
-    dispatch(fetchSucursales({}))
-  }, [])
+    dispatch(fetchSucursales({}));
+  }, []);
 
   useEffect(() => {
     setProximosServicios(serviciosProximos_options);
@@ -203,25 +227,20 @@ Tarjeta (Clave,Visa o Mastercard)
   // }, [form]);
 
   useEffect(() => {
-    dispatch(fetchUsuarios({}))
-  }, [])
+    dispatch(fetchUsuarios({}));
+  }, []);
 
   useEffect(() => {
     if (sucursales_option_selects && sucursales_option_selects.length > 0) {
       sucursales_option_selects.map((sucursal) => {
-
-
         // Dorado : 186.74.2.218
         // San Judas Tadeo: 190.219.45.142
         // Paitilla:  45.229.196.9
 
-        if (localStorage.getItem('ip') == '38.255.105.33') {
+        if (localStorage.getItem("ip") == "38.255.105.33") {
           if (sucursal.value == 7) {
-
-
             // console.log("sucursal: -----");
             // console.log(sucursal);
-
             // setSucursal(sucursal.label)
             // setSucursalId(sucursal.value);
             // form.setFieldsValue({
@@ -231,9 +250,9 @@ Tarjeta (Clave,Visa o Mastercard)
             // });
           }
         }
-      })
+      });
     }
-  }, [sucursales_option_selects])
+  }, [sucursales_option_selects]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -245,7 +264,7 @@ Tarjeta (Clave,Visa o Mastercard)
           setDataLoaded(true);
         })
         .catch((error) => {
-          console.error('Error al cargar los pacientes:', error);
+          console.error("Error al cargar los pacientes:", error);
         })
         .finally(() => {
           setIsLoading(false);
@@ -261,12 +280,11 @@ Tarjeta (Clave,Visa o Mastercard)
           setDataLoaded(true);
         })
         .catch((error) => {
-          console.error('Error al cargar las cedulas:', error);
+          console.error("Error al cargar las cedulas:", error);
         })
         .finally(() => {
           setIsLoading(false);
         });
-
     }
   };
 
@@ -285,31 +303,29 @@ Tarjeta (Clave,Visa o Mastercard)
     });
   };
 
-
   const handlePacienteChange = (value) => {
     const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
 
     if (selected) {
       setSelectedPaciente(selected.value);
-      setPacienteId(selected.value)
-      setApellidos(selected.apellidos)
-      setApellidos(selected.celular)
+      setPacienteId(selected.value);
+      setApellidos(selected.apellidos);
+      setApellidos(selected.celular);
 
       form.setFieldsValue({ nroCedula: selected.nro_cedula });
       form.setFieldsValue({ apellidos: selected.apellidos });
       form.setFieldsValue({ celular: selected.celular });
     }
-
   };
 
   const handleCedulaChange = (value) => {
     const paciente = pacientes_options_agenda.find((paciente) => paciente.value === value);
 
     if (paciente) {
-      setSelectedPaciente(paciente.value)
-      setPacienteId(paciente.value)
-      setApellidos(paciente.apellidos)
-      setCelular(paciente.celular)
+      setSelectedPaciente(paciente.value);
+      setPacienteId(paciente.value);
+      setApellidos(paciente.apellidos);
+      setCelular(paciente.celular);
       form.setFieldsValue({ paciente: paciente.nombres });
       form.setFieldsValue({ apellidos: paciente.apellidos });
       form.setFieldsValue({ celular: paciente.celular });
@@ -321,9 +337,9 @@ Tarjeta (Clave,Visa o Mastercard)
 
     if (selected) {
       setSelectedPaciente(selected.value);
-      setPacienteId(selected.value)
-      setApellidos(selected.apellidos)
-      setCelular(selected.celular)
+      setPacienteId(selected.value);
+      setApellidos(selected.apellidos);
+      setCelular(selected.celular);
       form.setFieldsValue({ nroCedula: selected.nro_cedula });
       form.setFieldsValue({ paciente: selected.nombres });
       form.setFieldsValue({ apellidos: selected.apellidos });
@@ -335,9 +351,9 @@ Tarjeta (Clave,Visa o Mastercard)
     const selected = pacientes_options_agenda.find((paciente) => paciente.value === value);
     if (selected) {
       setSelectedPaciente(selected.value);
-      setPacienteId(selected.value)
-      setApellidos(selected.apellidos)
-      setCelular(selected.celular)
+      setPacienteId(selected.value);
+      setApellidos(selected.apellidos);
+      setCelular(selected.celular);
       form.setFieldsValue({ nroCedula: selected.nro_cedula });
       form.setFieldsValue({ paciente: selected.nombres });
       form.setFieldsValue({ apellidos: selected.apellidos });
@@ -345,9 +361,7 @@ Tarjeta (Clave,Visa o Mastercard)
     }
   };
 
-
   // INICIO DESCARGA DEL EXCEL
-
 
   const downloadExcel = () => {
     try {
@@ -377,10 +391,7 @@ Tarjeta (Clave,Visa o Mastercard)
 
       const citasDelMes = citasAgenda.filter((cita) => {
         const citaDate = new Date(cita.start);
-        return (
-          citaDate.getMonth() + 1 === currentMonth &&
-          citaDate.getFullYear() === currentYear
-        );
+        return citaDate.getMonth() + 1 === currentMonth && citaDate.getFullYear() === currentYear;
       });
 
       if (citasDelMes.length === 0) {
@@ -394,7 +405,8 @@ Tarjeta (Clave,Visa o Mastercard)
 
       // Revisar todas las propiedades que podrían contener servicios
       citasDelMes.forEach((cita, index) => {
-        if (index < 3) { // Solo las primeras 3 para no llenar la consola
+        if (index < 3) {
+          // Solo las primeras 3 para no llenar la consola
           console.log(`Cita ${index + 1}:`, {
             id: cita.id,
             extendedProps: cita.extendedProps,
@@ -411,15 +423,10 @@ Tarjeta (Clave,Visa o Mastercard)
 
       const excelData = citasDelMes.map((cita) => {
         const fechaInicio = new Date(cita.start);
-        const fechaFin = cita.fecha_hora_fin
-          ? new Date(cita.fecha_hora_fin)
-          : null;
-        const nombres =
-          cita.paciente || cita.title?.split(" - ")[0] || "";
+        const fechaFin = cita.fecha_hora_fin ? new Date(cita.fecha_hora_fin) : null;
+        const nombres = cita.paciente || cita.title?.split(" - ")[0] || "";
         const apellidos = cita.apellidos || "";
-        const nombreCompleto = apellidos
-          ? `${nombres} ${apellidos}`
-          : nombres;
+        const nombreCompleto = apellidos ? `${nombres} ${apellidos}` : nombres;
 
         // FUNCIÓN PARA PROCESAR SERVICIOS
         const obtenerServicios = (cita) => {
@@ -431,38 +438,39 @@ Tarjeta (Clave,Visa o Mastercard)
             cita.extendedProps?.servicios_realizados,
             cita.extendedProps?.servicios,
             cita.servicios,
-            cita.proximosServicios
+            cita.proximosServicios,
           ];
 
           for (let servicioData of posiblesServicios) {
             if (servicioData) {
               // Si es un array de objetos
               if (Array.isArray(servicioData)) {
-                servicios = servicioData.map(servicio => {
-                  if (typeof servicio === 'object') {
-                    return `${servicio.servicio_codigo || servicio.codigo || ''} | ${servicio.servicio_nombre || servicio.nombre || servicio.servicio || ''}`;
+                servicios = servicioData.map((servicio) => {
+                  if (typeof servicio === "object") {
+                    return `${servicio.servicio_codigo || servicio.codigo || ""} | ${
+                      servicio.servicio_nombre || servicio.nombre || servicio.servicio || ""
+                    }`;
                   }
                   return servicio.toString();
                 });
                 break;
               }
               // Si es una cadena
-              else if (typeof servicioData === 'string' && servicioData.trim() !== '') {
+              else if (typeof servicioData === "string" && servicioData.trim() !== "") {
                 servicios = [servicioData];
                 break;
               }
             }
           }
 
-          return servicios.join(', ') || 'Sin servicios especificados';
+          return servicios.join(", ") || "Sin servicios especificados";
         };
 
         const serviciosTexto = obtenerServicios(cita);
 
         return {
           Tipo: cita.extendedProps?.tipoAgenda || cita.tipo || "",
-          Cédula:
-            cita.extendedProps?.nroCedula || cita.nro_cedula || "",
+          Cédula: cita.extendedProps?.nroCedula || cita.nro_cedula || "",
           "Nombre Paciente": nombreCompleto,
           Sucursal: cita.sucursal || "",
           Doctor: cita.doctor || "",
@@ -476,10 +484,10 @@ Tarjeta (Clave,Visa o Mastercard)
           }),
           "Hora Fin": fechaFin
             ? fechaFin.toLocaleTimeString("es-ES", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })
             : "",
           Comentarios: cita.comentarios || "",
           "Agendado Por": cita.agendado_por || "",
@@ -495,11 +503,7 @@ Tarjeta (Clave,Visa o Mastercard)
       const workbook = XLSX.utils.book_new();
 
       // Agregar la hoja al libro
-      XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        `Agenda ${monthName} ${currentYear}`
-      );
+      XLSX.utils.book_append_sheet(workbook, worksheet, `Agenda ${monthName} ${currentYear}`);
 
       // Ajustar el ancho de las columnas
       const columnWidths = [
@@ -591,32 +595,30 @@ Tarjeta (Clave,Visa o Mastercard)
     let citas_id_null = true;
 
     if (selectedIndex.length === 2 && selectedIndex.includes(0) && selectedIndex.includes(1)) {
-      tipo = ['consulta', 'terapia'];
+      tipo = ["consulta", "terapia"];
       citas_id_null = true;
       ex_proxima_cita = [false];
-    }
-    else if (
+    } else if (
       selectedIndex.length === 3 &&
       selectedIndex.includes(0) &&
       selectedIndex.includes(1) &&
       selectedIndex.includes(2)
     ) {
-      tipo = ['consulta', 'terapia', 'proxima_cita'];
+      tipo = ["consulta", "terapia", "proxima_cita"];
       citas_id_null = true;
       ex_proxima_cita = [true, false];
-    }
-    else {
+    } else {
       if (selectedIndex.includes(0)) {
-        tipo.push('consulta');
+        tipo.push("consulta");
         citas_id_null = true;
         ex_proxima_cita.push(false);
       }
       if (selectedIndex.includes(1)) {
-        tipo.push('terapia');
+        tipo.push("terapia");
         ex_proxima_cita.push(false);
       }
       if (selectedIndex.includes(2)) {
-        tipo.push('proxima_cita');
+        tipo.push("proxima_cita");
         citas_id_null = true;
         ex_proxima_cita.push(true);
       }
@@ -628,11 +630,16 @@ Tarjeta (Clave,Visa o Mastercard)
       sucursales: selectedSucursales,
       tipo,
       ex_proxima_cita,
-      citas_id_null
+      citas_id_null,
     });
   }, [
-    currentView, currentDateAgenda, selectedSucursales,
-    currentEndDateAgenda, selectedIndex, actualizarCitas, dispatch
+    currentView,
+    currentDateAgenda,
+    selectedSucursales,
+    currentEndDateAgenda,
+    selectedIndex,
+    actualizarCitas,
+    dispatch,
   ]);
 
   const obtenerCitas = async (data) => {
@@ -640,8 +647,7 @@ Tarjeta (Clave,Visa o Mastercard)
 
     // changeView("timeGridDay");
     changeView(currentView);
-  }
-
+  };
 
   const handleDateChange = (dateInfo) => {
     const { view } = dateInfo;
@@ -673,69 +679,70 @@ Tarjeta (Clave,Visa o Mastercard)
   const generateWhatsAppLink = () => {
     const fecha = new Date(dateEvent);
 
-    const opcionesFecha = { weekday: "long", day: "numeric", month: "long", year: "numeric", locale: "es-ES" };
+    const opcionesFecha = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      locale: "es-ES",
+    };
     const dia = fecha.toLocaleDateString("es-ES", opcionesFecha);
 
     const opcionesHora = { hour: "2-digit", minute: "2-digit", hour12: true };
     const hora = fecha.toLocaleTimeString("es-ES", opcionesHora);
 
-    const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
+    const telefonoFormateado = `${celular.replace(/[^\d]/g, "")}`;
     let mensajePersonalizado = mensaje
-      .replace('{dia}', dia)
-      .replace('{hora}', hora)
-      .replace('{nombre}', eventPaciente)
-      .replace('{sucursal}', sucursal)
-      .replace('{direccion}', direccion_sucursal);
+      .replace("{dia}", dia)
+      .replace("{hora}", hora)
+      .replace("{nombre}", eventPaciente)
+      .replace("{sucursal}", sucursal)
+      .replace("{direccion}", direccion_sucursal);
 
     const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
-
 
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
 
   const handleContactarPaciente = async () => {
-
     try {
-      window.open(generateWhatsAppLink(), '_blank');
+      window.open(generateWhatsAppLink(), "_blank");
     } catch (error) {
-      console.error('Error al crear contacto:', error);
+      console.error("Error al crear contacto:", error);
     }
   };
 
   const seleccionarSucursalIP = () => {
-
-    let sucursalSeleccionado = null
+    let sucursalSeleccionado = null;
 
     if (sucursales_option_selects && sucursales_option_selects.length > 0) {
       sucursales_option_selects.map((sucursal) => {
-
-
         // Dorado : 186.74.2.218
         // San Judas Tadeo: 190.219.45.142
         // Paitilla:  45.229.196.9
 
-        if (localStorage.getItem('ip') == '186.74.2.218') {
+        if (localStorage.getItem("ip") == "186.74.2.218") {
           if (sucursal.value == 7) {
-            sucursalSeleccionado = sucursal
+            sucursalSeleccionado = sucursal;
           }
-        } else if (localStorage.getItem('ip') == '190.219.45.142') {
+        } else if (localStorage.getItem("ip") == "190.219.45.142") {
           if (sucursal.value == 3) {
-            sucursalSeleccionado = sucursal
+            sucursalSeleccionado = sucursal;
           }
-        } else if (localStorage.getItem('ip') == '45.229.196.9') {
+        } else if (localStorage.getItem("ip") == "45.229.196.9") {
           if (sucursal.value == 4) {
-            sucursalSeleccionado = sucursal
+            sucursalSeleccionado = sucursal;
           }
-        } else if (localStorage.getItem('ip') == '38.255.105.33') {
+        } else if (localStorage.getItem("ip") == "38.255.105.33") {
           if (sucursal.value == 4) {
-            sucursalSeleccionado = sucursal
+            sucursalSeleccionado = sucursal;
           }
         }
-      })
+      });
     }
 
     return sucursalSeleccionado;
-  }
+  };
 
   const handleDateClick = (info) => {
     setIsModalOpen(true);
@@ -750,10 +757,10 @@ Tarjeta (Clave,Visa o Mastercard)
     setEventDates([dayjs(), dayjs().add(1, "day")]);
     setEventBadge("Trabajo");
     setAgendadoPor(localStorage.getItem("usuario"));
-    setProximosServicios([])
-    setConsultaId(null)
-    setTableName(null)
-    setConsultaId(null)
+    setProximosServicios([]);
+    setConsultaId(null);
+    setTableName(null);
+    setConsultaId(null);
 
     form.resetFields();
     form.setFieldsValue({
@@ -763,50 +770,42 @@ Tarjeta (Clave,Visa o Mastercard)
       comentarios: "",
       confirmado: "SIN STATUS",
       fechaAgenda: dayjs(info.date),
-      fechaAgendaFin: dayjs(info.date).add(1, 'hour'),
+      fechaAgendaFin: dayjs(info.date).add(1, "hour"),
       tipoAgenda: "",
       agendado_por: localStorage.getItem("usuario"),
-      proximosServicios: []
+      proximosServicios: [],
     });
 
-
-
     // La IP tiene una sucursal
-    const sucursalSeleccionado = seleccionarSucursalIP()
+    const sucursalSeleccionado = seleccionarSucursalIP();
 
     if (sucursalSeleccionado) {
-
       setSucursalId(sucursalSeleccionado.value);
-      setSucursal(sucursalSeleccionado.label)
-      setSelectedSucursal(sucursalSeleccionado.value)
-      setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps)
+      setSucursal(sucursalSeleccionado.label);
+      setSelectedSucursal(sucursalSeleccionado.value);
+      setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps);
 
       form.setFieldsValue({
         sucursal: {
           value: sucursalSeleccionado.value,
-          label: sucursalSeleccionado.label
-        }
-      })
-
+          label: sucursalSeleccionado.label,
+        },
+      });
     } else {
       form.setFieldsValue({
         sucursal: "",
-      })
+      });
     }
 
     // FIN La IP tiene una sucursal
-
-
   };
 
   const handleEventClick = (info) => {
     const eventId = Number(info.event.id);
-    let clickedEvent = citasAgenda.find(
-      (event) => Number(event.id) === eventId
-    );
+    let clickedEvent = citasAgenda.find((event) => Number(event.id) === eventId);
 
     if (!clickedEvent) {
-      citasAgenda.forEach(event => {
+      citasAgenda.forEach((event) => {
         if (event.extendedProps?.hiddenEvents) {
           const foundInHidden = event.extendedProps.hiddenEvents.find(
             (hiddenEvent) => Number(hiddenEvent.id) === eventId
@@ -823,9 +822,9 @@ Tarjeta (Clave,Visa o Mastercard)
       const fechaInicio = dayjs(clickedEvent.start);
       const fechaFin = clickedEvent.fecha_hora_fin
         ? dayjs(clickedEvent.fecha_hora_fin)
-        : fechaInicio.add(60, 'minutes'); // ← Asignar fin si no existe
+        : fechaInicio.add(60, "minutes"); // ← Asignar fin si no existe
 
-      const diferenciaMinutos = fechaFin.diff(fechaInicio, 'minute');
+      const diferenciaMinutos = fechaFin.diff(fechaInicio, "minute");
 
       if (isNaN(diferenciaMinutos)) {
         setRangeTimeEndDateSelected(60);
@@ -880,59 +879,57 @@ Tarjeta (Clave,Visa o Mastercard)
       dispatch(
         fetchServiciosProximosAgenda({
           consulta_nombre: clickedEvent.origen_tabla,
-          consulta_id:
-            clickedEvent.esProximaCita === 1
-              ? clickedEvent.origen_id
-              : clickedEvent.id,
+          consulta_id: clickedEvent.esProximaCita === 1 ? clickedEvent.origen_id : clickedEvent.id,
         })
       );
     }
   };
 
-
   const ImageTherapy = () => (
     <img src="../../../img/icon_therapy.png" width={15} height={15} alt="icon therapy" />
-  )
+  );
 
   const ImageConsulta = () => (
     <img src="../../../img/icon_consulta.png" width={15} height={15} alt="icon consulta" />
-  )
+  );
 
   const ImageHistory = () => (
     <img src="../../../img/history.png" width={15} height={15} alt="icon history" />
-  )
+  );
 
   const ImageCheck = () => (
     <img src="../../../img/check.png" width={15} height={15} alt="icon check" />
-  )
+  );
 
   const ImageCancel = () => (
     <img src="../../../img/cancel.png" width={15} height={15} alt="icon cancel" />
-  )
+  );
 
   const ImageWatch = () => (
     <img src="../../../img/watch.svg" width={18} height={18} alt="icon watch" />
-  )
+  );
 
   const setTimeEndDate = (value) => {
     if (value) {
-      form.setFieldsValue({ fechaAgendaFin: dayjs(form.getFieldValue('fechaAgenda')).add(value, 'minutes') })
-      setRangeTimeEndDateSelected(value)
-      setEnableTimeEndDateForm(false)
+      form.setFieldsValue({
+        fechaAgendaFin: dayjs(form.getFieldValue("fechaAgenda")).add(value, "minutes"),
+      });
+      setRangeTimeEndDateSelected(value);
+      setEnableTimeEndDateForm(false);
     } else {
-      setEnableTimeEndDateForm(true)
-      setRangeTimeEndDateSelected(null)
+      setEnableTimeEndDateForm(true);
+      setRangeTimeEndDateSelected(null);
     }
-  }
+  };
 
   useEffect(() => {
     if (serviciosProximos_options.length > 0) {
       form.setFieldsValue({
-        proximosServicios: serviciosProximos_options.map(serv => serv.value)
+        proximosServicios: serviciosProximos_options.map((serv) => serv.value),
       });
     } else {
       form.setFieldsValue({
-        proximosServicios: []
+        proximosServicios: [],
       });
     }
   }, [serviciosProximos_options]);
@@ -948,17 +945,16 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleAgendarEvent = async (values) => {
-
-    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
+    const serviciosRealizadosSubmit = proximosServicios.map((servicio) => servicio.value);
 
     if (createCedula !== null && values.nroCedula.trim() !== "") {
-      console.log('values1:', values)
+      console.log("values1:", values);
       try {
         const response = await dispatch(verificarCedula(createCedula)).unwrap();
 
-        console.log('response:', response)
+        console.log("response:", response);
 
-        if (response === 'activo') {
+        if (response === "activo") {
           Swal.fire({
             icon: "warning",
             title: "Cédula existente",
@@ -967,7 +963,7 @@ Tarjeta (Clave,Visa o Mastercard)
           return;
         }
 
-        if (response === 'no_existe') {
+        if (response === "no_existe") {
           const result = await Swal.fire({
             title: "Paciente no existe",
             text: "El paciente no está registrado. ¿Deseas crearlo?",
@@ -975,8 +971,8 @@ Tarjeta (Clave,Visa o Mastercard)
             showCancelButton: true,
             confirmButtonText: "Sí, crear paciente",
             cancelButtonText: "Cancelar",
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
           });
 
           if (result.isConfirmed) {
@@ -986,7 +982,7 @@ Tarjeta (Clave,Visa o Mastercard)
               apellidos: values.apellidos,
               celular: values.celular,
               estado: false,
-              estadoPaciente: 'no_existe'
+              estadoPaciente: "no_existe",
             };
 
             try {
@@ -1028,10 +1024,9 @@ Tarjeta (Clave,Visa o Mastercard)
           text: "Hubo un error al verificar la cédula.",
         });
       }
-
     }
     if (createCedula == null || values.nroCedula.trim() == "") {
-      console.log('values2:', values)
+      console.log("values2:", values);
       if (!values.tipoAgenda || values.tipoAgenda === "proxima_cita") {
         Swal.fire({
           icon: "warning",
@@ -1057,8 +1052,8 @@ Tarjeta (Clave,Visa o Mastercard)
         showCancelButton: true,
         confirmButtonText: "Sí, agendar",
         cancelButtonText: "Cancelar",
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
       });
 
       if (result.isConfirmed) {
@@ -1076,9 +1071,9 @@ Tarjeta (Clave,Visa o Mastercard)
           confirmado: values.confirmado,
           agendado_por: usuario,
           servicios_id: serviciosRealizadosSubmit,
-          apellidos: values.apellidos ?? '',
-          celular: values.celular ?? '',
-          nombres: values.paciente ?? ''
+          apellidos: values.apellidos ?? "",
+          celular: values.celular ?? "",
+          nombres: values.paciente ?? "",
         };
 
         setIsModalOpen(false);
@@ -1104,8 +1099,8 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const continueAgendarEvent = async (values, newPacienteId) => {
-    console.log('values3:', values)
-    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
+    console.log("values3:", values);
+    const serviciosRealizadosSubmit = proximosServicios.map((servicio) => servicio.value);
     const data = {
       cita_existente_id: currentEventId,
       origen_id: consultaId,
@@ -1119,7 +1114,7 @@ Tarjeta (Clave,Visa o Mastercard)
       comentarios: values.comentarios,
       confirmado: values.confirmado,
       agendado_por: usuario,
-      servicios_id: serviciosRealizadosSubmit
+      servicios_id: serviciosRealizadosSubmit,
     };
 
     setIsModalOpen(false);
@@ -1142,7 +1137,6 @@ Tarjeta (Clave,Visa o Mastercard)
     }
   };
 
-
   const handleDeleteEvent = async () => {
     if (currentEventId) {
       try {
@@ -1151,27 +1145,26 @@ Tarjeta (Clave,Visa o Mastercard)
         resetForm();
 
         Swal.fire({
-          icon: 'success',
-          title: 'Cita eliminada',
-          text: 'La cita se eliminó correctamente.',
+          icon: "success",
+          title: "Cita eliminada",
+          text: "La cita se eliminó correctamente.",
           timer: 2000,
           showConfirmButton: false,
         });
-
       } catch (error) {
         Swal.fire({
-          icon: 'error',
-          title: 'Error al eliminar',
-          text: error?.message || 'Ocurrió un error al eliminar la cita.',
+          icon: "error",
+          title: "Error al eliminar",
+          text: error?.message || "Ocurrió un error al eliminar la cita.",
         });
       }
     }
   };
 
   const handleUpdateEvent = async (values) => {
-    console.log('values update', values)
-    const serviciosRealizadosSubmit = proximosServicios.map(servicio => servicio.value);
-    const tipo = esProximaCita === 1 ? 'proxima_cita' : values.tipoAgenda;
+    console.log("values update", values);
+    const serviciosRealizadosSubmit = proximosServicios.map((servicio) => servicio.value);
+    const tipo = esProximaCita === 1 ? "proxima_cita" : values.tipoAgenda;
 
     const data = {
       origen_id: consultaId,
@@ -1190,7 +1183,7 @@ Tarjeta (Clave,Visa o Mastercard)
       nroCedula: values.nroCedula,
       celular: values.celular,
       nombres: values.paciente,
-      apellidos: values.apellidos
+      apellidos: values.apellidos,
     };
 
     if (currentEventId) {
@@ -1199,24 +1192,21 @@ Tarjeta (Clave,Visa o Mastercard)
         setIsModalOpen(false);
 
         Swal.fire({
-          icon: 'success',
-          title: 'Cita actualizada',
-          text: 'La cita se actualizó correctamente.',
+          icon: "success",
+          title: "Cita actualizada",
+          text: "La cita se actualizó correctamente.",
           timer: 2000,
           showConfirmButton: false,
         });
-
       } catch (error) {
         Swal.fire({
-          icon: 'error',
-          title: 'Error al actualizar',
-          text: error?.message || 'Ocurrió un error al actualizar la cita.',
+          icon: "error",
+          title: "Error al actualizar",
+          text: error?.message || "Ocurrió un error al actualizar la cita.",
         });
       }
     }
   };
-
-
 
   const resetForm = () => {
     setEventTitle("");
@@ -1227,13 +1217,12 @@ Tarjeta (Clave,Visa o Mastercard)
     setIsEditMode(false);
     setDoctor("");
     setSucursal("");
-    setNroCedula("")
+    setNroCedula("");
     setProximosServicios([]);
   };
 
   const changeView = (viewName) => {
-
-    if (viewName !== 'timeLine') {
+    if (viewName !== "timeLine") {
       if (calendarRef.current) {
         const calendarApi = calendarRef.current.getApi();
         calendarApi.changeView(viewName);
@@ -1270,9 +1259,9 @@ Tarjeta (Clave,Visa o Mastercard)
       const calendarApi = calendarRef.current.getApi();
       calendarApi.next();
 
-      console.log(fechaSeleccionada)
+      console.log(fechaSeleccionada);
       const currentDate = calendarApi.getDate();
-      console.log(currentDate)
+      console.log(currentDate);
       setFechaSeleccionada(currentDate);
     }
   };
@@ -1301,7 +1290,7 @@ Tarjeta (Clave,Visa o Mastercard)
     if (calendarRef.current) {
       const calendarApi = calendarRef.current.getApi();
       calendarApi.gotoDate(date.toDate());
-      calendarApi.changeView('timeGridDay');
+      calendarApi.changeView("timeGridDay");
     }
   };
 
@@ -1315,20 +1304,20 @@ Tarjeta (Clave,Visa o Mastercard)
       showCancelButton: true,
       confirmButtonText: "Sí, confirmar",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
     });
 
     if (result.isConfirmed) {
-      console.log(eventId)
+      console.log(eventId);
       const data = {
         cita_id: eventId,
-        confirmado: 'CONFIRMADO'
-      }
+        confirmado: "CONFIRMADO",
+      };
 
       try {
         await dispatch(fetchConfirmarCita(data)).unwrap();
-        setActualizarCitas(!actualizarCitas)
+        setActualizarCitas(!actualizarCitas);
         Swal.fire({
           icon: "success",
           title: "Cita Confirmada",
@@ -1344,15 +1333,27 @@ Tarjeta (Clave,Visa o Mastercard)
         });
       }
     }
-
-
-  }
+  };
 
   return (
     <div
-      style={screens.md ? {
-        width: "100%", margin: "auto", padding: "30px", position: "relative", overflow: "hidden"
-      } : { width: "100%", margin: "auto", padding: "0px", position: "relative", overflow: "hidden" }}
+      style={
+        screens.md
+          ? {
+              width: "100%",
+              margin: "auto",
+              padding: "30px",
+              position: "relative",
+              overflow: "hidden",
+            }
+          : {
+              width: "100%",
+              margin: "auto",
+              padding: "0px",
+              position: "relative",
+              overflow: "hidden",
+            }
+      }
     >
       <div
         style={{
@@ -1370,11 +1371,11 @@ Tarjeta (Clave,Visa o Mastercard)
           zIndex: 1000,
           fontSize: "20px",
           alignContent: "center",
-          color: 'white'
+          color: "white",
         }}
         onClick={() => setOpenCalendar(!openCalendar)}
       >
-        <CalendarOutlined style={{ color: 'white' }} />
+        <CalendarOutlined style={{ color: "white" }} />
       </div>
 
       <div
@@ -1394,72 +1395,87 @@ Tarjeta (Clave,Visa o Mastercard)
       >
         <Calendar fullscreen={false} onSelect={handleSelect} mode="month" />
       </div>
-      <div
-        style={{ display: 'flex', position: 'relative' }}
-      >
-
+      <div style={{ display: "flex", position: "relative" }}>
         <h2>Calendario</h2>
 
         <div
           style={{
-            position: 'absolute', right: '0'
+            position: "absolute",
+            right: "0",
           }}
         >
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={openNewEventModal}
-          >
+          <Button type="primary" icon={<PlusOutlined />} onClick={openNewEventModal}>
             Agendar Cita
           </Button>
         </div>
       </div>
 
       <div
-        style={screens.md ? {
-          background: 'white',
-          padding: '40px',
-          position: 'relative'
-        } : {
-          background: 'white',
-          // padding: '40px',
-          position: 'relative'
-        }}
+        style={
+          screens.md
+            ? {
+                background: "white",
+                padding: "40px",
+                position: "relative",
+              }
+            : {
+                background: "white",
+                // padding: '40px',
+                position: "relative",
+              }
+        }
       >
-
         <BotonesFiltroAgenda
           lista_botones={["Consultas", "Terapias", "Prox. Citas"]}
           selectedIndex={selectedIndex}
           setSelectedIndex={setSelectedIndex}
         />
 
+        {ValidarPermisos(
+          "agenda.descargar-excel",
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "15px",
+              marginBottom: "20px",
+              float: "right",
+              marginRight: "-24px",
+            }}
+          >
+            <ExcelDownloadButton />
+          </div>
+        )}
 
-        {
-          ValidarPermisos(
-            "agenda.descargar-excel",
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "15px",
-                marginBottom: "20px",
-                float: "right",
-                marginRight: "-24px"
-              }}
-            >
-              <ExcelDownloadButton />
-            </div>
-          )
-        }
-
-
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "45px", fontSize: "18px", fontWeight: "bold" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "45px",
+            fontSize: "18px",
+            fontWeight: "bold",
+          }}
+        >
           <span style={{ fontSize: "18px", fontWeight: "bold" }}>{currentDate}</span>
         </div>
         <div
-          style={screens.md ? {
-            position: 'absolute', top: '30px', left: '40px', width: '43%'
-          } : { position: 'absolute', top: '5px', left: '5px', width: '43%' }}
+          style={
+            screens.md
+              ? {
+                  position: "absolute",
+                  top: "30px",
+                  left: "40px",
+                  width: "43%",
+                  marginBottom: "20px",
+                }
+              : {
+                  position: "absolute",
+                  top: "5px",
+                  left: "5px",
+                  width: "43%",
+                  marginBottom: "20px",
+                }
+          }
         >
           <Row gutter={[8, 2]}>
             {sucursales_with_colors?.map((category) => (
@@ -1479,11 +1495,14 @@ Tarjeta (Clave,Visa o Mastercard)
                     }}
                   />
                   <span>
-                    {
-                      screens.md
-                        ? category.name
-                        : category.name.replace(/\b(CENTEVI|Medico|Médico|Centro|Consultorios|Medicos|San|Judas)\b/gi, '').trim()
-                    }
+                    {screens.md
+                      ? category.name
+                      : category.name
+                          .replace(
+                            /\b(CENTEVI|Medico|Médico|Centro|Consultorios|Medicos|San|Judas)\b/gi,
+                            ""
+                          )
+                          .trim()}
                   </span>
                 </div>
               </Col>
@@ -1491,22 +1510,24 @@ Tarjeta (Clave,Visa o Mastercard)
           </Row>
         </div>
         <div
-          style={screens.md
-            ? { display: "flex", justifyContent: "space-between", marginTop: "70px" }
-            : { display: "flex", justifyContent: "space-between", marginTop: "90px" }
+          style={
+            screens.md
+              ? { display: "flex", justifyContent: "space-between", marginTop: "90px" }
+              : { display: "flex", justifyContent: "space-between", marginTop: "90px" }
           }
         >
-
           <Space>
             <Button onClick={goToPrev} icon={<LeftOutlined />} />
             <Button onClick={goToNext} icon={<RightOutlined />} />
-            <Button onClick={goToToday}>
-              Hoy
-            </Button>
+            <Button onClick={goToToday}>Hoy</Button>
           </Space>
 
           <Space>
-            <Button onClick={toggleSunday} icon={<EyeOutlined />} type={hideSunday ? "default" : "primary"} />
+            <Button
+              onClick={toggleSunday}
+              icon={<EyeOutlined />}
+              type={hideSunday ? "default" : "primary"}
+            />
             <Button
               onClick={() => changeView("dayGridMonth")}
               type={currentView === "dayGridMonth" ? "primary" : "default"}
@@ -1539,7 +1560,7 @@ Tarjeta (Clave,Visa o Mastercard)
           agenda
         </button> */}
         {/* <h1>{currentView}</h1> */}
-        <div style={currentView !== 'timeLine' ? {} : { display: 'none' }}>
+        <div style={currentView !== "timeLine" ? {} : { display: "none" }}>
           <FullCalendar
             ref={calendarRef}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -1567,7 +1588,7 @@ Tarjeta (Clave,Visa o Mastercard)
               hour: "numeric",
               minute: "2-digit",
               hour12: false,
-              meridiem: 'short'
+              meridiem: "short",
             }}
             dayHeaderContent={(arg) => {
               const date = arg.date;
@@ -1579,48 +1600,58 @@ Tarjeta (Clave,Visa o Mastercard)
               hour: "numeric",
               minute: "2-digit",
               hour12: false,
-              meridiem: 'short',
+              meridiem: "short",
             }}
             slotDuration="00:20:00"
             slotLabelInterval="00:30"
             height="auto"
             eventContent={(info) => {
               const {
-                hiddenEvents, comentarios, doctor, tipo, paciente,
-                apellidos, fecha_hora_fin, celular, confirmado, paciente_id
+                hiddenEvents,
+                comentarios,
+                doctor,
+                tipo,
+                paciente,
+                apellidos,
+                fecha_hora_fin,
+                celular,
+                confirmado,
+                paciente_id,
               } = info.event.extendedProps;
               const primerNombre = paciente ? paciente.trim().split(" ")[0] : "";
               const primerApellido = apellidos ? apellidos.trim().split(" ")[0] : "";
               const nombrePaciente = `${primerNombre} ${primerApellido}`;
-              const eventTime = info.timeText + (fecha_hora_fin
-                ? (" - " + dayjs(fecha_hora_fin).format('HH:mm'))
-                : " - " + dayjs(info.timeText, 'HH:mm').add(1, 'hour').format('HH:mm'));
+              const eventTime =
+                info.timeText +
+                (fecha_hora_fin
+                  ? " - " + dayjs(fecha_hora_fin).format("HH:mm")
+                  : " - " + dayjs(info.timeText, "HH:mm").add(1, "hour").format("HH:mm"));
 
               const isDayView = info.view.type === "timeGridDay";
               return (
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: "relative" }}>
                   <div
                     onClick={() => handleEventClick(info)}
                     style={
-                      tipo == "terapia" ?
-                        {
-                          height: "100%",
-                          border: "3px solid #003300",
-                          marginLeft: "-3px",
-                          paddingLeft: "3px"
-                        }
-                        : tipo == "consulta" ?
-                          {
+                      tipo == "terapia"
+                        ? {
+                            height: "100%",
+                            border: "3px solid #003300",
+                            marginLeft: "-3px",
+                            paddingLeft: "3px",
+                          }
+                        : tipo == "consulta"
+                        ? {
                             height: "100%",
                             border: "3px solid #3300FF",
                             marginLeft: "-3px",
-                            paddingLeft: "3px"
+                            paddingLeft: "3px",
                           }
-                          : {
+                        : {
                             height: "100%",
                             border: "3px solid transparent",
                             marginLeft: "-3px",
-                            paddingLeft: "3px"
+                            paddingLeft: "3px",
                           }
                     }
                   >
@@ -1634,7 +1665,6 @@ Tarjeta (Clave,Visa o Mastercard)
                       }}
                     >
                       <span>
-
                         <b
                           style={{
                             overflow: "hidden",
@@ -1679,7 +1709,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       🧑‍⚕️ {doctor}
                     </small>
 
-                    <div style={{ display: 'flex' }}>
+                    <div style={{ display: "flex" }}>
                       <small
                         style={{
                           display: "block",
@@ -1692,15 +1722,14 @@ Tarjeta (Clave,Visa o Mastercard)
                         }}
                         title={tipo}
                       >
-                        {
-                          tipo == "terapia"
-                            ? <ImageTherapy />
-                            : tipo == "consulta"
-                              ? <ImageConsulta />
-                              : <span>🩺</span>
-                        } {tipo}
-
-
+                        {tipo == "terapia" ? (
+                          <ImageTherapy />
+                        ) : tipo == "consulta" ? (
+                          <ImageConsulta />
+                        ) : (
+                          <span>🩺</span>
+                        )}{" "}
+                        {tipo}
                       </small>
                     </div>
 
@@ -1729,15 +1758,15 @@ Tarjeta (Clave,Visa o Mastercard)
                     )}
                   </div>
 
-                  <div style={{ position: 'absolute', bottom: '22px', left: '150px' }}>
-                    <Tooltip title='Historia Clinica' >
+                  <div style={{ position: "absolute", bottom: "22px", left: "150px" }}>
+                    <Tooltip title="Historia Clinica">
                       <Link to={"/historia-paciente/" + paciente_id}>
                         <ImageHistory />
                       </Link>
                     </Tooltip>
                   </div>
 
-                  <div style={{ position: 'absolute', bottom: '5px', left: '150px' }}>
+                  <div style={{ position: "absolute", bottom: "5px", left: "150px" }}>
                     {/* <Checkbox
                     onChange={(i) => enviarConfirmacionCita(info, i.target.checked)}
                     checked={confirmado}
@@ -1746,34 +1775,34 @@ Tarjeta (Clave,Visa o Mastercard)
                   /> */}
                     <div onClick={() => enviarConfirmacionCita(info, !confirmado)}>
                       {
-                        confirmado == 'SIN STATUS'
-                          ? <Checkbox
+                        confirmado == "SIN STATUS" ? (
+                          <Checkbox
                             checked={false}
                             ref={confirmacionRef}
-                            style={{ position: 'absolute', bottom: '-5px' }}
+                            style={{ position: "absolute", bottom: "-5px" }}
                           />
-                          : confirmado == 'CONFIRMADO'
-                            ? <ImageCheck />
-                            : confirmado == 'CANCELADO'
-                              ? <ImageCancel />
-                              : confirmado == 'REAGENDADO'
-                                ? <ImageWatch />
-                                : <div></div>
+                        ) : confirmado == "CONFIRMADO" ? (
+                          <ImageCheck />
+                        ) : confirmado == "CANCELADO" ? (
+                          <ImageCancel />
+                        ) : confirmado == "REAGENDADO" ? (
+                          <ImageWatch />
+                        ) : (
+                          <div></div>
+                        )
 
                         // <ImageCheck />
                         // <ImageCancel />
                       }
-
                     </div>
                   </div>
                 </div>
-
               );
             }}
           />
         </div>
 
-        <div style={currentView !== 'timeLine' ? { display: 'none' } : {}}>
+        <div style={currentView !== "timeLine" ? { display: "none" } : {}}>
           <TimeLine
             citasAgenda={citasAgenda}
             fechaSeleccionada={fechaSeleccionada}
@@ -1781,8 +1810,6 @@ Tarjeta (Clave,Visa o Mastercard)
             enviarConfirmacionCita={enviarConfirmacionCita}
           />
         </div>
-
-
       </div>
 
       <Modal
@@ -1793,21 +1820,19 @@ Tarjeta (Clave,Visa o Mastercard)
           setIsModalOpen(false);
         }}
         footer={[
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%'
-          }}>
-            <Button
-              type="default"
-              icon={<PhoneOutlined />}
-              onClick={handleContactarPaciente}
-            >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Button type="default" icon={<PhoneOutlined />} onClick={handleContactarPaciente}>
               Contactar
             </Button>
 
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: "flex", gap: 8 }}>
               {isEditMode && (
                 <Popconfirm
                   key="delete"
@@ -1830,7 +1855,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       const values = await form.validateFields();
                       handleUpdateEvent(values);
                     } catch (errorInfo) {
-                      console.log('Errores en el formulario:', errorInfo);
+                      console.log("Errores en el formulario:", errorInfo);
                     }
                   }}
                   okText="Sí"
@@ -1839,14 +1864,13 @@ Tarjeta (Clave,Visa o Mastercard)
                   <Button
                     icon={<EditOutlined />}
                     style={{
-                      backgroundColor: '#fadb14',
-                      borderColor: '#fadb14',
-                      color: '#000',
+                      backgroundColor: "#fadb14",
+                      borderColor: "#fadb14",
+                      color: "#000",
                     }}
                   >
                     Actualizar
                   </Button>
-
                 </Popconfirm>
               )}
               <Button
@@ -1866,7 +1890,7 @@ Tarjeta (Clave,Visa o Mastercard)
                 Agendar Cita
               </Button>
             </div>
-          </div>
+          </div>,
         ]}
         style={{ width: "90vh" }}
       >
@@ -1877,7 +1901,7 @@ Tarjeta (Clave,Visa o Mastercard)
           onValuesChange={(changedValues, allValues) => {
             if (changedValues.fechaAgenda && rangeTimeEndDateSelected) {
               const nuevaFechaInicio = dayjs(changedValues.fechaAgenda);
-              const nuevaFechaFin = nuevaFechaInicio.add(rangeTimeEndDateSelected, 'minutes');
+              const nuevaFechaFin = nuevaFechaInicio.add(rangeTimeEndDateSelected, "minutes");
 
               form.setFieldsValue({
                 fechaAgendaFin: nuevaFechaFin,
@@ -1887,57 +1911,42 @@ Tarjeta (Clave,Visa o Mastercard)
         >
           <Row gutter={[16, 16]}>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Agendado por:</label>
-              <Form.Item
-                name="agendado_por"
-              >
-                <Input
-                  placeholder=""
-                  style={{ marginBottom: "5px" }}
-                  disabled
-                />
+              <label style={{ marginTop: "10px" }}>Agendado por:</label>
+              <Form.Item name="agendado_por">
+                <Input placeholder="" style={{ marginBottom: "5px" }} disabled />
               </Form.Item>
             </Col>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Status:</label>
+              <label style={{ marginTop: "10px" }}>Status:</label>
               <Form.Item
                 name="confirmado"
-              // rules={[{ required: true, message: "La sucursal es requerida" }]}
+                // rules={[{ required: true, message: "La sucursal es requerida" }]}
               >
-                <Select
-                  placeholder="Selecciona un status"
-                  onChange={(value) => {
-
-                  }}
-                >
-                  {[
-                    "SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO", "REAGENDADO"
-                  ].map((sucursal) => (
-                    <Select.Option key={sucursal} value={sucursal}>
-                      {sucursal}
-                    </Select.Option>
-
-                  ))}
+                <Select placeholder="Selecciona un status" onChange={(value) => {}}>
+                  {["SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO", "REAGENDADO"].map(
+                    (sucursal) => (
+                      <Select.Option key={sucursal} value={sucursal}>
+                        {sucursal}
+                      </Select.Option>
+                    )
+                  )}
                 </Select>
               </Form.Item>
             </Col>
           </Row>
 
-
           {/*  */}
           <Row gutter={[16, 16]}>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Cedula:</label>
-              <Form.Item
-                name="nroCedula"
-              >
+              <label style={{ marginTop: "10px" }}>Cedula:</label>
+              <Form.Item name="nroCedula">
                 <AutoComplete
                   allowClear
                   showSearch
                   placeholder="Seleccionar paciente"
                   onSearch={(text) => debouncedSetCedula(text)}
                   onSelect={(value, data) => {
-                    setCreateCedula(null)
+                    setCreateCedula(null);
                     // handleCedulaChange(key.key);
                     handleCedulaChange(data.id);
                   }}
@@ -1957,20 +1966,19 @@ Tarjeta (Clave,Visa o Mastercard)
                   filterOption={(inputValue, option) => {
                     const words = inputValue.toLowerCase().split(" ");
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
+                    return words.every((word) => fullText.includes(word));
                   }}
                   onChange={(value) => {
                     if (!value) {
                       setPacienteId(null);
                     }
                   }}
-                >
-                </AutoComplete>
+                ></AutoComplete>
               </Form.Item>
             </Col>
 
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Nombres:</label>
+              <label style={{ marginTop: "10px" }}>Nombres:</label>
               <Form.Item
                 name="paciente"
                 // initialValue={pacienteInput}
@@ -1990,13 +1998,13 @@ Tarjeta (Clave,Visa o Mastercard)
                       value: paciente.value,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
-                      id: paciente.value
-                    }
+                      id: paciente.value,
+                    };
                   })}
                   filterOption={(inputValue, option) => {
                     const words = inputValue.toLowerCase().split(" ");
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
+                    return words.every((word) => fullText.includes(word));
                   }}
                   // onChange={(value) => {
                   //   setPacienteInput(value);
@@ -2007,7 +2015,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       (paciente) => paciente.value === data.id
                     );
                     form.setFieldsValue({ paciente: selected.nombres });
-                    setPacienteId(selected.value)
+                    setPacienteId(selected.value);
                     setCreatePaciente(null);
                     setCreateCedula(null);
                     handlePacienteChange(data.id);
@@ -2018,14 +2026,13 @@ Tarjeta (Clave,Visa o Mastercard)
                   // }}
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
                   notFoundContent={isLoading ? <Spin size="small" /> : null}
-                >
-                </AutoComplete>
+                ></AutoComplete>
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={[24, 24]}>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Apellidos:</label>
+              <label style={{ marginTop: "10px" }}>Apellidos:</label>
               <Form.Item
                 name="apellidos"
                 rules={[{ required: true, message: "El apellido es requerido" }]}
@@ -2043,13 +2050,13 @@ Tarjeta (Clave,Visa o Mastercard)
                       value: paciente.apellidos,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
-                      id: paciente.value
-                    }
+                      id: paciente.value,
+                    };
                   })}
                   filterOption={(inputValue, option) => {
                     const words = inputValue.toLowerCase().split(" ");
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
+                    return words.every((word) => fullText.includes(word));
                   }}
                   // onChange={(value) => {
                   //   setApellidos(value);
@@ -2057,18 +2064,16 @@ Tarjeta (Clave,Visa o Mastercard)
                   // }}
                   onSearch={(val) => debouncedSetApellidos(val)}
                   onSelect={(value, data) => {
-                    setCreateCedula(null)
+                    setCreateCedula(null);
                     handleApellidosChange(data.id);
                   }}
-
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
                   notFoundContent={isLoading ? <Spin size="small" /> : null}
-                >
-                </AutoComplete>
+                ></AutoComplete>
               </Form.Item>
             </Col>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Celular:</label>
+              <label style={{ marginTop: "10px" }}>Celular:</label>
               <Form.Item
                 name="celular"
                 rules={[{ required: true, message: "El celular es requerido" }]}
@@ -2086,13 +2091,13 @@ Tarjeta (Clave,Visa o Mastercard)
                       value: paciente.apellidos,
                       label: `${paciente.nro_cedula} - ${fullName}`,
                       searchText: fullName.toLowerCase(),
-                      id: paciente.value
-                    }
+                      id: paciente.value,
+                    };
                   })}
                   filterOption={(inputValue, option) => {
                     const words = inputValue.toLowerCase().split(" ");
                     const fullText = `${option?.key} ${option?.searchText}`.toLowerCase();
-                    return words.every(word => fullText.includes(word));
+                    return words.every((word) => fullText.includes(word));
                   }}
                   // onChange={(value) => {
                   //   setCelular(value);
@@ -2104,21 +2109,19 @@ Tarjeta (Clave,Visa o Mastercard)
                     debouncedSetCelular(valueWithPrefix);
                   }}
                   onSelect={(value, data) => {
-                    setCreateCedula(null)
+                    setCreateCedula(null);
                     handleCelularChange(data.id);
                   }}
-
                   onDropdownVisibleChange={(open) => open && handlePacienteSelectOpen()}
                   notFoundContent={isLoading ? <Spin size="small" /> : null}
-                >
-                </AutoComplete>
+                ></AutoComplete>
               </Form.Item>
             </Col>
           </Row>
 
           <Row gutter={[16, 16]}>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Sucursal:</label>
+              <label style={{ marginTop: "10px" }}>Sucursal:</label>
               <Form.Item
                 name="sucursal"
                 rules={[{ required: true, message: "La sucursal es requerida" }]}
@@ -2126,25 +2129,25 @@ Tarjeta (Clave,Visa o Mastercard)
                 <Select
                   placeholder="Seleccionar sucursal"
                   onChange={(value) => {
-                    handleSucursalChangeSelect(value)
-                    setSelectedSucursal(value)
+                    handleSucursalChangeSelect(value);
+                    setSelectedSucursal(value);
 
-                    const sucursalSeleccionada = sucursales_option_selects.find((sucursal) => sucursal.value == value)
-                    setDireccion_sucursal(sucursalSeleccionada.ubicacion_mps)
-
+                    const sucursalSeleccionada = sucursales_option_selects.find(
+                      (sucursal) => sucursal.value == value
+                    );
+                    setDireccion_sucursal(sucursalSeleccionada.ubicacion_mps);
                   }}
                 >
                   {sucursales_option_selects.map((sucursal) => (
                     <Select.Option key={sucursal.value} value={sucursal.value}>
                       {sucursal.label}
                     </Select.Option>
-
                   ))}
                 </Select>
               </Form.Item>
             </Col>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Doctor:</label>
+              <label style={{ marginTop: "10px" }}>Doctor:</label>
               <Form.Item
                 name="doctor"
                 rules={[{ required: true, message: "El doctor es requerido" }]}
@@ -2165,30 +2168,48 @@ Tarjeta (Clave,Visa o Mastercard)
           </Row>
 
           {/*  */}
-          <label style={{ marginTop: '10px' }}>Comentarios de la agenda:</label>
+          <label style={{ marginTop: "10px" }}>Comentarios de la agenda:</label>
           <Form.Item
             rules={[{ required: true, message: "El comentario es requerido" }]}
             name="comentarios"
           >
-            <Input.TextArea
-              placeholder="Descripción del Evento"
-            />
+            <Input.TextArea placeholder="Descripción del Evento" />
           </Form.Item>
 
           <Row gutter={[16, 16]}>
             <Col xxl={24} xl={24} md={24}>
-              <label style={{ marginTop: '10px' }}>Fecha y hora de la agenda:</label>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <label style={{ marginTop: "10px" }}>Fecha y hora de la agenda:</label>
+              <div style={{ display: "flex", gap: "10px" }}>
                 {/* <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={()=> setTimeEndDate(15)}>15min</Button> */}
-                <Button type={rangeTimeEndDateSelected == 15 ? "primary" : "default"} onClick={() => setTimeEndDate(15)}>15min</Button>
-                <Button type={rangeTimeEndDateSelected == 30 ? "primary" : "default"} onClick={() => setTimeEndDate(30)}>30min</Button>
-                <Button type={rangeTimeEndDateSelected == 45 ? "primary" : "default"} onClick={() => setTimeEndDate(45)}>45min</Button>
-                <Button type={rangeTimeEndDateSelected == 60 ? "primary" : "default"} onClick={() => setTimeEndDate(60)}>1h</Button>
+                <Button
+                  type={rangeTimeEndDateSelected == 15 ? "primary" : "default"}
+                  onClick={() => setTimeEndDate(15)}
+                >
+                  15min
+                </Button>
+                <Button
+                  type={rangeTimeEndDateSelected == 30 ? "primary" : "default"}
+                  onClick={() => setTimeEndDate(30)}
+                >
+                  30min
+                </Button>
+                <Button
+                  type={rangeTimeEndDateSelected == 45 ? "primary" : "default"}
+                  onClick={() => setTimeEndDate(45)}
+                >
+                  45min
+                </Button>
+                <Button
+                  type={rangeTimeEndDateSelected == 60 ? "primary" : "default"}
+                  onClick={() => setTimeEndDate(60)}
+                >
+                  1h
+                </Button>
                 {/* <Button type={!rangeTimeEndDateSelected ? "primary" : "default"} onClick={()=> setTimeEndDate(null)}>Otro</Button> */}
               </div>
             </Col>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '5px' }}>Hora de inicio:</label>
+              <label style={{ marginTop: "5px" }}>Hora de inicio:</label>
               <Form.Item
                 name="fechaAgenda"
                 rules={[{ required: true, message: "La fecha y hora de inicio es requerida" }]}
@@ -2203,7 +2224,7 @@ Tarjeta (Clave,Visa o Mastercard)
               </Form.Item>
             </Col>
             <Col xxl={12} xl={12} md={12}>
-              <label style={{ marginTop: '10px' }}>Hora de fin:</label>
+              <label style={{ marginTop: "10px" }}>Hora de fin:</label>
               <Form.Item
                 name="fechaAgendaFin"
                 rules={[{ required: true, message: "La fecha y hora de fin es requerida" }]}
@@ -2213,9 +2234,8 @@ Tarjeta (Clave,Visa o Mastercard)
                   disabled={!enableTimeEndDateForm}
                   showTime={{ format: "HH:mm" }}
                   format="YYYY-MM-DD HH:mm"
-                  style={{ marginBottom: "10px", width: "100%", color: '#1677FF !important' }}
+                  style={{ marginBottom: "10px", width: "100%", color: "#1677FF !important" }}
                   placeholder="Fecha y hora de fin"
-
                 />
               </Form.Item>
             </Col>
@@ -2241,14 +2261,14 @@ Tarjeta (Clave,Visa o Mastercard)
                 required: true,
                 message: "El tipo de agenda es requerido",
               },
-              esProximaCita === false && ({
+              esProximaCita === false && {
                 validator(_, value) {
                   if (value === "terapia" || value === "consulta") {
                     return Promise.resolve();
                   }
                   return Promise.reject("Debes seleccionar Terapias o Consultas");
                 },
-              }),
+              },
             ].filter(Boolean)}
           >
             <Radio.Group>
@@ -2267,18 +2287,19 @@ Tarjeta (Clave,Visa o Mastercard)
                 <Select
                   showSearch
                   style={{
-                    width: '100%', color: 'transparent',
-                    background: 'white !important'
+                    width: "100%",
+                    color: "transparent",
+                    background: "white !important",
                   }}
                   onChange={handleSelectChangServicios}
-                  options={servicios.map(servicio => ({
+                  options={servicios.map((servicio) => ({
                     value: servicio.id,
-                    label: servicio.codigo + " | " + servicio.servicio
+                    label: servicio.codigo + " | " + servicio.servicio,
                   }))}
                   filterOption={(input, option) => {
-                    const searchTerms = input.toLowerCase().split(' ');
-                    return searchTerms.every(term =>
-                      (option?.label ?? '').toLowerCase().includes(term)
+                    const searchTerms = input.toLowerCase().split(" ");
+                    return searchTerms.every((term) =>
+                      (option?.label ?? "").toLowerCase().includes(term)
                     );
                   }}
                 />
@@ -2286,46 +2307,44 @@ Tarjeta (Clave,Visa o Mastercard)
 
               <div
                 style={{
-                  display: 'ruby',
-                  marginTop: '10px',
-                  marginBottom: '10px'
+                  display: "ruby",
+                  marginTop: "10px",
+                  marginBottom: "10px",
                 }}
               >
-                {
-                  proximosServicios.map((servicio) => {
-                    return (
+                {proximosServicios.map((servicio) => {
+                  return (
+                    <div
+                      style={{
+                        color: "black",
+                        background: "white",
+                        border: "1px solid gray",
+                        paddingTop: "5px",
+                        paddingBottom: "5px",
+                        paddingLeft: "10px",
+                        paddingRight: "10px",
+                        borderRadius: "20px",
+                        display: "flex",
+                        marginRight: "5px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {servicio.label}
                       <div
                         style={{
-                          color: 'black',
-                          background: 'white',
-                          border: '1px solid gray',
-                          paddingTop: '5px',
-                          paddingBottom: '5px',
-                          paddingLeft: '10px',
-                          paddingRight: '10px',
-                          borderRadius: '20px',
-                          display: 'flex',
-                          marginRight: '5px',
-                          marginTop: '5px'
+                          marginLeft: "5px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          // const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
+                          setProximosServicios([]);
                         }}
                       >
-                        {servicio.label}
-                        <div
-                          style={{
-                            marginLeft: '5px',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => {
-                            // const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
-                            setProximosServicios([])
-                          }}
-                        >
-                          <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                        </div>
+                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
                       </div>
-                    )
-                  })
-                }
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -2347,25 +2366,25 @@ Tarjeta (Clave,Visa o Mastercard)
         <List
           dataSource={groupedEvents}
           renderItem={(event) => (
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: "relative" }}>
               <div>
                 <List.Item
                   style={
                     event.tipo == "terapia"
                       ? {
-                        cursor: "pointer",
-                        padding: "6px",
-                        marginBottom: "6px",
-                        backgroundColor: event.backgroundColor,
-                        borderLeft: `3px solid ${event.borderColor}`,
-                        borderRadius: "6px",
-                        color: "white",
-                        fontSize: "12px",
-                        height: "100%",
-                        border: "3px solid #003300",
-                      }
+                          cursor: "pointer",
+                          padding: "6px",
+                          marginBottom: "6px",
+                          backgroundColor: event.backgroundColor,
+                          borderLeft: `3px solid ${event.borderColor}`,
+                          borderRadius: "6px",
+                          color: "white",
+                          fontSize: "12px",
+                          height: "100%",
+                          border: "3px solid #003300",
+                        }
                       : event.tipo == "consulta"
-                        ? {
+                      ? {
                           cursor: "pointer",
                           padding: "6px",
                           marginBottom: "6px",
@@ -2377,7 +2396,7 @@ Tarjeta (Clave,Visa o Mastercard)
                           height: "100%",
                           border: "3px solid #3300FF",
                         }
-                        : {
+                      : {
                           cursor: "pointer",
                           padding: "6px",
                           marginBottom: "6px",
@@ -2397,66 +2416,70 @@ Tarjeta (Clave,Visa o Mastercard)
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                    <strong style={{ fontSize: "11px", color: 'black' }}>
+                    <strong style={{ fontSize: "11px", color: "black" }}>
                       {dayjs(event.start).format("HH:mm")} - {event.title} - {event.celular}
                       {currentView === "timeGridDay" && event.comentarios && (
                         <span style={{ fontWeight: "normal", fontSize: "10px", color: "black" }}>
-                          {" "}({event.comentarios})
+                          {" "}
+                          ({event.comentarios})
                         </span>
                       )}
                     </strong>
-                    <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}>
+                    <span
+                      style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}
+                    >
                       🧑‍⚕️ {event.doctor}
                     </span>
-                    <span style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}>
+                    <span
+                      style={{ fontSize: "10px", opacity: 0.7, fontWeight: "bold", color: "black" }}
+                    >
                       🩺 {event.tipo}
                     </span>
                   </div>
                 </List.Item>
               </div>
 
-              <div style={{ position: 'absolute', bottom: '22px', left: '115px' }}>
-                <Tooltip title='Historia Clinica' >
+              <div style={{ position: "absolute", bottom: "22px", left: "115px" }}>
+                <Tooltip title="Historia Clinica">
                   <Link to={"/historia-paciente/" + event.paciente_id}>
                     <ImageHistory />
                   </Link>
                 </Tooltip>
               </div>
 
-              <div style={{ position: 'absolute', bottom: '0', left: '115px' }}>
+              <div style={{ position: "absolute", bottom: "0", left: "115px" }}>
                 {/* <Checkbox
                   onChange={(i) => enviarConfirmacionCita({ event: event }, i.target.checked)}
                   checked={event.confirmado}
                 /> */}
-                <div onClick={() => enviarConfirmacionCita({ event: event }, '')}>
+                <div onClick={() => enviarConfirmacionCita({ event: event }, "")}>
                   {
-                    event.confirmado == 'SIN STATUS'
-                      ? <Checkbox
+                    event.confirmado == "SIN STATUS" ? (
+                      <Checkbox
                         checked={false}
                         ref={confirmacionRef}
-                        style={{ position: 'absolute', bottom: '2px' }}
+                        style={{ position: "absolute", bottom: "2px" }}
                       />
-                      : event.confirmado == 'CONFIRMADO'
-                        ? <ImageCheck />
-                        : event.confirmado == 'CANCELADO'
-                          ? <ImageCancel />
-                          : event.confirmado == 'REAGENDADO'
-                            ? <ImageWatch />
-                            : <div></div>
+                    ) : event.confirmado == "CONFIRMADO" ? (
+                      <ImageCheck />
+                    ) : event.confirmado == "CANCELADO" ? (
+                      <ImageCancel />
+                    ) : event.confirmado == "REAGENDADO" ? (
+                      <ImageWatch />
+                    ) : (
+                      <div></div>
+                    )
 
                     // <ImageCheck />
                     // <ImageCancel />
                   }
-
                 </div>
               </div>
-
             </div>
           )}
         />
-
       </Modal>
-    </div >
+    </div>
   );
 };
 

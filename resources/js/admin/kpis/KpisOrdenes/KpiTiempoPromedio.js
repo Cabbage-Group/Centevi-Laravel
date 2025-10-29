@@ -40,7 +40,7 @@ const KpiTiempoPromedio = ({
   };
 
   const tiempo = tiempoPromedio
-    ? `${tiempoPromedio.dias} días, ${tiempoPromedio.horas} horas, ${tiempoPromedio.minutos} minutos`
+    ? `${tiempoPromedio.dias} dias, ${tiempoPromedio.horas} horas, ${tiempoPromedio.minutos} minutos`
     : "No disponible";
 
   const getFasesDisponibles = (faseInicialVal) => {
@@ -215,7 +215,7 @@ const KpiTiempoPromedio = ({
                 {opcionesFinal.map(f => <Select.Option key={f} value={f}>{f}</Select.Option>)}
               </Select>
             </Tooltip>
-            
+
           </Col>
 
           <Col xs={24} sm={24}>

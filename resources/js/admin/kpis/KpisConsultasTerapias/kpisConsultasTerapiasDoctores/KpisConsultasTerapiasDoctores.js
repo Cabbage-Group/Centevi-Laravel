@@ -9,9 +9,9 @@ import { DownOutlined } from '@ant-design/icons';
 
 /**
  * Componente version antigua / deprecado
- *  Ya no usar este componente, en su lugar ya se usa en la vista VerKpisConsultasYTerapias.js 
+ *  Ya no usar este componente, en su lugar ya se usa en la vista VerKpisConsultasYTerapias.js
  *  el componente reutilizable CustomizedAnalyticsBarChart.js con la logica manejada por el padre
- * 
+ *
  */
 const KpisConsultasTerapiasDoctores = (
   { doctores_activados, exportRef = null }
@@ -431,7 +431,7 @@ const KpisConsultasTerapiasDoctores = (
             </div>
           </Col>
         </Row>
-        
+
       </div >
     </div>
   );

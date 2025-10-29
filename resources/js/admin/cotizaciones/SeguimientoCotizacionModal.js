@@ -1,10 +1,10 @@
-import { Row, Col, Modal, Button, Form, Input, Divider, Select, DatePicker, Empty, 
+import { Row, Col, Modal, Button, Form, Input, Divider, Select, DatePicker, Empty,
   Card, Skeleton, Spin, Grid, message, Tooltip  } from 'antd';
 import React, { useEffect, useState, useMemo  } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { createQuoteTimeline, fetchQuotesTimelinesByQuoteId, updateQuoteTimeline, resetQuotesTimelinesState } from '../../redux/features/quotesTimelines/quotesTimelinesSlice';
-import CotizacionesHistoria from '../../components/pages/admin/cotizaciones/cotizacionesHistoria';
-import { PlusCircleOutlined, CloseOutlined  } from "@ant-design/icons"; 
+import CotizacionesHistoria from '../../components/pages/admin/cotizaciones/CotizacionesHistoria';
+import { PlusCircleOutlined, CloseOutlined  } from "@ant-design/icons";
 import dayjs from 'dayjs';
 import { generateLighterPalette, getColorByIdWithHash } from '../../utils/colorUtils';
 import styled from '@emotion/styled';
@@ -16,7 +16,7 @@ const spinStyles = css`
     .custom-col-for-spin .ant-spin-nested-loading {
       height: 100% !important;
     }
-    
+
     .custom-full-height-spin .ant-spin-container {
       height: 100% !important;
     }
@@ -31,8 +31,8 @@ const SeguimientoCotizacionModal = ({
 }) => {
 
   const dispatch = useDispatch();
-  
-  const { 
+
+  const {
     quotes_timelines,
     fetch_status,
     fetch_error,
@@ -67,9 +67,9 @@ const SeguimientoCotizacionModal = ({
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  
+
   const optionsPalette = { stepAmount: 6, maxSteps: 6, strategy: 'clamp' };
-  
+
   const communicationChannelOptions = [
     {label: 'WhatsApp', value: 'whatsapp'},
     {label: 'Celular/Telefono', value: 'phone'},
@@ -205,7 +205,7 @@ const SeguimientoCotizacionModal = ({
       usuario_id: usuario_id,
       quote_id: quoteId,
     });
-    
+
   }
 
   const handleClose = () => {
@@ -389,12 +389,12 @@ const SeguimientoCotizacionModal = ({
                         </Form.Item>
 
                         {/* boton para enviar */}
-                        <Col xs={24} sm={24} 
+                        <Col xs={24} sm={24}
                           style={{width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'center'}}
                         >
-                        
-                          <Button 
-                            type="primary" 
+
+                          <Button
+                            type="primary"
                             htmlType="submit"
                             disabled={create_status === 'loading' || update_status === 'loading' || fetch_status === 'loading'}
                             style={breakPoint.md ? {
@@ -411,7 +411,7 @@ const SeguimientoCotizacionModal = ({
                           >
                             {getButtonLabel()}
                           </Button>
-                          
+
                         </Col>
                       </Row>
                     </Form>
@@ -419,31 +419,31 @@ const SeguimientoCotizacionModal = ({
                 </Col>
               </Row>
             </Col>
-                          
+
             {/* divisor */}
-            <Col xs={24} sm={1} style={breakPoint.sm ? {display: 'flex', flexDirection: 'row', justifyContent: 'center', height: '100%'} 
+            <Col xs={24} sm={1} style={breakPoint.sm ? {display: 'flex', flexDirection: 'row', justifyContent: 'center', height: '100%'}
                 : {display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: '15px 0 15px 0', height:'4px'}}
             >
-              <Divider 
-                type={breakPoint.sm ? 'vertical' : 'horizontal'} 
-                style={breakPoint.sm ? {margin: '0 0 0 0', height: '100%', borderInlineWidth: '2px',} : 
+              <Divider
+                type={breakPoint.sm ? 'vertical' : 'horizontal'}
+                style={breakPoint.sm ? {margin: '0 0 0 0', height: '100%', borderInlineWidth: '2px',} :
                 {margin: '0 0 0 0', width: '100%', borderInlineWidth: '2px',}}
               />
             </Col>
-                          
+
             {/* Seguimiento cotizacion container */}
             <Col xs={24} sm={12} style={{height: '100%'}}>
               {/* Grid manager */}
               <Row gutter={[12, 12]} style={{width: '100%', height: '100%'}}>
                 {/* Titulo seguimiento */}
-                <Col xs={24} sm={24} 
+                <Col xs={24} sm={24}
                   style={{ height: '25px'}}
                 >
                   <div style={{fontSize: '16px', fontWeight: 'bold'}}>
                     Historial de seguimientos
                   </div>
                 </Col>
-                          
+
                 {/* Cuerpo de seguimiento */}
                 <Col xs={24} sm={24} style={{width: '100%', height: 'calc(100% - 25px - 12px)', overflowY: 'auto'}}>
                   <Row gutter={[12, 12]}>

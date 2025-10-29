@@ -24,6 +24,8 @@ use DateTime;
 use GrahamCampbell\ResultType\Success;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PacientesApiController extends Controller
 
@@ -46,11 +48,11 @@ class PacientesApiController extends Controller
     $limit = $request->query('limit', 300);
     $sortOrder = $request->query('sortOrder', 'asc');
     $sortColumn = $request->query('sortColumn', 'id_paciente');
-    // $search = $request->query('search', '');
     $doctor = $request->query('doctor', '');
     $search = $request->query('search', '');
     $estado = $request->query('estado', 1);
 
+    // Validar parámetros
     $request->validate([
       'page' => 'integer|min:1',
       'limit' => 'integer|min:1|max:50000',
@@ -62,17 +64,106 @@ class PacientesApiController extends Controller
 
     $data = Pacientes::query();
 
+    // Filtro de búsqueda general
     if (!empty($search)) {
-      $searchClean = preg_replace('/[^A-Za-z0-9]/', '', $search); 
+      $searchClean = preg_replace('/[^A-Za-z0-9]/', '', $search);
       $nameParts = explode(' ', $search);
-
       $data->where(function ($query) use ($nameParts, $searchClean) {
         foreach ($nameParts as $part) {
           $query->where(function ($subQuery) use ($part, $searchClean) {
             $subQuery
               ->where('nombres', 'like', "%{$part}%")
               ->orWhere('apellidos', 'like', "%{$part}%")
-              ->orWhereRaw("REPLACE(REPLACE(REPLACE(nro_cedula, '-', ''), ' ', ''), 'PE', '') LIKE ?", ["%{$searchClean}%"]) 
+              ->orWhereRaw("REPLACE(REPLACE(REPLACE(nro_cedula, '-', ''), ' ', ''), 'PE', '') LIKE ?", ["%{$searchClean}%"])
+              ->orWhere('direccion', 'like', "%{$part}%")
+              ->orWhere('fecha_creacion', 'like', "%{$part}%");
+          });
+        }
+      });
+    }
+
+    if (!empty($doctor)) {
+      $data->where('doctor', '=', $doctor);
+    }
+
+    if (!empty($estado)) {
+      $data->where('estado', '=', $estado);
+    }
+
+    $data->orderBy($sortColumn, $sortOrder);
+    $pacientes = $data->paginate($limit, ['*'], 'page', $page);
+    $formattedData = $pacientes->items();
+
+    foreach ($formattedData as &$paciente) {
+      $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
+
+      // Contar terapias por paciente
+      $bloquesBajaVision = DB::table('terapias_bajav')
+        ->where('id_paciente', $paciente['id_paciente'])
+        ->count();
+
+      $bloquesOrtopticaAdultos = DB::table('terapias_ortoptica_adultos')
+        ->where('id_paciente', $paciente['id_paciente'])
+        ->count();
+
+      $bloquesOrtopticaNeonatos = DB::table('terapias_optometria_neonatos')
+        ->where('id_paciente', $paciente['id_paciente'])
+        ->count();
+
+      $totalBloques = $bloquesBajaVision + $bloquesOrtopticaAdultos + $bloquesOrtopticaNeonatos;
+
+      // Agregar al resultado
+      $paciente['N_Bloques_Baja_Vision'] = $bloquesBajaVision;
+      $paciente['N_Bloques_Ortoptica_Adultos'] = $bloquesOrtopticaAdultos;
+      $paciente['N_Bloques_Ortoptica_Neonatos'] = $bloquesOrtopticaNeonatos;
+      $paciente['N_Bloques_Total'] = $totalBloques;
+    }
+
+    return response()->json([
+      'data' => $formattedData,
+      'meta' => [
+        'page' => $pacientes->currentPage(),
+        'limit' => $pacientes->perPage(),
+        'total' => $pacientes->total(),
+      ],
+      'status' => [
+        'code' => 200,
+        'message' => 'Pacientes retrieved successfully',
+      ]
+    ]);
+  }
+
+
+  public function exportPacientesExcel(Request $request)
+  {
+    // Filtros
+    $sortOrder = $request->query('sortOrder', 'asc');
+    $sortColumn = $request->query('sortColumn', 'id_paciente');
+    $doctor = $request->query('doctor', '');
+    $search = $request->query('search', '');
+    $estado = $request->query('estado', 1);
+
+    // Validar parámetros
+    $request->validate([
+      'sortOrder' => 'in:asc,desc',
+      'sortColumn' => 'string|in:sucursal,id_paciente,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
+      'search' => 'string|nullable|max:255',
+      'nameFilter' => 'string|nullable|max:255',
+    ]);
+
+    $data = DB::table('pacientes');
+
+    // Filtro de búsqueda
+    if (!empty($search)) {
+      $searchClean = preg_replace('/[^A-Za-z0-9]/', '', $search);
+      $nameParts = explode(' ', $search);
+      $data->where(function ($query) use ($nameParts, $searchClean) {
+        foreach ($nameParts as $part) {
+          $query->where(function ($subQuery) use ($part, $searchClean) {
+            $subQuery
+              ->where('nombres', 'like', "%{$part}%")
+              ->orWhere('apellidos', 'like', "%{$part}%")
+              ->orWhereRaw("REPLACE(REPLACE(REPLACE(nro_cedula, '-', ''), ' ', ''), 'PE', '') LIKE ?", ["%{$searchClean}%"])
               ->orWhere('direccion', 'like', "%{$part}%")
               ->orWhere('fecha_creacion', 'like', "%{$part}%");
           });
@@ -90,26 +181,89 @@ class PacientesApiController extends Controller
 
     $data->orderBy($sortColumn, $sortOrder);
 
-    $pacientes = $data->paginate($limit, ['*'], 'page', $page);
+    // Obtener todos los pacientes
+    $pacientes = $data->get();
 
-    $formattedData = $pacientes->items();
-    foreach ($formattedData as &$paciente) {
-      $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
+    // Crear instancia de Excel
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Encabezados
+    $headers = [
+      'ID',
+      'Doctor',
+      'Sucursal',
+      'Nombres',
+      'Apellidos',
+      'Cédula',
+      'Email',
+      'Teléfono',
+      'Celular',
+      'Dirección',
+      'Fecha Creación',
+      'Bloques Baja Visión',
+      'Bloques Ortóptica Adultos',
+      'Bloques Ortóptica Neonatos',
+      'Total Bloques'
+    ];
+
+    $columnIndex = 'A';
+    foreach ($headers as $header) {
+      $sheet->setCellValue($columnIndex . '1', $header);
+      $sheet->getStyle($columnIndex . '1')->getFont()->setBold(true);
+      $sheet->getStyle($columnIndex . '1')->getFont()->setSize(11);
+      $sheet->getColumnDimension($columnIndex)->setAutoSize(true);
+      $columnIndex++;
     }
 
-    return response()->json([
-      'data' => $formattedData,
-      'meta' => [
-        'page' => $pacientes->currentPage(),
-        'limit' => $pacientes->perPage(),
-        'total' => $pacientes->total(),
-      ],
-      'status' => [
-        'code' => 200,
-        'message' => 'Pacientes retrieved successfully',
-      ]
-    ]);
+    // Datos
+    $row = 2;
+    foreach ($pacientes as $paciente) {
+      $bloquesBajaVision = DB::table('terapias_bajav')->where('id_paciente', $paciente->id_paciente)->count();
+      $bloquesOrtopticaAdultos = DB::table('terapias_ortoptica_adultos')->where('id_paciente', $paciente->id_paciente)->count();
+      $bloquesOrtopticaNeonatos = DB::table('terapias_optometria_neonatos')->where('id_paciente', $paciente->id_paciente)->count();
+      $totalBloques = $bloquesBajaVision + $bloquesOrtopticaAdultos + $bloquesOrtopticaNeonatos;
+
+      $sheet->setCellValue("A{$row}", $paciente->id_paciente);
+      $sheet->setCellValue("B{$row}", $paciente->doctor);
+      $sheet->setCellValue("C{$row}", $paciente->sucursal);
+      $sheet->setCellValue("D{$row}", $paciente->nombres);
+      $sheet->setCellValue("E{$row}", $paciente->apellidos);
+      $sheet->setCellValue("F{$row}", $paciente->nro_cedula);
+      $sheet->setCellValue("G{$row}", $paciente->email);
+      $sheet->setCellValue("H{$row}", $paciente->telefono);
+      $sheet->setCellValue("I{$row}", $paciente->celular);
+      $sheet->setCellValue("J{$row}", $paciente->direccion);
+      $sheet->setCellValue("K{$row}", $paciente->fecha_creacion);
+      $sheet->setCellValue("L{$row}", $bloquesBajaVision);
+      $sheet->setCellValue("M{$row}", $bloquesOrtopticaAdultos);
+      $sheet->setCellValue("N{$row}", $bloquesOrtopticaNeonatos);
+      $sheet->setCellValue("O{$row}", $totalBloques);
+
+      $row++;
+    }
+
+    // Estilo general
+    $sheet->getStyle("A1:O1")->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+      ->getStartColor()->setRGB('EFF5FF');
+    $sheet->getStyle("A1:O{$row}")->getBorders()->getAllBorders()
+      ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+    $sheet->getStyle("A1:O{$row}")->getFont()->setName('Calibri')->setSize(10);
+
+    // Descargar archivo
+    $writer = new Xlsx($spreadsheet);
+    $fileName = 'Pacientes_' . date('Ymd_His') . '.xlsx';
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$fileName\"");
+    $writer->save('php://output');
+    exit;
   }
+
+
+
+
+
 
 
 
@@ -505,7 +659,7 @@ class PacientesApiController extends Controller
 
     $subquery = DB::table(DB::raw(
       "
-        (SELECT paciente, MAX(fecha_atencion) AS ultima_atencion, 
+        (SELECT paciente, MAX(fecha_atencion) AS ultima_atencion,
         GROUP_CONCAT(DISTINCT doctor ORDER BY doctor ASC SEPARATOR ', ') AS doctores
         FROM (
             SELECT paciente, fecha_atencion, doctor FROM optometria_neonatos
