@@ -62,7 +62,7 @@ use Illuminate\Support\Facades\View;
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/usuarios-doctor', [UsuariosApiController::class, 'usuariosDoctor']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
-// Route::get('/api/exportar-pacientes', [PacientesApiController::class, 'exportPacientesExcel']);
+Route::get('/api/exportar-pacientes-v2', [PacientesApiController::class, 'exportPacientesExcel']);
 
 Route::get('/api/pacientes/{id}', [PacientesApiController::class, 'VerPaciente']);
 

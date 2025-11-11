@@ -4,15 +4,15 @@ import {
   fetchPacientes,
   eliminarPaciente,
   fetchInterfuerza,
-} from "../../redux/features/pacientes/pacientesSlice.js";
+} from "../../../redux/features/pacientes/pacientesSlice.js";
 import { Link } from "react-router-dom";
-import PaginationPacientes from "./PaginationPacientes.js";
+import PaginationPacientes from "../../Paciente/PaginationPacientes.js";
 import Swal from "sweetalert2";
 import moment from "moment";
-import { funPermisosObtenidos } from "../../utils/ValidarPermisos.js";
+import { funPermisosObtenidos } from "../../../utils/ValidarPermisos.js";
 import { FaFileExcel } from "react-icons/fa";
 
-const ListaPaciente = () => {
+const ReportePacientes = () => {
   const dispatch = useDispatch();
   const { meta, pacientes, status, error, totalPages } = useSelector((state) => state.pacientes);
   const { permisos } = useSelector((state) => state.auth);
@@ -30,7 +30,14 @@ const ListaPaciente = () => {
   }, [searchText]);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: currentPage, limit: 20, search: debouncedSearchText }));
+    dispatch(
+      fetchPacientes({
+        page: currentPage,
+        limit: 20,
+        search: debouncedSearchText,
+        obtenerBloques: 1,
+      })
+    );
   }, [currentPage, debouncedSearchText, dispatch]);
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -151,7 +158,7 @@ const ListaPaciente = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <h4 style={styles.title}>Lista de Pacientes</h4>
+          <h4 style={styles.title}>Reporte de Pacientes</h4>
           <div style={styles.searchSection}>
             <input
               style={styles.searchInput}
@@ -160,10 +167,10 @@ const ListaPaciente = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
-            {/* <button style={styles.excelButton} onClick={handleDescargarExcel}>
+            <button style={styles.excelButton} onClick={handleDescargarExcel}>
               <FaFileExcel size={16} style={{ marginRight: 6 }} />
               Descargar Excel
-            </button> */}
+            </button>
           </div>
         </div>
 
@@ -178,12 +185,12 @@ const ListaPaciente = () => {
                   <th style={styles.th}>Cédula</th>
                   <th style={styles.th}>Dirección</th>
                   <th style={styles.th}>Fecha</th>
-                  {/* <th style={styles.th}>N° Bl Baja Vision</th>
+                  <th style={styles.th}>N° Bl Baja Vision</th>
                   <th style={styles.th}>N° Bl Ortop. Adultos</th>
                   <th style={styles.th}>N° Bl Ortop. Neonatos</th>
-                  <th style={styles.th}>N° Bl Total</th> */}
-                  <th style={styles.th}>Interfuerza</th>
-                  <th style={styles.th}>Acciones</th>
+                  <th style={styles.th}>N° Bl Total</th>
+                  {/* <th style={styles.th}>Interfuerza</th> */}
+                  {/* <th style={styles.th}>Acciones</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -193,11 +200,11 @@ const ListaPaciente = () => {
                     <td style={styles.td}>{p.nro_cedula}</td>
                     <td style={styles.td}>{p.direccion}</td>
                     <td style={styles.td}>{moment(p?.fecha_creacion).format("YYYY-MM-DD")}</td>
-                    {/* <td style={styles.td}>{p.N_Bloques_Baja_Vision}</td>
+                    <td style={styles.td}>{p.N_Bloques_Baja_Vision}</td>
                     <td style={styles.td}>{p.N_Bloques_Ortoptica_Adultos}</td>
                     <td style={styles.td}>{p.N_Bloques_Ortoptica_Neonatos}</td>
-                    <td style={styles.td}>{p.N_Bloques_Total}</td> */}
-                    <td
+                    <td style={styles.td}>{p.N_Bloques_Total}</td>
+                    {/* <td
                       style={{
                         ...styles.td,
                         color: "blue",
@@ -225,7 +232,7 @@ const ListaPaciente = () => {
                           🗑️
                         </button>
                       )}
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
@@ -244,7 +251,7 @@ const ListaPaciente = () => {
   );
 };
 
-export default ListaPaciente;
+export default ReportePacientes;
 
 const styles = {
   container: {

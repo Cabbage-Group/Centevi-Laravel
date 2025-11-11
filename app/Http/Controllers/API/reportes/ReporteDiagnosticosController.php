@@ -40,7 +40,7 @@ class ReporteDiagnosticosController extends Controller
                     'Historia Clinica' as consulta,
                     COUNT(dhc.diagnostico_id) as diagnosticos,
                     hc.fecha_atencion as fecha
-                FROM historia_clinica hc
+                FROM consultagenerica hc
                 LEFT JOIN diagnosticos_historias_clinicas dhc
                     ON dhc.historia_clinica_id = hc.id_consulta
                 LEFT JOIN sucursales s ON s.id_sucursal = hc.sucursal
@@ -168,7 +168,7 @@ class ReporteDiagnosticosController extends Controller
             d.codigo AS codigo,
             d.diagnostico AS diagnostico_nombre,
             hc.fecha_atencion AS fecha
-        FROM historia_clinica hc
+        FROM consultagenerica hc
         LEFT JOIN diagnosticos_historias_clinicas dhc ON dhc.historia_clinica_id = hc.id_consulta
         LEFT JOIN diagnosticos d ON d.id = dhc.diagnostico_id
         LEFT JOIN sucursales s ON s.id_sucursal = hc.sucursal

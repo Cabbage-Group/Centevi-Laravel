@@ -98,6 +98,7 @@ import TableCobros from "../admin/cobros/TableCobros.js";
 import TableWareHouses from "../admin/cotizaciones/wareHouses/TableWareHouses.js";
 import VerDiagnosticos from "../admin/diagnosticos/VerDiagnosticos.js";
 import Diagnosticos from "../admin/reportes/diagnosticos/Diagnosticos.js";
+import ReportePacientes from "../admin/reportes/pacientes/ReportePacientes.js";
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -168,7 +169,6 @@ const RoutesApp = () => {
             element={<Sidebar component={<VerBajaVision />} />}
           />
           <Route path="/baja-vision" element={<Sidebar component={<BajaVision />} />} />
-
           <Route
             path="/ver-refraccion/:id/:id_consulta"
             element={<Sidebar component={<VerRefraccionGeneral />} />}
@@ -181,13 +181,11 @@ const RoutesApp = () => {
             path="/optometria-general"
             element={<Sidebar component={<OptometriaGeneral />} />}
           />
-
           <Route path="/historia-clinica" element={<Sidebar component={<HistoriaClinica />} />} />
           <Route
             path="/editar-ConsultaGenerica/:id/:id_consulta"
             element={<Sidebar component={<EditarConsultaGenerica />} />}
           />
-
           <Route
             path="/editar-neonato/:id/:id_consulta"
             element={<Sidebar component={<EditarNeonatos />} />}
@@ -200,7 +198,6 @@ const RoutesApp = () => {
             path="/optometria-neonatos"
             element={<Sidebar component={<OptometriaNeonatos />} />}
           />
-
           <Route
             path="/ver-pediatrica/:id/:id_consulta"
             element={<Sidebar component={<VerPediatrica />} />}
@@ -213,7 +210,6 @@ const RoutesApp = () => {
             path="/optometria-pediatra"
             element={<Sidebar component={<OptometriaPediatra />} />}
           />
-
           <Route path="/crear-paciente" element={<Sidebar component={<CrearPaciente />} />} />
           <Route path="/usuarios" element={<Sidebar component={<Usuarios />} />} />
           <Route path="/lista-pacientes" element={<Sidebar component={<ListaPaciente />} />} />
@@ -222,7 +218,6 @@ const RoutesApp = () => {
             element={<Sidebar component={<HistoriaPaciente />} />}
           />
           <Route path="/editar-paciente/:id" element={<Sidebar component={<EditarPaciente />} />} />
-
           <Route
             path="/ver-ortoptica/:id/:id_consulta"
             element={<Sidebar component={<VerOrtoptica />} />}
@@ -235,10 +230,8 @@ const RoutesApp = () => {
             path="/vision-binocular"
             element={<Sidebar component={<OrtopticaVisionBinocular />} />}
           />
-
           <Route path="/recetas" element={<Sidebar component={<VerRecetas />} />} />
           <Route path="/ordenes" element={<Sidebar component={<VerOrdenes />} />} />
-
           <Route path="/crear-receta" element={<Sidebar component={<CrearReceta />} />} />
           <Route
             path="/orden-receta/:orderId/:nroOrden/:idPaciente"
@@ -257,7 +250,6 @@ const RoutesApp = () => {
             path="/ver-orden/:orderId/:nroOrden/:idPaciente"
             element={<Sidebar component={<VerUnaOrden />} />}
           />
-
           <Route path="/reportes" element={<Sidebar component={<VerReportes />} />} />
           <Route path="/reportes-sin-atencion" element={<Sidebar component={<SinAtencion />} />} />
           <Route
@@ -277,6 +269,7 @@ const RoutesApp = () => {
           />
           <Route path="/reporte-ordenes" element={<Sidebar component={<ReporteOrdenes />} />} />
           <Route path="/reporte-diagnosticos" element={<Sidebar component={<Diagnosticos />} />} />
+          <Route path="/reporte-pacientes" element={<Sidebar component={<ReportePacientes />} />} />
 
           <Route
             path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion"
@@ -294,7 +287,6 @@ const RoutesApp = () => {
             path="/ver-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion"
             element={<Sidebar component={<VerSesionTerapiaOrtoptica />} />}
           />
-
           <Route
             path="/editar-sesion-terapia/:id_paciente/:id_terapia/:id_sesion"
             element={<Sidebar component={<EditarSesionTerapia />} />}
@@ -311,12 +303,10 @@ const RoutesApp = () => {
             path="/editar-sesion-terapia-ortoptica/:id_paciente/:id_terapia/:id_sesion"
             element={<Sidebar component={<EditarSesionTerapiaOrtoptica />} />}
           />
-
           <Route
             path="/ver-consultagenericas/:id/:id_consulta"
             element={<Sidebar component={<VerConsultaGenerica />} />}
           />
-
           <Route
             path="/terapias-bajavision/:id/:id_terapia"
             element={<Sidebar component={<TerapiasBajaVision />} />}
@@ -333,113 +323,80 @@ const RoutesApp = () => {
             path="/terapias-pediatrica/:id/:id_terapia"
             element={<Sidebar component={<TerapiasPediatrica />} />}
           />
-
           <Route path="/tipos-usuarios" element={<Sidebar component={<TiposUsuarios />} />} />
-
           <Route path="/permisos/:id" element={<Sidebar component={<Permisos />} />} />
-
           <Route
             path="/servicios-proximos-realizados"
             element={<Sidebar component={<ServiciosProximosRealizados />} />}
           />
-
           <Route path="/ver-kpis" element={<Sidebar component={<VerKpis />} />} />
-
           <Route
             path="/ver-kpis-consultas-terapias"
             element={<Sidebar component={<VerKpisConsultasTerapias />} />}
           />
-
           <Route path="/ver-kpis-ordenes" element={<Sidebar component={<VerKpisOrdenes />} />} />
-
           <Route path="/kpis-tipos-lente" element={<Sidebar component={<VerKpisTipoLente />} />} />
-
           <Route
             path="/ver-correciones-ordenes"
             element={<Sidebar component={<VerCorrecionesOrdenes />} />}
           />
-
           <Route
             path="/ver-correcion-orden/:correccionOrderId"
             element={<Sidebar component={<VerUnaCorrecionOrdenes />} />}
           />
-
           <Route
             path="/crear-correciones-ordenes"
             element={<Sidebar component={<CreateCorrecionOrden />} />}
           />
-
           <Route
             path="/kpis-tipos-cristales"
             element={<Sidebar component={<KpisTiposCristales />} />}
           />
-
           <Route
             path="/correciones-ordenes/:correccionOrderId"
             element={<Sidebar component={<CorrecionOrden />} />}
           />
-
           <Route path="/diseño" element={<Sidebar component={<CorrecionOrden />} />} />
-
           <Route path="/email" element={<Sidebar component={<Email />} />} />
-
           <Route
             path="/caracteristicas-cristales"
             element={<Sidebar component={<SegmentedTablesPage />} />}
           />
-
           <Route
             path="/kpis-consultas-terapias"
             element={<Sidebar component={<VerKpisConsultasYTerapias />} />}
           />
-
           <Route
             path="/kpis-consultas-doctores"
             element={<Sidebar component={<KpisConsultasTerapiasDoctores />} />}
           />
-
           <Route path="/ver-agenda" element={<Sidebar component={<VerAgenda />} />} />
-
           <Route path="/ver-chat" element={<Sidebar component={<WhatsAppChat />} />} />
-
           <Route path="/ver-socket" element={<Sidebar component={<ChatComponent />} />} />
-
           <Route path="/crear-cotizacion" element={<Sidebar component={<CrearCotizacion />} />} />
-
           <Route
             path="/table-cotizaciones"
             element={<Sidebar component={<TableCotizaciones />} />}
           />
-
           <Route
             path="/ver-cotizacion/:id"
             element={<Sidebar component={<VerUnaCotizacion />} />}
           />
-
           <Route path="/ordenes-labo" element={<Sidebar component={<NewTableOrdenes />} />} />
-
           <Route
             path="/crear-productos"
             element={<Sidebar component={<ProductsInterfuerza />} />}
           />
-
           <Route
             path="/table-productos"
             element={<Sidebar component={<TableProductsInterfuerza />} />}
           />
-
           <Route path="/prueba-mention" element={<Sidebar component={<MentionComponent />} />} />
-
           <Route path="/ventas" element={<Sidebar component={<Ventas />} />} />
-
           <Route path="/servicios" element={<Sidebar component={<VerServicios />} />} />
-
           <Route path="/crear-cobro" element={<Sidebar component={<CrearCobro />} />} />
-
           <Route path="/table-cobro" element={<Sidebar component={<TableCobros />} />} />
-
           <Route path="/table-bodegas" element={<Sidebar component={<TableWareHouses />} />} />
-
           <Route path="/diagnosticos" element={<Sidebar component={<VerDiagnosticos />} />} />
         </Route>
 

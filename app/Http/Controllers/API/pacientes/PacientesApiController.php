@@ -51,6 +51,8 @@ class PacientesApiController extends Controller
     $doctor = $request->query('doctor', '');
     $search = $request->query('search', '');
     $estado = $request->query('estado', 1);
+    $obtenerBloques = $request->query('obtenerBloques');
+
 
     // Validar parámetros
     $request->validate([
@@ -97,26 +99,29 @@ class PacientesApiController extends Controller
     foreach ($formattedData as &$paciente) {
       $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
 
-      // Contar terapias por paciente
-      $bloquesBajaVision = DB::table('terapias_bajav')
-        ->where('id_paciente', $paciente['id_paciente'])
-        ->count();
+      if ($obtenerBloques == 1) {
 
-      $bloquesOrtopticaAdultos = DB::table('terapias_ortoptica_adultos')
-        ->where('id_paciente', $paciente['id_paciente'])
-        ->count();
+        // Contar terapias por paciente
+        $bloquesBajaVision = DB::table('terapias_bajav')
+          ->where('id_paciente', $paciente['id_paciente'])
+          ->count();
 
-      $bloquesOrtopticaNeonatos = DB::table('terapias_optometria_neonatos')
-        ->where('id_paciente', $paciente['id_paciente'])
-        ->count();
+        $bloquesOrtopticaAdultos = DB::table('terapias_ortoptica_adultos')
+          ->where('id_paciente', $paciente['id_paciente'])
+          ->count();
 
-      $totalBloques = $bloquesBajaVision + $bloquesOrtopticaAdultos + $bloquesOrtopticaNeonatos;
+        $bloquesOrtopticaNeonatos = DB::table('terapias_optometria_neonatos')
+          ->where('id_paciente', $paciente['id_paciente'])
+          ->count();
 
-      // Agregar al resultado
-      $paciente['N_Bloques_Baja_Vision'] = $bloquesBajaVision;
-      $paciente['N_Bloques_Ortoptica_Adultos'] = $bloquesOrtopticaAdultos;
-      $paciente['N_Bloques_Ortoptica_Neonatos'] = $bloquesOrtopticaNeonatos;
-      $paciente['N_Bloques_Total'] = $totalBloques;
+        $totalBloques = $bloquesBajaVision + $bloquesOrtopticaAdultos + $bloquesOrtopticaNeonatos;
+
+        // Agregar al resultado
+        $paciente['N_Bloques_Baja_Vision'] = $bloquesBajaVision;
+        $paciente['N_Bloques_Ortoptica_Adultos'] = $bloquesOrtopticaAdultos;
+        $paciente['N_Bloques_Ortoptica_Neonatos'] = $bloquesOrtopticaNeonatos;
+        $paciente['N_Bloques_Total'] = $totalBloques;
+      }
     }
 
     return response()->json([
