@@ -11,6 +11,7 @@ import '../../../css/tables/TableCotizaciones.css';
 import { verCotizacionPdf } from '../../redux/features/quotes/quotesSlice';
 import { constant, forEach, set } from "lodash";
 import SeguimientoCotizacionModal from "./SeguimientoCotizacionModal.js";
+import { Edit2Icon } from "lucide-react";
 const { Text } = Typography;
 
 const TableCotizaciones = () => {
@@ -241,7 +242,7 @@ const TableCotizaciones = () => {
     setLoadingPdf(false);
   };
 
-  const handleSeguimientoCotizacion = (id, record) =>{
+  const handleSeguimientoCotizacion = (id, record) => {
     setSelectedQuote(record);
     setSeguimientoModalVisible(true);
     // console.log(id, record);
@@ -568,28 +569,28 @@ const TableCotizaciones = () => {
               height: "30px"
             }}
           />
-          <Button
-            size="large"
-            icon={<CopyOutlined style={{ width: '15px' }} />}
-            onClick={() => navigate(`/crear-cotizacion`,
-              {
-                state: { record }
-              }
-            )}
-            style={{
-              marginRight: 8,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: '#da2268',
-              color: '#fff',
-              width: "30px",
-              height: "30px"
-            }}
-          />
+          <Link
+            to="/crear-cotizacion"
+            state={{ record }}
+          >
+            <Button
+              size="large"
+              icon={<CopyOutlined style={{ width: '15px' }} />}
+              style={{
+                marginRight: 8,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: '#da2268',
+                color: '#fff',
+                width: "30px",
+                height: "30px"
+              }}
+            />
+          </Link>
           <Button
             size="large"
             icon={<FilePdfOutlined style={{ width: '15px' }} />}
-            onClick={() => handleVerCotizacionPdf(record.id, record)} 
+            onClick={() => handleVerCotizacionPdf(record.id, record)}
             style={{
               marginRight: 8,
               alignItems: "center",
@@ -603,7 +604,20 @@ const TableCotizaciones = () => {
           <Button
             size="large"
             icon={<ProfileOutlined style={{ width: '15px' }} />}
-            onClick={() => handleSeguimientoCotizacion(record.id, record)} 
+            onClick={() => handleSeguimientoCotizacion(record.id, record)}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: '#13c2c2',
+              color: '#fff',
+              width: "30px",
+              height: "30px"
+            }}
+          />
+          <Button
+            size="large"
+            icon={<Edit2Icon style={{ width: '15px' }} />}
+            onClick={() => navigate(`/actualizar-cotizacion/${record.id}`)}
             style={{
               alignItems: "center",
               justifyContent: "center",
@@ -652,7 +666,7 @@ const TableCotizaciones = () => {
       </div>
 
 
-      <Spin spinning={status === 'loading'}  tip="Cargando datos..." size="large">
+      <Spin spinning={status === 'loading'} tip="Cargando datos..." size="large">
         <Table
           columns={columns}
           dataSource={quotes}
@@ -666,19 +680,19 @@ const TableCotizaciones = () => {
             pageSize: limit,
             showSizeChanger: false,
           }}
-          // loading={{
-          //   spinning: status === 'loading',
-          //   tip: 'Cargando datos...', // mensaje que aparece junto al spinner
-          // }}
+        // loading={{
+        //   spinning: status === 'loading',
+        //   tip: 'Cargando datos...', // mensaje que aparece junto al spinner
+        // }}
         />
       </Spin>
       <Modal
         open={pdfModalVisible}
         width={pdfViewMode === 'preview' ? 900 : 1600}
         closable={false}
-        footer={pdfViewMode === 'preview' ? [ 
+        footer={pdfViewMode === 'preview' ? [
           <button key="cancel" onClick={() => setPdfModalVisible(false)}
-          className="btn btn-danger">
+            className="btn btn-danger">
             Cancelar
           </button>,
           <button
@@ -747,7 +761,7 @@ const TableCotizaciones = () => {
               setUrlPdf(null);
               setPdfViewMode('pdf');
             }}
-            className="btn btn-danger">
+              className="btn btn-danger">
               Cerrar
             </button>
           </div>

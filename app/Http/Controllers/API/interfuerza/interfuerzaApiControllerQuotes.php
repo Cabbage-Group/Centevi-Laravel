@@ -9,6 +9,7 @@ use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 use Whoops\Run;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class interfuerzaApiControllerQuotes extends Controller
 {
@@ -186,5 +187,91 @@ class interfuerzaApiControllerQuotes extends Controller
       'updated_count' => $foundCount,
       'updated_ids' => $foundIds
     ]);
+  }
+
+  public function actualizarQuote(Request $request, $id)
+  {
+    $data = $request->validate([
+      'Cliente' => 'nullable|string',
+      'Bodega' => 'nullable|string',
+      'Status' => 'nullable|string',
+      'Date' => 'nullable|date',
+      'Expira' => 'nullable|date',
+      'Comentario' => 'nullable|string',
+      'SubTotal' => 'nullable|numeric',
+      'Discount' => 'nullable|numeric',
+      'Taxes' => 'nullable|numeric',
+      'Total' => 'nullable|numeric',
+      'Abono' => 'nullable|numeric',
+      'Type' => 'nullable|string',
+      'Vendedor' => 'nullable|string',
+      'Currency' => 'nullable|string',
+      'Currency_Rate' => 'nullable|numeric',
+      'extraData' => 'nullable|array',
+
+      'Lines' => 'nullable|array',
+
+      'Lines.*.Codigo' => 'nullable|string',
+      'Lines.*.Descripcion' => 'nullable|string',
+      'Lines.*.Item_Number' => 'nullable|string',
+      'Lines.*.Nombre' => 'nullable|string',
+      'Lines.*.Marca' => 'nullable|string',
+      'Lines.*.Category_L1' => 'nullable|string',
+      'Lines.*.Category_L2' => 'nullable|string',
+      'Lines.*.Category_L3' => 'nullable|string',
+      'Lines.*.Unidades' => 'nullable|numeric',
+      'Lines.*.Precio_Unitario' => 'nullable|numeric',
+      'Lines.*.Discount' => 'nullable|numeric',
+      'Lines.*.DiscountFactor' => 'nullable|numeric',
+      'Lines.*.TaxID' => 'nullable|string',
+      'Lines.*.TaxName' => 'nullable|string',
+      'Lines.*.TaxFactor' => 'nullable|numeric',
+      'Lines.*.TaxValue' => 'nullable|numeric',
+      'Lines.*.Total' => 'nullable|numeric',
+    ]);
+
+    $quote = Quote::with('lines')->findOrFail($id);
+
+    DB::beginTransaction();
+
+    try {
+      $quote->update($data);
+
+      if (isset($data['Lines'])) {
+        $quote->lines()->delete();
+
+
+        foreach ($data['Lines'] as $lineData) {
+          $quote->lines()->create($lineData);
+        }
+      }
+
+      // $payload = [
+      //     'codigo' => $quote->codigo_interfuerza,
+      //     'data'    => $data,
+      //     'Lines'   => $data['lines'] ?? [],
+      // ];
+
+      // $interfuerza = $this->interfuerzaService->request($payload);
+
+      // if (!$interfuerza->successful()) {
+      //     throw new \Exception("Error al actualizar en Interfuerza");
+      // }
+
+
+      DB::commit();
+
+      return response()->json([
+        'message' => 'Quote actualizada correctamente',
+        'quote'   => $quote->load('lines'),
+      ]);
+    } catch (\Exception $e) {
+      DB::rollBack();
+
+      return response()->json([
+        'message' => 'Error actualizando la Quote',
+        'error'   => $e->getMessage(),
+      ], 500);
+    }
   }
 }

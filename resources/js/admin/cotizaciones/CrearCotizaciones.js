@@ -30,6 +30,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { fetchProductsInterfuerza } from '../../redux/features/productsInterfuerza/ProductsInterfuerza';
 import { fetchWareHouses } from '../../redux/features/warehouses/warehousesSlice';
 import { getMaxDiscountFromPermisos } from '../../utils/ValidarPermisos';
+import { initial } from 'lodash';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -87,6 +88,7 @@ const CrearCotizacion = () => {
 
   useEffect(() => {
     dispatch(fetchExchangeRate());
+    console.log('Fetching exchange rate, status:', exchangeRate);
     dispatch(fetchWareHouses({}))
     dispatch(fetchProductsInterfuerza({}))
   }, []);
@@ -114,21 +116,22 @@ const CrearCotizacion = () => {
     };
 
     // const sucursalId = ipToSucursalId[ip] || null; // aca devolvemos por defecto null si no se encontro registrada la ip
-    const sucursalId = ipToSucursalId[ip] || 3; 
-    if (!sucursalId) return ''; 
-    if (!sucursalId) return ''; 
+    const sucursalId = ipToSucursalId[ip] || 3;
+    if (!sucursalId) return '';
+    if (!sucursalId) return '';
     const warehouseSelected = warehouses.find(w => w.sucursal_id === sucursalId);
     return warehouseSelected?.nombre || '';
   };
 
   useEffect(() => {
 
-    if (exchangeRate) {
-      form.setFieldsValue({
-        Vendedor: nombre || '',
-        Currency_Rate: exchangeRate
-      });
-    }
+
+    console.log('Setting exchange rate in form:', exchangeRate);
+    form.setFieldsValue({
+      Vendedor: nombre || 'asdasdadasdsad',
+      Currency_Rate: exchangeRate || '1.000000000',
+    });
+
     form.setFieldsValue({
       Status: "ACTIVE",
       Type: "CUSTOMER",
@@ -353,8 +356,7 @@ const CrearCotizacion = () => {
         TaxID: '6',
         TaxName: 'ITBMS',
         TaxFactor: 0.07,
-        TaxValue: 0,
-        Total: 0
+        TaxValue: 0
       }
     ]);
   };
@@ -451,7 +453,7 @@ const CrearCotizacion = () => {
     const subTotalMenosDescuento = subtotal - discount_total;
     const impuesto_total = subTotalMenosDescuento * TAX_RATE;
     const totalNumber = Number((impuesto_total + subTotalMenosDescuento).toFixed(2)); // número
-    
+
     form.setFieldsValue({
       Taxes: Number(impuesto_total.toFixed(2)),
       SubTotal: Number(subtotal.toFixed(2)),
@@ -459,13 +461,13 @@ const CrearCotizacion = () => {
       Total: totalNumber,
       SubTotalMenosDescuento: Number(subTotalMenosDescuento.toFixed(2)),
     });
-  
+
     // maxAbono y saldo pendiente
     setMaxAbono(totalNumber);
-  
+
     // Actualizamos saldo pendiente respetando el Abono actual del formulario
     updateSaldoPendiente(null, totalNumber);
-  
+
     console.log(linesArray);
   };
 
@@ -503,7 +505,7 @@ const CrearCotizacion = () => {
     // Obtener el valor real del input DOM
     const inputValue = e.target.value;
     let normalized;
-    
+
     if (inputValue === '' || inputValue == null) {
       normalized = 0;
     } else {
@@ -526,7 +528,7 @@ const CrearCotizacion = () => {
     setTempRowDiscounts(prev => ({ ...prev, [index]: String(normalized) }));
     setEditingRows(prev => ({ ...prev, [index]: false }));
   };
- 
+
   // ----------------------------------- Para Abono -----------------------------------
   // Actualiza el campo SaldoPendiente en el formulario
   const updateSaldoPendiente = (abonoValue = null, totalValue = null) => {
@@ -562,7 +564,7 @@ const CrearCotizacion = () => {
     const totalActual = Number(form.getFieldValue('Total')) || 0;
     updateSaldoPendiente(numeric, totalActual);
   };
-  
+
 
   const columns = [
     {
@@ -791,12 +793,13 @@ const CrearCotizacion = () => {
     }
   ];
 
+
   return (
     <Card title={<Title level={2}>Cotizaciones</Title>}>
       <Form
         onForm={form}
         layout="vertical"
-        // initialValues={initialValues}
+
         onFinish={onFinish}
       >
         <Row gutter={16}>
@@ -855,6 +858,7 @@ const CrearCotizacion = () => {
             <Form.Item
               name="Vendedor"
               label="Vendedor"
+              initialValue={nombre || 'asdasdadasdsad'}
               rules={[{ required: true, message: 'Campo requerido' }]}
             >
               <Input
@@ -870,6 +874,7 @@ const CrearCotizacion = () => {
               name="Date"
               label="Fecha Inicio"
               rules={[{ required: true, message: 'Campo requerido' }]}
+              initialValue={dayjs()}
             >
               <DatePicker
                 style={{ width: '100%' }} format="YYYY-MM-DD"
@@ -892,6 +897,7 @@ const CrearCotizacion = () => {
               name="Expira"
               label="Fecha de Expiración"
               rules={[{ required: true, message: 'Campo requerido' }]}
+              initialValue={dayjs().add(30, 'day')}
             >
               <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
             </Form.Item>
@@ -909,6 +915,7 @@ const CrearCotizacion = () => {
                 onChange={handleBodegaChange}
                 loading={status_warehouses === 'loading'}
                 disabled={status_warehouses === 'loading'}
+                initialValue={getWarehouseNameByIP(warehouses)}
               >
                 {warehouses?.map((wareHouse) => (
                   <Option key={wareHouse.nombre} value={wareHouse.nombre}>
@@ -937,6 +944,7 @@ const CrearCotizacion = () => {
               name="Currency_Rate"
               label="Tasa de Cambio"
               rules={[{ required: true, message: 'Campo requerido' }]}
+              initialValue={exchangeRate || '1.000000000'}
             >
               <InputNumber style={{ width: '100%' }} precision={9} disabled />
             </Form.Item>
@@ -962,7 +970,7 @@ const CrearCotizacion = () => {
         <Divider>Líneas de Factura</Divider>
 
         <Row style={{ marginBottom: 16 }} justify={'space-between'}>
-          <Col style={{display: 'flex', flexDirection: 'row', alignItems: 'end'}}>
+          <Col style={{ display: 'flex', flexDirection: 'row', alignItems: 'end' }}>
             <Button
               type="dashed"
               onClick={addLine}
@@ -972,8 +980,8 @@ const CrearCotizacion = () => {
             </Button>
           </Col>
           <Col>
-            <Row gutter={[16,16]}>
-              <Col style={{display: 'flex', flexDirection:'column'}} sm={12} xs={12}>
+            <Row gutter={[16, 16]}>
+              <Col style={{ display: 'flex', flexDirection: 'column' }} sm={12} xs={12}>
                 <label style={{ paddingBottom: 8, margin: '0 0 0 0', fontWeight: "500", fontSize: '14px', fontFamily: 'Segoe UI' }}>
                   Aplicar Descuento Total:
                 </label>
@@ -989,7 +997,7 @@ const CrearCotizacion = () => {
                   onChange={handleTotalDiscountChange}
                   addonAfter="%"
                 /> */}
-                
+
                 <InputNumber
                   // Mientras editas mostramos tempDiscount; fuera de edición mostramos totalDiscount
                   value={
@@ -1026,7 +1034,7 @@ const CrearCotizacion = () => {
                       setTempDiscount('');
                       return;
                     }
-                  
+
                     // Solo validar que no sea negativo, pero permitir exceder máximo temporalmente
                     if (numeric < 0) {
                       setTempDiscount('0');
@@ -1035,12 +1043,12 @@ const CrearCotizacion = () => {
                       setTempDiscount(String(Number(numeric.toFixed(2))));
                     }
                   }}
-                
+
                   onBlur={(e) => {
                     // Obtener el valor real del input DOM
                     const inputValue = e.target.value;
                     let normalized;
-                  
+
                     if (inputValue === '' || inputValue == null) {
                       normalized = 0;
                     } else {
@@ -1053,7 +1061,7 @@ const CrearCotizacion = () => {
                         if (normalized > maxDiscount) normalized = maxDiscount;
                       }
                     }
-                  
+
                     normalized = Number(normalized.toFixed(2));
                     setTotalDiscount(normalized);
                     setTempDiscount(String(normalized));
@@ -1064,9 +1072,9 @@ const CrearCotizacion = () => {
                   style={{ width: '100%' }}
                 />
 
-              </Col>  
+              </Col>
 
-              <Col style={{display: 'flex', flexDirection:'column'}} sm={12} xs={12}>
+              <Col style={{ display: 'flex', flexDirection: 'column' }} sm={12} xs={12}>
                 <Form.Item name="Abono" label="Abono:" style={{ marginBottom: 5, fontWeight: "bold", fontSize: '12px' }}>
                   <InputNumber
                     precision={2}
@@ -1217,7 +1225,7 @@ const CrearCotizacion = () => {
                 </Form.Item>
               </Col>
             </Row>
-            
+
             <Row gutter={16}>
               <Col xxl={12} xl={12} md={12}>
                 Saldo pendiente
