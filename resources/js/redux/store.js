@@ -101,6 +101,7 @@ import ventasSlice from "./features/ventas/VentasSlice";
 import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
 import warehousesSlice from "./features/warehouses/warehousesSlice";
 import diagnosticosSlice from "./features/reportes/Diagnosticos/diagnosticosSlice";
+import basesSlice from "./features/bases/basesSlice";
 
 const store = configureStore({
   reducer: {
@@ -243,6 +244,8 @@ const store = configureStore({
 
     diagnosticos: DiagnosticosReducer,
     reporteDiagnosticos: diagnosticosSlice,
+
+    bases: basesSlice,
   },
 });
 

@@ -907,6 +907,8 @@ class OrdenesApiController extends Controller
       'status' => 'nullable|integer|min:0|max:1',
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
       'elaborado_por' => 'required|integer',
+      'base_ojo_izquierdo_id' => 'nullable|integer',
+      'base_ojo_derecho_id' => 'nullable|integer',
     ]);
 
     DB::beginTransaction();
@@ -925,6 +927,8 @@ class OrdenesApiController extends Controller
           'status' => $validatedData['status'] ?? $existingFase->status,
           'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
           'elaborado_por' => $validatedData['elaborado_por'],
+          'base_ojo_izquierdo_id' => $validatedData['base_ojo_izquierdo_id'] ?? null,
+          'base_ojo_derecho_id' => $validatedData['base_ojo_derecho_id']  ?? null,
         ]);
 
         if ($updated && isset($validatedData['status']) && $validatedData['status'] == 0) {

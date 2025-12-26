@@ -57,6 +57,7 @@ use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
 use App\Http\Controllers\API\warehouse\WarehouseController;
+use App\Http\Controllers\API\bases\BasesApiController;
 use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -586,8 +587,13 @@ Route::post('/api/diagnosticos/crearDiagnosticos', [DiagnosticoPacienteControlle
 Route::put('/api/diagnosticos/{id}/actualizarDiagnosticos', [DiagnosticoPacienteController::class, 'update']);
 Route::delete('/api/diagnosticos/{id}/eliminarDiagnosticos', [DiagnosticoPacienteController::class, 'destroy']);
 
+Route::get('/api/bases', [BasesApiController::class, 'index']);
 
+Route::post('/api/bases', [BasesApiController::class, 'store']);
 
+Route::delete('/api/bases/{id}', [BasesApiController::class, 'delete']);
+
+Route::put('/api/bases/{id}', [BasesApiController::class, 'update']);
 
 Route::get('/{any}', function () {
     return view('app');

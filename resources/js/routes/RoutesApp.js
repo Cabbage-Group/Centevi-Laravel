@@ -99,6 +99,7 @@ import TableWareHouses from "../admin/cotizaciones/wareHouses/TableWareHouses.js
 import VerDiagnosticos from "../admin/diagnosticos/VerDiagnosticos.js";
 import Diagnosticos from "../admin/reportes/diagnosticos/Diagnosticos.js";
 import ReportePacientes from "../admin/reportes/pacientes/ReportePacientes.js";
+import Bases from "../admin/bases/Bases.js";
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -398,6 +399,7 @@ const RoutesApp = () => {
           <Route path="/table-cobro" element={<Sidebar component={<TableCobros />} />} />
           <Route path="/table-bodegas" element={<Sidebar component={<TableWareHouses />} />} />
           <Route path="/diagnosticos" element={<Sidebar component={<VerDiagnosticos />} />} />
+          <Route path="/bases" element={<Sidebar component={<Bases />} />} />
         </Route>
 
         <Route path="/login" element={<Login />} />

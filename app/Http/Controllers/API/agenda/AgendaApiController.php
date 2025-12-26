@@ -56,7 +56,7 @@ class AgendaApiController extends Controller
 
     if (!empty($sucursales)) {
       if (in_array('otros', $sucursales)) {
-        $query->whereNotIn('sucursal_id', [3, 4, 7]);
+        $query->whereNotIn('sucursal_id', [3, 4, 7, 11]);
       } else {
         $query->whereIn('sucursal_id', $sucursales);
       }
