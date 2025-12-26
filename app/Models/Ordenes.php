@@ -40,6 +40,7 @@ class Ordenes extends Model
     'altura_oi',
     'tipo_cristal_od',
     'tipo_cristal_oi',
+    'tipo_corredor',
     'material_od',
     'material_oi',
     'tratamientos_od',

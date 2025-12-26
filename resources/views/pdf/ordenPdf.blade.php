@@ -257,6 +257,14 @@
       <button class="info-tabla-cristales">{{$tratamientos_oi}}</button>
     @endif
         </td>
+    @if($tipo_corredor)
+      <tr>
+        <td>
+        <div style="font-size:12px; text-align:start">Tipo Corredor:</div>
+        <button class="info-tabla-cristales">{{$tipo_corredor}}</button>
+        </td>
+      </tr>
+    @endif
       </tr>
       </tbody>
     </table>

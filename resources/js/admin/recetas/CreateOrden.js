@@ -48,6 +48,7 @@ const CreateOrden = () => {
   const [isAroVisible, setIsAroVisible] = useState(true);
   const { nro_orden_auto } = useSelector((state) => state.ordenes);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [tipoCorredor, setTipoCorredor] = useState('');  
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
   const [aroCentevi, setAroCentevi] = useState(false);
@@ -88,6 +89,7 @@ const CreateOrden = () => {
     altura_oi: "",
     tipo_cristal_od: "",
     tipo_cristal_oi: "",
+    tipo_corredor: "",
     material_od: "",
     material_oi: "",
     tratamientos_od: "",
@@ -156,6 +158,12 @@ const CreateOrden = () => {
       setServiciosRealizados((prev) => [...prev, newEntry]);
       setIsLeftEye(!isLeftEye);
     }
+  };
+
+  const tipoCristalMultifocal = () => {
+    return serviciosRealizados.some(servicio =>
+      servicio.label.toLowerCase().includes("multifocal")
+    );
   };
 
   const handleSelectChangeMaterial = (value, option) => {
@@ -238,6 +246,8 @@ const CreateOrden = () => {
             }
           : {}
       ),
+
+      tipo_corredor: tipoCorredor,
 
       ...(materialesSeleccionadosSubmit.length === 1
         ? (!isLeftEyeMaterial
@@ -872,6 +882,7 @@ const CreateOrden = () => {
                                                       onClick={() => {
                                                         // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
                                                         setServiciosRealizados([])
+                                                        setTipoCorredor('')
                                                       }}
                                                     >
                                                       <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -883,6 +894,30 @@ const CreateOrden = () => {
                                           }
 
                                         </div>
+                                        {tipoCristalMultifocal() && (
+                                          <>
+                                            <div
+                                              style={{marginTop: '10px', color: 'black'}}
+                                            >
+                                              Tipo Corredor
+                                            </div>
+                                            <Select
+                                              showSearch
+                                              value={tipoCorredor}
+                                              style={{
+                                                width: '100%', color: 'transparent',
+                                                background: 'white !important'
+                                              }}
+                                              optionFilterProp="label"
+                                              onChange={(value, option) => setTipoCorredor(option.label)}
+                                              options={[
+                                                { value: "corredor-corto", label: "Corredor Corto" },
+                                                { value: "corredor-largo", label: "Corredor Largo" },
+                                              ]}
+                                            >
+                                            </Select>
+                                          </>
+                                        )}
                                       </Col>
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6
