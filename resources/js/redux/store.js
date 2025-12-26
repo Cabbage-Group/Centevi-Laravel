@@ -87,6 +87,7 @@ import marcasSlice from "./features/marcas/marcasSlice";
 import kpisTipoLenteSlice from "./features/kpis/kpisTiposLente/kpisTiposLente";
 import tiposArosSlice from "./features/tipos-aros/tiposArosSlice";
 import kpisTiposCristales from "./features/kpis/kpisTiposCristales/kpisTiposCristalesSlice";
+import kpisTiposBaseSlice from "./features/kpis/KpisTiposBase/KpisTiposBaseSlice";
 import citasAgenda from "./features/citas/CitasAgendaSlice";
 import proveedorMaterialSlice from "./features/proveedor-material/proveedorMaterialSlice";
 import chat from "./features/mensajes/mensajesSlice";
@@ -217,6 +218,8 @@ const store = configureStore({
     tiposAros: tiposArosSlice,
 
     kpisTiposCristales: kpisTiposCristales,
+
+    kpisTiposBase: kpisTiposBaseSlice,
 
     citasAgenda: citasAgenda,
 

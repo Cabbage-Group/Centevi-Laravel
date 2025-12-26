@@ -2127,8 +2127,58 @@ class KpisApiController extends Controller
       ->orderByDesc('total')
       ->limit($limit);
 
-
     $result = $query->get();
+
+    return response()->json([
+      'data' => $result
+    ]);
+  }
+
+  public function getEstadisticasBases(Request $request)
+  {
+    $startDate = $request->input('startDate');
+    $endDate = $request->input('endDate');
+    $lado = $request->input('lado');
+    $limit = $request->input('limit');
+
+    $fechaFiltro = ($startDate && $endDate)
+      ? "WHERE created_at BETWEEN '{$startDate}' AND '{$endDate}'"
+      : '';
+
+    $ladoFiltro = match ($lado) {
+      'izquierda' => "
+          SELECT base_ojo_izquierdo_id as base_id
+          FROM fases_ordenes
+          $fechaFiltro
+      ",
+      'derecha' => "
+          SELECT base_ojo_derecho_id as base_id
+          FROM fases_ordenes
+          $fechaFiltro
+      ",
+      default => "
+          SELECT base_ojo_izquierdo_id as base_id
+          FROM fases_ordenes
+          $fechaFiltro
+          UNION ALL
+          SELECT base_ojo_derecho_id
+          FROM fases_ordenes
+          $fechaFiltro
+      ",
+    };
+
+    $result = DB::table('bases')
+      ->select('bases.descripcion', DB::raw('COUNT(*) as total'))
+      ->join(DB::raw("($ladoFiltro) as o"), 'o.base_id', '=', 'bases.id')
+      ->groupBy('bases.descripcion')
+      ->orderByDesc('total')
+      ->when($limit, function ($query, $limit) {
+        $query->limit($limit);
+      })
+      ->when($request->basesId, function ($query, $basesId) {
+        return $query->whereIn('bases.id', $basesId);
+      })
+      ->get();
 
     return response()->json([
       'data' => $result

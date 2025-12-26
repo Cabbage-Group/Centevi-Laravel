@@ -79,6 +79,7 @@ import VerKpisTipoLente from "../admin/kpis/KpisTiposLente/VerKpisTipoLente.js";
 import VerKpisConsultasYTerapias from "../admin/kpis/kpisConsultasYTerapias/VerKpisConsultasYTerapias.js";
 import KpisConsultasTerapiasDoctores from "../admin/kpis/KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores.js";
 import KpisTiposCristales from "../admin/kpis/KpisTiposCristales/KpiTipoCristales.js";
+import KpisTiposBases from "../admin/kpis/KpisTiposBases/KpisTiposBases.js";
 import VerAgenda from "../admin/agenda/VerAgenda.js";
 import WhatsAppChat from "../admin/chat/WhatsAppChat.js";
 import ChatScreen from "../../components/WebSocket.js";
@@ -348,6 +349,10 @@ const RoutesApp = () => {
           <Route
             path="/crear-correciones-ordenes"
             element={<Sidebar component={<CreateCorrecionOrden />} />}
+          />
+          <Route
+            path="/kpis-tipos-bases"
+            element={<Sidebar component={<KpisTiposBases />} />}
           />
           <Route
             path="/kpis-tipos-cristales"
