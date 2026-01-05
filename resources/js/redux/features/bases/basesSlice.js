@@ -13,7 +13,7 @@ export const fetchBases = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching proveedor-material:", error.response.data);
+      console.error("Error fetching bases:", error.response.data);
       throw error;
     }
   }

@@ -466,6 +466,8 @@ Route::post('/api/kpis/tipo-cristal-esfera-cilindro-ordenes', [KpisApiController
 
 Route::post('/api/kpis/bases-ordenes', [KpisApiController::class, 'getEstadisticasBases']);
 
+Route::post('/api/kpis/bases-ordenes/excel', [KpisApiController::class, 'exportBasesExcel']);
+
 Route::get('/api/ordenes/pdf/size/{id}', [OrdenesApiController::class, 'verOrdenPdfSize']);
 
 Route::get('/api/ordenes/pdf/small/{id}', [OrdenesApiController::class, 'verOrdenPdfSmall']);

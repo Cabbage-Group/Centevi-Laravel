@@ -69,13 +69,32 @@ export const fetchKpiTiposBaseTodos = createAsyncThunk(
   }
 );
 
+export const fetchTiposBaseExcel = createAsyncThunk(
+  "kpisTiposBase/fetchTiposBaseExcel",
+  async (filters) => {
+    try {
+      const response = await axios.post(
+        `${API}/kpis/bases-ordenes/excel`, 
+        filters,
+        { responseType: "blob" },
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching proveedor-material:", error.response.data);
+      throw error;
+    }
+  }
+);
+
 const kpisTiposBaseSlice = createSlice({
   name: 'kpisTiposBase',
   initialState: {
     loading: false,
+    downloadingExcel: false,
     kpiTiposBaseTop10: [],
     kpiTiposBaseTop30: [],
     kpiTiposBaseTodos: [],
+    kpiTiposBaseLength: null,
     error: null,
   },
   reducers: {},
@@ -86,9 +105,10 @@ const kpisTiposBaseSlice = createSlice({
       })
       .addCase(fetchTiposBaseEstadistica.fulfilled, (state, action) => {
         state.loading = false;
-        state.kpiTiposBaseTop10 = action.payload.data.slice(0, 10);
-        state.kpiTiposBaseTop30 = action.payload.data.slice(0, 30);
-        state.kpiTiposBaseTodos = action.payload.data;
+        state.kpiTiposBaseTop10 = action.payload.data.bases.slice(0, 10);
+        state.kpiTiposBaseTop30 = action.payload.data.bases.slice(0, 30);
+        state.kpiTiposBaseTodos = action.payload.data.bases;
+        state.kpiTiposBaseLength = action.payload.data.total;
       })
       .addCase(fetchTiposBaseEstadistica.rejected, (state, action) => {
         state.loading = false;
@@ -99,7 +119,7 @@ const kpisTiposBaseSlice = createSlice({
       })
       .addCase(fetchKpiTiposBaseTop10.fulfilled, (state, action) => {
         state.loading = false;
-        state.kpiTiposBaseTop10 = action.payload.data;
+        state.kpiTiposBaseTop10 = action.payload.data.bases;
       })
       .addCase(fetchKpiTiposBaseTop10.rejected, (state, action) => {
         state.loading = false;
@@ -110,7 +130,7 @@ const kpisTiposBaseSlice = createSlice({
       })
       .addCase(fetchKpiTiposBaseTop30.fulfilled, (state, action) => {
         state.loading = false;
-        state.kpiTiposBaseTop30 = action.payload.data;
+        state.kpiTiposBaseTop30 = action.payload.data.bases;
       })
       .addCase(fetchKpiTiposBaseTop30.rejected, (state, action) => {
         state.loading = false;
@@ -121,12 +141,22 @@ const kpisTiposBaseSlice = createSlice({
       })
       .addCase(fetchKpiTiposBaseTodos.fulfilled, (state, action) => {
         state.loading = false;
-        state.kpiTiposBaseTodos = action.payload.data;
+        state.kpiTiposBaseTodos = action.payload.data.bases;
       })
       .addCase(fetchKpiTiposBaseTodos.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
+      .addCase(fetchTiposBaseExcel.pending, (state) => {
+      state.downloadingExcel = true;
+      })
+      .addCase(fetchTiposBaseExcel.fulfilled, (state) => {
+        state.downloadingExcel = false;
+      })
+      .addCase(fetchTiposBaseExcel.rejected, (state, action) => {
+        state.downloadingExcel = false;
+        state.error = action.payload || action.error.message;
+      });
   },
 });
 

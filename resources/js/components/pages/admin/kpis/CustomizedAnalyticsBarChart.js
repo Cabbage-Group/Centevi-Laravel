@@ -222,7 +222,7 @@ const CustomizedAnalyticsBarChart = ({
       {Array.isArray(filters) && filters.length > 0 && (
         <Row gutter={[16, 12]} style={{ marginTop: 12 }}>
           {filters.map((f) => (
-            <Col key={f.key} xs={24} sm={12} md={8} lg={6}>
+            <Col key={f.key} xs={24} sm={24} md={12} lg={10}>
               <label
                 style={{
                   marginBottom: 6,

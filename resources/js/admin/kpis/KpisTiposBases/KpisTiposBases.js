@@ -6,8 +6,10 @@ import {
   fetchKpiTiposBaseTop10,
   fetchKpiTiposBaseTop30,
   fetchKpiTiposBaseTodos,
+  fetchTiposBaseExcel,
 } from "../../../redux/features/kpis/KpisTiposBase/KpisTiposBaseSlice";
-import { Col, Row } from "antd";
+import { Col, Row, Card, Statistic, Button } from "antd";
+import { FileExcelOutlined } from "@ant-design/icons";
 import CustomizedAnalyticsBarChart from "../../../components/pages/admin/kpis/CustomizedAnalyticsBarChart";
 import ChartsTipoBasesPdfReport from "../../../services/pdf/kpis/kpisTipoBases/ChartsTipoBasesPdfReport";
 import PdfActionButtons from "../../../components/buttons/admin/kpis/PdfActionButtons";
@@ -21,9 +23,11 @@ const KpisTiposBase = () => {
   const dispatch = useDispatch();
   const { bases } = useSelector((state) => state.bases);
   const {
+    downloadingExcel,
     kpiTiposBaseTop10,
     kpiTiposBaseTop30,
     kpiTiposBaseTodos,
+    kpiTiposBaseLength,
   } = useSelector((state) => state.kpisTiposBase);
 
   /* ------------------------------------------------------------------------------
@@ -304,6 +308,33 @@ const KpisTiposBase = () => {
     setChartsData(null);
   };
 
+  const downloadExcel = async () => {
+    try {
+      const blob = await dispatch(fetchTiposBaseExcel({})).unwrap();
+
+      const url = window.URL.createObjectURL(
+        new Blob([blob], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        })
+      );
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `KPIs_Tipos_Base_${new Date().toISOString().slice(0, 10)}.xlsx`
+      );
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al descargar Excel:", error);
+    }
+  };
+
   // ----------------------- creacion de pdf -----------------------
   const handlePreviewPdf = async () => {
     try {
@@ -341,13 +372,26 @@ const KpisTiposBase = () => {
       <Col xs={24} sm={24} md={22} lg={22} xl={20} xxl={18}>
 
         {/* Contenedor Titulo y botones para pdf */}
-        <Row style={{marginBottom: 9}} gutter={[12, 12]}>
+        <Row style={{marginBottom: 16}} gutter={[12, 12]}>
           <Col xs={24} sm={16} style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
             <h1 style={{ color: "black", fontWeight: "bold", fontSize: 16, margin: '0 0 0 0', display: 'block' }}>
               Reporteria de Tipos de Base
             </h1>
           </Col>
-          <Col xs={24} sm={8} style={{display: 'flex', justifyContent: 'flex-end'}}>
+          <Col xs={24} sm={8} style={{display: 'flex', justifyContent: 'flex-end', gap: 8}}>
+            {/* Botón Descargar Excel */}
+            <Button
+              type="primary"
+              icon={<FileExcelOutlined />}
+              style={{
+                backgroundColor: "#217346",
+                borderColor: "#217346",
+              }}
+              onClick={downloadExcel}
+              loading={downloadingExcel}
+            >
+              Descargar Excel
+            </Button>
             <PdfActionButtons
               onPreview={handlePreviewPdf}
               isGenerating={isGeneratingPdf}
@@ -359,6 +403,35 @@ const KpisTiposBase = () => {
           </Col>
         </Row>
 
+        {/* ================= KPI HEADER ================= */}
+        <Row
+          style={{ marginBottom: 16 }}
+          justify="center"
+        >
+          <Col xs={24} sm={20} md={16} lg={8}>
+            <Card
+              style={{
+                backgroundColor: "#ffffffff",
+                borderRadius: 12,
+                textAlign: "center",
+              }}
+              bodyStyle={{ padding: "8px" }}
+            >
+              <Statistic
+                title={
+                  <span style={{fontSize: 14 }}>
+                    Total de Bases
+                  </span>
+                }
+                value={kpiTiposBaseLength}
+                valueStyle={{
+                  fontSize: 28,
+                }}
+              />
+            </Card>
+          </Col>
+        </Row>
+
         {/* Contenedor Graficas */}
         <Row style={{marginBottom: 9}} gutter={[12, 12]}>
 
@@ -366,7 +439,10 @@ const KpisTiposBase = () => {
           <Col xs={24} sm={24}>
             <CustomizedAnalyticsBarChart
               badgeLabel="Tipos Base"
-              data={kpiTiposBaseTop10}
+              data={kpiTiposBaseTop10.map(data => ({
+                ...data,
+                total: Number(data.total)
+              }))}
               needCardWrapper={true}
               exportRef={chartLimited10Ref}
 
@@ -409,7 +485,10 @@ const KpisTiposBase = () => {
           <Col xs={24} sm={24} md={12}>
             <CustomizedAnalyticsBarChart 
               badgeLabel="Tipos Base"
-              data={kpiTiposBaseTop30}
+              data={kpiTiposBaseTop30.map(data => ({
+                ...data,
+                total: Number(data.total)
+              }))}
               needCardWrapper={true}
               chartHeight="900px"
 
@@ -453,7 +532,10 @@ const KpisTiposBase = () => {
           <Col xs={24} sm={24} md={12}>
             <CustomizedAnalyticsBarChart 
               badgeLabel="Tipos Bases"
-              data={kpiTiposBaseTodos}
+              data={kpiTiposBaseTodos.map(data => ({
+                ...data,
+                total: Number(data.total)
+              }))}
               needCardWrapper={true}
               chartHeight="900px"
 
