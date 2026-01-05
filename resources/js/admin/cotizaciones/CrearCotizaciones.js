@@ -111,6 +111,7 @@ const CrearCotizacion = () => {
       '186.74.2.218': 7,
       '190.219.45.142': 3,
       '45.229.196.9': 4,
+      '190.34.23.233': 11
     };
 
     // const sucursalId = ipToSucursalId[ip] || null; // aca devolvemos por defecto null si no se encontro registrada la ip

@@ -62,6 +62,7 @@ const CreateOrden = () => {
   // Dorado : 186.74.2.218
   // San Judas Tadeo: 190.219.45.142
   // Paitilla:  45.229.196.9
+  // Espana: 190.34.23.233
 
   const initialValues = {
     id_paciente: parsedId || "",
@@ -72,8 +73,9 @@ const CreateOrden = () => {
           ? "3"
           : localStorage.getItem('ip') == '45.229.196.9'
             ? "4"
-            : ""
-    ,
+            : localStorage.getItem('ip') == '190.34.23.233'
+              ? "11"
+              : "",
     esfera_od: "",
     esfera_oi: "",
     cilindro_od: "",
