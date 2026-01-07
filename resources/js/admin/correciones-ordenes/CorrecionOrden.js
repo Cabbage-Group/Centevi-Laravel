@@ -46,8 +46,10 @@ const CorrecionOrden = () => {
     correctionsFiltroLenteContacto,
     isCorrections
   } = location.state || {};
+  const { usuario } = useSelector((state) => state.auth);
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.correccionesFasesOrdenes.nuevaDataCorrecciones);
+  const usuarios = useSelector((state) => state.usuarios.usuarios);
   const { correcionOrden } = useSelector((state) => state.correcionesordenes);
   const { correccionOrderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
@@ -73,6 +75,7 @@ const CorrecionOrden = () => {
 
   useEffect(() => {
     dispatch(fetchUsuarios({}))
+    dispatch(fetchPacientes({ page: 1, limit: 50000 }));
   }, [])
 
 
@@ -208,8 +211,27 @@ const CorrecionOrden = () => {
       default:
         icon = <FileAddOutlined />;
     }
+
+    const nombresUsuarios = usuarios.find((user) => 
+      user.id_usuario === Number(fase.fases_correcciones_ordenes.find((fco) => 
+        fco.tipo_fase_correccion_orden_id === fase.id
+      )?.elaborado_por) ?? null
+    )?.nombre || "Desconocido";
+
+    const fechaFase = fase.fases_correcciones_ordenes.find((fco) => 
+      fco.tipo_fase_correccion_orden_id === fase.id
+    )?.created_at?.split(" ")[0] ?? "";
+
     return {
       title: fase.tipo_fase_orden,
+      description: (
+        <>
+          <div>{nombresUsuarios || "Desconocido"}</div>
+          <div style={{ fontSize: "12px", color: "#888" }}>
+            {fechaFase || ""}
+          </div>
+        </>
+      ),
       icon: icon,
     };
   });
@@ -277,8 +299,8 @@ const CorrecionOrden = () => {
     }
 
     const result = await Swal.fire({
-      title: completar ? 'Estás seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
-      text: completar ? "Confirmarás la fase como completada!" : "Confirmarás los cambios en los datos!",
+      title: completar ? 'Estas seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
+      text: completar ? "Confirmaras la fase como completada!" : "Confirmarás los cambios en los datos!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -294,6 +316,7 @@ const CorrecionOrden = () => {
         ...nuevaDataCorrecciones,
         correccion_ordenes_id: correccionOrderId,
         status: status,
+        elaborado_por: usuario?.usuario?.id_usuario,
       };
 
       if (completar || avanzar) {

@@ -2329,6 +2329,7 @@ class OrdenesApiController extends Controller
       'material_oi' => $orden['material_oi'],
       'tipo_cristal_od' => $orden['tipo_cristal_od'],
       'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+      'tipo_corredor' => $orden['tipo_corredor'],
       'l_uno' => $orden['l_uno'] ?? "-",
       'l_dos' => $orden['l_dos'] ?? "-",
       'l_tres' => $orden['l_tres'] ?? "-",

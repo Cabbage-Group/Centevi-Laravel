@@ -33,7 +33,10 @@ const recetasSlice = createSlice({
     },
     setSearch(state, action) {
       state.search = action.payload;
-    }
+    },
+    setStatusLoading: (state, action) => {
+      state.status = 'loading';
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -54,5 +57,5 @@ const recetasSlice = createSlice({
   },
 });
 
-export const { setOrden, setOrdenPor, setSearch } = recetasSlice.actions;
+export const { setOrden, setOrdenPor, setSearch, setStatusLoading } = recetasSlice.actions;
 export default recetasSlice.reducer;

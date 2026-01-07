@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { fecthRecetas, setOrden, setOrdenPor } from '../../redux/features/recetas/recetasSlice';
+import { fecthRecetas, setOrden, setOrdenPor, setStatusLoading } from '../../redux/features/recetas/recetasSlice';
 import PaginationRecetas from './PaginationRecetas';
 import { eliminarRecetas } from '../../redux/features/recetas/eliminarRecetasSlice';
 import Swal from 'sweetalert2';
@@ -12,10 +12,29 @@ const VerRecetas = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
+  const [debouncedSearch, setDebouncedSearch] = useState(localSearch);
+
   useEffect(() => {
 
-    dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor, search: localSearch }));
-  }, [dispatch, localSearch, currentPage, orden, ordenPor]);
+    dispatch(fecthRecetas({ page: currentPage, limit: 7, orden, ordenPor, search: debouncedSearch }));
+  }, [dispatch, debouncedSearch, currentPage, orden, ordenPor]);
+
+  useEffect(() => {
+    if (localSearch === '') {
+      setDebouncedSearch('');
+      setCurrentPage(1);
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(localSearch);
+      setCurrentPage(1);
+    }, 1250);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [localSearch]);
 
   const handleSort = (newOrdenPor) => {
     const newOrder = orden === 'asc' ? 'desc' : 'asc';
@@ -30,6 +49,7 @@ const VerRecetas = () => {
   };
 
   const handleSearchChange = (event) => {
+    dispatch(setStatusLoading());
     setLocalSearch(event.target.value);
   };
 

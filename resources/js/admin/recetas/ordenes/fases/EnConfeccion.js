@@ -233,8 +233,13 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
         style={{ marginBottom: '20px' }}
         gutter={[16, 16]}
       >
-        <Col xxl={12} xl={12} md={12}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Col xxl={15} xl={15} md={12}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            marginBottom: '20px',
+          }}>
             <div>
               <label htmlFor="laboratorio">Base Ojo Izquierdo</label>
               <br />
@@ -295,7 +300,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
           />
         </Col>
         <Col
-          xxl={12} xl={12} md={12}
+          xxl={9} xl={9} md={12}
           style={{
             textAlign: 'right'
           }}

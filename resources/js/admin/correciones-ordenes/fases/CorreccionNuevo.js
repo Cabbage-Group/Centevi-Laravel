@@ -266,7 +266,7 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
             {fechaActual}
           </div>
           <Divider />
-          <label htmlFor="fecha_fase">Fecha de creación de la orden</label>
+          <label htmlFor="fecha_fase">Fecha de creacion de la orden</label>
           <div>
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
