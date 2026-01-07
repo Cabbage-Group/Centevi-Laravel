@@ -19,10 +19,10 @@ const ProtectedRoute = () => {
       if (!usuario) {
         dispatch(fetchValidarToken(localStorage.getItem('usuario')));
       }
-    } else {  
+    } else {
       dispatch(validateUserAuth())
       if(!usuario){
-        navigate('/login');
+        window.location.replace("/login");
       }else{
         navigate('/home');
       }
@@ -33,7 +33,7 @@ const ProtectedRoute = () => {
     fetchUsuario && usuario
       ? <Outlet />
       : <>
-        
+
       </>
   )
 }

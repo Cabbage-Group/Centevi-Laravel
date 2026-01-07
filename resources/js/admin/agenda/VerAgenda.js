@@ -1537,7 +1537,8 @@ Tarjeta (Clave,Visa o Mastercard)
 
       <Modal
         title={isEditMode ? "Editar Cita" : "Agendar Cita"}
-        open={isModalOpen}
+        // open={isModalOpen} ACTIVAR EL MODAL PARA AGENDA
+        open={false}
         width={"90vh"}
         onCancel={() => {
           setIsModalOpen(false);

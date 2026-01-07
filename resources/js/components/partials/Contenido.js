@@ -23,7 +23,7 @@ const Contenido = (props) => {
     } else {
       dispatch(validateUserAuth())
       if (!usuario) {
-        navigate('/login');
+        window.location.replace("/login");
       } else {
         navigate('/home');
       }
