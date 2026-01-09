@@ -772,7 +772,7 @@ const NewTableOrdenes = () => {
                                 }
                                 onClick={() =>
                                   navigate(
-                                    `/orden-receta/${record.orden_id}/${record.nro_orden_id}/${parentRecord.id_paciente}`,
+                                    `/correciones-ordenes/${record.correccion_id}`,
                                   )
                                 }
                                 style={{
