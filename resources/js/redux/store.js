@@ -87,6 +87,7 @@ import marcasSlice from "./features/marcas/marcasSlice";
 import kpisTipoLenteSlice from "./features/kpis/kpisTiposLente/kpisTiposLente";
 import tiposArosSlice from "./features/tipos-aros/tiposArosSlice";
 import kpisTiposCristales from "./features/kpis/kpisTiposCristales/kpisTiposCristalesSlice";
+import kpisTiposBaseSlice from "./features/kpis/KpisTiposBase/KpisTiposBaseSlice";
 import citasAgenda from "./features/citas/CitasAgendaSlice";
 import proveedorMaterialSlice from "./features/proveedor-material/proveedorMaterialSlice";
 import chat from "./features/mensajes/mensajesSlice";
@@ -101,6 +102,7 @@ import ventasSlice from "./features/ventas/VentasSlice";
 import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
 import warehousesSlice from "./features/warehouses/warehousesSlice";
 import diagnosticosSlice from "./features/reportes/Diagnosticos/diagnosticosSlice";
+import basesSlice from "./features/bases/basesSlice";
 
 const store = configureStore({
   reducer: {
@@ -217,6 +219,8 @@ const store = configureStore({
 
     kpisTiposCristales: kpisTiposCristales,
 
+    kpisTiposBase: kpisTiposBaseSlice,
+
     citasAgenda: citasAgenda,
 
     proveedorMaterial: proveedorMaterialSlice,
@@ -243,6 +247,8 @@ const store = configureStore({
 
     diagnosticos: DiagnosticosReducer,
     reporteDiagnosticos: diagnosticosSlice,
+
+    bases: basesSlice,
   },
 });
 

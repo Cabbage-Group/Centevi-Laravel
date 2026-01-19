@@ -79,6 +79,7 @@ import VerKpisTipoLente from "../admin/kpis/KpisTiposLente/VerKpisTipoLente.js";
 import VerKpisConsultasYTerapias from "../admin/kpis/kpisConsultasYTerapias/VerKpisConsultasYTerapias.js";
 import KpisConsultasTerapiasDoctores from "../admin/kpis/KpisConsultasTerapias/kpisConsultasTerapiasDoctores/KpisConsultasTerapiasDoctores.js";
 import KpisTiposCristales from "../admin/kpis/KpisTiposCristales/KpiTipoCristales.js";
+import KpisTiposBases from "../admin/kpis/KpisTiposBases/KpisTiposBases.js";
 import VerAgenda from "../admin/agenda/VerAgenda.js";
 import WhatsAppChat from "../admin/chat/WhatsAppChat.js";
 import ChatScreen from "../../components/WebSocket.js";
@@ -100,6 +101,7 @@ import VerDiagnosticos from "../admin/diagnosticos/VerDiagnosticos.js";
 import Diagnosticos from "../admin/reportes/diagnosticos/Diagnosticos.js";
 import ReportePacientes from "../admin/reportes/pacientes/ReportePacientes.js";
 import UpdateCotizacion from "../admin/cotizaciones/UpdateCotizacion.js";
+import Bases from "../admin/bases/Bases.js";
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -350,6 +352,10 @@ const RoutesApp = () => {
             element={<Sidebar component={<CreateCorrecionOrden />} />}
           />
           <Route
+            path="/kpis-tipos-bases"
+            element={<Sidebar component={<KpisTiposBases />} />}
+          />
+          <Route
             path="/kpis-tipos-cristales"
             element={<Sidebar component={<KpisTiposCristales />} />}
           />
@@ -403,6 +409,7 @@ const RoutesApp = () => {
           <Route path="/table-cobro" element={<Sidebar component={<TableCobros />} />} />
           <Route path="/table-bodegas" element={<Sidebar component={<TableWareHouses />} />} />
           <Route path="/diagnosticos" element={<Sidebar component={<VerDiagnosticos />} />} />
+          <Route path="/bases" element={<Sidebar component={<Bases />} />} />
         </Route>
 
         <Route path="/login" element={<Login />} />

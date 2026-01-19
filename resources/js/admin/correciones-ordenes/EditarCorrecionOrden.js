@@ -16,6 +16,7 @@ import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
 import { fetchMateriales } from '../../redux/features/materiales/materialesSlice';
 import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 
 const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const dispatch = useDispatch();
@@ -23,6 +24,8 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const { correccionOrderId } = useParams();
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
+  const { pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
   const [isLeftEye, setIsLeftEye] = useState(false);
@@ -46,6 +49,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const { materiales_options_selecteds } = useSelector((state) => state.materiales)
   const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
   const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
+  const [selectedPaciente, setSelectedPaciente] = useState(null);
+  const [selectedSucursal, setSelectedSucursal] = useState('');
+  const [cedula, setCedula] = useState('');
 
   useEffect(() => {
     if (correcionOrden?.lente_contacto) {
@@ -67,9 +73,11 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
     dispatch(fetchCristales({}))
     dispatch(fetchMateriales({}))
     dispatch(fetchTiposAros({}))
+    dispatch(fetchSucursales({ page: 1, limit: 100 }));
   }, [])
 
   const [formValues, setFormValues] = useState({
+    nro_cotizacion: '',
     esfera_od: '',
     esfera_oi: '',
     cilindro_od: '',
@@ -108,6 +116,8 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
 
   useEffect(() => {
     if (correcionOrden) {
+      setSelectedPaciente(correcionOrden?.id_paciente);
+      setSelectedSucursal(correcionOrden?.id_sucursal);
       setDoctorSeleccionado(correcionOrden?.doctor);
       setTipoAro(correcionOrden?.tipo_aro);
       setSelectedMarca(correcionOrden?.marca);
@@ -146,6 +156,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       ].filter(Boolean));
       setFormValues((prevValues) => ({
         ...prevValues,
+        nro_cotizacion: correcionOrden.nro_cotizacion || '',
         nro_orden: correcionOrden.nro_orden || '',
         nro_orden_id: correcionOrden.nro_orden_id || '',
         id_paciente: correcionOrden.id_paciente || '',
@@ -187,6 +198,25 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       }));
     }
   }, [correcionOrden, isAroVisible]);
+
+  useEffect(() => {
+    if (selectedPaciente) {
+      const pacienteSeleccionado = pacientes_options_selecteds.find(
+        (paciente) => paciente.value === Number(selectedPaciente)
+      );
+      if (pacienteSeleccionado) {
+        setTelefono(pacienteSeleccionado.celular || '');
+        setCedula(pacienteSeleccionado.nro_cedula || '');
+        setNombrePaciente(pacienteSeleccionado?.nombres || '');
+      } else {
+        setTelefono('');
+        setCedula('');
+      }
+    } else {
+      setTelefono('');
+      setCedula('');
+    }
+  }, [selectedPaciente, pacientes_options_selecteds]);
 
   const validationSchema = Yup.object().shape({
     elaborado_por: Yup.number().nullable(),
@@ -415,26 +445,208 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                             <Form
                             >
                               <div className="form-row" style={{ marginBottom: "2rem" }}>
-
-                                <div className="col-md-4" >
-                                  <img
-                                    alt="logo"
-                                    className="navbar-logo"
-                                    src="vistas/img/centevi-logo-in.png"
-                                    style={{
-                                      height: '80px'
-                                    }}
-                                  />
+                                <div
+                                  className="col-md-4"
+                                  style={{
+                                    position: 'relative'
+                                  }}
+                                >
+                                  <div style={{
+                                    position: "absolute",
+                                    bottom: "10px",
+                                    left: "0"
+                                  }}>
+                                    <Link
+                                      to={selectedPaciente ? `/historia-paciente/${selectedPaciente}` : '#'}
+                                      style={{
+                                        pointerEvents: selectedPaciente ? 'auto' : 'none',
+                                        opacity: selectedPaciente ? 1 : 0.5,
+                                        cursor: selectedPaciente ? 'pointer' : 'not-allowed',
+                                        display: 'block', // Make link block-level
+                                        width: '100%', // Take full width of parent
+                                        textAlign: 'center' // Center the button
+                                      }}
+                                    >
+                                      <a className="btn btn-success">Ir a la Historia del paciente</a>
+                                    </Link>
+                                  </div>
                                 </div>
-                                <div className="col-md-4">
+
+                                <div className="col-md-2">
                                   <h4>
                                     Fecha de solicitud
                                   </h4>
                                   <p className="ml-5">
                                     <b>
-                                      {fecha_solicitud}
+                                      {fecha_solicitud ? moment(fecha_solicitud).format('DD/MM/YYYY') : ''}
                                     </b>
                                   </p>
+                                </div>
+                                <div className="col-md-2">
+                                  <h4>Nro. Cotización*</h4>
+                                  <Field name="nro_cotizacion">
+                                    {({ field }) => (
+                                      <input
+                                        {...field}
+                                        type="text"
+                                        placeholder="Ingrese el número de cotización"
+                                        className="form-control"
+                                        style={{
+                                          fontWeight: "bold",
+                                          marginBottom: "1rem",
+                                          height: "40px",
+                                          fontSize: "12px",
+                                          paddingLeft: "8px",
+                                          "::placeholder": {
+                                            fontSize: "12px"
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                  </Field>
+                                  <ErrorMessage
+                                    name="nro_cotizacion"
+                                    component="div"
+                                    style={{ color: "red", fontSize: "12px" }}
+                                  />
+
+                                </div>
+
+                                <div class="col-md-2"  >
+                                  <h4>Nro. pacienteOrden*</h4>
+                                  <Input
+                                    name="nro_orden_id"
+                                    value={values.nro_orden_id}
+                                    onChange={(e) => {
+                                      const onlyNumbers = e.target.value.replace(/\D/g, "");
+                                      setFieldValue("nro_orden_id", onlyNumbers);
+                                    }}
+                                    disabled
+                                    placeholder="Ingrese el número de pacienteOrden"
+                                    style={{
+                                      color: "red",
+                                      fontWeight: "bold",
+                                      marginBottom: "1rem",
+                                      height: '40px',
+                                    }}
+                                  />
+                                  <ErrorMessage
+                                    name="nro_orden_id"
+                                    component="div"
+                                    style={{ color: "red", fontSize: "12px" }}
+                                  />
+                                </div>
+                                <div class="col-md-2">
+                                  <h4>Cambiar Tipo de lente</h4>
+                                  <div className="d-flex align-items-center">
+                                    <button
+                                      type="button"
+                                      className="btn btn-success"
+                                      style={{
+                                        height: "40px",
+                                        marginTop: "0",
+                                      }}
+                                      disabled={true}
+                                      onClick={() => {
+                                        handleLenteContactoChange()
+                                        setIsRowVisible(!isRowVisible);
+                                        setFieldValue("isRowVisible", !isRowVisible);
+                                      }}
+                                    >
+                                      {lenteContacto ? ' Cambiar a lente de contacto' : 'Cambiar a lente normal'}
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="form-group col-md-4" >
+                                  <label htmlFor="pacientes">Pacientes*</label>
+                                  <Select
+                                    showSearch
+                                    value={selectedPaciente}
+                                    onChange={(value) => {
+                                      setSelectedPaciente(value);
+                                      setFieldValue("id_paciente", value);
+                                    }}
+                                    placeholder="Seleccione el paciente"
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
+                                    options={pacientes_options_selecteds}
+                                    style={{
+                                      width: "100%",
+                                      height: "48px",
+                                      color: "black",
+                                      fontWeight: "bold",
+                                    }}
+                                  />
+
+                                  <ErrorMessage name="id_paciente" component="div" className="text-danger" />
+
+                                </div>
+                                <div className="form-group col-md-4" >
+                                  <label htmlFor="sucursales">Sucursal*</label>
+                                  <Select
+                                    showSearch
+                                    value={selectedSucursal}
+                                    placeholder="Seleccione una sucursal"
+                                    onChange={(value) => {
+                                      setSelectedSucursal(value)
+                                      setFieldValue('id_sucursal', value);
+                                    }}
+                                    filterOption={(input, option) => {
+                                      const searchTerms = input.toLowerCase().split(' ');
+                                      return searchTerms.every(term =>
+                                        (option?.label ?? '').toLowerCase().includes(term)
+                                      );
+                                    }}
+                                    options={sucursales_option_selects}
+                                    style={{
+                                      width: "100%",
+                                      height: "48px",
+                                      color: "black",
+                                      fontWeight: "bold",
+                                    }}
+                                  />
+
+                                  <ErrorMessage name="id_sucursal" component="div" className="text-danger" />
+                                </div>
+                                <div className="form-group col-md-2">
+                                  <label htmlFor="cedula">
+                                    Cedula
+                                  </label>
+                                  <Input
+                                    className="form-control"
+                                    name="cedula"
+                                    type="text"
+                                    value={cedula}
+                                    style={{
+                                      color: "red",
+                                      fontWeight: "bold",
+                                      marginBottom: "1rem",
+                                      height: '48px'
+                                    }}
+                                    disabled
+                                  />
+                                </div>
+                                <div className="form-group col-md-2">
+                                  <label htmlFor="inputEmail4">
+                                    Celular
+                                  </label>
+                                  <Input
+                                    className="form-control"
+                                    name="telefono"
+                                    type="text"
+                                    value={telefono}
+                                    style={{
+                                      color: "red",
+                                      fontWeight: "bold",
+                                      marginBottom: "1rem",
+                                      height: '48px'
+                                    }}
+                                    disabled
+                                  />
                                 </div>
                               </div>
                               <div

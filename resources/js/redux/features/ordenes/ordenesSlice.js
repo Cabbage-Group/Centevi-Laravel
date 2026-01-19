@@ -340,6 +340,9 @@ const ordenesSlice = createSlice({
     setSearchTermPruebaOrdenes: (state, action) => {
       state.search_prueba = action.payload;
     },
+    setStatusLoading: (state, action) => {
+      state.status = 'loading';
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -483,6 +486,7 @@ export const {
   clearOrderId,
   setSearch,
   setSearchTermOrdenes,
-  setSearchTermPruebaOrdenes
+  setSearchTermPruebaOrdenes,
+  setStatusLoading,
 } = ordenesSlice.actions;
 export default ordenesSlice.reducer;

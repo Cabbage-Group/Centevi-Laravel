@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { setFechaRange } from '../../redux/features/ordenes/ordenesSlice';
+import { setFechaRange, setStatusLoading } from '../../redux/features/ordenes/ordenesSlice';
 import { Modal, Skeleton, Select, Table, Button, Tooltip } from 'antd';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import DateRangePicker from '../reportes/DateRangePicker';
 import { fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import CollapsibleTable from './TableOrdenesCorrecciones';
 import TableOrdenesCorrecciones from './TableOrdenesCorrecciones';
-import { set } from 'lodash';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -59,6 +58,7 @@ const VerOrdenes = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [localSearch, setLocalSearch] = useState(search);
+  const [debouncedSearch, setDebouncedSearch] = useState(localSearch);
   const [showOrden, setShowOrden] = useState(false);
   const [showContacto, setShowContacto] = useState(false);
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
@@ -83,10 +83,27 @@ const VerOrdenes = () => {
     }
   }, [idOrden, dispatch]);
 
-  const handleSearchChange = (event) => {
-    setLocalSearch(event.target.value);
-    setCurrentPage(1)
+  useEffect(() => {
+    if (localSearch === '') {
+      setDebouncedSearch('');
+      setCurrentPage(1);
+      return;
+    }
 
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(localSearch);
+      setCurrentPage(1);
+    }, 1250);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [localSearch]);
+
+  const handleSearchChange = (event) => {
+    dispatch(setStatusLoading());
+    setLocalSearch(event.target.value);
+    setCurrentPage(1);
   };
 
   const formatDate = (dateString) => {
@@ -105,6 +122,7 @@ const VerOrdenes = () => {
 
   const handleClearSearch = () => {
     setLocalSearch('');
+    setDebouncedSearch('');
   };
 
   const handleLenteContactoChange = (value) => {
@@ -541,7 +559,7 @@ const VerOrdenes = () => {
                     </div>
                   </div>
                   <TableOrdenesCorrecciones
-                    search={localSearch}
+                    search={debouncedSearch}
                     pagadoFiltro={pagadoFilter}
                     sucursalFiltro={sucursalFilter}
                     laboratorioFiltro={laboratorioFilter}

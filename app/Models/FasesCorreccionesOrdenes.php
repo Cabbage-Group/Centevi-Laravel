@@ -23,7 +23,9 @@ class FasesCorreccionesOrdenes extends Model
     'status',
     'created_at',
     'updated_at',
-    'elaborado_por'
+    'elaborado_por',
+    'base_ojo_izquierdo_id',
+    'base_ojo_derecho_id',
   ];
 
   protected $casts = [

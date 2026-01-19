@@ -27,8 +27,9 @@ const BajaVision = () => {
           ? "3"
           : localStorage.getItem('ip') == '45.229.196.9'
             ? "4"
-            : ""
-    ,
+            : localStorage.getItem('ip') == '190.34.23.233'
+              ? "11"
+              : "",
     doctor: localStorage.getItem('nombre'),
     agendado_por: localStorage.getItem('nombre'),
     id_terapia: '0',

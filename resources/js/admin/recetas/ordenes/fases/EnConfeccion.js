@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Tooltip, Button } from 'antd';
+import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd';
 import moment from 'moment';
 import {
   ClockCircleTwoTone
@@ -9,6 +9,7 @@ import {
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
+import { fetchBases } from '../../../../redux/features/bases/basesSlice';
 import VecesContacto from '../../VecesContacto';
 
 const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
@@ -18,7 +19,10 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
   const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
   const proveedor = useSelector((state) => state.fasesOrdenes.proveedor);
+  const { bases, loading } = useSelector((state) => state.bases);
   const [observaciones, setObservaciones] = useState('');
+  const [baseOjoIzquierdoId, setBaseOjoIzquierdoId] = useState(null);
+  const [baseOjoDerechoId, setBaseOjoDerechoId] = useState(null);
   const { orderId } = useParams();
   const [elaboradoFase, setElaboradoFase] = useState('');
   const [laboratorio, setLaboratorio] = useState('');
@@ -40,10 +44,9 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
     if (orderId) {
       dispatch(fecthTiposFasesOrdenes(orderId));
     }
+    dispatch(fetchBases({}));
   }, []);
 
-
-  console.log('proveedor:', proveedor)
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente)
@@ -88,6 +91,22 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
           setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
         }
       }
+      const faseOrden = tiposFasesOrdenes
+        .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_ordenes)
+        .find((fasesOrden) => 
+          fasesOrden.tipo_fase_orden_id == tipoFaseId && 
+          fasesOrden.ordenes_id == orderId
+      );
+      setBaseOjoIzquierdoId(
+        faseOrden?.base_ojo_izquierdo_id != null
+          ? Number(faseOrden.base_ojo_izquierdo_id)
+          : null
+      );
+      setBaseOjoDerechoId(
+        faseOrden?.base_ojo_derecho_id != null
+          ? Number(faseOrden.base_ojo_derecho_id)
+          : null
+      );
     }
   }, [tiposFasesOrdenes, orderId]);
 
@@ -121,9 +140,20 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
       observacion: observaciones,
       fecha_fase: fechaActual,
       elaborado_por: usuarioId,
+      base_ojo_izquierdo_id: baseOjoIzquierdoId,
+      base_ojo_derecho_id: baseOjoDerechoId,
     };
     dispatch(actualizarDatosFase(nuevaFase));
-  }, [observaciones, fechaActual, tipoFaseId, dispatch, status]);
+  }, [observaciones, baseOjoIzquierdoId, baseOjoDerechoId, fechaActual, tipoFaseId, dispatch, status]);
+
+  useEffect(() => {
+    if (!loading && bases?.length && baseOjoIzquierdoId) {
+      setBaseOjoIzquierdoId(baseOjoIzquierdoId);
+    }
+    if (!loading && bases?.length && baseOjoDerechoId) {
+      setBaseOjoDerechoId(baseOjoDerechoId);
+    }
+  }, [loading, bases]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -203,7 +233,63 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
         style={{ marginBottom: '20px' }}
         gutter={[16, 16]}
       >
-        <Col xxl={12} xl={12} md={12}>
+        <Col xxl={15} xl={15} md={12}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            marginBottom: '20px',
+          }}>
+            <div>
+              <label htmlFor="laboratorio">Base Ojo Izquierdo</label>
+              <br />
+              <Select
+                showSearch
+                optionFilterProp="label"
+                placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                loading={loading}
+                disabled={loading}
+                options={(bases ?? []).map((base) => ({
+                  value: Number(base.id),
+                  label: `${base.codigo} - ${base.descripcion}`,
+                }))}
+                style={{
+                  width: '350px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
+                value={!loading ? baseOjoIzquierdoId : undefined}
+                status={!baseOjoIzquierdoId && !loading ? "error" : ""}
+              />
+            </div>
+
+              <div>
+                <label htmlFor="otraOpcion">Base Ojo Derecho</label>
+                <br />
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                  loading={loading}
+                  disabled={loading}
+                  options={(bases ?? []).map((base) => ({
+                    value: Number(base.id),
+                    label: `${base.codigo} - ${base.descripcion}`, 
+                  }))}
+                  style={{
+                    width: '350px',
+                    height: '30px',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                  onChange={(value) => setBaseOjoDerechoId(Number(value))}
+                  value={!loading ? baseOjoDerechoId : undefined}
+                  status={!baseOjoDerechoId && !loading ? "error" : ""}
+                />
+              </div>
+          </div>
           <label htmlFor="inputAddress">
             Observaciones
           </label>
@@ -214,7 +300,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
           />
         </Col>
         <Col
-          xxl={12} xl={12} md={12}
+          xxl={9} xl={9} md={12}
           style={{
             textAlign: 'right'
           }}

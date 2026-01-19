@@ -7,6 +7,7 @@ import {
   verCorrecionPdf,
   verOrdenPdf,
   verOrdenPdfSize,
+  setStatusLoading,
 } from "../../../redux/features/ordenes/ordenesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -60,6 +61,7 @@ const NewTableOrdenes = () => {
   const proveedorFilterLabo = useSelector((state) => state.fasesOrdenes.proveedorFilterLabo);
   const startDateLabo = useSelector((state) => state.fasesOrdenes.startDateLabo);
   const endDateLabo = useSelector((state) => state.fasesOrdenes.endDateLabo);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showOrden, setShowOrden] = useState(false);
   const [showCorrecion, setShowCorrecion] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -136,6 +138,21 @@ const NewTableOrdenes = () => {
     }
   }, [selectedOrdenId]);
 
+  useEffect(() => {
+    if (debouncedSearch === '') {
+      dispatch(setSearch(''));
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      dispatch(setSearch(debouncedSearch));
+    }, 1250);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [debouncedSearch]);
+
   const handleExpand = (expanded, record) => {
     if (expanded) {
       setExpandedRowKeys([record.id_orden]);
@@ -150,7 +167,8 @@ const NewTableOrdenes = () => {
   };
 
   const handleSearchChange = (value) => {
-    dispatch(setSearch(value));
+    dispatch(setStatusLoading());
+    setDebouncedSearch(value)
   };
 
   const handleVerOrden = async (id_orden) => {
@@ -486,7 +504,8 @@ const NewTableOrdenes = () => {
                         style={{ width: 300 }}
                         onSearch={handleSearchChange}
                         placeholder="Buscar"
-                        value={search}
+                        value={debouncedSearch}
+                        onClear={() => setDebouncedSearch('')}
                       />
                       <Button
                         type="primary"
@@ -509,6 +528,7 @@ const NewTableOrdenes = () => {
                           const newValue = !cancelarOrdenFilter;
                           setCancelarOrdenFilter(newValue);
                           handleOrdenCancel(newValue ? '1' : '');
+                          setDebouncedSearch('')
                         }}
                       />
                     </div>
@@ -566,7 +586,7 @@ const NewTableOrdenes = () => {
                 columns={columns}
                 dataSource={ordenes}
                 rowKey="id_orden"
-                loading={isLoading}
+                loading={status === 'loading'}
                 rowClassName={(record) => (record.cancelada ? 'fila-cancelada' : '')}
                 pagination={{
                   current: currentPage,
@@ -577,7 +597,7 @@ const NewTableOrdenes = () => {
                 }}
                 scroll={{ x: 1300 }}
                 expandable={{
-                  expandedRowRender: (record) => (
+                  expandedRowRender: (parentRecord) => (
                     <Table
                       columns={[
                         {
@@ -752,8 +772,7 @@ const NewTableOrdenes = () => {
                                 }
                                 onClick={() =>
                                   navigate(
-                                    `/orden-receta/${record.id_orden}/${record.nro_orden_id}/${record.id_paciente}`,
-
+                                    `/orden-receta/${record.orden_id}/${record.nro_orden_id}/${parentRecord.id_paciente}`,
                                   )
                                 }
                                 style={{

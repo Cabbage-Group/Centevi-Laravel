@@ -22,6 +22,8 @@ class FasesOrdenes extends Model
     'fecha_fase',
     'status',
     'elaborado_por',
+    'base_ojo_izquierdo_id',
+    'base_ojo_derecho_id',
     'created_at',
     'updated_at',
   ];

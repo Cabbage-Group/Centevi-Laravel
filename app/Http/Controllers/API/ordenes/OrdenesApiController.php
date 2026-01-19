@@ -615,6 +615,7 @@ class OrdenesApiController extends Controller
       'altura_oi' => 'nullable|string|max:255',
       'tipo_cristal_od' => 'nullable|string|max:255',
       'tipo_cristal_oi' => 'nullable|string|max:255',
+      'tipo_corredor' => 'nullable|string|max:255',
       'material_od' => 'nullable|string|max:255',
       'material_oi' => 'nullable|string|max:255',
       'tratamientos_od' => 'nullable|string|max:255',
@@ -666,6 +667,7 @@ class OrdenesApiController extends Controller
         'altura_oi' => '',
         'tipo_cristal_od' => '',
         'tipo_cristal_oi' => '',
+        'tipo_corredor' => '',
         'material_od' => '',
         'material_oi' => '',
         'tratamientos_od' => '',
@@ -907,6 +909,8 @@ class OrdenesApiController extends Controller
       'status' => 'nullable|integer|min:0|max:1',
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
       'elaborado_por' => 'required|integer',
+      'base_ojo_izquierdo_id' => 'nullable|integer',
+      'base_ojo_derecho_id' => 'nullable|integer',
     ]);
 
     DB::beginTransaction();
@@ -925,6 +929,8 @@ class OrdenesApiController extends Controller
           'status' => $validatedData['status'] ?? $existingFase->status,
           'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
           'elaborado_por' => $validatedData['elaborado_por'],
+          'base_ojo_izquierdo_id' => $validatedData['base_ojo_izquierdo_id'] ?? null,
+          'base_ojo_derecho_id' => $validatedData['base_ojo_derecho_id']  ?? null,
         ]);
 
         if ($updated && isset($validatedData['status']) && $validatedData['status'] == 0) {
@@ -2254,6 +2260,7 @@ class OrdenesApiController extends Controller
       'material_oi' => $orden['material_oi'],
       'tipo_cristal_od' => $orden['tipo_cristal_od'],
       'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+      'tipo_corredor' => $orden['tipo_corredor'],
       'l_uno' => $orden['l_uno'] ?? "-",
       'l_dos' => $orden['l_dos'] ?? "-",
       'l_tres' => $orden['l_tres'] ?? "-",
@@ -2322,6 +2329,7 @@ class OrdenesApiController extends Controller
       'material_oi' => $orden['material_oi'],
       'tipo_cristal_od' => $orden['tipo_cristal_od'],
       'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
+      'tipo_corredor' => $orden['tipo_corredor'],
       'l_uno' => $orden['l_uno'] ?? "-",
       'l_dos' => $orden['l_dos'] ?? "-",
       'l_tres' => $orden['l_tres'] ?? "-",

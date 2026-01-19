@@ -112,6 +112,7 @@ const pacientesSlice = createSlice({
               ? {
                   value: id_paciente,
                   label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
+                  nro_cedula,
                   ...rest,
                 }
               : { ...rest }

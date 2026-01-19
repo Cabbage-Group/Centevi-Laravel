@@ -448,11 +448,11 @@ const Ordenes = () => {
 
     const result = await Swal.fire({
       title: completar
-        ? "Estás seguro de completar la fase?"
-        : "Estás seguro de guardar la fase?",
+        ? "Estas seguro de completar la fase?"
+        : "Estas seguro de guardar la fase?",
       text: completar
-        ? "Confirmarás la fase como completada!"
-        : "Confirmarás los cambios en los datos!",
+        ? "Confirmaras la fase como completada!"
+        : "Confirmaras los cambios en los datos!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",

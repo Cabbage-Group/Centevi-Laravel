@@ -128,7 +128,7 @@ const citasAgendaSlice = createSlice({
     loading: false,
     error: null,
     // currentView: 'timeGridWeek',
-    currentView: "dayGridMonth",
+    currentView: "timeGridDay",
     currentType: [0],
   },
   reducers: {

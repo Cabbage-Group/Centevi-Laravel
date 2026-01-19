@@ -673,6 +673,9 @@ class CorrecionesOrdenesController extends Controller
       'observacion' => 'nullable|string|max:400',
       'proveedor_material' => 'nullable|string|max:3000',
       'status' => 'nullable|integer|min:0|max:1',
+      'elaborado_por' => 'nullable|integer',
+      'base_ojo_izquierdo_id' => 'nullable|integer',
+      'base_ojo_derecho_id' => 'nullable|integer',
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
     ]);
 
@@ -682,11 +685,14 @@ class CorrecionesOrdenesController extends Controller
 
     if ($existingFase) {
       $updated = $existingFase->update([
-        'laboratorio' => $validatedData['laboratorio'],
+        'laboratorio' => $validatedData['laboratorio']  ?? null,
         'observacion' => $validatedData['observacion'],
-        'proveedor_material' => $validatedData['proveedor_material'],
+        'proveedor_material' => $validatedData['proveedor_material']  ?? null,
         'fecha_fase' => $validatedData['fecha_fase'],
         'status' => $validatedData['status'] ?? $existingFase->status,
+        'elaborado_por' => $validatedData['elaborado_por'],
+        'base_ojo_izquierdo_id' => $validatedData['base_ojo_izquierdo_id'] ?? null,
+        'base_ojo_derecho_id' => $validatedData['base_ojo_derecho_id']  ?? null,
         'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
       ]);
 
@@ -903,7 +909,10 @@ class CorrecionesOrdenesController extends Controller
         'created_at' => $correccion->created_at ? Carbon::parse($correccion->created_at)->format('d-m-Y') : null,
         'sucursal' => $correccion->orden ? $correccion->orden->sucursal->nombre : null,
         'nro_orden_id' => $correccion->orden ? $correccion->orden->nro_orden_id : null,
+        'nro_cotizacion' => $correccion->orden ? $correccion->orden->nro_cotizacion : null,
         'lente_contacto' => $correccion->orden ? $correccion->orden->lente_contacto : null,
+        'id_paciente' => $correccion->orden ? $correccion->orden->id_paciente : null,
+        'id_sucursal' => $correccion->orden ? $correccion->orden->id_sucursal : null,
         'paciente_nombre_completo' => $correccion->orden
           ? trim($correccion->orden->paciente->nombres . ' ' . $correccion->orden->paciente->apellidos)
           : null,

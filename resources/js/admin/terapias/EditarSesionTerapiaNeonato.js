@@ -58,7 +58,9 @@ const EditarSesionTerapiaNeonato = () => {
                             ? "3"
                             : localStorage.getItem('ip') === '45.229.196.9'
                                 ? "4"
-                                : "")
+                                : localStorage.getItem('ip') == '190.34.23.233'
+                                    ? "11"
+                                    : "")
             });
         }
     }, [terapia]);

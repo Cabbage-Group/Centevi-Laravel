@@ -41,6 +41,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedMarca, setSelectedMarca] = useState('');
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
+  const [tipoCorredor, setTipoCorredor] = useState('');
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
   const [aroCentevi, setAroCentevi] = useState(false);
@@ -84,6 +85,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
     altura_oi: '',
     tipo_cristal_od: '',
     tipo_cristal_oi: '',
+    tipo_corredor: '',
     material_od: '',
     material_oi: '',
     tratamientos_od: '',
@@ -151,6 +153,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
           ojo: "Ojo Izquierdo"
         } : null,
       ].filter(Boolean));
+      setTipoCorredor(pacienteOrden.tipo_corredor);
       setFormValues((prevValues) => ({
         ...prevValues,
         nro_orden: pacienteOrden.nro_orden || '',
@@ -1039,6 +1042,31 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
                                           }
 
                                         </div>
+                                        {tipoCorredor && (
+                                          <>
+                                            <div
+                                              style={{marginTop: '10px', color: 'black'}}
+                                            >
+                                              Tipo Corredor
+                                            </div>
+                                            <Select
+                                              showSearch
+                                              value={tipoCorredor}
+                                              style={{
+                                                width: '100%', color: 'transparent',
+                                                background: 'white !important'
+                                              }}
+                                              optionFilterProp="label"
+                                              onChange={(value, option) => setTipoCorredor(option.label)}
+                                              options={[
+                                                { value: "corredor-corto", label: "Corredor Corto" },
+                                                { value: "corredor-largo", label: "Corredor Largo" },
+                                              ]}
+                                              disabled={true}
+                                            >
+                                            </Select>
+                                          </>
+                                        )}
                                       </Col>
                                       <Col xxl={8} xl={8} md={8}>
                                         <h6

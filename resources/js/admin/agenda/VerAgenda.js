@@ -23,6 +23,7 @@ import {
   Checkbox,
   Tooltip,
   Grid,
+  Switch,
 } from "antd";
 import {
   LeftOutlined,
@@ -643,10 +644,7 @@ Tarjeta (Clave,Visa o Mastercard)
   ]);
 
   const obtenerCitas = async (data) => {
-    await dispatch(fetchCitasAgenda(data));
-
-    // changeView("timeGridDay");
-    changeView(currentView);
+    dispatch(fetchCitasAgenda(data));
   };
 
   const handleDateChange = (dateInfo) => {
@@ -671,6 +669,11 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleSucursalChange = (id) => {
+    if (id === "otros") {
+      setSelectedSucursales((prev) => prev.includes(id) ? [] : [id]);
+      return;
+    }
+
     setSelectedSucursales((prev) =>
       prev.includes(id) ? prev.filter((sucursalId) => sucursalId !== id) : [...prev, id]
     );
@@ -1481,11 +1484,21 @@ Tarjeta (Clave,Visa o Mastercard)
             {sucursales_with_colors?.map((category) => (
               <Col key={category.id} xxl={24} xl={24} md={24} ms={24} xs={24}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedSucursales.includes(category.id)}
-                    onChange={() => handleSucursalChange(category.id)}
-                  />
+                  {category.id === "otros" ? 
+                  (
+                    <Switch 
+                      size="small"
+                      checked={selectedSucursales.includes(category.id)}
+                      onChange={() => handleSucursalChange(category.id)}
+                    />
+                  ) : (
+                    <input
+                      type="checkbox"
+                      disabled={category.id !== "otros" && selectedSucursales.includes("otros")}
+                      checked={selectedSucursales.includes(category.id)}
+                      onChange={() => handleSucursalChange(category.id)}
+                    />
+                  )}
                   <div
                     style={{
                       width: 12,
@@ -1605,6 +1618,21 @@ Tarjeta (Clave,Visa o Mastercard)
             slotDuration="00:20:00"
             slotLabelInterval="00:30"
             height="auto"
+            eventDidMount={(info) => {
+              const harness = info.el.closest(".fc-timegrid-event-harness");
+
+              if (!harness) return;
+
+              // Fuerza altura mínima REAL
+              const minHeight = 65;
+
+              const currentHeight = harness.getBoundingClientRect().height;
+
+              if (currentHeight < minHeight) {
+                harness.style.minHeight = `${minHeight}px`;
+                harness.style.height = `${minHeight}px`;
+              }
+            }}
             eventContent={(info) => {
               const {
                 hiddenEvents,

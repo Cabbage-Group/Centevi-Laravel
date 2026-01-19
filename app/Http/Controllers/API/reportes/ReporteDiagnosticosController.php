@@ -164,6 +164,7 @@ class ReporteDiagnosticosController extends Controller
             hc.doctor,
             s.nombre AS sucursal_nombre,
             CONCAT(p.nombres, ' ', p.apellidos) AS paciente_nombre,
+            p.celular AS paciente_celular,
             'Historia Clinica' AS consulta,
             d.codigo AS codigo,
             d.diagnostico AS diagnostico_nombre,
@@ -181,6 +182,7 @@ class ReporteDiagnosticosController extends Controller
             rg.doctor,
             s.nombre AS sucursal_nombre,
             CONCAT(p.nombres, ' ', p.apellidos) AS paciente_nombre,
+            p.celular AS paciente_celular,
             'Optometria General' AS consulta,
             d.codigo AS codigo,
             d.diagnostico AS diagnostico_nombre,
@@ -198,6 +200,7 @@ class ReporteDiagnosticosController extends Controller
             ont.doctor,
             s.nombre AS sucursal_nombre,
             CONCAT(p.nombres, ' ', p.apellidos) AS paciente_nombre,
+            p.celular AS paciente_celular,
             'Optometria Neonatos' AS consulta,
             d.codigo AS codigo,
             d.diagnostico AS diagnostico_nombre,
@@ -215,6 +218,7 @@ class ReporteDiagnosticosController extends Controller
             op.doctor,
             s.nombre AS sucursal_nombre,
             CONCAT(p.nombres, ' ', p.apellidos) AS paciente_nombre,
+            p.celular AS paciente_celular,
             'Optometria Pediatrica' AS consulta,
             d.codigo AS codigo,
             d.diagnostico AS diagnostico_nombre,
@@ -232,6 +236,7 @@ class ReporteDiagnosticosController extends Controller
             oa.doctor,
             s.nombre AS sucursal_nombre,
             CONCAT(p.nombres, ' ', p.apellidos) AS paciente_nombre,
+            p.celular AS paciente_celular,
             'Ortoptica Adultos' AS consulta,
             d.codigo AS codigo,
             d.diagnostico AS diagnostico_nombre,
@@ -251,7 +256,7 @@ class ReporteDiagnosticosController extends Controller
     $sheet = $spreadsheet->getActiveSheet();
 
     // Cabecera
-    $headers = ['Doctor', 'Sucursal', 'Paciente', 'Consulta', 'Código', 'Diagnóstico', 'Fecha'];
+    $headers = ['Doctor', 'Sucursal', 'Paciente', 'Celular', 'Consulta', 'Código', 'Diagnóstico', 'Fecha'];
     $sheet->fromArray($headers, null, 'A1');
 
     $headerStyle = [
@@ -259,34 +264,33 @@ class ReporteDiagnosticosController extends Controller
       'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '0070C0']],
       'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
     ];
-    $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+    $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
 
-    foreach (range('A', 'G') as $col) {
+    foreach (range('A', 'H') as $col) {
       $sheet->getColumnDimension($col)->setWidth(25);
     }
 
-    // Insertar datos dejando vacíos los repetidos
-    $lastDoctor = $lastSucursal = $lastPaciente = $lastConsulta = null;
     $rowNum = 2;
+
     foreach ($result as $r) {
-      $sheet->setCellValue("A$rowNum", $r->doctor === $lastDoctor ? '' : $r->doctor);
-      $sheet->setCellValue("B$rowNum", $r->sucursal_nombre === $lastSucursal ? '' : $r->sucursal_nombre);
-      $sheet->setCellValue("C$rowNum", $r->paciente_nombre === $lastPaciente ? '' : $r->paciente_nombre);
-      $sheet->setCellValue("D$rowNum", $r->consulta === $lastConsulta ? '' : $r->consulta);
-      $sheet->setCellValue("E$rowNum", $r->codigo);
-      $sheet->setCellValue("F$rowNum", $r->diagnostico_nombre);
-      $sheet->setCellValue("G$rowNum", $r->fecha);
-
-      $lastDoctor = $r->doctor;
-      $lastSucursal = $r->sucursal_nombre;
-      $lastPaciente = $r->paciente_nombre;
-      $lastConsulta = $r->consulta;
-
+      $sheet->setCellValue("A$rowNum", $r->doctor);
+      $sheet->setCellValue("B$rowNum", $r->sucursal_nombre);
+      $sheet->setCellValue("C$rowNum", $r->paciente_nombre);
+      $sheet->setCellValue("D$rowNum", $r->paciente_celular);
+      $sheet->setCellValue("E$rowNum", $r->consulta);
+      $sheet->setCellValue("F$rowNum", $r->codigo);
+      $sheet->setCellValue("G$rowNum", $r->diagnostico_nombre);
+      $sheet->setCellValue("H$rowNum", $r->fecha);
       $rowNum++;
     }
 
     $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
     $fileName = 'ReporteDiagnosticos.xlsx';
+
+    if (ob_get_length()) {
+      ob_end_clean();
+    }
+
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header("Content-Disposition: attachment; filename=\"$fileName\"");
     $writer->save('php://output');

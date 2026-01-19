@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Tooltip, Button } from 'antd';
+import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd';
 import moment from 'moment';
 import {
   ClockCircleTwoTone
@@ -9,6 +9,7 @@ import {
 import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
+import { fetchBases } from '../../../redux/features/bases/basesSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 
 const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
@@ -17,6 +18,9 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
+  const { bases, loading } = useSelector((state) => state.bases);
+  const [baseOjoIzquierdoId, setBaseOjoIzquierdoId] = useState(null);
+  const [baseOjoDerechoId, setBaseOjoDerechoId] = useState(null);
   const [observaciones, setObservaciones] = useState('');
   const { correccionOrderId } = useParams();
   const [laboratorio, setLaboratorio] = useState('');
@@ -35,6 +39,7 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
     if (correccionOrderId) {
       dispatch(fecthTiposFasesOrdenes(correccionOrderId));
     }
+    dispatch(fetchBases({}));
   }, []);
 
   useEffect(() => {
@@ -64,6 +69,22 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
         }
       }
     }
+
+    const faseOrden = tiposFasesOrdenes
+        .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_correcciones_ordenes)
+        .find((fasesOrden) => 
+          fasesOrden.tipo_fase_correccion_orden_id == tipoFaseId
+      );
+      setBaseOjoIzquierdoId(
+        faseOrden?.base_ojo_izquierdo_id != null
+          ? Number(faseOrden.base_ojo_izquierdo_id)
+          : null
+      );
+      setBaseOjoDerechoId(
+        faseOrden?.base_ojo_derecho_id != null
+          ? Number(faseOrden.base_ojo_derecho_id)
+          : null
+      );
   }, [tiposFasesOrdenes, correccionOrderId]);
 
   useEffect(() => {
@@ -93,9 +114,21 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
       laboratorio: laboratorio,
       observacion: observaciones,
       fecha_fase: fechaActual,
+      elaborado_por: idUsuario,
+      base_ojo_izquierdo_id: baseOjoIzquierdoId,
+      base_ojo_derecho_id: baseOjoDerechoId,
     };
     dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
-  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
+  }, [observaciones, baseOjoIzquierdoId, baseOjoDerechoId, fechaActual, tipoFaseId, dispatch]);
+
+  useEffect(() => {
+    if (!loading && bases?.length && baseOjoIzquierdoId) {
+      setBaseOjoIzquierdoId(baseOjoIzquierdoId);
+    }
+    if (!loading && bases?.length && baseOjoDerechoId) {
+      setBaseOjoDerechoId(baseOjoDerechoId);
+    }
+  }, [loading, bases]);
 
   const getColorForStatus = (status) => {
     const colors = {
@@ -173,7 +206,63 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
         style={{ marginBottom: '20px' }}
         gutter={[16, 16]}
       >
-        <Col xxl={12} xl={12} md={12}>
+        <Col xxl={15} xl={15} md={12}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px',
+            marginBottom: '20px'
+          }}>
+            <div>
+              <label htmlFor="laboratorio">Base Ojo Izquierdo</label>
+              <br />
+              <Select
+                showSearch
+                optionFilterProp="label"
+                placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                loading={loading}
+                disabled={loading}
+                options={(bases ?? []).map((base) => ({
+                  value: Number(base.id),
+                  label: `${base.codigo} - ${base.descripcion}`,
+                }))}
+                style={{
+                  width: '350px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
+                value={!loading ? baseOjoIzquierdoId : undefined}
+                status={!baseOjoIzquierdoId && !loading ? "error" : ""}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="otraOpcion">Base Ojo Derecho</label>
+              <br />
+              <Select
+                showSearch
+                optionFilterProp="label"
+                placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                loading={loading}
+                disabled={loading}
+                options={(bases ?? []).map((base) => ({
+                  value: Number(base.id),
+                  label: `${base.codigo} - ${base.descripcion}`, 
+                }))}
+                style={{
+                  width: '350px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setBaseOjoDerechoId(Number(value))}
+                value={!loading ? baseOjoDerechoId : undefined}
+                status={!baseOjoDerechoId && !loading ? "error" : ""}
+              />
+            </div>
+          </div>
           <label htmlFor="inputAddress">
             Observaciones
           </label>
@@ -184,7 +273,7 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
           />
         </Col>
         <Col
-          xxl={12} xl={12} md={12}
+          xxl={9} xl={9} md={12}
           style={{
             textAlign: 'right'
           }}
