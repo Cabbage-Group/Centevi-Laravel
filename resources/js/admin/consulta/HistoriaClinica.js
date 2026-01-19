@@ -16,7 +16,7 @@ import { fectchDiagnosticos } from '../../redux/features/diagnosticos/Diagnostic
 const HistoriaClinica = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const { status: pacientesStatus, pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { servicios } = useSelector((state) => state.servicios);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { options_diagnosticos } = useSelector((state) => state.diagnosticos);
@@ -169,6 +169,8 @@ const HistoriaClinica = () => {
                               <Select
                                 showSearch
                                 placeholder="Seleccione el paciente"
+                                loading={pacientesStatus === "loading"}
+                                disabled={pacientesStatus === "loading"}
                                 filterOption={(input, option) => {
                                   const searchTerms = input.toLowerCase().split(' ');
                                   return searchTerms.every(term =>

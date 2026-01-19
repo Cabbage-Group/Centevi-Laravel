@@ -17,7 +17,7 @@ const OptometriaNeonatos = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
+  const { status: pacientesStatus, pacientes, pacientes_options_selecteds } = useSelector((state) => state.pacientes);
   const { sucursales } = useSelector((state) => state.sucursales);
   const { servicios } = useSelector((state) => state.servicios);
   const { status, error } = useSelector((state) => state.optometriaNeonatos);
@@ -240,6 +240,8 @@ const OptometriaNeonatos = () => {
                               <Select
                                 showSearch
                                 placeholder="Seleccione el paciente"
+                                loading={pacientesStatus === "loading"}
+                                disabled={pacientesStatus === "loading"}
                                 filterOption={(input, option) => {
                                   const searchTerms = input.toLowerCase().split(" ");
                                   return searchTerms.every((term) =>

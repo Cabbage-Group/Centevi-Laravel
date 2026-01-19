@@ -175,7 +175,11 @@ const CorrecionOrden = () => {
   }, [correccionOrderId]);
 
   const retroceder = () => {
-    navigate(`/ordenes`);
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate("/ordenes");
+    }
   };
 
   const generateWhatsAppLink = () => {
