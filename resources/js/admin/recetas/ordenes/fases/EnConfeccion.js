@@ -12,7 +12,12 @@ import { createContactoOrden } from '../../../../redux/features/contacto-orden/C
 import { fetchBases } from '../../../../redux/features/bases/basesSlice';
 import VecesContacto from '../../VecesContacto';
 
-const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
+const EnConfeccion = ({
+  tipoFaseId,
+  isDisabled,
+  pacientesData,
+  pacienteOrden,
+  onBasesValidasChange }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -39,6 +44,7 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
   const [ubicacionMaps, setUbicacionMaps] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [status, setStatus] = useState('');
+  const [lenteContacto, setLenteContacto] = useState(0);
 
   useEffect(() => {
     if (orderId) {
@@ -47,12 +53,15 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
     dispatch(fetchBases({}));
   }, []);
 
+
+
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente)
       setSelectedSucursal(pacienteOrden?.sucursal_nombre)
       setUbicacionMaps(pacienteOrden?.sucursal_ubicacion)
       setStatus(pacienteOrden?.status_primera_fase)
+      setLenteContacto(pacienteOrden?.lente_contacto || 0)
     }
   }, [pacienteOrden])
 
@@ -93,10 +102,10 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
       }
       const faseOrden = tiposFasesOrdenes
         .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_ordenes)
-        .find((fasesOrden) => 
-          fasesOrden.tipo_fase_orden_id == tipoFaseId && 
+        .find((fasesOrden) =>
+          fasesOrden.tipo_fase_orden_id == tipoFaseId &&
           fasesOrden.ordenes_id == orderId
-      );
+        );
       setBaseOjoIzquierdoId(
         faseOrden?.base_ojo_izquierdo_id != null
           ? Number(faseOrden.base_ojo_izquierdo_id)
@@ -165,8 +174,6 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
     return colors[status] || 'gray'; // Predeterminado: 'gray'
   };
 
-
-
   const generateWhatsAppLink = () => {
     const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
     let mensajePersonalizado = mensaje
@@ -227,6 +234,26 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
     }
   };
 
+  const basesValidas = () => {
+    if (lenteContacto === 1) {
+      return true;
+    }
+    return baseOjoIzquierdoId !== null && baseOjoDerechoId !== null;
+  };
+
+  useEffect(() => {
+    window.basesValidasEnConfeccion = basesValidas();
+  }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
+
+  useEffect(() => {
+    const validas = basesValidas();
+    window.basesValidasEnConfeccion = validas;
+
+    if (onBasesValidasChange) {
+      onBasesValidasChange(validas);
+    }
+  }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
+
   return (
     <div>
       <Row
@@ -234,14 +261,16 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
         gutter={[16, 16]}
       >
         <Col xxl={15} xl={15} md={12}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             gap: '10px',
             marginBottom: '20px',
           }}>
             <div>
-              <label htmlFor="laboratorio">Base Ojo Izquierdo</label>
+              <label htmlFor="laboratorio">
+                Base Ojo Izquierdo{lenteContacto === 0 ? ' *' : ''}
+              </label>
               <br />
               <Select
                 showSearch
@@ -261,35 +290,49 @@ const EnConfeccion = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) 
                 }}
                 onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
                 value={!loading ? baseOjoIzquierdoId : undefined}
-                status={!baseOjoIzquierdoId && !loading ? "error" : ""}
+                status={!baseOjoIzquierdoId && !loading && lenteContacto === 0 ? "error" : ""}
               />
             </div>
 
-              <div>
-                <label htmlFor="otraOpcion">Base Ojo Derecho</label>
-                <br />
-                <Select
-                  showSearch
-                  optionFilterProp="label"
-                  placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
-                  loading={loading}
-                  disabled={loading}
-                  options={(bases ?? []).map((base) => ({
-                    value: Number(base.id),
-                    label: `${base.codigo} - ${base.descripcion}`, 
-                  }))}
-                  style={{
-                    width: '350px',
-                    height: '30px',
-                    color: 'black',
-                    fontWeight: 'bold',
-                  }}
-                  onChange={(value) => setBaseOjoDerechoId(Number(value))}
-                  value={!loading ? baseOjoDerechoId : undefined}
-                  status={!baseOjoDerechoId && !loading ? "error" : ""}
-                />
-              </div>
+            <div>
+              <label htmlFor="otraOpcion">
+                Base Ojo Derecho{lenteContacto === 0 ? ' *' : ''}
+              </label>
+              <br />
+              <Select
+                showSearch
+                optionFilterProp="label"
+                placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                loading={loading}
+                disabled={loading}
+                options={(bases ?? []).map((base) => ({
+                  value: Number(base.id),
+                  label: `${base.codigo} - ${base.descripcion}`,
+                }))}
+                style={{
+                  width: '350px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setBaseOjoDerechoId(Number(value))}
+                value={!loading ? baseOjoDerechoId : undefined}
+                status={!baseOjoDerechoId && !loading && lenteContacto === 0 ? "error" : ""}
+              />
+            </div>
           </div>
+
+          {lenteContacto === 0 && (!baseOjoIzquierdoId || !baseOjoDerechoId) && (
+            <div style={{
+              color: 'red',
+              fontSize: '12px',
+              marginBottom: '10px',
+              marginTop: '-10px'
+            }}>
+              * Ambas bases son obligatorias
+            </div>
+          )}
+
           <label htmlFor="inputAddress">
             Observaciones
           </label>

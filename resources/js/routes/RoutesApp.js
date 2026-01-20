@@ -100,6 +100,7 @@ import TableWareHouses from "../admin/cotizaciones/wareHouses/TableWareHouses.js
 import VerDiagnosticos from "../admin/diagnosticos/VerDiagnosticos.js";
 import Diagnosticos from "../admin/reportes/diagnosticos/Diagnosticos.js";
 import ReportePacientes from "../admin/reportes/pacientes/ReportePacientes.js";
+import UpdateCotizacion from "../admin/cotizaciones/UpdateCotizacion.js";
 import Bases from "../admin/bases/Bases.js";
 
 const RoutesApp = () => {
@@ -387,6 +388,10 @@ const RoutesApp = () => {
           <Route
             path="/ver-cotizacion/:id"
             element={<Sidebar component={<VerUnaCotizacion />} />}
+          />
+          <Route
+            path="/actualizar-cotizacion/:id"
+            element={<Sidebar component={<UpdateCotizacion />} />}
           />
           <Route path="/ordenes-labo" element={<Sidebar component={<NewTableOrdenes />} />} />
           <Route

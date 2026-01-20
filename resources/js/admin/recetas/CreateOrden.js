@@ -48,7 +48,7 @@ const CreateOrden = () => {
   const [isAroVisible, setIsAroVisible] = useState(true);
   const { nro_orden_auto } = useSelector((state) => state.ordenes);
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
-  const [tipoCorredor, setTipoCorredor] = useState('');  
+  const [tipoCorredor, setTipoCorredor] = useState('');
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [tratamientosFiltros, setTratamientosFiltros] = useState([]);
   const [aroCentevi, setAroCentevi] = useState(false);
@@ -101,6 +101,7 @@ const CreateOrden = () => {
     codigo: "",
     color: "",
     marca: "",
+    marca_oi: "",
     tipo_aro: isRowVisible ? "" : null,
     observaciones: "",
     doctor: "",
@@ -110,7 +111,8 @@ const CreateOrden = () => {
     l_cuatro: "",
     l_cinco: "",
     isRowVisible: isAroVisible,
-    nro_cotizacion: ""
+    nro_cotizacion: "",
+    lenteContacto: false,
   };
 
   const validationSchema = Yup.object().shape({
@@ -130,11 +132,34 @@ const CreateOrden = () => {
       then: (schema) => schema.required("Seleccione un tipo de aro"),
       otherwise: (schema) => schema.notRequired(),
     }),
-    doctor: Yup.string()
-      .nullable()
+    doctor: Yup.string().nullable()
       .required("Seleccione un doctor"),
     nro_cotizacion: Yup.string()
       .required("Coloque un número de cotización"),
+    marca: Yup.string().when('lenteContacto', {
+      is: true,
+      then: (schema) => schema.test(
+        'at-least-one-marca',
+        'Debe seleccionar al menos una marca',
+        function (value) {
+          const { marca_oi } = this.parent;
+          return !!(value || marca_oi);
+        }
+      ),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    marca_oi: Yup.string().when('lenteContacto', {
+      is: true,
+      then: (schema) => schema.test(
+        'at-least-one-marca',
+        'Debe seleccionar al menos una marca',
+        function (value) {
+          const { marca } = this.parent;
+          return !!(value || marca);
+        }
+      ),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
 
   const toggleEye = () => {
@@ -225,6 +250,7 @@ const CreateOrden = () => {
   }, []);
 
   const handleSubmit = async (values) => {
+    console.log('values', values)
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
     const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
     const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
@@ -361,748 +387,744 @@ const CreateOrden = () => {
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
                         <Formik
-                          initialValues={{ ...initialValues, isRowVisible: isAroVisible }}
+                          initialValues={{
+                            ...initialValues,
+                            isRowVisible: isAroVisible,
+                            lenteContacto: lenteContacto
+                          }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
-
-
+                          enableReinitialize
                         >
 
-                          {({ setFieldValue, values, isSubmitting }) => (
-                            <Form
-                            >
-                              <div className="form-row" style={{ marginBottom: "2rem" }}>
+                          {({ setFieldValue, values, isSubmitting }) => {
+                            React.useEffect(() => {
+                              setFieldValue('lenteContacto', lenteContacto);
+                            }, [lenteContacto, setFieldValue]);
+                            return (
+                              <Form
+                              >
+                                <div className="form-row" style={{ marginBottom: "2rem" }}>
 
-                                <div className="col-md-4" >
-                                  <img
-                                    alt="logo"
-                                    className="navbar-logo"
-                                    src="img/centevi.png"
-                                    // src={public_path('img/centevi.png')}
-                                    style={{
-                                      height: '80px'
-                                    }}
-                                  />
-                                </div>
-                                <div className="col-md-2">
-                                  <h4>
-                                    Fecha de solicitud
-                                  </h4>
-                                  <p className="ml-5">
-                                    <b>
-                                      {moment().format('YYYY-MM-DD')}
-                                    </b>
-                                  </p>
-                                </div>
-                                <div className="col-md-2">
-                                  <h4>Nro. Cotización*</h4>
-                                  <Field name="nro_cotizacion">
-                                    {({ field }) => (
-                                      <input
-                                        {...field}
-                                        type="text"
-                                        placeholder="Ingrese el número de cotización"
-                                        className="form-control"
-                                        style={{
-                                          fontWeight: "bold",
-                                          marginBottom: "1rem",
-                                          height: "40px",
-                                          fontSize: "12px",
-                                          paddingLeft: "8px",
-                                          "::placeholder": {
-                                            fontSize: "12px"
-                                          }
-                                        }}
-                                      />
-                                    )}
-                                  </Field>
-                                  <ErrorMessage
-                                    name="nro_cotizacion"
-                                    component="div"
-                                    style={{ color: "red", fontSize: "12px" }}
-                                  />
-
-                                </div>
-                                <div class="col-md-2"  >
-                                  <h4>Nro. Orden*</h4>
-                                  <Input
-                                    name="nro_orden"
-                                    placeholder="Ingrese el número de orden"
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '40px',
-                                    }}
-                                    disabled
-                                  />
-
-                                  <ErrorMessage
-                                    name="nro_orden"
-                                    component="div"
-                                    style={{ color: "red", fontSize: "12px" }}
-                                  />
-                                </div>
-                                <div class="col-md-2">
-                                  <h4>Cambiar Tipo de lente</h4>
-                                  <div className="d-flex align-items-center">
-                                    <button
-                                      type="button"
-                                      className="btn btn-success"
+                                  <div className="col-md-4" >
+                                    <img
+                                      alt="logo"
+                                      className="navbar-logo"
+                                      src="img/centevi.png"
+                                      // src={public_path('img/centevi.png')}
                                       style={{
-                                        height: "40px",
-                                        marginTop: "0",
+                                        height: '80px'
                                       }}
-                                      onClick={() => {
-                                        handleLenteContactoChange()
+                                    />
+                                  </div>
+                                  <div className="col-md-2">
+                                    <h4>
+                                      Fecha de solicitud
+                                    </h4>
+                                    <p className="ml-5">
+                                      <b>
+                                        {moment().format('YYYY-MM-DD')}
+                                      </b>
+                                    </p>
+                                  </div>
+                                  <div className="col-md-2">
+                                    <h4>Nro. Cotización*</h4>
+                                    <Field name="nro_cotizacion">
+                                      {({ field }) => (
+                                        <input
+                                          {...field}
+                                          type="text"
+                                          placeholder="Ingrese el número de cotización"
+                                          className="form-control"
+                                          style={{
+                                            fontWeight: "bold",
+                                            marginBottom: "1rem",
+                                            height: "40px",
+                                            fontSize: "12px",
+                                            paddingLeft: "8px",
+                                            "::placeholder": {
+                                              fontSize: "12px"
+                                            }
+                                          }}
+                                        />
+                                      )}
+                                    </Field>
+                                    <ErrorMessage
+                                      name="nro_cotizacion"
+                                      component="div"
+                                      style={{ color: "red", fontSize: "12px" }}
+                                    />
+
+                                  </div>
+                                  <div class="col-md-2"  >
+                                    <h4>Nro. Orden*</h4>
+                                    <Input
+                                      name="nro_orden"
+                                      placeholder="Ingrese el número de orden"
+                                      style={{
+                                        color: "red",
+                                        fontWeight: "bold",
+                                        marginBottom: "1rem",
+                                        height: '40px',
+                                      }}
+                                      disabled
+                                    />
+
+                                    <ErrorMessage
+                                      name="nro_orden"
+                                      component="div"
+                                      style={{ color: "red", fontSize: "12px" }}
+                                    />
+                                  </div>
+                                  <div class="col-md-2">
+                                    <h4>Cambiar Tipo de lente</h4>
+                                    <div className="d-flex align-items-center">
+                                      <button
+                                        type="button"
+                                        className="btn btn-success"
+                                        style={{
+                                          height: "40px",
+                                          marginTop: "0",
+                                        }}
+                                        onClick={() => {
+                                          handleLenteContactoChange()
+                                        }}
+                                      >
+                                        {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
+                                      </button>
+                                    </div>
+                                  </div>
+
+
+                                  <div className="form-group col-md-4" >
+                                    <label htmlFor="pacientes">Pacientes*</label>
+                                    <Select
+                                      showSearch
+                                      value={pacientes_options_selecteds.length > 0 ? selectedPaciente : undefined}
+                                      onChange={(value) => {
+                                        console.log('value:', value)
+                                        setSelectedPaciente(value);
+                                        setFieldValue("id_paciente", value);
+                                      }}
+                                      placeholder="Seleccione el paciente"
+                                      loading={pacientes_options_selecteds.length === 0}
+                                      filterOption={(input, option) => {
+                                        const searchTerms = input.toLowerCase().split(' ');
+                                        return searchTerms.every(term =>
+                                          (option?.label ?? '').toLowerCase().includes(term)
+                                        );
+                                      }}
+                                      options={pacientes_options_selecteds}
+                                      style={{
+                                        width: "100%",
+                                        height: "48px",
+                                        color: "black",
+                                        fontWeight: "bold",
+                                      }}
+                                    // onChange={(e) => {
+                                    //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
+                                    //   // setFieldValue('paciente', e.target.value);
+                                    //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
+                                    // }}
+                                    />
+
+                                    <ErrorMessage name="id_paciente" component="div" className="text-danger" />
+
+                                  </div>
+
+
+                                  <div className="form-group col-md-4" >
+                                    <label htmlFor="inputSucursal">Sucursal*</label>
+                                    <Field
+                                      as="select"
+                                      name="id_sucursal"
+                                      className="form-control"
+                                      onChange={(e) => {
+                                        const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === parseInt(e.target.value));
+                                        setFieldValue('id_sucursal', e.target.value);
+                                        setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
                                       }}
                                     >
-                                      {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
-                                    </button>
+                                      <option value="">Seleccionar sucursal</option>
+                                      {sucursales.map((sucursal) => (
+                                        <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
+                                      ))}
+                                    </Field>
+                                    <ErrorMessage name="id_sucursal" component="div" className="text-danger" />
+                                  </div>
+                                  <div className="form-group col-md-2">
+                                    <label htmlFor="cedula">
+                                      Cedula
+                                    </label>
+                                    <Input
+                                      className="form-control"
+                                      name="cedula"
+                                      type="text"
+                                      value={cedula}
+                                      style={{
+                                        color: "red",
+                                        fontWeight: "bold",
+                                        marginBottom: "1rem",
+                                        height: '48px'
+                                      }}
+                                      disabled
+                                    />
+                                  </div>
+                                  <div className="form-group col-md-2">
+                                    <label htmlFor="inputEmail4">
+                                      Celular
+                                    </label>
+                                    <Input
+                                      className="form-control"
+                                      name="telefono"
+                                      type="text"
+                                      value={telefono}
+                                      style={{
+                                        color: "red",
+                                        fontWeight: "bold",
+                                        marginBottom: "1rem",
+                                        height: '48px'
+                                      }}
+                                      disabled
+                                    />
                                   </div>
                                 </div>
-
-
-                                <div className="form-group col-md-4" >
-                                  <label htmlFor="pacientes">Pacientes*</label>
-                                  <Select
-                                    showSearch
-                                    value={pacientes_options_selecteds.length > 0 ? selectedPaciente : undefined}
-                                    onChange={(value) => {
-                                      console.log('value:', value)
-                                      setSelectedPaciente(value);
-                                      setFieldValue("id_paciente", value);
-                                    }}
-                                    placeholder="Seleccione el paciente"
-                                    loading={pacientes_options_selecteds.length === 0}
-                                    filterOption={(input, option) => {
-                                      const searchTerms = input.toLowerCase().split(' ');
-                                      return searchTerms.every(term =>
-                                        (option?.label ?? '').toLowerCase().includes(term)
-                                      );
-                                    }}
-                                    options={pacientes_options_selecteds}
-                                    style={{
-                                      width: "100%",
-                                      height: "48px",
-                                      color: "black",
-                                      fontWeight: "bold",
-                                    }}
-                                  // onChange={(e) => {
-                                  //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                  //   // setFieldValue('paciente', e.target.value);
-                                  //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                  // }}
-                                  />
-
-                                  <ErrorMessage name="id_paciente" component="div" className="text-danger" />
-
-                                </div>
-
-
-                                <div className="form-group col-md-4" >
-                                  <label htmlFor="inputSucursal">Sucursal*</label>
-                                  <Field
-                                    as="select"
-                                    name="id_sucursal"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                      const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === parseInt(e.target.value));
-                                      setFieldValue('id_sucursal', e.target.value);
-                                      setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
-                                    }}
-                                  >
-                                    <option value="">Seleccionar sucursal</option>
-                                    {sucursales.map((sucursal) => (
-                                      <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
-                                    ))}
-                                  </Field>
-                                  <ErrorMessage name="id_sucursal" component="div" className="text-danger" />
-                                </div>
-                                <div className="form-group col-md-2">
-                                  <label htmlFor="cedula">
-                                    Cedula
-                                  </label>
-                                  <Input
-                                    className="form-control"
-                                    name="cedula"
-                                    type="text"
-                                    value={cedula}
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '48px'
-                                    }}
-                                    disabled
-                                  />
-                                </div>
-                                <div className="form-group col-md-2">
-                                  <label htmlFor="inputEmail4">
-                                    Celular
-                                  </label>
-                                  <Input
-                                    className="form-control"
-                                    name="telefono"
-                                    type="text"
-                                    value={telefono}
-                                    style={{
-                                      color: "red",
-                                      fontWeight: "bold",
-                                      marginBottom: "1rem",
-                                      height: '48px'
-                                    }}
-                                    disabled
-                                  />
-                                </div>
-                              </div>
-                              <div
-                                className="form-row"
-                                style={{
-                                  marginTop: '-30px'
-                                }}
-                              >
-                                <div className="form-group col-md-12">
-                                  <div className="table-responsive">
-                                    <table className="table table-bordered">
-                                      <thead>
-                                        <tr
-                                          style={{
-                                            backgroundColor: '#4361ee'
-                                          }}
-                                        >
-                                          <th
-                                            className="text-center"
+                                <div
+                                  className="form-row"
+                                  style={{
+                                    marginTop: '-30px'
+                                  }}
+                                >
+                                  <div className="form-group col-md-12">
+                                    <div className="table-responsive">
+                                      <table className="table table-bordered">
+                                        <thead>
+                                          <tr
                                             style={{
-                                              color: 'white!important',
+                                              backgroundColor: '#4361ee'
                                             }}
                                           >
-                                            RX
-                                          </th>
-                                          <th
-                                            className="text-center"
-                                            style={{
-                                              color: 'white!important',
-                                              width: "130px"
-                                            }}
-                                          >
-                                            Esfera
-                                          </th>
-                                          <th
-                                            style={{
-                                              color: 'white!important',
-                                              width: "130px"
-                                            }}
-                                          >
-                                            Cilindro
-                                          </th>
-                                          <th
-                                            style={{
-                                              color: 'white!important',
-                                              width: "130px"
-                                            }}
-                                          >
-                                            Eje
-                                          </th>
-                                          <th
-                                            style={{
-                                              color: 'white!important',
-                                              width: "130px"
-                                            }}
-                                          >
-                                            ADD
-                                          </th>
-                                          <th
-                                            style={{
-                                              color: 'white!important',
-                                              // width: '175px'
-                                            }}
-                                          >
-                                            {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
-                                          </th>
-                                          <th
-                                            style={{
-                                              color: 'white!important',
-                                              width: "130px"
-                                            }}
-                                          >
-                                            {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
-                                          </th>
-                                          <th
-                                            style={{
-                                              color: 'white!important',
-                                              width: "130px"
-                                            }}
-                                          >
-                                            {isAroVisible ? 'ALTURA' : 'Diametro'}
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td className="text-center">
-                                            OD
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="esfera_od"
-                                              as="input"
+                                            <th
+                                              className="text-center"
                                               style={{
-                                                width: isAroVisible ? '90px' : '120px',
+                                                color: 'white!important',
                                               }}
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="cilindro_od"
-
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="eje_od"
-
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="add_od"
-
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="prisma_od"
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td                                         >
-                                            <Field
-                                              className="form-control"
-                                              name="distancia_od"
-                                              as="input"
-                                            // style={{
-                                            //   width: isAroVisible ? '90px' : '120px',
-                                            // }}
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="altura_od"
-                                              as="input"
-                                            />
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td className="text-center">
-                                            OI
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="esfera_oi"
-                                              as="input"
+                                            >
+                                              RX
+                                            </th>
+                                            <th
+                                              className="text-center"
                                               style={{
-                                                width: isAroVisible ? '90px' : '120px',
+                                                color: 'white!important',
+                                                width: "130px"
                                               }}
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="cilindro_oi"
+                                            >
+                                              Esfera
+                                            </th>
+                                            <th
+                                              style={{
+                                                color: 'white!important',
+                                                width: "130px"
+                                              }}
+                                            >
+                                              Cilindro
+                                            </th>
+                                            <th
+                                              style={{
+                                                color: 'white!important',
+                                                width: "130px"
+                                              }}
+                                            >
+                                              Eje
+                                            </th>
+                                            <th
+                                              style={{
+                                                color: 'white!important',
+                                                width: "130px"
+                                              }}
+                                            >
+                                              ADD
+                                            </th>
+                                            <th
+                                              style={{
+                                                color: 'white!important',
+                                                // width: '175px'
+                                              }}
+                                            >
+                                              {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
+                                            </th>
+                                            <th
+                                              style={{
+                                                color: 'white!important',
+                                                width: "130px"
+                                              }}
+                                            >
+                                              {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
+                                            </th>
+                                            <th
+                                              style={{
+                                                color: 'white!important',
+                                                width: "130px"
+                                              }}
+                                            >
+                                              {isAroVisible ? 'ALTURA' : 'Diametro'}
+                                            </th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="text-center">
+                                              OD
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="esfera_od"
+                                                as="input"
+                                                style={{
+                                                  width: isAroVisible ? '90px' : '120px',
+                                                }}
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="cilindro_od"
 
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="eje_oi"
+                                                as="input"
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="eje_od"
 
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="add_oi"
+                                                as="input"
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="add_od"
 
-                                              as="input"
-                                            />
-                                          </td>
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              type="text"
-                                              name="prisma_oi"
-                                              as="input"
-                                            />
-                                          </td>
-                                          {isRowVisible ? (
-                                            <td></td>
-                                          ) : (
+                                                as="input"
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="prisma_od"
+                                                as="input"
+                                              />
+                                            </td>
+                                            <td                                         >
+                                              <Field
+                                                className="form-control"
+                                                name="distancia_od"
+                                                as="input"
+                                              // style={{
+                                              //   width: isAroVisible ? '90px' : '120px',
+                                              // }}
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="altura_od"
+                                                as="input"
+                                              />
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td className="text-center">
+                                              OI
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="esfera_oi"
+                                                as="input"
+                                                style={{
+                                                  width: isAroVisible ? '90px' : '120px',
+                                                }}
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="cilindro_oi"
+
+                                                as="input"
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="eje_oi"
+
+                                                as="input"
+                                              />
+                                            </td>
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="add_oi"
+
+                                                as="input"
+                                              />
+                                            </td>
                                             <td>
                                               <Field
                                                 className="form-control"
                                                 type="text"
-                                                name="distancia_oi"
+                                                name="prisma_oi"
                                                 as="input"
                                               />
                                             </td>
-                                          )}
-                                          <td>
-                                            <Field
-                                              className="form-control"
-                                              name="altura_oi"
+                                            {isRowVisible ? (
+                                              <td></td>
+                                            ) : (
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  type="text"
+                                                  name="distancia_oi"
+                                                  as="input"
+                                                />
+                                              </td>
+                                            )}
+                                            <td>
+                                              <Field
+                                                className="form-control"
+                                                name="altura_oi"
 
-                                              as="input"
-                                            />
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
+                                                as="input"
+                                              />
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              {
-                                isRowVisible && (
-                                  <div
-                                    style={{
-                                      border: '2px solid blue',
-                                      borderRadius: '25px',
-                                      marginTop: '-20px',
-                                      padding: '15px'
-                                      // background: 'red'
-                                    }}
-                                  >
-                                    <Row gutter={[16, 16]}>
-                                      <Col xxl={24} xl={24} md={24}>
-                                        <div
-                                          style={{
-                                            fontSize: '20px',
-                                            color: 'black'
-                                          }}
-                                        >
-                                          Caracteristicas de Cristales
-                                          <span style={{ fontSize: '13px', color: 'gray', marginLeft: '10px' }}>
-                                            <b>(Click al ojo para cambiar de derecho a izquierdo)</b>
-                                            <EyeOutlined style={{
+                                {
+                                  isRowVisible && (
+                                    <div
+                                      style={{
+                                        border: '2px solid blue',
+                                        borderRadius: '25px',
+                                        marginTop: '-20px',
+                                        padding: '15px'
+                                        // background: 'red'
+                                      }}
+                                    >
+                                      <Row gutter={[16, 16]}>
+                                        <Col xxl={24} xl={24} md={24}>
+                                          <div
+                                            style={{
+                                              fontSize: '20px',
+                                              color: 'black'
+                                            }}
+                                          >
+                                            Caracteristicas de Cristales
+                                            <span style={{ fontSize: '13px', color: 'gray', marginLeft: '10px' }}>
+                                              <b>(Click al ojo para cambiar de derecho a izquierdo)</b>
+                                              <EyeOutlined style={{
+                                                cursor: 'pointer',
+                                                color: isLeftEye ? 'blue' : '#067231',
+                                                marginLeft: '10px'
+                                              }} />
+                                            </span>
+                                          </div>
+                                        </Col>
+                                        <Col xxl={8} xl={8} md={8}>
+                                          <h6
+                                            className="text-center p-2"
+                                            onClick={toggleEye}
+                                            style={{
                                               cursor: 'pointer',
                                               color: isLeftEye ? 'blue' : '#067231',
-                                              marginLeft: '10px'
-                                            }} />
-                                          </span>
-                                        </div>
-                                      </Col>
-                                      <Col xxl={8} xl={8} md={8}>
-                                        <h6
-                                          className="text-center p-2"
-                                          onClick={toggleEye}
-                                          style={{
-                                            cursor: 'pointer',
-                                            color: isLeftEye ? 'blue' : '#067231',
-                                          }}
-                                        >
-                                          {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                          TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
-                                          {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
-                                        </h6>
+                                            }}
+                                          >
+                                            {isLeftEye ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                            TIPO DE CRISTAL {isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                            {!isLeftEye ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                          </h6>
 
-                                        <Select
-                                          showSearch
-                                          value={null}
-                                          style={{
-                                            width: '100%', color: 'transparent',
-                                            background: 'white !important'
-                                          }}
-                                          optionFilterProp="label"
-                                          onChange={handleSelectChange}
-                                          options={cristales_options_selecteds.map(servicio => ({
-                                            value: servicio.value,
-                                            label: servicio.label
-                                          }))}
-                                        >
-                                        </Select>
-                                        <div
-                                          style={{
-                                            // display: 'ruby',
-                                            marginTop: '10px',
-                                            marginBottom: '10px'
-                                          }}
-                                          onClick={() => {
-                                          }}
-                                        >
-                                          {
-                                            serviciosRealizados.map((servicio, index) => {
-                                              return (
-                                                <>
-                                                  <div
-                                                    style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
-                                                  >
-                                                    {servicio.servicio} :
-                                                    {/* {
+                                          <Select
+                                            showSearch
+                                            value={null}
+                                            style={{
+                                              width: '100%', color: 'transparent',
+                                              background: 'white !important'
+                                            }}
+                                            optionFilterProp="label"
+                                            onChange={handleSelectChange}
+                                            options={cristales_options_selecteds.map(servicio => ({
+                                              value: servicio.value,
+                                              label: servicio.label
+                                            }))}
+                                          >
+                                          </Select>
+                                          <div
+                                            style={{
+                                              // display: 'ruby',
+                                              marginTop: '10px',
+                                              marginBottom: '10px'
+                                            }}
+                                            onClick={() => {
+                                            }}
+                                          >
+                                            {
+                                              serviciosRealizados.map((servicio, index) => {
+                                                return (
+                                                  <>
+                                                    <div
+                                                      style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                                    >
+                                                      {servicio.servicio} :
+                                                      {/* {
                                                       
                                                   isLeftEye
                                                   ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                   : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
                                                 } */}
 
-                                                  </div>
-                                                  <div
-                                                    style={{
-                                                      color: 'black',
-                                                      background: 'white',
-                                                      border: '1px solid gray',
-                                                      paddingTop: '5px',
-                                                      paddingBottom: '5px',
-                                                      paddingLeft: '10px',
-                                                      paddingRight: '10px',
-                                                      borderRadius: '20px',
-                                                      // display: 'flex',
-                                                      display: 'table-cell',
-                                                      marginRight: '5px',
-                                                      marginTop: '5px'
-                                                    }}
-                                                  >
-                                                    {servicio.label}
-                                                    <span
+                                                    </div>
+                                                    <div
                                                       style={{
-                                                        marginLeft: '5px',
-                                                        cursor: 'pointer'
-                                                      }}
-                                                      onClick={() => {
-                                                        // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
-                                                        setServiciosRealizados([])
-                                                        setTipoCorredor('')
+                                                        color: 'black',
+                                                        background: 'white',
+                                                        border: '1px solid gray',
+                                                        paddingTop: '5px',
+                                                        paddingBottom: '5px',
+                                                        paddingLeft: '10px',
+                                                        paddingRight: '10px',
+                                                        borderRadius: '20px',
+                                                        // display: 'flex',
+                                                        display: 'table-cell',
+                                                        marginRight: '5px',
+                                                        marginTop: '5px'
                                                       }}
                                                     >
-                                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                    </span>
-                                                  </div>
-                                                </>
-                                              )
-                                            })
-                                          }
+                                                      {servicio.label}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: '5px',
+                                                          cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => {
+                                                          // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
+                                                          setServiciosRealizados([])
+                                                          setTipoCorredor('')
+                                                        }}
+                                                      >
+                                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                      </span>
+                                                    </div>
+                                                  </>
+                                                )
+                                              })
+                                            }
 
-                                        </div>
-                                        {tipoCristalMultifocal() && (
-                                          <>
-                                            <div
-                                              style={{marginTop: '10px', color: 'black'}}
-                                            >
-                                              Tipo Corredor
-                                            </div>
-                                            <Select
-                                              showSearch
-                                              value={tipoCorredor}
-                                              style={{
-                                                width: '100%', color: 'transparent',
-                                                background: 'white !important'
-                                              }}
-                                              optionFilterProp="label"
-                                              onChange={(value, option) => setTipoCorredor(option.label)}
-                                              options={[
-                                                { value: "corredor-corto", label: "Corredor Corto" },
-                                                { value: "corredor-largo", label: "Corredor Largo" },
-                                              ]}
-                                            >
-                                            </Select>
-                                          </>
-                                        )}
-                                      </Col>
-                                      <Col xxl={8} xl={8} md={8}>
-                                        <h6
-                                          className="text-center p-2"
-                                          onClick={toggleEyeMaterial}
-                                          style={{
-                                            cursor: 'pointer',
-                                            color: isLeftEyeMaterial ? 'blue' : '#067231',
-                                          }}
-                                        >
-                                          {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                          MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO " : "OJO DERECHO"}
-                                          {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
-                                        </h6>
+                                          </div>
+                                          {tipoCristalMultifocal() && (
+                                            <>
+                                              <div
+                                                style={{ marginTop: '10px', color: 'black' }}
+                                              >
+                                                Tipo Corredor
+                                              </div>
+                                              <Select
+                                                showSearch
+                                                value={tipoCorredor}
+                                                style={{
+                                                  width: '100%', color: 'transparent',
+                                                  background: 'white !important'
+                                                }}
+                                                optionFilterProp="label"
+                                                onChange={(value, option) => setTipoCorredor(option.label)}
+                                                options={[
+                                                  { value: "corredor-corto", label: "Corredor Corto" },
+                                                  { value: "corredor-largo", label: "Corredor Largo" },
+                                                ]}
+                                              >
+                                              </Select>
+                                            </>
+                                          )}
+                                        </Col>
+                                        <Col xxl={8} xl={8} md={8}>
+                                          <h6
+                                            className="text-center p-2"
+                                            onClick={toggleEyeMaterial}
+                                            style={{
+                                              cursor: 'pointer',
+                                              color: isLeftEyeMaterial ? 'blue' : '#067231',
+                                            }}
+                                          >
+                                            {isLeftEyeMaterial ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                            MATERIAL {isLeftEyeMaterial ? "OJO IZQUIERDO " : "OJO DERECHO"}
+                                            {!isLeftEyeMaterial ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                          </h6>
 
-                                        <Select
-                                          showSearch
-                                          value={null}
-                                          style={{
-                                            width: '100%', color: 'transparent',
-                                            background: 'white !important'
-                                          }}
-                                          optionFilterProp="label"
-                                          onChange={handleSelectChangeMaterial}
-                                          options={materiales_options_selecteds.map(servicio => ({
-                                            value: servicio.value,
-                                            label: servicio.label
-                                          }))}
-                                        >
-                                        </Select>
-                                        <div
-                                          style={{
-                                            // display: 'ruby',
-                                            marginTop: '10px',
-                                            marginBottom: '10px'
-                                          }}
-                                          onClick={() => {
-                                          }}
-                                        >
-                                          {
-                                            materialesSeleccionados.map((servicio, index) => {
-                                              return (
-                                                <>
-                                                  <div
-                                                    style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
-                                                  >
-                                                    {servicio.servicio} :
+                                          <Select
+                                            showSearch
+                                            value={null}
+                                            style={{
+                                              width: '100%', color: 'transparent',
+                                              background: 'white !important'
+                                            }}
+                                            optionFilterProp="label"
+                                            onChange={handleSelectChangeMaterial}
+                                            options={materiales_options_selecteds.map(servicio => ({
+                                              value: servicio.value,
+                                              label: servicio.label
+                                            }))}
+                                          >
+                                          </Select>
+                                          <div
+                                            style={{
+                                              // display: 'ruby',
+                                              marginTop: '10px',
+                                              marginBottom: '10px'
+                                            }}
+                                            onClick={() => {
+                                            }}
+                                          >
+                                            {
+                                              materialesSeleccionados.map((servicio, index) => {
+                                                return (
+                                                  <>
+                                                    <div
+                                                      style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                                    >
+                                                      {servicio.servicio} :
 
-                                                  </div>
-                                                  <div
-                                                    style={{
-                                                      color: 'black',
-                                                      background: 'white',
-                                                      border: '1px solid gray',
-                                                      paddingTop: '5px',
-                                                      paddingBottom: '5px',
-                                                      paddingLeft: '10px',
-                                                      paddingRight: '10px',
-                                                      borderRadius: '20px',
-                                                      // display: 'flex',
-                                                      display: 'table-cell',
-                                                      marginRight: '5px',
-                                                      marginTop: '5px'
-                                                    }}
-                                                  >
-                                                    {servicio.label}
-                                                    <span
+                                                    </div>
+                                                    <div
                                                       style={{
-                                                        marginLeft: '5px',
-                                                        cursor: 'pointer'
-                                                      }}
-                                                      onClick={() => {
-                                                        // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
-                                                        setMaterialesSeleccionados([])
+                                                        color: 'black',
+                                                        background: 'white',
+                                                        border: '1px solid gray',
+                                                        paddingTop: '5px',
+                                                        paddingBottom: '5px',
+                                                        paddingLeft: '10px',
+                                                        paddingRight: '10px',
+                                                        borderRadius: '20px',
+                                                        // display: 'flex',
+                                                        display: 'table-cell',
+                                                        marginRight: '5px',
+                                                        marginTop: '5px'
                                                       }}
                                                     >
-                                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                    </span>
-                                                  </div>
-                                                </>
-                                              )
-                                            })
-                                          }
+                                                      {servicio.label}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: '5px',
+                                                          cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => {
+                                                          // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
+                                                          setMaterialesSeleccionados([])
+                                                        }}
+                                                      >
+                                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                      </span>
+                                                    </div>
+                                                  </>
+                                                )
+                                              })
+                                            }
 
-                                        </div>
-                                      </Col>
-                                      <Col xxl={8} xl={8} md={8}>
-                                        <h6
-                                          className="text-center p-2"
-                                          onClick={toggleEyeTratamientos}
-                                          style={{
-                                            cursor: 'pointer',
-                                            color: isLeftEyeTratamientos ? 'blue' : '#067231',
-                                          }}
-                                        >
-                                          {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
-                                          TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
-                                          {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
-                                        </h6>
-                                        <Select
-                                          showSearch
-                                          value={null}
-                                          style={{
-                                            width: '100%', color: 'transparent',
-                                            background: 'white !important'
-                                          }}
-                                          optionFilterProp="label"
-                                          onChange={handleSelectChangeTratamientos}
-                                          options={tratamientos_options_selecteds.map(servicio => ({
-                                            value: servicio.value,
-                                            label: servicio.label
-                                          }))}
-                                        >
-                                        </Select>
-                                        <div
-                                          style={{
-                                            // display: 'ruby',
-                                            marginTop: '10px',
-                                            marginBottom: '10px'
-                                          }}
-                                          onClick={() => {
-                                          }}
-                                        >
-                                          {
-                                            tratamientosFiltros.map((servicio, index) => {
-                                              return (
-                                                <>
-                                                  <div
-                                                    style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
-                                                  >
-                                                    {servicio.servicio} :
-                                                    {/* {
-                                                   isLeftEyeTratamientos
-                                                   ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
-                                                   : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
-                                                } */}
-                                                    {/* {
-                                                  index == 0
-                                                    ? "Ojo Derecho:"
-                                                    : "Ojo Izquierdo:"
-                                                } */}
-
-                                                  </div>
-                                                  <div
-                                                    style={{
-                                                      color: 'black',
-                                                      background: 'white',
-                                                      border: '1px solid gray',
-                                                      paddingTop: '5px',
-                                                      paddingBottom: '5px',
-                                                      paddingLeft: '10px',
-                                                      paddingRight: '10px',
-                                                      borderRadius: '20px',
-                                                      // display: 'flex',
-                                                      display: 'table-cell',
-                                                      marginRight: '5px',
-                                                      marginTop: '5px'
-                                                    }}
-                                                  >
-                                                    {servicio.label}
-                                                    <span
+                                          </div>
+                                        </Col>
+                                        <Col xxl={8} xl={8} md={8}>
+                                          <h6
+                                            className="text-center p-2"
+                                            onClick={toggleEyeTratamientos}
+                                            style={{
+                                              cursor: 'pointer',
+                                              color: isLeftEyeTratamientos ? 'blue' : '#067231',
+                                            }}
+                                          >
+                                            {isLeftEyeTratamientos ? <EyeOutlined style={{ marginRight: '8px' }} /> : null}
+                                            TRATAMIENTOS Y FILTROS {isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO"}
+                                            {!isLeftEyeTratamientos ? <EyeOutlined style={{ marginLeft: '8px' }} /> : null}
+                                          </h6>
+                                          <Select
+                                            showSearch
+                                            value={null}
+                                            style={{
+                                              width: '100%', color: 'transparent',
+                                              background: 'white !important'
+                                            }}
+                                            optionFilterProp="label"
+                                            onChange={handleSelectChangeTratamientos}
+                                            options={tratamientos_options_selecteds.map(servicio => ({
+                                              value: servicio.value,
+                                              label: servicio.label
+                                            }))}
+                                          >
+                                          </Select>
+                                          <div
+                                            style={{
+                                              // display: 'ruby',
+                                              marginTop: '10px',
+                                              marginBottom: '10px'
+                                            }}
+                                            onClick={() => {
+                                            }}
+                                          >
+                                            {
+                                              tratamientosFiltros.map((servicio, index) => {
+                                                return (
+                                                  <>
+                                                    <div
+                                                      style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
+                                                    >
+                                                      {servicio.servicio} :
+                                                    </div>
+                                                    <div
                                                       style={{
-                                                        marginLeft: '5px',
-                                                        cursor: 'pointer'
-                                                      }}
-                                                      onClick={() => {
-                                                        // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
-                                                        setTratamientosFiltros([])
+                                                        color: 'black',
+                                                        background: 'white',
+                                                        border: '1px solid gray',
+                                                        paddingTop: '5px',
+                                                        paddingBottom: '5px',
+                                                        paddingLeft: '10px',
+                                                        paddingRight: '10px',
+                                                        borderRadius: '20px',
+                                                        // display: 'flex',
+                                                        display: 'table-cell',
+                                                        marginRight: '5px',
+                                                        marginTop: '5px'
                                                       }}
                                                     >
-                                                      <CloseCircleTwoTone twoToneColor="#eb2f96" />
-                                                    </span>
-                                                  </div>
-                                                </>
-                                              )
-                                            })
-                                          }
+                                                      {servicio.label}
+                                                      <span
+                                                        style={{
+                                                          marginLeft: '5px',
+                                                          cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => {
+                                                          // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
+                                                          setTratamientosFiltros([])
+                                                        }}
+                                                      >
+                                                        <CloseCircleTwoTone twoToneColor="#eb2f96" />
+                                                      </span>
+                                                    </div>
+                                                  </>
+                                                )
+                                              })
+                                            }
 
-                                        </div>
-                                      </Col>
-                                    </Row>
+                                          </div>
+                                        </Col>
+                                      </Row>
 
-                                    {/* <div className="row p-1">
+                                      {/* <div className="row p-1">
                                   <div className="col-md-2">
                                     <h6 className="text-center p-2">
                                       TIPO DE LENTE:
@@ -1179,12 +1201,12 @@ const CreateOrden = () => {
                                     </div>
                                   </div>
                                 </div> */}
-                                  </div>
-                                )
-                              }
+                                    </div>
+                                  )
+                                }
 
 
-                              {/* <div
+                                {/* <div
                                 className="p-2"
                                 style={{
                                   border: '2px solid blue',
@@ -1321,8 +1343,8 @@ const CreateOrden = () => {
                                 </div>
                               </div> */}
 
-                              {/*  */}
-                              {/* <div
+                                {/*  */}
+                                {/* <div
                                 style={{
                                   border: '2px solid blue',
                                   borderRadius: '25px',
@@ -1526,174 +1548,204 @@ const CreateOrden = () => {
 
                                 </div>
                               </div> */}
-                              {/*  */}
+                                {/*  */}
 
-                              {/*  */}
+                                {/*  */}
 
 
-                              <div
-                                style={{
-                                  border: '2px solid blue',
-                                  borderRadius: '25px',
-                                  marginTop: '10px',
-                                  padding: '10px 50px'
-                                }}
-                              >
-                                <Row
-                                  gutter={[16, 16]}
+                                <div
+                                  style={{
+                                    border: '2px solid blue',
+                                    borderRadius: '25px',
+                                    marginTop: '10px',
+                                    padding: '10px 50px'
+                                  }}
                                 >
-                                  <Col
-                                    xxl={14} xl={14} md={14}
-                                    style={{
-                                      // alignContent: 'center'
-                                    }}
+                                  <Row
+                                    gutter={[16, 16]}
                                   >
-                                    <Row
-                                      gutter={[16, 16]}
+                                    <Col
+                                      xxl={14} xl={14} md={14}
+                                      style={{
+                                        // alignContent: 'center'
+                                      }}
                                     >
-                                      <Col xxl={24} xl={24} md={24}>
-                                        <div
-                                          style={{
-                                            fontSize: '20px',
-                                            color: 'black',
-                                            marginTop: '40px'
-                                          }}
-                                        >
-                                          Caracteristicas de Aro
-                                        </div>
-                                      </Col>
+                                      <Row
+                                        gutter={[16, 16]}
+                                      >
+                                        <Col xxl={24} xl={24} md={24}>
+                                          <div
+                                            style={{
+                                              fontSize: '20px',
+                                              color: 'black',
+                                              marginTop: '40px'
+                                            }}
+                                          >
+                                            Caracteristicas de Aro
+                                          </div>
+                                        </Col>
 
-                                      {isAroVisible && (
-                                        <Col xxl={5} xl={5} md={5}>
-                                          <div>
-                                            <label className="new-control new-radio radio-classic-primary">
-                                              <b>ARO CENTEVI</b>
-                                              {/* <Checkbox
+                                        {isAroVisible && (
+                                          <Col xxl={5} xl={5} md={5}>
+                                            <div>
+                                              <label className="new-control new-radio radio-classic-primary">
+                                                <b>ARO CENTEVI</b>
+                                                {/* <Checkbox
                                               className="new-control-input"
                                             >
 
                                             </Checkbox> */}
-                                              <Field
-                                                className="new-control-input"
-                                                checked={aroCentevi}
-                                                type="radio"
-                                                name="aro_centevi"
-                                                onChange={() => {
-                                                  setAroCentevi(true)
-                                                }
-                                                }
-                                              />
-                                              <span className="new-control-indicator" />
-                                            </label>
-                                          </div>
-                                        </Col>
-                                      )}
-                                      {isAroVisible && (
-                                        <Col xxl={5} xl={5} md={5}>
-                                          <div>
-                                            <label className="new-control new-radio radio-classic-primary">
-                                              <b>ARO PROPIO</b>
-                                              <Field
-                                                className="new-control-input"
-                                                checked={!aroCentevi}
-                                                type="radio"
-                                                onChange={() => setAroCentevi(false)}
-                                              />
-                                              <span className="new-control-indicator" />
-                                            </label>
-                                          </div>
-                                        </Col>
-                                      )}
-                                      {isAroVisible && (
-                                        <Col xxl={5} xl={5} md={5}>
-                                          <div
-                                            style={{
-                                              // display: 'flex'
-                                            }}
-                                          >
-                                            <div style={{ marginTop: '-15px' }}>
-                                              <b>CÓDIGO</b>
+                                                <Field
+                                                  className="new-control-input"
+                                                  checked={aroCentevi}
+                                                  type="radio"
+                                                  name="aro_centevi"
+                                                  onChange={() => {
+                                                    setAroCentevi(true)
+                                                  }
+                                                  }
+                                                />
+                                                <span className="new-control-indicator" />
+                                              </label>
                                             </div>
-                                            <Field
-                                              className="form-control"
-                                              name="codigo"
-                                              style={{
-                                                marginLeft: '0px', height: '30px',
-                                                width: '100%'
-                                              }}
-                                              as="input"
-                                              disabled={!aroCentevi}
-                                            />
-                                          </div>
-                                        </Col>
-                                      )}
-
-                                      <Col xxl={isRowVisible ? 9 : 12} xl={isRowVisible ? 9 : 12} md={isRowVisible ? 9 : 12}>
-                                        {isAroVisible && (
-                                          <div
-                                            style={{
-                                              // display: 'flex'
-                                            }}
-                                          >
-                                            <div style={{ marginTop: '-68px' }}>
-                                              <b>COLOR*</b>
-                                            </div>
-                                            <Field
-                                              className="form-control"
-                                              name="color"
-                                              style={{
-                                                marginLeft: '0px', height: '30px'
-                                              }}
-                                            />
-                                          </div>
+                                          </Col>
                                         )}
-                                        <div style={{}}>
-                                          <div style={{ marginTop: '1px' }}>
-                                            <b>MARCA</b>
-                                          </div>
-                                          {isAroVisible ? (
-
-                                            <Field
-                                              className="form-control"
-                                              name="marca"
-                                              style={{ marginLeft: '0px', height: '30px', display: 'block' }}
-                                            />
-                                          ) : (
-                                            <Select
-                                              name="marca"
-                                              placeholder="Selecciona la marca"
-                                              showSearch
+                                        {isAroVisible && (
+                                          <Col xxl={5} xl={5} md={5}>
+                                            <div>
+                                              <label className="new-control new-radio radio-classic-primary">
+                                                <b>ARO PROPIO</b>
+                                                <Field
+                                                  className="new-control-input"
+                                                  checked={!aroCentevi}
+                                                  type="radio"
+                                                  onChange={() => setAroCentevi(false)}
+                                                />
+                                                <span className="new-control-indicator" />
+                                              </label>
+                                            </div>
+                                          </Col>
+                                        )}
+                                        {isAroVisible && (
+                                          <Col xxl={5} xl={5} md={5}>
+                                            <div
                                               style={{
-                                                width: "100%",
-                                                height: "48px",
-                                                color: "black",
-                                                fontWeight: "bold",
+                                                // display: 'flex'
                                               }}
-                                              onChange={(value) => {
-                                                console.log('value:', value)
-                                                setSelectedMarca(value); // Actualizar el estado con el paciente seleccionado
-                                                setFieldValue("marca", value); // También actualizar el campo de Formik
-                                              }}
-                                              filterOption={(input, option) =>
-                                                option.label.toLowerCase().includes(input.toLowerCase())
-                                              }
-                                              options={marcas_options_selecteds.map(marca => ({
-                                                value: marca.label,
-                                                label: marca.label
-                                              }))}
+                                            >
+                                              <div style={{ marginTop: '-15px' }}>
+                                                <b>CÓDIGO</b>
+                                              </div>
+                                              <Field
+                                                className="form-control"
+                                                name="codigo"
+                                                style={{
+                                                  marginLeft: '0px', height: '30px',
+                                                  width: '100%'
+                                                }}
+                                                as="input"
+                                                disabled={!aroCentevi}
+                                              />
+                                            </div>
+                                          </Col>
+                                        )}
 
-                                            />
+                                        <Col xxl={isRowVisible ? 9 : 12} xl={isRowVisible ? 9 : 12} md={isRowVisible ? 9 : 12}>
+                                          {isAroVisible && (
+                                            <div
+                                              style={{
+                                                // display: 'flex'
+                                              }}
+                                            >
+                                              <div style={{ marginTop: '-68px' }}>
+                                                <b>COLOR*</b>
+                                              </div>
+                                              <Field
+                                                className="form-control"
+                                                name="color"
+                                                style={{
+                                                  marginLeft: '0px', height: '30px'
+                                                }}
+                                              />
+                                            </div>
                                           )}
-                                        </div>
-                                      </Col>
+                                          <div style={{}}>
+                                            <div style={{ marginTop: '1px' }}>
+                                              <b>MARCA</b>
+                                            </div>
+                                            {isAroVisible ? (
 
-                                      <Col xxl={24} xl={24} md={24}>
-                                        <Row
-                                          gutter={[16, 16]}
-                                        >
-                                          <Col xxl={12} xl={12} md={12}>
-                                            <Row>
-                                              {/* <Col xxl={12} xl={12} md={12}>
+                                              <Field
+                                                className="form-control"
+                                                name="marca"
+                                                style={{ marginLeft: '0px', height: '30px', display: 'block' }}
+                                              />
+                                            ) : (
+                                              <div style={{ display: 'flex', gap: '10px' }}>
+                                                <div style={{ flex: 1 }}>
+                                                  <div style={{ marginBottom: '5px', fontSize: '12px' }}>Ojo Derecho</div>
+                                                  <Select
+                                                    name="marca"
+                                                    placeholder="Selecciona la marca"
+                                                    showSearch
+                                                    style={{
+                                                      width: "100%",
+                                                      height: "48px",
+                                                      color: "black",
+                                                      fontWeight: "bold",
+                                                    }}
+                                                    onChange={(value) => {
+                                                      setSelectedMarca(value);
+                                                      setFieldValue("marca", value);
+                                                    }}
+                                                    filterOption={(input, option) =>
+                                                      option.label.toLowerCase().includes(input.toLowerCase())
+                                                    }
+                                                    options={marcas_options_selecteds.map(marca => ({
+                                                      value: marca.label,
+                                                      label: marca.label
+                                                    }))}
+                                                  />
+                                                  <ErrorMessage name="marca" component="div" className="text-danger" />
+                                                </div>
+
+                                                <div style={{ flex: 1 }}>
+                                                  <div style={{ marginBottom: '5px', fontSize: '12px' }}>Ojo Izquierdo</div>
+                                                  <Select
+                                                    name="marca_oi"
+                                                    placeholder="Selecciona la marca"
+                                                    showSearch
+                                                    style={{
+                                                      width: "100%",
+                                                      height: "48px",
+                                                      color: "black",
+                                                      fontWeight: "bold",
+                                                    }}
+                                                    onChange={(value) => {
+                                                      setFieldValue("marca_oi", value);
+                                                    }}
+                                                    filterOption={(input, option) =>
+                                                      option.label.toLowerCase().includes(input.toLowerCase())
+                                                    }
+                                                    options={marcas_options_selecteds.map(marca => ({
+                                                      value: marca.label,
+                                                      label: marca.label
+                                                    }))}
+                                                  />
+                                                  <ErrorMessage name="marca_oi" component="div" className="text-danger" />
+                                                </div>
+                                              </div>
+                                            )}
+                                          </div>
+                                        </Col>
+
+                                        <Col xxl={24} xl={24} md={24}>
+                                          <Row
+                                            gutter={[16, 16]}
+                                          >
+                                            <Col xxl={12} xl={12} md={12}>
+                                              <Row>
+                                                {/* <Col xxl={12} xl={12} md={12}>
                                                 <div>
                                                   <label className="new-control new-radio radio-classic-primary">
                                                     <b>METAL COMPLETO</b>
@@ -1784,15 +1836,15 @@ const CreateOrden = () => {
                                                   </label>
                                                 </div>
                                               </Col> */}
-                                              {isAroVisible && (
-                                                <Col xxl={24} xl={24} md={24}>
-                                                  <div
-                                                    style={{
-                                                      // display: 'flex'
-                                                      marginBottom: '10px'
-                                                    }}
-                                                  >
-                                                    {/* <label className="new-control new-radio radio-classic-primary">
+                                                {isAroVisible && (
+                                                  <Col xxl={24} xl={24} md={24}>
+                                                    <div
+                                                      style={{
+                                                        // display: 'flex'
+                                                        marginBottom: '10px'
+                                                      }}
+                                                    >
+                                                      {/* <label className="new-control new-radio radio-classic-primary">
                                                     <b>MARCA</b>
                                                     <Field
                                                       className="new-control-input"
@@ -1803,228 +1855,229 @@ const CreateOrden = () => {
                                                     <span className="new-control-indicator" />
                                                   </label> */}
 
-                                                    {/* <Input /> */}
-                                                    <b>TIPO DE ARO*:</b>
+                                                      {/* <Input /> */}
+                                                      <b>TIPO DE ARO*:</b>
+                                                      <Select
+                                                        showSearch
+                                                        placeholder="Selecciona el tipo de aro"
+                                                        value={tipoAro}
+                                                        options={tipo_aro_options_selecteds}
+                                                        style={{
+                                                          width: "100%",
+                                                          height: "40px",
+                                                          color: "black",
+                                                          fontWeight: "bold",
+                                                        }}
+                                                        onChange={(value) => {
+                                                          const selectedOption = tipo_aro_options_selecteds.find(option => option.value === value);
+                                                          if (selectedOption) {
+                                                            setTipoAro(selectedOption.label);
+                                                            setFieldValue("tipo_aro", selectedOption.label);
+                                                          }
+                                                        }}
+                                                        filterOption={(input, option) =>
+                                                          option.label.toLowerCase().includes(input.toLowerCase())
+                                                        }
+                                                      />
+                                                      <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
+                                                    </div>
+                                                  </Col>
+                                                )}
+                                                <Col xxl={24} xl={24} md={24}>
+                                                  <div
+                                                  >
+                                                    <b>DOCTOR*:</b>
                                                     <Select
                                                       showSearch
-                                                      placeholder="Selecciona el tipo de aro"
-                                                      value={tipoAro}
-                                                      options={tipo_aro_options_selecteds}
+                                                      placeholder="Seleccione el doctor"
+                                                      value={doctorSeleccionado}
+                                                      options={usuarios_doctores_options_selecteds}
                                                       style={{
                                                         width: "100%",
-                                                        height: "40px",
+                                                        height: "48px",
                                                         color: "black",
                                                         fontWeight: "bold",
                                                       }}
                                                       onChange={(value) => {
-                                                        const selectedOption = tipo_aro_options_selecteds.find(option => option.value === value);
+                                                        const selectedOption = usuarios_doctores_options_selecteds.find(option => option.value === value);
                                                         if (selectedOption) {
-                                                          setTipoAro(selectedOption.label);
-                                                          setFieldValue("tipo_aro", selectedOption.label);
+                                                          setDoctorSeleccionado(selectedOption.label);
+                                                          setFieldValue("doctor", selectedOption.label)
                                                         }
                                                       }}
                                                       filterOption={(input, option) =>
                                                         option.label.toLowerCase().includes(input.toLowerCase())
                                                       }
                                                     />
-                                                    <ErrorMessage name="tipo_aro" component="div" className="text-danger" />
+                                                    <ErrorMessage name="doctor" component="div" className="text-danger" />
                                                   </div>
                                                 </Col>
-                                              )}
-                                              <Col xxl={24} xl={24} md={24}>
-                                                <div
-                                                >
-                                                  <b>DOCTOR*:</b>
-                                                  <Select
-                                                    showSearch
-                                                    placeholder="Seleccione el doctor"
-                                                    value={doctorSeleccionado}
-                                                    options={usuarios_doctores_options_selecteds}
+
+                                                <Col xxl={24} xl={24} md={24}>
+                                                  <div
                                                     style={{
-                                                      width: "100%",
-                                                      height: "48px",
-                                                      color: "black",
-                                                      fontWeight: "bold",
+                                                      marginTop: '10px'
                                                     }}
-                                                    onChange={(value) => {
-                                                      const selectedOption = usuarios_doctores_options_selecteds.find(option => option.value === value);
-                                                      if (selectedOption) {
-                                                        setDoctorSeleccionado(selectedOption.label);
-                                                        setFieldValue("doctor", selectedOption.label)
-                                                      }
-                                                    }}
-                                                    filterOption={(input, option) =>
-                                                      option.label.toLowerCase().includes(input.toLowerCase())
-                                                    }
-                                                  />
-                                                  <ErrorMessage name="doctor" component="div" className="text-danger" />
-                                                </div>
-                                              </Col>
+                                                  >
+                                                    <b>ELABORADO POR</b>
+                                                    <Input
+                                                      value={usuario?.usuario?.nombre}
+                                                      disabled />
+                                                  </div>
+                                                </Col>
+                                              </Row>
+                                            </Col>
 
-                                              <Col xxl={24} xl={24} md={24}>
-                                                <div
-                                                  style={{
-                                                    marginTop: '10px'
-                                                  }}
-                                                >
-                                                  <b>ELABORADO POR</b>
-                                                  <Input
-                                                    value={usuario?.usuario?.nombre}
-                                                    disabled />
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          </Col>
-
-                                          <Col xxl={12} xl={12} md={12}>
-                                            <b>OBSERVACIONES</b>
-                                            <Field
-                                              as={TextArea}
-                                              className="form-control"
-                                              name='observaciones'
-                                              style={{
-                                                height: '180px'
-                                              }}
-                                              rows="5"
-                                            />
-                                          </Col>
-                                        </Row>
-                                      </Col>
-                                    </Row>
-                                  </Col>
-                                  {isImageVisible && (
-                                    <Col
-                                      xxl={10} xl={10} md={10}
-                                      style={{
-                                        alignContent: "center",
-                                        position: 'relative'
-                                      }}
-                                    >
-                                      <div
+                                            <Col xxl={12} xl={12} md={12}>
+                                              <b>OBSERVACIONES</b>
+                                              <Field
+                                                as={TextArea}
+                                                className="form-control"
+                                                name='observaciones'
+                                                style={{
+                                                  height: '180px'
+                                                }}
+                                                rows="5"
+                                              />
+                                            </Col>
+                                          </Row>
+                                        </Col>
+                                      </Row>
+                                    </Col>
+                                    {isImageVisible && (
+                                      <Col
+                                        xxl={10} xl={10} md={10}
                                         style={{
-                                          width: '470px',
-                                          height: '470px',
-                                          // alignContent: "center",
+                                          alignContent: "center",
+                                          position: 'relative'
                                         }}
                                       >
-                                        <img
-                                          src="assets/img/recetas/lentessinbarilla.png"
-                                          style={{
-                                            width: "120%",
-                                            // height: "80px"
-                                          }}
-                                        />
                                         <div
                                           style={{
-                                            position: 'absolute',
-                                            top: '208px',
-                                            width: '70px',
-                                            border: '1px solid red',
-                                            left: '29px'
+                                            width: '470px',
+                                            height: '470px',
+                                            // alignContent: "center",
                                           }}
                                         >
-                                          <Field
-                                            name='l_uno'
+                                          <img
+                                            src="assets/img/recetas/lentessinbarilla.png"
                                             style={{
-                                              width: '68px'
+                                              width: "120%",
+                                              // height: "80px"
                                             }}
                                           />
-                                        </div>
-
-
-                                        <div
-                                          style={{
-                                            position: 'absolute',
-                                            top: '128px',
-                                            width: '70px',
-                                            border: '1px solid red',
-                                            left: '147px'
-                                          }}
-                                        >
-                                          <Field
-                                            name='l_dos'
+                                          <div
                                             style={{
-                                              width: '68px'
+                                              position: 'absolute',
+                                              top: '208px',
+                                              width: '70px',
+                                              border: '1px solid red',
+                                              left: '29px'
                                             }}
-                                          />
-                                        </div>
+                                          >
+                                            <Field
+                                              name='l_uno'
+                                              style={{
+                                                width: '68px'
+                                              }}
+                                            />
+                                          </div>
 
-                                        <div
-                                          style={{
-                                            position: 'absolute',
-                                            top: '169px',
-                                            width: '70px',
-                                            border: '1px solid red',
-                                            left: '261px'
-                                          }}
-                                        >
-                                          <Field
-                                            name='l_tres'
-                                            style={{
-                                              width: '68px'
-                                            }}
-                                          />
-                                        </div>
 
-                                        <div
-                                          style={{
-                                            position: 'absolute',
-                                            top: '288px',
-                                            width: '70px',
-                                            border: '1px solid red',
-                                            left: '155px'
-                                          }}
-                                        >
-                                          <Field
-                                            name='l_cuatro'
+                                          <div
                                             style={{
-                                              width: '68px'
+                                              position: 'absolute',
+                                              top: '128px',
+                                              width: '70px',
+                                              border: '1px solid red',
+                                              left: '147px'
                                             }}
-                                          />
-                                        </div>
+                                          >
+                                            <Field
+                                              name='l_dos'
+                                              style={{
+                                                width: '68px'
+                                              }}
+                                            />
+                                          </div>
 
-                                        <div
-                                          style={{
-                                            position: 'absolute',
-                                            top: '205px',
-                                            width: '70px',
-                                            border: '1px solid red',
-                                            left: '374px'
-                                          }}
-                                        >
-                                          <Field
-                                            name='l_cinco'
+                                          <div
                                             style={{
-                                              width: '68px'
+                                              position: 'absolute',
+                                              top: '169px',
+                                              width: '70px',
+                                              border: '1px solid red',
+                                              left: '261px'
                                             }}
-                                          />
+                                          >
+                                            <Field
+                                              name='l_tres'
+                                              style={{
+                                                width: '68px'
+                                              }}
+                                            />
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              position: 'absolute',
+                                              top: '288px',
+                                              width: '70px',
+                                              border: '1px solid red',
+                                              left: '155px'
+                                            }}
+                                          >
+                                            <Field
+                                              name='l_cuatro'
+                                              style={{
+                                                width: '68px'
+                                              }}
+                                            />
+                                          </div>
+
+                                          <div
+                                            style={{
+                                              position: 'absolute',
+                                              top: '205px',
+                                              width: '70px',
+                                              border: '1px solid red',
+                                              left: '374px'
+                                            }}
+                                          >
+                                            <Field
+                                              name='l_cinco'
+                                              style={{
+                                                width: '68px'
+                                              }}
+                                            />
+                                          </div>
                                         </div>
-                                      </div>
-                                    </Col>
-                                  )}
-                                </Row>
-                              </div>
-                              {/*  */}
-                              <button
-                                style={{ display: 'none' }}
-                                ref={refButtonForm}
-                              >
-                                click
-                              </button>
-                              <Button
-                                className="btn btn-success mt-3"
-                                type="submit"
-                                loading={isSubmitting}
-                                onClick={() => {
-                                  console.log("click");
-                                  refButtonForm.current.click();
-                                  console.log("click");
-                                }}
-                              >
-                                Crear Receta
-                              </Button>
-                            </Form>
-                          )}
+                                      </Col>
+                                    )}
+                                  </Row>
+                                </div>
+                                {/*  */}
+                                <button
+                                  className="btn btn-success mt-3"
+                                  type="submit"
+                                >
+                                  Crear Receta
+                                </button>
+                                {/* <Button
+                                  className="btn btn-success mt-3"
+                                  type="submit"
+                                  loading={isSubmitting}
+                                  onClick={() => {
+                                    console.log("click");
+                                    refButtonForm.current.click();
+                                    console.log("click");
+                                  }}
+                                >
+                                  Crear Receta
+                                </Button> */}
+                              </Form>
+                            )
+                          }}
                         </Formik>
                       </div>
                     </div>
@@ -2036,7 +2089,7 @@ const CreateOrden = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 

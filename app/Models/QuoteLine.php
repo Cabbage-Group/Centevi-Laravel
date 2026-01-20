@@ -30,6 +30,13 @@ class QuoteLine extends Model
     'Total'
   ];
 
+  protected $appends = ['subTotal'];
+
+  public function getSubTotalAttribute()
+  {
+    return round(($this->Unidades ?? 0) * ($this->Precio_Unitario ?? 0), 2);
+  }
+
   public function quote()
   {
     return $this->belongsTo(Quote::class);

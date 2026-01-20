@@ -18,7 +18,10 @@ import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 
-const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
+const EditarCorrecionOrden = ({ 
+  fecha_solicitud, 
+  correcionOrden 
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { correccionOrderId } = useParams();
@@ -32,11 +35,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
   const [lenteContacto, setLenteContacto] = useState(false);
-  const [isRowVisible, setIsRowVisible] = useState(true);
-  const [isImageVisible, setIsImageVisible] = useState(true);
-  const [isAroVisible, setIsAroVisible] = useState(true);
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [selectedMarca, setSelectedMarca] = useState('');
+  const [selectedMarcaOI, setSelectedMarcaOI] = useState('');
   const [selectedAsesor, setSelectedAsesor] = useState('');
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
@@ -52,15 +53,15 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [selectedSucursal, setSelectedSucursal] = useState('');
   const [cedula, setCedula] = useState('');
-
-  useEffect(() => {
-    if (correcionOrden?.lente_contacto) {
-      setLenteContacto(true);
-      setIsRowVisible(false);
-      setIsImageVisible(false);
-      setIsAroVisible(false);
-    }
-  }, [correcionOrden]);
+  const [isLoading , setisLoading] = useState('')
+  // useEffect(() => {
+  //   if (correcionOrden?.lente_contacto == 1) {
+  //     setLenteContacto(true);
+  //     setIsRowVisible(false);
+  //     setIsImageVisible(false);
+  //     setIsAroVisible(false);
+  //   }
+  // }, [correcionOrden]);
 
   useEffect(() => {
     const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
@@ -110,8 +111,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
     l_dos: '',
     l_tres: '',
     l_cuatro: '',
-    l_cinco: '',
-    isRowVisible: isAroVisible,
+    l_cinco: ''
   });
 
   useEffect(() => {
@@ -121,7 +121,9 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       setDoctorSeleccionado(correcionOrden?.doctor);
       setTipoAro(correcionOrden?.tipo_aro);
       setSelectedMarca(correcionOrden?.marca);
+      setSelectedMarcaOI(correcionOrden?.marca_oi);
       setSelectedAsesor(correcionOrden?.elaborado_por_nombre);
+      setLenteContacto(correcionOrden?.lente_contacto)
       setServiciosRealizados([
         correcionOrden?.tipo_cristal_od
           ? { value: correcionOrden.tipo_cristal_od, label: correcionOrden.tipo_cristal_od, ojo: "Ojo Derecho" }
@@ -194,10 +196,10 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
         l_tres: correcionOrden.l_tres || '',
         l_cuatro: correcionOrden.l_cuatro || '',
         l_cinco: correcionOrden.l_cinco || '',
-        isRowVisible: isAroVisible,
+        lenteContacto: Boolean(correcionOrden.lente_contacto),
       }));
     }
-  }, [correcionOrden, isAroVisible]);
+  }, [correcionOrden]);
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -223,16 +225,37 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
     tipo_aro: Yup.string().when('lente_contacto', {
-      is: (lente_contacto) => {
-        console.log('isRowVisible en validación:', lente_contacto);
-        return lente_contacto;
-      },
+      is: false,
       then: (schema) => schema.required("Seleccione un tipo de aro"),
       otherwise: (schema) => schema.nullable(),
     }),
     doctor: Yup.string()
       .nullable()
       .required("Seleccione un doctor"),
+    marca: Yup.string().when('lenteContacto', {
+      is: true,
+      then: (schema) => schema.test(
+        'at-least-one-marca',
+        'Debe seleccionar al menos una marca',
+        function (value) {
+          const { marca_oi } = this.parent;
+          return !!(value || marca_oi);
+        }
+      ),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    marca_oi: Yup.string().when('lenteContacto', {
+      is: true,
+      then: (schema) => schema.test(
+        'at-least-one-marca',
+        'Debe seleccionar al menos una marca',
+        function (value) {
+          const { marca } = this.parent;
+          return !!(value || marca);
+        }
+      ),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
 
   const toggleEye = () => {
@@ -246,8 +269,6 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
   const toggleEyeTratamientos = () => {
     setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
   };
-
-
 
   const handleSelectChange = (value, option) => {
     const newEntry = {
@@ -394,7 +415,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
       ),
       aro_centevi: aroCentevi ? 1 : 0,
       aro_propio: aroCentevi ? 0 : 1,
-      ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
+      ...(!lenteContacto ? { tipo_aro: tipoAro } : {}),
       doctor: doctorSeleccionado,
       elaborado_por: usuario?.usuario?.id_usuario,
       lente_contacto: lenteContacto,
@@ -420,28 +441,28 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
 
   return (
     <div className="admin-data-content" data-select2-id="15">
-      <div className="row layout-top-spacing">
-        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-          <div className="widget-content-area br-4">
-            <div className="widget-one">
-              <div className="row">
-                <div
-                  className="col-lg-12 layout-spacing"
-                  id="flFormsGrid"
-                >
-                  <div className="statbox widget box box-shadow">
-                    <div className="widget-header">
-                      <div className="widget-content widget-content-area" >
+      <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
+        <div className="widget-content-area br-4">
+          <div className="widget-one">
+            <div className="row">
+              <div
+                className="col-lg-12 layout-spacing"
+                id="flFormsGrid"
+              >
+                <div className="statbox widget box box-shadow">
+                  <div className="widget-header">
+                    <div className="widget-content widget-content-area" >
+                      <Formik
+                        initialValues={{
+                          ...formValues
+                        }}
+                        enableReinitialize
+                        validationSchema={validationSchema}
+                        onSubmit={handleSubmit}
+                      >
 
-                        <Formik
-                          // initialValues={{ ...initialValues, lente_contacto: lenteContacto }}
-                          initialValues={formValues}
-                          enableReinitialize
-                          validationSchema={validationSchema}
-                          onSubmit={handleSubmit}
-                        >
-
-                          {({ setFieldValue, values }) => (
+                        {({ setFieldValue, values }) => {
+                          return (
                             <Form
                             >
                               <div className="form-row" style={{ marginBottom: "2rem" }}>
@@ -536,27 +557,27 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                     style={{ color: "red", fontSize: "12px" }}
                                   />
                                 </div>
-                                <div class="col-md-2">
-                                  <h4>Cambiar Tipo de lente</h4>
-                                  <div className="d-flex align-items-center">
-                                    <button
-                                      type="button"
-                                      className="btn btn-success"
-                                      style={{
-                                        height: "40px",
-                                        marginTop: "0",
-                                      }}
-                                      disabled={true}
-                                      onClick={() => {
-                                        handleLenteContactoChange()
-                                        setIsRowVisible(!isRowVisible);
-                                        setFieldValue("isRowVisible", !isRowVisible);
-                                      }}
-                                    >
-                                      {lenteContacto ? ' Cambiar a lente de contacto' : 'Cambiar a lente normal'}
-                                    </button>
-                                  </div>
-                                </div>
+                                {/* <div class="col-md-2">
+                                    <h4>Cambiar Tipo de lente</h4>
+                                    <div className="d-flex align-items-center">
+                                      <button
+                                        type="button"
+                                        className="btn btn-success"
+                                        style={{
+                                          height: "40px",
+                                          marginTop: "0",
+                                        }}
+                                        disabled={true}
+                                        onClick={() => {
+                                          handleLenteContactoChange()
+                                          setIsRowVisible(!isRowVisible);
+                                          setFieldValue("isRowVisible", !isRowVisible);
+                                        }}
+                                      >
+                                        {lenteContacto ? ' Cambiar a lente de contacto' : 'Cambiar a lente normal'}
+                                      </button>
+                                    </div>
+                                  </div> */}
                                 <div className="form-group col-md-4" >
                                   <label htmlFor="pacientes">Pacientes*</label>
                                   <Select
@@ -711,7 +732,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                               // width: '175px'
                                             }}
                                           >
-                                            {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
+                                            {!lenteContacto ? 'PRISMA' : 'Tipo de lente de contacto'}
                                           </th>
                                           <th
                                             style={{
@@ -719,7 +740,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                               width: "130px"
                                             }}
                                           >
-                                            {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
+                                            {!lenteContacto ? 'DISTANCIA PUPILAR' : 'Curva Base'}
                                           </th>
                                           <th
                                             style={{
@@ -727,7 +748,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                               width: "130px"
                                             }}
                                           >
-                                            {isAroVisible ? 'ALTURA' : 'Diametro'}
+                                            {!lenteContacto ? 'ALTURA' : 'Diametro'}
                                           </th>
                                         </tr>
                                       </thead>
@@ -837,7 +858,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                               as="input"
                                             />
                                           </td>
-                                          {isRowVisible ? (
+                                          {!lenteContacto ? (
                                             <td></td>
                                           ) : (
                                             <td>
@@ -865,7 +886,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                               </div>
 
                               {
-                                isRowVisible && (
+                                !lenteContacto && (
                                   <div
                                     style={{
                                       border: '2px solid blue',
@@ -1196,7 +1217,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           Caracteristicas de Aro
                                         </div>
                                       </Col>
-                                      {isAroVisible && (
+                                      {!lenteContacto && (
                                         <Col xxl={5} xl={5} md={5}>
                                           <div>
                                             <label className="new-control new-radio radio-classic-primary">
@@ -1221,7 +1242,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           </div>
                                         </Col>
                                       )}
-                                      {isAroVisible && (
+                                      {!lenteContacto && (
                                         <Col xxl={5} xl={5} md={5}>
                                           <div>
                                             <label className="new-control new-radio radio-classic-primary">
@@ -1237,7 +1258,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           </div>
                                         </Col>
                                       )}
-                                      {isAroVisible && (
+                                      {!lenteContacto && (
                                         <Col xxl={5} xl={5} md={5}>
                                           <div
                                             style={{
@@ -1261,8 +1282,8 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                         </Col>
                                       )}
 
-                                      <Col xxl={isRowVisible ? 9 : 12} xl={isRowVisible ? 9 : 12} md={isRowVisible ? 9 : 12}>
-                                        {isAroVisible && (
+                                      <Col xxl={!lenteContacto ? 9 : 12} xl={!lenteContacto ? 9 : 12} md={!lenteContacto ? 9 : 12}>
+                                        {!lenteContacto && (
                                           <div
                                             style={{
                                               // display: 'flex'
@@ -1285,37 +1306,70 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           <div style={{ marginTop: '1px' }}>
                                             <b>MARCA</b>
                                           </div>
-                                          {isAroVisible ? (
+                                          {!lenteContacto ? (
                                             <Field
                                               className="form-control"
                                               name="marca"
                                               style={{ marginLeft: '0px', height: '30px', display: 'block' }}
                                             />
                                           ) : (
-                                            <Select
-                                              name="marca"
-                                              placeholder="Selecciona la marca"
-                                              value={selectedMarca}
-                                              showSearch
-                                              style={{
-                                                width: "100%",
-                                                height: "48px",
-                                                color: "black",
-                                                fontWeight: "bold",
-                                              }}
-                                              onChange={(value) => {
-                                                console.log('value:', value)
-                                                setSelectedMarca(value);
-                                                setFieldValue("marca", value);
-                                              }}
-                                              filterOption={(input, option) =>
-                                                option.label.toLowerCase().includes(input.toLowerCase())
-                                              }
-                                              options={marcas_options_selecteds.map(marca => ({
-                                                value: marca.label,
-                                                label: marca.label
-                                              }))}
-                                            />
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                              <div style={{ flex: 1 }}>
+                                                <div style={{ marginBottom: '5px', fontSize: '12px' }}>Ojo Derecho</div>
+                                                <Select
+                                                  name="marca"
+                                                  value={selectedMarca}
+                                                  placeholder="Selecciona la marca"
+                                                  showSearch
+                                                  style={{
+                                                    width: "100%",
+                                                    height: "48px",
+                                                    color: "black",
+                                                    fontWeight: "bold",
+                                                  }}
+                                                  onChange={(value) => {
+                                                    setSelectedMarca(value);
+                                                    setFieldValue("marca", value);
+                                                  }}
+                                                  filterOption={(input, option) =>
+                                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                                  }
+                                                  options={marcas_options_selecteds.map(marca => ({
+                                                    value: marca.label,
+                                                    label: marca.label
+                                                  }))}
+                                                />
+                                                <ErrorMessage name="marca" component="div" className="text-danger" />
+                                              </div>
+
+                                              <div style={{ flex: 1 }}>
+                                                <div style={{ marginBottom: '5px', fontSize: '12px' }}>Ojo Izquierdo</div>
+                                                <Select
+                                                  name="marca_oi"
+                                                  value={selectedMarcaOI}
+                                                  placeholder="Selecciona la marca"
+                                                  showSearch
+                                                  style={{
+                                                    width: "100%",
+                                                    height: "48px",
+                                                    color: "black",
+                                                    fontWeight: "bold",
+                                                  }}
+                                                  onChange={(value) => {
+                                                    setSelectedMarcaOI(value);
+                                                    setFieldValue("marca_oi", value);
+                                                  }}
+                                                  filterOption={(input, option) =>
+                                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                                  }
+                                                  options={marcas_options_selecteds.map(marca => ({
+                                                    value: marca.label,
+                                                    label: marca.label
+                                                  }))}
+                                                />
+                                                <ErrorMessage name="marca_oi" component="div" className="text-danger" />
+                                              </div>
+                                            </div>
                                           )}
                                         </div>
                                       </Col>
@@ -1327,7 +1381,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                           <Col xxl={12} xl={12} md={12}>
                                             <Row>
 
-                                              {isAroVisible && (
+                                              {!lenteContacto && (
                                                 <Col xxl={24} xl={24} md={24}>
                                                   <div
                                                     style={{
@@ -1424,7 +1478,7 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
                                     </Row>
                                   </Col>
 
-                                  {isImageVisible && (
+                                  {!lenteContacto && (
                                     <Col
                                       xxl={10} xl={10} md={10}
                                       style={{
@@ -1550,19 +1604,20 @@ const EditarCorrecionOrden = ({ fecha_solicitud, correcionOrden }) => {
 
 
                             </Form>
-                          )}
-                        </Formik>
-                      </div>
+                          )
+                        }}
+                      </Formik>
                     </div>
                   </div>
-
                 </div>
+
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
   )
 }
 

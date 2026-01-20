@@ -36,6 +36,7 @@ import {
   PhoneOutlined,
   EditOutlined,
   DownloadOutlined,
+  ConsoleSqlOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
@@ -53,6 +54,7 @@ import {
   fetchConfirmarCita,
   setCurrentViewAgenda,
   updateCita,
+  selectDisplayedCitas
 } from "../../redux/features/citas/CitasAgendaSlice";
 import { fetchSucursales } from "../../redux/features/sucursales/sucursalesSlice";
 import Swal from "sweetalert2";
@@ -140,8 +142,8 @@ Tarjeta (Clave,Visa o Mastercard)
 
   const calendarRef = useRef(null);
   const confirmacionRef = useRef(null);
-
-  const { citasAgenda } = useSelector((state) => state.citasAgenda);
+  // const citasAgenda = useSelector(selectDisplayedCitas);
+  const { citasAgenda, allCitasAgenda } = useSelector((state) => state.citasAgenda);
 
   const { sucursales_with_colors, sucursales_option_selects } = useSelector(
     (state) => state.sucursales
@@ -381,7 +383,7 @@ Tarjeta (Clave,Visa o Mastercard)
         month: "long",
       }).format(currentDateAgenda);
 
-      if (!citasAgenda || citasAgenda.length === 0) {
+      if (!allCitasAgenda || allCitasAgenda.length === 0) {
         Swal.fire({
           icon: "warning",
           title: "Sin datos",
@@ -390,10 +392,14 @@ Tarjeta (Clave,Visa o Mastercard)
         return;
       }
 
-      const citasDelMes = citasAgenda.filter((cita) => {
+      console.log('allCitasAgenda', allCitasAgenda)
+
+      const citasDelMes = allCitasAgenda.filter((cita) => {
         const citaDate = new Date(cita.start);
         return citaDate.getMonth() + 1 === currentMonth && citaDate.getFullYear() === currentYear;
       });
+
+      console.log('citasDelMes', citasDelMes)
 
       if (citasDelMes.length === 0) {
         Swal.fire({
@@ -448,9 +454,8 @@ Tarjeta (Clave,Visa o Mastercard)
               if (Array.isArray(servicioData)) {
                 servicios = servicioData.map((servicio) => {
                   if (typeof servicio === "object") {
-                    return `${servicio.servicio_codigo || servicio.codigo || ""} | ${
-                      servicio.servicio_nombre || servicio.nombre || servicio.servicio || ""
-                    }`;
+                    return `${servicio.servicio_codigo || servicio.codigo || ""} | ${servicio.servicio_nombre || servicio.nombre || servicio.servicio || ""
+                      }`;
                   }
                   return servicio.toString();
                 });
@@ -485,10 +490,10 @@ Tarjeta (Clave,Visa o Mastercard)
           }),
           "Hora Fin": fechaFin
             ? fechaFin.toLocaleTimeString("es-ES", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              })
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
             : "",
           Comentarios: cita.comentarios || "",
           "Agendado Por": cita.agendado_por || "",
@@ -804,11 +809,12 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleEventClick = (info) => {
+    console.log('enmtersa')
     const eventId = Number(info.event.id);
-    let clickedEvent = citasAgenda.find((event) => Number(event.id) === eventId);
+    let clickedEvent = allCitasAgenda.find((event) => Number(event.id) === eventId);
 
     if (!clickedEvent) {
-      citasAgenda.forEach((event) => {
+      allCitasAgenda.forEach((event) => {
         if (event.extendedProps?.hiddenEvents) {
           const foundInHidden = event.extendedProps.hiddenEvents.find(
             (hiddenEvent) => Number(hiddenEvent.id) === eventId
@@ -1343,19 +1349,19 @@ Tarjeta (Clave,Visa o Mastercard)
       style={
         screens.md
           ? {
-              width: "100%",
-              margin: "auto",
-              padding: "30px",
-              position: "relative",
-              overflow: "hidden",
-            }
+            width: "100%",
+            margin: "auto",
+            padding: "30px",
+            position: "relative",
+            overflow: "hidden",
+          }
           : {
-              width: "100%",
-              margin: "auto",
-              padding: "0px",
-              position: "relative",
-              overflow: "hidden",
-            }
+            width: "100%",
+            margin: "auto",
+            padding: "0px",
+            position: "relative",
+            overflow: "hidden",
+          }
       }
     >
       <div
@@ -1417,15 +1423,15 @@ Tarjeta (Clave,Visa o Mastercard)
         style={
           screens.md
             ? {
-                background: "white",
-                padding: "40px",
-                position: "relative",
-              }
+              background: "white",
+              padding: "40px",
+              position: "relative",
+            }
             : {
-                background: "white",
-                // padding: '40px',
-                position: "relative",
-              }
+              background: "white",
+              // padding: '40px',
+              position: "relative",
+            }
         }
       >
         <BotonesFiltroAgenda
@@ -1465,40 +1471,40 @@ Tarjeta (Clave,Visa o Mastercard)
           style={
             screens.md
               ? {
-                  position: "absolute",
-                  top: "30px",
-                  left: "40px",
-                  width: "43%",
-                  marginBottom: "20px",
-                }
+                position: "absolute",
+                top: "30px",
+                left: "40px",
+                width: "43%",
+                marginBottom: "20px",
+              }
               : {
-                  position: "absolute",
-                  top: "5px",
-                  left: "5px",
-                  width: "43%",
-                  marginBottom: "20px",
-                }
+                position: "absolute",
+                top: "5px",
+                left: "5px",
+                width: "43%",
+                marginBottom: "20px",
+              }
           }
         >
           <Row gutter={[8, 2]}>
             {sucursales_with_colors?.map((category) => (
               <Col key={category.id} xxl={24} xl={24} md={24} ms={24} xs={24}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {category.id === "otros" ? 
-                  (
-                    <Switch 
-                      size="small"
-                      checked={selectedSucursales.includes(category.id)}
-                      onChange={() => handleSucursalChange(category.id)}
-                    />
-                  ) : (
-                    <input
-                      type="checkbox"
-                      disabled={category.id !== "otros" && selectedSucursales.includes("otros")}
-                      checked={selectedSucursales.includes(category.id)}
-                      onChange={() => handleSucursalChange(category.id)}
-                    />
-                  )}
+                  {category.id === "otros" ?
+                    (
+                      <Switch
+                        size="small"
+                        checked={selectedSucursales.includes(category.id)}
+                        onChange={() => handleSucursalChange(category.id)}
+                      />
+                    ) : (
+                      <input
+                        type="checkbox"
+                        disabled={category.id !== "otros" && selectedSucursales.includes("otros")}
+                        checked={selectedSucursales.includes(category.id)}
+                        onChange={() => handleSucursalChange(category.id)}
+                      />
+                    )}
                   <div
                     style={{
                       width: 12,
@@ -1511,11 +1517,11 @@ Tarjeta (Clave,Visa o Mastercard)
                     {screens.md
                       ? category.name
                       : category.name
-                          .replace(
-                            /\b(CENTEVI|Medico|Médico|Centro|Consultorios|Medicos|San|Judas)\b/gi,
-                            ""
-                          )
-                          .trim()}
+                        .replace(
+                          /\b(CENTEVI|Medico|Médico|Centro|Consultorios|Medicos|San|Judas)\b/gi,
+                          ""
+                        )
+                        .trim()}
                   </span>
                 </div>
               </Col>
@@ -1634,6 +1640,7 @@ Tarjeta (Clave,Visa o Mastercard)
               }
             }}
             eventContent={(info) => {
+              console.log('info', info)
               const {
                 hiddenEvents,
                 comentarios,
@@ -1663,19 +1670,19 @@ Tarjeta (Clave,Visa o Mastercard)
                     style={
                       tipo == "terapia"
                         ? {
-                            height: "100%",
-                            border: "3px solid #003300",
-                            marginLeft: "-3px",
-                            paddingLeft: "3px",
-                          }
+                          height: "100%",
+                          border: "3px solid #003300",
+                          marginLeft: "-3px",
+                          paddingLeft: "3px",
+                        }
                         : tipo == "consulta"
-                        ? {
+                          ? {
                             height: "100%",
                             border: "3px solid #3300FF",
                             marginLeft: "-3px",
                             paddingLeft: "3px",
                           }
-                        : {
+                          : {
                             height: "100%",
                             border: "3px solid transparent",
                             marginLeft: "-3px",
@@ -1832,7 +1839,7 @@ Tarjeta (Clave,Visa o Mastercard)
 
         <div style={currentView !== "timeLine" ? { display: "none" } : {}}>
           <TimeLine
-            citasAgenda={citasAgenda}
+            citasAgenda={allCitasAgenda}
             fechaSeleccionada={fechaSeleccionada}
             handleEventClick={handleEventClick}
             enviarConfirmacionCita={enviarConfirmacionCita}
@@ -1948,9 +1955,9 @@ Tarjeta (Clave,Visa o Mastercard)
               <label style={{ marginTop: "10px" }}>Status:</label>
               <Form.Item
                 name="confirmado"
-                // rules={[{ required: true, message: "La sucursal es requerida" }]}
+              // rules={[{ required: true, message: "La sucursal es requerida" }]}
               >
-                <Select placeholder="Selecciona un status" onChange={(value) => {}}>
+                <Select placeholder="Selecciona un status" onChange={(value) => { }}>
                   {["SIN STATUS", "CONFIRMADO", "CANCELADO", "POSTERGADO", "REAGENDADO"].map(
                     (sucursal) => (
                       <Select.Option key={sucursal} value={sucursal}>
@@ -2400,19 +2407,19 @@ Tarjeta (Clave,Visa o Mastercard)
                   style={
                     event.tipo == "terapia"
                       ? {
-                          cursor: "pointer",
-                          padding: "6px",
-                          marginBottom: "6px",
-                          backgroundColor: event.backgroundColor,
-                          borderLeft: `3px solid ${event.borderColor}`,
-                          borderRadius: "6px",
-                          color: "white",
-                          fontSize: "12px",
-                          height: "100%",
-                          border: "3px solid #003300",
-                        }
+                        cursor: "pointer",
+                        padding: "6px",
+                        marginBottom: "6px",
+                        backgroundColor: event.backgroundColor,
+                        borderLeft: `3px solid ${event.borderColor}`,
+                        borderRadius: "6px",
+                        color: "white",
+                        fontSize: "12px",
+                        height: "100%",
+                        border: "3px solid #003300",
+                      }
                       : event.tipo == "consulta"
-                      ? {
+                        ? {
                           cursor: "pointer",
                           padding: "6px",
                           marginBottom: "6px",
@@ -2424,7 +2431,7 @@ Tarjeta (Clave,Visa o Mastercard)
                           height: "100%",
                           border: "3px solid #3300FF",
                         }
-                      : {
+                        : {
                           cursor: "pointer",
                           padding: "6px",
                           marginBottom: "6px",

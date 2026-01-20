@@ -85,8 +85,8 @@ const VerUnaCotizacion = () => {
   const columns = [
     {
       title: 'Código',
-      dataIndex: 'Codigo',
-      key: 'Codigo',
+      dataIndex: 'Item_Number',
+      key: 'Item_Number',
       width: "100px",
       render: (text, record, index) => {
         return (
@@ -94,11 +94,11 @@ const VerUnaCotizacion = () => {
             showSearch
             disabled
             style={{ width: '100px' }}
-            value={record.Codigo}
+            value={record.Item_Number}
             placeholder="Selecciona un producto"
             optionFilterProp="children"
             filterOption={false}
-            title={record.Codigo}
+            title={record.Item_Number}
           >
           </Select >
         )
@@ -176,11 +176,11 @@ const VerUnaCotizacion = () => {
       key: 'SubTotal',
       render: (text, record) => (
         <InputNumber
-          value={parseFloat(record.Precio_Unitario) * parseFloat(record.Unidades)}
+          value={parseFloat(record.SubTotal)}
           disabled
           precision={2}
           style={{ width: '100%', color: 'black' }}
-          title={parseFloat(record.Precio_Unitario) * parseFloat(record.Unidades)}
+          title={parseFloat(record.SubTotal)}
           onClick={() => console.log(record)}
         />
       )
@@ -502,7 +502,7 @@ const VerUnaCotizacion = () => {
               <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
                 <Form.Item
                   name="Taxes"
-                  // label="Impuesto"
+                // label="Impuesto"
                 >
                   <InputNumber
                     style={{ width: '100%', color: 'black', textAlign: 'right' }}
@@ -521,7 +521,7 @@ const VerUnaCotizacion = () => {
               <Col xxl={12} xl={12} md={12} style={{ textAlignLast: 'right' }}>
                 <Form.Item
                   name="Total"
-                  // label="Total"
+                // label="Total"
                 >
                   <InputNumber
                     style={{ width: '100%', color: 'black', textAlign: 'right' }}

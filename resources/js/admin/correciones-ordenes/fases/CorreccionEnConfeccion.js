@@ -12,7 +12,12 @@ import { createContactoCorreccionOrden } from '../../../redux/features/contacto-
 import { fetchBases } from '../../../redux/features/bases/basesSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 
-const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
+const CorreccionEnConfeccion = ({
+  tipoFaseId,
+  isDisabled,
+  correcionOrden,
+  onBasesValidasChange
+}) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -34,6 +39,7 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
   const [ubicacionMaps, setUbicacionMaps] = useState('');
   const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
+  const [lenteContacto, setLenteContacto] = useState(0);
 
   useEffect(() => {
     if (correccionOrderId) {
@@ -49,6 +55,7 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
       setNombrePaciente(correcionOrden?.paciente_nombre_completo)
       setCelular(correcionOrden?.celular)
       setStatus(correcionOrden?.estado)
+      setLenteContacto(correcionOrden?.lente_contacto || 0)
     }
   }, [correcionOrden])
 
@@ -71,20 +78,20 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
     }
 
     const faseOrden = tiposFasesOrdenes
-        .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_correcciones_ordenes)
-        .find((fasesOrden) => 
-          fasesOrden.tipo_fase_correccion_orden_id == tipoFaseId
+      .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_correcciones_ordenes)
+      .find((fasesOrden) =>
+        fasesOrden.tipo_fase_correccion_orden_id == tipoFaseId
       );
-      setBaseOjoIzquierdoId(
-        faseOrden?.base_ojo_izquierdo_id != null
-          ? Number(faseOrden.base_ojo_izquierdo_id)
-          : null
-      );
-      setBaseOjoDerechoId(
-        faseOrden?.base_ojo_derecho_id != null
-          ? Number(faseOrden.base_ojo_derecho_id)
-          : null
-      );
+    setBaseOjoIzquierdoId(
+      faseOrden?.base_ojo_izquierdo_id != null
+        ? Number(faseOrden.base_ojo_izquierdo_id)
+        : null
+    );
+    setBaseOjoDerechoId(
+      faseOrden?.base_ojo_derecho_id != null
+        ? Number(faseOrden.base_ojo_derecho_id)
+        : null
+    );
   }, [tiposFasesOrdenes, correccionOrderId]);
 
   useEffect(() => {
@@ -200,6 +207,26 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
     }
   };
 
+  const basesValidas = () => {
+    if (lenteContacto === 1) {
+      return true;
+    }
+    return baseOjoIzquierdoId !== null && baseOjoDerechoId !== null;
+  };
+
+  useEffect(() => {
+    window.basesValidasEnConfeccion = basesValidas();
+  }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
+
+  useEffect(() => {
+    const validas = basesValidas();
+    window.basesValidasEnConfeccion = validas;
+
+    if (onBasesValidasChange) {
+      onBasesValidasChange(validas);
+    }
+  }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
+
   return (
     <div>
       <Row
@@ -207,9 +234,9 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
         gutter={[16, 16]}
       >
         <Col xxl={15} xl={15} md={12}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             gap: '10px',
             marginBottom: '20px'
           }}>
@@ -234,7 +261,7 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
                 }}
                 onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
                 value={!loading ? baseOjoIzquierdoId : undefined}
-                status={!baseOjoIzquierdoId && !loading ? "error" : ""}
+                status={!baseOjoIzquierdoId && !loading && lenteContacto === 0 ? "error" : ""}
               />
             </div>
 
@@ -249,7 +276,7 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
                 disabled={loading}
                 options={(bases ?? []).map((base) => ({
                   value: Number(base.id),
-                  label: `${base.codigo} - ${base.descripcion}`, 
+                  label: `${base.codigo} - ${base.descripcion}`,
                 }))}
                 style={{
                   width: '350px',
@@ -259,10 +286,21 @@ const CorreccionEnConfeccion = ({ tipoFaseId, isDisabled, correcionOrden }) => {
                 }}
                 onChange={(value) => setBaseOjoDerechoId(Number(value))}
                 value={!loading ? baseOjoDerechoId : undefined}
-                status={!baseOjoDerechoId && !loading ? "error" : ""}
+                status={!baseOjoDerechoId && !loading && lenteContacto === 0 ? "error" : ""}
               />
             </div>
           </div>
+          {lenteContacto === 0 && (!baseOjoIzquierdoId || !baseOjoDerechoId) && (
+            <div style={{
+              color: 'red',
+              fontSize: '12px',
+              marginBottom: '10px',
+              marginTop: '-10px'
+            }}>
+              * Ambas bases son obligatorias
+            </div>
+          )}
+
           <label htmlFor="inputAddress">
             Observaciones
           </label>
