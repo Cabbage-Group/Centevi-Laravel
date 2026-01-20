@@ -63,6 +63,7 @@ const CorrecionOrden = () => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const { permisos } = useSelector((state) => state.auth);
+  const [basesValidas, setBasesValidas] = useState(true);
 
   useEffect(() => {
     if (correcionOrden) {
@@ -212,13 +213,13 @@ const CorrecionOrden = () => {
         icon = <FileAddOutlined />;
     }
 
-    const nombresUsuarios = usuarios.find((user) => 
-      user.id_usuario === Number(fase.fases_correcciones_ordenes.find((fco) => 
+    const nombresUsuarios = usuarios.find((user) =>
+      user.id_usuario === Number(fase.fases_correcciones_ordenes.find((fco) =>
         fco.tipo_fase_correccion_orden_id === fase.id
       )?.elaborado_por) ?? null
     )?.nombre || "Desconocido";
 
-    const fechaFase = fase.fases_correcciones_ordenes.find((fco) => 
+    const fechaFase = fase.fases_correcciones_ordenes.find((fco) =>
       fco.tipo_fase_correccion_orden_id === fase.id
     )?.created_at?.split(" ")[0] ?? "";
 
@@ -362,6 +363,10 @@ const CorrecionOrden = () => {
     }
   };
 
+  const handleBasesValidasChange = (validas) => {
+    setBasesValidas(validas);
+  };
+
   return (
     <div>
 
@@ -436,6 +441,7 @@ const CorrecionOrden = () => {
                     lab={nuevaDataCorrecciones.laboratorio}
                     fecha={nuevaDataCorrecciones.fecha_fase}
                     correcionOrden={correcionOrden}
+                    onBasesValidasChange={handleBasesValidasChange}
                   />
                 ) : nivelStep == 2 ? (
                   <CorreccionListo
@@ -473,7 +479,11 @@ const CorrecionOrden = () => {
                     <Button onClick={() => avanzarFase(false, false)} type="default">
                       Guardar Fase
                     </Button>
-                    <Button onClick={() => avanzarFase(false, true)} type="primary">
+                    <Button
+                      onClick={() => avanzarFase(false, true)}
+                      type="primary"
+                      disabled={nivelStep === 1 && !basesValidas}
+                    >
                       Completar Fase
                     </Button>
                   </>

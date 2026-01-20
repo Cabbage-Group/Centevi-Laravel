@@ -175,14 +175,14 @@
         <th>Eje</th>
         <th>ADD</th>
         @if($lente_contacto)
-      <th>Tipo de lente de contacto</th>
-      <th>Curva Base</th>
-      <th>Diametro</th>
-    @else
-    <th>PRISMA</th>
-    <th>DISTANCIA PUPILAR*</th>
-    <th>ALTURA</th>
-  @endif
+        <th>Tipo de lente de contacto</th>
+        <th>Curva Base</th>
+        <th>Diametro</th>
+        @else
+        <th>PRISMA</th>
+        <th>DISTANCIA PUPILAR*</th>
+        <th>ALTURA</th>
+        @endif
       </tr>
       <tr class="row-table" style="font-family:'DejaVu Sans', sans-serif">
         <th>OD</th>
@@ -207,171 +207,192 @@
     </table>
   </div>
   @if(!$lente_contacto)
-    <div style="widht: 100%; border: 1px solid blue; border-radius: 25px; padding:10px;  margin-top: 10px">
+  <div style="widht: 100%; border: 1px solid blue; border-radius: 25px; padding:10px;  margin-top: 10px">
     <div style=" width:100%; margin-bottom:20px; align-items:start">Caracteristicas de Cristales</div>
     <table class="tabla-caracteristicas">
       <thead>
-      <tr>
-        <th style="font-size:12px">TIPO DE CRISTAL</th>
-        <th style="font-size:12px">MATERIAL</th>
-        <th style="font-size:12px">TRATAMIENTOS Y FILTROS</th>
-      </tr>
+        <tr>
+          <th style="font-size:12px">TIPO DE CRISTAL</th>
+          <th style="font-size:12px">MATERIAL</th>
+          <th style="font-size:12px">TRATAMIENTOS Y FILTROS</th>
+        </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>
-        <div style="font-size:12px; text-align:start">Ojo derecho:</div>
-        @if($tipo_cristal_od)
-      <button class="info-tabla-cristales">{{$tipo_cristal_od}}</button>
-    @endif
-        </td>
-        <td>
-        <div style="font-size:12px; text-align:start">Ojo derecho:</div>
-        @if($material_od)
-      <button class="info-tabla-cristales">{{$material_od}}</button>
-    @endif
-        </td>
-        <td>
-        <div style="font-size:12px; text-align:start">Ojo derecho:</div>
-        @if($tratamientos_od)
-      <button class="info-tabla-cristales">{{$tratamientos_od}}</button>
-    @endif
-        </td>
-      </tr>
-      <tr>
-        <td>
-        <div style="font-size:12px; text-align:start">Ojo Izquierdo:</div>
-        @if($tipo_cristal_oi)
-      <button class="info-tabla-cristales">{{$tipo_cristal_oi}}</button>
-    @endif
-        </td>
-        <td>
-        <div style="font-size:12px; text-align:start">Ojo Izquierdo:</div>
-        @if($material_oi)
-      <button class="info-tabla-cristales">{{$material_oi}}</button>
-    @endif
-        </td>
-        <td>
-        <div style="font-size:12px; text-align:start">Ojo Izquierdo:</div>
-        @if($tratamientos_oi)
-      <button class="info-tabla-cristales">{{$tratamientos_oi}}</button>
-    @endif
-        </td>
-    @if($tipo_corredor)
-      <tr>
-        <td>
-        <div style="font-size:12px; text-align:start">Tipo Corredor:</div>
-        <button class="info-tabla-cristales">{{$tipo_corredor}}</button>
-        </td>
-      </tr>
-    @endif
-      </tr>
+        <tr>
+          <td>
+            <div style="font-size:12px; text-align:start">Ojo derecho:</div>
+            @if($tipo_cristal_od)
+            <button class="info-tabla-cristales">{{$tipo_cristal_od}}</button>
+            @endif
+          </td>
+          <td>
+            <div style="font-size:12px; text-align:start">Ojo derecho:</div>
+            @if($material_od)
+            <button class="info-tabla-cristales">{{$material_od}}</button>
+            @endif
+          </td>
+          <td>
+            <div style="font-size:12px; text-align:start">Ojo derecho:</div>
+            @if($tratamientos_od)
+            <button class="info-tabla-cristales">{{$tratamientos_od}}</button>
+            @endif
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div style="font-size:12px; text-align:start">Ojo Izquierdo:</div>
+            @if($tipo_cristal_oi)
+            <button class="info-tabla-cristales">{{$tipo_cristal_oi}}</button>
+            @endif
+          </td>
+          <td>
+            <div style="font-size:12px; text-align:start">Ojo Izquierdo:</div>
+            @if($material_oi)
+            <button class="info-tabla-cristales">{{$material_oi}}</button>
+            @endif
+          </td>
+          <td>
+            <div style="font-size:12px; text-align:start">Ojo Izquierdo:</div>
+            @if($tratamientos_oi)
+            <button class="info-tabla-cristales">{{$tratamientos_oi}}</button>
+            @endif
+          </td>
+          @if($tipo_corredor)
+        <tr>
+          <td>
+            <div style="font-size:12px; text-align:start">Tipo Corredor:</div>
+            <button class="info-tabla-cristales">{{$tipo_corredor}}</button>
+          </td>
+        </tr>
+        @endif
+        </tr>
       </tbody>
     </table>
-    </div>
+  </div>
   @endif
 
 
   @if($lente_contacto)
-    <div style="widht: 100%; border: 1px solid blue; border-radius: 25px; padding:20px 20px;  margin-top: 10px">
+  <div style="width: 100%; border: 1px solid blue; border-radius: 25px; padding:10px 10px; margin-top: 10px">
     <div style="width:100%; display: inline-block; margin-bottom:20px">
-      <div style="width:74%; display: inline-block">Caracteristicas de Aro</div>
-    </div>
-    <div style="width:48%;  display: inline-block">
-      <div style="font-size:12px; width:100%; color:#888ea8; font-weight:700">MARCA</div>
-      <buton class="boton-item-white"
-      style="font-size:12px;white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
-      {{$marca}}
-      </buton>
+      <div style="width:100%; display: inline-block; font-size:14px; font-weight:700;">Caracteristicas de Aro</div>
     </div>
 
-    <div style="width:1%; display:inline-block;"></div>
+    <!-- MARCA y OBSERVACIONES en la misma fila -->
+    <div style="width:100%; display: inline-block;">
+      <!-- MARCA (48%) -->
+      <div style="width:48%; display: inline-block; vertical-align: top;">
+        <div style="font-size:12px; width:100%; color:#888ea8; font-weight:700; margin-bottom: 8px;">MARCA</div>
 
-    <div style="width:48%; display:inline-block;">
-      <div style="font-size:12px;width:100%; color:#888ea8; font-weight:700">OBSERVACIONES</div>
-      <button class="boton-item-white"
-      style="font-size:12px; {{$observaciones == '_' ? 'color:white' : ''}}">{{$observaciones}}</button>
+        <div style="width:100%; margin-bottom: 10px;">
+          <div style="font-size:11px; color:#666; margin-bottom: 3px;">Ojo Derecho</div>
+          <button class="boton-item-white"
+            style="font-size:12px; width:100%; white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
+            {{$marca}}
+          </button>
+        </div>
+
+        <div style="width:100%;">
+          <div style="font-size:11px; color:#666; margin-bottom: 3px;">Ojo Izquierdo</div>
+          <button class="boton-item-white"
+            style="font-size:12px; width:100%; white-space: normal; word-wrap: break-word; {{$marca_oi == '_' ? 'color:white' : ''}}">
+            {{$marca_oi}}
+          </button>
+        </div>
+      </div>
+
+      <!-- Espacio entre columnas -->
+      <div style="width:3%; display:inline-block;"></div>
+
+      <!-- OBSERVACIONES (48%) -->
+      <div style="width:48%; display:inline-block; vertical-align: top;">
+        <div style="font-size:12px; width:100%; color:#888ea8; font-weight:700; margin-bottom: 8px;">OBSERVACIONES</div>
+        <button class="boton-item-white"
+          style="font-size:12px; width:100%; min-height: 80px; white-space: normal; word-wrap: break-word; text-align: left; padding: 10px; {{$observaciones == '_' ? 'color:white' : ''}}">
+          {{$observaciones}}
+        </button>
+      </div>
     </div>
-    </div>
+  </div>
   @else
-    <div style="widht: 100%; border: 1px solid blue; border-radius: 25px; padding:20px 20px;  margin-top: 10px">
+  <div style="widht: 100%; border: 1px solid blue; border-radius: 25px; padding:20px 20px;  margin-top: 10px">
     <div style="width:100%; display: inline-block">
       <div style="width:74%; display: inline-block">Caracteristicas de Aro</div>
       <div style="width:25%; display: inline-block">
-      <div style="font-size:12px; color:#888ea8; font-weight:700">COLOR*</div>
-      <button class="boton-item-white"
-        style="font-size:12px; text-align:left;white-space: normal; word-wrap: break-word; {{$color == '_' ? 'color:white' : ''}}">{{$color}}</button>
+        <div style="font-size:12px; color:#888ea8; font-weight:700">COLOR*</div>
+        <button class="boton-item-white"
+          style="font-size:12px; text-align:left;white-space: normal; word-wrap: break-word; {{$color == '_' ? 'color:white' : ''}}">{{$color}}</button>
       </div>
     </div>
     <div style="width:100%;  display: inline-block">
       <div style="width:24%; display: inline-block">
-      <div style="font-size:12px; display:flex; align-items:center">
-        @if($aro_centevi)
-      <button
-      style="border-radius:50%; border: 2px solid blue; margin:0 auto; background-color:white; width:5px; height:5px"></button>
-    @else
-    <button style="border-radius:50%; border: none; background-color:#E0E6ED; width:8px; height:8px"></button>
-  @endif
-        <span style="">ARO CENTEVI</span>
-      </div>
-      </div>
-      <div style="width:24%; display: inline-block">
-      <div style="font-size:12px; display:flex; align-items:center">
-        @if($aro_propio)
-      <button
-      style="border-radius:50%; border: 2px solid blue; margin:0 auto; background-color:white; width:5px; height:5px"></button>
-    @else
-    <button style="border-radius:50%; border: none; background-color:#E0E6ED; width:8px; height:8px"></button>
-  @endif
-        ARO PROPIO
-      </div>
+        <div style="font-size:12px; display:flex; align-items:center">
+          @if($aro_centevi)
+          <button
+            style="border-radius:50%; border: 2px solid blue; margin:0 auto; background-color:white; width:5px; height:5px"></button>
+          @else
+          <button style="border-radius:50%; border: none; background-color:#E0E6ED; width:8px; height:8px"></button>
+          @endif
+          <span style="">ARO CENTEVI</span>
+        </div>
       </div>
       <div style="width:24%; display: inline-block">
-      <div style="font-size:12px; margin-bottom:5px; color:#888ea8; font-weight:700">CÓDIGO</div>
-      <buton class="boton-item-white"
-        style="font-size:12px;white-space: normal; word-wrap: break-word; {{$codigo == '_' ? 'color:white' : ''}}">
-        {{$codigo}}
-      </buton>
+        <div style="font-size:12px; display:flex; align-items:center">
+          @if($aro_propio)
+          <button
+            style="border-radius:50%; border: 2px solid blue; margin:0 auto; background-color:white; width:5px; height:5px"></button>
+          @else
+          <button style="border-radius:50%; border: none; background-color:#E0E6ED; width:8px; height:8px"></button>
+          @endif
+          ARO PROPIO
+        </div>
+      </div>
+      <div style="width:24%; display: inline-block">
+        <div style="font-size:12px; margin-bottom:5px; color:#888ea8; font-weight:700">CÓDIGO</div>
+        <buton class="boton-item-white"
+          style="font-size:12px;white-space: normal; word-wrap: break-word; {{$codigo == '_' ? 'color:white' : ''}}">
+          {{$codigo}}
+        </buton>
       </div>
       <div style="width:1%; display:inline-block"></div>
       <div style="width:24%; display: inline-block;">
-      <div style="font-size:12px; margin-bottom:5px; width:100%; color:#888ea8; font-weight:700">MARCA</div>
-      <buton class="boton-item-white"
-        style="font-size:12px;white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
-        {{$marca}}
-      </buton>
+        <div style="font-size:12px; margin-bottom:5px; width:100%; color:#888ea8; font-weight:700">MARCA</div>
+        <buton class="boton-item-white"
+          style="font-size:12px;white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
+          {{$marca}}
+        </buton>
       </div>
     </div>
     <div style="width:100%; display:inline-block; margin-top:20px;">
       <div style="width:60%; display: inline-block; justify-content:center; position:relative; background-color:red">
-      <img src="{{ public_path('/assets/img/recetas/lentessinbarrillav2.png') }}" style="width: 100%;" />
-      <button
-        style="position:absolute; left:-25px; border:1px solid red; background-color: white; width:70px; top:72px">{{$l_uno}}</button>
-      <button
-        style="position:absolute; left:82px; border:1px solid red; background-color: white; width:70px; top:-2px">{{$l_dos}}</button>
-      <button
-        style="position:absolute; left:185px; border:1px solid red; background-color: white; width:70px; top:35px">{{$l_tres}}</button>
-      <button
-        style="position:absolute; left:90px; border:1px solid red; background-color: white; width:70px; top:150px">{{$l_cuatro}}</button>
-      <button
-        style="position:absolute; left:300px; border:1px solid red; background-color: white; width:70px; top:71px">{{$l_cinco}}</button>
+        <img src="{{ public_path('/assets/img/recetas/lentessinbarrillav2.png') }}" style="width: 100%;" />
+        <button
+          style="position:absolute; left:-25px; border:1px solid red; background-color: white; width:70px; top:72px">{{$l_uno}}</button>
+        <button
+          style="position:absolute; left:82px; border:1px solid red; background-color: white; width:70px; top:-2px">{{$l_dos}}</button>
+        <button
+          style="position:absolute; left:185px; border:1px solid red; background-color: white; width:70px; top:35px">{{$l_tres}}</button>
+        <button
+          style="position:absolute; left:90px; border:1px solid red; background-color: white; width:70px; top:150px">{{$l_cuatro}}</button>
+        <button
+          style="position:absolute; left:300px; border:1px solid red; background-color: white; width:70px; top:71px">{{$l_cinco}}</button>
       </div>
       <div style="width:39%; display: inline-block; float:right">
-      <div style="width:100%; display: inline-block">
-        <div>
-        <div style="font-size:12px; color:#888ea8; font-weight:700">TIPO DE ARO*</div>
-        <button class="boton-item-white"
-          style="font-size:12px;white-space: normal; word-wrap: break-word;">{{$tipo_aro}}</button>
+        <div style="width:100%; display: inline-block">
+          <div>
+            <div style="font-size:12px; color:#888ea8; font-weight:700">TIPO DE ARO*</div>
+            <button class="boton-item-white"
+              style="font-size:12px;white-space: normal; word-wrap: break-word;">{{$tipo_aro}}</button>
+          </div>
+        </div>
+        <div style="width:100%; display: inline-block; margin-top:10px">
+          <div style="font-size:12px; color:#888ea8; font-weight:700">OBSERVACIONES</div>
+          <button class="boton-item-white"
+            style="font-size:12px; {{$observaciones == '_' ? 'color:white' : ''}}">{{$observaciones}}</button>
         </div>
       </div>
-      <div style="width:100%; display: inline-block; margin-top:10px">
-        <div style="font-size:12px; color:#888ea8; font-weight:700">OBSERVACIONES</div>
-        <button class="boton-item-white"
-        style="font-size:12px; {{$observaciones == '_' ? 'color:white' : ''}}">{{$observaciones}}</button>
-      </div>
-      </div>
     </div>
-    </div>
+  </div>
   @endif
 </body>
 
