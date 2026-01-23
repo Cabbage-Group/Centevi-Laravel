@@ -80,6 +80,7 @@ const Ordenes = () => {
   const [nombrePaciente, setNombrePaciente] = useState("");
   const idUsuario = localStorage.getItem("id_usuario");
   const { pacienteOrden, statusPacienteOrden } = useSelector((state) => state.ordenes);
+  const [basesValidas, setBasesValidas] = useState(true);
 
   const { permisos } = useSelector((state) => state.auth);
   const {
@@ -547,6 +548,10 @@ const Ordenes = () => {
     }
   };
 
+  const handleBasesValidasChange = (validas) => {
+    setBasesValidas(validas);
+  };
+
   return (
     <div>
       <Row>
@@ -598,6 +603,7 @@ const Ordenes = () => {
                   fecha={nuevaData.fecha_fase}
                   pacientesData={pacientes}
                   pacienteOrden={pacienteOrden}
+                  onBasesValidasChange={handleBasesValidasChange}
                 />
               ) : nivelStep == 2 ? (
                 <Listo
@@ -645,12 +651,15 @@ const Ordenes = () => {
                         avanzarFase(false, true)
                       }
                       type="primary"
+                      disabled={nivelStep === 1 && !basesValidas}
                     >
                       Completar Fase
                     </Button>
                   </>
                 ) : nivelStep === 3 ? (
-                  <Button onClick={() => avanzarFase(false, true)} type="primary"
+                  <Button
+                    onClick={() => avanzarFase(false, true)}
+                    type="primary"
                   >
                     Completar Fase
                   </Button>

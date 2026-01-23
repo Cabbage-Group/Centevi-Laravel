@@ -49,8 +49,8 @@ export const verCotizacionPdf = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     let urlPdf = null;
     try {
-      const response = await axios.get(`${API}/quote/pdf/${id}`, {  
-        responseType: 'blob' 
+      const response = await axios.get(`${API}/quote/pdf/${id}`, {
+        responseType: 'blob'
       });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
@@ -84,6 +84,20 @@ export const updateEstadoQuote = createAsyncThunk(
   async ({ id, data }) => {
     try {
       const response = await axios.put(`${API}/update/quote/centevi/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating quote:', error.response.data);
+      throw error;
+    }
+  }
+);
+
+
+export const updateQuote = createAsyncThunk(
+  'quotes/updateQuote',
+  async ({ id, data }) => {
+    try {
+      const response = await axios.put(`${API}/quotes/${id}/update`, data);
       return response.data;
     } catch (error) {
       console.error('Error updating quote:', error.response.data);
@@ -186,6 +200,7 @@ const quotesSlice = createSlice({
         state.exchangeRateStatus = 'loading';
       })
       .addCase(fetchExchangeRate.fulfilled, (state, action) => {
+        console.log('Fetched exchange rate:', action.payload);
         state.exchangeRateStatus = 'succeeded';
         state.exchangeRate = action.payload;
       })
@@ -232,6 +247,21 @@ const quotesSlice = createSlice({
         // );
       })
       .addCase(findQuotesByIdAndUpdate.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(updateQuote.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateQuote.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const updatedQuote = action.payload.quote;
+
+        state.quotes = state.quotes.map(quote =>
+          quote.id === updatedQuote.id ? { ...quote, ...updatedQuote } : quote
+        );
+      })
+      .addCase(updateQuote.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })

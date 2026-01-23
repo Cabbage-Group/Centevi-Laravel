@@ -50,6 +50,7 @@ class Ordenes extends Model
     'codigo',
     'color',
     'marca',
+    'marca_oi',
     'tipo_aro',
     'doctor',
     'observaciones',
