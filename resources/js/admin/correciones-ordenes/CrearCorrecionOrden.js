@@ -46,7 +46,8 @@ const CreateCorrecionOrden = () => {
   const [selectedSucursal, setSelectedSucursal] = useState('');
   const [cedula, setCedula] = useState('');
   const [telefono, setTelefono] = useState('');
-
+  console.log("location", location.state)
+  console.log(pacienteOrden)
   // useEffect(() => {
   //   if (pacienteOrden?.lente_contacto) {
   //     setLenteContacto(true);
@@ -236,6 +237,7 @@ const CreateCorrecionOrden = () => {
       ].filter(Boolean));
       setFormValues((prevValues) => ({
         ...prevValues,
+        ordenes_id: pacienteOrden?.id_orden,
         nro_orden: pacienteOrden.nro_orden || '',
         nro_orden_id: pacienteOrden.nro_orden_id || '',
         nro_cotizacion: pacienteOrden.nro_cotizacion || '',
@@ -448,7 +450,7 @@ const CreateCorrecionOrden = () => {
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
     const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label);
     const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label);
-
+console.log(values)
     const transformedValues = {
       ...values,
       ...(serviciosRealizadosSubmit.length === 1
