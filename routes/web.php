@@ -592,6 +592,8 @@ Route::get('/api/diagnosticos/obtener-diagnosticos', [DiagnosticoPacienteControl
 Route::post('/api/diagnosticos/crearDiagnosticos', [DiagnosticoPacienteController::class, 'store']);
 Route::put('/api/diagnosticos/{id}/actualizarDiagnosticos', [DiagnosticoPacienteController::class, 'update']);
 Route::delete('/api/diagnosticos/{id}/eliminarDiagnosticos', [DiagnosticoPacienteController::class, 'destroy']);
+Route::get('/api/diagnosticos/{id}/diagnosticosPorPaciente', [DiagnosticoPacienteController::class, 'diagnosticosPorPaciente']);
+Route::get('/api/diagnosticos/{id}/diagnosticosPorPacienteDetalle', [DiagnosticoPacienteController::class, 'diagnosticosPorPacienteDetalle']);
 
 Route::get('/api/bases', [BasesApiController::class, 'index']);
 
