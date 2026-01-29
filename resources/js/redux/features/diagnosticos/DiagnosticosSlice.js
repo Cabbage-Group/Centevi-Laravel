@@ -87,16 +87,91 @@ export const deleteDiagnosticos = createAsyncThunk(
   }
 );
 
+export const fectchDiagnosticosPorPaciente = createAsyncThunk(
+  "diagnosticos/fectchDiagnosticosPorPaciente",
+  async ({ pacienteId, page = 1, limit = 10 }) => {
+    try {
+      const response = await axios.get(`${API}/diagnosticos/${pacienteId}/diagnosticosPorPaciente`, {
+        params: {
+          page: page,
+          limit: limit
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching diagnosticos:", error.response.data);
+      throw error;
+    }
+  }
+);
+
+export const fectchDiagnosticosPorPacienteDetalle = createAsyncThunk(
+  "diagnosticos/fectchDiagnosticosPorPacienteDetalle",
+  async ({ pacienteId, page = 1, limit = 7 }) => {
+    try {
+      const response = await axios.get(`${API}/diagnosticos/${pacienteId}/diagnosticosPorPacienteDetalle`, {
+        params: {
+          page: page,
+          limit: limit
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching diagnosticos:", error.response.data);
+      throw error;
+    }
+  }
+);
+
 const diagnosticosSlice = createSlice({
   name: "diagnosticos",
   initialState: {
     diagnosticos: [],
+    diagnosticoPorPaciente: [],
+    diagnosticosPorPacienteDetalle: [],
     options_diagnosticos: [],
+    meta: {
+      currentPage: 1,
+      lastPage: 1,
+      perPage: 10,
+      total: 0,
+    },
+    metaDetalle: {
+      currentPage: 1,
+      lastPage: 1,
+      perPage: 7,
+      total: 0,
+    },
     status: "idle",
     error: null,
     loading: false,
+    loadingDiagPorPaciente: false,
+    loadingDiagPorPacienteDetalle: false,
+    currentPacienteId: null,
+    currentPacienteIdDetalle: null,
   },
-  reducers: {},
+  reducers: {
+    resetDiagnosticosPorPaciente: (state) => {
+      state.diagnosticoPorPaciente = [];
+      state.meta = {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 10,
+        total: 0,
+      };
+      state.currentPacienteId = null;
+    },
+    resetDiagnosticosPorPacienteDetalle: (state) => {
+      state.diagnosticosPorPacienteDetalle = [];
+      state.metaDetalle = {
+        currentPage: 1,
+        lastPage: 1,
+        perPage: 7,
+        total: 0,
+      };
+      state.currentPacienteIdDetalle = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fectchDiagnosticos.pending, (state) => {
@@ -158,8 +233,61 @@ const diagnosticosSlice = createSlice({
       .addCase(deleteDiagnosticos.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+      })
+      .addCase(fectchDiagnosticosPorPaciente.pending, (state, action) => {
+        state.loadingDiagPorPaciente = true;
+        if (action.meta.arg.page === 1) {
+          state.diagnosticoPorPaciente = [];
+          state.currentPacienteId = action.meta.arg.pacienteId;
+        }
+      })
+      .addCase(fectchDiagnosticosPorPaciente.fulfilled, (state, action) => {
+        state.loadingDiagPorPaciente = false;
+        if (action.meta.arg.pacienteId === state.currentPacienteId) {
+          if (action.meta.arg.page === 1) {
+            state.diagnosticoPorPaciente = action.payload.data;
+          } else {
+            state.diagnosticoPorPaciente = [
+              ...state.diagnosticoPorPaciente,
+              ...action.payload.data
+            ];
+          }
+          state.meta = {
+            currentPage: action.payload.meta.current_page,
+            lastPage: action.payload.meta.last_page,
+            perPage: action.payload.meta.per_page,
+            total: action.payload.meta.total
+          };
+        }
+      })
+      .addCase(fectchDiagnosticosPorPaciente.rejected, (state) => {
+        state.loadingDiagPorPaciente = false;
+      })
+      .addCase(fectchDiagnosticosPorPacienteDetalle.pending, (state, action) => {
+        state.loadingDiagPorPacienteDetalle = true;
+
+        if (action.meta.arg.page === 1) {
+          state.diagnosticosPorPacienteDetalle = [];
+          state.currentPacienteIdDetalle = action.meta.arg.pacienteId;
+        }
+      })
+      .addCase(fectchDiagnosticosPorPacienteDetalle.fulfilled, (state, action) => {
+        state.loadingDiagPorPacienteDetalle = false;
+
+        if (action.meta.arg.pacienteId === state.currentPacienteIdDetalle) {
+          state.diagnosticosPorPacienteDetalle = action.payload.data;
+          state.metaDetalle = {
+            currentPage: action.payload.meta.current_page,
+            lastPage: action.payload.meta.last_page,
+            perPage: action.payload.meta.per_page,
+            total: action.payload.meta.total
+          };
+        }
+      })
+      .addCase(fectchDiagnosticosPorPacienteDetalle.rejected, (state) => {
+        state.loadingDiagPorPacienteDetalle = false;
       });
   },
 });
-
+export const { resetDiagnosticosPorPaciente, resetDiagnosticosPorPacienteDetalle } = diagnosticosSlice.actions;
 export default diagnosticosSlice.reducer;

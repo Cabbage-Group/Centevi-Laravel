@@ -29,6 +29,9 @@ import { Button, Modal, Skeleton, Tooltip } from 'antd';
 import PaginationPacientes from './PaginationPacientes';
 import PaginationOrdenesPacientes from './PaginationOrdenesPacientes';
 import { fetchPacientes, fetchPacientesTiempoSinConsultas } from '../../redux/features/pacientes/pacientesSlice';
+import InfiniteScrollList from './componentes/historiaPaciente/infiniteScroll';
+import DiagnosticosTableModal from './componentes/historiaPaciente/DiagnosticosTableModal';
+import { resetDiagnosticosPorPaciente } from '../../redux/features/diagnosticos/DiagnosticosSlice';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -52,6 +55,7 @@ const HistoriaPaciente = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+  console.log('id de paciente:', id);
   const { data: verPaciente, } = useSelector((state) => state.verPaciente);
   const { usuario, permisos } = useSelector((state) => state.auth);
   const { dataOA } = useSelector((state) => state.mostrarOrtoptica);
@@ -76,6 +80,8 @@ const HistoriaPaciente = () => {
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
   const [currentPage, setCurrentPage] = useState(1);
+  const [openHistory, setOpenHistory] = useState(false);
+  const [idPaciente, setIdPaciente] = useState();
 
   let urgencia = {};
   let menor = {};
@@ -99,6 +105,7 @@ const HistoriaPaciente = () => {
   }, [verPaciente]);
 
   useEffect(() => {
+
     if (!id || id === 'undefined') {
       console.error('ID de paciente no válido:', id);
       // Redirige a una página de error o a la lista de pacientes
@@ -607,6 +614,14 @@ const HistoriaPaciente = () => {
     setLoadingPdf(false)
   }
 
+  const handleOpenHistory = () => {
+    setOpenHistory(true);
+  };
+
+  const handleCloseHistory = () => {
+    setOpenHistory(false);
+  };
+
   return (
     <div
       className="admin-data-content"
@@ -618,7 +633,7 @@ const HistoriaPaciente = () => {
         <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
           <div
             className="col-xl-12 col-lg-12 col-md-12 col-12 d-flex justify-content-start align-items-center"
-            style={{ gap: '1rem', marginBottom: '0.5rem' }} 
+            style={{ gap: '1rem', marginBottom: '0.5rem' }}
           >
             <div
               className="card"
@@ -661,15 +676,14 @@ const HistoriaPaciente = () => {
               </div>
             </div>
           </div>
+
           <div className="widget-content-area br-4" style={{ marginTop: '0' }}>
             <div className="widget-one">
               <div className="row">
-                <div
-                  className="col-lg-12 layout-spacing"
-                  id="flFormsGrid"
-                >
+                <div className="col-lg-12 layout-spacing" id="flFormsGrid">
                   <div className="statbox widget box box-shadow">
-                    <div className="widget-header">
+
+                    <div className="widget-header position-relative">
                       <div className="row">
                         <div className="col-xl-12 col-md-12 col-sm-12 col-12">
                           <h4>
@@ -678,6 +692,42 @@ const HistoriaPaciente = () => {
                         </div>
                       </div>
                     </div>
+                    <div
+                      className="position-absolute"
+                      style={{
+                        top: '10px',
+                        right: '45px',
+                        width: '480px',
+                        maxHeight: '400px',
+                        background: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,.1), 0 0 0 1px rgba(0,0,0,.05)',
+                        zIndex: 10,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <InfiniteScrollList pacienteId={id} />
+                    </div>
+
+                    <Tooltip title="Ver historial completo">
+                      <Button
+                        size="small"
+                        onClick={() => {
+                          setIdPaciente(id);
+                          handleOpenHistory();
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: 6,
+                          right: 6,
+                          zIndex: 10,
+                          padding: '0 8px'
+                        }}
+                      >
+                        📖
+                      </Button>
+                    </Tooltip>
+
                     <div className="widget-content widget-content-area"
                       style={{
                         width: '92%',
@@ -730,6 +780,8 @@ const HistoriaPaciente = () => {
                               type="text"
                             />
                           </div>
+                        </div>
+                        <div className="form-row mb-4">
                           <div className="form-group col-md-4">
                             <label htmlFor="email">
                               Email
@@ -744,9 +796,7 @@ const HistoriaPaciente = () => {
                               type="email"
                             />
                           </div>
-                        </div>
-                        <div className="form-row mb-4">
-                          <div className="form-group col-md-3">
+                          <div className="form-group col-md-4">
                             <label htmlFor="nro_cedula">
                               Nro.Cedula
                             </label>
@@ -759,45 +809,8 @@ const HistoriaPaciente = () => {
                               type="text"
                             />
                           </div>
-                          <div className="form-group col-md-3">
-                            <label htmlFor="nro_seguro">
-                              Nro.Seguro Social
-                            </label>
-                            <input
-                              className="form-control"
-                              value={verPaciente ? verPaciente.nro_seguro?.trim() : ''}
-                              name="nro_seguro"
-                              placeholder="Nro.Seguro Social"
-                              readOnly
-                              type="text"
-                            />
-                          </div>
-                          <div className="form-group col-md-3">
-                            <label htmlFor="nacimiento">
-                              Fecha de Nacimiento
-                            </label>
-                            <input
-                              className="form-control"
-                              value={verPaciente ? formatToDateDisplay(verPaciente.fecha_nacimiento?.trim()) : ''}
-                              name="fecha_nacimiento"
-                              readOnly
-                              type="text"
-                            />
-                          </div>
-                          <div className="form-group col-m d-3">
-                            <label htmlFor="genero">
-                              Genero
-                            </label>
-                            <input
-                              className="form-control"
-                              value={verPaciente ? verPaciente.genero?.trim() : ''}
-                              name="genero"
-                              placeholder="Genero"
-                              readOnly
-                              type="text"
-                            />
-                          </div>
                         </div>
+
                         <div className="form-row mb-4">
                           <div className="form-group col-md-4">
                             <label htmlFor="lugarNacimiento">
@@ -827,18 +840,57 @@ const HistoriaPaciente = () => {
                               type="text"
                             />
                           </div>
-                        </div>
-                        <div className="form-row mb-4">
-                          <div className="form-group col-md-4">
-                            <label htmlFor="ocupacion">
-                              Ocupación
+                          {/* <div className="form-group col-m d-3">
+                            <label htmlFor="genero">
+                              Genero
                             </label>
                             <input
                               className="form-control"
-                              value={verPaciente ? verPaciente.ocupacion?.trim() : ''}
-                              id="ocupacion"
-                              name="ocupacion"
-                              placeholder="Ocupación"
+                              value={verPaciente ? verPaciente.genero?.trim() : ''}
+                              name="genero"
+                              placeholder="Genero"
+                              readOnly
+                              type="text"
+                            />
+                          </div> */}
+                        </div>
+
+                        <div className="form-row mb-4">
+                          <div className="form-group col-md-3">
+                            <label htmlFor="nacimiento">
+                              Fecha de Nacimiento
+                            </label>
+                            <input
+                              className="form-control"
+                              value={verPaciente ? formatToDateDisplay(verPaciente.fecha_nacimiento?.trim()) : ''}
+                              name="fecha_nacimiento"
+                              readOnly
+                              type="text"
+                            />
+                          </div>
+                          <div className="form-group col-m d-3">
+                            <label htmlFor="genero">
+                              Genero
+                            </label>
+                            <input
+                              className="form-control"
+                              value={verPaciente ? verPaciente.genero?.trim() : ''}
+                              name="genero"
+                              placeholder="Genero"
+                              readOnly
+                              type="text"
+                            />
+                          </div>
+
+                          <div className="form-group col-md-3">
+                            <label htmlFor="nro_seguro">
+                              Nro.Seguro Social
+                            </label>
+                            <input
+                              className="form-control"
+                              value={verPaciente ? verPaciente.nro_seguro?.trim() : ''}
+                              name="nro_seguro"
+                              placeholder="Nro.Seguro Social"
                               readOnly
                               type="text"
                             />
@@ -857,6 +909,23 @@ const HistoriaPaciente = () => {
                               type="text"
                             />
                           </div>
+                        </div>
+                        <div className="form-row mb-4">
+                          <div className="form-group col-md-4">
+                            <label htmlFor="ocupacion">
+                              Ocupación
+                            </label>
+                            <input
+                              className="form-control"
+                              value={verPaciente ? verPaciente.ocupacion?.trim() : ''}
+                              id="ocupacion"
+                              name="ocupacion"
+                              placeholder="Ocupación"
+                              readOnly
+                              type="text"
+                            />
+                          </div>
+
                           <div className="form-group col-md-4">
                             <label htmlFor="celular">
                               Número de celular
@@ -2676,7 +2745,13 @@ const HistoriaPaciente = () => {
           >Cerrar</button>
         </div>
       </Modal>
-    </div>
+      <DiagnosticosTableModal
+        open={openHistory}
+        onClose={handleCloseHistory}
+        pacienteId={idPaciente}
+      />
+
+    </div >
   )
 }
 export default HistoriaPaciente

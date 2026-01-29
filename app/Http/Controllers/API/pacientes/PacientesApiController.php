@@ -265,14 +265,6 @@ class PacientesApiController extends Controller
     exit;
   }
 
-
-
-
-
-
-
-
-
   public function PacientesMenores()
   {
     try {
