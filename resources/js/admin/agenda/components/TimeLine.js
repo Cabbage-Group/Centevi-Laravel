@@ -363,7 +363,6 @@ const sampleEvents = [
 // Uso del componente
 const TimeLine = ({ citasAgenda, fechaSeleccionada, handleEventClick, enviarConfirmacionCita }) => {
   // Función para normalizar fechas y comparar solo día, mes y año
-  console.log('citasAgenda',citasAgenda)
   const normalizarFecha = (fecha) => {
     // Si es string (como "2025-06-14 10:20:00")
     if (typeof fecha === 'string') {

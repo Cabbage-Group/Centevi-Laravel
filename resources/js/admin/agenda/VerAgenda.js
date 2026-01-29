@@ -809,7 +809,6 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleEventClick = (info) => {
-    console.log('enmtersa')
     const eventId = Number(info.event.id);
     let clickedEvent = allCitasAgenda.find((event) => Number(event.id) === eventId);
 
@@ -1300,6 +1299,7 @@ Tarjeta (Clave,Visa o Mastercard)
       const calendarApi = calendarRef.current.getApi();
       calendarApi.gotoDate(date.toDate());
       calendarApi.changeView("timeGridDay");
+      setFechaSeleccionada(date.toDate());
     }
   };
 
@@ -1640,7 +1640,6 @@ Tarjeta (Clave,Visa o Mastercard)
               }
             }}
             eventContent={(info) => {
-              console.log('info', info)
               const {
                 hiddenEvents,
                 comentarios,
