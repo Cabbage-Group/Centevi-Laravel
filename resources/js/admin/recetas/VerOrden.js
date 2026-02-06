@@ -47,7 +47,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
   const [aroCentevi, setAroCentevi] = useState(false);
   const [tipoAro, setTipoAro] = useState('');
   const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
-
+  const [tieneFactura, setTieneFactura] = useState(false);
 
   useEffect(() => {
     if (pacienteOrden?.lente_contacto) {
@@ -104,6 +104,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
     l_cuatro: '',
     l_cinco: '',
     isRowVisible: isAroVisible,
+    nro_factura: ''
   });
 
   const tipoAroOptions = [
@@ -121,6 +122,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
       setDoctorSeleccionado(pacienteOrden?.doctor);
       setTipoAro(pacienteOrden?.tipo_aro);
       setSelectedMarca(pacienteOrden?.marca);
+      setTieneFactura(pacienteOrden.factura || false);
       setServiciosRealizados([
         pacienteOrden?.tipo_cristal_od
           ? { value: pacienteOrden.tipo_cristal_od, label: pacienteOrden.tipo_cristal_od, ojo: "Ojo Derecho" }
@@ -315,7 +317,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
     }
   }, [selectedPaciente, pacientes]);
 
-  console.log('status',status)
+  console.log('status', status)
   useEffect(() => {
     if (status === "idle" || pacientes.length < 11) {
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
@@ -469,7 +471,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
                                     }}
                                   />
                                 </div>
-                                <div className="col-md-4">
+                                <div className="col-md-2">
                                   <h4>
                                     Fecha de solicitud
                                   </h4>
@@ -1045,7 +1047,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden }) => {
                                         {tipoCorredor && (
                                           <>
                                             <div
-                                              style={{marginTop: '10px', color: 'black'}}
+                                              style={{ marginTop: '10px', color: 'black' }}
                                             >
                                               Tipo Corredor
                                             </div>

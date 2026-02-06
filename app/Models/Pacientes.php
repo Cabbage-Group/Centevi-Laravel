@@ -39,7 +39,8 @@ class Pacientes extends Model
     'interfuerza',
     'fecha_creacion',
     'estado',
-    'codigo'
+    'codigo',
+    'factura'
   ];
 
   // Atributos que deben ser convertidos a tipos nativos

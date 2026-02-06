@@ -56,6 +56,7 @@ export const fetchCitasAgenda = createAsyncThunk(
         sucursal: cita.sucursal?.nombre || "Sin Sucursal",
         apellidos: cita.paciente?.apellidos || cita.apellidos || "No registrado",
         celular: cita.paciente?.celular || cita.celular || "00000000",
+        telefono: cita.paciente?.telefono || "00000000",
         comentarios: cita.comentarios?.trim() || "Sin comentarios",
         confirmado: cita.confirmado?.trim() || "SIN STATUS",
         agendado_por: cita.agendado_por?.trim() || "",

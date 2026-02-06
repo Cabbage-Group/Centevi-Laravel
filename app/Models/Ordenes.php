@@ -20,6 +20,7 @@ class Ordenes extends Model
     'nro_orden_id',
     'codigo_cristal',
     'nro_cotizacion',
+    'nro_factura',
     'nro_orden',
     'id_paciente',
     'id_sucursal',
