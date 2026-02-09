@@ -6,9 +6,9 @@ import API from '../../../config/config';
 export const fetchTotalUsuariosDoctor = createAsyncThunk(
   'usuariosDoctor/fetchTotal',
   async () => {
-      const response = await axios.get(`${API}/usuarios-doctor`); // Reemplaza con la URL de tu API
-      return response.data.total;
-    }
+    const response = await axios.get(`${API}/usuarios-doctor`); // Reemplaza con la URL de tu API
+    return response.data.total;
+  }
 );
 
 const usuariosDoctorSlice = createSlice({

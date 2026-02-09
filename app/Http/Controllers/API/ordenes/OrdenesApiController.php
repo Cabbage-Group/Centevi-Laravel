@@ -75,7 +75,7 @@ class OrdenesApiController extends Controller
               ->orWhere('celular', 'like', "%$search%")
               ->orWhere('nro_cedula', 'like', "%$search%");
           })
-          
+
           ->orWhereHas('sucursal', function ($q) use ($search) {
             $q->where('nombre', 'like', "%$search%");
           })
