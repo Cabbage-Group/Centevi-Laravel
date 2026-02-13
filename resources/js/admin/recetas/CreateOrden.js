@@ -57,7 +57,7 @@ const CreateOrden = () => {
   const [isLeftEye, setIsLeftEye] = useState(false);
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
-
+  const [tieneFactura, setTieneFactura] = useState(false);
 
   // Dorado : 186.74.2.218
   // San Judas Tadeo: 190.219.45.142
@@ -113,6 +113,7 @@ const CreateOrden = () => {
     isRowVisible: isAroVisible,
     nro_cotizacion: "",
     lenteContacto: false,
+    nro_factura: "",
   };
 
   const validationSchema = Yup.object().shape({
@@ -136,6 +137,11 @@ const CreateOrden = () => {
       .required("Seleccione un doctor"),
     nro_cotizacion: Yup.string()
       .required("Coloque un número de cotización"),
+    // nro_factura: Yup.string().when('$tieneFactura', {
+    //   is: true,
+    //   then: (schema) => schema.required("Coloque un número de factura"),
+    //   otherwise: (schema) => schema.notRequired(),
+    // }),
     marca: Yup.string().when('lenteContacto', {
       is: true,
       then: (schema) => schema.test(
@@ -227,13 +233,16 @@ const CreateOrden = () => {
       if (pacienteSeleccionado) {
         setTelefono(pacienteSeleccionado.celular || '');
         setCedula(pacienteSeleccionado.nro_cedula || '');
+        setTieneFactura(pacienteSeleccionado.factura || false);
       } else {
         setTelefono('');
         setCedula('');
+        setTieneFactura(false);
       }
     } else {
       setTelefono('');
       setCedula('');
+      setTieneFactura(false);
     }
   }, [selectedPaciente, pacientes]);
 
@@ -250,94 +259,105 @@ const CreateOrden = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    console.log('values', values)
-    const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
-    const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
-    const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
-    const transformedValues = {
-      ...values,
-      id_paciente: selectedPaciente,
-      ...(serviciosRealizadosSubmit.length === 1
-        ? (!isLeftEye
-          ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] }
-          : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
-        )
-        : serviciosRealizadosSubmit.length === 2
-          ? isLeftEye
-            ? {
-              tipo_cristal_oi: serviciosRealizadosSubmit[0],
-              tipo_cristal_od: serviciosRealizadosSubmit[1]
-            }
-            : {
-              tipo_cristal_od: serviciosRealizadosSubmit[0],
-              tipo_cristal_oi: serviciosRealizadosSubmit[1]
-            }
-          : {}
-      ),
+    try {
+      console.log('values', values);
 
-      tipo_corredor: tipoCorredor,
+      const serviciosRealizadosSubmit = serviciosRealizados.map(s => s.label);
+      const materialesSeleccionadosSubmit = materialesSeleccionados.map(s => s.label);
+      const tratamientosFiltrosSubmit = tratamientosFiltros.map(s => s.label);
 
-      ...(materialesSeleccionadosSubmit.length === 1
-        ? (!isLeftEyeMaterial
-          ? { material_oi: materialesSeleccionadosSubmit[0] }
-          : { material_od: materialesSeleccionadosSubmit[0] }
-        )
-        : materialesSeleccionadosSubmit.length === 2
-          ? isLeftEyeMaterial
-            ? {
-              material_oi: materialesSeleccionadosSubmit[0],
-              material_od: materialesSeleccionadosSubmit[1]
-            }
-            : {
-              material_od: materialesSeleccionadosSubmit[0],
-              material_oi: materialesSeleccionadosSubmit[1]
-            }
-          : {}
-      ),
+      const transformedValues = {
+        ...values,
+        id_paciente: selectedPaciente,
 
-      ...(tratamientosFiltrosSubmit.length === 1
-        ? (!isLeftEyeTratamientos
-          ? { tratamientos_oi: tratamientosFiltrosSubmit[0] }
-          : { tratamientos_od: tratamientosFiltrosSubmit[0] }
-        )
-        : tratamientosFiltrosSubmit.length === 2
-          ? isLeftEyeTratamientos
-            ? {
-              tratamientos_oi: tratamientosFiltrosSubmit[0],
-              tratamientos_od: tratamientosFiltrosSubmit[1]
-            }
-            : {
-              tratamientos_od: tratamientosFiltrosSubmit[0],
-              tratamientos_oi: tratamientosFiltrosSubmit[1]
-            }
-          : {}
-      ),
-      aro_centevi: aroCentevi ? 1 : 0,
-      aro_propio: aroCentevi ? 0 : 1,
-      ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
-      doctor: doctorSeleccionado,
-      elaborado_por: usuario?.usuario?.id_usuario,
-      lente_contacto: lenteContacto,
-    };
-    console.log('transformedValues:', transformedValues);
-    const result = await dispatch(createOrdenes(transformedValues));
-    if (result.meta.requestStatus === 'fulfilled') {
-      console.log('result:', result);
+        ...(serviciosRealizadosSubmit.length === 1
+          ? (!isLeftEye
+            ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] }
+            : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
+          )
+          : serviciosRealizadosSubmit.length === 2
+            ? isLeftEye
+              ? {
+                tipo_cristal_oi: serviciosRealizadosSubmit[0],
+                tipo_cristal_od: serviciosRealizadosSubmit[1],
+              }
+              : {
+                tipo_cristal_od: serviciosRealizadosSubmit[0],
+                tipo_cristal_oi: serviciosRealizadosSubmit[1],
+              }
+            : {}
+        ),
+
+        tipo_corredor: tipoCorredor,
+
+        ...(materialesSeleccionadosSubmit.length === 1
+          ? (!isLeftEyeMaterial
+            ? { material_oi: materialesSeleccionadosSubmit[0] }
+            : { material_od: materialesSeleccionadosSubmit[0] }
+          )
+          : materialesSeleccionadosSubmit.length === 2
+            ? isLeftEyeMaterial
+              ? {
+                material_oi: materialesSeleccionadosSubmit[0],
+                material_od: materialesSeleccionadosSubmit[1],
+              }
+              : {
+                material_od: materialesSeleccionadosSubmit[0],
+                material_oi: materialesSeleccionadosSubmit[1],
+              }
+            : {}
+        ),
+
+        ...(tratamientosFiltrosSubmit.length === 1
+          ? (!isLeftEyeTratamientos
+            ? { tratamientos_oi: tratamientosFiltrosSubmit[0] }
+            : { tratamientos_od: tratamientosFiltrosSubmit[0] }
+          )
+          : tratamientosFiltrosSubmit.length === 2
+            ? isLeftEyeTratamientos
+              ? {
+                tratamientos_oi: tratamientosFiltrosSubmit[0],
+                tratamientos_od: tratamientosFiltrosSubmit[1],
+              }
+              : {
+                tratamientos_od: tratamientosFiltrosSubmit[0],
+                tratamientos_oi: tratamientosFiltrosSubmit[1],
+              }
+            : {}
+        ),
+
+        aro_centevi: aroCentevi ? 1 : 0,
+        aro_propio: aroCentevi ? 0 : 1,
+        ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
+        doctor: doctorSeleccionado,
+        elaborado_por: usuario?.usuario?.id_usuario,
+        lente_contacto: lenteContacto,
+      };
+
+      console.log('transformedValues:', transformedValues);
+
+      const response = await dispatch(createOrdenes(transformedValues)).unwrap();
+
       Swal.fire({
         icon: 'success',
         title: 'Receta creada',
-        html: `La receta se ha creado exitosamente. Número de orden: <b style="font-size: 25px;">${result.payload.data[0].nro_orden_id}</b>`,
+        html: `La receta se ha creado exitosamente. Número de orden: 
+        <b style="font-size: 25px;">${response.data[0].nro_orden_id}</b>`,
       }).then(() => {
         navigate(-1);
       });
-    } else {
+
+    } catch (error) {
+      console.error('Error al crear receta:', error);
+
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Hubo un problema al crear la receta. Por favor, intenta de nuevo. Nro de Orden ya existente',
+        text: error?.message || 'Hubo un problema al crear la receta. Por favor, intenta de nuevo.',
       });
     }
   };
+
 
   const handleLenteContactoChange = () => {
     const newLenteContactoState = !lenteContacto;
@@ -406,18 +426,20 @@ const CreateOrden = () => {
                               >
                                 <div className="form-row" style={{ marginBottom: "2rem" }}>
 
-                                  <div className="col-md-4" >
+                                  <div className={tieneFactura ? "col-md-2" : "col-md-4"}>
                                     <img
                                       alt="logo"
                                       className="navbar-logo"
                                       src="img/centevi.png"
                                       // src={public_path('img/centevi.png')}
                                       style={{
-                                        height: '80px'
+                                        height: '80px',
+                                        width: tieneFactura ? '250px' : undefined,
                                       }}
                                     />
                                   </div>
-                                  <div className="col-md-2">
+
+                                  <div className={tieneFactura ? "col-md-2" : "col-md-2"}>
                                     <h4>
                                       Fecha de solicitud
                                     </h4>
@@ -427,7 +449,8 @@ const CreateOrden = () => {
                                       </b>
                                     </p>
                                   </div>
-                                  <div className="col-md-2">
+
+                                  <div className={tieneFactura ? "col-md-2" : "col-md-2"}>
                                     <h4>Nro. Cotización*</h4>
                                     <Field name="nro_cotizacion">
                                       {({ field }) => (
@@ -442,9 +465,6 @@ const CreateOrden = () => {
                                             height: "40px",
                                             fontSize: "12px",
                                             paddingLeft: "8px",
-                                            "::placeholder": {
-                                              fontSize: "12px"
-                                            }
                                           }}
                                         />
                                       )}
@@ -454,9 +474,37 @@ const CreateOrden = () => {
                                       component="div"
                                       style={{ color: "red", fontSize: "12px" }}
                                     />
-
                                   </div>
-                                  <div class="col-md-2"  >
+
+                                  {tieneFactura && (
+                                    <div className="col-md-2">
+                                      <h4>Nro. Factura*</h4>
+                                      <Field name="nro_factura">
+                                        {({ field }) => (
+                                          <input
+                                            {...field}
+                                            type="text"
+                                            placeholder="Ingrese el número de factura"
+                                            className="form-control"
+                                            style={{
+                                              fontWeight: "bold",
+                                              marginBottom: "1rem",
+                                              height: "40px",
+                                              fontSize: "12px",
+                                              paddingLeft: "8px",
+                                            }}
+                                          />
+                                        )}
+                                      </Field>
+                                      <ErrorMessage
+                                        name="nro_factura"
+                                        component="div"
+                                        style={{ color: "red", fontSize: "12px" }}
+                                      />
+                                    </div>
+                                  )}
+
+                                  <div className={tieneFactura ? "col-md-2" : "col-md-2"}>
                                     <h4>Nro. Orden*</h4>
                                     <Input
                                       name="nro_orden"
@@ -469,14 +517,14 @@ const CreateOrden = () => {
                                       }}
                                       disabled
                                     />
-
                                     <ErrorMessage
                                       name="nro_orden"
                                       component="div"
                                       style={{ color: "red", fontSize: "12px" }}
                                     />
                                   </div>
-                                  <div class="col-md-2">
+
+                                  <div className="col-md-2">
                                     <h4>Cambiar Tipo de lente</h4>
                                     <div className="d-flex align-items-center">
                                       <button
@@ -505,6 +553,7 @@ const CreateOrden = () => {
                                         console.log('value:', value)
                                         setSelectedPaciente(value);
                                         setFieldValue("id_paciente", value);
+                                        setFieldValue("nro_factura", "");
                                       }}
                                       placeholder="Seleccione el paciente"
                                       loading={pacientes_options_selecteds.length === 0}

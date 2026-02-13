@@ -56,6 +56,7 @@ const EditOrden = ({
   const [aroCentevi, setAroCentevi] = useState(false);
   const [tipoAro, setTipoAro] = useState('');
   const [doctorSeleccionado, setDoctorSeleccionado] = useState('')
+  const [tieneFactura, setTieneFactura] = useState(false);
 
   // useEffect(() => {
   //   if (pacienteOrden?.lente_contacto == 1) {
@@ -113,7 +114,8 @@ const EditOrden = ({
     l_tres: '',
     l_cuatro: '',
     l_cinco: '',
-    lenteContacto: false
+    lenteContacto: false,
+    nro_factura: ''
   });
 
   useEffect(() => {
@@ -125,6 +127,7 @@ const EditOrden = ({
       setSelectedMarca(pacienteOrden?.marca);
       setSelectedMarcaOI(pacienteOrden?.marca_oi);
       setLenteContacto(pacienteOrden?.lente_contacto)
+      setTieneFactura(pacienteOrden.nro_factura || false);
       setServiciosRealizados([
         pacienteOrden?.tipo_cristal_od ? {
           value: pacienteOrden.tipo_cristal_od,
@@ -170,6 +173,7 @@ const EditOrden = ({
         nro_orden: pacienteOrden.nro_orden || '',
         nro_orden_id: pacienteOrden.nro_orden_id || '',
         nro_cotizacion: pacienteOrden.nro_cotizacion || '',
+        nro_factura: pacienteOrden.nro_factura || '',
         id_paciente: pacienteOrden.id_paciente || '',
         id_sucursal: pacienteOrden.id_sucursal || '',
         esfera_od: pacienteOrden.esfera_od || '',
@@ -588,6 +592,7 @@ const EditOrden = ({
                                         </b>
                                       </p>
                                     </div>
+
                                     <div className="col-md-2">
                                       <h4>Nro. Cotización*</h4>
                                       <Field name="nro_cotizacion">
@@ -615,8 +620,35 @@ const EditOrden = ({
                                         component="div"
                                         style={{ color: "red", fontSize: "12px" }}
                                       />
-
                                     </div>
+
+                                    {tieneFactura && (
+                                      <div className="col-md-2">
+                                        <h4>Nro. Factura*</h4>
+                                        <Field name="nro_factura">
+                                          {({ field }) => (
+                                            <input
+                                              {...field}
+                                              type="text"
+                                              placeholder="Ingrese el número de factura"
+                                              className="form-control"
+                                              style={{
+                                                fontWeight: "bold",
+                                                marginBottom: "1rem",
+                                                height: "40px",
+                                                fontSize: "12px",
+                                                paddingLeft: "8px",
+                                              }}
+                                            />
+                                          )}
+                                        </Field>
+                                        <ErrorMessage
+                                          name="nro_factura"
+                                          component="div"
+                                          style={{ color: "red", fontSize: "12px" }}
+                                        />
+                                      </div>
+                                    )}
 
                                     <div class="col-md-2"  >
                                       <h4>Nro. pacienteOrden*</h4>

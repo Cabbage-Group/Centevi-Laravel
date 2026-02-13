@@ -107,7 +107,7 @@ const Sidebar = (props) => {
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>{" "}
-                INICIO 8.26
+                INICIO 2-2.9
               </a>
             </li>
 
@@ -1233,6 +1233,33 @@ const Sidebar = (props) => {
                       </svg>
                     </span>{" "}
                     Ordenes Labo
+                  </Link>
+                </li>
+              )}
+
+               {ValidarPermisos(
+                "sidebar.recetas.ordenes-centilab",
+                <li>
+                  <Link to={"/ordenes-centilab"}>
+                    <span className="icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="feather feather-git-commit"
+                      >
+                        <circle cx="12" cy="12" r="4" />
+                        <line x1="1.05" y1="12" x2="7" y2="12" />
+                        <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                      </svg>
+                    </span>{" "}
+                    Seguimiento
                   </Link>
                 </li>
               )}

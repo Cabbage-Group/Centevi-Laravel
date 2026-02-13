@@ -103,6 +103,8 @@ import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
 import warehousesSlice from "./features/warehouses/warehousesSlice";
 import diagnosticosSlice from "./features/reportes/Diagnosticos/diagnosticosSlice";
 import basesSlice from "./features/bases/basesSlice";
+import ordenesCentilabSlice from "./features/ordenes/ordenesCentilab/ordenesCentilabSlice";
+
 
 const store = configureStore({
   reducer: {
@@ -249,6 +251,8 @@ const store = configureStore({
     reporteDiagnosticos: diagnosticosSlice,
 
     bases: basesSlice,
+
+    ordenesCentilab: ordenesCentilabSlice,
   },
 });
 

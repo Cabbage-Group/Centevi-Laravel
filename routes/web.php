@@ -58,6 +58,7 @@ use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
 use App\Http\Controllers\API\warehouse\WarehouseController;
 use App\Http\Controllers\API\bases\BasesApiController;
+use App\Http\Controllers\API\ordenes\OrdenesCentilabApiController;
 use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -481,6 +482,8 @@ Route::get('/preview-email', function () {
 Route::post('/api/send-verification-email', [EmailController::class, 'sendVerificationEmail']);
 
 Route::post('/api/obtener-ordenes', [OrdenesApiController::class, 'obtenerOrdenes']);
+
+Route::post('/api/obtener-ordenes-centilab', [OrdenesCentilabApiController::class, 'obtenerOrdenesCentilab']);
 
 
 

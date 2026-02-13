@@ -38,6 +38,19 @@ const VerOrdenes = () => {
   const [correctionsFilterLenteContacto, setCorrectionsFilterLenteContacto] = useState(lenteContactoCorreccion || []);
   const [isCorrections, setIsCorrections] = useState(changeOrden);
 
+  const getSucursalInicial = () => {
+    const ip = localStorage.getItem('ip');
+
+    const sucursalPorIp = {
+      '186.74.2.218': null,
+      '190.219.45.142': 3,
+      '45.229.196.9': 4,
+      '190.34.23.233': 11,
+    };
+
+    return sucursalPorIp[ip] ? [sucursalPorIp[ip]] : [];
+  };
+
   const handleToggleCorrections = () => {
     setIsCorrections(!isCorrections);
   };
@@ -64,7 +77,7 @@ const VerOrdenes = () => {
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
   const [pagadoFilter, setPagadoFilter] = useState(pagado || []);
-  const [sucursalFilter, setSucursalFilter] = useState(sucursal || []);
+  const [sucursalFilter, setSucursalFilter] = useState(getSucursalInicial || sucursal || []);
   const [laboratorioFilter, setLaboratorioFilter] = useState(laboratorio || []);
   const [faseFilter, setFaseFilter] = useState(fase || []);
   const [lenteContactoFilter, setLenteContactoFilter] = useState(tipoLente || []);
@@ -72,6 +85,7 @@ const VerOrdenes = () => {
   const [localEndDate, setLocalEndDate] = useState(fechaFin);
   const [localStartDate, setLocalStartDate] = useState(fechaInicio);
   const [cancelarOrdenFilter, setCancelarOrdenFilter] = useState(false);
+  const isReady = sucursales_option_selects.length > 0;
 
   useEffect(() => {
     dispatch(fetchSucursales({}))
@@ -140,6 +154,7 @@ const VerOrdenes = () => {
   };
 
   const handleSucursalChange = (value) => {
+    console.log('entersa>>>>>>>')
     setSucursalFilter(value);
     setCurrentPage(1)
   };
@@ -454,8 +469,10 @@ const VerOrdenes = () => {
                                 style={{ width: '100%' }}
                                 placeholder="Seleccione la sucursal"
                                 onChange={isCorrections ? handleCorrectionsChangeSucursal : handleSucursalChange}
-                                value={isCorrections ? correctionsFilterSucursal : sucursalFilter}
+                                value={isReady ? (isCorrections ? correctionsFilterSucursal : sucursalFilter) : []}
                                 allowClear
+                                loading={!isReady}
+                                disabled={!isReady}
                               >
                                 {sucursales_option_selects.map((sucursal) => (
                                   <Option key={sucursal.value} value={sucursal.value}>

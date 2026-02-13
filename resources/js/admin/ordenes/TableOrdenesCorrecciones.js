@@ -595,7 +595,20 @@ const TableOrdenesCorrecciones = (
                         </span>
                       </Text>
 
+                      {orden?.nro_factura && (
+                        <div
+                          style={{
+                            color: "#888",
+                            fontSize: "11px",
+                            fontWeight: "normal",
+                            marginTop: "4px",
+                          }}
+                        >
+                          Factura: {orden.nro_factura}
+                        </div>
+                      )}
                     </td>
+
                     <td>{orden?.celular}</td>
                     <td>{orden?.laboratorio}</td>
                     <td>
@@ -1054,6 +1067,13 @@ const TableOrdenesCorrecciones = (
                 >
                   Sucursal
                 </th>
+                <th
+                  colSpan="1"
+                  ordenSpan="1"
+                >
+                  Cédula
+                </th>
+
                 <th
                   colSpan="1"
                   ordenSpan="1"

@@ -20,125 +20,6 @@ use App\Models\CorrecionesOrdenes;
 class OrdenesApiController extends Controller
 {
 
-  public function pruebaobtenerOrdenes(Request $request)
-  {
-
-    $search = $request->input('search', '');
-    $limit = $request->input('limit', 20);
-    $page = $request->input('page', 1);
-    $sortColumn = $request->input('sortColumn', 'id_orden');
-    $sortOrder = $request->input('sortOrder', 'asc');
-
-    $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
-    if (!in_array($sortColumn, $validColumns)) {
-      $sortColumn = 'id_orden';
-    }
-    $sortOrder = $sortOrder === 'desc' ? 'desc' : 'asc';
-
-    $query = Ordenes::select('id_orden', 'nro_orden_id', 'created_at', 'id_paciente', 'id_sucursal', 'codigo_cristal', 'lente_contacto')
-      ->with([
-        'paciente:id_paciente,nro_cedula,nombres,celular,apellidos',
-        'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
-        'fasesOrdenes.tipoFaseOrden',
-        'fasesOrdenes:id,tipo_fase_orden_id,ordenes_id,laboratorio,elaborado_por,created_at,proveedor_material,status'
-      ]);
-
-    if (!empty($search)) {
-      $query->where(function ($q) use ($search) {
-
-        if (strtolower($search) === 'nuevo') {
-          $q->whereDoesntHave('fasesOrdenes')
-            ->orWhereHas('fasesOrdenes', function ($fq) {
-              $fq->where('tipo_fase_orden_id', 1);
-            })
-            ->has('fasesOrdenes', '=', 1);
-          return;
-        }
-
-        if (strtolower($search) === 'en confeccion') {
-          $q->whereHas('fasesOrdenes', function ($fq) {
-            $fq->where('tipo_fase_orden_id', 2);
-          })->has('fasesOrdenes', '=', 2);
-          return;
-        }
-
-        if (strtolower($search) === 'listo') {
-          $q->whereHas('fasesOrdenes', function ($fq) {
-            $fq->where('tipo_fase_orden_id', 3);
-          })
-            ->has('fasesOrdenes', '=', 3)
-            ->whereDoesntHave('fasesOrdenes', function ($fq) {
-              $fq->where('tipo_fase_orden_id', '>', 3);
-            });
-          return;
-        }
-
-        if (strtolower($search) === 'retirado') {
-          $q->orWhereHas('fasesOrdenes', function ($fq) {
-            $fq->where('tipo_fase_orden_id', 4);
-          });
-        }
-
-        $q->orWhere('id_orden', $search)
-          ->orWhere('nro_orden_id', $search)
-          ->orWhere('codigo_cristal', $search);
-        $searchTerms = explode(' ', trim($search));
-        if (count($searchTerms) > 0) {
-          $q->orWhereHas('paciente', function ($pq) use ($searchTerms) {
-            foreach ($searchTerms as $index => $term) {
-              if (!empty($term)) {
-                if ($index === 0) {
-                  $pq->where(function ($tq) use ($term) {
-                    $tq->where('nombres', 'like', "$term%")
-                      ->orWhere('apellidos', 'like', "$term%");
-                  });
-                } else {
-                  $pq->orWhere(function ($tq) use ($term) {
-                    $tq->where('nombres', 'like', "$term%")
-                      ->orWhere('apellidos', 'like', "$term%");
-                  });
-                }
-              }
-            }
-          });
-        }
-
-        $q->orWhereHas('paciente', function ($sq) use ($search) {
-          $sq->where('nro_cedula', 'like', "$search%");
-        });
-
-
-        $q->orWhereHas('sucursal', function ($sq) use ($search) {
-          $sq->where('nombre', 'like', "$search%");
-        });
-
-        $q->orWhereHas('fasesOrdenes', function ($fq) use ($search) {
-          $fq->where('laboratorio', 'like', "$search%");
-          $fq->orWhere('proveedor_material', 'like', "$search%");
-        });
-      });
-    }
-
-    $ordenes = $query->orderBy($sortColumn, $sortOrder)->get();
-
-    $total = $ordenes->count();
-
-    $ordenesPaginadas = $ordenes->slice(($page - 1) * $limit, $limit)->values();
-
-    return response()->json([
-      'data' => $ordenesPaginadas,
-      'meta' => [
-        'total' => $total,
-        'limit' => $limit,
-        'page' => $page,
-        'last_page' => ceil($total / $limit),
-        'sortColumn' => $sortColumn,
-        'sortOrder' => $sortOrder,
-        'search' => $search
-      ]
-    ]);
-  }
-
   public function obtenerOrdenes(Request $request)
   {
 
@@ -176,6 +57,7 @@ class OrdenesApiController extends Controller
       $query->where(function ($q) use ($search) {
         $q->where('id_orden', 'like', "%$search%")
           ->orWhere('nro_orden_id', 'like', "%$search%")
+          ->orWhere('nro_factura', 'like', "%$search%")
           ->orWhere('created_at', 'like', "%$search%")
           ->orWhereHas('paciente', function ($q) use ($search) {
             $searchTerms = explode(' ', trim($search));
@@ -193,6 +75,7 @@ class OrdenesApiController extends Controller
               ->orWhere('celular', 'like', "%$search%")
               ->orWhere('nro_cedula', 'like', "%$search%");
           })
+
           ->orWhereHas('sucursal', function ($q) use ($search) {
             $q->where('nombre', 'like', "%$search%");
           })
@@ -296,6 +179,7 @@ class OrdenesApiController extends Controller
       return [
         'id_orden' => $orden->id_orden,
         'nro_orden_id' => $orden->nro_orden_id,
+        'nro_factura' => $orden->nro_factura,
         'pagado' => $orden->pagado,
         'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
         'laboratorio' => $orden->fasesOrdenes->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
@@ -598,6 +482,7 @@ class OrdenesApiController extends Controller
       "id_paciente" => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
       'nro_cotizacion' => 'required|integer',
+      'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
       'esfera_od' => 'nullable|string|max:255',
       'esfera_oi' => 'nullable|string|max:255',
@@ -690,7 +575,8 @@ class OrdenesApiController extends Controller
         'pagado' => 2,
         'lente_contacto' => 0,
         'nro_orden_id' => $nroOrden->id,
-        'nro_cotizacion' => 0
+        'nro_cotizacion' => 0,
+        'nro_factura' => ''
       ];
 
       $tipoCristalOd = $request->input('tipo_cristal_od');
@@ -737,6 +623,7 @@ class OrdenesApiController extends Controller
     $validator = Validator::make($request->all(), [
       "id_paciente" => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
+      'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
       'esfera_od' => 'nullable|string|max:255',
       'esfera_oi' => 'nullable|string|max:255',

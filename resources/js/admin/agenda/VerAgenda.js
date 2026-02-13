@@ -392,14 +392,10 @@ Tarjeta (Clave,Visa o Mastercard)
         return;
       }
 
-      console.log('allCitasAgenda', allCitasAgenda)
-
       const citasDelMes = allCitasAgenda.filter((cita) => {
         const citaDate = new Date(cita.start);
         return citaDate.getMonth() + 1 === currentMonth && citaDate.getFullYear() === currentYear;
       });
-
-      console.log('citasDelMes', citasDelMes)
 
       if (citasDelMes.length === 0) {
         Swal.fire({
@@ -481,6 +477,7 @@ Tarjeta (Clave,Visa o Mastercard)
           Sucursal: cita.sucursal || "",
           Doctor: cita.doctor || "",
           Status: cita.confirmado || "SIN STATUS",
+          Celular: cita.celular || "",
           // "Servicios a Realizar": serviciosTexto,
           Fecha: fechaInicio.toLocaleDateString("es-ES"),
           "Hora Inicio": fechaInicio.toLocaleTimeString("es-ES", {
@@ -520,6 +517,7 @@ Tarjeta (Clave,Visa o Mastercard)
         { wch: 20 }, // Doctor
         { wch: 12 }, // Status
         { wch: 50 }, // Servicios a Realizar (aumenté el ancho)
+        { wch: 12 }, // Celular
         { wch: 12 }, // Fecha
         { wch: 12 }, // Hora Inicio
         { wch: 12 }, // Hora Fin

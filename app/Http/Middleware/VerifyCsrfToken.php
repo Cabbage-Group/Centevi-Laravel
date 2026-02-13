@@ -280,7 +280,7 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/reportes/reporte-diagnosticos',
     'http://127.0.0.1:8000/api/reportes/reporte-diagnosticos/exportar',
-    'http://127.0.0.1:8000/api/exportar-pacientes'
-
+    'http://127.0.0.1:8000/api/exportar-pacientes',
+    'http://127.0.0.1:8000/api/obtener-ordenes-centilab'
   ];
 }
