@@ -623,6 +623,7 @@ class OrdenesApiController extends Controller
     $validator = Validator::make($request->all(), [
       "id_paciente" => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
+      'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
       'esfera_od' => 'nullable|string|max:255',
       'esfera_oi' => 'nullable|string|max:255',

@@ -42,7 +42,7 @@ const VerOrdenes = () => {
     const ip = localStorage.getItem('ip');
 
     const sucursalPorIp = {
-      '186.74.2.218': 7,
+      '186.74.2.218': null,
       '190.219.45.142': 3,
       '45.229.196.9': 4,
       '190.34.23.233': 11,

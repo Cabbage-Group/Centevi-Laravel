@@ -20,17 +20,16 @@ import OptionsOrdenesCentilab from "./OptionsOrdenesCentilab";
 const { Text } = Typography;
 
 const columnWidths = {
-    nroOrden: 100,
-    fecha: 100,
-    celular: 100,
-    sucursal: 120,
-    cedula: 120,
-    paciente: 150,
-    laboratorio: 120,
-    proveedor_material: 120,
-    fase: 100,
+    nro_orden_id: 100,
+    nombres: 300,
+    tipo_cristal_od: 300,
+    dias: 100,
+    created_at: 120,
+    enviado: 120,
+    entrada: 120,
+    retiro: 120,
+    doctor: 150,
     status: 100,
-    codigoCristal: 100,
     acciones: 220,
 };
 
@@ -46,7 +45,7 @@ const OrdenesCentilab = () => {
         const ip = localStorage.getItem('ip');
 
         const sucursalPorIp = {
-            '186.74.2.218': 7,
+            '186.74.2.218': null,
             '190.219.45.142': 3,
             '45.229.196.9': 4,
             '190.34.23.233': 11,
@@ -211,7 +210,7 @@ const OrdenesCentilab = () => {
         {
             title: "N° de Orden",
             dataIndex: "nro_orden_id",
-            width: columnWidths.nroOrden,
+            width: columnWidths.nro_orden_id,
             render: (text, record) => (
                 <>
                     {text}
@@ -230,7 +229,7 @@ const OrdenesCentilab = () => {
         {
             title: "Paciente",
             dataIndex: "nombres",
-            width: columnWidths.paciente,
+            width: columnWidths.nombres,
             render: (_, record) => (
                 <Text
                     ellipsis
@@ -253,21 +252,26 @@ const OrdenesCentilab = () => {
             title: "Lente",
             dataIndex: "tipo_cristal_od",
             width: columnWidths.tipo_cristal_od,
-            render: (_, record) => record?.tipo_cristal_od || record?.tipo_cristal_oi || '-',
+            render: (_, record) => {
+                if (record?.lente_contacto) {
+                    return record?.marca || '-';
+                }
+
+                return record?.tipo_cristal_od || record?.tipo_cristal_oi || '-';
+            },
         },
         {
             title: "Días",
             dataIndex: "dias",
             width: columnWidths.dias,
         },
-
         {
             title: "Fecha orden",
             dataIndex: "created_at",
             width: columnWidths.created_at,
         },
         {
-            title: "Enviado",
+            title: "En Confección",
             dataIndex: "enviado",
             width: columnWidths.enviado,
         },
@@ -277,7 +281,7 @@ const OrdenesCentilab = () => {
             width: columnWidths.entrada,
         },
         {
-            title: "Retiro",
+            title: "Listo",
             dataIndex: "retiro",
             width: columnWidths.retiro,
         },

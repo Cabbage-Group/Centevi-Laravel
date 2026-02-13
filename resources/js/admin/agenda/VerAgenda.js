@@ -477,7 +477,6 @@ Tarjeta (Clave,Visa o Mastercard)
           Sucursal: cita.sucursal || "",
           Doctor: cita.doctor || "",
           Status: cita.confirmado || "SIN STATUS",
-          Teléfono: cita.telefono || "",
           Celular: cita.celular || "",
           // "Servicios a Realizar": serviciosTexto,
           Fecha: fechaInicio.toLocaleDateString("es-ES"),
@@ -519,7 +518,6 @@ Tarjeta (Clave,Visa o Mastercard)
         { wch: 12 }, // Status
         { wch: 50 }, // Servicios a Realizar (aumenté el ancho)
         { wch: 12 }, // Celular
-        { wch: 12 }, // Telefono
         { wch: 12 }, // Fecha
         { wch: 12 }, // Hora Inicio
         { wch: 12 }, // Hora Fin
