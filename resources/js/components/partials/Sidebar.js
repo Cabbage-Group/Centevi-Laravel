@@ -107,7 +107,7 @@ const Sidebar = (props) => {
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                   <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>{" "}
-                INICIO 8.26
+                INICIO 2-2.9
               </a>
             </li>
 
@@ -1238,7 +1238,7 @@ const Sidebar = (props) => {
               )}
 
                {ValidarPermisos(
-                "sidebar.recetas.ordenes-labo",
+                "sidebar.recetas.ordenes-centilab",
                 <li>
                   <Link to={"/ordenes-centilab"}>
                     <span className="icon">
@@ -1259,7 +1259,7 @@ const Sidebar = (props) => {
                         <line x1="17.01" y1="12" x2="22.96" y2="12" />
                       </svg>
                     </span>{" "}
-                    Ordenes Centilab
+                    Seguimiento
                   </Link>
                 </li>
               )}
