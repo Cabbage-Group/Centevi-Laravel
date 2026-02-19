@@ -49,4 +49,14 @@ class FasesCorreccionesOrdenes extends Model
   {
     return $this->belongsTo(Usuarios::class, 'elaborado_por', 'id_usuario');
   }
+  
+  public function baseIzquierda()
+  {
+    return $this->belongsTo(Bases::class, 'base_ojo_izquierdo_id', 'id');
+  }
+
+  public function baseDerecha()
+  {
+    return $this->belongsTo(Bases::class, 'base_ojo_derecho_id', 'id');
+  }
 }

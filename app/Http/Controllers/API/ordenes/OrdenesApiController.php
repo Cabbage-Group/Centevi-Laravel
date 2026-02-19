@@ -16,6 +16,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\CorrecionesOrdenes;
+use App\Models\Pedido;
 
 class OrdenesApiController extends Controller
 {
@@ -713,7 +714,22 @@ class OrdenesApiController extends Controller
     }
 
     try {
+      $pedidoId = $orden->id_pedido;
+
       $orden->delete();
+
+      if ($pedidoId) {
+        $pedido = Pedido::find($pedidoId);
+
+        if ($pedido) {
+          $otrasOrdenes = Ordenes::where('id_pedido', $pedidoId)->count();
+          $otrasCorrecciones = CorrecionesOrdenes::where('id_pedido', $pedidoId)->count();
+
+          if ($otrasOrdenes === 0 && $otrasCorrecciones === 0) {
+            $pedido->delete();
+          }
+        }
+      }
 
       return response()->json([
         'respuesta' => true,
@@ -729,18 +745,7 @@ class OrdenesApiController extends Controller
     }
   }
 
-  // public function tipoFasesOrdenes()
-  // {
-
-  //   $tiposFases = TiposFasesOrdenes::with(['fasesOrdenes', 'fasesCorreccionesOrdenes'])->get();
-  //   return response()->json([
-  //     'data' => $tiposFases,
-  //     'status' => [
-  //       'code' => 200
-  //     ],
-  //   ]);
-  // }
-
+  
   public function tipoFasesOrdenes($idOrden)
   {
     $tiposFases = TiposFasesOrdenes::with([

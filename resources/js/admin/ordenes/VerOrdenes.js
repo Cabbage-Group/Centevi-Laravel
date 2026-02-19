@@ -154,7 +154,6 @@ const VerOrdenes = () => {
   };
 
   const handleSucursalChange = (value) => {
-    console.log('entersa>>>>>>>')
     setSucursalFilter(value);
     setCurrentPage(1)
   };

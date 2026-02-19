@@ -64,7 +64,7 @@ class Ordenes extends Model
     'lente_contacto',
     'correccion',
     'cancelada',
-    'codigo_cristal'
+    'codigo_cristal',
   ];
 
   // Atributos que deben ser convertidos a tipos nativos
@@ -110,4 +110,13 @@ class Ordenes extends Model
     return $this->hasMany(FasesOrdenes::class, 'ordenes_id', 'id_orden');
   }
 
+  public function pedido()
+  {
+    return $this->belongsTo(Pedido::class, 'id_pedido', 'id_pedido');
+  }
+
+  public function mermas()
+  {
+    return $this->hasMany(Mermas::class, 'orden_id', 'id_orden');
+  }
 }

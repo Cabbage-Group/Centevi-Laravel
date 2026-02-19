@@ -50,12 +50,15 @@ class CorrecionesOrdenes extends Model
     'l_cuatro',
     'l_cinco',
     'pagado',
+    'id_pedido',
+    'observacion_pedido'
   ];
 
   // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'elaborado_por' => 'integer',
     'ordenes_id' => 'integer',
+    'id_pedido'     => 'integer',
   ];
 
   public function orden()
@@ -74,35 +77,13 @@ class CorrecionesOrdenes extends Model
     return $this->belongsTo(Usuarios::class, 'elaborado_por', 'id_usuario');
   }
 
+  public function pedido()
+  {
+    return $this->belongsTo(Pedido::class, 'id_pedido', 'id_pedido');
+  }
 
-
-
-  // public function getNroOrdenCorreccionAttribute()
-  //   {
-  //       if (!$this->orden) {
-  //           return null;
-  //       }
-
-  //       // Obtener todas las correcciones de esta orden, ordenadas por ID
-  //       $correcciones = $this->orden->correciones()->orderBy('id')->pluck('id')->toArray();
-
-  //       // Determinar la posición actual de esta corrección dentro de la lista
-  //       $index = array_search($this->id, $correcciones) + 1;
-
-  //       return "{$this->orden->nro_orden}-C{$index}";
-  //   }
-
-  //   public function getNroOrdenCorreccionAttribute()
-  // {
-  //     $orden = $this->orden;
-  //     if (!$orden) return null;
-
-  //     // Obtener el índice de esta corrección dentro de todas las correcciones de la orden
-  //     $index = $this->orden->correciones->search(function ($correccion) {
-  //         return $correccion->id === $this->id;
-  //     });
-
-  //     return "{$orden->nro_orden}-C" . ($index + 1);
-  // }
-
+  public function mermas()
+  {
+    return $this->hasMany(Mermas::class, 'correccion_id', 'id');
+  }
 }
