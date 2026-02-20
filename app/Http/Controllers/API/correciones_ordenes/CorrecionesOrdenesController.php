@@ -7,6 +7,7 @@ use App\Models\ContactoCorrecionesOrdenes;
 use App\Models\CorrecionesOrdenes;
 use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Ordenes;
+use App\Models\Pedido;
 use App\Models\TiposFasesOrdenes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -603,7 +604,6 @@ class CorrecionesOrdenesController extends Controller
 
   public function DeleteCorrecionesOrdenes(Request $request)
   {
-    // Validar los datos de entrada
     $validator = Validator::make($request->all(), [
       'correccion_id' => 'required|exists:correciones_ordenes,id',
     ]);
@@ -617,17 +617,7 @@ class CorrecionesOrdenesController extends Controller
       ], 400);
     }
 
-    if (!$request->has('correccion_id')) {
-      return response()->json([
-        'success' => false,
-        'mensaje' => 'The field "correccion_id" is required and was not found.',
-      ], 400);
-    }
-
-    // Obtener el ID de la corrección
     $correccionId = $request->input('correccion_id');
-
-    // Buscar la corrección en la base de datos
     $correccion = CorrecionesOrdenes::find($correccionId);
 
     if (!$correccion) {
@@ -638,12 +628,25 @@ class CorrecionesOrdenesController extends Controller
     }
 
     $orden = $correccion->orden;
+    $pedidoId = $correccion->id_pedido;
 
     $correccion->delete();
 
+    if ($pedidoId) {
+      $pedido = Pedido::find($pedidoId);
+
+      if ($pedido) {
+        $otrasCorrecciones = CorrecionesOrdenes::where('id_pedido', $pedidoId)->count();
+        $otrasOrdenes = Ordenes::where('id_pedido', $pedidoId)->count();
+
+        if ($otrasCorrecciones === 0 && $otrasOrdenes === 0) {
+          $pedido->delete();
+        }
+      }
+    }
+
     $remainingCorrections = $orden->correciones()->count();
 
-    // Si no quedan correcciones, actualizar el campo "correccion" en la tabla "ordenes" a 0
     if ($remainingCorrections === 0) {
       $orden->update(['correccion' => 0]);
     }
