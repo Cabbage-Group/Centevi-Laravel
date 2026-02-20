@@ -58,7 +58,9 @@ use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
 use App\Http\Controllers\API\warehouse\WarehouseController;
 use App\Http\Controllers\API\bases\BasesApiController;
+use App\Http\Controllers\API\historial_orden\HistorialOrdenApiController;
 use App\Http\Controllers\API\ordenes\OrdenesCentilabApiController;
+use App\Http\Controllers\API\pedidos\PedidosController;
 use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -605,6 +607,36 @@ Route::post('/api/bases', [BasesApiController::class, 'store']);
 Route::delete('/api/bases/{id}', [BasesApiController::class, 'delete']);
 
 Route::put('/api/bases/{id}', [BasesApiController::class, 'update']);
+
+Route::prefix('api/pedidos')->group(function () {
+
+    // Route::get('/ordenes-pendientes', [PedidosController::class, 'ordenesPendientes']);
+
+    Route::get('/ordenes-pendientes', [PedidosController::class, 'obtenerOrdenesPedidos']);
+
+    Route::post('/crear', [PedidosController::class, 'crearPedido']);
+
+    Route::post('/crear-merma', [PedidosController::class, 'crearMerma']);
+
+    Route::get('/', [PedidosController::class, 'listarPedidos']);
+
+    Route::get('/{id}', [PedidosController::class, 'detallePedido']);
+
+    Route::put('/{id}/estado', [PedidosController::class, 'cambiarEstado']);
+
+    Route::put('/quitar-orden/{idOrden}', [PedidosController::class, 'quitarOrden']);
+
+    Route::put('/mermas/update', [PedidosController::class, 'updateMerma']);
+
+    Route::get('/historial/{idOrden}', [PedidosController::class, 'historialEventosPorOrden']);
+
+    Route::delete('/evento', [PedidosController::class, 'eliminarEvento']);
+
+    Route::get('/historial/{id_orden}/imprimir', [PedidosController::class, 'imprimirHistorial']);
+
+    Route::post('/imprimir-pedido', [PedidosController::class, 'imprimirPedido']);
+});
+
 
 Route::get('/{any}', function () {
     return view('app');

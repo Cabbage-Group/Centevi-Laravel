@@ -21,6 +21,7 @@ class OrdenesCentilabApiController extends Controller
         $sortOrder = $request->input('sortOrder', 'asc');
         $sucursal = $request->input('sucursal', []);
         $doctor = $request->input('doctor', []);
+        $fecha = $request->input('fecha', '');
 
         $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
         if (!in_array($sortColumn, $validColumns)) {
@@ -73,6 +74,18 @@ class OrdenesCentilabApiController extends Controller
 
         if (!empty($doctor)) {
             $query->whereIn('doctor', (array) $doctor);
+        }
+
+        if (!empty($fecha)) {
+            $fechas = explode(' - ', $fecha);
+            if (count($fechas) === 2) {
+                $fechaInicio = trim($fechas[0]);
+                $fechaFin = trim($fechas[1]);
+
+                if (strtotime($fechaInicio) && strtotime($fechaFin)) {
+                    $query->whereBetween('created_at', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
+                }
+            }
         }
 
         $ordenesPaginadas = $query->orderBy($sortColumn, $sortOrder)
@@ -189,7 +202,7 @@ class OrdenesCentilabApiController extends Controller
         return response()->json([
             'data' => $ordenes,
             'meta' => [
-                'total' => $ordenesPaginadas->total(), 
+                'total' => $ordenesPaginadas->total(),
                 'limit' => $limit,
                 'page' => $page,
                 'last_page' => $ordenesPaginadas->lastPage(),

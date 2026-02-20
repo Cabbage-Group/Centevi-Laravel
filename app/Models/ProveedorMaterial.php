@@ -11,7 +11,16 @@ class ProveedorMaterial extends Model
 
     protected $table = 'proveedor_de_material';
 
+
+    protected $primaryKey = 'id';
+
     protected $fillable = ['nombre'];
 
     public $timestamps = true;
+
+    
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class, 'id_proveedor', 'id');
+    }
 }

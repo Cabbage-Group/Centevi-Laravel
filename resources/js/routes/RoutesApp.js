@@ -103,6 +103,7 @@ import ReportePacientes from "../admin/reportes/pacientes/ReportePacientes.js";
 import UpdateCotizacion from "../admin/cotizaciones/UpdateCotizacion.js";
 import Bases from "../admin/bases/Bases.js";
 import OrdenesCentilab from "../admin/recetas/ordenesCentilab/OrdenesCentilab.js";
+import VerOrdenesPedidos from "../admin/pedidos/VerOrdenesPedidos.js";
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -404,6 +405,12 @@ const RoutesApp = () => {
             path="/table-productos"
             element={<Sidebar component={<TableProductsInterfuerza />} />}
           />
+
+          <Route
+            path="/ordenes-pedidos"
+            element={<Sidebar component={<VerOrdenesPedidos />} />}
+          />
+
           <Route path="/prueba-mention" element={<Sidebar component={<MentionComponent />} />} />
           <Route path="/ventas" element={<Sidebar component={<Ventas />} />} />
           <Route path="/servicios" element={<Sidebar component={<VerServicios />} />} />
