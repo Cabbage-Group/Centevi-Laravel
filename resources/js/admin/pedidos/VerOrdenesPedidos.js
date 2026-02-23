@@ -213,19 +213,40 @@ const VerOrdenesPedidos = () => {
                     orden_id: record.es_correccion ? null : record.id_orden,
                     correccion_id: record.es_correccion ? record.id_real : null,
                     observacion: value.observacion,
-                    receta_od: record.esfera_od,
-                    receta_oi: record.esfera_oi,
+                    receta_od: record.receta_od,
+                    receta_oi: record.receta_oi,
                     add_od: record.add_od,
                     add_oi: record.add_oi,
                     prisma_od: record.prisma_od,
                     prisma_oi: record.prisma_oi,
                     tipo_base: record.tipo_base,
-                    material: record.material
+                    material: record.material,
+                    esfera_od: record.esfera_od ?? null,
+                    esfera_oi: record.esfera_oi ?? null,
+                    cilindro_od: record.cilindro_od ?? null,
+                    cilindro_oi: record.cilindro_oi ?? null,
+                    eje_od: record.eje_od ?? null,
+                    eje_oi: record.eje_oi ?? null,
+                    tipo_cristal_od: record.tipo_cristal_od ?? null,
+                    tipo_cristal_oi: record.tipo_cristal_oi ?? null,
+                    material_od: record.material_od ?? null,
+                    material_oi: record.material_oi ?? null,
+                    tratamientos_od: record.tratamientos_od ?? null,
+                    tratamientos_oi: record.tratamientos_oi ?? null,
                 })
             ).unwrap();
 
-            dispatch(fecthOrdenesPedidos({}))
-
+            dispatch(fecthOrdenesPedidos({
+                page: currentPage,
+                limit: 20,
+                search,
+                sucursal: sucursalFilter,
+                doctor: doctorFilter,
+                startDate,
+                endDate,
+                estado: estadoFilter,
+                proveedor: proveedorFilter,
+            }));
             Swal.fire({
                 title: "Merma registrada",
                 text: "El pedido ha pasado a estado Pendiente.",
@@ -299,20 +320,21 @@ const VerOrdenesPedidos = () => {
         {
             title: "RECETA",
             align: "center",
+            dataIndex: "receta_od",
             children: [
                 {
                     title: "OD",
-                    dataIndex: "esfera_od",
-                    width: 60,
+                    dataIndex: "receta_od",
+                    width: 140,
                     align: "center",
-                    render: (val) => <span style={{ fontSize: 12 }}>{val ?? "—"}</span>,
+                    render: (val) => <span style={{ fontSize: 12 }}>{val ?? "**"}</span>,
                 },
                 {
                     title: "OI",
-                    dataIndex: "esfera_oi",
-                    width: 60,
+                    dataIndex: "receta_oi",
+                    width: 140,
                     align: "center",
-                    render: (val) => <span style={{ fontSize: 12 }}>{val ?? "—"}</span>,
+                    render: (val) => <span style={{ fontSize: 12 }}>{val ?? "**"}</span>,
                 },
             ],
         },
@@ -361,14 +383,14 @@ const VerOrdenesPedidos = () => {
             dataIndex: "tipo_base",
             width: 120,
             align: "center",
-            render: (val) => <span style={{ fontSize: 12 }}>{val ?? "—"}</span>,
+            render: (val) => <span style={{ fontSize: 12 }}>{val ?? "**"}</span>,
         },
         {
             title: "MATERIAL",
             dataIndex: "material",
-            width: 180,
+            width: 240,
             align: "center",
-            render: (val) => <span style={{ fontSize: 12 }}>{val ?? "—"}</span>,
+            render: (val) => <span style={{ fontSize: 12 }}>{val ?? "**"}</span>,
         },
         {
             title: "PEDIDO MATERIAL",

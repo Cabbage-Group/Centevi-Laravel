@@ -14,9 +14,9 @@ import API from "../../../config/config";
 const formatFecha = () => {
     const now = new Date();
     return (
-        now.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" }) +
+        now.toLocaleDateString("es-PE", { day: "2-digit", month: "2-digit", year: "numeric" }) +
         " " +
-        now.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+        now.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
     );
 };
 
@@ -78,14 +78,26 @@ const ModalCrearPedido = ({
                     id_orden: o.es_correccion ? o.id_orden_padre : o.id_orden,
                     id_correccion: o.es_correccion ? o.id_real : null,
                     observacion: observaciones[o.nro_orden_id] || "",
-                    receta_od: o.esfera_od ?? null,
-                    receta_oi: o.esfera_oi ?? null,
+                    receta_od: o.receta_od ?? null,
+                    receta_oi: o.receta_oi ?? null,
                     add_od: o.add_od ?? null,
                     add_oi: o.add_oi ?? null,
                     prisma_od: o.prisma_od ?? null,
                     prisma_oi: o.prisma_oi ?? null,
                     tipo_base: o.tipo_base ?? null,
                     material: o.material ?? null,
+                    esfera_od: o.esfera_od ?? null,
+                    esfera_oi: o.esfera_oi ?? null,
+                    cilindro_od: o.cilindro_od ?? null,
+                    cilindro_oi: o.cilindro_oi ?? null,
+                    eje_od: o.eje_od ?? null,
+                    eje_oi: o.eje_oi ?? null,
+                    tipo_cristal_od: o.tipo_cristal_od ?? null,
+                    tipo_cristal_oi: o.tipo_cristal_oi ?? null,
+                    material_od: o.material_od ?? null,
+                    material_oi: o.material_oi ?? null,
+                    tratamientos_od: o.tratamientos_od ?? null,
+                    tratamientos_oi: o.tratamientos_oi ?? null,
                     mermas: (o.mermas ?? [])
                         .filter(m => m.estado === 'Pendiente')
                         .map(m => ({
@@ -107,7 +119,7 @@ const ModalCrearPedido = ({
         const headers = [
             'Proveedor', 'Fecha', 'Orden', 'Cantidad',
             'Receta OD', 'Receta OI', 'Add OD', 'Add OI',
-            'Prismas OD', 'Prismas OI', 'Tipo de base', 'Material',
+            'Prismas OD', 'Prismas OI', 'Nro de base', 'Material',
             'Observación', 'Mermas pend.'
         ].join('\t');
 
@@ -122,8 +134,8 @@ const ModalCrearPedido = ({
                 o.fecha ?? '—',
                 o.nro_orden_id,
                 cantidad,
-                o.esfera_od ?? '—',
-                o.esfera_oi ?? '—',
+                o.receta_od ?? '—',
+                o.receta_oi ?? '—',
                 o.add_od ?? '**',
                 o.add_oi ?? '**',
                 o.prisma_od ?? '**',
@@ -163,8 +175,8 @@ const ModalCrearPedido = ({
             ordenes: ordenesSeleccionadas.map((o) => ({
                 id_orden: o.nro_orden_id,
                 fecha: o.fecha,
-                receta_od: o.esfera_od,
-                receta_oi: o.esfera_oi,
+                receta_od: o.receta_od,
+                receta_oi: o.receta_oi,
                 add_od: o.add_od,
                 add_oi: o.add_oi,
                 prisma_od: o.prisma_od,
@@ -215,13 +227,13 @@ const ModalCrearPedido = ({
                 'Fecha': o.fecha ?? '—',
                 'Orden': o.nro_orden_id,
                 'Cantidad': cantidad,
-                'Receta OD': o.esfera_od ?? '—',
-                'Receta OI': o.esfera_oi ?? '—',
+                'Receta OD': o.receta_od ?? '—',
+                'Receta OI': o.receta_oi ?? '—',
                 'Add OD': o.add_od ?? '**',
                 'Add OI': o.add_oi ?? '**',
                 'Prismas OD': o.prisma_od ?? '**',
                 'Prismas OI': o.prisma_oi ?? '**',
-                'Tipo de base': o.tipo_base ?? '—',
+                'Nro de base': o.tipo_base ?? '—',
                 'Material': o.material ?? '—',
                 'Observación': observaciones[o.nro_orden_id] || '',
                 'Mermas pend.': mermasPendientes,
@@ -316,7 +328,6 @@ const ModalCrearPedido = ({
                                 {totalCantidad}
                             </strong>
                         </span>
-                        <span style={{ fontSize: 13 }}>Generado: <strong>{fechaGenerado}</strong></span>
                     </div>
 
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -345,7 +356,7 @@ const ModalCrearPedido = ({
                                     return (
                                         <>
                                             <tr key={orden.nro_orden_id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                                                <td style={tdStyle}>{orden.fecha || "-"}</td>
+                                                <td style={tdStyle}>{orden.fecha ? orden.fecha.split('T')[0].split('-').reverse().join('/') : "-"}</td>
                                                 <td style={tdStyle}><strong>{orden.nro_orden_id}</strong></td>
                                                 <td style={tdStyle}>
                                                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -357,15 +368,6 @@ const ModalCrearPedido = ({
                                                         }}>
                                                             {cantidad}
                                                         </span>
-                                                        {/* {mermasPendientes.length > 0 && (
-                                                            <span style={{
-                                                                fontSize: 11, background: "#fff3e0",
-                                                                border: "1px solid #f39c12", borderRadius: 10,
-                                                                padding: "1px 8px", color: "#e67e22", fontWeight: 600,
-                                                            }}>
-                                                                +{mermasPendientes.length} merma{mermasPendientes.length > 1 ? "s" : ""}
-                                                            </span>
-                                                        )} */}
                                                     </div>
                                                 </td>
                                                 <td style={tdStyle}>
@@ -385,14 +387,14 @@ const ModalCrearPedido = ({
                                             <tr key={`det-${orden.nro_orden_id}`} style={{ background: "#fafafa", borderBottom: "1px solid #ebebeb" }}>
                                                 <td colSpan={4} style={{ padding: "6px 12px 10px 12px" }}>
                                                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 32px" }}>
-                                                        <span style={detalleStyle}>Receta OD: <strong>{orden.esfera_od || "-"}</strong></span>
-                                                        <span style={detalleStyle}>Receta OI: <strong>{orden.esfera_oi || "-"}</strong></span>
+                                                        <span style={detalleStyle}>Receta OD: <strong>{orden.receta_od || "**"}</strong></span>
+                                                        <span style={detalleStyle}>Receta OI: <strong>{orden.receta_oi || "**"}</strong></span>
                                                         <span style={detalleStyle}>Add OD: <strong>{orden.add_od || "**"}</strong></span>
                                                         <span style={detalleStyle}>Add OI: <strong>{orden.add_oi || "**"}</strong></span>
-                                                        <span style={detalleStyle}>Prismas OD: <strong>{orden.prisma_od || "-"}</strong></span>
-                                                        <span style={detalleStyle}>Prismas OI: <strong>{orden.prisma_oi || "-"}</strong></span>
-                                                        <span style={detalleStyle}>Tipo de base: <strong>{orden.tipo_base || "-"}</strong></span>
-                                                        <span style={detalleStyle}>Material: <strong>{orden.material || "-"}</strong></span>
+                                                        <span style={detalleStyle}>Prismas OD: <strong>{orden.prisma_od || "**"}</strong></span>
+                                                        <span style={detalleStyle}>Prismas OI: <strong>{orden.prisma_oi || "**"}</strong></span>
+                                                        <span style={detalleStyle}>Nro de base: <strong>{orden.tipo_base || "**"}</strong></span>
+                                                        <span style={detalleStyle}>Material: <strong>{orden.material || "**"}</strong></span>
                                                     </div>
                                                 </td>
                                             </tr>

@@ -34,6 +34,18 @@ class Mermas extends Model
         'tipo_base',
         'material',
         'correccion_id',
+        'esfera_od',
+        'cilindro_od',
+        'eje_od',
+        'esfera_oi',
+        'cilindro_oi',
+        'eje_oi',
+        'tipo_cristal_od',
+        'tipo_cristal_oi',
+        'material_od',
+        'material_oi',
+        'tratamientos_od',
+        'tratamientos_oi',
     ];
 
     protected $casts = [
