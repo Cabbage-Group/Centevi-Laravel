@@ -27,9 +27,21 @@ class Pedido extends Model
         'prisma_od',
         'prisma_oi',
         'tipo_base',
-        'material'
+        'material',
+        'esfera_od',
+        'cilindro_od',
+        'eje_od',
+        'esfera_oi',
+        'cilindro_oi',
+        'eje_oi',
+        'tipo_cristal_od',
+        'tipo_cristal_oi',
+        'material_od',
+        'material_oi',
+        'tratamientos_od',
+        'tratamientos_oi',
     ];
-
+    
     protected $casts = [
         'fecha_generado' => 'datetime',
         'fecha_envio' => 'datetime',

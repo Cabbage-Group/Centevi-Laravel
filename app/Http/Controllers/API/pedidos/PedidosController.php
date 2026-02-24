@@ -35,6 +35,18 @@ class PedidosController extends Controller
             'ordenes.*.prisma_oi'   => 'nullable|string|max:100',
             'ordenes.*.tipo_base'   => 'nullable|string|max:50',
             'ordenes.*.material'    => 'nullable|string|max:150',
+            'ordenes.*.esfera_od'      => 'nullable|string|max:20',
+            'ordenes.*.esfera_oi'      => 'nullable|string|max:20',
+            'ordenes.*.cilindro_od'    => 'nullable|string|max:20',
+            'ordenes.*.cilindro_oi'    => 'nullable|string|max:20',
+            'ordenes.*.eje_od'         => 'nullable|string|max:20',
+            'ordenes.*.eje_oi'         => 'nullable|string|max:20',
+            'ordenes.*.tipo_cristal_od' => 'nullable|string|max:150',
+            'ordenes.*.tipo_cristal_oi' => 'nullable|string|max:150',
+            'ordenes.*.material_od'    => 'nullable|string|max:150',
+            'ordenes.*.material_oi'    => 'nullable|string|max:150',
+            'ordenes.*.tratamientos_od' => 'nullable|string|max:255',
+            'ordenes.*.tratamientos_oi' => 'nullable|string|max:255',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -61,6 +73,18 @@ class PedidosController extends Controller
                                 'prisma_oi'      => $item['prisma_oi'] ?? null,
                                 'tipo_base'      => $item['tipo_base'] ?? null,
                                 'material'       => $item['material'] ?? null,
+                                'esfera_od'      => $item['esfera_od'] ?? null,
+                                'esfera_oi'      => $item['esfera_oi'] ?? null,
+                                'cilindro_od'     => $item['cilindro_od'] ?? null,
+                                'cilindro_oi'     => $item['cilindro_oi'] ?? null,
+                                'eje_od'          => $item['eje_od'] ?? null,
+                                'eje_oi'          => $item['eje_oi'] ?? null,
+                                'tipo_cristal_od' => $item['tipo_cristal_od'] ?? null,
+                                'tipo_cristal_oi' => $item['tipo_cristal_oi'] ?? null,
+                                'material_od'     => $item['material_od'] ?? null,
+                                'material_oi'     => $item['material_oi'] ?? null,
+                                'tratamientos_od' => $item['tratamientos_od'] ?? null,
+                                'tratamientos_oi' => $item['tratamientos_oi'] ?? null,
                             ]);
 
                             CorrecionesOrdenes::where('id', $correccion->id)
@@ -108,14 +132,26 @@ class PedidosController extends Controller
                                 'estado'         => 'Realizado',
                                 'total_ordenes'  => 1,
                                 'observacion'    => $item['observacion'] ?? null,
-                                'receta_od'   => $item['receta_od'] ?? null,
-                                'receta_oi'   => $item['receta_oi'] ?? null,
-                                'add_od'      => $item['add_od'] ?? null,
-                                'add_oi'      => $item['add_oi'] ?? null,
-                                'prisma_od'   => $item['prisma_od'] ?? null,
-                                'prisma_oi'   => $item['prisma_oi'] ?? null,
-                                'tipo_base'   => $item['tipo_base'] ?? null,
-                                'material'    => $item['material'] ?? null,
+                                'receta_od'      => $item['receta_od'] ?? null,
+                                'receta_oi'      => $item['receta_oi'] ?? null,
+                                'add_od'         => $item['add_od'] ?? null,
+                                'add_oi'         => $item['add_oi'] ?? null,
+                                'prisma_od'      => $item['prisma_od'] ?? null,
+                                'prisma_oi'      => $item['prisma_oi'] ?? null,
+                                'tipo_base'      => $item['tipo_base'] ?? null,
+                                'material'       => $item['material'] ?? null,
+                                'esfera_od'      => $item['esfera_od'] ?? null,
+                                'esfera_oi'      => $item['esfera_oi'] ?? null,
+                                'cilindro_od'    => $item['cilindro_od'] ?? null,
+                                'cilindro_oi'    => $item['cilindro_oi'] ?? null,
+                                'eje_od'         => $item['eje_od'] ?? null,
+                                'eje_oi'         => $item['eje_oi'] ?? null,
+                                'tipo_cristal_od' => $item['tipo_cristal_od'] ?? null,
+                                'tipo_cristal_oi' => $item['tipo_cristal_oi'] ?? null,
+                                'material_od'    => $item['material_od'] ?? null,
+                                'material_oi'    => $item['material_oi'] ?? null,
+                                'tratamientos_od' => $item['tratamientos_od'] ?? null,
+                                'tratamientos_oi' => $item['tratamientos_oi'] ?? null,
                             ]);
 
                             // ← Usar where + update en lugar de model update
@@ -301,6 +337,19 @@ class PedidosController extends Controller
             'prisma_oi'     => 'nullable|string|max:100',
             'tipo_base'     => 'nullable|string|max:50',
             'material'      => 'nullable|string|max:150',
+            'esfera_od'      => 'nullable|string|max:20',
+            'esfera_oi'      => 'nullable|string|max:20',
+            'cilindro_od'    => 'nullable|string|max:20',
+            'cilindro_oi'    => 'nullable|string|max:20',
+            'eje_od'         => 'nullable|string|max:20',
+            'eje_oi'         => 'nullable|string|max:20',
+            'tipo_cristal_od' => 'nullable|string|max:150',
+            'tipo_cristal_oi' => 'nullable|string|max:150',
+            'material_od'    => 'nullable|string|max:150',
+            'material_oi'    => 'nullable|string|max:150',
+            'tratamientos_od' => 'nullable|string|max:255',
+            'tratamientos_oi' => 'nullable|string|max:255',
+
         ]);
 
         if (empty($request->orden_id) && empty($request->correccion_id)) {
@@ -331,6 +380,18 @@ class PedidosController extends Controller
                         'prisma_oi'     => $request->prisma_oi,
                         'tipo_base'     => $request->tipo_base,
                         'material'      => $request->material,
+                        'esfera_od'      => $request->esfera_od,
+                        'esfera_oi'      => $request->esfera_oi,
+                        'cilindro_od'    => $request->cilindro_od,
+                        'cilindro_oi'    => $request->cilindro_oi,
+                        'eje_od'         => $request->eje_od,
+                        'eje_oi'         => $request->eje_oi,
+                        'tipo_cristal_od' => $request->tipo_cristal_od,
+                        'tipo_cristal_oi' => $request->tipo_cristal_oi,
+                        'material_od'    => $request->material_od,
+                        'material_oi'    => $request->material_oi,
+                        'tratamientos_od' => $request->tratamientos_od,
+                        'tratamientos_oi' => $request->tratamientos_oi,
                     ]);
 
                     if ($pedidoId) {
@@ -360,6 +421,18 @@ class PedidosController extends Controller
                         'prisma_oi'     => $request->prisma_oi,
                         'tipo_base'     => $request->tipo_base,
                         'material'      => $request->material,
+                        'esfera_od'      => $request->esfera_od,
+                        'esfera_oi'      => $request->esfera_oi,
+                        'cilindro_od'    => $request->cilindro_od,
+                        'cilindro_oi'    => $request->cilindro_oi,
+                        'eje_od'         => $request->eje_od,
+                        'eje_oi'         => $request->eje_oi,
+                        'tipo_cristal_od' => $request->tipo_cristal_od,
+                        'tipo_cristal_oi' => $request->tipo_cristal_oi,
+                        'material_od'    => $request->material_od,
+                        'material_oi'    => $request->material_oi,
+                        'tratamientos_od' => $request->tratamientos_od,
+                        'tratamientos_oi' => $request->tratamientos_oi,
                     ]);
 
                     if ($pedidoId) {
@@ -741,15 +814,22 @@ class PedidosController extends Controller
 
     private function formatOrden(Ordenes $orden): array
     {
+        $limpiar = fn($valor) => $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
         return [
             'id_orden'           => $orden->id_orden,
             'id_paciente'        => $orden->id_paciente,
             'nro_orden_id'       => $orden->nro_orden_id,
             'id_pedido'          => $orden->id_pedido,
-            'fecha'              => $orden->created_at,
+            'fecha' => $orden->created_at?->toDateString(),
             'orden'              => $orden->nro_orden_id,
             'esfera_od'          => $orden->esfera_od,
             'cilindro_od'        => $orden->cilindro_od,
+            'tipo_cristal_od'   => $orden->tipo_cristal_od,
+            'tipo_cristal_oi'   => $orden->tipo_cristal_oi,
+            'material_od'        => $orden->material_od,
+            'material_oi'        => $orden->material_oi,
+            'tratamientos_od'    => $orden->tratamientos_od,
+            'tratamientos_oi'    => $orden->tratamientos_oi,
             'eje_od'             => $orden->eje_od,
             'add_od'             => $orden->add_od,
             'prisma_od'          => $orden->prisma_od,
@@ -759,7 +839,6 @@ class PedidosController extends Controller
             'add_oi'             => $orden->add_oi,
             'prisma_oi'          => $orden->prisma_oi,
             'tipo_base'          => $this->getTipoBase($orden),
-            'material'           => $orden->material_od ?? $orden->material_oi,
             'pedido_material'    => $orden->pedido?->estado ?? 'Pendiente',
             'merma_estado'       => $orden->mermas->first()?->estado,
             'merma_pendiente'    => $orden->mermas->where('estado', 'Pendiente')->count(),
@@ -770,12 +849,18 @@ class PedidosController extends Controller
             'observacion_pedido' => $orden->observacion_pedido ?? null,
             'merma_count'              => $orden->mermas->count(),
             'correcciones'       => $orden->correciones->count(),
-            'mermas' => $orden->mermas
+            'mermas' => $orden->mermas,
+            'receta_od' => $orden->esfera_od . ' ' . $orden->cilindro_od . ' ' . $orden->eje_od,
+            'receta_oi' => $orden->esfera_oi . ' ' . $orden->cilindro_oi . ' ' . $orden->eje_oi,
+            'material' => (($limpiar($orden->tipo_cristal_od) ?? $limpiar($orden->tipo_cristal_oi) ?? '**') . ' / ' .
+                ($orden->material_od    ?? $orden->material_oi    ?? '**') . ' / ' .
+                ($orden->tratamientos_od ?? $orden->tratamientos_oi ?? '**')),
         ];
     }
 
     private function formatOrdenConCorrecciones(Ordenes $orden): array
     {
+        $limpiar = fn($valor) => $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
         $resultado = [$this->formatOrden($orden)];
 
         foreach ($orden->correciones as $index => $correccion) {
@@ -798,8 +883,19 @@ class PedidosController extends Controller
                 'eje_oi'             => $correccion->eje_oi,
                 'add_oi'             => $correccion->add_oi,
                 'prisma_oi'          => $correccion->prisma_oi,
+                'tipo_cristal_od'    => $correccion->tipo_cristal_od,
+                'tipo_cristal_oi'    => $correccion->tipo_cristal_oi,
+                'material_od'        => $correccion->material_od,
+                'material_oi'        => $correccion->material_oi,
+                'tratamientos_od'    => $correccion->tratamientos_od,
+                'tratamientos_oi'    => $correccion->tratamientos_oi,
+                'receta_od'          => $correccion->esfera_od . ' ' . $correccion->cilindro_od . ' ' . $correccion->eje_od,
+                'receta_oi'          => $correccion->esfera_oi . ' ' . $correccion->cilindro_oi . ' ' . $correccion->eje_oi,
                 'tipo_base'          => $this->getTipoBaseCorrecciones($correccion),
-                'material'           => $correccion->material_od ?? $correccion->material_oi,
+                // 'material'           => $correccion->material_od ?? $correccion->material_oi,
+                'material'           => (($limpiar($correccion->tipo_cristal_od) ?? $limpiar($correccion->tipo_cristal_oi) ?? '**') . ' / ' .
+                    ($correccion->material_od ?? $correccion->material_oi ?? '**') . ' / ' .
+                    ($correccion->tratamientos_od ?? $correccion->tratamientos_oi ?? '**')),
                 'fecha_pedido'      => $correccion->pedido?->fecha_generado?->toIso8601String(),
                 'observacion_pedido' => $correccion->observacion_pedido,
                 'correcciones'       => 0,
@@ -810,7 +906,7 @@ class PedidosController extends Controller
                     ?? null,
                 'merma_count'     => $correccion->mermas->count(),
                 'merma_pendiente' => $correccion->mermas->where('estado', 'Pendiente')->count(),
-                'merma_estado'    => $correccion->mermas->first()?->estado,
+                'merma_estado' => $correccion->mermas->last()?->estado,
                 'mermas'          => $correccion->mermas,
             ];
         }

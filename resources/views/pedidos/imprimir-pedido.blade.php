@@ -19,7 +19,6 @@
     <h2>Pedido de Materia Prima</h2>
     <div class="meta">
         <span>Proveedor: <strong>{{ $proveedor }}</strong></span>
-        <span>Generado: <strong>{{ $fecha }}</strong></span>
         <span>Órdenes: <strong>{{ count($ordenes) }}</strong></span>
     </div>
 

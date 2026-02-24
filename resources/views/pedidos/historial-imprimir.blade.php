@@ -97,12 +97,15 @@
                 <td>{{ $item['proveedor'] ?? '—' }}</td>
                 <td>{{ $item['cantidad'] }}</td>
                 <td>
-                    <pre>{{ $item['detalle']['titulo'] ?? '' }}
-                    Receta OD: {{ $item['detalle']['receta_od'] ?? '—' }}, Receta OI: {{ $item['detalle']['receta_oi'] ?? '—' }}
-                    Add OD: {{ $item['detalle']['add_od'] ?? '**' }}, Add OI: {{ $item['detalle']['add_oi'] ?? '**' }}
-                    Prismas OD: {{ $item['detalle']['prisma_od'] ?? '**' }}, Prismas OI: {{ $item['detalle']['prisma_oi'] ?? '**' }}
-                    Tipo de base: {{ $item['detalle']['tipo_base'] ?? '—' }}, Material: {{ $item['detalle']['material'] ?? '—' }}
-                    Observación: {{ $item['detalle']['observacion'] ?? 'Sin observación' }}</pre>
+                    <div style="line-height: 1.7; font-size: 12px;">
+                        <div><strong>{{ $item['detalle']['titulo'] ?? '' }}</strong></div>
+                        <div>Receta OD: {{ $item['detalle']['receta_od'] ?? '—' }} &nbsp;|&nbsp; Receta OI: {{ $item['detalle']['receta_oi'] ?? '—' }}</div>
+                        <div>Add OD: {{ $item['detalle']['add_od'] ?? '**' }} &nbsp;|&nbsp; Add OI: {{ $item['detalle']['add_oi'] ?? '**' }}</div>
+                        <div>Prismas OD: {{ $item['detalle']['prisma_od'] ?? '**' }} &nbsp;|&nbsp; Prismas OI: {{ $item['detalle']['prisma_oi'] ?? '**' }}</div>
+                        <div>Nro de base: {{ $item['detalle']['tipo_base'] ?? '—' }}</div>
+                        <div>Material: {{ $item['detalle']['material'] ?? '—' }}</div>
+                        <div>Observación: {{ $item['detalle']['observacion'] ?? 'Sin observación' }}</div>
+                    </div>
                 </td>
             </tr>
             @endforeach

@@ -51,7 +51,7 @@ const ModalHistorialOrden = ({
             `Receta OD: ${detalle.receta_od ?? "—"}, Receta OI: ${detalle.receta_oi ?? "—"}`,
             `Add OD: ${detalle.add_od ?? "**"}, Add OI: ${detalle.add_oi ?? "**"}`,
             `Prismas OD: ${detalle.prisma_od ?? "**"}, Prismas OI: ${detalle.prisma_oi ?? "**"}`,
-            `Tipo de base: ${detalle.tipo_base ?? "—"}, Material: ${detalle.material ?? "—"}`,
+            `Nro de base: ${detalle.tipo_base ?? "—"}, Material: ${detalle.material ?? "—"}`,
             `Observación: ${detalle.observacion ?? "Sin observación"}`,
         ].join("\n");
     };
