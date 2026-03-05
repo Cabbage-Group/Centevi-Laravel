@@ -33,7 +33,6 @@ class PedidosController extends Controller
             'ordenes.*.add_oi'      => 'nullable|string|max:20',
             'ordenes.*.prisma_od'   => 'nullable|string|max:100',
             'ordenes.*.prisma_oi'   => 'nullable|string|max:100',
-            'ordenes.*.tipo_base'   => 'nullable|string|max:50',
             'ordenes.*.material'    => 'nullable|string|max:150',
             'ordenes.*.esfera_od'      => 'nullable|string|max:20',
             'ordenes.*.esfera_oi'      => 'nullable|string|max:20',
@@ -47,9 +46,42 @@ class PedidosController extends Controller
             'ordenes.*.material_oi'    => 'nullable|string|max:150',
             'ordenes.*.tratamientos_od' => 'nullable|string|max:255',
             'ordenes.*.tratamientos_oi' => 'nullable|string|max:255',
+            'ordenes.*.ojo' => 'nullable|in:ambos,od,oi',
+            'ordenes.*.tipo_base_od' => 'nullable|string|max:50',
+            'ordenes.*.tipo_base_oi' => 'nullable|string|max:50',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        $camposPorOjo = function (array $item): array {
+            $ojo     = $item['ojo'] ?? 'ambos';
+            $soloOD  = $ojo === 'od';
+            $soloOI  = $ojo === 'oi';
+
+            return [
+                'receta_od'       => $soloOI ? null : ($item['receta_od']       ?? null),
+                'receta_oi'       => $soloOD ? null : ($item['receta_oi']       ?? null),
+                'add_od'          => $soloOI ? null : ($item['add_od']          ?? null),
+                'add_oi'          => $soloOD ? null : ($item['add_oi']          ?? null),
+                'prisma_od'       => $soloOI ? null : ($item['prisma_od']       ?? null),
+                'prisma_oi'       => $soloOD ? null : ($item['prisma_oi']       ?? null),
+                'esfera_od'       => $soloOI ? null : ($item['esfera_od']       ?? null),
+                'esfera_oi'       => $soloOD ? null : ($item['esfera_oi']       ?? null),
+                'cilindro_od'     => $soloOI ? null : ($item['cilindro_od']     ?? null),
+                'cilindro_oi'     => $soloOD ? null : ($item['cilindro_oi']     ?? null),
+                'eje_od'          => $soloOI ? null : ($item['eje_od']          ?? null),
+                'eje_oi'          => $soloOD ? null : ($item['eje_oi']          ?? null),
+                'tipo_cristal_od' => $soloOI ? null : ($item['tipo_cristal_od'] ?? null),
+                'tipo_cristal_oi' => $soloOD ? null : ($item['tipo_cristal_oi'] ?? null),
+                'material_od'     => $soloOI ? null : ($item['material_od']     ?? null),
+                'material_oi'     => $soloOD ? null : ($item['material_oi']     ?? null),
+                'tratamientos_od' => $soloOI ? null : ($item['tratamientos_od'] ?? null),
+                'tratamientos_oi' => $soloOD ? null : ($item['tratamientos_oi'] ?? null),
+                'tipo_base_od'    => $soloOI ? null : ($item['tipo_base_od']    ?? null),
+                'tipo_base_oi'    => $soloOD ? null : ($item['tipo_base_oi']    ?? null),
+                'material'        => $item['material']  ?? null,
+            ];
+        };
+
+        return DB::transaction(function () use ($request, $camposPorOjo) {
             try {
                 foreach ($request->ordenes as $item) {
                     $tipo = $item['tipo'];
@@ -64,6 +96,7 @@ class PedidosController extends Controller
                                 'fecha_generado' => now(),
                                 'estado'         => 'Realizado',
                                 'total_ordenes'  => 1,
+                                'ojo'             => $item['ojo'] ?? 'ambos',
                                 'observacion'    => $item['observacion'] ?? null,
                                 'receta_od'      => $item['receta_od'] ?? null,
                                 'receta_oi'      => $item['receta_oi'] ?? null,
@@ -71,7 +104,6 @@ class PedidosController extends Controller
                                 'add_oi'         => $item['add_oi'] ?? null,
                                 'prisma_od'      => $item['prisma_od'] ?? null,
                                 'prisma_oi'      => $item['prisma_oi'] ?? null,
-                                'tipo_base'      => $item['tipo_base'] ?? null,
                                 'material'       => $item['material'] ?? null,
                                 'esfera_od'      => $item['esfera_od'] ?? null,
                                 'esfera_oi'      => $item['esfera_oi'] ?? null,
@@ -85,6 +117,9 @@ class PedidosController extends Controller
                                 'material_oi'     => $item['material_oi'] ?? null,
                                 'tratamientos_od' => $item['tratamientos_od'] ?? null,
                                 'tratamientos_oi' => $item['tratamientos_oi'] ?? null,
+                                'ojo' => $item['ojo'] ?? 'ambos',
+                                'tipo_base_od' => $item['tipo_base_od'] ?? null,
+                                'tipo_base_oi' => $item['tipo_base_oi'] ?? null,
                             ]);
 
                             CorrecionesOrdenes::where('id', $correccion->id)
@@ -103,19 +138,24 @@ class PedidosController extends Controller
                             }
                         }
 
-                        // Mermas de corrección
                         $mermasEntrada = $item['mermas'] ?? [];
                         if (!empty($mermasEntrada)) {
                             $mermaIds = collect($mermasEntrada)->pluck('id_merma')->toArray();
+
                             Mermas::whereIn('id_merma', $mermaIds)
-                                ->update([
-                                    'id_proveedor' => $request->id_proveedor,
-                                    'estado' => 'Realizado',
-                                    'observacion'  => $item['observacion'] ?? null,
-                                ]);
+                                ->update(array_merge(
+                                    [
+                                        'id_proveedor' => $request->id_proveedor,
+                                        'estado'       => 'Realizado',
+                                        'observacion'  => $item['observacion'] ?? null,
+                                        'ojo'          => $item['ojo'] ?? 'ambos',
+                                    ],
+                                    $camposPorOjo($item)
+                                ));
 
                             $mermasPendientes = Mermas::where('correccion_id', $correccion->id)
-                                ->where('estado', 'Pendiente')->count();
+                                ->where('estado', 'Pendiente')
+                                ->count();
 
                             $pedido->update([
                                 'estado' => $mermasPendientes > 0 ? 'Pendiente' : 'Realizado',
@@ -131,6 +171,7 @@ class PedidosController extends Controller
                                 'fecha_generado' => now(),
                                 'estado'         => 'Realizado',
                                 'total_ordenes'  => 1,
+                                'ojo'             => $item['ojo'] ?? 'ambos',
                                 'observacion'    => $item['observacion'] ?? null,
                                 'receta_od'      => $item['receta_od'] ?? null,
                                 'receta_oi'      => $item['receta_oi'] ?? null,
@@ -138,7 +179,6 @@ class PedidosController extends Controller
                                 'add_oi'         => $item['add_oi'] ?? null,
                                 'prisma_od'      => $item['prisma_od'] ?? null,
                                 'prisma_oi'      => $item['prisma_oi'] ?? null,
-                                'tipo_base'      => $item['tipo_base'] ?? null,
                                 'material'       => $item['material'] ?? null,
                                 'esfera_od'      => $item['esfera_od'] ?? null,
                                 'esfera_oi'      => $item['esfera_oi'] ?? null,
@@ -152,9 +192,11 @@ class PedidosController extends Controller
                                 'material_oi'    => $item['material_oi'] ?? null,
                                 'tratamientos_od' => $item['tratamientos_od'] ?? null,
                                 'tratamientos_oi' => $item['tratamientos_oi'] ?? null,
+                                'ojo' => $item['ojo'] ?? 'ambos',
+                                'tipo_base_od' => $item['tipo_base_od'] ?? null,
+                                'tipo_base_oi' => $item['tipo_base_oi'] ?? null,
                             ]);
 
-                            // ← Usar where + update en lugar de model update
                             Ordenes::where('id_orden', $orden->id_orden)
                                 ->update([
                                     'id_pedido'          => $pedido->id_pedido,
@@ -164,22 +206,23 @@ class PedidosController extends Controller
                             // Refrescar el modelo para que $orden->id_pedido esté actualizado
                             $orden->refresh();
                         } else {
-                            // ── Ya tiene pedido → solo actualizar estado ─────────
                             $pedido = Pedido::find($orden->id_pedido);
                         }
 
-                        // ── Mermas: si vienen, actualizarlas con su propio proveedor ──
                         if (!empty($mermasEntrada)) {
                             $mermaIds = collect($mermasEntrada)->pluck('id_merma')->toArray();
 
                             Mermas::whereIn('id_merma', $mermaIds)
-                                ->update([
-                                    'id_proveedor' => $request->id_proveedor,
-                                    'estado'       => 'Realizado',
-                                    'observacion'  => $item['observacion'] ?? null,
+                                ->update(array_merge(
+                                    [
+                                        'id_proveedor' => $request->id_proveedor,
+                                        'estado'       => 'Realizado',
+                                        'observacion'  => $item['observacion'] ?? null,
+                                        'ojo'          => $item['ojo'] ?? 'ambos',
+                                    ],
+                                    $camposPorOjo($item)  // ← actualiza campos ópticos según ojo
+                                ));
 
-                                ]);
-                            // Estado del pedido vinculado a si quedan mermas pendientes
                             $mermasPendientesRestantes = Mermas::where('orden_id', $orden->id_orden)
                                 ->where('estado', 'Pendiente')
                                 ->count();
@@ -237,7 +280,8 @@ class PedidosController extends Controller
             'fasesOrdenes.baseIzquierda',
             'fasesOrdenes.baseDerecha',
             'mermas' => fn($q) => $q->with('proveedor')->orderBy('created_at', 'desc'),
-        ])->where('cancelada', 0);
+        ])->where('cancelada', 0)
+            ->where('lente_contacto', false);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -329,13 +373,13 @@ class PedidosController extends Controller
             'correccion_id' => 'nullable|exists:correciones_ordenes,id',
             'observacion'   => 'nullable|string|max:255',
             'id_proveedor'  => 'nullable|exists:proveedor_de_material,id',
+            'ojo'             => 'nullable|in:ambos,od,oi',
             'receta_od'     => 'nullable|string|max:100',
             'receta_oi'     => 'nullable|string|max:100',
             'add_od'        => 'nullable|string|max:20',
             'add_oi'        => 'nullable|string|max:20',
             'prisma_od'     => 'nullable|string|max:100',
             'prisma_oi'     => 'nullable|string|max:100',
-            'tipo_base'     => 'nullable|string|max:50',
             'material'      => 'nullable|string|max:150',
             'esfera_od'      => 'nullable|string|max:20',
             'esfera_oi'      => 'nullable|string|max:20',
@@ -349,6 +393,8 @@ class PedidosController extends Controller
             'material_oi'    => 'nullable|string|max:150',
             'tratamientos_od' => 'nullable|string|max:255',
             'tratamientos_oi' => 'nullable|string|max:255',
+            'tipo_base_od' => 'nullable|string|max:50',
+            'tipo_base_oi' => 'nullable|string|max:50',
 
         ]);
 
@@ -356,14 +402,44 @@ class PedidosController extends Controller
             return response()->json(['message' => 'Debe indicar orden_id o correccion_id'], 422);
         }
 
-        return DB::transaction(function () use ($request) {
+        $aplicarFiltroOjo = function (array $data, string $ojo): array {
+            if ($ojo === 'od') {
+                $data['receta_oi']       = null;
+                $data['add_oi']          = null;
+                $data['prisma_oi']       = null;
+                $data['esfera_oi']       = null;
+                $data['cilindro_oi']     = null;
+                $data['eje_oi']          = null;
+                $data['tipo_cristal_oi'] = null;
+                $data['material_oi']     = null;
+                $data['tratamientos_oi'] = null;
+                $data['tipo_base_oi'] = null;
+            } elseif ($ojo === 'oi') {
+                $data['receta_od']       = null;
+                $data['add_od']          = null;
+                $data['prisma_od']       = null;
+                $data['esfera_od']       = null;
+                $data['cilindro_od']     = null;
+                $data['eje_od']          = null;
+                $data['tipo_cristal_od'] = null;
+                $data['material_od']     = null;
+                $data['tratamientos_od'] = null;
+                $data['tipo_base_oi'] = null;
+            }
+            return $data;
+        };
+
+        return DB::transaction(function () use ($request, $aplicarFiltroOjo) {
             try {
                 if ($request->correccion_id) {
                     $correccion  = CorrecionesOrdenes::with('pedido')->findOrFail($request->correccion_id);
                     $pedidoId    = $correccion->id_pedido;
                     $idProveedor = $correccion->pedido?->id_proveedor ?? null;
+                    $ojo = $request->ojo
+                        ?? $correccion->pedido?->ojo
+                        ?? 'ambos';
 
-                    $merma = Mermas::create([
+                    $mermaData = $aplicarFiltroOjo([
                         'orden_id'      => null,
                         'correccion_id' => $correccion->id,
                         'pedido_id'     => $pedidoId,
@@ -378,7 +454,8 @@ class PedidosController extends Controller
                         'add_oi'        => $request->add_oi,
                         'prisma_od'     => $request->prisma_od,
                         'prisma_oi'     => $request->prisma_oi,
-                        'tipo_base'     => $request->tipo_base,
+                        'tipo_base_od' => $request->tipo_base_od,
+                        'tipo_base_oi' => $request->tipo_base_oi,
                         'material'      => $request->material,
                         'esfera_od'      => $request->esfera_od,
                         'esfera_oi'      => $request->esfera_oi,
@@ -392,8 +469,9 @@ class PedidosController extends Controller
                         'material_oi'    => $request->material_oi,
                         'tratamientos_od' => $request->tratamientos_od,
                         'tratamientos_oi' => $request->tratamientos_oi,
-                    ]);
-
+                        'ojo' => $ojo,
+                    ], $ojo);
+                    $merma = Mermas::create($mermaData);
                     if ($pedidoId) {
                         Pedido::where('id_pedido', $pedidoId)
                             ->update(['estado' => 'Pendiente']);
@@ -404,7 +482,11 @@ class PedidosController extends Controller
                     $pedidoId    = $orden->id_pedido;
                     $idProveedor = $orden->pedido?->id_proveedor ?? null;
 
-                    $merma = Mermas::create([
+                    $ojo = $request->ojo
+                        ?? $orden->pedido?->ojo
+                        ?? 'ambos';
+
+                    $mermaData = $aplicarFiltroOjo([
                         'orden_id'      => $orden->id_orden,
                         'correccion_id' => null,
                         'pedido_id'     => $pedidoId,
@@ -419,7 +501,6 @@ class PedidosController extends Controller
                         'add_oi'        => $request->add_oi,
                         'prisma_od'     => $request->prisma_od,
                         'prisma_oi'     => $request->prisma_oi,
-                        'tipo_base'     => $request->tipo_base,
                         'material'      => $request->material,
                         'esfera_od'      => $request->esfera_od,
                         'esfera_oi'      => $request->esfera_oi,
@@ -433,7 +514,10 @@ class PedidosController extends Controller
                         'material_oi'    => $request->material_oi,
                         'tratamientos_od' => $request->tratamientos_od,
                         'tratamientos_oi' => $request->tratamientos_oi,
-                    ]);
+                        'ojo' => $ojo,
+                    ], $ojo);
+
+                    $merma = Mermas::create($mermaData);
 
                     if ($pedidoId) {
                         Pedido::where('id_pedido', $pedidoId)
@@ -497,6 +581,7 @@ class PedidosController extends Controller
                         'proveedor'  => $pedido->proveedor?->nombre ?? '—',
                         'cantidad'   => 1,
                         'estado'     => $pedido->estado,
+                        'ojo'     => $pedido->ojo,
                         'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
                         '_sort'      => $pedido->fecha_generado,
                     ]);
@@ -513,6 +598,7 @@ class PedidosController extends Controller
                     'proveedor'  => $merma->proveedor?->nombre ?? '—',
                     'cantidad'   => 1,
                     'estado'     => $merma->estado,
+                    'ojo'        => $merma->ojo,
                     'detalle'    => $this->formatDetalle('MERMA', $merma),
                     '_sort'      => $merma->created_at,
                 ]);
@@ -552,6 +638,7 @@ class PedidosController extends Controller
                     'proveedor'  => $pedido->proveedor?->nombre ?? '—',
                     'cantidad'   => 1,
                     'estado'     => $pedido->estado,
+                    'ojo'     => $pedido->ojo,
                     'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
                     '_sort'      => $pedido->fecha_generado,
                 ]);
@@ -569,6 +656,7 @@ class PedidosController extends Controller
                 'proveedor'  => $merma->proveedor?->nombre ?? '—',
                 'cantidad'   => 1,
                 'estado'     => $merma->estado,
+                'ojo'     => $merma->ojo,
                 'detalle'    => $this->formatDetalle('MERMA', $merma),
                 '_sort'      => $merma->created_at,
             ]);
@@ -615,6 +703,7 @@ class PedidosController extends Controller
                         'evento'     => 'PEDIDO',
                         'proveedor'  => $pedido->proveedor?->nombre ?? '—',
                         'cantidad'   => 1,
+                        'ojo' => $pedido->ojo,
                         'estado'     => $pedido->estado,
                         'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
                         '_sort'      => $pedido->fecha_generado,
@@ -629,6 +718,7 @@ class PedidosController extends Controller
                     'evento_id'  => $merma->id_merma,
                     'fecha_hora' => $merma->created_at?->format('d/m/Y H:i:s'),
                     'evento'     => 'MERMA',
+                    'ojo'     => $merma->ojo,
                     'proveedor'  => $merma->proveedor?->nombre ?? '—',
                     'cantidad'   => 1,
                     'estado'     => $merma->estado,
@@ -659,6 +749,7 @@ class PedidosController extends Controller
                     'evento_id'  => $pedido->id_pedido,
                     'fecha_hora' => $pedido->fecha_generado?->format('d/m/Y H:i:s'),
                     'evento'     => 'PEDIDO',
+                    'ojo'  => $pedido->ojo,
                     'proveedor'  => $pedido->proveedor?->nombre ?? '—',
                     'cantidad'   => 1,
                     'estado'     => $pedido->estado,
@@ -679,6 +770,7 @@ class PedidosController extends Controller
                 'proveedor'  => $merma->proveedor?->nombre ?? '—',
                 'cantidad'   => 1,
                 'estado'     => $merma->estado,
+                'ojo'     => $merma->ojo,
                 'detalle'    => $this->formatDetalle('MERMA', $merma),
                 '_sort'      => $merma->created_at,
             ]);
@@ -791,26 +883,37 @@ class PedidosController extends Controller
             'add_oi'      => $model->add_oi   ?: '**',
             'prisma_od'   => $model->prisma_od ?: '**',
             'prisma_oi'   => $model->prisma_oi ?: '**',
-            'tipo_base'   => $model->tipo_base,
+            'tipo_base_od' => $model->tipo_base_od ?? '**',
+            'tipo_base_oi' => $model->tipo_base_oi ?? '**',
             'material'    => $model->material,
+            'ojo' => $model->ojo ?? false,
             'observacion' => $model->observacion ?: 'Sin observación',
         ];
     }
 
-    private function getTipoBase(Ordenes $orden): ?string
+    private function getTipoBaseOD(Ordenes $orden): ?string
     {
-        $ultimaFase = $orden->fasesOrdenes->last();
-        return $ultimaFase?->baseDerecha?->codigo
-            ?? $ultimaFase?->baseIzquierda?->codigo;
+        $fase = $orden->fasesOrdenes->firstWhere('tipo_fase_orden_id', 2);
+        return $fase?->baseDerecha?->codigo ?? null;
     }
 
-    private function getTipoBaseCorrecciones(CorrecionesOrdenes $correccionOrden): ?string
+    private function getTipoBaseOI(Ordenes $orden): ?string
     {
-        $ultimaFase = $correccionOrden->faseCorreccionOrden->last();
-        return $ultimaFase?->baseDerecha?->codigo
-            ?? $ultimaFase?->baseIzquierda?->codigo;
+        $fase = $orden->fasesOrdenes->firstWhere('tipo_fase_orden_id', 2);
+        return $fase?->baseIzquierda?->codigo ?? null;
     }
 
+    private function getTipoBaseODCorrecciones(CorrecionesOrdenes $c): ?string
+    {
+        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_orden_id', 2);
+        return $fase?->baseDerecha?->codigo ?? null;
+    }
+
+    private function getTipoBaseOICorrecciones(CorrecionesOrdenes $c): ?string
+    {
+        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_orden_id', 2);
+        return $fase?->baseIzquierda?->codigo ?? null;
+    }
 
     private function formatOrden(Ordenes $orden): array
     {
@@ -820,6 +923,7 @@ class PedidosController extends Controller
             'id_paciente'        => $orden->id_paciente,
             'nro_orden_id'       => $orden->nro_orden_id,
             'id_pedido'          => $orden->id_pedido,
+            'pedido_ojo' => $orden->pedido?->ojo ?? 'ambos',
             'fecha' => $orden->created_at?->toDateString(),
             'orden'              => $orden->nro_orden_id,
             'esfera_od'          => $orden->esfera_od,
@@ -838,7 +942,8 @@ class PedidosController extends Controller
             'eje_oi'             => $orden->eje_oi,
             'add_oi'             => $orden->add_oi,
             'prisma_oi'          => $orden->prisma_oi,
-            'tipo_base'          => $this->getTipoBase($orden),
+            'tipo_base_od' => $this->getTipoBaseOD($orden),
+            'tipo_base_oi' => $this->getTipoBaseOI($orden),
             'pedido_material'    => $orden->pedido?->estado ?? 'Pendiente',
             'merma_estado'       => $orden->mermas->first()?->estado,
             'merma_pendiente'    => $orden->mermas->where('estado', 'Pendiente')->count(),
@@ -870,6 +975,7 @@ class PedidosController extends Controller
                 'id_real'            => $correccion->id,
                 'id_orden_padre'     => $orden->id_orden,
                 'es_correccion'      => true,
+                'pedido_ojo' => $correccion->pedido?->ojo ?? 'ambos',
                 'fecha'              => $correccion->created_at,
                 'nro_orden_id'       => $orden->nro_orden_id . '-C' . $numero,
                 'orden'              => $orden->nro_orden_id . '-C' . $numero,
@@ -891,7 +997,8 @@ class PedidosController extends Controller
                 'tratamientos_oi'    => $correccion->tratamientos_oi,
                 'receta_od'          => $correccion->esfera_od . ' ' . $correccion->cilindro_od . ' ' . $correccion->eje_od,
                 'receta_oi'          => $correccion->esfera_oi . ' ' . $correccion->cilindro_oi . ' ' . $correccion->eje_oi,
-                'tipo_base'          => $this->getTipoBaseCorrecciones($correccion),
+                'tipo_base_od' => $this->getTipoBaseODCorrecciones($correccion),
+                'tipo_base_oi' => $this->getTipoBaseOICorrecciones($correccion),
                 // 'material'           => $correccion->material_od ?? $correccion->material_oi,
                 'material'           => (($limpiar($correccion->tipo_cristal_od) ?? $limpiar($correccion->tipo_cristal_oi) ?? '**') . ' / ' .
                     ($correccion->material_od ?? $correccion->material_oi ?? '**') . ' / ' .

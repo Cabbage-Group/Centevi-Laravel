@@ -44,16 +44,43 @@ const ModalHistorialOrden = ({
         window.open(`${API}/pedidos/historial/${idOrden}/imprimir?${params}`, '_blank');
     };
 
-    const formatDetalle = (detalle) => {
+    const formatDetalle = (detalle, ojo = 'ambos') => {
+        console.log('ojo',ojo)
         if (!detalle) return "—";
-        return [
-            detalle.titulo,
-            `Receta OD: ${detalle.receta_od ?? "—"}, Receta OI: ${detalle.receta_oi ?? "—"}`,
-            `Add OD: ${detalle.add_od ?? "**"}, Add OI: ${detalle.add_oi ?? "**"}`,
-            `Prismas OD: ${detalle.prisma_od ?? "**"}, Prismas OI: ${detalle.prisma_oi ?? "**"}`,
-            `Nro de base: ${detalle.tipo_base ?? "—"}, Material: ${detalle.material ?? "—"}`,
-            `Observación: ${detalle.observacion ?? "Sin observación"}`,
-        ].join("\n");
+
+        const mostrarOD = ojo.ojo !== 'oi';
+        const mostrarOI = ojo.ojo !== 'od';
+
+        const basesIguales = detalle.tipo_base_oi === detalle.tipo_base_od;
+        const baseUnica = detalle.tipo_base_od || detalle.tipo_base_oi;
+
+        const lineas = [detalle.titulo, '─────────────────────────────'];
+
+        if (mostrarOD) lineas.push(`Receta OD:   ${detalle.receta_od ?? "**"}`);
+        if (mostrarOI) lineas.push(`Receta OI:   ${detalle.receta_oi ?? "**"}`);
+        if (mostrarOD) lineas.push(`Add OD:      ${detalle.add_od ?? "**"}`);
+        if (mostrarOI) lineas.push(`Add OI:      ${detalle.add_oi ?? "**"}`);
+        if (mostrarOD) lineas.push(`Prismas OD:  ${detalle.prisma_od ?? "**"}`);
+        if (mostrarOI) lineas.push(`Prismas OI:  ${detalle.prisma_oi ?? "**"}`);
+
+
+        if (mostrarOD && (!basesIguales || ojo === 'od')) {
+            lineas.push(`Nro Base OD:     ${detalle.tipo_base_od ?? "**"}`);
+        }
+        if (mostrarOI && (!basesIguales || ojo === 'oi')) {
+            lineas.push(`Nro Base OI:     ${detalle.tipo_base_oi ?? "**"}`);
+        }
+
+        lineas.push('─────────────────────────────');
+        lineas.push(`Material:    ${detalle.material ?? "—"}`);
+
+        if (basesIguales && ojo === 'ambos') {
+            lineas.push(`Nro Base:    ${baseUnica ?? "**"}`);
+        }
+
+        lineas.push(`Observación: ${detalle.observacion ?? "Sin observación"}`);
+
+        return lineas.join("\n");
     };
 
     const columns = [
@@ -100,9 +127,36 @@ const ModalHistorialOrden = ({
             render: (val) => <span style={{ fontSize: 13, fontWeight: 600 }}>{val}</span>,
         },
         {
+            title: "OJO",
+            dataIndex: "ojo",
+            width: 90,
+            align: "center",
+            render: (val) => {
+                const config = {
+                    od: { label: "OD", bg: "#e8f4fd", color: "#1a5f8a" },
+                    oi: { label: "OI", bg: "#f3e8fd", color: "#6a3fa0" },
+                    ambos: { label: "Ambos", bg: "#e8fdf0", color: "#27ae60" },
+                };
+                const c = config[val] ?? config.ambos;
+                return (
+                    <span style={{
+                        background: c.bg,
+                        color: c.color,
+                        border: `1px solid ${c.color}`,
+                        borderRadius: 4,
+                        padding: "2px 8px",
+                        fontSize: 11,
+                        fontWeight: 700,
+                    }}>
+                        {c.label}
+                    </span>
+                );
+            },
+        },
+        {
             title: "DETALLE",
             dataIndex: "detalle",
-            render: (detalle) => (
+            render: (detalle, ojo) => (
                 <pre
                     style={{
                         margin: 0,
@@ -113,7 +167,7 @@ const ModalHistorialOrden = ({
                         lineHeight: 1.6,
                     }}
                 >
-                    {formatDetalle(detalle)}
+                    {formatDetalle(detalle, ojo)}
                 </pre>
             ),
         },

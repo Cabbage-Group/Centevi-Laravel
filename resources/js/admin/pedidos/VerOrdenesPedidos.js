@@ -69,6 +69,7 @@ const VerOrdenesPedidos = () => {
     const [loading, setIsLoading] = useState();
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [selectedOrders, setSelectedOrders] = useState([]);
 
     const currentPageIds = (ordenesPedidos || []).map((o) => o.nro_orden_id);
 
@@ -97,19 +98,31 @@ const VerOrdenesPedidos = () => {
                 ...prev,
                 ...seleccionables.filter((id) => !prev.includes(id)),
             ]);
+            setSelectedOrders((prev) => {
+                const prevIds = prev.map((o) => o.nro_orden_id);
+                const nuevas = ordenesPedidos.filter(
+                    (o) => seleccionables.includes(o.nro_orden_id) && !prevIds.includes(o.nro_orden_id)
+                );
+                return [...prev, ...nuevas];
+            });
         } else {
-            setSelectedRowKeys((prev) =>
-                prev.filter((id) => !seleccionables.includes(id))
-            );
+            setSelectedRowKeys((prev) => prev.filter((id) => !seleccionables.includes(id)));
+            setSelectedOrders((prev) => prev.filter((o) => !seleccionables.includes(o.nro_orden_id)));
         }
     };
+
     const handleSelectRow = (id, checked) => {
         const orden = ordenesPedidos.find((o) => o.nro_orden_id === id);
         if (orden?.pedido_material === 'Realizado') return;
+
         if (checked) {
             setSelectedRowKeys((prev) => [...prev, id]);
+            setSelectedOrders((prev) =>
+                prev.find((o) => o.nro_orden_id === id) ? prev : [...prev, orden]
+            );
         } else {
             setSelectedRowKeys((prev) => prev.filter((k) => k !== id));
+            setSelectedOrders((prev) => prev.filter((o) => o.nro_orden_id !== id));
         }
     };
 
@@ -188,6 +201,8 @@ const VerOrdenesPedidos = () => {
         console.log('record', record)
         if (!record.id_pedido) return;
 
+        const ojoInicial = record.pedido_ojo ?? 'ambos';
+
         const { isConfirmed, value } = await Swal.fire({
             title: "¿Agregar merma?",
             html: `
@@ -206,37 +221,39 @@ const VerOrdenesPedidos = () => {
 
         if (!isConfirmed || !value) return;
 
+        const ojo = value.ojo;
+        const soloOD = ojo === 'od';
+        const soloOI = ojo === 'oi';
+
         setLoadingMerma(record.id_orden);
         try {
-            await dispatch(
-                createMermaPedidos({
-                    orden_id: record.es_correccion ? null : record.id_orden,
-                    correccion_id: record.es_correccion ? record.id_real : null,
-                    observacion: value.observacion,
-                    receta_od: record.receta_od,
-                    receta_oi: record.receta_oi,
-                    add_od: record.add_od,
-                    add_oi: record.add_oi,
-                    prisma_od: record.prisma_od,
-                    prisma_oi: record.prisma_oi,
-                    tipo_base: record.tipo_base,
-                    material: record.material,
-                    esfera_od: record.esfera_od ?? null,
-                    esfera_oi: record.esfera_oi ?? null,
-                    cilindro_od: record.cilindro_od ?? null,
-                    cilindro_oi: record.cilindro_oi ?? null,
-                    eje_od: record.eje_od ?? null,
-                    eje_oi: record.eje_oi ?? null,
-                    tipo_cristal_od: record.tipo_cristal_od ?? null,
-                    tipo_cristal_oi: record.tipo_cristal_oi ?? null,
-                    material_od: record.material_od ?? null,
-                    material_oi: record.material_oi ?? null,
-                    tratamientos_od: record.tratamientos_od ?? null,
-                    tratamientos_oi: record.tratamientos_oi ?? null,
-                })
-            ).unwrap();
+            await dispatch(createMermaPedidos({
+                orden_id: record.es_correccion ? null : record.id_orden,
+                correccion_id: record.es_correccion ? record.id_real : null,
+                receta_od: soloOI ? null : record.receta_od,
+                receta_oi: soloOD ? null : record.receta_oi,
+                add_od: soloOI ? null : record.add_od,
+                add_oi: soloOD ? null : record.add_oi,
+                prisma_od: soloOI ? null : record.prisma_od,
+                prisma_oi: soloOD ? null : record.prisma_oi,
+                esfera_od: soloOI ? null : record.esfera_od,
+                esfera_oi: soloOD ? null : record.esfera_oi,
+                cilindro_od: soloOI ? null : record.cilindro_od,
+                cilindro_oi: soloOD ? null : record.cilindro_oi,
+                eje_od: soloOI ? null : record.eje_od,
+                eje_oi: soloOD ? null : record.eje_oi,
+                tipo_cristal_od: soloOI ? null : record.tipo_cristal_od,
+                tipo_cristal_oi: soloOD ? null : record.tipo_cristal_oi,
+                material_od: soloOI ? null : record.material_od,
+                material_oi: soloOD ? null : record.material_oi,
+                tratamientos_od: soloOI ? null : record.tratamientos_od,
+                tratamientos_oi: soloOD ? null : record.tratamientos_oi,
+                tipo_base_od: soloOD ? null : record.tipo_base_od ?? null,
+                tipo_base_oi: soloOI ? null : record.tipo_base_oi ?? null,
+                material: record.material,
+            })).unwrap();
 
-            dispatch(fecthOrdenesPedidos({
+            const resultado = await dispatch(fecthOrdenesPedidos({
                 page: currentPage,
                 limit: 20,
                 search,
@@ -246,7 +263,20 @@ const VerOrdenesPedidos = () => {
                 endDate,
                 estado: estadoFilter,
                 proveedor: proveedorFilter,
-            }));
+            })).unwrap();
+
+            const freshOrders = resultado?.data ?? [];
+            if (freshOrders.length > 0) {
+                setSelectedOrders((prev) =>
+                    prev.map((o) => {
+                        const actualizada = freshOrders.find(
+                            (f) => f.nro_orden_id === o.nro_orden_id
+                        );
+                        return actualizada ?? o;
+                    })
+                );
+            }
+
             Swal.fire({
                 title: "Merma registrada",
                 text: "El pedido ha pasado a estado Pendiente.",
@@ -266,9 +296,13 @@ const VerOrdenesPedidos = () => {
             setLoadingMerma(null);
         }
     };
+
     const handleConfirmarMerma = (record) => {
         setSelectedRowKeys((prev) =>
             prev.includes(record.nro_orden_id) ? prev : [...prev, record.nro_orden_id]
+        );
+        setSelectedOrders((prev) =>
+            prev.find((o) => o.nro_orden_id === record.nro_orden_id) ? prev : [...prev, record]
         );
         setShowModalPedido(true);
     };
@@ -380,10 +414,32 @@ const VerOrdenesPedidos = () => {
         },
         {
             title: "TIPO DE BASE",
-            dataIndex: "tipo_base",
-            width: 120,
+            dataIndex: "tipo_base_od",
+            width: 200,
             align: "center",
-            render: (val) => <span style={{ fontSize: 12 }}>{val ?? "**"}</span>,
+            render: (_, record) => {
+                const od = record.tipo_base_od;
+                const oi = record.tipo_base_oi;
+                if (od === oi) {
+                    return <span style={{ fontSize: 12 }}>{od ?? "**"}</span>;
+                }
+
+                return (
+                    <span style={{ fontSize: 12 }}>
+                        {od ? (
+                            <span style={{ color: "#1a5f8a", fontWeight: 600 }}>{od}</span>
+                        ) : (
+                            <span style={{ color: "#aaa" }}>**</span>
+                        )}
+                        <span style={{ color: "#bbb", margin: "0 4px" }}>|</span>
+                        {oi ? (
+                            <span style={{ color: "#6a3fa0", fontWeight: 600 }}>{oi}</span>
+                        ) : (
+                            <span style={{ color: "#aaa" }}>**</span>
+                        )}
+                    </span>
+                );
+            },
         },
         {
             title: "MATERIAL",
@@ -655,9 +711,10 @@ const VerOrdenesPedidos = () => {
                                     open={showModalPedido}
                                     onClose={() => setShowModalPedido(false)}
                                     selectedRowKeys={selectedRowKeys}
-                                    ordenesPedidos={ordenesPedidos}
+                                    ordenesPedidos={selectedOrders}
                                     onSuccess={() => {
                                         setSelectedRowKeys([]);
+                                        setSelectedOrders([]);
                                         setShowModalPedido(false);
                                         dispatch(fecthOrdenesPedidos({
                                             page: currentPage,
@@ -683,15 +740,29 @@ const VerOrdenesPedidos = () => {
                                 idOrden={ordenHistorialId}
                                 esCorreccion={historialEsCorreccion}
                                 correccionId={historialCorreccionId}
-                                onEliminar={() => dispatch(fecthOrdenesPedidos({
-                                    page: currentPage,
-                                    limit: 20,
-                                    search,
-                                    startDate,
-                                    endDate,
-                                    estado: estadoFilter,
-                                    proveedor: proveedorFilter,
-                                }))}
+                                onEliminar={async () => {
+                                    const resultado = await dispatch(fecthOrdenesPedidos({
+                                        page: currentPage,
+                                        limit: 20,
+                                        search,
+                                        startDate,
+                                        endDate,
+                                        estado: estadoFilter,
+                                        proveedor: proveedorFilter,
+                                    })).unwrap();
+
+                                    const freshOrders = resultado?.data ?? [];
+                                    if (freshOrders.length > 0) {
+                                        setSelectedOrders((prev) =>
+                                            prev.map((o) => {
+                                                const actualizada = freshOrders.find(
+                                                    (f) => f.nro_orden_id === o.nro_orden_id
+                                                );
+                                                return actualizada ?? o;
+                                            })
+                                        );
+                                    }
+                                }}
 
                             />
                         </div>
