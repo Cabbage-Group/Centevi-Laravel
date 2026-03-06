@@ -26,7 +26,6 @@ class Pedido extends Model
         'add_oi',
         'prisma_od',
         'prisma_oi',
-        'tipo_base',
         'material',
         'esfera_od',
         'cilindro_od',
@@ -40,6 +39,9 @@ class Pedido extends Model
         'material_oi',
         'tratamientos_od',
         'tratamientos_oi',
+        'ojo',
+        'tipo_base_od',
+        'tipo_base_oi'
     ];
     
     protected $casts = [

@@ -31,7 +31,6 @@ class Mermas extends Model
         'add_oi',
         'prisma_od',
         'prisma_oi',
-        'tipo_base',
         'material',
         'correccion_id',
         'esfera_od',
@@ -46,6 +45,9 @@ class Mermas extends Model
         'material_oi',
         'tratamientos_od',
         'tratamientos_oi',
+        'tipo_base_od',
+        'tipo_base_oi',
+        'ojo'
     ];
 
     protected $casts = [
