@@ -276,8 +276,11 @@ const EditarGeneral = () => {
 
 
   const handleChange = (e) => {
+    console.log('dasdsa');
     const { name, value, dataset } = e.target;
-
+    console.log('name:', name);
+    console.log('value:', value);
+    console.log('dataset:', dataset);
     setFormData((prevFormData) => {
       switch (dataset.group) {
         case 'av_sc':
@@ -698,16 +701,13 @@ const EditarGeneral = () => {
                             <textarea
                               className="form-control textarea"
                               value={formData.m_c}
-                              maxLength="225"
+                              maxLength="900"
                               name="m_c"
-                              placeholder="Esta área tiene un limite de 225 caracteres."
-                              rows="2"
+                              placeholder="Esta área tiene un limite de 900 caracteres."
+                              rows="9"
                               onChange={handleChange}
                               disabled={
-                                !funPermisosObtenidosBoolean(
-                                  permisos,
-                                  "consultas.editartodo"
-                                )
+                                !funPermisosObtenidosBoolean(permisos, "consultas.editartodo")
                               }
                             />
                           </div>
@@ -839,7 +839,7 @@ const EditarGeneral = () => {
                                       <input
                                         className="form-control"
                                         value={formData.av_sc.av_sc_od_vl}
-                                        name="av/sc_od_vl"
+                                        name="av_sc_od_vl"
                                         placeholder="od_vl"
                                         type="text"
                                         onChange={handleChange}
@@ -856,7 +856,7 @@ const EditarGeneral = () => {
                                       <input
                                         className="form-control"
                                         value={formData.av_sc.av_sc_oi_vl}
-                                        name="av/sc_oi_vl"
+                                        name="av_sc_oi_vl"
                                         placeholder="oi_vl"
                                         type="text"
                                         onChange={handleChange}
@@ -878,7 +878,7 @@ const EditarGeneral = () => {
                                       <input
                                         className="form-control"
                                         value={formData.av_sc.av_sc_od_vp}
-                                        name="av/sc_od_vp"
+                                        name="av_sc_od_vp"
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
@@ -894,7 +894,7 @@ const EditarGeneral = () => {
                                       <input
                                         className="form-control"
                                         value={formData.av_sc.av_sc_oi_vp}
-                                        name="av/sc_oi_vp"
+                                        name="av_sc_oi_vp"
                                         type="text"
                                         onChange={handleChange}
                                         data-group="av_sc"
