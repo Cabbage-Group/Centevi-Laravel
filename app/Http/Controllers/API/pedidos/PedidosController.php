@@ -905,13 +905,13 @@ class PedidosController extends Controller
 
     private function getTipoBaseODCorrecciones(CorrecionesOrdenes $c): ?string
     {
-        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_orden_id', 2);
+        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_correccion_orden_id', 2);
         return $fase?->baseDerecha?->codigo ?? null;
     }
 
     private function getTipoBaseOICorrecciones(CorrecionesOrdenes $c): ?string
     {
-        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_orden_id', 2);
+        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_correccion_orden_id', 2);
         return $fase?->baseIzquierda?->codigo ?? null;
     }
 
