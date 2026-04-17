@@ -85,7 +85,7 @@ function MentionComponent() {
                     data={fetchData}
                     displayTransform={(id, display) => {
                         const mention = allMenciones.find((item) => item.id === id);
-                        const icon = mention?.type === "doctor" ? "🧑‍⚕️" : "🏥";
+                        const icon = mention?.type === "doctor" ? "🧑‍⚕" : "🏥";
                         return `@${display} ${icon}`;
                     }}
                     renderSuggestion={(suggestion) => (
