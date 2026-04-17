@@ -38,7 +38,7 @@ export const fetchCitasAgenda = createAsyncThunk(
 
       return citasData.map((cita) => ({
         id: cita.id || `sin-id-${Math.random().toString(36).substr(2, 9)}`,
-        title: cita.paciente?.nombres || "Sin Nombre",
+        title: cita.paciente?.nombres || cita.nombres || "Sin Nombre",
         start: cita.fecha_hora || new Date().toISOString(),
         end: cita.fecha_hora || new Date().toISOString(),
         fecha_hora_fin: cita.fecha_hora_fin,

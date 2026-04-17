@@ -1738,7 +1738,7 @@ Tarjeta (Clave,Visa o Mastercard)
                       }}
                       title={doctor}
                     >
-                      🧑‍⚕️ {doctor}
+                      🧑‍⚕ {doctor}
                     </small>
 
                     <div style={{ display: "flex" }}>
