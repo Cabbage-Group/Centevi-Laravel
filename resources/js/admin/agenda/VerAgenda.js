@@ -116,7 +116,7 @@ const VerAgenda = () => {
   const [isGroupedModalOpen, setIsGroupedModalOpen] = useState(false);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: "-50px" });
   const [selectedSucursales, setSelectedSucursales] = useState([]);
-  const [hideSunday, setHideSunday] = useState(true);
+  const [hideSunday, setHideSunday] = useState(false);
   const [actualizarCitas, setActualizarCitas] = useState(false);
   const usuario = localStorage.getItem("usuario");
   const [mensaje, setMensaje] = useState(
