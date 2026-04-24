@@ -1342,6 +1342,142 @@ Tarjeta (Clave,Visa o Mastercard)
     }
   };
 
+  const handleEventDrop = async (info) => {
+    const eventId = Number(info.event.id);
+    const clickedEvent = allCitasAgenda.find((event) => Number(event.id) === eventId);
+
+    if (!clickedEvent) {
+      info.revert();
+      return;
+    }
+
+    const nuevaFechaInicio = dayjs(info.event.start);
+    const nuevaFechaFin = info.event.end
+      ? dayjs(info.event.end)
+      : nuevaFechaInicio.add(60, "minutes");
+
+    const result = await Swal.fire({
+      title: "¿Mover cita?",
+      text: `¿Deseas mover la cita al ${nuevaFechaInicio.format("DD/MM/YYYY HH:mm")}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, mover",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    });
+
+    if (!result.isConfirmed) {
+      info.revert();
+      return;
+    }
+
+    const data = {
+      origen_id: clickedEvent.origen_id,
+      origen_tabla: clickedEvent.esProximaCita === 1 ? clickedEvent.origen_tabla : "citas_servicios",
+      fecha_hora: nuevaFechaInicio.format("YYYY-MM-DD HH:mm"),
+      fecha_hora_fin: nuevaFechaFin.format("YYYY-MM-DD HH:mm"),
+      tipo: clickedEvent.esProximaCita === 1 ? "proxima_cita" : clickedEvent.tipo,
+      paciente_id: clickedEvent.paciente_id,
+      doctor: clickedEvent.doctor,
+      sucursal_id: clickedEvent.sucursal_id,
+      ex_proxima_cita: clickedEvent.esProximaCita === 1 ? 1 : 0,
+      comentarios: clickedEvent.comentarios,
+      confirmado: clickedEvent.confirmado,
+      agendado_por: usuario,
+      servicios_ids: [],
+      nroCedula: clickedEvent.nro_cedula,
+      celular: clickedEvent.celular,
+      nombres: clickedEvent.paciente,
+      apellidos: clickedEvent.apellidos,
+    };
+
+    try {
+      await dispatch(updateCita({ id_cita: eventId, data })).unwrap();
+      Swal.fire({
+        icon: "success",
+        title: "Cita movida",
+        text: "La cita se actualizó correctamente.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      info.revert();
+      Swal.fire({
+        icon: "error",
+        title: "Error al mover",
+        text: error?.message || "Ocurrió un error al mover la cita.",
+      });
+    }
+  };
+
+  const handleEventResize = async (info) => {
+    const eventId = Number(info.event.id);
+    const clickedEvent = allCitasAgenda.find((event) => Number(event.id) === eventId);
+
+    if (!clickedEvent) {
+      info.revert();
+      return;
+    }
+
+    const nuevaFechaInicio = dayjs(info.event.start);
+    const nuevaFechaFin = dayjs(info.event.end);
+
+    const result = await Swal.fire({
+      title: "¿Cambiar duración?",
+      text: `¿Nueva hora de fin: ${nuevaFechaFin.format("HH:mm")}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Sí, guardar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    });
+
+    if (!result.isConfirmed) {
+      info.revert();
+      return;
+    }
+
+    const data = {
+      origen_id: clickedEvent.origen_id,
+      origen_tabla: clickedEvent.esProximaCita === 1 ? clickedEvent.origen_tabla : "citas_servicios",
+      fecha_hora: nuevaFechaInicio.format("YYYY-MM-DD HH:mm"),
+      fecha_hora_fin: nuevaFechaFin.format("YYYY-MM-DD HH:mm"),
+      tipo: clickedEvent.esProximaCita === 1 ? "proxima_cita" : clickedEvent.tipo,
+      paciente_id: clickedEvent.paciente_id,
+      doctor: clickedEvent.doctor,
+      sucursal_id: clickedEvent.sucursal_id,
+      ex_proxima_cita: clickedEvent.esProximaCita === 1 ? 1 : 0,
+      comentarios: clickedEvent.comentarios,
+      confirmado: clickedEvent.confirmado,
+      agendado_por: usuario,
+      servicios_ids: [],
+      nroCedula: clickedEvent.nro_cedula,
+      celular: clickedEvent.celular,
+      nombres: clickedEvent.paciente,
+      apellidos: clickedEvent.apellidos,
+    };
+
+    try {
+      await dispatch(updateCita({ id_cita: eventId, data })).unwrap();
+      Swal.fire({
+        icon: "success",
+        title: "Duración actualizada",
+        text: "La cita se actualizó correctamente.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      info.revert();
+      Swal.fire({
+        icon: "error",
+        title: "Error al redimensionar",
+        text: error?.message || "Ocurrió un error al actualizar la cita.",
+      });
+    }
+  };
+
   return (
     <div
       style={
@@ -1588,6 +1724,8 @@ Tarjeta (Clave,Visa o Mastercard)
             selectable
             dateClick={handleDateClick}
             // eventClick={(info) => handleEventClick(info)}
+            eventDrop={handleEventDrop}      // 👈 agregar
+            eventResize={handleEventResize}
             events={citasAgenda}
             eventOrder="id"
             eventDisplay="block"
