@@ -364,6 +364,58 @@ Tarjeta (Clave,Visa o Mastercard)
     }
   };
 
+  const resetearFormulario = (info = null) => {
+
+    setPacienteId(null);
+    setSelectedPaciente(null);
+    setCelular("");
+    setApellidos("");
+    setCreateCedula(null);
+    setCreatePaciente(null);
+
+   
+    setCurrentEventId(null);
+    setIsEditMode(false);
+    setConsultaId(null);
+    setTableName(null);
+    setEsProximaCita(null);
+    setSelectedDoctor(null);
+    setSelectedSucursal(null);
+    setSucursal("");
+    setSucursalId(null);
+    setProximosServicios([]);
+    setRangeTimeEndDateSelected(60);
+    setAgendadoPor(localStorage.getItem("usuario"));
+
+
+    form.resetFields();
+    form.setFieldsValue({
+      nroCedula: "",
+      paciente: "",
+      apellidos: "",
+      celular: "",
+      doctor: "",
+      comentarios: "",
+      confirmado: "SIN STATUS",
+      tipoAgenda: "",
+      agendado_por: localStorage.getItem("usuario"),
+      proximosServicios: [],
+      fechaAgenda: info ? dayjs(info.date) : dayjs(),
+      fechaAgendaFin: info ? dayjs(info.date).add(1, "hour") : dayjs().add(1, "hour"),
+    });
+
+    const sucursalSeleccionado = seleccionarSucursalIP();
+    if (sucursalSeleccionado) {
+      setSucursalId(sucursalSeleccionado.value);
+      setSucursal(sucursalSeleccionado.label);
+      setSelectedSucursal(sucursalSeleccionado.value);
+      setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps);
+      form.setFieldsValue({
+        sucursal: { value: sucursalSeleccionado.value, label: sucursalSeleccionado.label },
+      });
+    }
+  };
+
   // INICIO DESCARGA DEL EXCEL
 
   const downloadExcel = () => {
@@ -751,57 +803,59 @@ Tarjeta (Clave,Visa o Mastercard)
   };
 
   const handleDateClick = (info) => {
+    resetearFormulario(info);
     setIsModalOpen(true);
-    setRangeTimeEndDateSelected(60);
-    setIsEditMode(false);
-    form.setFieldsValue({
-      fechaAgenda: dayjs(info.dateStr),
-    });
-    setCurrentEventId(null);
-    setEventTitle("");
-    setEventDescription("");
-    setEventDates([dayjs(), dayjs().add(1, "day")]);
-    setEventBadge("Trabajo");
-    setAgendadoPor(localStorage.getItem("usuario"));
-    setProximosServicios([]);
-    setConsultaId(null);
-    setTableName(null);
-    setConsultaId(null);
+    // setIsModalOpen(true);
+    // setRangeTimeEndDateSelected(60);
+    // setIsEditMode(false);
+    // form.setFieldsValue({
+    //   fechaAgenda: dayjs(info.dateStr),
+    // });
+    // setCurrentEventId(null);
+    // setEventTitle("");
+    // setEventDescription("");
+    // setEventDates([dayjs(), dayjs().add(1, "day")]);
+    // setEventBadge("Trabajo");
+    // setAgendadoPor(localStorage.getItem("usuario"));
+    // setProximosServicios([]);
+    // setConsultaId(null);
+    // setTableName(null);
+    // setConsultaId(null);
 
-    form.resetFields();
-    form.setFieldsValue({
-      nroCedula: "",
-      paciente: "",
-      doctor: "",
-      comentarios: "",
-      confirmado: "SIN STATUS",
-      fechaAgenda: dayjs(info.date),
-      fechaAgendaFin: dayjs(info.date).add(1, "hour"),
-      tipoAgenda: "",
-      agendado_por: localStorage.getItem("usuario"),
-      proximosServicios: [],
-    });
+    // form.resetFields();
+    // form.setFieldsValue({
+    //   nroCedula: "",
+    //   paciente: "",
+    //   doctor: "",
+    //   comentarios: "",
+    //   confirmado: "SIN STATUS",
+    //   fechaAgenda: dayjs(info.date),
+    //   fechaAgendaFin: dayjs(info.date).add(1, "hour"),
+    //   tipoAgenda: "",
+    //   agendado_por: localStorage.getItem("usuario"),
+    //   proximosServicios: [],
+    // });
 
-    // La IP tiene una sucursal
-    const sucursalSeleccionado = seleccionarSucursalIP();
+    // // La IP tiene una sucursal
+    // const sucursalSeleccionado = seleccionarSucursalIP();
 
-    if (sucursalSeleccionado) {
-      setSucursalId(sucursalSeleccionado.value);
-      setSucursal(sucursalSeleccionado.label);
-      setSelectedSucursal(sucursalSeleccionado.value);
-      setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps);
+    // if (sucursalSeleccionado) {
+    //   setSucursalId(sucursalSeleccionado.value);
+    //   setSucursal(sucursalSeleccionado.label);
+    //   setSelectedSucursal(sucursalSeleccionado.value);
+    //   setDireccion_sucursal(sucursalSeleccionado.ubicacion_maps);
 
-      form.setFieldsValue({
-        sucursal: {
-          value: sucursalSeleccionado.value,
-          label: sucursalSeleccionado.label,
-        },
-      });
-    } else {
-      form.setFieldsValue({
-        sucursal: "",
-      });
-    }
+    //   form.setFieldsValue({
+    //     sucursal: {
+    //       value: sucursalSeleccionado.value,
+    //       label: sucursalSeleccionado.label,
+    //     },
+    //   });
+    // } else {
+    //   form.setFieldsValue({
+    //     sucursal: "",
+    //   });
+    // }
 
     // FIN La IP tiene una sucursal
   };
@@ -941,13 +995,15 @@ Tarjeta (Clave,Visa o Mastercard)
   }, [serviciosProximos_options]);
 
   const openNewEventModal = () => {
-    setIsEditMode(false);
-    setCurrentEventId(null);
-    setEventTitle("");
-    setEventDescription("");
-    setEventDates([dayjs(), dayjs().add(1, "day")]);
-    setEventBadge("Trabajo");
+    resetearFormulario();
     setIsModalOpen(true);
+    // setIsEditMode(false);
+    // setCurrentEventId(null);
+    // setEventTitle("");
+    // setEventDescription("");
+    // setEventDates([dayjs(), dayjs().add(1, "day")]);
+    // setEventBadge("Trabajo");
+    // setIsModalOpen(true);
   };
 
   const handleAgendarEvent = async (values) => {
@@ -2109,9 +2165,13 @@ Tarjeta (Clave,Visa o Mastercard)
           <Row gutter={[16, 16]}>
             <Col xxl={12} xl={12} md={12}>
               <label style={{ marginTop: "10px" }}>Cedula:</label>
-              <Form.Item name="nroCedula">
+              <Form.Item
+               name="nroCedula"
+                rules={[{ required: true, message: "La cédula es requerida" }]}
+               >
                 <AutoComplete
                   allowClear
+                  disabled={isEditMode}
                   showSearch
                   placeholder="Seleccionar paciente"
                   onSearch={(text) => debouncedSetCedula(text)}
@@ -2156,6 +2216,7 @@ Tarjeta (Clave,Visa o Mastercard)
               >
                 <AutoComplete
                   allowClear
+                  disabled={isEditMode}
                   showSearch
                   mode="combobox"
                   placeholder="Seleccionar paciente"
@@ -2210,6 +2271,7 @@ Tarjeta (Clave,Visa o Mastercard)
                 <AutoComplete
                   allowClear
                   showSearch
+                  disabled={isEditMode}
                   mode="combobox"
                   placeholder="Seleccionar paciente"
                   options={pacientes_options_agenda.map((paciente) => {
@@ -2251,6 +2313,7 @@ Tarjeta (Clave,Visa o Mastercard)
                 <AutoComplete
                   allowClear
                   showSearch
+                  disabled={isEditMode}
                   mode="combobox"
                   placeholder="Seleccionar paciente"
                   options={pacientes_options_agenda.map((paciente) => {
