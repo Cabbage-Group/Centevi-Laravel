@@ -98,9 +98,9 @@ class OrdenesCentilabApiController extends Controller
             $estado = 'Sin estado';
             $siguienteFase = "Nuevo";
 
-            $faseEnConfeccion = $orden->fasesOrdenes->where('tipo_fase_orden_id', 2)->first();
-            $faseListo = $orden->fasesOrdenes->where('tipo_fase_orden_id', 3)->first();
-            $faseRetirado = $orden->fasesOrdenes->where('tipo_fase_orden_id', 4)->first();
+            $faseEnConfeccion = $orden->fasesOrdenes->where('tipo_fase_orden_id', 3)->first();
+            $faseListo = $orden->fasesOrdenes->where('tipo_fase_orden_id', 4)->first();
+            $faseRetirado = $orden->fasesOrdenes->where('tipo_fase_orden_id', 5)->first();
 
             $fechaInicio = Carbon::parse($orden->created_at);
             $fechaFin = $faseRetirado ? Carbon::parse($faseRetirado->fecha_fase) : Carbon::now();
@@ -121,14 +121,14 @@ class OrdenesCentilabApiController extends Controller
                     $estado = 'Crítico';
                 }
 
-                if ($ultimaFase->tipo_fase_orden_id == 4) {
+                if ($ultimaFase->tipo_fase_orden_id == 5) {
                     $siguienteFase = "Retirado";
-                } elseif ($ultimaFase->tipo_fase_orden_id == 3) {
+                } elseif ($ultimaFase->tipo_fase_orden_id == 4) {
                     $siguienteFase = "Listo";
                 } elseif ($ultimaFase->tipo_fase_orden_id == 1 && $ultimaFase->status == 0) {
                     $siguienteFase = "Nuevo";
                 } else {
-                    $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_orden_id < 3)
+                    $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_orden_id < 4)
                         ? $ultimaFase->tipo_fase_orden_id + 1
                         : $ultimaFase->tipo_fase_orden_id;
 

@@ -285,6 +285,12 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/pedidos/crear',
     'http://127.0.0.1:8000/api/pedidos/mermas/update',
     'http://127.0.0.1:8000/api/pedidos/evento',
-    'http://127.0.0.1:8000/api/pedidos/imprimir-pedido'
+    'http://127.0.0.1:8000/api/pedidos/imprimir-pedido',
+
+    'http://127.0.0.1:8000/api/ordenes/*/observaciones',
+    'http://127.0.0.1:8000/api/ordenes/*/observaciones/*',
+
+    'http://127.0.0.1:8000/api/correciones-ordenes/*/observaciones',
+    'http://127.0.0.1:8000/api/correciones-ordenes/*/observaciones/*'
   ];
 }

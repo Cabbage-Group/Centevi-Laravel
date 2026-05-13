@@ -65,4 +65,18 @@ class FasesOrdenes extends Model
   {
     return $this->belongsTo(Bases::class, 'base_ojo_derecho_id', 'id');
   }
+
+  // En FasesOrdenes.php — agrega junto a las demás relaciones
+
+  public function observacionesOrden()
+  {
+    return $this->hasManyThrough(
+      OrdenObservacion::class, 
+      Ordenes::class,           
+      'id_orden',              
+      'ordenes_id',            
+      'ordenes_id',            
+      'id_orden'                
+    );
+  }
 }

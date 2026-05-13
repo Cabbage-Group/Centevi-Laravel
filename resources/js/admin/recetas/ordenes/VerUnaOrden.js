@@ -6,6 +6,7 @@ import {
   ImportOutlined,
   CheckCircleOutlined,
   LogoutOutlined,
+  CarOutlined,
 } from '@ant-design/icons';
 
 import Nuevo from './fases/Nuevo';
@@ -17,6 +18,9 @@ import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFas
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
 import { fetchOrdenDelPaciente } from '../../../redux/features/ordenes/ordenesSlice';
+import Enviado from './fases/Enviado';
+import ObservacionesHistorial from './observaciones/Observacioneshistorial';
+import { clearObservaciones, fetchObservacionesOrden } from '../../../redux/features/ordenesObservaciones/ordenObservacionesSlice';
 
 const VerUnaOrden = () => {
 
@@ -31,8 +35,11 @@ const VerUnaOrden = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
   const { pacienteOrden } = useSelector((state) => state.ordenes);
-  const { status } = useSelector((state) => state.pacientes);
-
+  const { status, pacientes } = useSelector((state) => state.pacientes);
+  const {
+    observaciones,
+    statusFetch: statusObservaciones
+  } = useSelector((state) => state.ordenObservaciones);
 
   useEffect(() => {
     if (pacienteOrden) {
@@ -46,6 +53,13 @@ const VerUnaOrden = () => {
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
     }
   }, []);
+
+  useEffect(() => {
+    if (orderId) {
+      dispatch(fetchObservacionesOrden(orderId));
+    }
+    return () => dispatch(clearObservaciones());
+  }, [orderId]);
 
 
   useEffect(() => {
@@ -73,22 +87,23 @@ const VerUnaOrden = () => {
           currentFase.tipo_fase_orden_id > maxFase.tipo_fase_orden_id ? currentFase : maxFase,
           { tipo_fase_orden_id: 0, status: 0 }
         );
-
-      console.log('Última fase creada:', lastPhase);
-
       let newStep = 0;
 
       if (lastPhase.tipo_fase_orden_id === 1) {
         newStep = lastPhase.status === 1 ? 1 : 0;
-      } else if (lastPhase.tipo_fase_orden_id === 2) {
-        newStep = lastPhase.status === 1 ? 2 : 1;
-      } else if (lastPhase.tipo_fase_orden_id === 3) {
-        newStep = 2;
-      } else if (lastPhase.tipo_fase_orden_id === 4) {
-        newStep = 3;
       }
-
-      console.log('Nuevo step:', newStep);
+      else if (lastPhase.tipo_fase_orden_id === 2) {
+        newStep = lastPhase.status === 1 ? 2 : 1;
+      }
+      else if (lastPhase.tipo_fase_orden_id === 3) {
+        newStep = lastPhase.status === 1 ? 3 : 2;
+      }
+      else if (lastPhase.tipo_fase_orden_id === 4) {
+        newStep = lastPhase.status === 1 ? 4 : 3;
+      }
+      else if (lastPhase.tipo_fase_orden_id === 5) {
+        newStep = 4;
+      }
       setNivelStep(newStep);
       setInitialized(true);
     }
@@ -104,6 +119,9 @@ const VerUnaOrden = () => {
     switch (fase.tipo_fase_orden.toLowerCase()) {
       case 'nuevo':
         icon = <FileAddOutlined />;
+        break;
+      case 'enviado':
+        icon = <CarOutlined />;
         break;
       case 'en confeccion':
         icon = <ImportOutlined />;
@@ -123,6 +141,10 @@ const VerUnaOrden = () => {
     };
   });
 
+  const handleStepChange = async (clickedStep) => {
+    setNivelStep(clickedStep);
+  };
+
 
   return (
     <div>
@@ -139,7 +161,9 @@ const VerUnaOrden = () => {
           >
             <Steps
               items={itemsSteps}
+              onChange={handleStepChange}
               current={nivelStep}
+              style={{ cursor: "pointer" }}
             />
 
           </div>
@@ -160,70 +184,49 @@ const VerUnaOrden = () => {
                   <Nuevo
                     tipoFaseId={currentTipoFase?.id}
                     isDisabled={isButtonDisabled}
-
+                    pacientesData={pacientes}
+                    pacienteOrden={pacienteOrden}
                   />
-
                 ) : nivelStep == 1 ? (
+                  <Enviado
+                    tipoFaseId={currentTipoFase?.id}
+                    lab={nuevaData?.laboratorio}
+                    isDisabled={isButtonDisabled}
+                    fecha={nuevaData?.fecha_fase}
+                    pacientesData={pacientes}
+                    pacienteOrden={pacienteOrden}
+                  />
+                ) : nivelStep == 2 ? (
                   <EnConfeccion
                     tipoFaseId={currentTipoFase?.id}
                     lab={nuevaData?.laboratorio}
                     isDisabled={isButtonDisabled}
                     fecha={nuevaData?.fecha_fase}
+                    pacientesData={pacientes}
+                    pacienteOrden={pacienteOrden}
                   />
-                ) : nivelStep == 2 ? (
+                ) : nivelStep == 3 ? (
                   <Listo
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
                     lab={nuevaData?.laboratorio}
+                    pacientesData={pacientes}
+                    pacienteOrden={pacienteOrden}
                   />
-                ) : nivelStep == 3 ? (
+                ) : nivelStep == 4 ? (
                   <Retirado
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
                     lab={nuevaData?.laboratorio}
+                    pacientesData={pacientes}
+                    pacienteOrden={pacienteOrden}
                   />
                 ) : <div></div>
               }
-
               <Row
                 gutter={[16, 16]}
               >
-                {nivelStep > 0 && (
-                  <Button
-                    disabled={nivelStep <= 0}
-                    onClick={() => {
-                      if (nivelStep > 0) {
-                        setNivelStep(nivelStep - 1);
-                      }
-                    }}
-                  >
-                    Anterior
-                  </Button>
-                )}
-                <Button
-                  onClick={() => {
-                    if (nivelStep < 4) {
-                      setNivelStep(nivelStep + 1);
-                    }
-                  }}
-                  disabled={nivelStep == currentPhase}
-                >
-                  Siguiente
-                </Button>
-
-                <Button
-                  disabled
-                  type='default'
-                >
-                  Guardar Fase
-                </Button>
-                <Button
-                  type='primary'
-                  disabled
-                >
-                  Completar Fase
-                </Button>
-                {nivelStep === 4 && (
+                {nivelStep === 5 && (
                   <Button
                     disabled
                   >
@@ -232,10 +235,22 @@ const VerUnaOrden = () => {
                 )}
               </Row>
             </div>
-
           </div>
-
         </Col>
+        <div style={{
+          background: "white",
+          marginLeft: "10px",
+          marginRight: "40px",
+          marginTop: "10px",
+          padding: "15px",
+          borderRadius: "5px",
+          width: "100%",
+        }}>
+          <ObservacionesHistorial
+            ordenes_id={parseInt(orderId)}
+            loading={statusObservaciones === "loading"}
+          />
+        </div>
       </Row>
 
       <VerOrden

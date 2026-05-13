@@ -11,7 +11,17 @@ import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
 
-const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
+const CorreccionNuevo = ({
+  tipoFaseId,
+  isDisabled,
+  correcionOrden,
+  textoObs,
+  setTextoObs,
+  onGuardarObs,
+  guardandoObs,
+  modoEdicion,
+  onCancelarEdicion
+}) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -246,13 +256,33 @@ const CorreccionNuevo = ({ tipoFaseId, isDisabled, correcionOrden }) => {
               </div>
             )}
           </div>
-          <br />
-          <label htmlFor="observaciones">Observaciones</label>
+          <label htmlFor="observaciones">
+            {modoEdicion ? "Editando observación" : "Nueva observación"}
+          </label>
           <Input.TextArea
-            rows="5"
-            onChange={(e) => setObservaciones(e.target.value)}
-            value={observaciones}
+            rows={5}
+            placeholder="Escribe una observación..."
+            onChange={(e) => setTextoObs(e.target.value)}
+            value={textoObs}
+            disabled={isDisabled}
+            style={{ borderColor: modoEdicion ? "#faad14" : undefined }}
           />
+          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+            <Button
+              type="primary"
+              size="small"
+              loading={guardandoObs}
+              disabled={!textoObs?.trim()}
+              onClick={onGuardarObs}
+            >
+              {modoEdicion ? "Actualizar" : "Guardar observación"}
+            </Button>
+            {modoEdicion && (
+              <Button size="small" onClick={onCancelarEdicion}>
+                Cancelar
+              </Button>
+            )}
+          </div>
         </Col>
         <Col xxl={12} xl={12} md={12} style={{ textAlign: 'right' }}>
           <label htmlFor="inputAddress">Fecha de ingreso al laboratorio</label>

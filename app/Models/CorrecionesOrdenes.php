@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CorrecionesOrdenes extends Model
+ class CorrecionesOrdenes extends Model
 {
   use HasFactory;
 
@@ -13,6 +13,7 @@ class CorrecionesOrdenes extends Model
   protected $table = 'correciones_ordenes';
 
   protected $fillable = [
+    'id',
     'ordenes_id',
     'elaborado_por',
     'esfera_od',
@@ -85,5 +86,11 @@ class CorrecionesOrdenes extends Model
   public function mermas()
   {
     return $this->hasMany(Mermas::class, 'correccion_id', 'id');
+  }
+
+  public function observacionesCorreccionesOrden()
+  {
+    return $this->hasMany(CorreccionesObservacionOrdenes::class, 'correccion_ordenes_id', 'id')
+      ->orderBy('created_at', 'asc');
   }
 }

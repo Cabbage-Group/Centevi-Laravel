@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Tooltip, Button } from 'antd'
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
-import ValidarPermisos from '../../../../utils/ValidarPermisos';
 
-const Retirado = ({
+const Enviado = ({
   tipoFaseId,
   isDisabled,
   pacientesData,
@@ -25,16 +24,19 @@ const Retirado = ({
   modoEdicion,
   onCancelarEdicion
 }) => {
+
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
   const [fechaCreacion, setFechaCreacion] = useState('')
-  const [fechaFaseListo, setFechaFaseListo] = useState('');
-  const [faseOrdenId, setFaseOrdenId] = useState();
+  const [fechaFaseConfeccion, setFechaFaseConfeccion] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
   const [observaciones, setObservaciones] = useState('');
-  const [elaboradoFase, setElaboradoFase] = useState('');
   const { orderId } = useParams();
+  const location = useLocation();
   const [laboratorio, setLaboratorio] = useState('');
+  const [proveedorMaterial, setProveedorMaterial] = useState('');
+  const [elaboradoFase, setElaboradoFase] = useState('');
+  const [faseOrdenId, setFaseOrdenId] = useState();
   const [celular, setCelular] = useState('');
   const usuarioId = Number(localStorage.getItem('id_usuario'));
   const [mensaje, setMensaje] = useState(
@@ -42,7 +44,7 @@ const Retirado = ({
   );
   const [selectedPaciente, setSelectedPaciente] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [selectedSucursal, setSelectedSucursal] = useState('');
+  const [selectedSucursal, setSelectedSucursal] = useState();
   const [ubicacionMaps, setUbicacionMaps] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [status, setStatus] = useState('');
@@ -52,7 +54,7 @@ const Retirado = ({
       dispatch(fecthTiposFasesOrdenes(orderId));
     }
   }, [])
- console.log('pacienteOrden', pacienteOrden)
+
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente)
@@ -60,7 +62,6 @@ const Retirado = ({
       setUbicacionMaps(pacienteOrden?.sucursal_ubicacion)
       setStatus(pacienteOrden?.status_primera_fase)
     }
-
   }, [pacienteOrden])
 
   useEffect(() => {
@@ -80,7 +81,6 @@ const Retirado = ({
     }
   }, [selectedPaciente, pacientesData]);
 
-
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
       const tipoFase2 = tiposFasesOrdenes.find(fase =>
@@ -95,8 +95,7 @@ const Retirado = ({
 
         if (faseOrden2) {
           setLaboratorio(faseOrden2.laboratorio);
-          setFechaFaseListo(faseOrden2.fecha_fase)
-
+          setFechaFaseConfeccion(faseOrden2.fecha_fase);
         }
       }
     }
@@ -109,18 +108,17 @@ const Retirado = ({
           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
         )
       );
-
       if (tipoFase) {
         const faseOrden = tipoFase.fases_ordenes.find(faseOrden =>
           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
         );
-
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
-          setFaseOrdenId(faseOrden.id)
+          setFaseOrdenId(faseOrden.id);
           setElaboradoFase(faseOrden.elaborado_por);
+
 
         }
       }
@@ -128,14 +126,13 @@ const Retirado = ({
   }, [tiposFasesOrdenes, orderId, tipoFaseId]);
 
   const getColorForStatus = (status) => {
-    console.log('status', status)
     const colors = {
       Ok: 'green',
       Advertencia: 'yellow',
       Critico: 'red',
       Completado: 'blue',
     };
-    return colors[status] || 'gray'; // Predeterminado: 'gray'
+    return colors[status] || 'gray';
   };
 
   const generateWhatsAppLink = () => {
@@ -154,18 +151,18 @@ const Retirado = ({
   };
 
 
-
   useEffect(() => {
     const nuevaFase = {
       tipo_fase_orden_id: tipoFaseId,
       laboratorio: laboratorio,
+      proveedor_material: proveedorMaterial,
       observacion: observaciones,
       fecha_fase: fechaActual,
       elaborado_por: usuarioId,
     };
     dispatch(actualizarDatosFase(nuevaFase));
-  }, [observaciones, fechaActual, tipoFaseId, dispatch]);
 
+  }, [observaciones, fechaActual, tipoFaseId, dispatch, status]);
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -180,9 +177,8 @@ const Retirado = ({
     });
 
     if (result.value === true) {
-
-      setFechaActual(moment().format('YYYY-MM-DD HH:mm:ss'))
-      // Mostrar alerta de éxito
+      const nuevaFecha = moment().format('YYYY-MM-DD HH:mm:ss');
+      setFechaActual(nuevaFecha)
       await Swal.fire(
         'Guardado!',
         'La fecha ha sido actualizada.',
@@ -192,6 +188,7 @@ const Retirado = ({
   }
 
   const handleContactarPaciente = async () => {
+    // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orderId,
       tipo_fase_orden_id: tipoFaseId,
@@ -200,58 +197,25 @@ const Retirado = ({
     };
 
     try {
+      // Llamar a la API
       await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
+      // Abrir enlace de WhatsApp
       window.open(generateWhatsAppLink(), '_blank');
     } catch (error) {
       console.error('Error al crear contacto:', error);
     }
   };
 
+
   return (
     <div>
-      <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
-        <Col span={24}>
-          <div
-            style={{
-              background: '#e6ffed',
-              border: '1px solid #b7eb8f',
-              color: '#389e0d',
-              padding: '15px',
-              borderRadius: '5px',
-              textAlign: 'center',
-            }}
-          >
-            Se completo todas las fases
-            <br />
-            {
-              ValidarPermisos(
-                "orden.corregirorden",
-                <Link
-                  to={isDisabled ? '#' : `/crear-correciones-ordenes`}
-                  className="btn btn-warning btnEditarReceta"
-                  state={{ pacienteOrden }}
-                  style={{
-                    display: 'inline-block',
-                    marginTop: '10px',
-                    padding: '10px 20px',
-                    backgroundColor: '#ffc107',
-                    color: '#000',
-                    borderRadius: '5px',
-                    textDecoration: 'none',
-                  }}
-
-                >
-                  Corregir orden
-                </Link>
-              )
-            }
-          </div>
-        </Col>
-
-        <Col xxl={12} xl={12} md={12} style={{ marginTop: '20px' }}>
-
+      <Row
+        style={{ marginBottom: '20px' }}
+        gutter={[16, 16]}
+      >
+        <Col xxl={12} xl={12} md={12}>
           <label htmlFor="observaciones">
             {modoEdicion ? "Editando observación" : "Nueva observación"}
           </label>
@@ -280,15 +244,20 @@ const Retirado = ({
             )}
           </div>
         </Col>
-        <Col xxl={12} xl={12} md={12} style={{ textAlign: 'right' }}>
-          <label htmlFor="inputAddress">Fecha de la fase Retirado</label>
+        <Col
+          xxl={12} xl={12} md={12}
+          style={{
+            textAlign: 'right'
+          }}
+        >
+          <label htmlFor="inputAddress">
+            Fecha de la fase Listo
+          </label>
           <div>
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{
-                  marginRight: '10px',
-                  cursor: 'pointer',
-                  fontSize: '18px',
+                  marginRight: '10px', cursor: 'pointer', fontSize: '18px'
                 }}
                 onClick={isDisabled ? null : () => actualizarFecha()}
               />
@@ -296,9 +265,11 @@ const Retirado = ({
             {fechaActual}
           </div>
           <Divider />
-          <label htmlFor="inputAddress">Fecha de la fase listo</label>
+          <label htmlFor="inputAddress">
+            Fecha de la fase confeccion
+          </label>
           <div>
-            {fechaFaseListo ? moment(fechaFaseListo).format('YYYY-MM-DD HH:mm:ss') : ""}
+            {fechaFaseConfeccion ? moment(fechaFaseConfeccion).format('YYYY-MM-DD HH:mm:ss') : ""}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
@@ -316,7 +287,11 @@ const Retirado = ({
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContacto id_orden={orderId} />
-            <Button style={{ marginLeft: '10px' }} onClick={handleContactarPaciente} disabled={isDisabled}>
+            <Button
+              style={{ marginLeft: '10px' }}
+              onClick={handleContactarPaciente}
+              disabled={isDisabled}
+            >
               Contactar al paciente
             </Button>
           </div>
@@ -326,4 +301,4 @@ const Retirado = ({
   )
 }
 
-export default Retirado
+export default Enviado

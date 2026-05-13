@@ -119,4 +119,10 @@ class Ordenes extends Model
   {
     return $this->hasMany(Mermas::class, 'orden_id', 'id_orden');
   }
+
+  public function observacionesOrden()
+  {
+    return $this->hasMany(OrdenObservacion::class, 'ordenes_id', 'id_orden')
+      ->orderBy('created_at', 'asc');
+  }
 }

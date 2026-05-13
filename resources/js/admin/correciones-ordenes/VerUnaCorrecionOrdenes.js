@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Row, Steps, Modal, Table } from 'antd'
+import { Button, Col, Row, Steps, Modal, Table, Tooltip } from 'antd'
 import { useSelector, useDispatch } from 'react-redux';
 import {
   FileAddOutlined,
   ImportOutlined,
   CheckCircleOutlined,
   LogoutOutlined,
+  CarOutlined,
 } from '@ant-design/icons';
 
 import { useParams, useLocation } from 'react-router-dom';
@@ -17,6 +18,10 @@ import CorreccionListo from './fases/CorreccionListo';
 import CorreccionRetirado from './fases/CorreccionRetirado';
 import VerCorreccionOrdenes from './VerCorreccionOrdenes';
 import { fetchCorreccionOrden } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
+import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import CorreccionEnviado from './fases/CorreccionEnviado';
+import CorreccionObservacionesHistorial from './observaciones/CorreccionObservacioneshistorial';
+import { clearCorreccionesObservaciones, fetchCorreccionesObservacionesOrden } from '../../redux/features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones';
 
 const VerUnaCorrecionOrdenes = () => {
 
@@ -31,9 +36,14 @@ const VerUnaCorrecionOrdenes = () => {
   const [fechaSolicitud, setFechaSolicitud] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
-
+  const usuarios = useSelector((state) => state.usuarios.usuarios);
+  const {
+    correccionesObservaciones,
+    statusFetch: statusObservaciones
+  } = useSelector((state) => state.correccionesOrdenObservaciones);
 
   useEffect(() => {
+    dispatch(fetchUsuarios({}))
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
   }, []);
 
@@ -52,6 +62,14 @@ const VerUnaCorrecionOrdenes = () => {
     }
   }, [])
 
+
+  useEffect(() => {
+    if (correccionOrderId) {
+      dispatch(fetchCorreccionesObservacionesOrden(correccionOrderId));
+    }
+    return () => dispatch(clearCorreccionesObservaciones());
+  }, [correccionOrderId]);
+
   useEffect(() => {
     dispatch(fetchCorreccionOrden(correccionOrderId))
   }, [correccionOrderId])
@@ -65,20 +83,25 @@ const VerUnaCorrecionOrdenes = () => {
           currentFase.tipo_fase_correccion_orden_id > maxFase.tipo_fase_correccion_orden_id ? currentFase : maxFase,
           { tipo_fase_correccion_orden_id: 0, status: 0 }
         );
-
-      console.log('Última fase creada:', lastPhase);
-
       let newStep = 0;
+
 
       if (lastPhase.tipo_fase_correccion_orden_id === 1) {
         newStep = lastPhase.status === 1 ? 1 : 0;
-      } else if (lastPhase.tipo_fase_correccion_orden_id === 2) {
-        newStep = lastPhase.status === 1 ? 2 : 1;
-      } else if (lastPhase.tipo_fase_correccion_orden_id === 3) {
-        newStep = 2;
-      } else if (lastPhase.tipo_fase_correccion_orden_id === 4) {
-        newStep = 3;
       }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 2) {
+        newStep = lastPhase.status === 1 ? 2 : 1;
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 3) {
+        newStep = lastPhase.status === 1 ? 3 : 2;
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 4) {
+        newStep = lastPhase.status === 1 ? 4 : 3;
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 5) {
+        newStep = 4;
+      }
+
       setCurrentPhase(newStep);
       setNivelStep(newStep);
       setInitialized(true);
@@ -90,12 +113,33 @@ const VerUnaCorrecionOrdenes = () => {
     setInitialized(false);
   }, [correccionOrderId]);
 
+  const getOrderPhasesByType = (correccionOrderId) => {
+    return tiposFasesOrdenes.map((tipoFase) => ({
+      tipoFase: tipoFase.tipo_fase_orden,
+      fasesOrdenes: tipoFase.fases_correcciones_ordenes
+        .filter(
+          (faseOrden) => faseOrden.correccion_ordenes_id === parseInt(correccionOrderId)
+        )
+        .map((faseOrden) => ({
+          ...faseOrden,
+          nombreUsuario:
+            usuarios.find(
+              (user) =>
+                user.id_usuario === faseOrden.elaborado_por
+            )?.nombre || "Desconocido",
+        })),
+    }));
+  };
+
 
   const itemsSteps = tiposFasesOrdenes?.map((fase) => {
     let icon;
     switch (fase.tipo_fase_orden.toLowerCase()) {
       case 'nuevo':
         icon = <FileAddOutlined />;
+        break;
+      case 'enviado':
+        icon = <CarOutlined />;
         break;
       case 'en confeccion':
         icon = <ImportOutlined />;
@@ -115,6 +159,11 @@ const VerUnaCorrecionOrdenes = () => {
     };
   });
 
+  const handleStepChange = async (clickedStep) => {
+    setNivelStep(clickedStep);
+  };
+
+
 
   return (
     <div>
@@ -131,7 +180,9 @@ const VerUnaCorrecionOrdenes = () => {
           >
             <Steps
               items={itemsSteps}
+              onChange={handleStepChange}
               current={nivelStep}
+              style={{ cursor: "pointer" }}
             />
 
           </div>
@@ -170,9 +221,8 @@ const VerUnaCorrecionOrdenes = () => {
                     correcionOrden={correcionOrden}
 
                   />
-
                 ) : nivelStep == 1 ? (
-                  <CorreccionEnConfeccion
+                  <CorreccionEnviado
                     tipoFaseId={currentTipoFase?.id}
                     lab={nuevaDataCorrecciones?.laboratorio}
                     isDisabled={isButtonDisabled}
@@ -180,13 +230,21 @@ const VerUnaCorrecionOrdenes = () => {
                     correcionOrden={correcionOrden}
                   />
                 ) : nivelStep == 2 ? (
+                  <CorreccionEnConfeccion
+                    tipoFaseId={currentTipoFase?.id}
+                    lab={nuevaDataCorrecciones?.laboratorio}
+                    isDisabled={isButtonDisabled}
+                    fecha={correcionOrden?.fecha_fase}
+                    correcionOrden={correcionOrden}
+                  />
+                ) : nivelStep == 3 ? (
                   <CorreccionListo
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
                     lab={nuevaDataCorrecciones?.laboratorio}
                     correcionOrden={correcionOrden}
                   />
-                ) : nivelStep == 3 ? (
+                ) : nivelStep == 4 ? (
                   <CorreccionRetirado
                     tipoFaseId={currentTipoFase.id}
                     isDisabled={isButtonDisabled}
@@ -199,41 +257,6 @@ const VerUnaCorrecionOrdenes = () => {
               <Row
                 gutter={[16, 16]}
               >
-                {nivelStep > 0 && (
-                  <Button
-                    disabled={nivelStep <= 0}
-                    onClick={() => {
-                      if (nivelStep > 0) {
-                        setNivelStep(nivelStep - 1);
-                      }
-                    }}
-                  >
-                    Anterior
-                  </Button>
-                )}
-                <Button
-                  onClick={() => {
-                    if (nivelStep < 4) {
-                      setNivelStep(nivelStep + 1);
-                    }
-                  }}
-                  disabled={nivelStep == currentPhase}
-                >
-                  Siguiente
-                </Button>
-
-                <Button
-                  disabled
-                  type='default'
-                >
-                  Guardar Fase
-                </Button>
-                <Button
-                  type='primary'
-                  disabled
-                >
-                  Completar Fase
-                </Button>
                 {nivelStep === 4 && (
                   <Button
                     disabled
@@ -247,6 +270,20 @@ const VerUnaCorrecionOrdenes = () => {
           </div>
 
         </Col>
+        <div style={{
+          background: "white",
+          marginLeft: "10px",
+          marginRight: "40px",
+          marginTop: "10px",
+          padding: "15px",
+          borderRadius: "5px",
+          width: "100%",
+        }}>
+          <CorreccionObservacionesHistorial
+            correccionOrderId={parseInt(correccionOrderId)}
+            loading={statusObservaciones === "loading"}
+          />
+        </div>
       </Row>
 
       <VerCorreccionOrdenes

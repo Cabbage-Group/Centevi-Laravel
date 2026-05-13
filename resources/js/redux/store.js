@@ -106,6 +106,8 @@ import basesSlice from "./features/bases/basesSlice";
 import ordenesCentilabSlice from "./features/ordenes/ordenesCentilab/ordenesCentilabSlice";
 import ordenesPedidosSlice from "./features/pedidos/ordenesPedidosSlice";
 import historialOrdenPedidoSlice from "./features/historial/historialOrdenPedidoSlice";
+import ordenObservacionesSlice from "./features/ordenesObservaciones/ordenObservacionesSlice";
+import correccionesOrdenObservacionesSlice from "./features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones";
 
 const store = configureStore({
   reducer: {
@@ -257,7 +259,11 @@ const store = configureStore({
 
     ordenesPedidos: ordenesPedidosSlice,
 
-    historialOrdenPedido: historialOrdenPedidoSlice
+    historialOrdenPedido: historialOrdenPedidoSlice,
+
+    ordenObservaciones: ordenObservacionesSlice,
+
+    correccionesOrdenObservaciones :correccionesOrdenObservacionesSlice
   },
 });
 
