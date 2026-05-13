@@ -727,21 +727,7 @@ const Ordenes = () => {
             />
           </div>
           <div>
-            {nivelStep === 4 && (
-              <div
-                style={{
-                  background: '#e6ffed',
-                  border: '1px solid #b7eb8f',
-                  color: '#389e0d',
-                  padding: '15px',
-                  margin: '10px',
-                  borderRadius: '5px',
-                  textAlign: 'center',
-                }}
-              >
-                Se completo todas las fases
-              </div>
-            )}
+         
             <div
               style={{
                 background: 'white',
