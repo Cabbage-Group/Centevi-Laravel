@@ -23,23 +23,21 @@ class OrdenesApiController extends Controller
 
   public function obtenerOrdenes(Request $request)
   {
-
-    $search = $request->input('search', '');
-    $limit = $request->input('limit', 20);
-    $page = $request->input('page', 1);
-    $sortColumn = $request->input('sortColumn', 'id_orden');
-    $sortOrder = $request->input('sortOrder', 'asc');
-    $lenteContacto = $request->input('lenteContacto', []);
-    $estados = $request->input('estados', []);
-    $pagado = $request->input('pagado', []);
-    $sucursal = $request->input('sucursal', []);
-    $laboratorio = $request->input('laboratorio', []);
-    $fase = $request->input('fase', []);
-    $proveedor = $request->input('proveedor', []);
+    $search             = $request->input('search', '');
+    $limit              = $request->input('limit', 20);
+    $page               = $request->input('page', 1);
+    $sortColumn         = $request->input('sortColumn', 'id_orden');
+    $sortOrder          = $request->input('sortOrder', 'asc');
+    $lenteContacto      = $request->input('lenteContacto', []);
+    $estados            = $request->input('estados', []);
+    $pagado             = $request->input('pagado', []);
+    $sucursal           = $request->input('sucursal', []);
+    $laboratorio        = $request->input('laboratorio', []);
+    $fase               = $request->input('fase', []);
+    $proveedor          = $request->input('proveedor', []);
     $serviciosFiltrados = $request->input('serviciosFiltrados', []);
-    $fecha = $request->input('fecha', '');
-    $cancelada = $request->input('cancelada', null);
-
+    $fecha              = $request->input('fecha', '');
+    $cancelada          = $request->input('cancelada', null);
 
     $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
     if (!in_array($sortColumn, $validColumns)) {
@@ -52,8 +50,11 @@ class OrdenesApiController extends Controller
       'sucursal:id_sucursal,nombre,ubicacion,ubicacion_maps',
       'fasesOrdenes.tipoFaseOrden',
       'fasesOrdenes.usuario',
-      'correciones'
+      'correciones.faseCorreccionOrden.tipoFaseCorreccionOrden',
+      'correciones.faseCorreccionOrden.usuario',
     ]);
+
+
     if (!empty($search)) {
       $query->where(function ($q) use ($search) {
         $q->where('id_orden', 'like', "%$search%")
@@ -62,7 +63,6 @@ class OrdenesApiController extends Controller
           ->orWhere('created_at', 'like', "%$search%")
           ->orWhereHas('paciente', function ($q) use ($search) {
             $searchTerms = explode(' ', trim($search));
-
             $q->where(function ($innerQ) use ($searchTerms) {
               foreach ($searchTerms as $term) {
                 if (!empty($term)) {
@@ -76,7 +76,6 @@ class OrdenesApiController extends Controller
               ->orWhere('celular', 'like', "%$search%")
               ->orWhere('nro_cedula', 'like', "%$search%");
           })
-
           ->orWhereHas('sucursal', function ($q) use ($search) {
             $q->where('nombre', 'like', "%$search%");
           })
@@ -86,15 +85,16 @@ class OrdenesApiController extends Controller
       });
     }
 
-
     if (!empty($fecha)) {
       $fechas = explode(' - ', $fecha);
       if (count($fechas) === 2) {
         $fechaInicio = trim($fechas[0]);
-        $fechaFin = trim($fechas[1]);
-
+        $fechaFin    = trim($fechas[1]);
         if (strtotime($fechaInicio) && strtotime($fechaFin)) {
-          $query->whereBetween('created_at', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
+          $query->whereBetween('created_at', [
+            $fechaInicio . ' 00:00:00',
+            $fechaFin . ' 23:59:59',
+          ]);
         }
       }
     }
@@ -124,31 +124,27 @@ class OrdenesApiController extends Controller
     }
 
     if (!empty($serviciosFiltrados)) {
-      $query->whereIn('tipo_cristal_od', (array) $serviciosFiltrados);
+      $query->where(function ($q) use ($serviciosFiltrados) {
+        $q->whereIn('tipo_cristal_od', (array) $serviciosFiltrados)
+          ->orWhereIn('tipo_cristal_oi', (array) $serviciosFiltrados);
+      });
     }
 
-    if (!empty($serviciosFiltrados)) {
-      $query->whereIn('tipo_cristal_oi', (array) $serviciosFiltrados);
-    }
-
-    // if (!is_null($cancelada) || $cancelada !== false) {
     if ($cancelada == true) {
       $query->where('cancelada', $cancelada);
     }
 
+    $tiposFases = TiposFasesOrdenes::pluck('tipo_fase_orden', 'id');
 
-    $ordenes = $query->orderBy($sortColumn, $sortOrder)->get();
+    $hayFiltrosCalculados = !empty($fase) || !empty($estados);
 
-    $ordenes = $ordenes->map(function ($orden) {
+    // Closure reutilizable inline para armar las filas de una orden + sus correcciones
+    $buildFilas = function ($orden) use ($tiposFases) {
+      $ultimaFase    = $orden->fasesOrdenes->sortByDesc('tipo_fase_orden_id')->first();
+      $estado        = 'Sin estado';
+      $siguienteFase = 'Nuevo';
 
-      $ultimaFase = $orden->fasesOrdenes->sortByDesc('tipo_fase_orden_id')->first();
-
-      $estado = 'Sin estado';
-      $siguienteFase = "Nuevo";
-
-      if (!$ultimaFase) {
-        $siguienteFase = "Nuevo";
-      } else {
+      if ($ultimaFase) {
         $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
 
         if ($ultimaFase->tipo_fase_orden_id == 5) {
@@ -162,105 +158,227 @@ class OrdenesApiController extends Controller
         }
 
         if ($ultimaFase->tipo_fase_orden_id == 5) {
-          $siguienteFase = "Retirado";
+          $siguienteFase = 'Retirado';
         } elseif ($ultimaFase->tipo_fase_orden_id == 4) {
-          $siguienteFase = "Listo";
+          $siguienteFase = 'Listo';
         } elseif ($ultimaFase->tipo_fase_orden_id == 1 && $ultimaFase->status == 0) {
-          $siguienteFase = "Nuevo";
+          $siguienteFase = 'Nuevo';
         } else {
           $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_orden_id < 4)
             ? $ultimaFase->tipo_fase_orden_id + 1
             : $ultimaFase->tipo_fase_orden_id;
 
-          $siguienteFase = TiposFasesOrdenes::where('id', $nuevoTipoFase)
-            ->value('tipo_fase_orden') ?? "Finalizado";
+          $siguienteFase = $tiposFases[$nuevoTipoFase] ?? 'Finalizado';
         }
       }
 
-      return [
-        'id_orden' => $orden->id_orden,
-        'nro_orden_id' => $orden->nro_orden_id,
-        'nro_factura' => $orden->nro_factura,
-        'pagado' => $orden->pagado,
-        'created_at' => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
-        'laboratorio' => $orden->fasesOrdenes->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
+      $filas = [[
+        'id_orden'           => $orden->id_orden,
+        'nro_orden_id'       => $orden->nro_orden_id,
+        'nro_factura'        => $orden->nro_factura,
+        'pagado'             => $orden->pagado,
+        'es_correccion'      => false,
+        'created_at'         => $orden->created_at ? Carbon::parse($orden->created_at)->format('d-m-Y') : null,
+        'laboratorio'        => $orden->fasesOrdenes->whereNotNull('laboratorio')->pluck('laboratorio')->first() ?? null,
         'proveedor_material' => $orden->fasesOrdenes->whereNotNull('proveedor_material')->pluck('proveedor_material')->first() ?? null,
-        'tipo_fase_orden' => $siguienteFase,
+        'tipo_fase_orden'    => $siguienteFase,
         'elaborado_por_fase' => $ultimaFase->usuario->nombre ?? null,
-        'siguiente_fase' => $siguienteFase,
-        'codigo_cristal' => $orden->codigo_cristal,
-        'id_paciente' => $orden->paciente->id_paciente,
-        'nro_cedula' => $orden->paciente->nro_cedula,
-        'nombres' => $orden->paciente->nombres,
-        'apellidos' => $orden->paciente->apellidos,
-        'celular' => $orden->paciente->celular,
-        'sucursal' => $orden->sucursal->nombre,
-        'lente_contacto' => $orden->lente_contacto,
-        'correcciones' => $orden->correciones->count(),
-        'cancelada' => $orden->cancelada ?? 0,
-        'estado' => $estado,
-        'esfera_od' => $orden['esfera_od'],
-        'cilindro_od' => $orden['cilindro_od'],
-        'eje_od' => $orden['eje_od'],
-        'add_od' => $orden['add_od'],
-        'prisma_od' => $orden['prisma_od'],
-        'distancia_od' => $orden['distancia_od'],
-        'altura_od' => $orden['altura_od'],
-        'esfera_oi' => $orden['esfera_oi'],
-        'cilindro_oi' => $orden['cilindro_oi'],
-        'eje_oi' => $orden['eje_oi'],
-        'add_oi' => $orden['add_oi'],
-        'prisma_oi' => $orden['prisma_oi'],
-        'distancia_oi' => $orden['distancia_oi'],
-        'altura_oi' => $orden['altura_oi'],
-        'material_od' => $orden['material_od'],
-        'material_oi' => $orden['material_oi'],
-        'tipo_cristal_od' => $orden['tipo_cristal_od'],
-        'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
-        'l_uno' => $orden['l_uno'] ?? "-",
-        'l_dos' => $orden['l_dos'] ?? "-",
-        'l_tres' => $orden['l_tres'] ?? "-",
-        'l_cuatro' => $orden['l_cuatro'] ?? "-",
-        'l_cinco' => $orden['l_cinco'] ?? "-",
-        'color' => $orden['color'] ?? "_",
-        'codigo' => $orden['codigo'] ?? "_",
-        'marca' => $orden['marca'] ?? "_",
-        'tipo_aro' => $orden['tipo_aro'] ?? "_",
-        'observaciones' => $orden['observaciones'] ?? "_",
-        'aro_centevi' => $orden['aro_centevi'],
-        'aro_propio' => $orden['aro_propio'],
-        'lente_contacto' => $orden['lente_contacto'],
-        'tratamientos_oi' => $orden['tratamientos_oi'],
-        'tratamientos_od' => $orden['tratamientos_od'],
-      ];
-    });
+        'siguiente_fase'     => $siguienteFase,
+        'codigo_cristal'     => $orden->codigo_cristal,
+        'id_paciente'        => $orden->paciente->id_paciente,
+        'nro_cedula'         => $orden->paciente->nro_cedula,
+        'nombres'            => $orden->paciente->nombres,
+        'apellidos'          => $orden->paciente->apellidos,
+        'celular'            => $orden->paciente->celular,
+        'sucursal'           => $orden->sucursal->nombre,
+        'lente_contacto'     => $orden->lente_contacto,
+        'correcciones'       => $orden->correciones->count(),
+        'cancelada'          => $orden->cancelada ?? 0,
+        'estado'             => $estado,
+        'esfera_od'          => $orden['esfera_od'],
+        'cilindro_od'        => $orden['cilindro_od'],
+        'eje_od'             => $orden['eje_od'],
+        'add_od'             => $orden['add_od'],
+        'prisma_od'          => $orden['prisma_od'],
+        'distancia_od'       => $orden['distancia_od'],
+        'altura_od'          => $orden['altura_od'],
+        'esfera_oi'          => $orden['esfera_oi'],
+        'cilindro_oi'        => $orden['cilindro_oi'],
+        'eje_oi'             => $orden['eje_oi'],
+        'add_oi'             => $orden['add_oi'],
+        'prisma_oi'          => $orden['prisma_oi'],
+        'distancia_oi'       => $orden['distancia_oi'],
+        'altura_oi'          => $orden['altura_oi'],
+        'material_od'        => $orden['material_od'],
+        'material_oi'        => $orden['material_oi'],
+        'tipo_cristal_od'    => $orden['tipo_cristal_od'],
+        'tipo_cristal_oi'    => $orden['tipo_cristal_oi'],
+        'l_uno'              => $orden['l_uno'] ?? '-',
+        'l_dos'              => $orden['l_dos'] ?? '-',
+        'l_tres'             => $orden['l_tres'] ?? '-',
+        'l_cuatro'           => $orden['l_cuatro'] ?? '-',
+        'l_cinco'            => $orden['l_cinco'] ?? '-',
+        'color'              => $orden['color'] ?? '_',
+        'codigo'             => $orden['codigo'] ?? '_',
+        'marca'              => $orden['marca'] ?? '_',
+        'tipo_aro'           => $orden['tipo_aro'] ?? '_',
+        'observaciones'      => $orden['observaciones'] ?? '_',
+        'aro_centevi'        => $orden['aro_centevi'],
+        'aro_propio'         => $orden['aro_propio'],
+        'tratamientos_oi'    => $orden['tratamientos_oi'],
+        'tratamientos_od'    => $orden['tratamientos_od'],
+      ]];
 
-    if (!empty($fase)) { {
-        $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $fase)->values();
-      };
+      foreach ($orden->correciones as $index => $correccion) {
+        $numero = $index + 1;
+
+
+        $ultimaFaseCorr = $correccion->faseCorreccionOrden->sortByDesc('tipo_fase_correccion_orden_id')->first();
+        $estadoCorr = 'Sin estado';
+        $siguienteFaseCorr = 'Nuevo';
+
+        if ($ultimaFaseCorr) {
+          $diasC = now()->diffInDays($ultimaFaseCorr->fecha_fase);
+
+          if ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 5) {
+            $estadoCorr = 'Completado';
+          } elseif ($diasC <= 6) {
+            $estadoCorr = 'OK';
+          } elseif ($diasC == 7) {
+            $estadoCorr = 'Advertencia';
+          } elseif ($diasC >= 8) {
+            $estadoCorr = 'Crítico';
+          }
+
+          if ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 5) {
+            $siguienteFaseCorr = 'Retirado';
+          } elseif ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 4) {
+            $siguienteFaseCorr = 'Listo';
+          } elseif ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 1 && $ultimaFaseCorr->status == 0) {
+            $siguienteFaseCorr = 'Nuevo';
+          } else {
+            $nuevoTipoFaseC = ($ultimaFaseCorr->status == 1 && $ultimaFaseCorr->tipo_fase_correccion_orden_id < 4)
+              ? $ultimaFaseCorr->tipo_fase_correccion_orden_id + 1
+              : $ultimaFaseCorr->tipo_fase_correccion_orden_id;
+
+            $siguienteFaseCorr = $tiposFases[$nuevoTipoFaseC] ?? 'Finalizado';
+          }
+        }
+        $filas[] = [
+          'id_orden'           => "c-{$correccion->id}-{$orden->id_orden}",
+          'id_real'            => $correccion->id,
+          'id_orden_padre'     => $orden->id_orden,
+          'es_correccion'      => true,
+          'nro_orden_id'       => $orden->nro_orden_id . '-C' . $numero,
+          'nro_factura'        => $orden->nro_factura,
+          'pagado'             => $orden->pagado,
+          'created_at'         => $correccion->created_at ? Carbon::parse($correccion->created_at)->format('d-m-Y') : null,
+          'id_paciente'        => $orden->paciente->id_paciente,
+          'nro_cedula'         => $orden->paciente->nro_cedula,
+          'nombres'            => $orden->paciente->nombres,
+          'apellidos'          => $orden->paciente->apellidos,
+          'celular'            => $orden->paciente->celular,
+          'sucursal'           => $orden->sucursal->nombre,
+          'cancelada'          => $orden->cancelada ?? 0,
+          'estado'             => $estadoCorr,
+          'tipo_fase_orden'    => $siguienteFaseCorr,
+          'fase_actual'        => $siguienteFaseCorr,
+          'siguiente_fase'     => $siguienteFaseCorr,
+          'lente_contacto'     => $orden->lente_contacto,
+          'correcciones'       => 0,
+          'esfera_od'          => $correccion->esfera_od,
+          'cilindro_od'        => $correccion->cilindro_od,
+          'eje_od'             => $correccion->eje_od,
+          'add_od'             => $correccion->add_od,
+          'prisma_od'          => $correccion->prisma_od,
+          'esfera_oi'          => $correccion->esfera_oi,
+          'cilindro_oi'        => $correccion->cilindro_oi,
+          'eje_oi'             => $correccion->eje_oi,
+          'add_oi'             => $correccion->add_oi,
+          'prisma_oi'          => $correccion->prisma_oi,
+          'tipo_cristal_od'    => $correccion->tipo_cristal_od,
+          'tipo_cristal_oi'    => $correccion->tipo_cristal_oi,
+          'material_od'        => $correccion->material_od,
+          'material_oi'        => $correccion->material_oi,
+          'tratamientos_od'    => $correccion->tratamientos_od,
+          'tratamientos_oi'    => $correccion->tratamientos_oi,
+          'laboratorio'        => $correccion->faseCorreccionOrden ? $correccion->faseCorreccionOrden->whereNotNull('laboratorio')->pluck('laboratorio')->first() : null,
+          'proveedor_material' => $correccion->faseCorreccionOrden ? $correccion->faseCorreccionOrden->whereNotNull('proveedor_material')->pluck('proveedor_material')->first() : null,
+          'distancia_od'       => null,
+          'altura_od'          => null,
+          'distancia_oi'       => null,
+          'altura_oi'          => null,
+          'codigo_cristal'     => $correccion->codigo_cristal,
+          'l_uno'              => '-',
+          'l_dos'              => '-',
+          'l_tres'             => '-',
+          'l_cuatro'           => '-',
+          'l_cinco'            => '-',
+          'color'              => '_',
+          'codigo'             => '_',
+          'marca'              => '_',
+          'tipo_aro'           => '_',
+          'observaciones'      => $correccion->observacion_pedido ?? '_',
+          'aro_centevi'        => null,
+          'aro_propio'         => null,
+        ];
+      }
+
+      return $filas;
+    };
+
+    // ✅ Sin filtros calculados: paginar directo en DB
+    if (!$hayFiltrosCalculados) {
+      $ordenesPaginadas = $query->orderBy($sortColumn, $sortOrder)
+        ->paginate($limit, ['*'], 'page', $page);
+
+      $data = $ordenesPaginadas->getCollection()->flatMap($buildFilas);
+
+      return response()->json([
+        'data' => $data->values(),
+        'meta' => [
+          'total'         => $ordenesPaginadas->total(),
+          'limit'         => $limit,
+          'page'          => $page,
+          'last_page'     => $ordenesPaginadas->lastPage(),
+          'sortColumn'    => $sortColumn,
+          'sortOrder'     => $sortOrder,
+          'search'        => $search,
+          'lenteContacto' => $lenteContacto,
+          'estados'       => $estados,
+        ],
+      ]);
+    }
+
+    // Con filtros calculados: traer todo y filtrar en PHP
+    $ordenes = $query->orderBy($sortColumn, $sortOrder)
+      ->get()
+      ->flatMap($buildFilas);
+
+    if (!empty($fase)) {
+      $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $fase)->values();
     }
 
     if (!empty($estados)) {
       $ordenes = $ordenes->whereIn('estado', (array) $estados)->values();
     }
 
-    $total = $ordenes->count();
-
+    $total            = $ordenes->count();
     $ordenesPaginadas = $ordenes->slice(($page - 1) * $limit, $limit)->values();
 
     return response()->json([
       'data' => $ordenesPaginadas,
       'meta' => [
-        'total' => $total,
-        'limit' => $limit,
-        'page' => $page,
-        'last_page' => ceil($total / $limit),
-        'sortColumn' => $sortColumn,
-        'sortOrder' => $sortOrder,
-        'search' => $search,
+        'total'         => $total,
+        'limit'         => $limit,
+        'page'          => $page,
+        'last_page'     => ceil($total / $limit),
+        'sortColumn'    => $sortColumn,
+        'sortOrder'     => $sortOrder,
+        'search'        => $search,
         'lenteContacto' => $lenteContacto,
-        'estados' => $estados,
-      ]
+        'estados'       => $estados,
+      ],
     ]);
   }
 

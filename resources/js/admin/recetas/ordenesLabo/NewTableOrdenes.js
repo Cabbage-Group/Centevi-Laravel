@@ -23,7 +23,7 @@ import { EyeOutlined, FilePdfOutlined, EditOutlined, CloseOutlined, CheckOutline
 import { useNavigate, Link } from "react-router-dom";
 import OptionsOrdenesLabo from "./OptionsOrdenesLabo";
 import DateRangePicker from "../../reportes/DateRangePicker";
-import { fetchCorreccionesByOrdenId } from "../../../redux/features/correciones-ordenes/correcionesOrdenesSlice";
+import { fetchCorreccionesByOrdenId, verOrdenCorrecionPdfSize } from "../../../redux/features/correciones-ordenes/correcionesOrdenesSlice";
 import '../../../../css/tables/TableOrdenes.css';
 
 
@@ -85,6 +85,8 @@ const NewTableOrdenes = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [cancelarOrdenFilter, setCancelarOrdenFilter] = useState(false);
   const [serviciosFiltrados, setServiciosFiltrados] = useState([]);
+  const [isCorreccion, setIsCorreccion] = useState(false);
+  const [numCorrecionActual, setNumCorrecionActual] = useState(null);
 
   useEffect(() => {
     let isCurrent = true;
@@ -173,6 +175,7 @@ const NewTableOrdenes = () => {
 
   const handleVerOrden = async (id_orden) => {
     try {
+      setIsCorreccion(false);
       setShowOrdenSize(false);
       setLoadingPdf(true);
       setShowOrden(true);
@@ -199,37 +202,44 @@ const NewTableOrdenes = () => {
     setLoadingPdf(false);
   };
 
-  const handleVerOrdenSize = async (id_orden) => {
+  const handleVerOrdenSize = async (id) => {
     try {
       setShowOrden(false);
       setLoadingPdfSize(true);
       setShowOrdenSize(true);
-      const url = await dispatch(verOrdenPdfSize(id_orden));
-      if (url) {
+      let action;
+      if (isCorreccion) {
+        action = verOrdenCorrecionPdfSize({
+          id_correcion: id,
+          numero_correcion: numCorrecionActual
+        });
+      } else {
+        action = verOrdenPdfSize(id);
+      }
+
+      const url = await dispatch(action);
+
+      if (url.payload) {
         setUrlPdfOrdenSize(url.payload);
       } else {
-        Swal.fire(
-          "Error",
-          "Hubo un problema al visualizar la orden.",
-          "error"
-        );
+        Swal.fire("Error", "Hubo un problema al visualizar el ticket.", "error");
       }
     } catch (error) {
       console.log(error);
-      Swal.fire(
-        "Error",
-        "Hubo un problema al visualizar la orden.",
-        "error"
-      );
+      Swal.fire("Error", "Error al generar el PDF del ticket.", "error");
+    } finally {
       setLoadingPdfSize(false);
     }
-    setLoadingPdfSize(false);
   };
 
   const handleVerCorrecion = async (id_correcion, numero_correcion) => {
+
     try {
       setLoadingPdf(true);
       setShowOrden(true);
+      setIsCorreccion(true);
+      setNumCorrecionActual(numero_correcion);
+      dispatch(setOrderId(id_correcion));
       const url = await dispatch(
         verCorrecionPdf({ id_correcion, numero_correcion })
       );
@@ -384,7 +394,11 @@ const NewTableOrdenes = () => {
             icon={<FilePdfOutlined />}
             onClick={() => {
               dispatch(setOrderId(record.id_orden));
-              handleVerOrden(record.id_orden);
+              if (record.es_correccion) {
+                handleVerCorrecion(record.id_real, record.nro_orden_id);
+              } else {
+                handleVerOrden(record.id_orden);
+              }
             }}
             style={{
               marginRight: "8px",
@@ -397,10 +411,17 @@ const NewTableOrdenes = () => {
           <Button
             size="large"
             icon={<EyeOutlined />}
-            onClick={() =>
-              navigate(
-                `/ver-orden/${record.id_orden}/${record?.nro_orden_id}/${record?.id_paciente}`
-              )
+            onClick={() => {
+              if (record.es_correccion) {
+                navigate(
+                  `/ver-correcion-orden/${record.id_real}`
+                )
+              } else {
+                navigate(
+                  `/ver-orden/${record.id_orden}/${record?.nro_orden_id}/${record?.id_paciente}`
+                )
+              }
+            }
             }
             style={{
               marginRight: "8px",
@@ -413,23 +434,43 @@ const NewTableOrdenes = () => {
           <Button
             size="large"
             icon={<EditOutlined />}
-            onClick={() =>
-              navigate(
-                `/orden-receta/${record.id_orden}/${record.nro_orden_id}/${record.id_paciente}`,
-                {
-                  state: {
-                    laboratorioFilterLabo: laboratorioFilter,
-                    sucursalFilterLabo: sucursalFilter,
-                    lenteContactoFilterLabo: lenteContactoFilter,
-                    statusFilterLabo: statusFilter,
-                    faseFilterLabo: faseFilter,
-                    proveedorFilterLabo: proveedorFilter,
-                    searchLabo: search,
-                    startDateLabo: startDate,
-                    endDateLabo: endDate,
-                  },
-                }
-              )
+            onClick={() => {
+              if (record.es_correccion) {
+                navigate(
+                  `/correciones-ordenes/${record.id_real}`,
+                  {
+                    state: {
+                      laboratorioFilterLabo: laboratorioFilter,
+                      sucursalFilterLabo: sucursalFilter,
+                      lenteContactoFilterLabo: lenteContactoFilter,
+                      statusFilterLabo: statusFilter,
+                      faseFilterLabo: faseFilter,
+                      proveedorFilterLabo: proveedorFilter,
+                      searchLabo: search,
+                      startDateLabo: startDate,
+                      endDateLabo: endDate,
+                    },
+                  }
+                )
+              } else {
+                navigate(
+                  `/orden-receta/${record.id_orden}/${record.nro_orden_id}/${record.id_paciente}`,
+                  {
+                    state: {
+                      laboratorioFilterLabo: laboratorioFilter,
+                      sucursalFilterLabo: sucursalFilter,
+                      lenteContactoFilterLabo: lenteContactoFilter,
+                      statusFilterLabo: statusFilter,
+                      faseFilterLabo: faseFilter,
+                      proveedorFilterLabo: proveedorFilter,
+                      searchLabo: search,
+                      startDateLabo: startDate,
+                      endDateLabo: endDate,
+                    },
+                  }
+                )
+              }
+            }
             }
             style={{
               alignItems: "center",
@@ -450,10 +491,6 @@ const NewTableOrdenes = () => {
   return (
     <div className="widget-content-area br-4">
       <div className="widget-one">
-
-
-
-
         <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center" style={{ marginTop: '-40px' }}>
           <div
             className="card absolute"
@@ -481,10 +518,6 @@ const NewTableOrdenes = () => {
             </div>
           </div>
         </div>
-
-
-
-
         <div className="row layout-top-spacing" id="cancel-row">
           <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
             <div className="widget-content widget-content-area br-6">
@@ -492,8 +525,6 @@ const NewTableOrdenes = () => {
                 style={{ width: "100%", marginBottom: "20px" }}
               >
                 <div className="d-flex justify-content-between">
-
-
                   <div
                     className="d-flex flex-column"
                     style={{ width: "30%" }}
@@ -596,218 +627,6 @@ const NewTableOrdenes = () => {
                   showSizeChanger: false,
                 }}
                 scroll={{ x: 1300 }}
-                expandable={{
-                  expandedRowRender: (parentRecord) => (
-                    <Table
-                      columns={[
-                        {
-                          dataIndex: "nro_orden_id",
-                          width: columnWidths.nroOrden,
-                          key: "nro_orden_id",
-                          render: (
-                            text,
-                            record,
-                            index
-                          ) =>
-                            `${record.nro_orden_id
-                            }-C${index + 1}`,
-                        },
-                        {
-                          dataIndex: "created_at",
-                          width: columnWidths.fecha,
-                          key: "created_at",
-                        },
-                        {
-                          dataIndex: "sucursal",
-                          width: columnWidths.sucursal,
-                          key: "sucursal",
-                        },
-                        {
-                          dataIndex: "nombres",
-                          width: columnWidths.paciente,
-                          render: (_, record) => (
-                            <Text
-                              ellipsis
-                              title={`${record?.nombres?.trim()} ${record?.apellidos?.trim()}`}
-                            >
-                              <span
-                                style={{
-                                  color: "#515365",
-                                  fontSize:
-                                    "13px",
-                                  fontWeight:
-                                    "normal",
-                                }}
-                              >
-                                {`${record?.nombres
-                                  ?.trim()
-                                  .split(
-                                    " "
-                                  )[0] ??
-                                  ""
-                                  } ${record?.apellidos
-                                    ?.trim()
-                                    .split(
-                                      " "
-                                    )[0] ??
-                                  ""
-                                  }`}
-                              </span>
-                            </Text>
-                          ),
-                        },
-                        {
-                          dataIndex: "celular",
-                          width: columnWidths.celular,
-                          key: "celular",
-                        },
-                        {
-                          dataIndex: "fase_actual",
-                          width: columnWidths.fase,
-                          key: "fase_actual",
-                        },
-                        {
-                          dataIndex: "estado",
-                          width: columnWidths.status,
-                          key: "estado",
-                          render: (__, record) => {
-                            return (
-                              <Tooltip
-                                title={
-                                  record?.estado
-                                }
-                              >
-                                <span
-                                  style={{
-                                    display:
-                                      "inline-block",
-                                    width: "12px",
-                                    height: "12px",
-                                    borderRadius:
-                                      "50%",
-                                    backgroundColor:
-                                      record?.estado ===
-                                        "OK"
-                                        ? "green"
-                                        : record?.estado ===
-                                          "Advertencia"
-                                          ? "yellow"
-                                          : record?.estado ===
-                                            "Crítico"
-                                            ? "red"
-                                            : record?.estado ===
-                                              "Completado"
-                                              ? "blue"
-                                              : "gray",
-                                  }}
-                                ></span>
-                              </Tooltip>
-                            );
-                          },
-                        },
-                        {
-                          title: "Acciones",
-                          key: "acciones",
-                          width: columnWidths.acciones,
-                          render: (
-                            _,
-                            record,
-                            index
-                          ) => (
-                            <>
-                              <Button
-                                size="large"
-                                icon={
-                                  <FilePdfOutlined />
-                                }
-                                onClick={() => {
-                                  handleVerCorrecion(
-                                    record.correccion_id,
-                                    record.nro_orden_id +
-                                    "-C" +
-                                    (parseFloat(
-                                      index
-                                    ) +
-                                      1)
-                                  );
-                                }}
-                                style={{
-                                  marginRight:
-                                    "8px",
-                                  alignItems:
-                                    "center",
-                                  justifyContent:
-                                    "center",
-                                  backgroundColor:
-                                    "#4361EE",
-                                  color: "#fff",
-                                }}
-                              />
-                              <Button
-                                size="large"
-                                icon={
-                                  <EyeOutlined />
-                                }
-                                onClick={() =>
-                                  navigate(
-                                    `/ver-correcion-orden/${record.correccion_id}`
-                                  )
-                                }
-                                style={{
-                                  marginRight:
-                                    "8px",
-                                  alignItems:
-                                    "center",
-                                  justifyContent:
-                                    "center",
-                                  backgroundColor:
-                                    "#1890ff",
-                                  color: "#fff",
-                                }}
-                              />
-                              <Button
-                                size="large"
-                                icon={
-                                  <EditOutlined />
-                                }
-                                onClick={() =>
-                                  navigate(
-                                    `/correciones-ordenes/${record.correccion_id}`,
-                                  )
-                                }
-                                style={{
-                                  alignItems:
-                                    "center",
-                                  justifyContent:
-                                    "center",
-                                  backgroundColor:
-                                    "#f39c12",
-                                  borderColor:
-                                    "#f39c12",
-                                  color: "#fff",
-                                  opacity: record?.cancelada ? 0.5 : 1,
-                                }}
-                                disabled={
-                                  record?.cancelada
-                                }
-                              />
-                            </>
-                          ),
-                        },
-                      ]}
-                      rowClassName={(record) => (record.cancelada ? 'fila-cancelada' : '')}
-                      dataSource={correcionesbyOrden}
-                      rowKey="nro_orden_id"
-                      pagination={false}
-                      showHeader={false}
-                      size="small"
-                    />
-                  ),
-                  rowExpandable: (record) =>
-                    !!record.correcciones,
-                  expandedRowKeys,
-                  onExpand: handleExpand,
-                }}
               />
               {status === "failed" && (
                 <p style={{ color: "red" }}>Error: {error}</p>
@@ -834,7 +653,7 @@ const NewTableOrdenes = () => {
                       }
                       className="btn btn-danger"
                     >
-                      Ticket
+                      Ticket {isCorreccion ? 'de Corrección' : ''}
                     </button>
                   </div>
                 )}

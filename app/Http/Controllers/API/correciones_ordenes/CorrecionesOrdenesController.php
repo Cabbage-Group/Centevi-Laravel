@@ -326,6 +326,7 @@ class CorrecionesOrdenesController extends Controller
       'l_tres' => 'nullable|string|max:255',
       'l_cuatro' => 'nullable|string|max:255',
       'l_cinco' => 'nullable|string|max:255',
+      'codigo_cristal' => 'nullable|string|max:255',
     ]);
 
     if ($validator->fails()) {
@@ -364,6 +365,7 @@ class CorrecionesOrdenesController extends Controller
       'aro_propio' => 0,
       'codigo' => '',
       'color' => '',
+      'codigo_cristal' => '',
       'marca' => '',
       'marca_oi' => '',
       'tipo_aro' => '',
@@ -961,6 +963,66 @@ class CorrecionesOrdenesController extends Controller
         'l_cuatro' => $correccion->l_cuatro,
         'l_cinco' => $correccion->l_cinco
       ]
+    ]);
+  }
+
+  public function verCorrecionPdfSize($id_correccion, $numero_correccion)
+  {
+    $correccion = CorrecionesOrdenes::with(['orden.paciente', 'orden.sucursal'])
+      ->where('id', $id_correccion)
+      ->firstOrFail();
+
+    $ordenPadre = $correccion->orden;
+
+    $data = [
+      'fecha_solicitud' => $correccion->created_at,
+      'nro_orden'       => $numero_correccion,
+      'lente_contacto'   => $ordenPadre->lente_contacto ?? false, 
+      'esfera_od'       => $correccion->esfera_od,
+      'cilindro_od'     => $correccion->cilindro_od,
+      'eje_od'          => $correccion->eje_od,
+      'add_od'          => $correccion->add_od,
+      'prisma_od'       => $correccion->prisma_od,
+      'distancia_od'    => $correccion->distancia_od,
+      'altura_od'       => $correccion->altura_od,
+      'esfera_oi'       => $correccion->esfera_oi,
+      'cilindro_oi'     => $correccion->cilindro_oi,
+      'eje_oi'          => $correccion->eje_oi,
+      'add_oi'          => $correccion->add_oi,
+      'prisma_oi'       => $correccion->prisma_oi,
+      'distancia_oi'    => $correccion->distancia_oi,
+      'altura_oi'       => $correccion->altura_oi,
+      'material_od'     => $correccion->material_od,
+      'material_oi'     => $correccion->material_oi,
+      'tipo_cristal_od' => $correccion->tipo_cristal_od,
+      'tipo_cristal_oi' => $correccion->tipo_cristal_oi,
+      'codigo_cristal'  => $correccion->codigo_cristal,
+      'l_uno'           => $correccion->l_uno ?? "-",
+      'l_dos'           => $correccion->l_dos ?? "-",
+      'l_tres'          => $correccion->l_tres ?? "-",
+      'l_cuatro'        => $correccion->l_cuatro ?? "-",
+      'l_cinco'         => $correccion->l_cinco ?? "-",
+      'color'           => $correccion->color ?? "_",
+      'codigo'          => $correccion->codigo ?? "_",
+      'marca'           => $correccion->marca ?? "_",
+      'marca_oi'        => $correccion->marca_oi ?? "_",
+      'tipo_aro'        => $correccion->tipo_aro ?? "_",
+      'observaciones'   => $correccion->observacion_pedido ?? $correccion->observaciones ?? "_",
+      'aro_centevi'     => $correccion->aro_centevi,
+      'aro_propio'      => $correccion->aro_propio,
+      'tratamientos_oi' => $correccion->tratamientos_oi,
+      'tratamientos_od' => $correccion->tratamientos_od,
+      'sucursal'        => $ordenPadre->sucursal->nombre ?? '',
+      'nombres_apellidos_paciente' => ($ordenPadre->paciente->nombres ? explode(' ', trim($ordenPadre->paciente->nombres))[0] : '')
+        . ' '
+        . ($ordenPadre->paciente->apellidos ? explode(' ', trim($ordenPadre->paciente->apellidos))[0] : '')
+    ];
+
+    $pdf = Pdf::loadView('pdf/ordenPdfSize', $data)->setPaper([0, 0, 226.77, 841.89]);
+
+    return $pdf->stream('correccion.pdf', [
+      'Content-Type' => 'application/pdf',
+      'Content-Disposition' => 'inline; filename="correccion_' . $id_correccion . '.pdf"'
     ]);
   }
 }

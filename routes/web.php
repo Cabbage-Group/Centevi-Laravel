@@ -491,6 +491,8 @@ Route::post('/api/kpis/bases-ordenes/excel', [KpisApiController::class, 'exportB
 
 Route::get('/api/ordenes/pdf/size/{id}', [OrdenesApiController::class, 'verOrdenPdfSize']);
 
+Route::get('/api/correccion-ordenes/pdf/size/{id}/{numero_correccion}', [CorrecionesOrdenesController::class, 'verCorrecionPdfSize']);
+
 Route::get('/api/ordenes/pdf/small/{id}', [OrdenesApiController::class, 'verOrdenPdfSmall']);
 
 Route::put('/api/ordenes/cancelada/{id}', [OrdenesApiController::class, 'updateOrdenCancelada']);

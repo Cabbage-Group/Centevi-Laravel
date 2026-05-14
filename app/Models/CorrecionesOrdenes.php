@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\Model;
     'tratamientos_oi',
     'aro_centevi',
     'aro_propio',
+    'codigo_cristal',
     'codigo',
     'color',
     'marca',
