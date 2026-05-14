@@ -7,7 +7,7 @@ import {
   WhatsAppOutlined
 } from '@ant-design/icons';
 import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall, impricionAutomatica, updateOrdeneCancelada } from '../../redux/features/ordenes/ordenesSlice.js';
-import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
+import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId, verOrdenCorrecionPdfSize } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
 import { Modal, Tooltip, Skeleton, Table, Typography, Button, message } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -80,6 +80,8 @@ const TableOrdenesCorrecciones = (
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
   const [activo, setActivo] = useState(false);
+  const [isCorreccion, setIsCorreccion] = useState(false);
+  const [numCorrecionActual, setNumCorrecionActual] = useState(null);
 
   useEffect(() => {
     dispatch(fecthOrdenes({
@@ -216,6 +218,7 @@ const TableOrdenesCorrecciones = (
 
   const handleVerOrden = async (id_orden, esCorreccion = false) => {
     try {
+      setIsCorreccion(false);
       setShowOrdenSize(false)
       setLoadingPdf(true)
       setShowOrden(true)
@@ -242,13 +245,22 @@ const TableOrdenesCorrecciones = (
     setLoadingPdf(false)
   }
 
-  const handleVerOrdenSize = async (id_orden) => {
+  const handleVerOrdenSize = async (id) => {
 
     try {
       setShowOrden(false)
       setLoadingPdfSize(true)
       setShowOrdenSize(true)
-      const url = await dispatch(verOrdenPdfSize(id_orden))
+      let action;
+      if (isCorreccion) {
+        action = verOrdenCorrecionPdfSize({
+          id_correcion: id,
+          numero_correcion: numCorrecionActual
+        });
+      } else {
+        action = verOrdenPdfSize(id);
+      }
+      const url = await dispatch(action);
       if (url) {
         setUrlPdfOrdenSize(url.payload)
       } else {
@@ -305,10 +317,10 @@ const TableOrdenesCorrecciones = (
     try {
       setLoadingPdf(true)
       setShowOrden(true)
-      console.log("empezar");
-
+      setIsCorreccion(true);
+      setNumCorrecionActual(numero_correcion);
+      dispatch(setOrderId(id_correcion));
       const url = await dispatch(verCorrecionPdf({ id_correcion, numero_correcion }))
-      console.log("empezar2");
       if (url) {
         setUrlPdfOrden(url.payload)
       } else {
@@ -953,7 +965,7 @@ const TableOrdenesCorrecciones = (
               <button
                 onClick={() => handleVerOrdenSize(OrdenId)}
                 className="btn btn-danger">
-                Ticket
+                Ticket {isCorreccion ? 'de Corrección' : ''}
               </button>
             </div>
           )

@@ -121,6 +121,23 @@ export const verOrdenCorrecionPdf = createAsyncThunk(
     }
 );
 
+export const verOrdenCorrecionPdfSize = createAsyncThunk(
+    'ordenes-correciones/viewPdf',
+    async ({ id_correcion, numero_correcion }, { rejectWithValue }) => {
+        try {
+            const response = await axios.get(
+                `${API}/correccion-ordenes/pdf/size/${id_correcion}/${numero_correcion}`,
+                { responseType: 'blob' }
+            );
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            return window.URL.createObjectURL(blob);
+        } catch (error) {
+            console.error('Error al visualizar la corrección:', error.response?.data);
+            return rejectWithValue(error.response?.data || 'Error al obtener PDF');
+        }
+    }
+);
+
 export const fetchCorreccionOrden = createAsyncThunk(
     'ordenes/fetchCorreccionOrden',
     async (id_correccion, { rejectWithValue }) => {

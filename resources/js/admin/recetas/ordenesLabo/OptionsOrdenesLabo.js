@@ -73,9 +73,6 @@ const OptionsOrdenesLabo = ({
 
   const handleSelectChangeCristales = (value, option) => {
     const cristales = option.map(op => op.label)
-    console.log(value)
-    console.log(option)
-    console.log(cristales)
     setServiciosFiltrados(cristales)
     setServiciosSeleccionados(value)
     // setServiciosFiltrados(value)
@@ -188,6 +185,7 @@ const OptionsOrdenesLabo = ({
                 allowClear
               >
                 <Select.Option value="Nuevo">Nuevo</Select.Option>
+                <Select.Option value="Nuevo">Enviado</Select.Option>
                 <Select.Option value="Listo">Listo</Select.Option>
                 <Select.Option value="En Confección">En confeccion</Select.Option>
                 <Select.Option value="Retirado">Retirado</Select.Option>

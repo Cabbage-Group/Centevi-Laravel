@@ -308,7 +308,7 @@ class OrdenesApiController extends Controller
           'altura_od'          => null,
           'distancia_oi'       => null,
           'altura_oi'          => null,
-          'codigo_cristal'     => null,
+          'codigo_cristal'     => $correccion->codigo_cristal,
           'l_uno'              => '-',
           'l_dos'              => '-',
           'l_tres'             => '-',
