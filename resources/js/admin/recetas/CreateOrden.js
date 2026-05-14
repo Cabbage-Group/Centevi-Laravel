@@ -114,6 +114,7 @@ const CreateOrden = () => {
     nro_cotizacion: "",
     lenteContacto: false,
     nro_factura: "",
+    tieneFactura: 0
   };
 
   const validationSchema = Yup.object().shape({
@@ -137,11 +138,11 @@ const CreateOrden = () => {
       .required("Seleccione un doctor"),
     nro_cotizacion: Yup.string()
       .required("Coloque un número de cotización"),
-    // nro_factura: Yup.string().when('$tieneFactura', {
-    //   is: true,
-    //   then: (schema) => schema.required("Coloque un número de factura"),
-    //   otherwise: (schema) => schema.notRequired(),
-    // }),
+    nro_factura: Yup.string().when('tieneFactura', {
+      is: (val) => val === true || val === 1,
+      then: (schema) => schema.required("Coloque un número de factura"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     marca: Yup.string().when('lenteContacto', {
       is: true,
       then: (schema) => schema.test(
@@ -233,7 +234,7 @@ const CreateOrden = () => {
       if (pacienteSeleccionado) {
         setTelefono(pacienteSeleccionado.celular || '');
         setCedula(pacienteSeleccionado.nro_cedula || '');
-        setTieneFactura(pacienteSeleccionado.factura || false);
+        setTieneFactura(!!pacienteSeleccionado.factura);
       } else {
         setTelefono('');
         setCedula('');
@@ -418,9 +419,13 @@ const CreateOrden = () => {
                         >
 
                           {({ setFieldValue, values, isSubmitting }) => {
+                         
                             React.useEffect(() => {
                               setFieldValue('lenteContacto', lenteContacto);
                             }, [lenteContacto, setFieldValue]);
+                            React.useEffect(() => {
+                              setFieldValue('tieneFactura', tieneFactura);
+                            }, [tieneFactura, setFieldValue]);
                             return (
                               <Form
                               >

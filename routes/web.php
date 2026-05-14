@@ -58,9 +58,11 @@ use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
 use App\Http\Controllers\API\warehouse\WarehouseController;
 use App\Http\Controllers\API\bases\BasesApiController;
+use App\Http\Controllers\API\correccionesObservacionesOrdenes\CorreccionesObservacionController;
 use App\Http\Controllers\API\historial_orden\HistorialOrdenApiController;
 use App\Http\Controllers\API\ordenes\OrdenesCentilabApiController;
 use App\Http\Controllers\API\pedidos\PedidosController;
+use App\Http\Controllers\API\ordenesObservaciones\OrdenObservacionController;
 use Illuminate\Support\Facades\View;
 
 Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
@@ -336,6 +338,22 @@ Route::get('/api/ordenes/{id}', [OrdenesApiController::class, 'ordenesDelPacient
 Route::get('/api/ordenes/{id}/tiempo-sin-orden', [OrdenesApiController::class, 'diasOMesesDesdeUltimaOrden']);
 
 Route::get('/api/paciente/orden/{id_paciente}/{nro_orden}', [OrdenesApiController::class, 'obtenerOrdenPaciente']);
+
+Route::get('/api/ordenes/{ordenes_id}/observaciones', [OrdenObservacionController::class, 'index']);
+
+Route::post('/api/ordenes/{ordenes_id}/observaciones', [OrdenObservacionController::class, 'store']);
+
+Route::put('/api/ordenes/{ordenes_id}/observaciones/{id}',    [OrdenObservacionController::class, 'update']); 
+
+Route::delete('/api/ordenes/{ordenes_id}/observaciones/{id}',    [OrdenObservacionController::class, 'destroy']); 
+
+Route::get('/api/correciones-ordenes/{correccion_orden_id}/observaciones', [CorreccionesObservacionController::class, 'index']);
+
+Route::post('/api/correciones-ordenes/{correccion_orden_id}/observaciones', [CorreccionesObservacionController::class, 'store']);
+
+Route::put('/api/correciones-ordenes/{correccion_orden_id}/observaciones/{id}',    [CorreccionesObservacionController::class, 'update']); 
+
+Route::delete('/api/correciones-ordenes/{correccion_orden_id}/observaciones/{id}',    [CorreccionesObservacionController::class, 'destroy']);
 
 Route::post('/api/whatsapp-link', [WhatsappApiController::class, 'getWhatsAppLink']);
 

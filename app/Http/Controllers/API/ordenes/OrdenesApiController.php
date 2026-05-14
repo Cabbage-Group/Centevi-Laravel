@@ -151,7 +151,7 @@ class OrdenesApiController extends Controller
       } else {
         $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
 
-        if ($ultimaFase->tipo_fase_orden_id == 4) {
+        if ($ultimaFase->tipo_fase_orden_id == 5) {
           $estado = 'Completado';
         } elseif ($diasDiferencia <= 6) {
           $estado = 'OK';
@@ -161,14 +161,14 @@ class OrdenesApiController extends Controller
           $estado = 'Crítico';
         }
 
-        if ($ultimaFase->tipo_fase_orden_id == 4) {
+        if ($ultimaFase->tipo_fase_orden_id == 5) {
           $siguienteFase = "Retirado";
-        } elseif ($ultimaFase->tipo_fase_orden_id == 3) {
+        } elseif ($ultimaFase->tipo_fase_orden_id == 4) {
           $siguienteFase = "Listo";
         } elseif ($ultimaFase->tipo_fase_orden_id == 1 && $ultimaFase->status == 0) {
           $siguienteFase = "Nuevo";
         } else {
-          $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_orden_id < 3)
+          $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_orden_id < 4)
             ? $ultimaFase->tipo_fase_orden_id + 1
             : $ultimaFase->tipo_fase_orden_id;
 
@@ -745,7 +745,7 @@ class OrdenesApiController extends Controller
     }
   }
 
-  
+
   public function tipoFasesOrdenes($idOrden)
   {
     $tiposFases = TiposFasesOrdenes::with([
@@ -1971,7 +1971,7 @@ class OrdenesApiController extends Controller
                                 AND id < fo2.id 
                                 ORDER BY id DESC 
                                 LIMIT 1
-                            ) = 1 THEN \'En Confección\'
+                            ) = 1 THEN \'Enviado\'
                             WHEN (
                                 SELECT tipo_fase_orden_id 
                                 FROM fases_ordenes 
@@ -1979,7 +1979,7 @@ class OrdenesApiController extends Controller
                                 AND id < fo2.id 
                                 ORDER BY id DESC 
                                 LIMIT 1
-                            ) = 2 THEN \'Listo\'
+                            ) = 2 THEN \'En Confección\'
                             WHEN (
                                 SELECT tipo_fase_orden_id 
                                 FROM fases_ordenes 
@@ -1987,16 +1987,25 @@ class OrdenesApiController extends Controller
                                 AND id < fo2.id 
                                 ORDER BY id DESC 
                                 LIMIT 1
-                            ) = 3 THEN \'Retirado\'
+                            ) = 3 THEN \'Listo\'
+                            WHEN (
+                                SELECT tipo_fase_orden_id 
+                                FROM fases_ordenes 
+                                WHERE ordenes_id = fo2.ordenes_id 
+                                AND id < fo2.id 
+                                ORDER BY id DESC 
+                                LIMIT 1
+                            ) = 4 THEN \'Retirado\'
                             ELSE \'Desconocido\'
                         END
                     )
                     ELSE (
                         CASE 
                             WHEN fo2.tipo_fase_orden_id IS NULL THEN \'Nuevo\'
-                            WHEN fo2.tipo_fase_orden_id = 1 THEN \'En Confección\'
-                            WHEN fo2.tipo_fase_orden_id = 2 THEN \'Listo\'
-                            WHEN fo2.tipo_fase_orden_id = 3 THEN \'Retirado\'
+                            WHEN fo2.tipo_fase_orden_id = 1 THEN \'Enviado\'
+                            WHEN fo2.tipo_fase_orden_id = 2 THEN \'En Confección\'
+                            WHEN fo2.tipo_fase_orden_id = 3 THEN \'Listo\'
+                            WHEN fo2.tipo_fase_orden_id = 4 THEN \'Retirado\'
                             ELSE \'Desconocido\'
                         END
                     )
@@ -2014,7 +2023,7 @@ class OrdenesApiController extends Controller
       ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
       ->leftJoin('fases_ordenes as fase4', function ($join) {
         $join->on('fo.ordenes_id', '=', 'fase4.ordenes_id')
-          ->where('fase4.tipo_fase_orden_id', 4)
+          ->where('fase4.tipo_fase_orden_id', 5)
           ->where('fase4.status', 1);
       })
       ->select(
@@ -2026,8 +2035,8 @@ class OrdenesApiController extends Controller
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
         DB::raw("CASE 
-                WHEN contador_fases.total_fases = 4 
-                    AND contador_fases.fases_completadas = 4 
+                WHEN contador_fases.total_fases = 5
+                    AND contador_fases.fases_completadas = 5 
                     AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
@@ -2039,7 +2048,7 @@ class OrdenesApiController extends Controller
             SELECT MIN(id) 
             FROM fases_ordenes 
             WHERE ordenes_id = fo.ordenes_id 
-            AND tipo_fase_orden_id = 1
+            AND tipo_fase_orden_id = 2
         )');
 
     $orden = DB::table('ordenes')

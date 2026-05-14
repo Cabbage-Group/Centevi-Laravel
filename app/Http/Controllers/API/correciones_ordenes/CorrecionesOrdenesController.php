@@ -203,7 +203,7 @@ class CorrecionesOrdenesController extends Controller
       } else {
         $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
 
-        if ($ultimaFase->tipo_fase_correccion_orden_id == 4) {
+        if ($ultimaFase->tipo_fase_correccion_orden_id == 5) {
           $estado = 'Completado';
         } elseif ($diasDiferencia <= 6) {
           $estado = 'OK';
@@ -213,14 +213,14 @@ class CorrecionesOrdenesController extends Controller
           $estado = 'Crítico';
         }
 
-        if ($ultimaFase->tipo_fase_correccion_orden_id == 4) {
+        if ($ultimaFase->tipo_fase_correccion_orden_id == 5) {
           $siguienteFase = "Retirado";
-        } elseif ($ultimaFase->tipo_fase_correccion_orden_id == 3) {
+        } elseif ($ultimaFase->tipo_fase_correccion_orden_id == 4) {
           $siguienteFase = "Listo";
         } elseif ($ultimaFase->tipo_fase_correccion_orden_id == 1 && $ultimaFase->status == 0) {
           $siguienteFase = "Nuevo";
         } else {
-          $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_correccion_orden_id < 3)
+          $nuevoTipoFase = ($ultimaFase->status == 1 && $ultimaFase->tipo_fase_correccion_orden_id < 4)
             ? $ultimaFase->tipo_fase_correccion_orden_id + 1
             : $ultimaFase->tipo_fase_correccion_orden_id;
 

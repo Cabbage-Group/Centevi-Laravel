@@ -115,7 +115,8 @@ const EditOrden = ({
     l_cuatro: '',
     l_cinco: '',
     lenteContacto: false,
-    nro_factura: ''
+    nro_factura: '',
+    tieneFactura: 0
   });
 
   useEffect(() => {
@@ -237,6 +238,11 @@ const EditOrden = ({
       .required("Seleccione un doctor"),
     nro_cotizacion: Yup.string()
       .required("Coloque un número de cotización"),
+    nro_factura: Yup.string().when('tieneFactura', {
+      is: (val) => val === true || val === 1,
+      then: (schema) => schema.required("Coloque un número de factura"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     marca: Yup.string().when('lenteContacto', {
       is: true,
       then: (schema) => schema.test(
@@ -550,7 +556,13 @@ const EditOrden = ({
                             onSubmit={handleSubmit}
                           >
 
-                            {({ setFieldValue, values }) => {
+                            {({ setFieldValue, values,isSubmitting }) => {
+                              React.useEffect(() => {
+                                setFieldValue('lenteContacto', lenteContacto);
+                              }, [lenteContacto, setFieldValue]);
+                              React.useEffect(() => {
+                                setFieldValue('tieneFactura', tieneFactura);
+                              }, [tieneFactura, setFieldValue]);
                               return (
                                 <Form
                                 >
@@ -631,6 +643,7 @@ const EditOrden = ({
                                               {...field}
                                               type="text"
                                               placeholder="Ingrese el número de factura"
+                                              disabled
                                               className="form-control"
                                               style={{
                                                 fontWeight: "bold",

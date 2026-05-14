@@ -373,7 +373,7 @@ Tarjeta (Clave,Visa o Mastercard)
     setCreateCedula(null);
     setCreatePaciente(null);
 
-   
+
     setCurrentEventId(null);
     setIsEditMode(false);
     setConsultaId(null);
@@ -2166,9 +2166,9 @@ Tarjeta (Clave,Visa o Mastercard)
             <Col xxl={12} xl={12} md={12}>
               <label style={{ marginTop: "10px" }}>Cedula:</label>
               <Form.Item
-               name="nroCedula"
+                name="nroCedula"
                 rules={[{ required: true, message: "La cédula es requerida" }]}
-               >
+              >
                 <AutoComplete
                   allowClear
                   disabled={isEditMode}
@@ -2569,8 +2569,15 @@ Tarjeta (Clave,Visa o Mastercard)
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          // const newServicios = serviciosProximos_options.filter(serv => serv.value !== servicio.value);
-                          setProximosServicios([]);
+                          const nuevosServicios = proximosServicios.filter(
+                            (serv) => serv.value !== servicio.value
+                          );
+
+                          setProximosServicios(nuevosServicios);
+
+                          form.setFieldsValue({
+                            proximosServicios: nuevosServicios.map((s) => s.value),
+                          });
                         }}
                       >
                         <CloseCircleTwoTone twoToneColor="#eb2f96" />

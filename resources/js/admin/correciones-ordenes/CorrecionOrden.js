@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, Col, Input, Row, Select, Steps, Tooltip } from 'antd'
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CarOutlined } from '@ant-design/icons';
 import {
   FileAddOutlined,
   ImportOutlined,
@@ -24,6 +24,9 @@ import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos';
 import { updateOrden } from '../../redux/features/ordenes/ordenesSlice';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
+import { clearCorreccionesObservaciones, createCorreccionesObservacionOrden, deleteCorreccionesObservacionOrden, fetchCorreccionesObservacionesOrden, updateCorreccionesObservacionOrden } from '../../redux/features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones';
+import CorreccionEnviado from './fases/CorreccionEnviado';
+import CorreccionObservacionesHistorial from './observaciones/CorreccionObservacioneshistorial';
 
 const CorrecionOrden = () => {
   const dispatch = useDispatch();
@@ -64,7 +67,14 @@ const CorrecionOrden = () => {
   const idUsuario = localStorage.getItem('id_usuario');
   const { permisos } = useSelector((state) => state.auth);
   const [basesValidas, setBasesValidas] = useState(true);
-
+  const [textoNuevoObs, setTextoNuevoObs] = useState("");
+  const [mostrarObs, setMostrarObs] = useState(false);
+  const [guardandoObs, setGuardandoObs] = useState(false);
+  const [editandoObs, setEditandoObs] = useState(null);
+  const {
+    correccionesObservaciones,
+    statusFetch: statusObservaciones
+  } = useSelector((state) => state.correccionesOrdenObservaciones);
   useEffect(() => {
     if (correcionOrden) {
       setNombrePaciente(correcionOrden?.paciente_nombre_completo)
@@ -142,6 +152,13 @@ const CorrecionOrden = () => {
   }, [])
 
   useEffect(() => {
+    if (correccionOrderId) {
+      dispatch(fetchCorreccionesObservacionesOrden(correccionOrderId));
+    }
+    return () => dispatch(clearCorreccionesObservaciones());
+  }, [correccionOrderId]);
+
+  useEffect(() => {
     if (tiposFasesOrdenes.length > 0 && correccionOrderId && !initialized) {
       const lastPhase = tiposFasesOrdenes
         .flatMap(tipoFase => tipoFase.fases_correcciones_ordenes)
@@ -150,22 +167,24 @@ const CorrecionOrden = () => {
           currentFase.tipo_fase_correccion_orden_id > maxFase.tipo_fase_correccion_orden_id ? currentFase : maxFase,
           { tipo_fase_correccion_orden_id: 0, status: 0 }
         );
-
-      console.log('Última fase creada:', lastPhase);
-
       let newStep = 0;
 
       if (lastPhase.tipo_fase_correccion_orden_id === 1) {
         newStep = lastPhase.status === 1 ? 1 : 0;
-      } else if (lastPhase.tipo_fase_correccion_orden_id === 2) {
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 2) {
         newStep = lastPhase.status === 1 ? 2 : 1;
-      } else if (lastPhase.tipo_fase_correccion_orden_id === 3) {
-        newStep = 2;
-      } else if (lastPhase.tipo_fase_correccion_orden_id === 4) {
-        newStep = 3;
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 3) {
+        newStep = lastPhase.status === 1 ? 3 : 2;
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 4) {
+        newStep = lastPhase.status === 1 ? 4 : 3;
+      }
+      else if (lastPhase.tipo_fase_correccion_orden_id === 5) {
+        newStep = 4;
       }
 
-      console.log('Nuevo step:', newStep);
       setNivelStep(newStep);
       setInitialized(true);
     }
@@ -198,37 +217,84 @@ const CorrecionOrden = () => {
     return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
   };
 
-  const itemsSteps = tiposFasesOrdenes?.map((fase) => {
-    let icon;
-    switch (fase.tipo_fase_orden.toLowerCase()) {
+  const getOrderPhasesByType = (correccionOrderId) => {
+    return tiposFasesOrdenes.map((tipoFase) => ({
+      tipoFase: tipoFase.tipo_fase_orden,
+      fasesOrdenes: tipoFase.fases_correcciones_ordenes
+        .filter(
+          (faseOrden) => faseOrden.correccion_ordenes_id === parseInt(correccionOrderId)
+        )
+        .map((faseOrden) => ({
+          ...faseOrden,
+          nombreUsuario:
+            usuarios.find(
+              (user) =>
+                user.id_usuario === faseOrden.elaborado_por
+            )?.nombre || "Desconocido",
+        })),
+    }));
+  };
+
+  const itemsSteps = getOrderPhasesByType(correccionOrderId).map((fase, index) => {
+    let iconBase;
+    switch (fase.tipoFase.toLowerCase()) {
       case 'nuevo':
-        icon = <FileAddOutlined />;
+        iconBase = <FileAddOutlined />;
+        break;
+      case "enviado":
+        iconBase = <CarOutlined />;
         break;
       case 'en confeccion':
-        icon = <ImportOutlined />;
+        iconBase = <ImportOutlined />;
         break;
       case 'listo':
-        icon = <CheckCircleOutlined />;
+        iconBase = <CheckCircleOutlined />;
         break;
       case 'retirado':
-        icon = <LogoutOutlined />;
+        iconBase = <LogoutOutlined />;
         break;
       default:
-        icon = <FileAddOutlined />;
+        iconBase = <FileAddOutlined />;
     }
+    const nombresUsuarios = fase.fasesOrdenes
+      .map((faseOrden) => faseOrden.nombreUsuario)
+      .join(", ");
 
-    const nombresUsuarios = usuarios.find((user) =>
-      user.id_usuario === Number(fase.fases_correcciones_ordenes.find((fco) =>
-        fco.tipo_fase_correccion_orden_id === fase.id
-      )?.elaborado_por) ?? null
-    )?.nombre || "Desconocido";
 
-    const fechaFase = fase.fases_correcciones_ordenes.find((fco) =>
-      fco.tipo_fase_correccion_orden_id === fase.id
-    )?.created_at?.split(" ")[0] ?? "";
+    const fechaFase = fase.fasesOrdenes
+      .map((faseOrden) => faseOrden.created_at.split(" ")[0])
+      .join(", ");
+
+    const icon = index === nivelStep ? (
+      <Tooltip title="Click para Guardar Fase">
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            avanzarFase(false, false);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          {iconBase}
+        </span>
+      </Tooltip>
+    ) : iconBase;
 
     return {
-      title: fase.tipo_fase_orden,
+      title: (
+        <Tooltip
+          title={
+            index === nivelStep
+              ? "Click para Guardar Fase"
+              : index === nivelStep + 1
+                ? "Click para Completar Fase"
+                : index < nivelStep
+                  ? "Click para volver a esta fase"
+                  : "Debes completar la fase actual primero"
+          }
+        >
+          {fase.tipoFase}
+        </Tooltip>
+      ),
       description: (
         <>
           <div>{nombresUsuarios || "Desconocido"}</div>
@@ -237,12 +303,12 @@ const CorrecionOrden = () => {
           </div>
         </>
       ),
-      icon: icon,
+      icon,
     };
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 1 && !nuevaDataCorrecciones.laboratorio) {
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 0 && !nuevaDataCorrecciones.laboratorio) {
       await Swal.fire({
         title: 'Error',
         text: 'Debe seleccionar un laboratorio antes de continuar.',
@@ -252,7 +318,7 @@ const CorrecionOrden = () => {
       return;
     }
 
-    if (completar && nivelStep === 2) {
+    if (completar && nivelStep === 3) {
       if (!funPermisosObtenidosBoolean(permisos, "ordenes.correcion.fase.retirado")) {
         await Swal.fire({
           title: 'Acceso denegado',
@@ -293,13 +359,31 @@ const CorrecionOrden = () => {
           pagado: nuevoEstado
         }
 
-        await dispatch(updateOrden({ id_orden: correcionOrden.orden_id, data: pagado }));
+        Swal.fire({
+          title: "Actualizando...",
+          html: "Por favor espere",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+        try {
+          await dispatch(updateOrden({ id_orden: correcionOrden.orden_id, data: pagado })).unwrap();;
+          await Swal.fire(
+            "Actualizado!",
+            "El estado de pago ha sido actualizado correctamente.",
+            "success"
+          );
+        } catch (error) {
+          await Swal.fire(
+            "Error",
+            "Ocurrió un error al actualizar.",
+            "error"
+          );
+          return;
+        }
 
-        await Swal.fire(
-          'Actualizado!',
-          'El estado de pago ha sido actualizado correctamente.',
-          'success'
-        );
       }
     }
 
@@ -323,29 +407,51 @@ const CorrecionOrden = () => {
         status: status,
         elaborado_por: usuario?.usuario?.id_usuario,
       };
+      try {
+        Swal.fire({
+          title: "Cargando...",
+          text: "Por favor espere",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
-      if (completar || avanzar) {
-        setNivelStep(nivelStep + 1);
+        if (completar || avanzar) {
+          setNivelStep(nivelStep + 1);
+        }
+        await dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId)).unwrap();;
+
+        if (completar && nivelStep === 3) {
+          const siguienteFase = {
+            ...nuevaDataConOrderId,
+            status: 1,
+            observacion: '',
+            tipo_fase_correccion_orden_id: nuevaDataCorrecciones.tipo_fase_correccion_orden_id + 1,
+          };
+          console.log('siguienteFase', siguienteFase)
+          dispatch(createCorreccionesFasesOrdenes(siguienteFase));
+        }
+        dispatch(fecthTiposFasesOrdenes(correccionOrderId));
+        dispatch(fetchCorreccionOrden(correccionOrderId));
+
+        Swal.close();
+        await Swal.fire(
+          completar ? "Completado!" : "Guardado!",
+          completar
+            ? "La fase ha sido completada."
+            : "La fase ha sido guardada.",
+          "success"
+        );
+      } catch (error) {
+        console.error(error);
+        Swal.close();
+        await Swal.fire(
+          "Error",
+          "Ocurrió un problema al guardar la fase.",
+          "error"
+        );
       }
-
-      dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId));
-
-      if (completar && nivelStep === 2) {
-        const siguienteFase = {
-          ...nuevaDataConOrderId,
-          status: 1,
-          observacion: '',
-          tipo_fase_correccion_orden_id: nuevaDataCorrecciones.tipo_fase_correccion_orden_id + 1,
-        };
-
-        dispatch(createCorreccionesFasesOrdenes(siguienteFase));
-      }
-      dispatch(fecthTiposFasesOrdenes(correccionOrderId));
-      dispatch(fetchCorreccionOrden(correccionOrderId));
-
-      await Swal.fire(completar ? 'Completado!' : 'Guardado!',
-        completar ? 'La fase ha sido completada.' : 'La fase ha sido guardada.',
-        'success');
     }
   };
 
@@ -371,6 +477,106 @@ const CorrecionOrden = () => {
     setBasesValidas(validas);
   };
 
+
+  const handleStepChange = async (clickedStep) => {
+    console.log('clickedStep', clickedStep);
+
+    if (Math.abs(clickedStep - nivelStep) > 1) {
+      await Swal.fire({
+        title: "Acción no permitida",
+        text: "Solo puedes avanzar o retroceder un paso a la vez.",
+        icon: "warning",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#3085d6",
+      });
+
+      return;
+    }
+
+    if (clickedStep < nivelStep) {
+      setNivelStep(clickedStep);
+      return;
+    }
+
+    if (clickedStep === nivelStep) {
+      await avanzarFase(false, false);
+      return;
+    }
+
+    if (clickedStep === nivelStep + 1) {
+
+      if (nivelStep === 2 && !basesValidas) {
+        await Swal.fire({
+          title: "Bases inválidas",
+          text: "No puedes avanzar mientras las bases no sean válidas.",
+          icon: "warning",
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#3085d6",
+        });
+
+        return;
+      }
+
+      console.log('enasasdasddas');
+
+      await avanzarFase(false, true);
+      return;
+    }
+  };
+
+  const handleGuardarObservacion = async () => {
+    if (!textoNuevoObs.trim()) return;
+    setGuardandoObs(true);
+    try {
+      if (editandoObs) {
+        await dispatch(
+          updateCorreccionesObservacionOrden({
+            correccionOrderId: parseInt(correccionOrderId),
+            id: editandoObs.id,
+            observacion: textoNuevoObs.trim(),
+            elaborado_por: parseInt(idUsuario),
+          })
+        ).unwrap();
+        setEditandoObs(null);
+      } else {
+        await dispatch(
+          createCorreccionesObservacionOrden({
+            correccionOrderId: parseInt(correccionOrderId),
+            observacion: textoNuevoObs.trim(),
+            elaborado_por: parseInt(idUsuario),
+          })
+        ).unwrap();
+      }
+      setTextoNuevoObs("");
+    } finally {
+      setGuardandoObs(false);
+    }
+  };
+
+  const handleEditarObsClick = ({ id, observacion }) => {
+    setEditandoObs({ id, observacion });
+    setTextoNuevoObs(observacion);
+  };
+
+  const handleEliminarObs = async (id) => {
+    const result = await Swal.fire({
+      title: "¿Eliminar observación?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await dispatch(deleteCorreccionesObservacionOrden({ correccionOrderId: parseInt(correccionOrderId), id })).unwrap();
+    } catch {
+      Swal.fire("Error", "No se pudo eliminar la observación.", "error");
+    }
+  };
+
   return (
     <div>
 
@@ -379,30 +585,48 @@ const CorrecionOrden = () => {
           <Button
             onClick={retroceder}
             icon={<ArrowLeftOutlined />}
-            style={{ display: 'flex', alignItems: 'center', marginLeft: '10px', }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: "10px",
+            }}
           >
           </Button>
         </Tooltip>
         <Col xxl={24} xl={24} md={24}>
-
           <div
             style={{
               background: 'white',
               marginLeft: '10px',
               marginRight: '10px',
-              padding: '10px',
+              padding: "10px",
               borderRadius: '5px'
             }}
           >
             <Steps
-              items={itemsSteps}
+              items={itemsSteps.map((item, index) => ({
+                ...item,
+                title: (
+                  <Tooltip
+                    title={
+                      index === nivelStep
+                        ? "Click para Guardar Fase"
+                        : index === nivelStep + 1
+                          ? "Click para Completar Fase"
+                          : index < nivelStep
+                            ? "Click para volver a esta fase"
+                            : "Debes completar la fase actual primero"
+                    }
+                  >
+                    {item.title}
+                  </Tooltip>
+                ),
+              }))}
               current={nivelStep}
+              onChange={handleStepChange}
+              style={{ cursor: "pointer" }}
             />
-
           </div>
-
-
-
           <div>
             {nivelStep === 4 && (
               <div
@@ -426,89 +650,113 @@ const CorrecionOrden = () => {
                 marginRight: '10px',
                 // marginTop: '20px',
                 padding: '15px',
-                borderRadius: '5px'
+                borderRadius: '5px',
               }}
             >
-
               {
                 nivelStep == 0 ? (
                   <CorreccionNuevo
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     correcionOrden={correcionOrden}
-
+                    textoObs={textoNuevoObs}
+                    setTextoObs={setTextoNuevoObs}
+                    onGuardarObs={handleGuardarObservacion}
+                    guardandoObs={guardandoObs}
+                    modoEdicion={!!editandoObs}
+                    onCancelarEdicion={() => {
+                      setEditandoObs(null);
+                      setTextoNuevoObs("");
+                    }}
                   />
-
                 ) : nivelStep == 1 ? (
+                  <CorreccionEnviado
+                    tipoFaseId={currentTipoFase.id}
+                    lab={nuevaDataCorrecciones.laboratorio}
+                    fecha={nuevaDataCorrecciones.fecha_fase}
+                    correcionOrden={correcionOrden}
+                    onBasesValidasChange={handleBasesValidasChange}
+                    textoObs={textoNuevoObs}
+                    setTextoObs={setTextoNuevoObs}
+                    onGuardarObs={handleGuardarObservacion}
+                    guardandoObs={guardandoObs}
+                    modoEdicion={!!editandoObs}
+                    onCancelarEdicion={() => {
+                      setEditandoObs(null);
+                      setTextoNuevoObs("");
+                    }}
+                  />
+                ) : nivelStep == 2 ? (
                   <CorreccionEnConfeccion
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     fecha={nuevaDataCorrecciones.fecha_fase}
                     correcionOrden={correcionOrden}
                     onBasesValidasChange={handleBasesValidasChange}
+                    textoObs={textoNuevoObs}
+                    setTextoObs={setTextoNuevoObs}
+                    onGuardarObs={handleGuardarObservacion}
+                    guardandoObs={guardandoObs}
+                    modoEdicion={!!editandoObs}
+                    onCancelarEdicion={() => {
+                      setEditandoObs(null);
+                      setTextoNuevoObs("");
+                    }}
                   />
-                ) : nivelStep == 2 ? (
+                ) : nivelStep == 3 ? (
                   <CorreccionListo
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     correcionOrden={correcionOrden}
+                    textoObs={textoNuevoObs}
+                    setTextoObs={setTextoNuevoObs}
+                    onGuardarObs={handleGuardarObservacion}
+                    guardandoObs={guardandoObs}
+                    modoEdicion={!!editandoObs}
+                    onCancelarEdicion={() => {
+                      setEditandoObs(null);
+                      setTextoNuevoObs("");
+                    }}
                   />
-                ) : nivelStep == 3 ? (
+                ) : nivelStep == 4 ? (
                   <CorreccionRetirado
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     correcionOrden={correcionOrden}
+                    textoObs={textoNuevoObs}
+                    setTextoObs={setTextoNuevoObs}
+                    onGuardarObs={handleGuardarObservacion}
+                    guardandoObs={guardandoObs}
+                    modoEdicion={!!editandoObs}
+                    onCancelarEdicion={() => {
+                      setEditandoObs(null);
+                      setTextoNuevoObs("");
+                    }}
                   />
                 ) : <div></div>
               }
-
-              <Row
-                gutter={[16, 16]}
-              >
-                {nivelStep > 0 && (
-                  <Button
-                    disabled={nivelStep <= 0}
-                    onClick={() => {
-                      if (nivelStep > 0) {
-                        setNivelStep(nivelStep - 1);
-                      }
-                    }}
-                  >
-                    Anterior
-                  </Button>
-                )}
-
-                {nivelStep < 3 ? (
-                  <>
-                    <Button onClick={() => avanzarFase(false, false)} type="default">
-                      Guardar Fase
-                    </Button>
-                    <Button
-                      onClick={() => avanzarFase(false, true)}
-                      type="primary"
-                      disabled={nivelStep === 1 && !basesValidas}
-                    >
-                      Completar Fase
-                    </Button>
-                  </>
-                ) : nivelStep === 3 ? (
-                  <Button onClick={() => avanzarFase(false, true)} type="primary">
-                    Completar Fase
-                  </Button>
-                ) : null}
-                {nivelStep === 4 && (
-                  <Button
-                    onClick={handleContactarPaciente}
-                  >
-                    Contactar al paciente
-                  </Button>
-                )}
-              </Row>
             </div>
-
           </div>
-
         </Col>
+        <div style={{
+          background: "white",
+          marginLeft: "10px",
+          marginRight: "40px",
+          marginTop: "10px",
+          padding: "15px",
+          borderRadius: "5px",
+          width: "100%",
+        }}>
+          <CorreccionObservacionesHistorial
+            correccion_ordenes_id={parseInt(correccionOrderId)}
+            usuariosData={usuarios}
+            idUsuarioActual={parseInt(idUsuario)}
+            loading={statusObservaciones === "loading"}
+            editandoId={editandoObs?.id ?? null}
+            onEditarClick={handleEditarObsClick}
+            onEliminarClick={handleEliminarObs}
+          />
+        </div>
       </Row>
       <EditarCorrecionOrden
         correcionOrden={correcionOrden}

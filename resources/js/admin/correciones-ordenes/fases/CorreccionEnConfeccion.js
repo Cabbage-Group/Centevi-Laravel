@@ -16,7 +16,13 @@ const CorreccionEnConfeccion = ({
   tipoFaseId,
   isDisabled,
   correcionOrden,
-  onBasesValidasChange
+  onBasesValidasChange,
+  textoObs,
+  setTextoObs,
+  onGuardarObs,
+  guardandoObs,
+  modoEdicion,
+  onCancelarEdicion
 }) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -301,14 +307,33 @@ const CorreccionEnConfeccion = ({
             </div>
           )}
 
-          <label htmlFor="inputAddress">
-            Observaciones
+          <label htmlFor="observaciones">
+            {modoEdicion ? "Editando observación" : "Nueva observación"}
           </label>
           <Input.TextArea
-            rows="5"
-            onChange={(e) => setObservaciones(e.target.value)}
-            value={observaciones}
+            rows={5}
+            placeholder="Escribe una observación..."
+            onChange={(e) => setTextoObs(e.target.value)}
+            value={textoObs}
+            disabled={isDisabled}
+            style={{ borderColor: modoEdicion ? "#faad14" : undefined }}
           />
+          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+            <Button
+              type="primary"
+              size="small"
+              loading={guardandoObs}
+              disabled={!textoObs?.trim() || isDisabled}
+              onClick={onGuardarObs}
+            >
+              {modoEdicion ? "Actualizar" : "Guardar observación"}
+            </Button>
+            {modoEdicion && (
+              <Button size="small" onClick={onCancelarEdicion}>
+                Cancelar
+              </Button>
+            )}
+          </div>
         </Col>
         <Col
           xxl={9} xl={9} md={12}

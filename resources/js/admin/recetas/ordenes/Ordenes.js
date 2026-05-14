@@ -3,7 +3,7 @@ import CreateReceta from "../CreateOrden";
 import { Button, Col, Input, Row, Select, Steps, Tooltip } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, CarOutlined, CloseOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import {
   FileAddOutlined,
   ImportOutlined,
@@ -53,6 +53,9 @@ import {
   updateOrden,
 } from "../../../redux/features/ordenes/ordenesSlice";
 import { funPermisosObtenidosBoolean } from "../../../utils/ValidarPermisos";
+import { clearObservaciones, createObservacionOrden, deleteObservacionOrden, fetchObservacionesOrden, updateObservacionOrden } from "../../../redux/features/ordenesObservaciones/ordenObservacionesSlice";
+import ObservacionesHistorial from "./observaciones/Observacioneshistorial";
+import Enviado from "./fases/Enviado";
 
 const Ordenes = () => {
   const dispatch = useDispatch();
@@ -61,6 +64,10 @@ const Ordenes = () => {
   const { tiposFasesOrdenes } = useSelector(
     (state) => state.tiposFasesOrdenes
   );
+  const {
+    observaciones,
+    statusFetch: statusObservaciones
+  } = useSelector((state) => state.ordenObservaciones);
   const nuevaData = useSelector((state) => state.fasesOrdenes.nuevaData);
   const { orderId, nroOrden, idPaciente } = useParams();
   const [nivelStep, setNivelStep] = useState(0);
@@ -81,7 +88,10 @@ const Ordenes = () => {
   const idUsuario = localStorage.getItem("id_usuario");
   const { pacienteOrden, statusPacienteOrden } = useSelector((state) => state.ordenes);
   const [basesValidas, setBasesValidas] = useState(true);
-
+  const [textoNuevoObs, setTextoNuevoObs] = useState("");
+  const [mostrarObs, setMostrarObs] = useState(false);
+  const [guardandoObs, setGuardandoObs] = useState(false);
+  const [editandoObs, setEditandoObs] = useState(null);
   const { permisos } = useSelector((state) => state.auth);
   const {
     pagadoFiltro,
@@ -129,6 +139,13 @@ const Ordenes = () => {
       );
     }
   }, [idPaciente, nroOrden, dispatch]);
+
+  useEffect(() => {
+    if (orderId) {
+      dispatch(fetchObservacionesOrden(orderId));
+    }
+    return () => dispatch(clearObservaciones());
+  }, [orderId]);
 
   const retroceder = () => {
     navigate(-1);
@@ -302,12 +319,18 @@ const Ordenes = () => {
 
       if (lastPhase.tipo_fase_orden_id === 1) {
         newStep = lastPhase.status === 1 ? 1 : 0;
-      } else if (lastPhase.tipo_fase_orden_id === 2) {
+      }
+      else if (lastPhase.tipo_fase_orden_id === 2) {
         newStep = lastPhase.status === 1 ? 2 : 1;
-      } else if (lastPhase.tipo_fase_orden_id === 3) {
-        newStep = 2;
-      } else if (lastPhase.tipo_fase_orden_id === 4) {
-        newStep = 3;
+      }
+      else if (lastPhase.tipo_fase_orden_id === 3) {
+        newStep = lastPhase.status === 1 ? 3 : 2;
+      }
+      else if (lastPhase.tipo_fase_orden_id === 4) {
+        newStep = lastPhase.status === 1 ? 4 : 3;
+      }
+      else if (lastPhase.tipo_fase_orden_id === 5) {
+        newStep = 4;
       }
       setNivelStep(newStep);
       setInitialized(true);
@@ -318,23 +341,15 @@ const Ordenes = () => {
     setInitialized(false);
   }, [orderId]);
 
-  const itemsSteps = getOrderPhasesByType(orderId).map((fase) => {
-    let icon;
+  const itemsSteps = getOrderPhasesByType(orderId).map((fase, index) => {
+    let iconBase;
     switch (fase.tipoFase.toLowerCase()) {
-      case "nuevo":
-        icon = <FileAddOutlined />;
-        break;
-      case "en confeccion":
-        icon = <ImportOutlined />;
-        break;
-      case "listo":
-        icon = <CheckCircleOutlined />;
-        break;
-      case "retirado":
-        icon = <LogoutOutlined />;
-        break;
-      default:
-        icon = <FileAddOutlined />;
+      case "nuevo": iconBase = <FileAddOutlined />; break;
+      case "enviado": iconBase = <CarOutlined />; break;
+      case "en confeccion": iconBase = <ImportOutlined />; break;
+      case "listo": iconBase = <CheckCircleOutlined />; break;
+      case "retirado": iconBase = <LogoutOutlined />; break;
+      default: iconBase = <FileAddOutlined />;
     }
 
     const nombresUsuarios = fase.fasesOrdenes
@@ -345,8 +360,36 @@ const Ordenes = () => {
       .map((faseOrden) => faseOrden.created_at.split(" ")[0])
       .join(", ");
 
+    const icon = index === nivelStep ? (
+      <Tooltip title="Click para Guardar Fase">
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            avanzarFase(false, false);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          {iconBase}
+        </span>
+      </Tooltip>
+    ) : iconBase;
+
     return {
-      title: fase.tipoFase,
+      title: (
+        <Tooltip
+          title={
+            index === nivelStep
+              ? "Click para Guardar Fase"
+              : index === nivelStep + 1
+                ? "Click para Completar Fase"
+                : index < nivelStep
+                  ? "Click para volver a esta fase"
+                  : "Debes completar la fase actual primero"
+          }
+        >
+          {fase.tipoFase}
+        </Tooltip>
+      ),
       description: (
         <>
           <div>{nombresUsuarios || "Desconocido"}</div>
@@ -355,12 +398,12 @@ const Ordenes = () => {
           </div>
         </>
       ),
-      icon: icon,
+      icon,
     };
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    if (nuevaData.tipo_fase_orden_id === 1 && !nuevaData.laboratorio) {
+    if (nuevaData.tipo_fase_orden_id === 0 && !nuevaData.laboratorio) {
       await Swal.fire({
         title: "Error",
         text: "Debe seleccionar un laboratorio antes de continuar.",
@@ -370,7 +413,7 @@ const Ordenes = () => {
       return;
     }
 
-    if (completar && nivelStep === 2) {
+    if (completar && nivelStep === 3) {
       if (
         !funPermisosObtenidosBoolean(permisos, "ordenes.fase.retirado")
       ) {
@@ -439,7 +482,7 @@ const Ordenes = () => {
         } catch (error) {
           await Swal.fire(
             "Error",
-            "Ocurrió un error al actualizar el estado de pago.",
+            "Ocurrió un error al actualizar.",
             "error"
           );
           return;
@@ -489,7 +532,7 @@ const Ordenes = () => {
           createFasesOrdenes(nuevaDataConOrderId)
         ).unwrap();
 
-        if (completar && nivelStep === 2) {
+        if (completar && nivelStep === 3) {
           const siguienteFase = {
             ...nuevaDataConOrderId,
             status: 1,
@@ -549,7 +592,90 @@ const Ordenes = () => {
   };
 
   const handleBasesValidasChange = (validas) => {
+    console.log('validas', validas)
     setBasesValidas(validas);
+  };
+
+  const handleStepChange = async (clickedStep) => {
+    if (Math.abs(clickedStep - nivelStep) > 1) {
+      await Swal.fire({
+        title: "Acción no permitida",
+        text: "Solo puedes avanzar o retroceder un paso a la vez.",
+        icon: "warning",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#3085d6",
+      });
+
+      return;
+    }
+
+    if (clickedStep < nivelStep) {
+      setNivelStep(clickedStep);
+      return;
+    }
+
+    if (clickedStep === nivelStep) {
+      await avanzarFase(false, false);
+      return;
+    }
+
+    if (clickedStep === nivelStep + 1 && basesValidas) {
+      await avanzarFase(false, true);
+      return;
+    }
+  };
+
+  const handleGuardarObservacion = async () => {
+    if (!textoNuevoObs.trim()) return;
+    setGuardandoObs(true);
+    try {
+      if (editandoObs) {
+        await dispatch(
+          updateObservacionOrden({
+            ordenes_id: parseInt(orderId),
+            id: editandoObs.id,
+            observacion: textoNuevoObs.trim(),
+            elaborado_por: parseInt(idUsuario),
+          })
+        ).unwrap();
+        setEditandoObs(null);
+      } else {
+        await dispatch(
+          createObservacionOrden({
+            ordenes_id: parseInt(orderId),
+            observacion: textoNuevoObs.trim(),
+            elaborado_por: parseInt(idUsuario),
+          })
+        ).unwrap();
+      }
+      setTextoNuevoObs("");
+    } finally {
+      setGuardandoObs(false);
+    }
+  };
+
+  const handleEditarObsClick = ({ id, observacion }) => {
+    setEditandoObs({ id, observacion });
+    setTextoNuevoObs(observacion);
+  };
+
+  const handleEliminarObs = async (id) => {
+    const result = await Swal.fire({
+      title: "¿Eliminar observación?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await dispatch(deleteObservacionOrden({ ordenes_id: parseInt(orderId), id })).unwrap();
+    } catch {
+      Swal.fire("Error", "No se pudo eliminar la observación.", "error");
+    }
   };
 
   return (
@@ -576,17 +702,40 @@ const Ordenes = () => {
               borderRadius: "5px",
             }}
           >
-            <Steps items={itemsSteps} current={nivelStep} />
+            <Steps
+              items={itemsSteps.map((item, index) => ({
+                ...item,
+                title: (
+                  <Tooltip
+                    title={
+                      index === nivelStep
+                        ? "Click para Guardar Fase"
+                        : index === nivelStep + 1
+                          ? "Click para Completar Fase"
+                          : index < nivelStep
+                            ? "Click para volver a esta fase"
+                            : "Debes completar la fase actual primero"
+                    }
+                  >
+                    {item.title}
+                  </Tooltip>
+                ),
+              }))}
+              current={nivelStep}
+              onChange={handleStepChange}
+              style={{ cursor: "pointer" }}
+            />
           </div>
           <div>
+         
             <div
               style={{
-                background: "white",
-                marginLeft: "10px",
-                marginRight: "10px",
+                background: 'white',
+                marginLeft: '10px',
+                marginRight: '10px',
                 // marginTop: '20px',
-                padding: "15px",
-                borderRadius: "5px",
+                padding: '15px',
+                borderRadius: '5px',
               }}
             >
               {nivelStep == 0 ? (
@@ -595,8 +744,33 @@ const Ordenes = () => {
                   tipoFaseId={currentTipoFase.id}
                   lab={nuevaData.laboratorio}
                   pacienteOrden={pacienteOrden}
+                  textoObs={textoNuevoObs}
+                  setTextoObs={setTextoNuevoObs}
+                  onGuardarObs={handleGuardarObservacion}
+                  guardandoObs={guardandoObs}
+                  modoEdicion={!!editandoObs}
+                  onCancelarEdicion={() => {
+                    setEditandoObs(null);
+                    setTextoNuevoObs("");
+                  }}
                 />
               ) : nivelStep == 1 ? (
+                <Enviado
+                  pacientesData={pacientes}
+                  tipoFaseId={currentTipoFase.id}
+                  lab={nuevaData.laboratorio}
+                  pacienteOrden={pacienteOrden}
+                  textoObs={textoNuevoObs}
+                  setTextoObs={setTextoNuevoObs}
+                  onGuardarObs={handleGuardarObservacion}
+                  guardandoObs={guardandoObs}
+                  modoEdicion={!!editandoObs}
+                  onCancelarEdicion={() => {
+                    setEditandoObs(null);
+                    setTextoNuevoObs("");
+                  }}
+                />
+              ) : nivelStep == 2 ? (
                 <EnConfeccion
                   tipoFaseId={currentTipoFase.id}
                   lab={nuevaData.laboratorio}
@@ -604,79 +778,73 @@ const Ordenes = () => {
                   pacientesData={pacientes}
                   pacienteOrden={pacienteOrden}
                   onBasesValidasChange={handleBasesValidasChange}
+                  textoObs={textoNuevoObs}
+                  setTextoObs={setTextoNuevoObs}
+                  onGuardarObs={handleGuardarObservacion}
+                  guardandoObs={guardandoObs}
+                  modoEdicion={!!editandoObs}
+                  onCancelarEdicion={() => {
+                    setEditandoObs(null);
+                    setTextoNuevoObs("");
+                  }}
                 />
-              ) : nivelStep == 2 ? (
+              ) : nivelStep == 3 ? (
                 <Listo
                   tipoFaseId={currentTipoFase.id}
                   lab={nuevaData.laboratorio}
                   pacientesData={pacientes}
                   pacienteOrden={pacienteOrden}
+                  textoObs={textoNuevoObs}
+                  setTextoObs={setTextoNuevoObs}
+                  onGuardarObs={handleGuardarObservacion}
+                  guardandoObs={guardandoObs}
+                  modoEdicion={!!editandoObs}
+                  onCancelarEdicion={() => {
+                    setEditandoObs(null);
+                    setTextoNuevoObs("");
+                  }}
                 />
-              ) : nivelStep == 3 ? (
+              ) : nivelStep == 4 ? (
                 <Retirado
                   tipoFaseId={currentTipoFase.id}
                   lab={nuevaData.laboratorio}
                   pacientesData={pacientes}
                   pacienteOrden={pacienteOrden}
+                  textoObs={textoNuevoObs}
+                  setTextoObs={setTextoNuevoObs}
+                  onGuardarObs={handleGuardarObservacion}
+                  guardandoObs={guardandoObs}
+                  modoEdicion={!!editandoObs}
+                  onCancelarEdicion={() => {
+                    setEditandoObs(null);
+                    setTextoNuevoObs("");
+                  }}
                 />
               ) : (
                 <div></div>
               )}
-
-              <Row gutter={[16, 16]}>
-                {nivelStep > 0 && (
-                  <Button
-                    disabled={nivelStep <= 0}
-                    onClick={() => {
-                      if (nivelStep > 0) {
-                        setNivelStep(nivelStep - 1);
-                      }
-                    }}
-                  >
-                    Anterior
-                  </Button>
-                )}
-                {nivelStep < 3 ? (
-                  <>
-                    <Button
-                      onClick={() =>
-                        avanzarFase(false, false)
-                      }
-                      type="default"
-                    >
-                      Guardar Fase
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        avanzarFase(false, true)
-                      }
-                      type="primary"
-                      disabled={nivelStep === 1 && !basesValidas}
-                    >
-                      Completar Fase
-                    </Button>
-                  </>
-                ) : nivelStep === 3 ? (
-                  <Button
-                    onClick={() => avanzarFase(false, true)}
-                    type="primary"
-                  >
-                    Completar Fase
-                  </Button>
-                ) : null}
-                {nivelStep === 4 && (
-                  <>
-                    <Button
-                      onClick={handleContactarPaciente}
-                    >
-                      Contactar al paciente
-                    </Button>
-                  </>
-                )}
-              </Row>
             </div>
           </div>
         </Col>
+        <div style={{
+          background: "white",
+          marginLeft: "10px",
+          marginRight: "40px",
+          marginTop: "10px",
+          padding: "15px",
+          borderRadius: "5px",
+          width: "100%",
+        }}>
+          <ObservacionesHistorial
+            ordenes_id={parseInt(orderId)}
+            usuariosData={usuarios}
+            idUsuarioActual={parseInt(idUsuario)}
+            loading={statusObservaciones === "loading"}
+            editandoId={editandoObs?.id ?? null}
+            onEditarClick={handleEditarObsClick}
+            onEliminarClick={handleEliminarObs}
+          />
+        </div>
       </Row>
       <EditOrden
         pacienteOrden={pacienteOrden}

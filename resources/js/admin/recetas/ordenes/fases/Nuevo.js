@@ -11,7 +11,18 @@ import VecesContacto from '../../VecesContacto';
 import { fetchProveedorMaterial } from '../../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
 
-const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
+const Nuevo = ({
+  tipoFaseId,
+  isDisabled,
+  pacientesData,
+  pacienteOrden,
+  textoObs,
+  setTextoObs,
+  onGuardarObs,
+  guardandoObs,
+  modoEdicion,
+  onCancelarEdicion
+}) => {
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
   const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -35,7 +46,8 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
   const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
-
+  console.log('pacienteOrden1',pacienteOrden)
+    console.log('pacientesData',pacientesData)
   useEffect(() => {
     dispatch(fetchProveedorMaterial({}))
   }, [])
@@ -265,14 +277,35 @@ const Nuevo = ({ tipoFaseId, isDisabled, pacientesData, pacienteOrden }) => {
               </div>
             )}
           </div>
-          <br />
-          <label htmlFor="observaciones">Observaciones</label>
+          <label htmlFor="observaciones">
+            {modoEdicion ? "Editando observación" : "Nueva observación"}
+          </label>
           <Input.TextArea
-            rows="5"
-            onChange={(e) => setObservaciones(e.target.value)}
-            value={observaciones}
+            rows={5}
+            placeholder="Escribe una observación..."
+            onChange={(e) => setTextoObs(e.target.value)}
+            value={textoObs}
+            disabled={isDisabled}
+            style={{ borderColor: modoEdicion ? "#faad14" : undefined }}
           />
+          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+            <Button
+              type="primary"
+              size="small"
+              loading={guardandoObs}
+              disabled={!textoObs?.trim() || isDisabled}
+              onClick={onGuardarObs}
+            >
+              {modoEdicion ? "Actualizar" : "Guardar observación"}
+            </Button>
+            {modoEdicion && (
+              <Button size="small" onClick={onCancelarEdicion}>
+                Cancelar
+              </Button>
+            )}
+          </div>
         </Col>
+
         <Col xxl={12} xl={12} md={12} style={{ textAlign: 'right' }}>
           <label htmlFor="inputAddress">Fecha de ingreso al laboratorio</label>
           <div>
