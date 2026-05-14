@@ -363,12 +363,12 @@ const VerOrdenes = () => {
                         >
                           Limpiar Ordenes
                         </button>
-                        <button
+                        {/* <button
                           onClick={handleClearCorrections}
                           className="btn"
                         >
                           Limpiar Correcciones
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                     <div className="d-flex justify-content-between">
@@ -547,6 +547,7 @@ const VerOrdenes = () => {
                                 allowClear
                               >
                                 <Select.Option value="Nuevo">Nuevo</Select.Option>
+                                <Select.Option value="Enviado">Enviado</Select.Option>
                                 <Select.Option value="Listo">Listo</Select.Option>
                                 <Select.Option value="En Confección">En confeccion</Select.Option>
                                 <Select.Option value="Retirado">Retirado</Select.Option>
