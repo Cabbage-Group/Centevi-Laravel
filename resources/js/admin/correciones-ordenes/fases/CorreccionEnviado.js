@@ -241,11 +241,11 @@ const CorreccionEnviado = ({
             >
                 <Col xxl={15} xl={15} md={12}>
                     <label htmlFor="observaciones">
-                        {modoEdicion ? "Editando observación" : "Nueva observación"}
+                        {modoEdicion ? "Editando observacion" : "Nueva observacion"}
                     </label>
                     <Input.TextArea
                         rows={5}
-                        placeholder="Escribe una observación..."
+                        placeholder="Escribe una observacion..."
                         onChange={(e) => setTextoObs(e.target.value)}
                         value={textoObs}
                         disabled={isDisabled}
@@ -259,7 +259,7 @@ const CorreccionEnviado = ({
                             disabled={!textoObs?.trim()}
                             onClick={onGuardarObs}
                         >
-                            {modoEdicion ? "Actualizar" : "Guardar observación"}
+                            {modoEdicion ? "Actualizar" : "Guardar observacion"}
                         </Button>
                         {modoEdicion && (
                             <Button size="small" onClick={onCancelarEdicion}>

@@ -887,7 +887,7 @@ class PedidosController extends Controller
             'tipo_base_oi' => $model->tipo_base_oi ?? '**',
             'material'    => $model->material,
             'ojo' => $model->ojo ?? false,
-            'observacion' => $model->observacion ?: 'Sin observación',
+            'observacion' => $model->observacion ?: 'Sin observacion',
         ];
     }
 

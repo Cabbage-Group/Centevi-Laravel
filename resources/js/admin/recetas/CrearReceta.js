@@ -1090,7 +1090,7 @@ const CrearReceta = () => {
                                   </div>
                                   <div className="col-md-12">
                                     <label htmlFor="inputEmail4">
-                                      Observación
+                                      observacion
                                     </label>
                                     <Field
                                       className="form-control textarea"

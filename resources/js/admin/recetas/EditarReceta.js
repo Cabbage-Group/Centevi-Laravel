@@ -111,7 +111,7 @@ const EditarReceta = () => {
         dispatch(fetchSucursales({ page: 1, limit: 100 }));
         if (editarStatus === 'succeeded') {
             alert('Receta actualizada con éxito');
-            window.location.reload();  
+            window.location.reload();
         }
     }, [editarStatus]);
 
@@ -140,7 +140,7 @@ const EditarReceta = () => {
                     }
                 };
                 dispatch(editarReceta(updatedData));
-    
+
                 // Opcional: Puedes mostrar una alerta de éxito después de que se complete la actualización
                 Swal.fire(
                     'Guardado!',
@@ -152,7 +152,7 @@ const EditarReceta = () => {
             }
         });
     };
-    
+
 
     return (
         <div className="printable" data-select2-id="15">
@@ -169,7 +169,7 @@ const EditarReceta = () => {
                                     <div className="statbox widget box box-shadow">
                                         <div className="widget-header">
 
-                                            
+
                                                 <div className="widget-content widget-content-area" >
 
                                                     <Formik
@@ -222,7 +222,7 @@ const EditarReceta = () => {
                                                                             name="id_paciente"
                                                                             className="form-control"
                                                                             value={values.paciente_nombre}
-                                                                            
+
                                                                         >
                                                                         </input>
                                                                     </div>
@@ -232,7 +232,7 @@ const EditarReceta = () => {
                                                                             as="select"
                                                                             name="sucursal"
                                                                             className="form-control"
-                                                                            
+
                                                                             onChange={(e) => {
                                                                                 const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === parseInt(e.target.value));
                                                                                 setFieldValue('sucursal', e.target.value);
@@ -256,7 +256,7 @@ const EditarReceta = () => {
                                                                             name="cedula"
                                                                             value={values.cedula}
                                                                             onChange={handleChange}
-                                                                        
+
 
                                                                         />
                                                                     </div>
@@ -269,7 +269,7 @@ const EditarReceta = () => {
                                                                             name="telefono"
                                                                             value={values.telefono}
                                                                             onChange={handleChange}
-                                                                           
+
 
                                                                         />
                                                                     </div>
@@ -361,8 +361,8 @@ const EditarReceta = () => {
                                                                                                 name="esfera_od"
                                                                                                 id="esfera_od"
                                                                                                 type="text"
-                                                                                              
-                                                                                              
+
+
 
 
                                                                                             />
@@ -372,8 +372,8 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="cilindro_od"
                                                                                                 type="text"
-                                                                                                
-                                                                                                
+
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -381,8 +381,8 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="eje_od"
                                                                                                 type="text"
-                                                                                               
-                                                                                               
+
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -390,8 +390,8 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="add_od"
                                                                                                 type="text"
-                                                                                              
-                                                                                              
+
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -400,8 +400,8 @@ const EditarReceta = () => {
                                                                                                 defaultValue="△"
                                                                                                 name="prisma_od"
                                                                                                 type="text"
-                                                                                            
-                                                                                             
+
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -409,7 +409,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="distancia_od"
                                                                                                 type="text"
-                                                                                             
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -417,7 +417,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="altura_od"
                                                                                                 type="text"
-                                                                                             
+
                                                                                             />
                                                                                         </td>
                                                                                     </tr>
@@ -430,7 +430,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="esfera_oi"
                                                                                                 type="text"
-                                                                                             
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -438,7 +438,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="cilindro_oi"
                                                                                                 type="text"
-                                                                                              
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -446,7 +446,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="eje_oi"
                                                                                                 type="text"
-                                                                                             
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -454,7 +454,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="add_oi"
                                                                                                 type="text"
-                                                                                              
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -463,7 +463,7 @@ const EditarReceta = () => {
                                                                                                 defaultValue="△"
                                                                                                 name="prisma_oi"
                                                                                                 type="text"
-                                                                                            
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -471,7 +471,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="distancia_oi"
                                                                                                 type="text"
-                                                                                          
+
                                                                                             />
                                                                                         </td>
                                                                                         <td>
@@ -479,7 +479,7 @@ const EditarReceta = () => {
                                                                                                 className="form-control"
                                                                                                 name="altura_oi"
                                                                                                 type="text"
-                                                                                            
+
                                                                                             />
                                                                                         </td>
                                                                                     </tr>
@@ -509,10 +509,10 @@ const EditarReceta = () => {
                                                                                     <label className="new-control new-radio radio-classic-primary">
                                                                                         <input
                                                                                             className="new-control-input"
-                                                                                            value={lente} 
+                                                                                            value={lente}
                                                                                             name="tipo_lente"
-                                                                                            type="radio"  
-                                                                                            checked={values.tipo_lente === lente}  
+                                                                                            type="radio"
+                                                                                            checked={values.tipo_lente === lente}
                                                                                             onChange={() => setFieldValue('tipo_lente', lente)}
                                                                                         />
                                                                                         <span className="new-control-indicator" />
@@ -549,7 +549,7 @@ const EditarReceta = () => {
                                                                                         type="checkbox"
                                                                                         checked={values.tratamientos.transitions === 'transitions'}
                                                                                         onChange={() => setFieldValue('tratamientos.transitions', values.tratamientos.transitions === 'transitions' ? '' : 'transitions')}
-                                                                                    
+
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     Transitions
@@ -847,7 +847,7 @@ const EditarReceta = () => {
                                                                                         type="checkbox"
                                                                                         checked={values.material.material_2 === 'thin_lite'}
                                                                                         onChange={() => setFieldValue('material.material_2', values.material.material_2 === 'thin_lite' ? '' : 'thin_lite')}
-                                                                                
+
                                                                                     />
                                                                                     <span className="new-control-indicator" />
                                                                                     THIN & LITE
@@ -1017,7 +1017,7 @@ const EditarReceta = () => {
                                                                                             className="new-control-input"
                                                                                             value={values.aro_propio.propio}
                                                                                             name="aro_propio.propio"
-                                                                                            type="checkbox" 
+                                                                                            type="checkbox"
                                                                                             checked={values.aro_propio.propio === 'seguridad'}
                                                                                             onChange={() => setFieldValue('aro_propio.propio', values.aro_propio.propio== 'seguridad' ? '' : 'seguridad')}
                                                                                         />
@@ -1037,7 +1037,7 @@ const EditarReceta = () => {
                                                                                 value={values.aro_propio.codigo_aro}
                                                                                 type="text"
                                                                                 onChange={handleChange}
-                                                                                
+
                                                                             />
                                                                         </div>
                                                                         <div className="col-md-2">
@@ -1165,7 +1165,7 @@ const EditarReceta = () => {
                                                                         </div>
                                                                         <div className="col-md-12">
                                                                             <label htmlFor="inputEmail4">
-                                                                                Observación
+                                                                                observacion
                                                                             </label>
                                                                             <Field
                                                                                 className="form-control textarea"
@@ -1194,10 +1194,10 @@ const EditarReceta = () => {
                                                                 />
 
                                                                 <button type="submit" className="btn btn-success mt-3">
-                                                                Editar Receta                                                     
+                                                                Editar Receta
                                                                 </button>
 
-                                                            
+
 
                                                             </Form>
                                                         )}
@@ -1206,7 +1206,7 @@ const EditarReceta = () => {
                                                     {status === 'error' && <div className="alert alert-danger">{error}</div>}
 
                                                 </div>
-                                           
+
                                         </div>
                                     </div>
 

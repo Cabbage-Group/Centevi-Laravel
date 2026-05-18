@@ -78,7 +78,7 @@ const ModalHistorialOrden = ({
             lineas.push(`Nro Base:    ${baseUnica ?? "**"}`);
         }
 
-        lineas.push(`Observación: ${detalle.observacion ?? "Sin observación"}`);
+        lineas.push(`observacion: ${detalle.observacion ?? "Sin observacion"}`);
 
         return lineas.join("\n");
     };

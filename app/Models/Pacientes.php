@@ -47,6 +47,7 @@ class Pacientes extends Model
   protected $casts = [
     'id_paciente' => 'integer',
     'sucursal' => 'integer',
+    'factura' => 'integer',
     'estado' => 'boolean',
     'fecha_creacion' => 'date',
   ];

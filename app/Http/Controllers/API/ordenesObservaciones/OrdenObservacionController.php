@@ -73,7 +73,7 @@ class OrdenObservacionController extends Controller
         $observacion->load('usuario:id_usuario,nombre');
 
         return response()->json([
-            'message'     => 'Observación guardada correctamente',
+            'message'     => 'observacion guardada correctamente',
             'observacion' => [
                 'id'             => $observacion->id,
                 'observacion'    => $observacion->observacion,
@@ -104,7 +104,7 @@ class OrdenObservacionController extends Controller
 
         if (!$observacion) {
             return response()->json([
-                'message' => 'Observación no encontrada',
+                'message' => 'observacion no encontrada',
             ], 404);
         }
 
@@ -116,7 +116,7 @@ class OrdenObservacionController extends Controller
         $observacion->load('usuario:id_usuario,nombre');
 
         return response()->json([
-            'message'     => 'Observación actualizada correctamente',
+            'message'     => 'observacion actualizada correctamente',
             'observacion' => [
                 'id'             => $observacion->id,
                 'observacion'    => $observacion->observacion,
@@ -137,14 +137,14 @@ class OrdenObservacionController extends Controller
 
         if (!$observacion) {
             return response()->json([
-                'message' => 'Observación no encontrada',
+                'message' => 'observacion no encontrada',
             ], 404);
         }
 
         $observacion->delete();
 
         return response()->json([
-            'message' => 'Observación eliminada correctamente',
+            'message' => 'observacion eliminada correctamente',
         ], 200);
     }
 }
