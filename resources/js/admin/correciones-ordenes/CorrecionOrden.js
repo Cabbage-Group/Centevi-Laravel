@@ -308,7 +308,7 @@ const CorrecionOrden = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 0 && !nuevaDataCorrecciones.laboratorio) {
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && !nuevaDataCorrecciones.laboratorio) {
       await Swal.fire({
         title: 'Error',
         text: 'Debe seleccionar un laboratorio antes de continuar.',

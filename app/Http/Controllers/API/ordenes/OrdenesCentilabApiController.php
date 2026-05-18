@@ -111,7 +111,7 @@ class OrdenesCentilabApiController extends Controller
             } else {
                 $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
 
-                if ($ultimaFase->tipo_fase_orden_id == 4) {
+                if ($ultimaFase->tipo_fase_orden_id == 5) {
                     $estado = 'Completado';
                 } elseif ($diasDiferencia <= 6) {
                     $estado = 'OK';

@@ -11,6 +11,7 @@ import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFas
 import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
 import { fetchBases } from '../../../redux/features/bases/basesSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
+import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
 const CorreccionEnviado = ({
     tipoFaseId,
@@ -29,6 +30,7 @@ const CorreccionEnviado = ({
     const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
     const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
     const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
+    const proveedor_material_options_selecteds = useSelector((state) => state.proveedorMaterial.proveedor_material_options_selecteds);
     const { bases, loading } = useSelector((state) => state.bases);
     const [baseOjoIzquierdoId, setBaseOjoIzquierdoId] = useState(null);
     const [baseOjoDerechoId, setBaseOjoDerechoId] = useState(null);
@@ -46,6 +48,14 @@ const CorreccionEnviado = ({
     const [status, setStatus] = useState('');
     const idUsuario = localStorage.getItem('id_usuario');
     const [lenteContacto, setLenteContacto] = useState(0);
+    const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
+    const [proveedorMaterial, setProveedorMaterial] = useState('');
+
+    useEffect(() => {
+        dispatch(fetchProveedorMaterial({}))
+    }, [])
+
+
 
     useEffect(() => {
         if (correccionOrderId) {
@@ -64,6 +74,23 @@ const CorreccionEnviado = ({
             setLenteContacto(correcionOrden?.lente_contacto || 0)
         }
     }, [correcionOrden])
+
+    useEffect(() => {
+        if (correcionOrden?.lente_contacto) {
+            setOpcionesLaboratorio([
+                { value: 'Vista Pro', label: 'Vista Pro' },
+                { value: 'Haseth J&J', label: 'Haseth J&J' },
+                { value: 'Alcon', label: 'Alcon' },
+                { value: 'B+L', label: 'B+L' },
+            ]);
+        } else {
+            setOpcionesLaboratorio([
+                { value: 'Centilab', label: 'Centilab' },
+                { value: 'Ping', label: 'Ping' },
+                { value: 'Optilab', label: 'Optilab' },
+            ]);
+        }
+    }, [correcionOrden?.lente_contacto]);
 
     useEffect(() => {
         if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -88,16 +115,6 @@ const CorreccionEnviado = ({
             .find((fasesOrden) =>
                 fasesOrden.tipo_fase_correccion_orden_id == tipoFaseId
             );
-        setBaseOjoIzquierdoId(
-            faseOrden?.base_ojo_izquierdo_id != null
-                ? Number(faseOrden.base_ojo_izquierdo_id)
-                : null
-        );
-        setBaseOjoDerechoId(
-            faseOrden?.base_ojo_derecho_id != null
-                ? Number(faseOrden.base_ojo_derecho_id)
-                : null
-        );
     }, [tiposFasesOrdenes, correccionOrderId]);
 
     useEffect(() => {
@@ -112,7 +129,9 @@ const CorreccionEnviado = ({
                     faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
                 );
                 if (faseOrden) {
+                    setLaboratorio(faseOrden.laboratorio);
                     setObservaciones(faseOrden.observacion);
+                    setProveedorMaterial(faseOrden.proveedor_material);
                     setFechaActual(faseOrden.fecha_fase);
                     setFechaCreacion(faseOrden.created_at);
                     setFaseOrdenId(faseOrden.id)
@@ -126,13 +145,19 @@ const CorreccionEnviado = ({
             tipo_fase_correccion_orden_id: tipoFaseId,
             laboratorio: laboratorio,
             observacion: observaciones,
+            proveedor_material: proveedorMaterial,
             fecha_fase: fechaActual,
             elaborado_por: idUsuario,
-            base_ojo_izquierdo_id: baseOjoIzquierdoId,
-            base_ojo_derecho_id: baseOjoDerechoId,
         };
         dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
-    }, [observaciones, baseOjoIzquierdoId, baseOjoDerechoId, fechaActual, tipoFaseId, dispatch]);
+    }, [
+        observaciones,
+        laboratorio,
+        fechaActual,
+        proveedorMaterial,
+        tipoFaseId,
+        dispatch]
+    );
 
     useEffect(() => {
         if (!loading && bases?.length && baseOjoIzquierdoId) {
@@ -240,6 +265,45 @@ const CorreccionEnviado = ({
                 gutter={[16, 16]}
             >
                 <Col xxl={15} xl={15} md={12}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div>
+                            <label htmlFor="laboratorio">Selecciona el laboratorio</label>
+                            <br />
+                            <Select
+                                showSearch
+                                placeholder="Selecciona un laboratorio"
+                                options={opcionesLaboratorio}
+                                style={{
+                                    width: '200px',
+                                    height: '30px',
+                                    color: 'black',
+                                    fontWeight: 'bold',
+                                }}
+                                onChange={(value) => setLaboratorio(value)}
+                                value={laboratorio}
+                            />
+                        </div>
+
+                        {!correcionOrden?.lente_contacto && (
+                            <div>
+                                <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
+                                <br />
+                                <Select
+                                    showSearch
+                                    placeholder="Selecciona un proveedor"
+                                    options={proveedor_material_options_selecteds}
+                                    style={{
+                                        width: '200px',
+                                        height: '30px',
+                                        color: 'black',
+                                        fontWeight: 'bold',
+                                    }}
+                                    onChange={(value) => setProveedorMaterial(value)}
+                                    value={proveedorMaterial}
+                                />
+                            </div>
+                        )}
+                    </div>
                     <label htmlFor="observaciones">
                         {modoEdicion ? "Editando observacion" : "Nueva observacion"}
                     </label>

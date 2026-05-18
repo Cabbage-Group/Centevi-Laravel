@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Tooltip, Button } from 'antd'
+import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd'
 import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { actualizarDatosFase, setProveedor } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import VecesContacto from '../../VecesContacto';
+import { fetchProveedorMaterial } from '../../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
 const Enviado = ({
   tipoFaseId,
@@ -28,8 +29,9 @@ const Enviado = ({
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
   const [fechaCreacion, setFechaCreacion] = useState('')
-  const [fechaFaseConfeccion, setFechaFaseConfeccion] = useState('');
+  const [fechaFaseEnviado, setFechaFaseEnviado] = useState('');
   const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes)
+  const proveedor_material_options_selecteds = useSelector((state) => state.proveedorMaterial.proveedor_material_options_selecteds);
   const [observaciones, setObservaciones] = useState('');
   const { orderId } = useParams();
   const location = useLocation();
@@ -48,6 +50,13 @@ const Enviado = ({
   const [ubicacionMaps, setUbicacionMaps] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [status, setStatus] = useState('');
+  const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
+
+
+  useEffect(() => {
+    dispatch(fetchProveedorMaterial({}))
+  }, [])
+
 
   useEffect(() => {
     if (orderId) {
@@ -63,6 +72,24 @@ const Enviado = ({
       setStatus(pacienteOrden?.status_primera_fase)
     }
   }, [pacienteOrden])
+
+
+  useEffect(() => {
+    if (pacienteOrden?.lente_contacto) {
+      setOpcionesLaboratorio([
+        { value: 'Vista Pro', label: 'Vista Pro' },
+        { value: 'Haseth J&J', label: 'Haseth J&J' },
+        { value: 'Alcon', label: 'Alcon' },
+        { value: 'B+L', label: 'B+L' },
+      ]);
+    } else {
+      setOpcionesLaboratorio([
+        { value: 'Centilab', label: 'Centilab' },
+        { value: 'Ping', label: 'Ping' },
+        { value: 'Optilab', label: 'Optilab' },
+      ]);
+    }
+  }, [pacienteOrden?.lente_contacto]);
 
   useEffect(() => {
     if (selectedPaciente) {
@@ -91,15 +118,12 @@ const Enviado = ({
         const faseOrden2 = tipoFase2.fases_ordenes.find(faseOrden =>
           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId - 1
         );
-
-
         if (faseOrden2) {
-          setLaboratorio(faseOrden2.laboratorio);
-          setFechaFaseConfeccion(faseOrden2.fecha_fase);
+          setFechaFaseEnviado(faseOrden2.fecha_fase);
         }
       }
     }
-  }, [tiposFasesOrdenes, orderId]);
+  }, [tiposFasesOrdenes, orderId, tipoFaseId]);
 
   useEffect(() => {
     if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
@@ -114,6 +138,9 @@ const Enviado = ({
         );
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
+          setLaboratorio(faseOrden.laboratorio);
+          setProveedorMaterial(faseOrden.proveedor_material);
+          setFechaFaseEnviado(faseOrden.fecha_fase);
           setFechaActual(faseOrden.fecha_fase);
           setFechaCreacion(faseOrden.created_at);
           setFaseOrdenId(faseOrden.id);
@@ -161,8 +188,10 @@ const Enviado = ({
       elaborado_por: usuarioId,
     };
     dispatch(actualizarDatosFase(nuevaFase));
+    dispatch(setProveedor(proveedorMaterial))
 
-  }, [observaciones, fechaActual, tipoFaseId, dispatch, status]);
+
+  }, [laboratorio, observaciones, fechaActual, tipoFaseId, dispatch, status, proveedorMaterial]);
 
   const actualizarFecha = async () => {
     const result = await Swal.fire({
@@ -188,7 +217,6 @@ const Enviado = ({
   }
 
   const handleContactarPaciente = async () => {
-    // Datos para la API
     const newContactoOrdenData = {
       ordenes_id: orderId,
       tipo_fase_orden_id: tipoFaseId,
@@ -197,11 +225,9 @@ const Enviado = ({
     };
 
     try {
-      // Llamar a la API
       await dispatch(createContactoOrden(newContactoOrdenData)).unwrap();
       console.log('Contacto creado exitosamente');
 
-      // Abrir enlace de WhatsApp
       window.open(generateWhatsAppLink(), '_blank');
     } catch (error) {
       console.error('Error al crear contacto:', error);
@@ -216,6 +242,45 @@ const Enviado = ({
         gutter={[16, 16]}
       >
         <Col xxl={12} xl={12} md={12}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div>
+              <label htmlFor="laboratorio">Selecciona el laboratorio</label>
+              <br />
+              <Select
+                showSearch
+                placeholder="Selecciona un laboratorio"
+                options={opcionesLaboratorio}
+                style={{
+                  width: '200px',
+                  height: '30px',
+                  color: 'black',
+                  fontWeight: 'bold',
+                }}
+                onChange={(value) => setLaboratorio(value)}
+                value={laboratorio}
+              />
+            </div>
+
+            {!pacienteOrden?.lente_contacto && (
+              <div>
+                <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
+                <br />
+                <Select
+                  showSearch
+                  placeholder="Selecciona un proveedor"
+                  options={proveedor_material_options_selecteds}
+                  style={{
+                    width: '200px',
+                    height: '30px',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                  onChange={(value) => setProveedorMaterial(value)}
+                  value={proveedorMaterial}
+                />
+              </div>
+            )}
+          </div>
           <label htmlFor="observaciones">
             {modoEdicion ? "Editando observacion" : "Nueva observacion"}
           </label>
@@ -269,7 +334,7 @@ const Enviado = ({
             Fecha de la fase confeccion
           </label>
           <div>
-            {fechaFaseConfeccion ? moment(fechaFaseConfeccion).format('YYYY-MM-DD HH:mm:ss') : ""}
+            {fechaFaseEnviado ? moment(fechaFaseEnviado).format('YYYY-MM-DD HH:mm:ss') : ""}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
