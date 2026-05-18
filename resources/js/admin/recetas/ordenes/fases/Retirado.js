@@ -52,7 +52,7 @@ const Retirado = ({
       dispatch(fecthTiposFasesOrdenes(orderId));
     }
   }, [])
- console.log('pacienteOrden', pacienteOrden)
+  console.log('pacienteOrden', pacienteOrden)
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente)
@@ -114,7 +114,6 @@ const Retirado = ({
         const faseOrden = tipoFase.fases_ordenes.find(faseOrden =>
           faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
         );
-
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
           setFechaActual(faseOrden.fecha_fase);

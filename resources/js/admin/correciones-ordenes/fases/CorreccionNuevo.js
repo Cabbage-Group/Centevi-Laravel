@@ -217,7 +217,7 @@ const CorreccionNuevo = ({
     <div>
       <Row style={{ marginBottom: '20px' }} gutter={[16, 16]}>
         <Col xxl={12} xl={12} md={12}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div>
               <label htmlFor="laboratorio">Selecciona el laboratorio</label>
               <br />
@@ -255,7 +255,7 @@ const CorreccionNuevo = ({
                 />
               </div>
             )}
-          </div>
+          </div> */}
           <label htmlFor="observaciones">
             {modoEdicion ? "Editando observación" : "Nueva observación"}
           </label>

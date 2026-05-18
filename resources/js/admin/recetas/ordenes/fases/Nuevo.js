@@ -46,8 +46,7 @@ const Nuevo = ({
   const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
-  console.log('pacienteOrden1',pacienteOrden)
-    console.log('pacientesData',pacientesData)
+
   useEffect(() => {
     dispatch(fetchProveedorMaterial({}))
   }, [])
@@ -115,7 +114,6 @@ const Nuevo = ({
           (faseOrden) =>
             faseOrden.ordenes_id == orderId && faseOrden.tipo_fase_orden_id == tipoFaseId
         );
-
         if (faseOrden) {
           setLaboratorio(faseOrden.laboratorio);
           setObservaciones(faseOrden.observacion);
@@ -238,7 +236,7 @@ const Nuevo = ({
     <div>
       <Row style={{ marginBottom: '20px' }} gutter={[16, 16]}>
         <Col xxl={12} xl={12} md={12}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div>
               <label htmlFor="laboratorio">Selecciona el laboratorio</label>
               <br />
@@ -276,7 +274,7 @@ const Nuevo = ({
                 />
               </div>
             )}
-          </div>
+          </div> */}
           <label htmlFor="observaciones">
             {modoEdicion ? "Editando observación" : "Nueva observación"}
           </label>

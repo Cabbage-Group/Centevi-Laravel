@@ -403,7 +403,8 @@ const Ordenes = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    if (nuevaData.tipo_fase_orden_id === 0 && !nuevaData.laboratorio) {
+    console.log('nuevaData',nuevaData.laboratorio)
+    if (nuevaData.tipo_fase_orden_id === 2 && !nuevaData.laboratorio) {
       await Swal.fire({
         title: "Error",
         text: "Debe seleccionar un laboratorio antes de continuar.",
