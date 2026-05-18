@@ -893,25 +893,25 @@ class PedidosController extends Controller
 
     private function getTipoBaseOD(Ordenes $orden): ?string
     {
-        $fase = $orden->fasesOrdenes->firstWhere('tipo_fase_orden_id', 2);
+        $fase = $orden->fasesOrdenes->firstWhere('tipo_fase_orden_id', 3);
         return $fase?->baseDerecha?->codigo ?? null;
     }
 
     private function getTipoBaseOI(Ordenes $orden): ?string
     {
-        $fase = $orden->fasesOrdenes->firstWhere('tipo_fase_orden_id', 2);
+        $fase = $orden->fasesOrdenes->firstWhere('tipo_fase_orden_id', 3);
         return $fase?->baseIzquierda?->codigo ?? null;
     }
 
     private function getTipoBaseODCorrecciones(CorrecionesOrdenes $c): ?string
     {
-        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_correccion_orden_id', 2);
+        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_correccion_orden_id', 3);
         return $fase?->baseDerecha?->codigo ?? null;
     }
 
     private function getTipoBaseOICorrecciones(CorrecionesOrdenes $c): ?string
     {
-        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_correccion_orden_id', 2);
+        $fase = $c->faseCorreccionOrden->firstWhere('tipo_fase_correccion_orden_id', 3);
         return $fase?->baseIzquierda?->codigo ?? null;
     }
 

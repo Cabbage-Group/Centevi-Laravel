@@ -326,7 +326,7 @@ class KpisApiController extends Controller
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
         DB::raw('CASE
-              WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
+              WHEN contador_fases.total_fases = 5 AND contador_fases.fases_completadas = 5 THEN "Completado"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
               WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN "Critico"
@@ -354,8 +354,8 @@ class KpisApiController extends Controller
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN
-                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
+                      WHEN fo.tipo_fase_orden_id = 5 THEN
+                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "5"
                       ELSE
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
@@ -473,8 +473,8 @@ class KpisApiController extends Controller
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN
-                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
+                      WHEN fo.tipo_fase_orden_id = 5 THEN
+                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "5"
                       ELSE
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
@@ -623,8 +623,8 @@ class KpisApiController extends Controller
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN
-                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
+                      WHEN fo.tipo_fase_orden_id = 5 THEN
+                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "5"
                       ELSE
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
@@ -743,8 +743,8 @@ class KpisApiController extends Controller
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN
-                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
+                      WHEN fo.tipo_fase_orden_id = 5 THEN
+                          tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "5"
                       ELSE
                           (SELECT tipo_fase_orden
                            FROM tipos_fases_ordenes
@@ -1122,7 +1122,7 @@ class KpisApiController extends Controller
                                 (SELECT tipo_fase_orden
                                 FROM tipos_fases_ordenes
                                 ORDER BY id ASC LIMIT 1)
-                            WHEN fo.tipo_fase_orden_id = 4 THEN
+                            WHEN fo.tipo_fase_orden_id = 5 THEN
                                 tfo.tipo_fase_orden
                             ELSE
                                 (SELECT tipo_fase_orden
@@ -1139,7 +1139,7 @@ class KpisApiController extends Controller
                     WHEN fo.status = 1 THEN
                         CASE
                             WHEN fo.tipo_fase_orden_id IS NULL THEN 1
-                            WHEN fo.tipo_fase_orden_id = 4 THEN 4
+                            WHEN fo.tipo_fase_orden_id = 5 THEN 5
                             ELSE fo.tipo_fase_orden_id + 1
                         END
                     ELSE fo.tipo_fase_orden_id
@@ -1266,7 +1266,7 @@ class KpisApiController extends Controller
                       WHEN fo.status = 1 THEN
                           CASE
                               WHEN fo.tipo_fase_orden_id IS NULL THEN 1
-                              WHEN fo.tipo_fase_orden_id = 4 THEN 4
+                              WHEN fo.tipo_fase_orden_id = 5 THEN 5
                               ELSE fo.tipo_fase_orden_id + 1
                           END
                       ELSE fo.tipo_fase_orden_id
