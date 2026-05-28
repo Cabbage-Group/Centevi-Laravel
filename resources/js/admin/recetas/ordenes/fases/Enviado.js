@@ -6,7 +6,7 @@ import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-import { actualizarDatosFase, setProveedor } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { actualizarDatosFase, setProveedor, updateLaboratorioEnviado } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../../redux/features/pacientes/pacientesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
@@ -52,7 +52,7 @@ const Enviado = ({
   const [status, setStatus] = useState('');
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
 
-
+  const [loadingLaboratorio, setLoadingLaboratorio] = useState(false);
   useEffect(() => {
     dispatch(fetchProveedorMaterial({}))
   }, [])
@@ -234,6 +234,57 @@ const Enviado = ({
     }
   };
 
+  const handleGuardarLaboratorio = async () => {
+
+    if (!laboratorio) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Seleccione un laboratorio',
+      });
+      return;
+    }
+
+    if (!faseOrdenId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'No existe fase para actualizar',
+      });
+      return;
+    }
+
+    try {
+
+      setLoadingLaboratorio(true);
+
+      await dispatch(
+        updateLaboratorioEnviado({
+          id: faseOrdenId,
+          laboratorio,
+        })
+      ).unwrap();
+
+      await dispatch(fecthTiposFasesOrdenes(orderId));
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Laboratorio actualizado correctamente',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+    } catch (error) {
+
+      Swal.fire({
+        icon: 'error',
+        title:
+          error?.response?.data?.message ||
+          'Error al actualizar laboratorio',
+      });
+
+    } finally {
+      setLoadingLaboratorio(false);
+    }
+  };
 
   return (
     <div>
@@ -259,6 +310,20 @@ const Enviado = ({
                 onChange={(value) => setLaboratorio(value)}
                 value={laboratorio}
               />
+
+              {/* <Button
+                type="primary"
+                size="small"
+                loading={loadingLaboratorio}
+                disabled={isDisabled || !laboratorio}
+                onClick={handleGuardarLaboratorio}
+                style={{
+                  marginTop: '8px',
+                  width: '200px',
+                }}
+              >
+                Guardar laboratorio
+              </Button> */}
             </div>
 
             {!pacienteOrden?.lente_contacto && (

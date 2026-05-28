@@ -277,8 +277,12 @@ class PedidosController extends Controller
             'pedido.proveedor',
             'correciones.pedido.proveedor',
             'correciones.mermas',
+            'fasesOrdenes.tipoFaseOrden',
+            'fasesOrdenes.usuario',
             'fasesOrdenes.baseIzquierda',
             'fasesOrdenes.baseDerecha',
+            'correciones.faseCorreccionOrden.tipoFaseCorreccionOrden',
+            'correciones.faseCorreccionOrden.usuario',
             'mermas' => fn($q) => $q->with('proveedor')->orderBy('created_at', 'desc'),
         ])->where('cancelada', 0)
             ->where('lente_contacto', false);
@@ -918,11 +922,22 @@ class PedidosController extends Controller
     private function formatOrden(Ordenes $orden): array
     {
         $limpiar = fn($valor) => $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
+
+
+        $laboratorio = $orden->fasesOrdenes
+            ->whereNotNull('laboratorio')
+            ->pluck('laboratorio')
+            ->first() ?? null;
+        $tieneLaboratorio = !is_null($laboratorio) && trim($laboratorio) !== '';
+        $esCentilab = strtolower(trim($laboratorio ?? '')) === 'centilab';
         return [
             'id_orden'           => $orden->id_orden,
             'id_paciente'        => $orden->id_paciente,
             'nro_orden_id'       => $orden->nro_orden_id,
             'id_pedido'          => $orden->id_pedido,
+            'laboratorio'        => $laboratorio,
+            'es_centilab' => $esCentilab,
+            'tipo_base_gestionado_laboratorio'   => $tieneLaboratorio ? (!$esCentilab ? 'Gestionado por laboratorio' : null) : null,
             'pedido_ojo' => $orden->pedido?->ojo ?? 'ambos',
             'fecha' => $orden->created_at?->toDateString(),
             'orden'              => $orden->nro_orden_id,
@@ -948,9 +963,11 @@ class PedidosController extends Controller
             'merma_estado'       => $orden->mermas->first()?->estado,
             'merma_pendiente'    => $orden->mermas->where('estado', 'Pendiente')->count(),
             'fecha_pedido' => $orden->pedido?->fecha_generado?->toIso8601String(),
-            'proveedor' => $orden->mermas->first()?->proveedor?->nombre
-                ?? $orden->pedido?->proveedor?->nombre
-                ?? null,
+            'proveedor'                          => $tieneLaboratorio
+                ? ($esCentilab
+                    ? ($orden->mermas->first()?->proveedor?->nombre ?? $orden->pedido?->proveedor?->nombre ?? null)
+                    : 'Gestionado por laboratorio')
+                : null,
             'observacion_pedido' => $orden->observacion_pedido ?? null,
             'merma_count'              => $orden->mermas->count(),
             'correcciones'       => $orden->correciones->count(),
@@ -970,11 +987,21 @@ class PedidosController extends Controller
 
         foreach ($orden->correciones as $index => $correccion) {
             $numero = $index + 1;
+
+            $laboratorio = $correccion->faseCorreccionOrden
+                ->whereNotNull('laboratorio')
+                ->pluck('laboratorio')
+                ->first() ?? null;
+            $tieneLaboratorio = !is_null($laboratorio) && trim($laboratorio) !== '';
+            $esCentilab = strtolower(trim($laboratorio ?? '')) === 'centilab';
             $resultado[] = [
                 'id_orden'           => "c-{$correccion->id}-{$orden->id_orden}",
                 'id_real'            => $correccion->id,
                 'id_orden_padre'     => $orden->id_orden,
                 'es_correccion'      => true,
+                'laboratorio'        => $laboratorio,
+                'es_centilab' => $esCentilab,
+                'tipo_base_gestionado_laboratorio'   => $tieneLaboratorio ? (!$esCentilab ? 'Gestionado por laboratorio' : null) : null,
                 'pedido_ojo' => $correccion->pedido?->ojo ?? 'ambos',
                 'fecha'              => $correccion->created_at,
                 'nro_orden_id'       => $orden->nro_orden_id . '-C' . $numero,
@@ -1008,9 +1035,11 @@ class PedidosController extends Controller
                 'correcciones'       => 0,
                 'id_pedido'       => $correccion->id_pedido,
                 'pedido_material' => $correccion->pedido?->estado ?? 'Pendiente',
-                'proveedor'       => $correccion->mermas->first()?->proveedor?->nombre
-                    ?? $correccion->pedido?->proveedor?->nombre
-                    ?? null,
+                'proveedor'                          => $tieneLaboratorio
+                    ? ($esCentilab
+                        ? ($correccion->mermas->first()?->proveedor?->nombre ?? $correccion->pedido?->proveedor?->nombre ?? null)
+                        : 'Gestionado por laboratorio')
+                    : null,
                 'merma_count'     => $correccion->mermas->count(),
                 'merma_pendiente' => $correccion->mermas->where('estado', 'Pendiente')->count(),
                 'merma_estado' => $correccion->mermas->last()?->estado,

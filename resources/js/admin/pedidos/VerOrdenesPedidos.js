@@ -418,22 +418,44 @@ const VerOrdenesPedidos = () => {
             width: 200,
             align: "center",
             render: (_, record) => {
+                if (!record.es_centilab && record.tipo_base_gestionado_laboratorio) {
+                    return (
+                        <span
+                            style={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: "#d48806",
+                            }}
+                        >
+                            {record.tipo_base_gestionado_laboratorio}
+                        </span>
+                    );
+                }
                 const od = record.tipo_base_od;
                 const oi = record.tipo_base_oi;
                 if (od === oi) {
-                    return <span style={{ fontSize: 12 }}>{od ?? "**"}</span>;
+                    return (
+                        <span style={{ fontSize: 12 }}>
+                            {od ?? "**"}
+                        </span>
+                    );
                 }
-
                 return (
                     <span style={{ fontSize: 12 }}>
                         {od ? (
-                            <span style={{ color: "#1a5f8a", fontWeight: 600 }}>{od}</span>
+                            <span style={{ color: "#1a5f8a", fontWeight: 600 }}>
+                                {od}
+                            </span>
                         ) : (
                             <span style={{ color: "#aaa" }}>**</span>
                         )}
+
                         <span style={{ color: "#bbb", margin: "0 4px" }}>|</span>
+
                         {oi ? (
-                            <span style={{ color: "#6a3fa0", fontWeight: 600 }}>{oi}</span>
+                            <span style={{ color: "#6a3fa0", fontWeight: 600 }}>
+                                {oi}
+                            </span>
                         ) : (
                             <span style={{ color: "#aaa" }}>**</span>
                         )}
@@ -447,6 +469,17 @@ const VerOrdenesPedidos = () => {
             width: 240,
             align: "center",
             render: (val) => <span style={{ fontSize: 12 }}>{val ?? "**"}</span>,
+        },
+        {
+            title: "LABORATORIO",
+            dataIndex: "laboratorio",
+            width: 140,
+            align: "center",
+            render: (val) => (
+                <span style={{ fontSize: 12, fontWeight: val ? 500 : 400 }}>
+                    {val ?? "—"}
+                </span>
+            ),
         },
         {
             title: "PEDIDO MATERIAL",

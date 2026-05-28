@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\CorrecionesOrdenes;
 use App\Models\Pedido;
+use App\Models\ProveedorMaterial;
 
 class OrdenesApiController extends Controller
 {
@@ -1014,6 +1015,118 @@ class OrdenesApiController extends Controller
         'error' => $e->getMessage(),
       ], 500);
     }
+  }
+
+  public function updateLaboratorioEnviado(Request $request, $id)
+  {
+    $validatedData = $request->validate([
+      'laboratorio' => 'required|string|max:45',
+    ]);
+
+    return DB::transaction(function () use ($validatedData, $id) {
+
+      $faseOrden = FasesOrdenes::find($id);
+
+      if (!$faseOrden) {
+        return response()->json([
+          'message' => 'Fase de orden no encontrada.',
+        ], 404);
+      }
+
+      if ((int) $faseOrden->tipo_fase_orden_id !== 2) {
+        return response()->json([
+          'message' => 'Solo se puede actualizar el laboratorio en la fase "Enviado".',
+        ], 400);
+      }
+
+      try {
+
+        $nuevoLaboratorio = trim($validatedData['laboratorio']);
+        if (
+          $faseOrden->laboratorio &&
+          strtolower(trim($faseOrden->laboratorio)) === strtolower($nuevoLaboratorio)
+        ) {
+          return response()->json([
+            'message' => 'El laboratorio ingresado es el mismo actualmente registrado.',
+          ], 400);
+        }
+
+        $faseOrden->laboratorio = $nuevoLaboratorio;
+        $faseOrden->updated_at = now();
+        $faseOrden->save();
+
+        $orden = Ordenes::find($faseOrden->ordenes_id);
+
+        if ($orden) {
+
+
+          if (strtolower($nuevoLaboratorio) !== 'centilab') {
+
+            if (!$orden->id_pedido) {
+
+              $proveedor = ProveedorMaterial::whereRaw(
+                'LOWER(nombre) = ?',
+                [strtolower($nuevoLaboratorio)]
+              )->first();
+
+              if ($proveedor) {
+
+                $pedido = Pedido::create([
+                  'id_proveedor'   => $proveedor->id,
+                  'fecha_generado' => now(),
+                  'estado'         => 'Realizado',
+                  'total_ordenes'  => 1,
+                ]);
+
+                $orden->update([
+                  'id_pedido' => $pedido->id_pedido,
+                ]);
+              }
+            }
+          } else {
+
+            if ($orden->id_pedido) {
+
+              $pedido = Pedido::find($orden->id_pedido);
+
+              if ($pedido) {
+
+                Ordenes::where('id_pedido', $pedido->id_pedido)
+                  ->update([
+                    'id_pedido' => null,
+                    'observacion_pedido' => null,
+                  ]);
+
+                CorrecionesOrdenes::where('id_pedido', $pedido->id_pedido)
+                  ->update([
+                    'id_pedido' => null,
+                    'observacion_pedido' => null,
+                  ]);
+
+                $pedido->delete();
+              }
+            }
+          }
+        }
+
+        return response()->json([
+          'message' => 'Laboratorio actualizado exitosamente.',
+          'data'    => $faseOrden,
+        ], 200);
+      } catch (\Exception $e) {
+
+        Log::error('ERROR updateLaboratorioEnviado', [
+          'mensaje' => $e->getMessage(),
+          'linea'   => $e->getLine(),
+          'archivo' => $e->getFile(),
+        ]);
+
+        return response()->json([
+          'message' => 'Error al actualizar el laboratorio.',
+          'error'   => $e->getMessage(),
+        ], 500);
+      }
+    });
   }
 
   public function reportesOrdenes(Request $request)

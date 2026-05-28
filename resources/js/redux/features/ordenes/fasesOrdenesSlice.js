@@ -38,6 +38,32 @@ export const updateFasesOrdenes = createAsyncThunk(
   }
 );
 
+export const updateLaboratorioEnviado = createAsyncThunk(
+  'fasesOrdenes/updateLaboratorioEnviado',
+  async ({ id, laboratorio }) => {
+    try {
+
+      const response = await axios.put(
+        `${API}/pedidos/update-laboratorio-enviado/${id}`,
+        {
+          laboratorio,
+        }
+      );
+
+      return response.data;
+
+    } catch (error) {
+
+      console.error(
+        'Error updating laboratorio:',
+        error.response?.data || error.message
+      );
+
+      throw error;
+    }
+  }
+);
+
 const fasesOrdenesSlice = createSlice({
   name: 'fasesOrdenes',
   initialState: {

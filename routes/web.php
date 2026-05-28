@@ -343,15 +343,15 @@ Route::get('/api/ordenes/{ordenes_id}/observaciones', [OrdenObservacionControlle
 
 Route::post('/api/ordenes/{ordenes_id}/observaciones', [OrdenObservacionController::class, 'store']);
 
-Route::put('/api/ordenes/{ordenes_id}/observaciones/{id}',    [OrdenObservacionController::class, 'update']); 
+Route::put('/api/ordenes/{ordenes_id}/observaciones/{id}',    [OrdenObservacionController::class, 'update']);
 
-Route::delete('/api/ordenes/{ordenes_id}/observaciones/{id}',    [OrdenObservacionController::class, 'destroy']); 
+Route::delete('/api/ordenes/{ordenes_id}/observaciones/{id}',    [OrdenObservacionController::class, 'destroy']);
 
 Route::get('/api/correciones-ordenes/{correccion_orden_id}/observaciones', [CorreccionesObservacionController::class, 'index']);
 
 Route::post('/api/correciones-ordenes/{correccion_orden_id}/observaciones', [CorreccionesObservacionController::class, 'store']);
 
-Route::put('/api/correciones-ordenes/{correccion_orden_id}/observaciones/{id}',    [CorreccionesObservacionController::class, 'update']); 
+Route::put('/api/correciones-ordenes/{correccion_orden_id}/observaciones/{id}',    [CorreccionesObservacionController::class, 'update']);
 
 Route::delete('/api/correciones-ordenes/{correccion_orden_id}/observaciones/{id}',    [CorreccionesObservacionController::class, 'destroy']);
 
@@ -655,6 +655,8 @@ Route::prefix('api/pedidos')->group(function () {
     Route::get('/historial/{id_orden}/imprimir', [PedidosController::class, 'imprimirHistorial']);
 
     Route::post('/imprimir-pedido', [PedidosController::class, 'imprimirPedido']);
+
+    Route::put('/update-laboratorio-enviado/{id}',[OrdenesApiController::class, 'updateLaboratorioEnviado']);
 });
 
 
