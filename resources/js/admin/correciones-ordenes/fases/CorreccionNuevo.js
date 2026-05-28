@@ -308,17 +308,48 @@ const CorreccionNuevo = ({
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
-          <div style={{ display: 'flex', justifyContent: 'right' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'right',
+              alignItems: 'center',
+              gap: '12px'
+            }}
+          >
             <div
               style={{
-                width: '15px',
-                height: '15px',
-                borderRadius: '100%',
-                backgroundColor: getColorForStatus(status),
-                marginRight: '5px',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '5px'
               }}
-            ></div>
-            <span>{status || 'Sin estado'}</span>
+            >
+              <span>Días en proceso:</span>
+
+              <span
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: '23px',
+                  color: '#262626'
+                }}
+              >
+                {correcionOrden?.dias_en_proceso ?? 0}
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div
+                style={{
+                  width: '15px',
+                  height: '15px',
+                  borderRadius: '100%',
+                  backgroundColor: getColorForStatus(status),
+                  marginRight: '5px',
+                }}
+              ></div>
+
+              <span>{status || 'Sin estado'}</span>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
             <VecesContactoCorrecciones

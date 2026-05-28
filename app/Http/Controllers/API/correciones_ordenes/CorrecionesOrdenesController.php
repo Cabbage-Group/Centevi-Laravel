@@ -892,7 +892,7 @@ class CorrecionesOrdenesController extends Controller
     $estado = 'Sin estado';
 
     if ($ultimaFase) {
-      if ($ultimaFase->tipo_fase_correccion_orden_id == 4) {
+      if ($ultimaFase->tipo_fase_correccion_orden_id == 5) {
         $estado = 'Completado';
       } else {
         $fechaFase = Carbon::parse($ultimaFase->fecha_fase);
@@ -908,12 +908,30 @@ class CorrecionesOrdenesController extends Controller
       }
     }
 
+    $diasEnProceso = 0;
+
+    if ($ultimaFase) {
+      if ($ultimaFase->tipo_fase_correccion_orden_id == 5) {
+
+        $diasEnProceso = Carbon::parse($correccion->created_at)
+          ->diffInDays(Carbon::parse($ultimaFase->fecha_fase));
+      } else {
+
+        $diasEnProceso = Carbon::parse($correccion->created_at)
+          ->diffInDays(Carbon::now());
+      }
+    } else {
+
+      $diasEnProceso = Carbon::parse($correccion->created_at)
+        ->diffInDays(Carbon::now());
+    }
+
     return response()->json([
       'data' => [
         'correccion_id' => $correccion->id,
         'orden_id' => $correccion->orden ? $correccion->orden->id_orden : null,
         'pagado' => $correccion->orden ? $correccion->orden->pagado : 0,
-        'created_at' => $correccion->created_at ? Carbon::parse($correccion->created_at)->format('d-m-Y') : null,
+        'created_at' => $correccion->created_at ? $correccion->created_at : null,
         'sucursal' => $correccion->orden ? $correccion->orden->sucursal->nombre : null,
         'nro_orden_id' => $correccion->orden ? $correccion->orden->nro_orden_id : null,
         'nro_cotizacion' => $correccion->orden ? $correccion->orden->nro_cotizacion : null,
@@ -961,7 +979,8 @@ class CorrecionesOrdenesController extends Controller
         'l_dos' => $correccion->l_dos,
         'l_tres' => $correccion->l_tres,
         'l_cuatro' => $correccion->l_cuatro,
-        'l_cinco' => $correccion->l_cinco
+        'l_cinco' => $correccion->l_cinco,
+        'dias_en_proceso' => $diasEnProceso,
       ]
     ]);
   }
@@ -977,7 +996,7 @@ class CorrecionesOrdenesController extends Controller
     $data = [
       'fecha_solicitud' => $correccion->created_at,
       'nro_orden'       => $numero_correccion,
-      'lente_contacto'   => $ordenPadre->lente_contacto ?? false, 
+      'lente_contacto'   => $ordenPadre->lente_contacto ?? false,
       'esfera_od'       => $correccion->esfera_od,
       'cilindro_od'     => $correccion->cilindro_od,
       'eje_od'          => $correccion->eje_od,
