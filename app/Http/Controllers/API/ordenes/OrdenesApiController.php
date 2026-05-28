@@ -2169,17 +2169,37 @@ class OrdenesApiController extends Controller
             AND tipo_fase_orden_id = 2
         )');
 
+    $fechaRetiradoQuery = DB::table('fases_ordenes')
+      ->select(
+        'ordenes_id',
+        DB::raw('MAX(fecha_fase) as fecha_retirado')
+      )
+      ->where('tipo_fase_orden_id', 5)
+      ->where('status', 1)
+      ->groupBy('ordenes_id');
+
     $orden = DB::table('ordenes')
       ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
       ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
       ->leftJoinSub($ultimaFaseQuery, 'ultima_fase', 'ordenes.id_orden', '=', 'ultima_fase.ordenes_id')
+      ->leftJoinSub($fechaRetiradoQuery, 'fase_retirado', 'ordenes.id_orden', '=', 'fase_retirado.ordenes_id')
       ->select(
         'ordenes.*',
         'primeras_fases.*',
         DB::raw("COALESCE(ultima_fase.ultima_fase_tipo_id, 0) as ultima_fase_tipo_id"),
         DB::raw("COALESCE(ultima_fase.ultima_fase_nombre, 'Nuevo') as ultima_fase_nombre"),
+        DB::raw("
+            CASE
+                WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
+                    AND fase_retirado.fecha_retirado IS NOT NULL
+                THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
+
+                ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
+            END as dias_en_proceso
+        "),
+
         'pacientes.nombres as paciente_nombres',
         'pacientes.apellidos as paciente_apellidos',
         'pacientes.celular as paciente_celular',
