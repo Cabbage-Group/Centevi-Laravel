@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API\pedidos;
 
 use App\Http\Controllers\Controller;
 use App\Models\CorrecionesOrdenes;
+use App\Models\FasesCorreccionesOrdenes;
+use App\Models\FasesOrdenes;
 use App\Models\Mermas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -505,6 +507,8 @@ class PedidosController extends Controller
                         'add_oi'        => $request->add_oi,
                         'prisma_od'     => $request->prisma_od,
                         'prisma_oi'     => $request->prisma_oi,
+                        'tipo_base_od' => $request->tipo_base_od,
+                        'tipo_base_oi' => $request->tipo_base_oi,
                         'material'      => $request->material,
                         'esfera_od'      => $request->esfera_od,
                         'esfera_oi'      => $request->esfera_oi,
@@ -575,6 +579,12 @@ class PedidosController extends Controller
             $ordenPadre   = Ordenes::find($correccion->ordenes_id);
             $pedidoEvento = collect();
 
+            $laboratorioFase = FasesCorreccionesOrdenes::where('correccion_ordenes_id', $correccion->id)
+                ->where('tipo_fase_correccion_orden_id', 2)
+                ->value('laboratorio');
+
+            $esCentilab = $laboratorioFase === 'Centilab';
+
             if ($correccion->id_pedido) {
                 $pedido = Pedido::with('proveedor')->find($correccion->id_pedido);
                 if ($pedido) {
@@ -583,10 +593,22 @@ class PedidosController extends Controller
                         'fecha_hora' => $pedido->fecha_generado?->format('d/m/Y H:i:s'),
                         'evento'     => 'PEDIDO',
                         'proveedor'  => $pedido->proveedor?->nombre ?? '—',
+                        'esCentilab'  => $esCentilab,
                         'cantidad'   => 1,
                         'estado'     => $pedido->estado,
                         'ojo'     => $pedido->ojo,
-                        'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
+                        'detalle' => [
+                            ...$this->formatDetalle('PEDIDO', $pedido),
+
+                            ...(
+                                !$esCentilab
+                                ? [
+                                    'tipo_base_extra' => 'Gestionado por laboratorio',
+                                    'proveedor_extra' => 'Gestionado por laboratorio',
+                                ]
+                                : []
+                            )
+                        ],
                         '_sort'      => $pedido->fecha_generado,
                     ]);
                 }
@@ -603,7 +625,19 @@ class PedidosController extends Controller
                     'cantidad'   => 1,
                     'estado'     => $merma->estado,
                     'ojo'        => $merma->ojo,
-                    'detalle'    => $this->formatDetalle('MERMA', $merma),
+                    'esCentilab' => $esCentilab,
+                    'detalle' => [
+                        ...$this->formatDetalle('MERMA', $merma),
+
+                        ...(
+                            !$esCentilab
+                            ? [
+                                'tipo_base_extra' => 'Gestionado por laboratorio',
+                                'proveedor_extra' => 'Gestionado por laboratorio',
+                            ]
+                            : []
+                        )
+                    ],
                     '_sort'      => $merma->created_at,
                 ]);
 
@@ -631,7 +665,10 @@ class PedidosController extends Controller
 
         $orden        = Ordenes::findOrFail($id_orden);
         $pedidoEvento = collect();
-
+        $laboratorioFase = FasesOrdenes::where('ordenes_id', $orden->id_orden)
+            ->where('tipo_fase_orden_id', 2)
+            ->value('laboratorio');
+        $esCentilab = $laboratorioFase === 'Centilab';
         if ($orden->id_pedido) {
             $pedido = Pedido::with('proveedor')->find($orden->id_pedido);
             if ($pedido) {
@@ -640,10 +677,22 @@ class PedidosController extends Controller
                     'fecha_hora' => $pedido->fecha_generado?->format('d/m/Y H:i:s'),
                     'evento'     => 'PEDIDO',
                     'proveedor'  => $pedido->proveedor?->nombre ?? '—',
+                    'laboratorio' => $laboratorioFase ?? '—',
+                    'esCentilab'  => $esCentilab,
                     'cantidad'   => 1,
                     'estado'     => $pedido->estado,
                     'ojo'     => $pedido->ojo,
-                    'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
+                    'detalle' => [
+                        ...$this->formatDetalle('PEDIDO', $pedido),
+                        ...(
+                            $laboratorioFase !== 'Centilab'
+                            ? [
+                                'tipo_base_extra' => 'Gestionado por laboratorio',
+                                'proveedor_extra'   => 'Gestionado por laboratorio',
+                            ]
+                            : []
+                        )
+                    ],
                     '_sort'      => $pedido->fecha_generado,
                 ]);
             }
@@ -661,7 +710,19 @@ class PedidosController extends Controller
                 'cantidad'   => 1,
                 'estado'     => $merma->estado,
                 'ojo'     => $merma->ojo,
-                'detalle'    => $this->formatDetalle('MERMA', $merma),
+                'esCentilab' => $esCentilab,
+                'detalle' => [
+                    ...$this->formatDetalle('MERMA', $merma),
+
+                    ...(
+                        !$esCentilab
+                        ? [
+                            'tipo_base_extra' => 'Gestionado por laboratorio',
+                            'proveedor_extra' => 'Gestionado por laboratorio',
+                        ]
+                        : []
+                    )
+                ],
                 '_sort'      => $merma->created_at,
             ]);
 
@@ -697,6 +758,11 @@ class PedidosController extends Controller
             $correccion   = CorrecionesOrdenes::with('pedido.proveedor')->findOrFail($correccionId);
             $ordenPadre   = Ordenes::find($correccion->ordenes_id);
             $pedidoEvento = collect();
+            $laboratorioFase = FasesCorreccionesOrdenes::where('correccion_ordenes_id', $correccion->id)
+                ->where('tipo_fase_correccion_orden_id', 2)
+                ->value('laboratorio');
+
+            $esCentilab = $laboratorioFase === 'Centilab';
 
             if ($correccion->id_pedido) {
                 $pedido = Pedido::with('proveedor')->find($correccion->id_pedido);
@@ -707,9 +773,20 @@ class PedidosController extends Controller
                         'evento'     => 'PEDIDO',
                         'proveedor'  => $pedido->proveedor?->nombre ?? '—',
                         'cantidad'   => 1,
+                        'esCentilab'  => $esCentilab,
                         'ojo' => $pedido->ojo,
                         'estado'     => $pedido->estado,
-                        'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
+                        'detalle' => [
+                            ...$this->formatDetalle('PEDIDO', $pedido),
+                            ...(
+                                $laboratorioFase !== 'Centilab'
+                                ? [
+                                    'tipo_base_extra' => 'Gestionado por laboratorio',
+                                    'proveedor_extra'   => 'Gestionado por laboratorio',
+                                ]
+                                : []
+                            )
+                        ],
                         '_sort'      => $pedido->fecha_generado,
                     ]);
                 }
@@ -726,7 +803,19 @@ class PedidosController extends Controller
                     'proveedor'  => $merma->proveedor?->nombre ?? '—',
                     'cantidad'   => 1,
                     'estado'     => $merma->estado,
-                    'detalle'    => $this->formatDetalle('MERMA', $merma),
+                    'esCentilab' => $esCentilab,
+                    'detalle' => [
+                        ...$this->formatDetalle('MERMA', $merma),
+
+                        ...(
+                            !$esCentilab
+                            ? [
+                                'tipo_base_extra' => 'Gestionado por laboratorio',
+                                'proveedor_extra' => 'Gestionado por laboratorio',
+                            ]
+                            : []
+                        )
+                    ],
                     '_sort'      => $merma->created_at,
                 ]);
 
@@ -745,7 +834,11 @@ class PedidosController extends Controller
 
         $orden        = Ordenes::findOrFail($id_orden);
         $pedidoEvento = collect();
+        $laboratorioFase = FasesOrdenes::where('ordenes_id', $orden->id_orden)
+            ->where('tipo_fase_orden_id', 2)
+            ->value('laboratorio');
 
+        $esCentilab = $laboratorioFase === 'Centilab';
         if ($orden->id_pedido) {
             $pedido = Pedido::with('proveedor')->find($orden->id_pedido);
             if ($pedido) {
@@ -754,10 +847,21 @@ class PedidosController extends Controller
                     'fecha_hora' => $pedido->fecha_generado?->format('d/m/Y H:i:s'),
                     'evento'     => 'PEDIDO',
                     'ojo'  => $pedido->ojo,
+                    'esCentilab'  => $esCentilab,
                     'proveedor'  => $pedido->proveedor?->nombre ?? '—',
                     'cantidad'   => 1,
                     'estado'     => $pedido->estado,
-                    'detalle'    => $this->formatDetalle('PEDIDO', $pedido),
+                    'detalle' => [
+                        ...$this->formatDetalle('PEDIDO', $pedido),
+                        ...(
+                            $laboratorioFase !== 'Centilab'
+                            ? [
+                                'tipo_base_extra' => 'Gestionado por laboratorio',
+                                'proveedor_extra'   => 'Gestionado por laboratorio',
+                            ]
+                            : []
+                        )
+                    ],
                     '_sort'      => $pedido->fecha_generado,
                 ]);
             }

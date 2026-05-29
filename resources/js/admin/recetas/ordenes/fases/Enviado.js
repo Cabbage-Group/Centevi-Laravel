@@ -51,8 +51,14 @@ const Enviado = ({
   const idUsuario = localStorage.getItem('id_usuario');
   const [status, setStatus] = useState('');
   const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
-
+  console.log('pacienteOrden en Enviado:', pacienteOrden);
   const [loadingLaboratorio, setLoadingLaboratorio] = useState(false);
+  const nombresBasesActuales = useSelector(
+    (state) => state.fasesOrdenes.nombresBasesActuales
+  );
+  const [laboratorioOriginal, setLaboratorioOriginal] = useState('');
+
+
   useEffect(() => {
     dispatch(fetchProveedorMaterial({}))
   }, [])
@@ -139,6 +145,7 @@ const Enviado = ({
         if (faseOrden) {
           setObservaciones(faseOrden.observacion);
           setLaboratorio(faseOrden.laboratorio);
+          setLaboratorioOriginal(faseOrden.laboratorio);
           setProveedorMaterial(faseOrden.proveedor_material);
           setFechaFaseEnviado(faseOrden.fecha_fase);
           setFechaActual(faseOrden.fecha_fase);
@@ -252,6 +259,24 @@ const Enviado = ({
       return;
     }
 
+    const mensajeCambio =
+      laboratorio === 'Centilab'
+        ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
+        : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
+
+    const result = await Swal.fire({
+      title: 'Confirmar cambio',
+      text: mensajeCambio,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, guardar',
+      cancelButtonText: 'Cancelar'
+    });
+    console.log('Resultado de la confirmación:', result);
+    if (!result) return;
+
     try {
 
       setLoadingLaboratorio(true);
@@ -260,8 +285,56 @@ const Enviado = ({
         updateLaboratorioEnviado({
           id: faseOrdenId,
           laboratorio,
+          tipo: pacienteOrden?.correccion === 1
+            ? 'correccion'
+            : 'orden',
+
+          id_orden: pacienteOrden?.id_orden,
+          id_correccion: pacienteOrden?.id_correccion || null,
+          observacion: pacienteOrden?.observacion_pedido || null,
+          ojo: pacienteOrden?.ojo || 'ambos',
+          receta_od: [
+            pacienteOrden?.esfera_od,
+            pacienteOrden?.cilindro_od,
+            pacienteOrden?.eje_od
+              ? `${pacienteOrden.eje_od}°`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' ') || null,
+
+          receta_oi: [
+            pacienteOrden?.esfera_oi,
+            pacienteOrden?.cilindro_oi,
+            pacienteOrden?.eje_oi
+              ? `${pacienteOrden.eje_oi}°`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' ') || null,
+          add_od: pacienteOrden?.add_od || null,
+          add_oi: pacienteOrden?.add_oi || null,
+          prisma_od: pacienteOrden?.prisma_od || null,
+          prisma_oi: pacienteOrden?.prisma_oi || null,
+          material: proveedorMaterial || null,
+          esfera_od: pacienteOrden?.esfera_od || null,
+          esfera_oi: pacienteOrden?.esfera_oi || null,
+          cilindro_od: pacienteOrden?.cilindro_od || null,
+          cilindro_oi: pacienteOrden?.cilindro_oi || null,
+          eje_od: pacienteOrden?.eje_od || null,
+          eje_oi: pacienteOrden?.eje_oi || null,
+          tipo_cristal_od: pacienteOrden?.tipo_cristal_od || null,
+          tipo_cristal_oi: pacienteOrden?.tipo_cristal_oi || null,
+          material_od: pacienteOrden?.material_od || null,
+          material_oi: pacienteOrden?.material_oi || null,
+          tratamientos_od: pacienteOrden?.tratamientos_od || null,
+          tratamientos_oi: pacienteOrden?.tratamientos_oi || null,
+          tipo_base_od: nombresBasesActuales.derecha || null,
+          tipo_base_oi: nombresBasesActuales.izquierda || null,
         })
       ).unwrap();
+
+      setLaboratorioOriginal(laboratorio);
 
       await dispatch(fecthTiposFasesOrdenes(orderId));
 
@@ -293,10 +366,9 @@ const Enviado = ({
         gutter={[16, 16]}
       >
         <Col xxl={12} xl={12} md={12}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label htmlFor="laboratorio">Selecciona el laboratorio</label>
-              <br />
               <Select
                 showSearch
                 placeholder="Selecciona un laboratorio"
@@ -310,26 +382,28 @@ const Enviado = ({
                 onChange={(value) => setLaboratorio(value)}
                 value={laboratorio}
               />
-
-              {/* <Button
+              <Button
                 type="primary"
                 size="small"
                 loading={loadingLaboratorio}
-                disabled={isDisabled || !laboratorio}
+                disabled={
+                  isDisabled ||
+                  !laboratorio ||
+                  laboratorio === laboratorioOriginal
+                }
                 onClick={handleGuardarLaboratorio}
                 style={{
-                  marginTop: '8px',
+                  marginTop: '10px',
                   width: '200px',
                 }}
               >
-                Guardar laboratorio
-              </Button> */}
+                Guardar
+              </Button>
             </div>
 
             {!pacienteOrden?.lente_contacto && (
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
-                <br />
                 <Select
                   showSearch
                   placeholder="Selecciona un proveedor"
@@ -420,7 +494,6 @@ const Enviado = ({
               }}
             >
               <span>Días en proceso:</span>
-
               <span
                 style={{
                   fontWeight: 'bold',
@@ -442,7 +515,6 @@ const Enviado = ({
                   marginRight: '5px',
                 }}
               ></div>
-
               <span>{status || 'Sin estado'}</span>
             </div>
           </div>

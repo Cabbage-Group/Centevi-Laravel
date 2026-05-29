@@ -44,39 +44,56 @@ const ModalHistorialOrden = ({
         window.open(`${API}/pedidos/historial/${idOrden}/imprimir?${params}`, '_blank');
     };
 
-    const formatDetalle = (detalle, ojo = 'ambos') => {
-        console.log('ojo',ojo)
+    const formatDetalle = (detalle, record) => {
+
         if (!detalle) return "—";
 
-        const mostrarOD = ojo.ojo !== 'oi';
-        const mostrarOI = ojo.ojo !== 'od';
+        const ojo = record?.ojo || 'ambos';
+        const esCentilab = record?.esCentilab;
+
+        const mostrarOD = ojo !== 'oi';
+        const mostrarOI = ojo !== 'od';
 
         const basesIguales = detalle.tipo_base_oi === detalle.tipo_base_od;
         const baseUnica = detalle.tipo_base_od || detalle.tipo_base_oi;
 
-        const lineas = [detalle.titulo, '─────────────────────────────'];
+        const lineas = [
+            detalle.titulo,
+            '─────────────────────────────'
+        ];
 
         if (mostrarOD) lineas.push(`Receta OD:   ${detalle.receta_od ?? "**"}`);
         if (mostrarOI) lineas.push(`Receta OI:   ${detalle.receta_oi ?? "**"}`);
+
         if (mostrarOD) lineas.push(`Add OD:      ${detalle.add_od ?? "**"}`);
         if (mostrarOI) lineas.push(`Add OI:      ${detalle.add_oi ?? "**"}`);
+
         if (mostrarOD) lineas.push(`Prismas OD:  ${detalle.prisma_od ?? "**"}`);
         if (mostrarOI) lineas.push(`Prismas OI:  ${detalle.prisma_oi ?? "**"}`);
 
 
-        if (mostrarOD && (!basesIguales || ojo === 'od')) {
-            lineas.push(`Nro Base OD:     ${detalle.tipo_base_od ?? "**"}`);
-        }
-        if (mostrarOI && (!basesIguales || ojo === 'oi')) {
-            lineas.push(`Nro Base OI:     ${detalle.tipo_base_oi ?? "**"}`);
+        if (!esCentilab) {
+
+            lineas.push(`Nro Base:    ${detalle.tipo_base_extra ?? "**"}`);
+
+        } else {
+
+            if (mostrarOD && (!basesIguales || ojo === 'od')) {
+                lineas.push(`Nro Base OD: ${detalle.tipo_base_od ?? "**"}`);
+            }
+
+            if (mostrarOI && (!basesIguales || ojo === 'oi')) {
+                lineas.push(`Nro Base OI: ${detalle.tipo_base_oi ?? "**"}`);
+            }
+
+            if (basesIguales && ojo === 'ambos') {
+                lineas.push(`Nro Base:    ${baseUnica ?? "**"}`);
+            }
         }
 
         lineas.push('─────────────────────────────');
-        lineas.push(`Material:    ${detalle.material ?? "—"}`);
 
-        if (basesIguales && ojo === 'ambos') {
-            lineas.push(`Nro Base:    ${baseUnica ?? "**"}`);
-        }
+        lineas.push(`Material:    ${detalle.material ?? "—"}`);
 
         lineas.push(`Observación: ${detalle.observacion ?? "Sin observación"}`);
 
@@ -117,7 +134,13 @@ const ModalHistorialOrden = ({
             title: "PROVEEDOR",
             dataIndex: "proveedor",
             width: 120,
-            render: (text) => <span style={{ fontSize: 13 }}>{text || "—"}</span>,
+            render: (text, record) => (
+                <span style={{ fontSize: 13 }}>
+                    {record?.esCentilab
+                        ? (text || "—")
+                        : "Gestionado por laboratorio"}
+                </span>
+            ),
         },
         {
             title: "CANTIDAD",

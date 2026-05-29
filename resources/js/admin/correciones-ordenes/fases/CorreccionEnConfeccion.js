@@ -6,7 +6,7 @@ import moment from 'moment';
 import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
-import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
+import { actualizarDatosFaseCorrecciones, setNombresBasesActualesCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
 import { fetchBases } from '../../../redux/features/bases/basesSlice';
@@ -142,6 +142,31 @@ const CorreccionEnConfeccion = ({
       setBaseOjoDerechoId(baseOjoDerechoId);
     }
   }, [loading, bases]);
+
+
+  useEffect(() => {
+    if (!bases?.length) return;
+
+    const baseIzquierda = bases.find(
+      (b) => Number(b.id) === Number(baseOjoIzquierdoId)
+    );
+
+    const baseDerecha = bases.find(
+      (b) => Number(b.id) === Number(baseOjoDerechoId)
+    );
+
+    dispatch(
+      setNombresBasesActualesCorrecciones({
+        izquierda: baseIzquierda
+          ? `${baseIzquierda.codigo}`
+          : null,
+
+        derecha: baseDerecha
+          ? `${baseDerecha.codigo}`
+          : null,
+      })
+    );
+  }, [baseOjoIzquierdoId, baseOjoDerechoId, bases, dispatch]);
 
   const getColorForStatus = (status) => {
     const colors = {
