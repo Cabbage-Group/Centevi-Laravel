@@ -12,6 +12,7 @@ import { createContactoCorreccionOrden } from '../../../redux/features/contacto-
 import { fetchBases } from '../../../redux/features/bases/basesSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
+import { updateLaboratorioEnviado } from '../../../redux/features/ordenes/fasesOrdenesSlice';
 
 const CorreccionEnviado = ({
     tipoFaseId,
@@ -50,7 +51,11 @@ const CorreccionEnviado = ({
     const [lenteContacto, setLenteContacto] = useState(0);
     const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
     const [proveedorMaterial, setProveedorMaterial] = useState('');
-
+    const [loadingLaboratorio, setLoadingLaboratorio] = useState(false);
+    const [laboratorioOriginal, setLaboratorioOriginal] = useState('');
+    const nombresBasesActuales = useSelector(
+        (state) => state.correccionesFasesOrdenes.nombresBasesActuales
+    );
     useEffect(() => {
         dispatch(fetchProveedorMaterial({}))
     }, [])
@@ -131,6 +136,7 @@ const CorreccionEnviado = ({
                 if (faseOrden) {
                     setLaboratorio(faseOrden.laboratorio);
                     setObservaciones(faseOrden.observacion);
+                    setLaboratorioOriginal(faseOrden.laboratorio);
                     setProveedorMaterial(faseOrden.proveedor_material);
                     setFechaActual(faseOrden.fecha_fase);
                     setFechaCreacion(faseOrden.created_at);
@@ -258,6 +264,120 @@ const CorreccionEnviado = ({
         }
     }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
+
+    const handleGuardarLaboratorio = async () => {
+
+        if (!laboratorio) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Seleccione un laboratorio',
+            });
+            return;
+        }
+
+        if (!faseOrdenId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'No existe fase para actualizar',
+            });
+            return;
+        }
+
+        const mensajeCambio =
+            laboratorio === 'Centilab'
+                ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
+                : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
+
+        const result = await Swal.fire({
+            title: 'Confirmar cambio',
+            text: mensajeCambio,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        });
+        if (!result) return;
+
+        try {
+
+            setLoadingLaboratorio(true);
+
+            await dispatch(
+                updateLaboratorioEnviado({
+                    id: faseOrdenId,
+                    laboratorio,
+                    tipo: correcionOrden?.correccion_id ? 'correccion' : 'orden',
+                    id_orden: correcionOrden?.id_orden,
+                    id_correccion: correcionOrden?.correccion_id || null,
+                    observacion: correcionOrden?.observacion_pedido || null,
+                    ojo: correcionOrden?.ojo || 'ambos',
+                    receta_od: [
+                        correcionOrden?.esfera_od,
+                        correcionOrden?.cilindro_od,
+                        correcionOrden?.eje_od
+                            ? `${correcionOrden.eje_od}°`
+                            : null,
+                    ]
+                        .filter(Boolean)
+                        .join(' ') || null,
+                    receta_oi: [
+                        correcionOrden?.esfera_oi,
+                        correcionOrden?.cilindro_oi,
+                        correcionOrden?.eje_oi
+                            ? `${correcionOrden.eje_oi}°`
+                            : null,
+                    ]
+                        .filter(Boolean)
+                        .join(' ') || null,
+                    add_od: correcionOrden?.add_od || null,
+                    add_oi: correcionOrden?.add_oi || null,
+                    prisma_od: correcionOrden?.prisma_od || null,
+                    prisma_oi: correcionOrden?.prisma_oi || null,
+                    material: proveedorMaterial || null,
+                    esfera_od: correcionOrden?.esfera_od || null,
+                    esfera_oi: correcionOrden?.esfera_oi || null,
+                    cilindro_od: correcionOrden?.cilindro_od || null,
+                    cilindro_oi: correcionOrden?.cilindro_oi || null,
+                    eje_od: correcionOrden?.eje_od || null,
+                    eje_oi: correcionOrden?.eje_oi || null,
+                    tipo_cristal_od: correcionOrden?.tipo_cristal_od || null,
+                    tipo_cristal_oi: correcionOrden?.tipo_cristal_oi || null,
+                    material_od: correcionOrden?.material_od || null,
+                    material_oi: correcionOrden?.material_oi || null,
+                    tratamientos_od: correcionOrden?.tratamientos_od || null,
+                    tratamientos_oi: correcionOrden?.tratamientos_oi || null,
+                    tipo_base_od: nombresBasesActuales.derecha || null,
+                    tipo_base_oi: nombresBasesActuales.izquierda || null,
+                })
+            ).unwrap();
+
+            setLaboratorioOriginal(laboratorio);
+
+            await dispatch(fecthTiposFasesOrdenes(correccionOrderId));
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Laboratorio actualizado correctamente',
+                timer: 1500,
+                showConfirmButton: false,
+            });
+
+        } catch (error) {
+
+            Swal.fire({
+                icon: 'error',
+                title:
+                    error?.response?.data?.message ||
+                    'Error al actualizar laboratorio',
+            });
+
+        } finally {
+            setLoadingLaboratorio(false);
+        }
+    };
+
     return (
         <div>
             <Row
@@ -265,10 +385,9 @@ const CorreccionEnviado = ({
                 gutter={[16, 16]}
             >
                 <Col xxl={15} xl={15} md={12}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <label htmlFor="laboratorio">Selecciona el laboratorio</label>
-                            <br />
                             <Select
                                 showSearch
                                 placeholder="Selecciona un laboratorio"
@@ -282,12 +401,28 @@ const CorreccionEnviado = ({
                                 onChange={(value) => setLaboratorio(value)}
                                 value={laboratorio}
                             />
+                            <Button
+                                type="primary"
+                                size="small"
+                                loading={loadingLaboratorio}
+                                disabled={
+                                    isDisabled ||
+                                    !laboratorio ||
+                                    laboratorio === laboratorioOriginal
+                                }
+                                onClick={handleGuardarLaboratorio}
+                                style={{
+                                    marginTop: '10px',
+                                    width: '200px',
+                                }}
+                            >
+                                Guardar
+                            </Button>
                         </div>
 
                         {!correcionOrden?.lente_contacto && (
-                            <div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
-                                <br />
                                 <Select
                                     showSearch
                                     placeholder="Selecciona un proveedor"
@@ -357,7 +492,7 @@ const CorreccionEnviado = ({
                         Fecha de ingreso al laboratorio
                     </label>
                     <div>
-                        {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')} {/* Si no hay fecha anterior, se muestra la fecha actual */}
+                        {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')}
                     </div>
                     <Divider />
                     <label htmlFor="status">Status</label>
@@ -378,7 +513,6 @@ const CorreccionEnviado = ({
                             }}
                         >
                             <span>Días en proceso:</span>
-
                             <span
                                 style={{
                                     fontWeight: 'bold',
@@ -400,7 +534,6 @@ const CorreccionEnviado = ({
                                     marginRight: '5px',
                                 }}
                             ></div>
-
                             <span>{status || 'Sin estado'}</span>
                         </div>
                     </div>

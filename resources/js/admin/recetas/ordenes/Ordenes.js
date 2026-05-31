@@ -403,7 +403,7 @@ const Ordenes = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    console.log('nuevaData',nuevaData.laboratorio)
+    console.log('nuevaData', nuevaData.laboratorio)
     if (nuevaData.tipo_fase_orden_id === 2 && !nuevaData.laboratorio) {
       await Swal.fire({
         title: "Error",
@@ -525,10 +525,6 @@ const Ordenes = () => {
           },
         });
 
-        if (completar || avanzar) {
-          setNivelStep(nivelStep + 1);
-        }
-
         await dispatch(
           createFasesOrdenes(nuevaDataConOrderId)
         ).unwrap();
@@ -546,20 +542,15 @@ const Ordenes = () => {
 
         await Promise.all([
           dispatch(fecthTiposFasesOrdenes(orderId)).unwrap(),
-          // dispatch(
-          //     fetchOrdenDelPaciente({
-          //         id_paciente: idPaciente,
-          //         nro_orden_id: nroOrden,
-          //     })
-          // ).unwrap(),
         ]);
 
+        if (completar || avanzar) {
+          setNivelStep(nivelStep + 1);
+        }
         Swal.close();
         await Swal.fire(
           completar ? "Completado!" : "Guardado!",
-          completar
-            ? "La fase ha sido completada."
-            : "La fase ha sido guardada.",
+          completar ? "La fase ha sido completada." : "La fase ha sido guardada.",
           "success"
         );
       } catch (error) {
@@ -567,7 +558,7 @@ const Ordenes = () => {
         Swal.close();
         await Swal.fire(
           "Error",
-          "Ocurrió un problema al guardar la fase.",
+          error || "Ocurrió un problema al guardar la fase.",
           "error"
         );
       }

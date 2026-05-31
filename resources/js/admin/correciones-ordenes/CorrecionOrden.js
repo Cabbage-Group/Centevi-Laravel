@@ -417,9 +417,6 @@ const CorrecionOrden = () => {
           },
         });
 
-        if (completar || avanzar) {
-          setNivelStep(nivelStep + 1);
-        }
         await dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId)).unwrap();;
 
         if (completar && nivelStep === 3) {
@@ -432,9 +429,13 @@ const CorrecionOrden = () => {
           console.log('siguienteFase', siguienteFase)
           dispatch(createCorreccionesFasesOrdenes(siguienteFase));
         }
-        dispatch(fecthTiposFasesOrdenes(correccionOrderId));
-        dispatch(fetchCorreccionOrden(correccionOrderId));
-
+        await Promise.all([
+          dispatch(fecthTiposFasesOrdenes(correccionOrderId))
+        ]);
+        // dispatch(fetchCorreccionOrden(correccionOrderId));
+        if (completar || avanzar) {
+          setNivelStep(nivelStep + 1);
+        }
         Swal.close();
         await Swal.fire(
           completar ? "Completado!" : "Guardado!",

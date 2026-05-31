@@ -685,52 +685,81 @@ class CorrecionesOrdenesController extends Controller
       'base_ojo_derecho_id' => 'nullable|integer',
       'created_at' => 'nullable|date_format:Y-m-d H:i:s',
     ]);
+    DB::beginTransaction();
 
-    $existingFase = FasesCorreccionesOrdenes::where('correccion_ordenes_id', $validatedData['correccion_ordenes_id'])
-      ->where('tipo_fase_correccion_orden_id', $validatedData['tipo_fase_correccion_orden_id'])
-      ->first();
+    try {
 
-    if ($existingFase) {
-      $updated = $existingFase->update([
-        'laboratorio' => $validatedData['laboratorio']  ?? null,
-        'observacion' => $validatedData['observacion'],
-        'proveedor_material' => $validatedData['proveedor_material']  ?? null,
-        'fecha_fase' => $validatedData['fecha_fase'],
-        'status' => $validatedData['status'] ?? $existingFase->status,
-        'elaborado_por' => $validatedData['elaborado_por'],
-        'base_ojo_izquierdo_id' => $validatedData['base_ojo_izquierdo_id'] ?? null,
-        'base_ojo_derecho_id' => $validatedData['base_ojo_derecho_id']  ?? null,
-        'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
-      ]);
 
-      if ($updated && isset($validatedData['status']) && $validatedData['status'] == 0) {
-        FasesCorreccionesOrdenes::where('correccion_ordenes_id', $validatedData['correccion_ordenes_id'])
-          ->where('tipo_fase_correccion_orden_id', '>', $validatedData['tipo_fase_correccion_orden_id'])
-          ->delete();
+      if ($validatedData['tipo_fase_correccion_orden_id'] == 3 && ($validatedData['status'] ?? null) == 1) {
+        $correcionOrden = CorrecionesOrdenes::with('pedido')->find($validatedData['correccion_ordenes_id']);
+
+        if (!$correcionOrden || is_null($correcionOrden->id_pedido)) {
+          DB::rollBack();
+          return response()->json([
+            'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
+          ], 422);
+        }
+
+        if ($correcionOrden->pedido && $correcionOrden->pedido->estado === 'Pendiente') {
+          DB::rollBack();
+          return response()->json([
+            'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
+          ], 422);
+        }
       }
-      DB::commit();
-      return response()->json([
-        'message' => 'Fase de orden actualizada exitosamente',
-        'data' => $existingFase,
-      ], 200);
-    } else {
-      try {
-        $faseOrden = FasesCorreccionesOrdenes::create(array_merge(
-          $validatedData,
-          ['created_at' => $validatedData['created_at'] ?? now()]
-        ));
 
+      $existingFase = FasesCorreccionesOrdenes::where('correccion_ordenes_id', $validatedData['correccion_ordenes_id'])
+        ->where('tipo_fase_correccion_orden_id', $validatedData['tipo_fase_correccion_orden_id'])
+        ->first();
+
+      if ($existingFase) {
+        $updated = $existingFase->update([
+          'laboratorio' => $validatedData['laboratorio']  ?? null,
+          'observacion' => $validatedData['observacion'],
+          'proveedor_material' => $validatedData['proveedor_material']  ?? null,
+          'fecha_fase' => $validatedData['fecha_fase'],
+          'status' => $validatedData['status'] ?? $existingFase->status,
+          'elaborado_por' => $validatedData['elaborado_por'],
+          'base_ojo_izquierdo_id' => $validatedData['base_ojo_izquierdo_id'] ?? null,
+          'base_ojo_derecho_id' => $validatedData['base_ojo_derecho_id']  ?? null,
+          'created_at' => $validatedData['created_at'] ?? $existingFase->created_at,
+        ]);
+
+        if ($updated && isset($validatedData['status']) && $validatedData['status'] == 0) {
+          FasesCorreccionesOrdenes::where('correccion_ordenes_id', $validatedData['correccion_ordenes_id'])
+            ->where('tipo_fase_correccion_orden_id', '>', $validatedData['tipo_fase_correccion_orden_id'])
+            ->delete();
+        }
         DB::commit();
         return response()->json([
-          'message' => 'Fase de orden creada exitosamente',
-          'data' => $faseOrden,
-        ], 201);
-      } catch (\Exception $e) {
-        return response()->json([
-          'message' => 'Error al crear la fase de correcion orden. Inténtalo nuevamente.',
-          'error' => $e->getMessage(),
-        ], 500);
+          'message' => 'Fase de orden actualizada exitosamente',
+          'data' => $existingFase,
+        ], 200);
+      } else {
+        try {
+          $faseOrden = FasesCorreccionesOrdenes::create(array_merge(
+            $validatedData,
+            ['created_at' => $validatedData['created_at'] ?? now()]
+          ));
+
+          DB::commit();
+          return response()->json([
+            'message' => 'Fase de orden creada exitosamente',
+            'data' => $faseOrden,
+          ], 201);
+        } catch (\Exception $e) {
+          return response()->json([
+            'message' => 'Error al crear la fase de correcion orden. Inténtalo nuevamente.',
+            'error' => $e->getMessage(),
+          ], 500);
+        }
       }
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json([
+        'message' => 'Error al procesar la fase de orden.',
+        'error' => $e->getMessage(),
+      ], 500);
     }
   }
 

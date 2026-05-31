@@ -13,13 +13,14 @@ export const fecthFasesOrdenes = createAsyncThunk(
 
 export const createFasesOrdenes = createAsyncThunk(
   'fasesOrdenes/createFasesOrdenes',
-  async (data) => {
+  async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API}/create-fases-ordenes`, data);
       return response.data;
     } catch (error) {
-      console.error('Error creating fase orden:', error.response.data);
-      throw error;
+      return rejectWithValue(
+        error.response?.data?.message || 'Error al procesar la fase de orden.'
+      );
     }
   }
 );
@@ -33,6 +34,30 @@ export const updateFasesOrdenes = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error('Error updating fase orden:', error.response?.data || error.message);
+      throw error;
+    }
+  }
+);
+
+export const updateLaboratorioEnviado = createAsyncThunk(
+  'fasesOrdenes/updateLaboratorioEnviado',
+  async (data) => {
+    try {
+
+      const response = await axios.put(
+        `${API}/pedidos/update-laboratorio-enviado/${data.id}`,
+        data
+      );
+
+      return response.data;
+
+    } catch (error) {
+
+      console.error(
+        'Error updating laboratorio:',
+        error.response?.data || error.message
+      );
+
       throw error;
     }
   }
@@ -71,6 +96,10 @@ const fasesOrdenesSlice = createSlice({
     changeOrden: false,
     status: 'idle',
     error: null,
+    nombresBasesActuales: {
+      izquierda: null,
+      derecha: null,
+    },
   },
   reducers: {
     actualizarDatosFase: (state, action) => {
@@ -151,6 +180,12 @@ const fasesOrdenesSlice = createSlice({
     setendDateLabo: (state, action) => {
       state.endDateLabo = action.payload;
     },
+    setNombresBasesActuales: (state, action) => {
+      state.nombresBasesActuales = {
+        izquierda: action.payload.izquierda || null,
+        derecha: action.payload.derecha || null,
+      };
+    },
 
   },
   extraReducers: (builder) => {
@@ -220,6 +255,7 @@ export const {
   setproveedorFilterLabo,
   setstartDateLabo,
   setendDateLabo,
+  setNombresBasesActuales,
 } = fasesOrdenesSlice.actions;
 
 export default fasesOrdenesSlice.reducer;

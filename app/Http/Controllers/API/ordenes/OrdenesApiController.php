@@ -16,7 +16,9 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Models\CorrecionesOrdenes;
+use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Pedido;
+use App\Models\ProveedorMaterial;
 
 class OrdenesApiController extends Controller
 {
@@ -928,6 +930,27 @@ class OrdenesApiController extends Controller
     DB::beginTransaction();
 
     try {
+
+      if ($validatedData['tipo_fase_orden_id'] == 3 && ($validatedData['status'] ?? null) == 1) {
+        $orden = Ordenes::with('pedido')->find($validatedData['ordenes_id']);
+
+        if (!$orden || is_null($orden->id_pedido)) {
+          DB::rollBack();
+          return response()->json([
+            'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
+          ], 422);
+        }
+
+        if ($orden->pedido && $orden->pedido->estado === 'Pendiente') {
+          DB::rollBack();
+          return response()->json([
+            'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
+          ], 422);
+        }
+
+        Log::info('PERMITIDO - pasa la validación');
+      }
+
       $existingFase = FasesOrdenes::where('ordenes_id', $validatedData['ordenes_id'])
         ->where('tipo_fase_orden_id', $validatedData['tipo_fase_orden_id'])
         ->first();
@@ -1014,6 +1037,259 @@ class OrdenesApiController extends Controller
         'error' => $e->getMessage(),
       ], 500);
     }
+  }
+
+  public function updateLaboratorioEnviado(Request $request, $id)
+  {
+    $validatedData = $request->validate([
+      'laboratorio' => 'required|string|max:45',
+      'tipo' => 'required|in:orden,correccion',
+      'id_orden' => 'nullable|exists:ordenes,id_orden',
+      'id_correccion' => 'nullable|exists:correciones_ordenes,id',
+      'observacion' => 'nullable|string|max:500',
+      'receta_od' => 'nullable|string|max:100',
+      'receta_oi' => 'nullable|string|max:100',
+      'add_od' => 'nullable|string|max:20',
+      'add_oi' => 'nullable|string|max:20',
+      'prisma_od' => 'nullable|string|max:100',
+      'prisma_oi' => 'nullable|string|max:100',
+      'material' => 'nullable|string|max:150',
+      'esfera_od' => 'nullable|string|max:20',
+      'esfera_oi' => 'nullable|string|max:20',
+      'cilindro_od' => 'nullable|string|max:20',
+      'cilindro_oi' => 'nullable|string|max:20',
+      'eje_od' => 'nullable|string|max:20',
+      'eje_oi' => 'nullable|string|max:20',
+      'tipo_cristal_od' => 'nullable|string|max:150',
+      'tipo_cristal_oi' => 'nullable|string|max:150',
+      'material_od' => 'nullable|string|max:150',
+      'material_oi' => 'nullable|string|max:150',
+      'tratamientos_od' => 'nullable|string|max:255',
+      'tratamientos_oi' => 'nullable|string|max:255',
+      'ojo' => 'nullable|in:ambos,od,oi',
+      'tipo_base_od' => 'nullable|string|max:50',
+      'tipo_base_oi' => 'nullable|string|max:50',
+    ]);
+
+    return DB::transaction(function () use ($validatedData, $id, $request) {
+
+      try {
+
+        if ($request->tipo === 'orden') {
+
+          $faseOrden = FasesOrdenes::find($id);
+
+          if (!$faseOrden) {
+            return response()->json([
+              'message' => 'Fase de orden no encontrada.',
+            ], 404);
+          }
+
+          if ((int) $faseOrden->tipo_fase_orden_id !== 2) {
+            return response()->json([
+              'message' => 'Solo se puede actualizar el laboratorio en la fase Enviado.',
+            ], 400);
+          }
+        } else {
+
+          $faseOrden = FasesCorreccionesOrdenes::find($id);
+
+          if (!$faseOrden) {
+            return response()->json([
+              'message' => 'Fase de corrección no encontrada.',
+            ], 404);
+          }
+
+          if ((int) $faseOrden->tipo_fase_correccion_orden_id !== 2) {
+            return response()->json([
+              'message' => 'Solo se puede actualizar el laboratorio en la fase Enviado.',
+            ], 400);
+          }
+        }
+
+        $nuevoLaboratorio = trim($validatedData['laboratorio']);
+
+        if (
+          $faseOrden->laboratorio &&
+          strtolower(trim($faseOrden->laboratorio)) === strtolower($nuevoLaboratorio)
+        ) {
+          return response()->json([
+            'message' => 'El laboratorio ingresado es el mismo actualmente registrado.',
+          ], 400);
+        }
+
+        // =========================================================
+        // ACTUALIZAR LABORATORIO
+        // =========================================================
+
+        $faseOrden->laboratorio = $nuevoLaboratorio;
+        $faseOrden->updated_at = now();
+        $faseOrden->save();
+
+        // =========================================================
+        // OBTENER ENTIDAD
+        // =========================================================
+
+        $tipo = $request->tipo;
+
+        $orden = null;
+        $correccion = null;
+
+        if ($tipo === 'orden') {
+
+          $orden = Ordenes::findOrFail(
+            $request->id_orden
+          );
+        } else {
+
+          $correccion = CorrecionesOrdenes::findOrFail(
+            $request->id_correccion
+          );
+        }
+
+        // =========================================================
+        // SI ES DIFERENTE DE CENTILAB → CREAR PEDIDO
+        // =========================================================
+
+        if (strtolower($nuevoLaboratorio) !== 'centilab') {
+
+          $idPedidoActual = $tipo === 'orden'
+            ? $orden->id_pedido
+            : $correccion->id_pedido;
+
+          if (!$idPedidoActual) {
+
+            $proveedor = ProveedorMaterial::whereRaw(
+              'LOWER(nombre) = ?',
+              [strtolower($nuevoLaboratorio)]
+            )->first();
+
+            if (!$proveedor) {
+
+              return response()->json([
+                'message' => 'No existe un proveedor asociado al laboratorio seleccionado.',
+              ], 400);
+            }
+
+            $limpiar = fn($valor) =>
+            $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
+
+            $pedido = Pedido::create([
+
+              'id_proveedor'   => $proveedor->id,
+              'fecha_generado' => now(),
+              'estado'         => 'Realizado',
+              'total_ordenes'  => 1,
+              'ojo' => $request->ojo ?? 'ambos',
+              'observacion' => $request->observacion,
+              'receta_od' => $request->receta_od,
+              'receta_oi' => $request->receta_oi,
+              'add_od' => $request->add_od,
+              'add_oi' => $request->add_oi,
+              'prisma_od' => $request->prisma_od,
+              'prisma_oi' => $request->prisma_oi,
+              'material' => (
+                ($limpiar($request->tipo_cristal_od) ??
+                  $limpiar($request->tipo_cristal_oi) ??
+                  '**')
+                . ' / ' .
+                ($request->material_od ??
+                  $request->material_oi ??
+                  '**')
+                . ' / ' .
+                ($request->tratamientos_od ??
+                  $request->tratamientos_oi ??
+                  '**')
+              ),
+              'esfera_od' => $request->esfera_od,
+              'esfera_oi' => $request->esfera_oi,
+              'cilindro_od' => $request->cilindro_od,
+              'cilindro_oi' => $request->cilindro_oi,
+              'eje_od' => $request->eje_od,
+              'eje_oi' => $request->eje_oi,
+              'tipo_cristal_od' => $request->tipo_cristal_od,
+              'tipo_cristal_oi' => $request->tipo_cristal_oi,
+              'material_od' => $request->material_od,
+              'material_oi' => $request->material_oi,
+              'tratamientos_od' => $request->tratamientos_od,
+              'tratamientos_oi' => $request->tratamientos_oi,
+              'tipo_base_od' => $request->tipo_base_od,
+              'tipo_base_oi' => $request->tipo_base_oi,
+            ]);
+
+            // =========================================================
+            // RELACIONAR PEDIDO
+            // =========================================================
+
+            if ($tipo === 'orden') {
+
+              $orden->update([
+                'id_pedido' => $pedido->id_pedido,
+                'observacion_pedido' => $request->observacion,
+              ]);
+            } else {
+
+              $correccion->update([
+                'id_pedido' => $pedido->id_pedido,
+                'observacion_pedido' => $request->observacion,
+              ]);
+            }
+          }
+        } else {
+
+          // =========================================================
+          // SI CAMBIA A CENTILAB → ELIMINAR PEDIDO
+          // =========================================================
+
+          $idPedidoActual = $tipo === 'orden'
+            ? $orden->id_pedido
+            : $correccion->id_pedido;
+
+          if ($idPedidoActual) {
+
+            $pedido = Pedido::find($idPedidoActual);
+
+            if ($pedido) {
+
+              if ($tipo === 'orden') {
+
+                Ordenes::where('id_pedido', $pedido->id_pedido)
+                  ->update([
+                    'id_pedido' => null,
+                    'observacion_pedido' => null,
+                  ]);
+              } else {
+
+                CorrecionesOrdenes::where('id_pedido', $pedido->id_pedido)
+                  ->update([
+                    'id_pedido' => null,
+                    'observacion_pedido' => null,
+                  ]);
+              }
+
+              $pedido->delete();
+            }
+          }
+        }
+
+        return response()->json([
+          'message' => 'Laboratorio actualizado exitosamente.',
+          'data' => $faseOrden,
+        ], 200);
+      } catch (\Exception $e) {
+
+        Log::error('ERROR updateLaboratorioEnviado', [
+          'mensaje' => $e->getMessage(),
+          'linea'   => $e->getLine(),
+          'archivo' => $e->getFile(),
+        ]);
+
+        return response()->json([
+          'message' => 'Error al actualizar el laboratorio.',
+          'error' => $e->getMessage(),
+        ], 500);
+      }
+    });
   }
 
   public function reportesOrdenes(Request $request)

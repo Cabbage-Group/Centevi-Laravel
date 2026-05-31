@@ -65,6 +65,9 @@ class Ordenes extends Model
     'correccion',
     'cancelada',
     'codigo_cristal',
+    'id_pedido',
+    'observacion_pedido',
+    'fecha_envio_proveedor',
   ];
 
   // Atributos que deben ser convertidos a tipos nativos

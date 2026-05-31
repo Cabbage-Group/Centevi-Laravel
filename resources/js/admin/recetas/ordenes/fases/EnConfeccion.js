@@ -7,7 +7,7 @@ import {
   ClockCircleTwoTone
 } from '@ant-design/icons';
 import { fecthTiposFasesOrdenes } from '../../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { actualizarDatosFase } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
+import { actualizarDatosFase, setNombresBasesActuales, } from '../../../../redux/features/ordenes/fasesOrdenesSlice';
 import { createContactoOrden } from '../../../../redux/features/contacto-orden/ContactoOrdenSlice';
 import { fetchBases } from '../../../../redux/features/bases/basesSlice';
 import VecesContacto from '../../VecesContacto';
@@ -53,6 +53,7 @@ const EnConfeccion = ({
   const [status, setStatus] = useState('');
   const [lenteContacto, setLenteContacto] = useState(0);
 
+  console.log('baseOjoIzquierdoId', baseOjoIzquierdoId)
   useEffect(() => {
     if (orderId) {
       dispatch(fecthTiposFasesOrdenes(orderId));
@@ -171,6 +172,30 @@ const EnConfeccion = ({
     }
   }, [loading, bases]);
 
+  useEffect(() => {
+    if (!bases?.length) return;
+
+    const baseIzquierda = bases.find(
+      (b) => Number(b.id) === Number(baseOjoIzquierdoId)
+    );
+
+    const baseDerecha = bases.find(
+      (b) => Number(b.id) === Number(baseOjoDerechoId)
+    );
+
+    dispatch(
+      setNombresBasesActuales({
+        izquierda: baseIzquierda
+          ? `${baseIzquierda.codigo}`
+          : null,
+
+        derecha: baseDerecha
+          ? `${baseDerecha.codigo}`
+          : null,
+      })
+    );
+  }, [baseOjoIzquierdoId, baseOjoDerechoId, bases, dispatch]);
+  
   const getColorForStatus = (status) => {
     const colors = {
       Ok: 'green',

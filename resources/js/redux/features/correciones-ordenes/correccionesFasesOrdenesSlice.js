@@ -42,6 +42,8 @@ export const updateCorreccionesFasesOrdenes = createAsyncThunk(
 
 
 
+
+
 const fasesCorrecionesOrdenesSlice = createSlice({
     name: 'correccionesFasesOrdenes',
     initialState: {
@@ -61,6 +63,15 @@ const fasesCorrecionesOrdenesSlice = createSlice({
     reducers: {
         actualizarDatosFaseCorrecciones: (state, action) => {
             state.nuevaDataCorrecciones = action.payload;
+        },
+        setNombresBasesActualesCorrecciones: (state, action) => {
+            state.nombresBasesActuales = {
+                izquierda: action.payload.izquierda || null,
+                derecha: action.payload.derecha || null,
+            };
+        },
+        setProveedor: (state, action) => {
+            state.proveedor = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -104,8 +115,9 @@ const fasesCorrecionesOrdenesSlice = createSlice({
     },
 });
 
-export const { 
-    actualizarDatosFaseCorrecciones
- } = fasesCorrecionesOrdenesSlice.actions;
+export const {
+    actualizarDatosFaseCorrecciones,
+    setNombresBasesActualesCorrecciones
+} = fasesCorrecionesOrdenesSlice.actions;
 
 export default fasesCorrecionesOrdenesSlice.reducer;
