@@ -345,10 +345,58 @@ const Ordenes = () => {
 
   const itemsSteps = getOrderPhasesByType(orderId).map((fase, index) => {
     let iconBase;
+    const isCompletedOrActive = index <= nivelStep;
     switch (fase.tipoFase.toLowerCase()) {
       case "nuevo": iconBase = <FileAddOutlined />; break;
       case "enviado": iconBase = <CarOutlined />; break;
-      case "en confeccion": iconBase = <ImportOutlined />; break;
+      case 'en confección':
+        iconBase = (
+          <>
+            <style>{`
+        .icon-confeccion-container {
+          display: inline-flex; 
+          align-items: center;
+          justify-content: center;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          vertical-align: middle;
+          margin-top: -6px; 
+        }
+
+        .icon-confeccion-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .fase-activa {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #1575fc);
+        }
+
+        .fase-desactivada {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #8c8c8c);
+        }
+
+        .icon-confeccion-container:hover .icon-confeccion-img {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #1575fc) brightness(1.1);
+        }
+      `}</style>
+
+            <span className="icon-confeccion-container">
+              <img
+                src="/assets/img/confeccion.png"
+                alt="En Confección"
+                className={`icon-confeccion-img ${isCompletedOrActive ? 'fase-activa' : 'fase-desactivada'}`}
+              />
+            </span>
+          </>
+        );
+        break;
       case "listo": iconBase = <CheckCircleOutlined />; break;
       case "retirado": iconBase = <LogoutOutlined />; break;
       default: iconBase = <FileAddOutlined />;
