@@ -27,6 +27,7 @@ import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { clearCorreccionesObservaciones, createCorreccionesObservacionOrden, deleteCorreccionesObservacionOrden, fetchCorreccionesObservacionesOrden, updateCorreccionesObservacionOrden } from '../../redux/features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones';
 import CorreccionEnviado from './fases/CorreccionEnviado';
 import CorreccionObservacionesHistorial from './observaciones/CorreccionObservacioneshistorial';
+import { useRef } from 'react';
 
 const CorrecionOrden = () => {
   const dispatch = useDispatch();
@@ -62,6 +63,7 @@ const CorrecionOrden = () => {
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
+  const enviadoRef = useRef(null);
   const [ubicacionMaps, setUbicacionMaps] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
@@ -399,6 +401,23 @@ const CorrecionOrden = () => {
     });
 
     if (result.isConfirmed) {
+
+      if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
+        try {
+          console.log('nuevaDataCorrecciones', nuevaDataCorrecciones)
+          const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar();
+          if (!confirmoLaboratorio) return;
+
+        } catch (err) {
+          console.error("Error al procesar el laboratorio:", err);
+          await Swal.fire(
+            "Error",
+            "Ocurrió un problema al guardar los datos del laboratorio.",
+            "error"
+          );
+          return;
+        }
+      }
       const status = completar ? 1 : 0;
 
       const nuevaDataConOrderId = {
@@ -439,9 +458,7 @@ const CorrecionOrden = () => {
         Swal.close();
         await Swal.fire(
           completar ? "Completado!" : "Guardado!",
-          completar
-            ? "La fase ha sido completada."
-            : "La fase ha sido guardada.",
+          completar ? "La fase ha sido completada." : "La fase ha sido guardada.",
           "success"
         );
       } catch (error) {
@@ -672,6 +689,7 @@ const CorrecionOrden = () => {
                   />
                 ) : nivelStep == 1 ? (
                   <CorreccionEnviado
+                    ref={enviadoRef}
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     fecha={nuevaDataCorrecciones.fecha_fase}

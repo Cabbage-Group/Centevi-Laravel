@@ -56,6 +56,7 @@ import { funPermisosObtenidosBoolean } from "../../../utils/ValidarPermisos";
 import { clearObservaciones, createObservacionOrden, deleteObservacionOrden, fetchObservacionesOrden, updateObservacionOrden } from "../../../redux/features/ordenesObservaciones/ordenObservacionesSlice";
 import ObservacionesHistorial from "./observaciones/Observacioneshistorial";
 import Enviado from "./fases/Enviado";
+import { useRef } from "react";
 
 const Ordenes = () => {
   const dispatch = useDispatch();
@@ -64,6 +65,7 @@ const Ordenes = () => {
   const { tiposFasesOrdenes } = useSelector(
     (state) => state.tiposFasesOrdenes
   );
+  const enviadoRef = useRef(null);
   const {
     observaciones,
     statusFetch: statusObservaciones
@@ -403,7 +405,6 @@ const Ordenes = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    console.log('nuevaData', nuevaData.laboratorio)
     if (nuevaData.tipo_fase_orden_id === 2 && !nuevaData.laboratorio) {
       await Swal.fire({
         title: "Error",
@@ -507,6 +508,21 @@ const Ordenes = () => {
     });
 
     if (result.isConfirmed) {
+      if (nuevaData.tipo_fase_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
+        try {
+          const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar();
+          if (!confirmoLaboratorio) return;
+
+        } catch (err) {
+          console.error("Error al procesar el laboratorio:", err);
+          await Swal.fire(
+            "Error",
+            "Ocurrió un problema al guardar los datos del laboratorio.",
+            "error"
+          );
+          return;
+        }
+      }
       const status = completar ? 1 : 0;
 
       const nuevaDataConOrderId = {
@@ -748,6 +764,7 @@ const Ordenes = () => {
                 />
               ) : nivelStep == 1 ? (
                 <Enviado
+                  ref={enviadoRef}
                   pacientesData={pacientes}
                   tipoFaseId={currentTipoFase.id}
                   lab={nuevaData.laboratorio}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd'
@@ -13,7 +13,7 @@ import { createContactoOrden } from '../../../../redux/features/contacto-orden/C
 import VecesContacto from '../../VecesContacto';
 import { fetchProveedorMaterial } from '../../../../redux/features/proveedor-material/proveedorMaterialSlice';
 
-const Enviado = ({
+const Enviado = forwardRef(({
   tipoFaseId,
   isDisabled,
   pacientesData,
@@ -24,7 +24,7 @@ const Enviado = ({
   guardandoObs,
   modoEdicion,
   onCancelarEdicion
-}) => {
+}, ref) => {
 
   const dispatch = useDispatch();
   const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -241,6 +241,79 @@ const Enviado = ({
     }
   };
 
+  const guardarLaboratorioAlAvanzar = async () => {
+    if (!laboratorio || !faseOrdenId) return false;
+
+    if (laboratorio === laboratorioOriginal) {
+      console.log("El laboratorio no cambió. Avanzando fase sin actualizar pedido.");
+      return true; 
+    }
+
+    const mensajeCambio = laboratorio === 'Centilab'
+      ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
+      : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
+
+    const resultLab = await Swal.fire({
+      title: 'Confirmar cambio de laboratorio',
+      text: mensajeCambio,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, guardar laboratorio',
+      cancelButtonText: 'Cancelar'
+    });
+      console.log('resultLab:', resultLab)
+    if (!resultLab.cancel) return false;
+
+    await dispatch(
+      updateLaboratorioEnviado({
+        id: faseOrdenId,
+        laboratorio,
+        tipo: pacienteOrden?.correccion === 1 ? 'correccion' : 'orden',
+        id_orden: pacienteOrden?.id_orden,
+        id_correccion: pacienteOrden?.id_correccion || null,
+        observacion: pacienteOrden?.observacion_pedido || null,
+        ojo: pacienteOrden?.ojo || 'ambos',
+        receta_od: [
+          pacienteOrden?.esfera_od,
+          pacienteOrden?.cilindro_od,
+          pacienteOrden?.eje_od ? `${pacienteOrden.eje_od}°` : null,
+        ].filter(Boolean).join(' ') || null,
+        receta_oi: [
+          pacienteOrden?.esfera_oi,
+          pacienteOrden?.cilindro_oi,
+          pacienteOrden?.eje_oi ? `${pacienteOrden.eje_oi}°` : null,
+        ].filter(Boolean).join(' ') || null,
+        add_od: pacienteOrden?.add_od || null,
+        add_oi: pacienteOrden?.add_oi || null,
+        prisma_od: pacienteOrden?.prisma_od || null,
+        prisma_oi: pacienteOrden?.prisma_oi || null,
+        material: proveedorMaterial || null,
+        esfera_od: pacienteOrden?.esfera_od || null,
+        esfera_oi: pacienteOrden?.esfera_oi || null,
+        cilindro_od: pacienteOrden?.cilindro_od || null,
+        cilindro_oi: pacienteOrden?.cilindro_oi || null,
+        eje_od: pacienteOrden?.eje_od || null,
+        eje_oi: pacienteOrden?.eje_oi || null,
+        tipo_cristal_od: pacienteOrden?.tipo_cristal_od || null,
+        tipo_cristal_oi: pacienteOrden?.tipo_cristal_oi || null,
+        material_od: pacienteOrden?.material_od || null,
+        material_oi: pacienteOrden?.material_oi || null,
+        tratamientos_od: pacienteOrden?.tratamientos_od || null,
+        tratamientos_oi: pacienteOrden?.tratamientos_oi || null,
+        tipo_base_od: nombresBasesActuales.derecha || null,
+        tipo_base_oi: nombresBasesActuales.izquierda || null,
+      })
+    ).unwrap();
+
+    return true;
+  };
+
+  useImperativeHandle(ref, () => ({
+    guardarLaboratorioAlAvanzar
+  }));
+
   const handleGuardarLaboratorio = async () => {
 
     if (!laboratorio) {
@@ -275,7 +348,7 @@ const Enviado = ({
       cancelButtonText: 'Cancelar'
     });
     console.log('Resultado de la confirmación:', result);
-    if (!result) return;
+    if (!result.cancel) return;
 
     try {
 
@@ -532,6 +605,6 @@ const Enviado = ({
       </Row>
     </div>
   )
-}
+});
 
 export default Enviado

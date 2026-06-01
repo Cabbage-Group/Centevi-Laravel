@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd';
@@ -13,8 +13,9 @@ import { fetchBases } from '../../../redux/features/bases/basesSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
 import { updateLaboratorioEnviado } from '../../../redux/features/ordenes/fasesOrdenesSlice';
+import Swal from 'sweetalert2';
 
-const CorreccionEnviado = ({
+const CorreccionEnviado = forwardRef(({
     tipoFaseId,
     isDisabled,
     correcionOrden,
@@ -25,7 +26,7 @@ const CorreccionEnviado = ({
     guardandoObs,
     modoEdicion,
     onCancelarEdicion
-}) => {
+}, ref) => {
     const dispatch = useDispatch();
     const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
     const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -265,6 +266,88 @@ const CorreccionEnviado = ({
     }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
 
+
+    const guardarLaboratorioAlAvanzar = async () => {
+        if (!laboratorio || !faseOrdenId) return false;
+        if (laboratorio === laboratorioOriginal) {
+            console.log("El laboratorio no cambió. Avanzando fase sin actualizar pedido.");
+            return true;
+        }
+
+        const mensajeCambio =
+            laboratorio === 'Centilab'
+                ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
+                : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
+
+        const resultLab = await Swal.fire({
+            title: 'Confirmar cambio de laboratorio',
+            text: mensajeCambio,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar laboratorio',
+            cancelButtonText: 'Cancelar'
+        });
+        console.log('resultLab:', resultLab)
+        if (!resultLab.isConfirmed) return false;
+        await dispatch(
+            updateLaboratorioEnviado({
+                id: faseOrdenId,
+                laboratorio,
+                tipo: correcionOrden?.correccion_id ? 'correccion' : 'orden',
+                id_orden: correcionOrden?.id_orden,
+                id_correccion: correcionOrden?.correccion_id || null,
+                observacion: correcionOrden?.observacion_pedido || null,
+                ojo: correcionOrden?.ojo || 'ambos',
+                receta_od: [
+                    correcionOrden?.esfera_od,
+                    correcionOrden?.cilindro_od,
+                    correcionOrden?.eje_od
+                        ? `${correcionOrden.eje_od}°`
+                        : null,
+                ]
+                    .filter(Boolean)
+                    .join(' ') || null,
+                receta_oi: [
+                    correcionOrden?.esfera_oi,
+                    correcionOrden?.cilindro_oi,
+                    correcionOrden?.eje_oi
+                        ? `${correcionOrden.eje_oi}°`
+                        : null,
+                ]
+                    .filter(Boolean)
+                    .join(' ') || null,
+                add_od: correcionOrden?.add_od || null,
+                add_oi: correcionOrden?.add_oi || null,
+                prisma_od: correcionOrden?.prisma_od || null,
+                prisma_oi: correcionOrden?.prisma_oi || null,
+                material: proveedorMaterial || null,
+                esfera_od: correcionOrden?.esfera_od || null,
+                esfera_oi: correcionOrden?.esfera_oi || null,
+                cilindro_od: correcionOrden?.cilindro_od || null,
+                cilindro_oi: correcionOrden?.cilindro_oi || null,
+                eje_od: correcionOrden?.eje_od || null,
+                eje_oi: correcionOrden?.eje_oi || null,
+                tipo_cristal_od: correcionOrden?.tipo_cristal_od || null,
+                tipo_cristal_oi: correcionOrden?.tipo_cristal_oi || null,
+                material_od: correcionOrden?.material_od || null,
+                material_oi: correcionOrden?.material_oi || null,
+                tratamientos_od: correcionOrden?.tratamientos_od || null,
+                tratamientos_oi: correcionOrden?.tratamientos_oi || null,
+                tipo_base_od: nombresBasesActuales?.derecha || null,
+                tipo_base_oi: nombresBasesActuales?.izquierda || null,
+            })
+        ).unwrap();
+
+        return true;
+    };
+
+
+    useImperativeHandle(ref, () => ({
+        guardarLaboratorioAlAvanzar
+    }));
+
     const handleGuardarLaboratorio = async () => {
 
         if (!laboratorio) {
@@ -298,7 +381,7 @@ const CorreccionEnviado = ({
             confirmButtonText: 'Sí, guardar',
             cancelButtonText: 'Cancelar'
         });
-        if (!result) return;
+        if (!result.isConfirmed) return;
 
         try {
 
@@ -551,6 +634,7 @@ const CorreccionEnviado = ({
             </Row>
         </div>
     );
-}
+});
+
 
 export default CorreccionEnviado;
