@@ -121,7 +121,7 @@ const Ordenes = () => {
     endDateLabo,
 
   } = location.state || {};
-
+  console.log('tiposFasesOrdenes', tiposFasesOrdenes)
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente);
@@ -540,13 +540,19 @@ const Ordenes = () => {
       }
     }
 
+    let textoAdicional = '';
+    if (nuevaData.tipo_fase_orden_id === 2 && enviadoRef.current?.getInfoLaboratorio) {
+      const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
+      if (cambio && laboratorio) {
+        const msg = laboratorio === 'Centilab'
+          ? 'El pedido cambiará a pendiente.'
+          : 'El pedido cambiará a realizado.';
+        textoAdicional = ` · Lab: ${laboratorio} → ${msg}`;
+      }
+    }
     const result = await Swal.fire({
-      title: completar
-        ? "Estas seguro de completar la fase?"
-        : "Estas seguro de guardar la fase?",
-      text: completar
-        ? "Confirmaras la fase como completada!"
-        : "Confirmaras los cambios en los datos!",
+      title: completar ? 'Estas seguro de completar la fase?' : 'Estas seguro de guardar la fase?',
+      text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmaras los cambios en los datos!') + textoAdicional,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -554,23 +560,8 @@ const Ordenes = () => {
       confirmButtonText: "Si, " + (completar ? "completar" : "guardar"),
       cancelButtonText: "Cancelar",
     });
-
     if (result.isConfirmed) {
-      if (nuevaData.tipo_fase_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
-        try {
-          const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar();
-          if (!confirmoLaboratorio) return;
 
-        } catch (err) {
-          console.error("Error al procesar el laboratorio:", err);
-          await Swal.fire(
-            "Error",
-            "Ocurrió un problema al guardar los datos del laboratorio.",
-            "error"
-          );
-          return;
-        }
-      }
       const status = completar ? 1 : 0;
 
       const nuevaDataConOrderId = {
@@ -589,9 +580,18 @@ const Ordenes = () => {
           },
         });
 
-        await dispatch(
-          createFasesOrdenes(nuevaDataConOrderId)
-        ).unwrap();
+        const faseGuardada = await dispatch(createFasesOrdenes(nuevaDataConOrderId)).unwrap();
+
+        if (nuevaData.tipo_fase_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
+          try {
+            const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar(faseGuardada?.id || faseGuardada?.data?.id);
+            if (!confirmoLaboratorio) return;
+          } catch (err) {
+            console.error("Error al procesar el laboratorio:", err);
+            await Swal.fire("Error", "Ocurrió un problema al guardar los datos del laboratorio.", "error");
+            return;
+          }
+        }
 
         if (completar && nivelStep === 3) {
           const siguienteFase = {
@@ -653,6 +653,7 @@ const Ordenes = () => {
   };
 
   const handleStepChange = async (clickedStep) => {
+    console.log('clickedStep', clickedStep, 'nivelStep', nivelStep, 'basesValidas', basesValidas);
     if (Math.abs(clickedStep - nivelStep) > 1) {
       await Swal.fire({
         title: "Acción no permitida",
@@ -675,7 +676,8 @@ const Ordenes = () => {
       return;
     }
 
-    if (clickedStep === nivelStep + 1 && basesValidas) {
+    if (clickedStep === nivelStep + 1) {
+      if (nivelStep === 2 && !basesValidas && nuevaData.laboratorio === 'Centilab') return;
       await avanzarFase(false, true);
       return;
     }

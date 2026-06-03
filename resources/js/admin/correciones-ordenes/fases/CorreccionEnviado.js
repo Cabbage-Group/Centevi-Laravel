@@ -265,131 +265,20 @@ const CorreccionEnviado = forwardRef(({
         }
     }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
-
-
-    const guardarLaboratorioAlAvanzar = async () => {
-        if (!laboratorio || !faseOrdenId) return false;
-        if (laboratorio === laboratorioOriginal) {
-            console.log("El laboratorio no cambió. Avanzando fase sin actualizar pedido.");
-            return true;
-        }
-
-        const mensajeCambio =
-            laboratorio === 'Centilab'
-                ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
-                : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
-
-        const resultLab = await Swal.fire({
-            title: 'Confirmar cambio de laboratorio',
-            text: mensajeCambio,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, guardar laboratorio',
-            cancelButtonText: 'Cancelar'
-        });
-        console.log('resultLab:', resultLab)
-        if (!resultLab.isConfirmed) return false;
-        await dispatch(
-            updateLaboratorioEnviado({
-                id: faseOrdenId,
-                laboratorio,
-                tipo: correcionOrden?.correccion_id ? 'correccion' : 'orden',
-                id_orden: correcionOrden?.id_orden,
-                id_correccion: correcionOrden?.correccion_id || null,
-                observacion: correcionOrden?.observacion_pedido || null,
-                ojo: correcionOrden?.ojo || 'ambos',
-                receta_od: [
-                    correcionOrden?.esfera_od,
-                    correcionOrden?.cilindro_od,
-                    correcionOrden?.eje_od
-                        ? `${correcionOrden.eje_od}°`
-                        : null,
-                ]
-                    .filter(Boolean)
-                    .join(' ') || null,
-                receta_oi: [
-                    correcionOrden?.esfera_oi,
-                    correcionOrden?.cilindro_oi,
-                    correcionOrden?.eje_oi
-                        ? `${correcionOrden.eje_oi}°`
-                        : null,
-                ]
-                    .filter(Boolean)
-                    .join(' ') || null,
-                add_od: correcionOrden?.add_od || null,
-                add_oi: correcionOrden?.add_oi || null,
-                prisma_od: correcionOrden?.prisma_od || null,
-                prisma_oi: correcionOrden?.prisma_oi || null,
-                material: proveedorMaterial || null,
-                esfera_od: correcionOrden?.esfera_od || null,
-                esfera_oi: correcionOrden?.esfera_oi || null,
-                cilindro_od: correcionOrden?.cilindro_od || null,
-                cilindro_oi: correcionOrden?.cilindro_oi || null,
-                eje_od: correcionOrden?.eje_od || null,
-                eje_oi: correcionOrden?.eje_oi || null,
-                tipo_cristal_od: correcionOrden?.tipo_cristal_od || null,
-                tipo_cristal_oi: correcionOrden?.tipo_cristal_oi || null,
-                material_od: correcionOrden?.material_od || null,
-                material_oi: correcionOrden?.material_oi || null,
-                tratamientos_od: correcionOrden?.tratamientos_od || null,
-                tratamientos_oi: correcionOrden?.tratamientos_oi || null,
-                tipo_base_od: nombresBasesActuales?.derecha || null,
-                tipo_base_oi: nombresBasesActuales?.izquierda || null,
-            })
-        ).unwrap();
-
-        return true;
-    };
-
-
     useImperativeHandle(ref, () => ({
-        guardarLaboratorioAlAvanzar
-    }));
-
-    const handleGuardarLaboratorio = async () => {
-
-        if (!laboratorio) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Seleccione un laboratorio',
-            });
-            return;
-        }
-
-        if (!faseOrdenId) {
-            Swal.fire({
-                icon: 'error',
-                title: 'No existe fase para actualizar',
-            });
-            return;
-        }
-
-        const mensajeCambio =
-            laboratorio === 'Centilab'
-                ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
-                : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
-
-        const result = await Swal.fire({
-            title: 'Confirmar cambio',
-            text: mensajeCambio,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
-        });
-        if (!result.isConfirmed) return;
-
-        try {
-
-            setLoadingLaboratorio(true);
+        getInfoLaboratorio: () => ({
+            laboratorio,
+            laboratorioOriginal,
+            cambio: laboratorio !== laboratorioOriginal,
+        }),
+        guardarLaboratorioAlAvanzar: async (faseCorreccionOrdenIdNuevo) => {
+            const idAUsar = faseCorreccionOrdenIdNuevo || faseOrdenId;
+            if (!laboratorio) return false;
+            if (laboratorio === laboratorioOriginal) return true;
 
             await dispatch(
                 updateLaboratorioEnviado({
-                    id: faseOrdenId,
+                    id: idAUsar,
                     laboratorio,
                     tipo: correcionOrden?.correccion_id ? 'correccion' : 'orden',
                     id_orden: correcionOrden?.id_orden,
@@ -431,35 +320,14 @@ const CorreccionEnviado = forwardRef(({
                     material_oi: correcionOrden?.material_oi || null,
                     tratamientos_od: correcionOrden?.tratamientos_od || null,
                     tratamientos_oi: correcionOrden?.tratamientos_oi || null,
-                    tipo_base_od: nombresBasesActuales.derecha || null,
-                    tipo_base_oi: nombresBasesActuales.izquierda || null,
+                    tipo_base_od: nombresBasesActuales?.derecha || null,
+                    tipo_base_oi: nombresBasesActuales?.izquierda || null,
                 })
             ).unwrap();
 
-            setLaboratorioOriginal(laboratorio);
-
-            await dispatch(fecthTiposFasesOrdenes(correccionOrderId));
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Laboratorio actualizado correctamente',
-                timer: 1500,
-                showConfirmButton: false,
-            });
-
-        } catch (error) {
-
-            Swal.fire({
-                icon: 'error',
-                title:
-                    error?.response?.data?.message ||
-                    'Error al actualizar laboratorio',
-            });
-
-        } finally {
-            setLoadingLaboratorio(false);
+            return true;
         }
-    };
+    }), [laboratorio, laboratorioOriginal, faseOrdenId, proveedorMaterial, correcionOrden, nombresBasesActuales]);
 
     return (
         <div>
@@ -484,26 +352,10 @@ const CorreccionEnviado = forwardRef(({
                                 onChange={(value) => setLaboratorio(value)}
                                 value={laboratorio}
                             />
-                            <Button
-                                type="primary"
-                                size="small"
-                                loading={loadingLaboratorio}
-                                disabled={
-                                    isDisabled ||
-                                    !laboratorio ||
-                                    laboratorio === laboratorioOriginal
-                                }
-                                onClick={handleGuardarLaboratorio}
-                                style={{
-                                    marginTop: '10px',
-                                    width: '200px',
-                                }}
-                            >
-                                Guardar
-                            </Button>
+
                         </div>
 
-                        {!correcionOrden?.lente_contacto && (
+                        {/* {!correcionOrden?.lente_contacto && (
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
                                 <Select
@@ -520,7 +372,7 @@ const CorreccionEnviado = forwardRef(({
                                     value={proveedorMaterial}
                                 />
                             </div>
-                        )}
+                        )} */}
                     </div>
                     <label htmlFor="observaciones">
                         {modoEdicion ? "Editando observación" : "Nueva observación"}

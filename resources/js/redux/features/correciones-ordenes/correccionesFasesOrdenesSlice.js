@@ -13,13 +13,14 @@ export const fecthCorreccionesFasesOrdenes = createAsyncThunk(
 
 export const createCorreccionesFasesOrdenes = createAsyncThunk(
     'correccionesFasesOrdenes/createcorreccionesFasesOrdenes',
-    async (data) => {
+    async (data,{rejectWithValue}) => {
         try {
             const response = await axios.post(`${API}/create-fases-correciones-ordenes`, data);
             return response.data;
         } catch (error) {
-            console.error('Error creating fase  correccion orden:', error.response.data);
-            throw error;
+            return rejectWithValue(
+                error.response?.data?.message || 'Error al procesar la fase de orden.'
+            );
         }
     }
 );

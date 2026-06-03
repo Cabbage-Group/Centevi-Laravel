@@ -1075,6 +1075,10 @@ class OrdenesApiController extends Controller
 
       try {
 
+        // =========================================================
+        // BUSCAR FASE
+        // =========================================================
+
         if ($request->tipo === 'orden') {
 
           $faseOrden = FasesOrdenes::find($id);
@@ -1107,48 +1111,32 @@ class OrdenesApiController extends Controller
           }
         }
 
+        // =========================================================
+        // ACTUALIZAR LABORATORIO EN LA FASE
+        // =========================================================
+
         $nuevoLaboratorio = trim($validatedData['laboratorio']);
-
-        if (
-          $faseOrden->laboratorio &&
-          strtolower(trim($faseOrden->laboratorio)) === strtolower($nuevoLaboratorio)
-        ) {
-          return response()->json([
-            'message' => 'El laboratorio ingresado es el mismo actualmente registrado.',
-          ], 400);
-        }
-
-        // =========================================================
-        // ACTUALIZAR LABORATORIO
-        // =========================================================
 
         $faseOrden->laboratorio = $nuevoLaboratorio;
         $faseOrden->updated_at = now();
         $faseOrden->save();
 
         // =========================================================
-        // OBTENER ENTIDAD
+        // OBTENER ENTIDAD (ORDEN O CORRECCIÓN)
         // =========================================================
 
         $tipo = $request->tipo;
-
         $orden = null;
         $correccion = null;
 
         if ($tipo === 'orden') {
-
-          $orden = Ordenes::findOrFail(
-            $request->id_orden
-          );
+          $orden = Ordenes::findOrFail($request->id_orden);
         } else {
-
-          $correccion = CorrecionesOrdenes::findOrFail(
-            $request->id_correccion
-          );
+          $correccion = CorrecionesOrdenes::findOrFail($request->id_correccion);
         }
 
         // =========================================================
-        // SI ES DIFERENTE DE CENTILAB → CREAR PEDIDO
+        // SI ES DIFERENTE DE CENTILAB → REEMPLAZAR O CREAR PEDIDO
         // =========================================================
 
         if (strtolower($nuevoLaboratorio) !== 'centilab') {
@@ -1157,88 +1145,95 @@ class OrdenesApiController extends Controller
             ? $orden->id_pedido
             : $correccion->id_pedido;
 
-          if (!$idPedidoActual) {
-
-            $proveedor = ProveedorMaterial::whereRaw(
-              'LOWER(nombre) = ?',
-              [strtolower($nuevoLaboratorio)]
-            )->first();
-
-            if (!$proveedor) {
-
-              return response()->json([
-                'message' => 'No existe un proveedor asociado al laboratorio seleccionado.',
-              ], 400);
+          // Si ya tiene pedido, eliminarlo primero
+          if ($idPedidoActual) {
+            $pedidoAnterior = Pedido::find($idPedidoActual);
+            if ($pedidoAnterior) {
+              if ($tipo === 'orden') {
+                Ordenes::where('id_pedido', $pedidoAnterior->id_pedido)
+                  ->update([
+                    'id_pedido' => null,
+                    'observacion_pedido' => null,
+                  ]);
+              } else {
+                CorrecionesOrdenes::where('id_pedido', $pedidoAnterior->id_pedido)
+                  ->update([
+                    'id_pedido' => null,
+                    'observacion_pedido' => null,
+                  ]);
+              }
+              $pedidoAnterior->delete();
             }
+          }
 
-            $limpiar = fn($valor) =>
-            $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
+          // Buscar proveedor asociado al laboratorio
+          $proveedor = ProveedorMaterial::whereRaw(
+            'LOWER(nombre) = ?',
+            [strtolower($nuevoLaboratorio)]
+          )->first();
 
-            $pedido = Pedido::create([
+          $limpiar = fn($valor) =>
+          $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
 
-              'id_proveedor'   => $proveedor->id,
-              'fecha_generado' => now(),
-              'estado'         => 'Realizado',
-              'total_ordenes'  => 1,
-              'ojo' => $request->ojo ?? 'ambos',
-              'observacion' => $request->observacion,
-              'receta_od' => $request->receta_od,
-              'receta_oi' => $request->receta_oi,
-              'add_od' => $request->add_od,
-              'add_oi' => $request->add_oi,
-              'prisma_od' => $request->prisma_od,
-              'prisma_oi' => $request->prisma_oi,
-              'material' => (
-                ($limpiar($request->tipo_cristal_od) ??
-                  $limpiar($request->tipo_cristal_oi) ??
-                  '**')
-                . ' / ' .
-                ($request->material_od ??
-                  $request->material_oi ??
-                  '**')
-                . ' / ' .
-                ($request->tratamientos_od ??
-                  $request->tratamientos_oi ??
-                  '**')
-              ),
-              'esfera_od' => $request->esfera_od,
-              'esfera_oi' => $request->esfera_oi,
-              'cilindro_od' => $request->cilindro_od,
-              'cilindro_oi' => $request->cilindro_oi,
-              'eje_od' => $request->eje_od,
-              'eje_oi' => $request->eje_oi,
-              'tipo_cristal_od' => $request->tipo_cristal_od,
-              'tipo_cristal_oi' => $request->tipo_cristal_oi,
-              'material_od' => $request->material_od,
-              'material_oi' => $request->material_oi,
-              'tratamientos_od' => $request->tratamientos_od,
-              'tratamientos_oi' => $request->tratamientos_oi,
-              'tipo_base_od' => $request->tipo_base_od,
-              'tipo_base_oi' => $request->tipo_base_oi,
+          // Crear nuevo pedido
+          $pedido = Pedido::create([
+            'id_proveedor'    => $proveedor?->id,
+            'fecha_generado'  => now(),
+            'estado'          => 'Realizado',
+            'total_ordenes'   => 1,
+            'ojo'             => $request->ojo ?? 'ambos',
+            'observacion'     => $request->observacion,
+            'receta_od'       => $request->receta_od,
+            'receta_oi'       => $request->receta_oi,
+            'add_od'          => $request->add_od,
+            'add_oi'          => $request->add_oi,
+            'prisma_od'       => $request->prisma_od,
+            'prisma_oi'       => $request->prisma_oi,
+            'material'        => (
+              ($limpiar($request->tipo_cristal_od) ??
+                $limpiar($request->tipo_cristal_oi) ??
+                '**')
+              . ' / ' .
+              ($request->material_od ??
+                $request->material_oi ??
+                '**')
+              . ' / ' .
+              ($request->tratamientos_od ??
+                $request->tratamientos_oi ??
+                '**')
+            ),
+            'esfera_od'       => $request->esfera_od,
+            'esfera_oi'       => $request->esfera_oi,
+            'cilindro_od'     => $request->cilindro_od,
+            'cilindro_oi'     => $request->cilindro_oi,
+            'eje_od'          => $request->eje_od,
+            'eje_oi'          => $request->eje_oi,
+            'tipo_cristal_od' => $request->tipo_cristal_od,
+            'tipo_cristal_oi' => $request->tipo_cristal_oi,
+            'material_od'     => $request->material_od,
+            'material_oi'     => $request->material_oi,
+            'tratamientos_od' => $request->tratamientos_od,
+            'tratamientos_oi' => $request->tratamientos_oi,
+            'tipo_base_od'    => $request->tipo_base_od,
+            'tipo_base_oi'    => $request->tipo_base_oi,
+          ]);
+
+          // Relacionar pedido con la orden o corrección
+          if ($tipo === 'orden') {
+            $orden->update([
+              'id_pedido'          => $pedido->id_pedido,
+              'observacion_pedido' => $request->observacion,
             ]);
-
-            // =========================================================
-            // RELACIONAR PEDIDO
-            // =========================================================
-
-            if ($tipo === 'orden') {
-
-              $orden->update([
-                'id_pedido' => $pedido->id_pedido,
-                'observacion_pedido' => $request->observacion,
-              ]);
-            } else {
-
-              $correccion->update([
-                'id_pedido' => $pedido->id_pedido,
-                'observacion_pedido' => $request->observacion,
-              ]);
-            }
+          } else {
+            $correccion->update([
+              'id_pedido'          => $pedido->id_pedido,
+              'observacion_pedido' => $request->observacion,
+            ]);
           }
         } else {
 
           // =========================================================
-          // SI CAMBIA A CENTILAB → ELIMINAR PEDIDO
+          // SI ES CENTILAB → ELIMINAR PEDIDO SI EXISTE, SI NO NADA
           // =========================================================
 
           $idPedidoActual = $tipo === 'orden'
@@ -1252,17 +1247,15 @@ class OrdenesApiController extends Controller
             if ($pedido) {
 
               if ($tipo === 'orden') {
-
                 Ordenes::where('id_pedido', $pedido->id_pedido)
                   ->update([
-                    'id_pedido' => null,
+                    'id_pedido'          => null,
                     'observacion_pedido' => null,
                   ]);
               } else {
-
                 CorrecionesOrdenes::where('id_pedido', $pedido->id_pedido)
                   ->update([
-                    'id_pedido' => null,
+                    'id_pedido'          => null,
                     'observacion_pedido' => null,
                   ]);
               }
@@ -1270,11 +1263,12 @@ class OrdenesApiController extends Controller
               $pedido->delete();
             }
           }
+          // Si no tiene pedido y es Centilab, no hace nada
         }
 
         return response()->json([
           'message' => 'Laboratorio actualizado exitosamente.',
-          'data' => $faseOrden,
+          'data'    => $faseOrden,
         ], 200);
       } catch (\Exception $e) {
 
@@ -1286,7 +1280,7 @@ class OrdenesApiController extends Controller
 
         return response()->json([
           'message' => 'Error al actualizar el laboratorio.',
-          'error' => $e->getMessage(),
+          'error'   => $e->getMessage(),
         ], 500);
       }
     });

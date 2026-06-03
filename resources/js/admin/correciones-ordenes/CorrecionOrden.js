@@ -434,10 +434,19 @@ const CorrecionOrden = () => {
 
       }
     }
-
+    let textoAdicional = '';
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && enviadoRef.current?.getInfoLaboratorio) {
+      const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
+      if (cambio && laboratorio) {
+        const msg = laboratorio === 'Centilab'
+          ? 'El pedido cambiará a pendiente.'
+          : 'El pedido cambiará a realizado.';
+        textoAdicional = ` · Lab: ${laboratorio} → ${msg}`;
+      }
+    }
     const result = await Swal.fire({
       title: completar ? 'Estas seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
-      text: completar ? "Confirmaras la fase como completada!" : "Confirmarás los cambios en los datos!",
+      text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmarás los cambios en los datos!') + textoAdicional,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -447,23 +456,6 @@ const CorrecionOrden = () => {
     });
 
     if (result.isConfirmed) {
-
-      if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
-        try {
-          console.log('nuevaDataCorrecciones', nuevaDataCorrecciones)
-          const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar();
-          if (!confirmoLaboratorio) return;
-
-        } catch (err) {
-          console.error("Error al procesar el laboratorio:", err);
-          await Swal.fire(
-            "Error",
-            "Ocurrió un problema al guardar los datos del laboratorio.",
-            "error"
-          );
-          return;
-        }
-      }
       const status = completar ? 1 : 0;
 
       const nuevaDataConOrderId = {
@@ -482,7 +474,24 @@ const CorrecionOrden = () => {
           },
         });
 
-        await dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId)).unwrap();;
+        const faseGuardada = await dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId)).unwrap();;
+
+        if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
+          try {
+            console.log('nuevaDataCorrecciones', nuevaDataCorrecciones)
+            const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar(faseGuardada?.id || faseGuardada?.data?.id);
+            if (!confirmoLaboratorio) return;
+
+          } catch (err) {
+            console.error("Error al procesar el laboratorio:", err);
+            await Swal.fire(
+              "Error",
+              "Ocurrió un problema al guardar los datos del laboratorio.",
+              "error"
+            );
+            return;
+          }
+        }
 
         if (completar && nivelStep === 3) {
           const siguienteFase = {
@@ -492,7 +501,7 @@ const CorrecionOrden = () => {
             tipo_fase_correccion_orden_id: nuevaDataCorrecciones.tipo_fase_correccion_orden_id + 1,
           };
           console.log('siguienteFase', siguienteFase)
-          dispatch(createCorreccionesFasesOrdenes(siguienteFase));
+          await dispatch(createCorreccionesFasesOrdenes(siguienteFase)).unwrap();
         }
         await Promise.all([
           dispatch(fecthTiposFasesOrdenes(correccionOrderId))
@@ -508,11 +517,10 @@ const CorrecionOrden = () => {
           "success"
         );
       } catch (error) {
-        console.error(error);
         Swal.close();
         await Swal.fire(
           "Error",
-          "Ocurrió un problema al guardar la fase.",
+          error || "Ocurrió un problema al guardar la fase.",
           "error"
         );
       }
@@ -553,7 +561,6 @@ const CorrecionOrden = () => {
         confirmButtonText: "Entendido",
         confirmButtonColor: "#3085d6",
       });
-
       return;
     }
 
@@ -568,8 +575,7 @@ const CorrecionOrden = () => {
     }
 
     if (clickedStep === nivelStep + 1) {
-
-      if (nivelStep === 2 && !basesValidas) {
+      if (nivelStep === 2 && !basesValidas && nuevaDataCorrecciones.laboratorio === 'Centilab') {
         await Swal.fire({
           title: "Bases inválidas",
           text: "No puedes avanzar mientras las bases no sean válidas.",
@@ -577,12 +583,8 @@ const CorrecionOrden = () => {
           confirmButtonText: "Entendido",
           confirmButtonColor: "#3085d6",
         });
-
         return;
       }
-
-      console.log('enasasdasddas');
-
       await avanzarFase(false, true);
       return;
     }

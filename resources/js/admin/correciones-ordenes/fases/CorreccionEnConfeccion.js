@@ -46,7 +46,7 @@ const CorreccionEnConfeccion = ({
   const [status, setStatus] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
   const [lenteContacto, setLenteContacto] = useState(0);
-
+  const [laboratorioFaseAnterior, setLaboratorioFaseAnterior] = useState('');
   useEffect(() => {
     if (correccionOrderId) {
       dispatch(fecthTiposFasesOrdenes(correccionOrderId));
@@ -79,6 +79,7 @@ const CorreccionEnConfeccion = ({
         if (faseOrdenAnterior) {
           setLaboratorio(faseOrdenAnterior.laboratorio);
           setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
+          setLaboratorioFaseAnterior(faseOrdenAnterior.laboratorio)
         }
       }
     }
@@ -258,6 +259,7 @@ const CorreccionEnConfeccion = ({
     }
   }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
+  const mostrarBases = !laboratorioFaseAnterior || laboratorioFaseAnterior === 'Centilab';
   return (
     <div>
       <Row
@@ -265,63 +267,65 @@ const CorreccionEnConfeccion = ({
         gutter={[16, 16]}
       >
         <Col xxl={15} xl={15} md={12}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            marginBottom: '20px'
-          }}>
-            <div>
-              <label htmlFor="laboratorio">Base Ojo Izquierdo</label>
-              <br />
-              <Select
-                showSearch
-                optionFilterProp="label"
-                placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
-                loading={loading}
-                disabled={loading}
-                options={(bases ?? []).map((base) => ({
-                  value: Number(base.id),
-                  label: `${base.codigo} - ${base.descripcion}`,
-                }))}
-                style={{
-                  width: '350px',
-                  height: '30px',
-                  color: 'black',
-                  fontWeight: 'bold',
-                }}
-                onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
-                value={!loading ? baseOjoIzquierdoId : undefined}
-                status={!baseOjoIzquierdoId && !loading && lenteContacto === 0 ? "error" : ""}
-              />
-            </div>
+          {mostrarBases && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '20px'
+            }}>
+              <div>
+                <label htmlFor="laboratorio">Base Ojo Izquierdo</label>
+                <br />
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                  loading={loading}
+                  disabled={loading}
+                  options={(bases ?? []).map((base) => ({
+                    value: Number(base.id),
+                    label: `${base.codigo} - ${base.descripcion}`,
+                  }))}
+                  style={{
+                    width: '350px',
+                    height: '30px',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                  onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
+                  value={!loading ? baseOjoIzquierdoId : undefined}
+                  status={!baseOjoIzquierdoId && !loading && lenteContacto === 0 ? "error" : ""}
+                />
+              </div>
 
-            <div>
-              <label htmlFor="otraOpcion">Base Ojo Derecho</label>
-              <br />
-              <Select
-                showSearch
-                optionFilterProp="label"
-                placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
-                loading={loading}
-                disabled={loading}
-                options={(bases ?? []).map((base) => ({
-                  value: Number(base.id),
-                  label: `${base.codigo} - ${base.descripcion}`,
-                }))}
-                style={{
-                  width: '350px',
-                  height: '30px',
-                  color: 'black',
-                  fontWeight: 'bold',
-                }}
-                onChange={(value) => setBaseOjoDerechoId(Number(value))}
-                value={!loading ? baseOjoDerechoId : undefined}
-                status={!baseOjoDerechoId && !loading && lenteContacto === 0 ? "error" : ""}
-              />
+              <div>
+                <label htmlFor="otraOpcion">Base Ojo Derecho</label>
+                <br />
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder={loading ? "Cargando bases..." : "Selecciona una base"}
+                  loading={loading}
+                  disabled={loading}
+                  options={(bases ?? []).map((base) => ({
+                    value: Number(base.id),
+                    label: `${base.codigo} - ${base.descripcion}`,
+                  }))}
+                  style={{
+                    width: '350px',
+                    height: '30px',
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}
+                  onChange={(value) => setBaseOjoDerechoId(Number(value))}
+                  value={!loading ? baseOjoDerechoId : undefined}
+                  status={!baseOjoDerechoId && !loading && lenteContacto === 0 ? "error" : ""}
+                />
+              </div>
             </div>
-          </div>
-          {lenteContacto === 0 && (!baseOjoIzquierdoId || !baseOjoDerechoId) && (
+          )}
+          {mostrarBases && lenteContacto === 0 && (!baseOjoIzquierdoId || !baseOjoDerechoId) && (
             <div style={{
               color: 'red',
               fontSize: '12px',
