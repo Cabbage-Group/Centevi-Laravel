@@ -934,18 +934,18 @@ class OrdenesApiController extends Controller
       if ($validatedData['tipo_fase_orden_id'] == 3 && ($validatedData['status'] ?? null) == 1) {
         $orden = Ordenes::with('pedido')->find($validatedData['ordenes_id']);
 
-        if (!$orden || is_null($orden->id_pedido)) {
+        if (!$orden) {
           DB::rollBack();
-          return response()->json([
-            'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
-          ], 422);
+          return response()->json(['message' => 'Orden no encontrada.'], 404);
         }
 
-        if ($orden->pedido && $orden->pedido->estado === 'Pendiente') {
-          DB::rollBack();
-          return response()->json([
-            'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
-          ], 422);
+        if (!$orden->lente_contacto) {
+          if (is_null($orden->id_pedido) || ($orden->pedido && $orden->pedido->estado === 'Pendiente')) {
+            DB::rollBack();
+            return response()->json([
+              'message' => 'No se puede avanzar a la fase Listo. El pedido material está en Pendiente.',
+            ], 422);
+          }
         }
 
         Log::info('PERMITIDO - pasa la validación');
