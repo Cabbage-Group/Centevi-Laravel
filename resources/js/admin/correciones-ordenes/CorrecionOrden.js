@@ -435,7 +435,9 @@ const CorrecionOrden = () => {
       }
     }
     let textoAdicional = '';
-    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && enviadoRef.current?.getInfoLaboratorio) {
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && 
+      !correcionOrden?.lente_contacto && 
+      enviadoRef.current?.getInfoLaboratorio) {
       const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
       if (cambio && laboratorio) {
         const msg = laboratorio === 'Centilab'

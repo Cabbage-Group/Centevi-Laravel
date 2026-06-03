@@ -538,10 +538,10 @@ const Ordenes = () => {
           return;
         }
       }
-    }
+    } 
 
     let textoAdicional = '';
-    if (nuevaData.tipo_fase_orden_id === 2 && enviadoRef.current?.getInfoLaboratorio) {
+    if (nuevaData.tipo_fase_orden_id === 2 && !pacienteOrden?.lente_contacto &&  enviadoRef.current?.getInfoLaboratorio ) {
       const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
       if (cambio && laboratorio) {
         const msg = laboratorio === 'Centilab'
