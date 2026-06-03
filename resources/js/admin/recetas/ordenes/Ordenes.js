@@ -56,6 +56,7 @@ import { funPermisosObtenidosBoolean } from "../../../utils/ValidarPermisos";
 import { clearObservaciones, createObservacionOrden, deleteObservacionOrden, fetchObservacionesOrden, updateObservacionOrden } from "../../../redux/features/ordenesObservaciones/ordenObservacionesSlice";
 import ObservacionesHistorial from "./observaciones/Observacioneshistorial";
 import Enviado from "./fases/Enviado";
+import { useRef } from "react";
 
 const Ordenes = () => {
   const dispatch = useDispatch();
@@ -64,6 +65,7 @@ const Ordenes = () => {
   const { tiposFasesOrdenes } = useSelector(
     (state) => state.tiposFasesOrdenes
   );
+  const enviadoRef = useRef(null);
   const {
     observaciones,
     statusFetch: statusObservaciones
@@ -119,7 +121,7 @@ const Ordenes = () => {
     endDateLabo,
 
   } = location.state || {};
-
+  console.log('tiposFasesOrdenes', tiposFasesOrdenes)
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente);
@@ -343,10 +345,58 @@ const Ordenes = () => {
 
   const itemsSteps = getOrderPhasesByType(orderId).map((fase, index) => {
     let iconBase;
+    const isCompletedOrActive = index <= nivelStep;
     switch (fase.tipoFase.toLowerCase()) {
       case "nuevo": iconBase = <FileAddOutlined />; break;
       case "enviado": iconBase = <CarOutlined />; break;
-      case "en confeccion": iconBase = <ImportOutlined />; break;
+      case 'en confección':
+        iconBase = (
+          <>
+            <style>{`
+        .icon-confeccion-container {
+          display: inline-flex; 
+          align-items: center;
+          justify-content: center;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          vertical-align: middle;
+          margin-top: -6px; 
+        }
+
+        .icon-confeccion-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .fase-activa {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #1575fc);
+        }
+
+        .fase-desactivada {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #8c8c8c);
+        }
+
+        .icon-confeccion-container:hover .icon-confeccion-img {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #1575fc) brightness(1.1);
+        }
+      `}</style>
+
+            <span className="icon-confeccion-container">
+              <img
+                src="/assets/img/confeccion.png"
+                alt="En Confección"
+                className={`icon-confeccion-img ${isCompletedOrActive ? 'fase-activa' : 'fase-desactivada'}`}
+              />
+            </span>
+          </>
+        );
+        break;
       case "listo": iconBase = <CheckCircleOutlined />; break;
       case "retirado": iconBase = <LogoutOutlined />; break;
       default: iconBase = <FileAddOutlined />;
@@ -403,7 +453,6 @@ const Ordenes = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
-    console.log('nuevaData', nuevaData.laboratorio)
     if (nuevaData.tipo_fase_orden_id === 2 && !nuevaData.laboratorio) {
       await Swal.fire({
         title: "Error",
@@ -489,15 +538,21 @@ const Ordenes = () => {
           return;
         }
       }
-    }
+    } 
 
+    let textoAdicional = '';
+    if (nuevaData.tipo_fase_orden_id === 2 && !pacienteOrden?.lente_contacto &&  enviadoRef.current?.getInfoLaboratorio ) {
+      const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
+      if (cambio && laboratorio) {
+        const msg = laboratorio === 'Centilab'
+          ? 'El pedido cambiará a pendiente.'
+          : 'El pedido cambiará a realizado.';
+        textoAdicional = ` · Lab: ${laboratorio} → ${msg}`;
+      }
+    }
     const result = await Swal.fire({
-      title: completar
-        ? "Estas seguro de completar la fase?"
-        : "Estas seguro de guardar la fase?",
-      text: completar
-        ? "Confirmaras la fase como completada!"
-        : "Confirmaras los cambios en los datos!",
+      title: completar ? 'Estas seguro de completar la fase?' : 'Estas seguro de guardar la fase?',
+      text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmaras los cambios en los datos!') + textoAdicional,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -505,8 +560,8 @@ const Ordenes = () => {
       confirmButtonText: "Si, " + (completar ? "completar" : "guardar"),
       cancelButtonText: "Cancelar",
     });
-
     if (result.isConfirmed) {
+
       const status = completar ? 1 : 0;
 
       const nuevaDataConOrderId = {
@@ -525,9 +580,18 @@ const Ordenes = () => {
           },
         });
 
-        await dispatch(
-          createFasesOrdenes(nuevaDataConOrderId)
-        ).unwrap();
+        const faseGuardada = await dispatch(createFasesOrdenes(nuevaDataConOrderId)).unwrap();
+
+        if (nuevaData.tipo_fase_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
+          try {
+            const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar(faseGuardada?.id || faseGuardada?.data?.id);
+            if (!confirmoLaboratorio) return;
+          } catch (err) {
+            console.error("Error al procesar el laboratorio:", err);
+            await Swal.fire("Error", "Ocurrió un problema al guardar los datos del laboratorio.", "error");
+            return;
+          }
+        }
 
         if (completar && nivelStep === 3) {
           const siguienteFase = {
@@ -589,6 +653,7 @@ const Ordenes = () => {
   };
 
   const handleStepChange = async (clickedStep) => {
+    console.log('clickedStep', clickedStep, 'nivelStep', nivelStep, 'basesValidas', basesValidas);
     if (Math.abs(clickedStep - nivelStep) > 1) {
       await Swal.fire({
         title: "Acción no permitida",
@@ -611,7 +676,8 @@ const Ordenes = () => {
       return;
     }
 
-    if (clickedStep === nivelStep + 1 && basesValidas) {
+    if (clickedStep === nivelStep + 1) {
+      if (nivelStep === 2 && !basesValidas && nuevaData.laboratorio === 'Centilab') return;
       await avanzarFase(false, true);
       return;
     }
@@ -748,6 +814,7 @@ const Ordenes = () => {
                 />
               ) : nivelStep == 1 ? (
                 <Enviado
+                  ref={enviadoRef}
                   pacientesData={pacientes}
                   tipoFaseId={currentTipoFase.id}
                   lab={nuevaData.laboratorio}

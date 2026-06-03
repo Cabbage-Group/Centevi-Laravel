@@ -27,6 +27,7 @@ import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { clearCorreccionesObservaciones, createCorreccionesObservacionOrden, deleteCorreccionesObservacionOrden, fetchCorreccionesObservacionesOrden, updateCorreccionesObservacionOrden } from '../../redux/features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones';
 import CorreccionEnviado from './fases/CorreccionEnviado';
 import CorreccionObservacionesHistorial from './observaciones/CorreccionObservacioneshistorial';
+import { useRef } from 'react';
 
 const CorrecionOrden = () => {
   const dispatch = useDispatch();
@@ -62,6 +63,7 @@ const CorrecionOrden = () => {
   const [mensaje, setMensaje] = useState(
     'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
   );
+  const enviadoRef = useRef(null);
   const [ubicacionMaps, setUbicacionMaps] = useState('');
   const [nombrePaciente, setNombrePaciente] = useState('');
   const idUsuario = localStorage.getItem('id_usuario');
@@ -237,6 +239,7 @@ const CorrecionOrden = () => {
 
   const itemsSteps = getOrderPhasesByType(correccionOrderId).map((fase, index) => {
     let iconBase;
+    const isCompletedOrActive = index <= nivelStep;
     switch (fase.tipoFase.toLowerCase()) {
       case 'nuevo':
         iconBase = <FileAddOutlined />;
@@ -244,8 +247,53 @@ const CorrecionOrden = () => {
       case "enviado":
         iconBase = <CarOutlined />;
         break;
-      case 'en confeccion':
-        iconBase = <ImportOutlined />;
+      case 'en confección':
+        iconBase = (
+          <>
+            <style>{`
+        .icon-confeccion-container {
+          display: inline-flex; /* Cambiado a inline-flex para mejor control de alineación */
+          align-items: center;
+          justify-content: center;
+          width: 54px;
+          height: 54px;
+          overflow: hidden;
+          vertical-align: middle;
+          margin-top: -6px; 
+        }
+
+        .icon-confeccion-img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .fase-activa {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #1575fc);
+        }
+
+        .fase-desactivada {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #8c8c8c);
+        }
+
+        .icon-confeccion-container:hover .icon-confeccion-img {
+          transform: translateX(-60px);
+          filter: drop-shadow(60px 0 0 #1575fc) brightness(1.1);
+        }
+      `}</style>
+
+            <span className="icon-confeccion-container">
+              <img
+                src="/assets/img/confeccion.png"
+                alt="En Confección"
+                className={`icon-confeccion-img ${isCompletedOrActive ? 'fase-activa' : 'fase-desactivada'}`}
+              />
+            </span>
+          </>
+        );
         break;
       case 'listo':
         iconBase = <CheckCircleOutlined />;
@@ -386,10 +434,21 @@ const CorrecionOrden = () => {
 
       }
     }
-
+    let textoAdicional = '';
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && 
+      !correcionOrden?.lente_contacto && 
+      enviadoRef.current?.getInfoLaboratorio) {
+      const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
+      if (cambio && laboratorio) {
+        const msg = laboratorio === 'Centilab'
+          ? 'El pedido cambiará a pendiente.'
+          : 'El pedido cambiará a realizado.';
+        textoAdicional = ` · Lab: ${laboratorio} → ${msg}`;
+      }
+    }
     const result = await Swal.fire({
       title: completar ? 'Estas seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
-      text: completar ? "Confirmaras la fase como completada!" : "Confirmarás los cambios en los datos!",
+      text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmarás los cambios en los datos!') + textoAdicional,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -417,7 +476,24 @@ const CorrecionOrden = () => {
           },
         });
 
-        await dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId)).unwrap();;
+        const faseGuardada = await dispatch(createCorreccionesFasesOrdenes(nuevaDataConOrderId)).unwrap();;
+
+        if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && enviadoRef.current?.guardarLaboratorioAlAvanzar) {
+          try {
+            console.log('nuevaDataCorrecciones', nuevaDataCorrecciones)
+            const confirmoLaboratorio = await enviadoRef.current.guardarLaboratorioAlAvanzar(faseGuardada?.id || faseGuardada?.data?.id);
+            if (!confirmoLaboratorio) return;
+
+          } catch (err) {
+            console.error("Error al procesar el laboratorio:", err);
+            await Swal.fire(
+              "Error",
+              "Ocurrió un problema al guardar los datos del laboratorio.",
+              "error"
+            );
+            return;
+          }
+        }
 
         if (completar && nivelStep === 3) {
           const siguienteFase = {
@@ -427,7 +503,7 @@ const CorrecionOrden = () => {
             tipo_fase_correccion_orden_id: nuevaDataCorrecciones.tipo_fase_correccion_orden_id + 1,
           };
           console.log('siguienteFase', siguienteFase)
-          dispatch(createCorreccionesFasesOrdenes(siguienteFase));
+          await dispatch(createCorreccionesFasesOrdenes(siguienteFase)).unwrap();
         }
         await Promise.all([
           dispatch(fecthTiposFasesOrdenes(correccionOrderId))
@@ -439,17 +515,14 @@ const CorrecionOrden = () => {
         Swal.close();
         await Swal.fire(
           completar ? "Completado!" : "Guardado!",
-          completar
-            ? "La fase ha sido completada."
-            : "La fase ha sido guardada.",
+          completar ? "La fase ha sido completada." : "La fase ha sido guardada.",
           "success"
         );
       } catch (error) {
-        console.error(error);
         Swal.close();
         await Swal.fire(
           "Error",
-          "Ocurrió un problema al guardar la fase.",
+          error || "Ocurrió un problema al guardar la fase.",
           "error"
         );
       }
@@ -490,7 +563,6 @@ const CorrecionOrden = () => {
         confirmButtonText: "Entendido",
         confirmButtonColor: "#3085d6",
       });
-
       return;
     }
 
@@ -505,8 +577,7 @@ const CorrecionOrden = () => {
     }
 
     if (clickedStep === nivelStep + 1) {
-
-      if (nivelStep === 2 && !basesValidas) {
+      if (nivelStep === 2 && !basesValidas && nuevaDataCorrecciones.laboratorio === 'Centilab') {
         await Swal.fire({
           title: "Bases inválidas",
           text: "No puedes avanzar mientras las bases no sean válidas.",
@@ -514,12 +585,8 @@ const CorrecionOrden = () => {
           confirmButtonText: "Entendido",
           confirmButtonColor: "#3085d6",
         });
-
         return;
       }
-
-      console.log('enasasdasddas');
-
       await avanzarFase(false, true);
       return;
     }
@@ -672,6 +739,7 @@ const CorrecionOrden = () => {
                   />
                 ) : nivelStep == 1 ? (
                   <CorreccionEnviado
+                    ref={enviadoRef}
                     tipoFaseId={currentTipoFase.id}
                     lab={nuevaDataCorrecciones.laboratorio}
                     fecha={nuevaDataCorrecciones.fecha_fase}

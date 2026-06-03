@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd';
@@ -13,8 +13,9 @@ import { fetchBases } from '../../../redux/features/bases/basesSlice';
 import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
 import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
 import { updateLaboratorioEnviado } from '../../../redux/features/ordenes/fasesOrdenesSlice';
+import Swal from 'sweetalert2';
 
-const CorreccionEnviado = ({
+const CorreccionEnviado = forwardRef(({
     tipoFaseId,
     isDisabled,
     correcionOrden,
@@ -25,7 +26,7 @@ const CorreccionEnviado = ({
     guardandoObs,
     modoEdicion,
     onCancelarEdicion
-}) => {
+}, ref) => {
     const dispatch = useDispatch();
     const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
     const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
@@ -264,49 +265,20 @@ const CorreccionEnviado = ({
         }
     }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
-
-    const handleGuardarLaboratorio = async () => {
-
-        if (!laboratorio) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Seleccione un laboratorio',
-            });
-            return;
-        }
-
-        if (!faseOrdenId) {
-            Swal.fire({
-                icon: 'error',
-                title: 'No existe fase para actualizar',
-            });
-            return;
-        }
-
-        const mensajeCambio =
-            laboratorio === 'Centilab'
-                ? '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a pendiente.'
-                : '¿Estas seguro de cambiar de laboratorio? Esta acción cambiará el pedido a realizado.';
-
-        const result = await Swal.fire({
-            title: 'Confirmar cambio',
-            text: mensajeCambio,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
-        });
-        if (!result) return;
-
-        try {
-
-            setLoadingLaboratorio(true);
+    useImperativeHandle(ref, () => ({
+        getInfoLaboratorio: () => ({
+            laboratorio,
+            laboratorioOriginal,
+            cambio: laboratorio !== laboratorioOriginal,
+        }),
+        guardarLaboratorioAlAvanzar: async (faseCorreccionOrdenIdNuevo) => {
+            const idAUsar = faseCorreccionOrdenIdNuevo || faseOrdenId;
+            if (!laboratorio) return false;
+            if (laboratorio === laboratorioOriginal) return true;
 
             await dispatch(
                 updateLaboratorioEnviado({
-                    id: faseOrdenId,
+                    id: idAUsar,
                     laboratorio,
                     tipo: correcionOrden?.correccion_id ? 'correccion' : 'orden',
                     id_orden: correcionOrden?.id_orden,
@@ -348,35 +320,14 @@ const CorreccionEnviado = ({
                     material_oi: correcionOrden?.material_oi || null,
                     tratamientos_od: correcionOrden?.tratamientos_od || null,
                     tratamientos_oi: correcionOrden?.tratamientos_oi || null,
-                    tipo_base_od: nombresBasesActuales.derecha || null,
-                    tipo_base_oi: nombresBasesActuales.izquierda || null,
+                    tipo_base_od: nombresBasesActuales?.derecha || null,
+                    tipo_base_oi: nombresBasesActuales?.izquierda || null,
                 })
             ).unwrap();
 
-            setLaboratorioOriginal(laboratorio);
-
-            await dispatch(fecthTiposFasesOrdenes(correccionOrderId));
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Laboratorio actualizado correctamente',
-                timer: 1500,
-                showConfirmButton: false,
-            });
-
-        } catch (error) {
-
-            Swal.fire({
-                icon: 'error',
-                title:
-                    error?.response?.data?.message ||
-                    'Error al actualizar laboratorio',
-            });
-
-        } finally {
-            setLoadingLaboratorio(false);
+            return true;
         }
-    };
+    }), [laboratorio, laboratorioOriginal, faseOrdenId, proveedorMaterial, correcionOrden, nombresBasesActuales]);
 
     return (
         <div>
@@ -401,26 +352,10 @@ const CorreccionEnviado = ({
                                 onChange={(value) => setLaboratorio(value)}
                                 value={laboratorio}
                             />
-                            <Button
-                                type="primary"
-                                size="small"
-                                loading={loadingLaboratorio}
-                                disabled={
-                                    isDisabled ||
-                                    !laboratorio ||
-                                    laboratorio === laboratorioOriginal
-                                }
-                                onClick={handleGuardarLaboratorio}
-                                style={{
-                                    marginTop: '10px',
-                                    width: '200px',
-                                }}
-                            >
-                                Guardar
-                            </Button>
+
                         </div>
 
-                        {!correcionOrden?.lente_contacto && (
+                        {/* {!correcionOrden?.lente_contacto && (
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
                                 <Select
@@ -437,7 +372,7 @@ const CorreccionEnviado = ({
                                     value={proveedorMaterial}
                                 />
                             </div>
-                        )}
+                        )} */}
                     </div>
                     <label htmlFor="observaciones">
                         {modoEdicion ? "Editando observacion" : "Nueva observacion"}
@@ -551,6 +486,7 @@ const CorreccionEnviado = ({
             </Row>
         </div>
     );
-}
+});
+
 
 export default CorreccionEnviado;
