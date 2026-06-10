@@ -1239,29 +1239,29 @@ class KpisApiController extends Controller
   // solo tiempo promedio y total de registros usados
   public function PromedioFasesOrdenesResumen(Request $request)
   {
-      $faseInicial = $request->input('faseInicial');
-      $faseFinal   = $request->input('faseFinal');
-      $startDate   = $request->input('startDate');
-      $endDate     = $request->input('endDate');
-      $lenteContacto = $request->input('lente_contacto');
-  
-      // Validar fases
-      $faseInicial = is_numeric($faseInicial) ? max(1, min(4, intval($faseInicial))) : null;
-      $faseFinal   = is_numeric($faseFinal) ? max(1, min(4, intval($faseFinal))) : null;
-  
-      // Subconsulta primera fase
-      $primeraFaseQuery = DB::table('fases_ordenes as fo')
-          ->select('fo.ordenes_id', 'fo.fecha_fase as fecha_primera_fase')
-          ->whereRaw('fo.id = (
+    $faseInicial = $request->input('faseInicial');
+    $faseFinal   = $request->input('faseFinal');
+    $startDate   = $request->input('startDate');
+    $endDate     = $request->input('endDate');
+    $lenteContacto = $request->input('lente_contacto');
+
+    // Validar fases
+    $faseInicial = is_numeric($faseInicial) ? max(1, min(4, intval($faseInicial))) : null;
+    $faseFinal   = is_numeric($faseFinal) ? max(1, min(4, intval($faseFinal))) : null;
+
+    // Subconsulta primera fase
+    $primeraFaseQuery = DB::table('fases_ordenes as fo')
+      ->select('fo.ordenes_id', 'fo.fecha_fase as fecha_primera_fase')
+      ->whereRaw('fo.id = (
               SELECT MIN(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id
           )');
-  
-      // Subconsulta última fase
-      $ultimaFaseQuery = DB::table('fases_ordenes as fo')
-          ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-          ->select(
-              'fo.ordenes_id',
-              DB::raw("
+
+    // Subconsulta última fase
+    $ultimaFaseQuery = DB::table('fases_ordenes as fo')
+      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
+      ->select(
+        'fo.ordenes_id',
+        DB::raw("
                   CASE
                       WHEN fo.status = 1 THEN
                           CASE
@@ -1272,75 +1272,75 @@ class KpisApiController extends Controller
                       ELSE fo.tipo_fase_orden_id
                   END as fase_actual_numero
               "),
-              'fo.fecha_fase as fecha_ultima_fase'
-          )
-          ->whereRaw('fo.id = (
+        'fo.fecha_fase as fecha_ultima_fase'
+      )
+      ->whereRaw('fo.id = (
               SELECT MAX(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id
           )');
-          
-      // Query base
-      $ordenesQuery = Ordenes::leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
-          ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id');
-          
-      // Filtro por rango de fases
-      if ($faseInicial !== null && $faseFinal !== null) {
-          $ordenesQuery->where(function ($query) use ($faseInicial, $faseFinal) {
-              $query->whereNull('ultimas_fases.fase_actual_numero')
-                  ->whereRaw('1 >= ? AND 1 <= ?', [$faseInicial, $faseFinal])
-                  ->orWhere(function ($q) use ($faseInicial, $faseFinal) {
-                      $q->whereNotNull('ultimas_fases.fase_actual_numero')
-                          ->whereBetween('ultimas_fases.fase_actual_numero', [$faseInicial, $faseFinal]);
-                  });
+
+    // Query base
+    $ordenesQuery = Ordenes::leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
+      ->leftJoinSub($ultimaFaseQuery, 'ultimas_fases', 'ordenes.id_orden', '=', 'ultimas_fases.ordenes_id');
+
+    // Filtro por rango de fases
+    if ($faseInicial !== null && $faseFinal !== null) {
+      $ordenesQuery->where(function ($query) use ($faseInicial, $faseFinal) {
+        $query->whereNull('ultimas_fases.fase_actual_numero')
+          ->whereRaw('1 >= ? AND 1 <= ?', [$faseInicial, $faseFinal])
+          ->orWhere(function ($q) use ($faseInicial, $faseFinal) {
+            $q->whereNotNull('ultimas_fases.fase_actual_numero')
+              ->whereBetween('ultimas_fases.fase_actual_numero', [$faseInicial, $faseFinal]);
           });
+      });
+    }
+
+    // Filtro por fechas
+    if ($startDate && $endDate) {
+      $ordenesQuery->whereBetween('ordenes.created_at', [
+        $startDate . ' 00:00:00',
+        $endDate . ' 23:59:59'
+      ]);
+    }
+
+    // Filtro por lente_contacto
+    if (!is_null($lenteContacto) && is_array($lenteContacto)) {
+      if (!empty($lenteContacto)) {
+        $ordenesQuery->whereIn('lente_contacto', $lenteContacto);
       }
-    
-      // Filtro por fechas
-      if ($startDate && $endDate) {
-          $ordenesQuery->whereBetween('ordenes.created_at', [
-              $startDate . ' 00:00:00',
-              $endDate . ' 23:59:59'
-          ]);
-      }
-    
-      // Filtro por lente_contacto
-      if (!is_null($lenteContacto) && is_array($lenteContacto)) {
-          if (!empty($lenteContacto)) {
-              $ordenesQuery->whereIn('lente_contacto', $lenteContacto);
-          }
-      } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
-          $ordenesQuery->where('lente_contacto', $lenteContacto);
-      }
-    
-      // Calcular en SQL directo
-      $stats = $ordenesQuery
-          ->selectRaw("COUNT(*) as total_registros, AVG(DATEDIFF(ultimas_fases.fecha_ultima_fase, ordenes.created_at)) as promedio_dias")
-          ->first();
-    
-      $totalRegistros = $stats->total_registros;
-      $promedioTiempo = $stats->promedio_dias ?? 0;
-    
-      // Convertir a días, horas, minutos
-      $promedioTiempoDias = floor($promedioTiempo);
-      $restoHoras = ($promedioTiempo - $promedioTiempoDias) * 24;
-      $promedioTiempoHoras = floor($restoHoras);
-      $promedioTiempoMinutos = round(($restoHoras - $promedioTiempoHoras) * 60);
-    
-      return response()->json([
-          'total' => $totalRegistros,
-          'tiempo_promedio' => [
-              'dias' => $promedioTiempoDias,
-              'horas' => $promedioTiempoHoras,
-              'minutos' => $promedioTiempoMinutos
-          ],
-          'fase_inicial' => $faseInicial,
-          'fase_final' => $faseFinal,
-          'respuesta' => true,
-          'status' => [
-              'code' => 200,
-              'message' => 'Promedio de órdenes calculado exitosamente',
-          ],
-          'mensaje' => 'Tiempo promedio obtenido correctamente',
-      ], 200);
+    } elseif (!is_null($lenteContacto) && in_array($lenteContacto, [0, 1])) {
+      $ordenesQuery->where('lente_contacto', $lenteContacto);
+    }
+
+    // Calcular en SQL directo
+    $stats = $ordenesQuery
+      ->selectRaw("COUNT(*) as total_registros, AVG(DATEDIFF(ultimas_fases.fecha_ultima_fase, ordenes.created_at)) as promedio_dias")
+      ->first();
+
+    $totalRegistros = $stats->total_registros;
+    $promedioTiempo = $stats->promedio_dias ?? 0;
+
+    // Convertir a días, horas, minutos
+    $promedioTiempoDias = floor($promedioTiempo);
+    $restoHoras = ($promedioTiempo - $promedioTiempoDias) * 24;
+    $promedioTiempoHoras = floor($restoHoras);
+    $promedioTiempoMinutos = round(($restoHoras - $promedioTiempoHoras) * 60);
+
+    return response()->json([
+      'total' => $totalRegistros,
+      'tiempo_promedio' => [
+        'dias' => $promedioTiempoDias,
+        'horas' => $promedioTiempoHoras,
+        'minutos' => $promedioTiempoMinutos
+      ],
+      'fase_inicial' => $faseInicial,
+      'fase_final' => $faseFinal,
+      'respuesta' => true,
+      'status' => [
+        'code' => 200,
+        'message' => 'Promedio de órdenes calculado exitosamente',
+      ],
+      'mensaje' => 'Tiempo promedio obtenido correctamente',
+    ], 200);
   }
 
   public function countCrystalTypes(Request $request)
@@ -2150,24 +2150,24 @@ class KpisApiController extends Controller
 
     $ladoFiltro = match ($lado) {
       'izquierda' => "
-          SELECT base_ojo_izquierdo_id as base_id
-          FROM fases_ordenes
-          $fechaFiltro
-      ",
+            SELECT base_ojo_izquierdo_id as base_id
+            FROM fases_ordenes
+            $fechaFiltro
+        ",
       'derecha' => "
-          SELECT base_ojo_derecho_id as base_id
-          FROM fases_ordenes
-          $fechaFiltro
-      ",
+            SELECT base_ojo_derecho_id as base_id
+            FROM fases_ordenes
+            $fechaFiltro
+        ",
       default => "
-          SELECT base_ojo_izquierdo_id as base_id
-          FROM fases_ordenes
-          $fechaFiltro
-          UNION ALL
-          SELECT base_ojo_derecho_id
-          FROM fases_ordenes
-          $fechaFiltro
-      ",
+            SELECT base_ojo_izquierdo_id as base_id
+            FROM fases_ordenes
+            $fechaFiltro
+            UNION ALL
+            SELECT base_ojo_derecho_id as base_id
+            FROM fases_ordenes
+            $fechaFiltro
+        ",
     };
 
     $result = DB::table('bases')
@@ -2186,7 +2186,7 @@ class KpisApiController extends Controller
     return response()->json([
       'data' => [
         'bases' => $result,
-        'total' => $data->sum('total'),
+        'total' => $result->sum('total'),
       ]
     ]);
   }
@@ -2199,19 +2199,19 @@ class KpisApiController extends Controller
     $limit     = $request->input('limit');
 
     $fechaFiltro = ($startDate && $endDate)
-        ? "WHERE created_at BETWEEN '{$startDate}' AND '{$endDate}'"
-        : '';
+      ? "WHERE created_at BETWEEN '{$startDate}' AND '{$endDate}'"
+      : '';
 
     $ladoFiltro = match ($lado) {
-        'izquierda' => "
+      'izquierda' => "
             SELECT base_ojo_izquierdo_id as base_id 
             FROM fases_ordenes $fechaFiltro
         ",
-        'derecha' => "
+      'derecha' => "
             SELECT base_ojo_derecho_id as base_id 
             FROM fases_ordenes $fechaFiltro
         ",
-        default => "
+      default => "
             SELECT base_ojo_izquierdo_id as base_id FROM fases_ordenes $fechaFiltro
             UNION ALL
             SELECT base_ojo_derecho_id FROM fases_ordenes $fechaFiltro
@@ -2219,39 +2219,39 @@ class KpisApiController extends Controller
     };
 
     $result = DB::table('bases')
-        ->select('bases.descripcion', DB::raw('COUNT(*) as total'))
-        ->join(DB::raw("($ladoFiltro) as o"), 'o.base_id', '=', 'bases.id')
-        ->groupBy('bases.descripcion')
-        ->orderByDesc('total')
-        ->when($limit, fn ($query) => $query->limit($limit))
-        ->when($request->basesId, fn ($query, $basesId) => $query->whereIn('bases.id', $basesId))
-        ->get();
+      ->select('bases.descripcion', DB::raw('COUNT(*) as total'))
+      ->join(DB::raw("($ladoFiltro) as o"), 'o.base_id', '=', 'bases.id')
+      ->groupBy('bases.descripcion')
+      ->orderByDesc('total')
+      ->when($limit, fn($query) => $query->limit($limit))
+      ->when($request->basesId, fn($query, $basesId) => $query->whereIn('bases.id', $basesId))
+      ->get();
 
-    $data = $result->map(fn ($row) => [
-        $row->descripcion,
-        $row->total,
+    $data = $result->map(fn($row) => [
+      $row->descripcion,
+      $row->total,
     ])->toArray();
 
     return Excel::download(
-        new class($data) implements FromArray, WithHeadings {
-            private array $data;
+      new class($data) implements FromArray, WithHeadings {
+        private array $data;
 
-            public function __construct(array $data)
-            {
-                $this->data = $data;
-            }
+        public function __construct(array $data)
+        {
+          $this->data = $data;
+        }
 
-            public function array(): array
-            {
-                return $this->data;
-            }
+        public function array(): array
+        {
+          return $this->data;
+        }
 
-            public function headings(): array
-            {
-                return ['Descripción', 'Total'];
-            }
-        },
-        'bases.xlsx'
+        public function headings(): array
+        {
+          return ['Descripción', 'Total'];
+        }
+      },
+      'bases.xlsx'
     );
   }
 }
