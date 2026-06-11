@@ -191,11 +191,6 @@ Route::post('/api/consultagenerica', [ConsultaGenericaController::class, 'Crearc
 Route::put('/api/consultagenerica/{id}/{id_consulta}', [ConsultaGenericaController::class, 'Editarconsultagenerica']);
 Route::delete('/api/consultagenerica/{id}', [ConsultaGenericaController::class, 'Deleteconsultagenerica']);
 
-Route::get('/api/mostrar-historiaclinica', [HistoriaClinicaController::class, 'mostrarHistoriaClinica']);
-Route::post('/api/historiaclinica', [HistoriaClinicaController::class, 'CrearHistoriaClinica']);
-Route::put('/api/historiaclinica/{id}', [HistoriaClinicaController::class, 'EditarHistoriaClinica']);
-Route::delete('/api/historiaclinica/{id}', [HistoriaClinicaController::class, 'DeleteHistoriaClinica']);
-
 Route::get('/api/ultimaAtencion', [PacientesApiController::class, 'mostrarUltimaAtencionPacientes']);
 Route::get('/api/pacientesConsultasDiarias', [PacientesApiController::class, 'PacientesConsultasDiarias']);
 Route::get('/api/pacientesTerapiasDiarias', [PacientesApiController::class, 'PacientesTerapiasDiarias']);
