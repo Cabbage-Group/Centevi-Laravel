@@ -598,9 +598,8 @@ class PedidosController extends Controller
                         'estado'     => $pedido->estado,
                         'ojo'     => $pedido->ojo,
                         'detalle' => [
-                            ...$this->formatDetalle('PEDIDO', $pedido),
-
-                            ...(
+                            $this->formatDetalle('PEDIDO', $pedido),
+                            (
                                 !$esCentilab
                                 ? [
                                     'tipo_base_extra' => 'Gestionado por laboratorio',
@@ -627,9 +626,9 @@ class PedidosController extends Controller
                     'ojo'        => $merma->ojo,
                     'esCentilab' => $esCentilab,
                     'detalle' => [
-                        ...$this->formatDetalle('MERMA', $merma),
+                        $this->formatDetalle('MERMA', $merma),
 
-                        ...(
+                        (
                             !$esCentilab
                             ? [
                                 'tipo_base_extra' => 'Gestionado por laboratorio',
@@ -683,8 +682,8 @@ class PedidosController extends Controller
                     'estado'     => $pedido->estado,
                     'ojo'     => $pedido->ojo,
                     'detalle' => [
-                        ...$this->formatDetalle('PEDIDO', $pedido),
-                        ...(
+                        $this->formatDetalle('PEDIDO', $pedido),
+                        (
                             $laboratorioFase !== 'Centilab'
                             ? [
                                 'tipo_base_extra' => 'Gestionado por laboratorio',
@@ -712,9 +711,9 @@ class PedidosController extends Controller
                 'ojo'     => $merma->ojo,
                 'esCentilab' => $esCentilab,
                 'detalle' => [
-                    ...$this->formatDetalle('MERMA', $merma),
+                    $this->formatDetalle('MERMA', $merma),
 
-                    ...(
+                    (
                         !$esCentilab
                         ? [
                             'tipo_base_extra' => 'Gestionado por laboratorio',
@@ -777,8 +776,8 @@ class PedidosController extends Controller
                         'ojo' => $pedido->ojo,
                         'estado'     => $pedido->estado,
                         'detalle' => [
-                            ...$this->formatDetalle('PEDIDO', $pedido),
-                            ...(
+                            $this->formatDetalle('PEDIDO', $pedido),
+                            (
                                 $laboratorioFase !== 'Centilab'
                                 ? [
                                     'tipo_base_extra' => 'Gestionado por laboratorio',
@@ -805,9 +804,9 @@ class PedidosController extends Controller
                     'estado'     => $merma->estado,
                     'esCentilab' => $esCentilab,
                     'detalle' => [
-                        ...$this->formatDetalle('MERMA', $merma),
+                        $this->formatDetalle('MERMA', $merma),
 
-                        ...(
+                        (
                             !$esCentilab
                             ? [
                                 'tipo_base_extra' => 'Gestionado por laboratorio',
@@ -852,8 +851,8 @@ class PedidosController extends Controller
                     'cantidad'   => 1,
                     'estado'     => $pedido->estado,
                     'detalle' => [
-                        ...$this->formatDetalle('PEDIDO', $pedido),
-                        ...(
+                        $this->formatDetalle('PEDIDO', $pedido),
+                        (
                             $laboratorioFase !== 'Centilab'
                             ? [
                                 'tipo_base_extra' => 'Gestionado por laboratorio',

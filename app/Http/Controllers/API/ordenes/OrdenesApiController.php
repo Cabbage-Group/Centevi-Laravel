@@ -1075,10 +1075,6 @@ class OrdenesApiController extends Controller
 
       try {
 
-        // =========================================================
-        // BUSCAR FASE
-        // =========================================================
-
         if ($request->tipo === 'orden') {
 
           $faseOrden = FasesOrdenes::find($id);
@@ -1111,19 +1107,12 @@ class OrdenesApiController extends Controller
           }
         }
 
-        // =========================================================
-        // ACTUALIZAR LABORATORIO EN LA FASE
-        // =========================================================
 
         $nuevoLaboratorio = trim($validatedData['laboratorio']);
 
         $faseOrden->laboratorio = $nuevoLaboratorio;
         $faseOrden->updated_at = now();
         $faseOrden->save();
-
-        // =========================================================
-        // OBTENER ENTIDAD (ORDEN O CORRECCIÓN)
-        // =========================================================
 
         $tipo = $request->tipo;
         $orden = null;
@@ -1135,17 +1124,12 @@ class OrdenesApiController extends Controller
           $correccion = CorrecionesOrdenes::findOrFail($request->id_correccion);
         }
 
-        // =========================================================
-        // SI ES DIFERENTE DE CENTILAB → REEMPLAZAR O CREAR PEDIDO
-        // =========================================================
-
         if (strtolower($nuevoLaboratorio) !== 'centilab') {
 
           $idPedidoActual = $tipo === 'orden'
             ? $orden->id_pedido
             : $correccion->id_pedido;
 
-          // Si ya tiene pedido, eliminarlo primero
           if ($idPedidoActual) {
             $pedidoAnterior = Pedido::find($idPedidoActual);
             if ($pedidoAnterior) {
@@ -1166,7 +1150,6 @@ class OrdenesApiController extends Controller
             }
           }
 
-          // Buscar proveedor asociado al laboratorio
           $proveedor = ProveedorMaterial::whereRaw(
             'LOWER(nombre) = ?',
             [strtolower($nuevoLaboratorio)]
@@ -1175,7 +1158,6 @@ class OrdenesApiController extends Controller
           $limpiar = fn($valor) =>
           $valor ? trim(explode('|', $valor)[1] ?? $valor) : null;
 
-          // Crear nuevo pedido
           $pedido = Pedido::create([
             'id_proveedor'    => $proveedor?->id,
             'fecha_generado'  => now(),
@@ -1218,7 +1200,6 @@ class OrdenesApiController extends Controller
             'tipo_base_oi'    => $request->tipo_base_oi,
           ]);
 
-          // Relacionar pedido con la orden o corrección
           if ($tipo === 'orden') {
             $orden->update([
               'id_pedido'          => $pedido->id_pedido,
@@ -1232,9 +1213,6 @@ class OrdenesApiController extends Controller
           }
         } else {
 
-          // =========================================================
-          // SI ES CENTILAB → ELIMINAR PEDIDO SI EXISTE, SI NO NADA
-          // =========================================================
 
           $idPedidoActual = $tipo === 'orden'
             ? $orden->id_pedido
@@ -1263,7 +1241,6 @@ class OrdenesApiController extends Controller
               $pedido->delete();
             }
           }
-          // Si no tiene pedido y es Centilab, no hace nada
         }
 
         return response()->json([
