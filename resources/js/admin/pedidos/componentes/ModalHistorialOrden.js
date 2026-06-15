@@ -95,7 +95,7 @@ const ModalHistorialOrden = ({
 
         lineas.push(`Material:    ${detalle.material ?? "—"}`);
 
-        lineas.push(`Observación: ${detalle.observacion ?? "Sin observación"}`);
+        lineas.push(`observacion: ${detalle.observacion ?? "Sin observacion"}`);
 
         return lineas.join("\n");
     };

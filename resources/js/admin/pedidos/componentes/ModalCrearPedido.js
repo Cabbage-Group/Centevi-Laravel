@@ -209,7 +209,7 @@ const ModalCrearPedido = ({
             if (baseIgual) cols['Base'] = o.tipo_base_od ?? '**';
 
             cols['Material'] = o.material ?? '—';
-            cols['Observación'] = observaciones[o.nro_orden_id] || '';
+            cols['observacion'] = observaciones[o.nro_orden_id] || '';
             cols['Mermas pend.'] = mermasPendientes;
 
             return cols;
@@ -297,7 +297,7 @@ const ModalCrearPedido = ({
                 'Nro Base OD': soloOI ? '—' : (o.tipo_base_od ?? '**'),
                 'Nro Base OI': soloOD ? '—' : (o.tipo_base_oi ?? '**'),
                 'Material': o.material ?? '—',
-                'Observación': observaciones[o.nro_orden_id] || '',
+                'observacion': observaciones[o.nro_orden_id] || '',
                 'Mermas pend.': mermasPendientes,
             };
         });
@@ -397,7 +397,7 @@ const ModalCrearPedido = ({
                                 <th style={thStyle}>Orden</th>
                                 <th style={thStyle}>Cantidad</th>
                                 <th style={thStyle}>Ojo</th>
-                                <th style={thStyle}>Observación</th>
+                                <th style={thStyle}>observacion</th>
                             </tr>
                         </thead>
                         <tbody>

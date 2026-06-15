@@ -628,7 +628,7 @@ const CorrecionOrden = () => {
 
   const handleEliminarObs = async (id) => {
     const result = await Swal.fire({
-      title: "¿Eliminar observación?",
+      title: "¿Eliminar observacion?",
       text: "Esta acción no se puede deshacer.",
       icon: "warning",
       showCancelButton: true,
@@ -641,7 +641,7 @@ const CorrecionOrden = () => {
     try {
       await dispatch(deleteCorreccionesObservacionOrden({ correccionOrderId: parseInt(correccionOrderId), id })).unwrap();
     } catch {
-      Swal.fire("Error", "No se pudo eliminar la observación.", "error");
+      Swal.fire("Error", "No se pudo eliminar la observacion.", "error");
     }
   };
 

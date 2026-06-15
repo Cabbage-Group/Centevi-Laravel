@@ -22,7 +22,7 @@ const formatFecha = () => {
 };
 
 const ModalConfirmarMermas = ({ open, onClose, selectedRowKeys = [], ordenesPedidos = [] }) => {
-    const dispatch = useDispatch();                                         
+    const dispatch = useDispatch();
     const { proveedorMaterial, status: statusProveedores } = useSelector(
         (state) => state.proveedorMaterial
     );
@@ -56,7 +56,7 @@ const ModalConfirmarMermas = ({ open, onClose, selectedRowKeys = [], ordenesPedi
         selectedRowKeys.includes(o.id_orden)
     );
 
-    const proveedorActual = proveedorMaterial?.find((p) => p.id === proveedorSeleccionado); 
+    const proveedorActual = proveedorMaterial?.find((p) => p.id === proveedorSeleccionado);
 
     const handleConfirmar = () => {
         const payload = {
@@ -114,7 +114,7 @@ const ModalConfirmarMermas = ({ open, onClose, selectedRowKeys = [], ordenesPedi
                         <p style={{ fontSize: 12, color: "#aaa" }}>Cargando...</p>
                     )}
 
-                    {proveedorMaterial?.map((p) => (   
+                    {proveedorMaterial?.map((p) => (
                         <div
                             key={p.id}
                             onClick={() => setProveedorSeleccionado(p.id)}
@@ -160,7 +160,7 @@ const ModalConfirmarMermas = ({ open, onClose, selectedRowKeys = [], ordenesPedi
                             <tr style={{ background: "#e8f0e9" }}>
                                 <th style={thStyle}>Fecha</th>
                                 <th style={thStyle}>Orden</th>
-                                <th style={thStyle}>Observación</th>
+                                <th style={thStyle}>observacion</th>
                             </tr>
                         </thead>
                         <tbody>

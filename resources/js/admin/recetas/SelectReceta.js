@@ -11,7 +11,7 @@ import ReactToPrint from 'react-to-print';
 
 
 const SelectReceta = () => {
-    
+
     const { id_receta } = useParams();
     const { pacientes } = useSelector((state) => state.pacientes);
     const { sucursales } = useSelector((state) => state.sucursales);
@@ -113,11 +113,11 @@ const SelectReceta = () => {
     if (status === 'failed') return <div>Error: {error}</div>;
     return (
 
-        
+
         <div>
         <button onClick={printPage}>Imprimir</button>
         <div className="printable" data-select2-id="15">
-            
+
             <div className="row layout-top-spacing">
                 <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
                     <div className="widget-content-area br-4">
@@ -129,14 +129,14 @@ const SelectReceta = () => {
                                 >
                                     <div className="statbox widget box box-shadow">
                                         <div className="widget-header">
-                                        
+
                                             {rxData && medidasData && aro_propioData && materialData && tratamientosData ? (
                                                 <div className="widget-content widget-content-area" >
-                                                    
+
                                                     <Formik                                                  >
 
                                                         <Form  >
-                                                                                                                                                                                                      
+
                                                           <div className="form-row" style={{ marginBottom: "2rem" }}>
 
                                                                 <div className="col-md-4" >
@@ -1117,7 +1117,7 @@ const SelectReceta = () => {
                                                                     </div>
                                                                     <div className="col-md-12">
                                                                         <label htmlFor="inputEmail4">
-                                                                            Observación
+                                                                            observacion
                                                                         </label>
                                                                         <Field
                                                                             className="form-control textarea"
@@ -1144,8 +1144,8 @@ const SelectReceta = () => {
                                                                 name="doctor"
                                                                 type="hidden"
                                                             />
-                                                            
-                                                            
+
+
 
                                                         </Form>
 
