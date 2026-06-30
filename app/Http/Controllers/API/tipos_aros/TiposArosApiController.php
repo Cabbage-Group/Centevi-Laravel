@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\tipos_aros;
 
 use App\Http\Controllers\Controller;
 use App\Models\TiposAros;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,28 +15,29 @@ class TiposArosApiController extends Controller
     try {
       $search = $request->input('search');
 
-      $tiposAros = TiposAros::query();
+      $tiposAros = TiposAros::get();
 
-      foreach ($tiposAros as $tipo) {
-        $tipo->nombre = utf8_encode($tipo->nombre);
+      if ($tiposAros->isNotEmpty()) {
+        Log::info('Clase del primer elemento', [
+          'class' => get_class($tiposAros->first()),
+        ]);
+
+        Log::info('Primer elemento', [
+          'item' => $tiposAros->first()->toArray(),
+        ]);
       }
 
       if ($search) {
         $normalizedSearch = $this->normalizeString($search);
 
-        $tiposAros = $tiposAros->get()->filter(function ($tiposAro) use ($normalizedSearch) {
-          $normalizedNombre = $this->normalizeString($tiposAro->nombre);
-          $normalizedCodigo = $this->normalizeString($tiposAro->codigo);
+        $tiposAros = $tiposAros->filter(function ($tiposAro) use ($normalizedSearch) {
+          $normalizedNombre = $this->normalizeString($tiposAro->nombre ?? '');
+          $normalizedCodigo = $this->normalizeString($tiposAro->codigo ?? '');
 
-          return str_contains($normalizedNombre, $normalizedSearch) ||
-            str_contains($normalizedCodigo, $normalizedSearch);
-        });
-
-        $tiposAros = $tiposAros->values();
-      } else {
-        $tiposAros = $tiposAros->get();
+          return str_contains($normalizedNombre, $normalizedSearch)
+            || str_contains($normalizedCodigo, $normalizedSearch);
+        })->values();
       }
-
 
       foreach ($tiposAros as $tipoAro) {
         foreach ($tipoAro->getAttributes() as $key => $value) {
@@ -48,14 +50,12 @@ class TiposArosApiController extends Controller
           }
         }
       }
-
-
       return response()->json([
         'success' => true,
         'message' => 'Operación exitosa',
         'data' => $tiposAros,
       ]);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
       return response()->json([
         'success' => false,
         'message' => 'Error al obtener tiposAros',
