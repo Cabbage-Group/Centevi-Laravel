@@ -134,7 +134,7 @@ const HistoriaPaciente = () => {
 
   useEffect(() => {
     if (id && id !== undefined) {
-      dispatch(fetchOrdenesDelPaciente({ id_paciente: id, page: currentPage, limit: 10 }));
+      dispatch(fetchOrdenesDelPaciente({ id_paciente: id, page: currentPage, limit: 10 })).unwrap();;
     }
   }, [id, currentPage])
 
@@ -292,7 +292,11 @@ const HistoriaPaciente = () => {
       };
       console.log('payload:', payload)
       await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
-      dispatch(fetchOrdenesDelPaciente(id));
+      dispatch(fetchOrdenesDelPaciente({
+        id_paciente: id,
+        page: currentPage,
+        limit: 10,
+      })).unwrap();
 
     } catch (err) {
       console.error('Error al actualizar el estado de pagado:', err);
@@ -570,7 +574,11 @@ const HistoriaPaciente = () => {
 
       if (result.isConfirmed) {
         await dispatch(deleteOrdenes(id_orden));
-        dispatch(fetchOrdenesDelPaciente(id));
+        await dispatch(fetchOrdenesDelPaciente({
+          id_paciente: id,
+          page: currentPage,
+          limit: 10,
+        })).unwrap();
 
         Swal.fire(
           'Eliminado!',
