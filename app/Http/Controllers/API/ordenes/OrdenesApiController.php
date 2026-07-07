@@ -2199,8 +2199,9 @@ class OrdenesApiController extends Controller
 
   public function ordenesDelPaciente(Request $request, $id_paciente)
   {
-    // Validar que el paciente existe
-    $pacienteExists = DB::table('pacientes')->where('id_paciente', $id_paciente)->exists();
+    $pacienteExists = DB::table('pacientes')
+      ->where('id_paciente', $id_paciente)
+      ->exists();
 
     if (!$pacienteExists) {
       return response()->json([
@@ -2216,17 +2217,19 @@ class OrdenesApiController extends Controller
     $ordenes = Ordenes::with([
       'paciente:id_paciente,nombres,celular,apellidos',
       'sucursal:id_sucursal,nombre,ubicacion_maps',
+      'correciones.faseCorreccionOrden.tipoFaseCorreccionOrden',
+      'correciones.faseCorreccionOrden.usuario',
     ])
+      ->select('ordenes.*')
       ->join('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->where('ordenes.id_paciente', $id_paciente);
 
-    // Filtro por nro_orden_id
+
     $nroOrdenId = $request->query('nro_orden_id');
     if (!empty($nroOrdenId)) {
       $ordenes->where('ordenes.nro_orden_id', $nroOrdenId);
     }
 
-    // ✅ Filtro por orden cancelada (campo booleano)
     if ($request->has('cancelada')) {
       $cancelada = filter_var($request->query('cancelada'), FILTER_VALIDATE_BOOLEAN);
       $ordenes->where('ordenes.cancelada', $cancelada);
@@ -2237,17 +2240,54 @@ class OrdenesApiController extends Controller
     $sortColumn = $request->input('sortColumn');
     $sortOrder = $request->input('sortOrder', 'desc');
 
+    $buildRows = function ($orden) {
+      Log::info([
+        'attributes' => $orden->getAttributes(),
+        'relations' => array_keys($orden->getRelations()),
+        'relationLoaded' => $orden->relationLoaded('sucursal'),
+        'sucursal_relation' => $orden->getRelation('sucursal'),
+      ]);
+      $rows = [];
+      $rows[] = $orden;
+      Log::info('Sucursal de la orden', [
+        'id_orden' => $orden->id_orden,
+        'id_sucursal' => $orden->id_sucursal,
+        'sucursal' => $orden->sucursal,
+      ]);
+      foreach ($orden->correciones as $index => $correccion) {
+        $numero = $index + 1;
+        $correccion->id_orden_padre = $orden->id_orden;
+        $correccion->es_correccion = true;
+        $correccion->nro_orden_id = $orden->nro_orden_id . '-C' . $numero;
+        $correccion->paciente = $orden->paciente;
+        $correccion->sucursal = $orden->sucursal;
+        $correccion->cancelada = $orden->cancelada;
+        $correccion->pagado = $orden->pagado;
+
+        $rows[] = $correccion;
+      }
+
+      return $rows;
+    };
+
     if ($limit && $page) {
+
       $validSortColumns = ['id_orden', 'created_at', 'nro_orden', 'nro_orden_id'];
+
       if (!in_array($sortColumn, $validSortColumns)) {
         $sortColumn = 'created_at';
       }
 
-      $paginatedData = $ordenes->orderBy($sortColumn, $sortOrder)
+      $paginatedData = $ordenes
+        ->orderBy($sortColumn, $sortOrder)
         ->paginate($limit, ['*'], 'page', $page);
 
+      $data = collect($paginatedData->items())
+        ->flatMap($buildRows)
+        ->values();
+
       return response()->json([
-        'data' => $paginatedData->items(),
+        'data' => $data,
         'meta' => [
           'page' => $paginatedData->currentPage(),
           'limit' => (int) $paginatedData->perPage(),
@@ -2261,10 +2301,17 @@ class OrdenesApiController extends Controller
         'mensaje' => 'Órdenes del paciente obtenidas correctamente',
       ]);
     } else {
-      $allData = $ordenes->orderBy('created_at', 'desc')->get();
+
+      $allData = $ordenes
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+      $data = $allData
+        ->flatMap($buildRows)
+        ->values();
 
       return response()->json([
-        'data' => $allData,
+        'data' => $data,
         'respuesta' => true,
         'status' => [
           'code' => 200,

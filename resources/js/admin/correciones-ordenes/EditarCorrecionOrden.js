@@ -18,9 +18,9 @@ import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 
-const EditarCorrecionOrden = ({ 
-  fecha_solicitud, 
-  correcionOrden 
+const EditarCorrecionOrden = ({
+  fecha_solicitud,
+  correcionOrden
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const EditarCorrecionOrden = ({
   const [selectedPaciente, setSelectedPaciente] = useState(null);
   const [selectedSucursal, setSelectedSucursal] = useState('');
   const [cedula, setCedula] = useState('');
-  const [isLoading , setisLoading] = useState('')
+  const [isLoading, setisLoading] = useState('')
   // useEffect(() => {
   //   if (correcionOrden?.lente_contacto == 1) {
   //     setLenteContacto(true);
@@ -583,6 +583,7 @@ const EditarCorrecionOrden = ({
                                   <Select
                                     showSearch
                                     value={selectedPaciente}
+                                    disabled
                                     onChange={(value) => {
                                       setSelectedPaciente(value);
                                       setFieldValue("id_paciente", value);
@@ -610,6 +611,7 @@ const EditarCorrecionOrden = ({
                                   <label htmlFor="sucursales">Sucursal*</label>
                                   <Select
                                     showSearch
+                                    disabled
                                     value={selectedSucursal}
                                     placeholder="Seleccione una sucursal"
                                     onChange={(value) => {
