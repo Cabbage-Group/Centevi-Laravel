@@ -67,6 +67,7 @@ const Nuevo = ({
         { value: 'Haseth J&J', label: 'Haseth J&J' },
         { value: 'Alcon', label: 'Alcon' },
         { value: 'B+L', label: 'B+L' },
+        { value: 'Medichub', label: 'Medichub' },
       ]);
     } else {
       setOpcionesLaboratorio([

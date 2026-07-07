@@ -62,10 +62,11 @@ const CorreccionNuevo = ({
   useEffect(() => {
     if (correcionOrden?.lente_contacto) {
       setOpcionesLaboratorio([
-        { value: 'Vista Pro', label: 'Vista Pro' },
-        { value: 'Haseth J&J', label: 'Haseth J&J' },
-        { value: 'Alcon', label: 'Alcon' },
-        { value: 'B+L', label: 'B+L' },
+        { value: "Vista Pro", label: "Vista Pro" },
+        { value: "Haseth J&J", label: "Haseth J&J" },
+        { value: "Alcon", label: "Alcon" },
+        { value: "B+L", label: "B+L" },
+        { value: "Medichub", label: "Medichub" },
       ]);
     } else {
       setOpcionesLaboratorio([

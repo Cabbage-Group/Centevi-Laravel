@@ -88,6 +88,7 @@ const Enviado = forwardRef(({
         { value: 'Haseth J&J', label: 'Haseth J&J' },
         { value: 'Alcon', label: 'Alcon' },
         { value: 'B+L', label: 'B+L' },
+        { value: 'Medichub', label: 'Medichub' },
       ]);
     } else {
       setOpcionesLaboratorio([
@@ -245,7 +246,7 @@ const Enviado = forwardRef(({
       console.error('Error al crear contacto:', error);
     }
   };
-  
+
   useImperativeHandle(ref, () => ({
     getInfoLaboratorio: () => ({
       laboratorio,
@@ -325,7 +326,7 @@ const Enviado = forwardRef(({
                 value={laboratorio}
               />
             </div>
-            {/* 
+            {/*
             {!pacienteOrden?.lente_contacto && (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>

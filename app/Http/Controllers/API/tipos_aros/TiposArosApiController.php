@@ -10,59 +10,105 @@ use Illuminate\Support\Facades\Validator;
 
 class TiposArosApiController extends Controller
 {
-  public function index(Request $request)
-  {
-    try {
-      $search = $request->input('search');
+    public function index(Request $request)
+    {
+        try {
+            $search = $request->input('search');
 
-      $tiposAros = TiposAros::get();
+            $tiposAros = TiposAros::get();
 
-      if ($tiposAros->isNotEmpty()) {
-        Log::info('Clase del primer elemento', [
-          'class' => get_class($tiposAros->first()),
-        ]);
+            if ($search) {
+                $normalizedSearch = $this->normalizeString($search);
 
-        Log::info('Primer elemento', [
-          'item' => $tiposAros->first()->toArray(),
-        ]);
-      }
+                $tiposAros = $tiposAros->filter(function ($tipoAro) use ($normalizedSearch) {
+                    $normalizedNombre = $this->normalizeString($tipoAro->nombre ?? '');
+                    $normalizedCodigo = $this->normalizeString($tipoAro->codigo ?? '');
 
-      if ($search) {
-        $normalizedSearch = $this->normalizeString($search);
+                    return str_contains($normalizedNombre, $normalizedSearch)
+                        || str_contains($normalizedCodigo, $normalizedSearch);
+                })->values();
+            }
 
-        $tiposAros = $tiposAros->filter(function ($tiposAro) use ($normalizedSearch) {
-          $normalizedNombre = $this->normalizeString($tiposAro->nombre ?? '');
-          $normalizedCodigo = $this->normalizeString($tiposAro->codigo ?? '');
+            $data = [];
 
-          return str_contains($normalizedNombre, $normalizedSearch)
-            || str_contains($normalizedCodigo, $normalizedSearch);
-        })->values();
-      }
+            foreach ($tiposAros as $tipoAro) {
 
-      foreach ($tiposAros as $tipoAro) {
-        foreach ($tipoAro->getAttributes() as $key => $value) {
-          if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+                // Validar cada atributo individualmente
+                foreach ($tipoAro->getAttributes() as $campo => $valor) {
+
+                    if (!is_string($valor)) {
+                        continue;
+                    }
+
+                    try {
+                        json_encode($valor, JSON_THROW_ON_ERROR);
+                    } catch (\JsonException $e) {
+
+                        Log::error('Campo con UTF-8 inválido', [
+                            'id' => $tipoAro->id ?? null,
+                            'campo' => $campo,
+                            'valor' => $valor,
+                            'hex' => bin2hex($valor),
+                            'error' => $e->getMessage(),
+                        ]);
+
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Campo con caracteres inválidos',
+                            'id' => $tipoAro->id ?? null,
+                            'campo' => $campo,
+                            'valor' => $valor,
+                            'hex' => bin2hex($valor),
+                        ], 500);
+                    }
+                }
+
+                // Validar el modelo completo
+                try {
+                    $array = $tipoAro->toArray();
+                    json_encode($array, JSON_THROW_ON_ERROR);
+                    $data[] = $array;
+                } catch (\JsonException $e) {
+
+                    Log::error('Registro con UTF-8 inválido', [
+                        'id' => $tipoAro->id ?? null,
+                        'error' => $e->getMessage(),
+                        'attributes' => $tipoAro->getAttributes(),
+                    ]);
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Registro con caracteres inválidos',
+                        'id' => $tipoAro->id ?? null,
+                        'error' => $e->getMessage(),
+                        'attributes' => $tipoAro->getAttributes(),
+                    ], 500);
+                }
+            }
+
             return response()->json([
-              'success' => false,
-              'message' => "Caracteres mal codificados en el campo '$key'",
-              'data' => $value,
+                'success' => true,
+                'message' => 'Operación exitosa',
+                'data' => $data,
+            ]);
+        } catch (\Throwable $e) {
+
+            Log::error('Error index TiposAros', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener tiposAros',
+                'errors' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ], 500);
-          }
         }
-      }
-      return response()->json([
-        'success' => true,
-        'message' => 'Operación exitosa',
-        'data' => $tiposAros,
-      ]);
-    } catch (\Throwable $e) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Error al obtener tiposAros',
-        'errors' => $e->getMessage(),
-      ], 500);
     }
-  }
 
 
   private function normalizeString($string)

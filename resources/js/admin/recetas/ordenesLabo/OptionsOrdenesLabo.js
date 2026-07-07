@@ -131,6 +131,7 @@ const OptionsOrdenesLabo = ({
                 <Select.Option value="Haseth J&J">Haseth J&J</Select.Option>
                 <Select.Option value="Alcon">Alcon</Select.Option>
                 <Select.Option value="B+L">B+L</Select.Option>
+                <Select.Option value="Medichub">Medichub</Select.Option>
               </Select>
             </div>
 

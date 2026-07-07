@@ -249,16 +249,37 @@ const VerOrdenes = () => {
 
 
   return (
-
     <div className="row layout-top-spacing">
       <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing">
-        <div className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center" style={{ marginTop: '-40px' }}>
-          <div className="card" style={{ width: '10rem', height: '3rem', padding: '0.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <div className="card-body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.5rem' }}>
+        <div
+          className="col-xl-12 col-lg-12 col-md-12 col-12 layout-spacing d-flex justify-content-center align-items-center"
+          style={{ marginTop: "-40px" }}
+        >
+          <div
+            className="card"
+            style={{
+              width: "10rem",
+              height: "3rem",
+              padding: "0.5rem",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <div
+              className="card-body"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                padding: "0.5rem",
+              }}
+            >
               <span
                 style={{
-                  fontSize: '1rem', fontWeight: 'bold',
-                  textAlign: 'center'
+                  fontSize: "1rem",
+                  fontWeight: "bold",
+                  textAlign: "center",
                 }}
               >
                 Órdenes: {total}
@@ -267,46 +288,40 @@ const VerOrdenes = () => {
           </div>
         </div>
 
-        <div className="widget-content-area br-4" style={{ marginTop: '-70px' }}>
+        <div className="widget-content-area br-4" style={{ marginTop: "-70px" }}>
           <div className="widget-one">
-            <div
-              className="row layout-top-spacing"
-              id="cancel-row"
-            >
+            <div className="row layout-top-spacing" id="cancel-row">
               <div className="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                 <div className="widget-content widget-content-area br-6">
-                  <div style={{ width: '100%' }}>
+                  <div style={{ width: "100%" }}>
                     <div className="d-flex justify-content-between mb-4">
                       <div className="d-flex">
                         <Link
                           to="/create-orden"
                           className="btn btn-success"
-                          style={{ height: '37px' }}
+                          style={{ height: "37px" }}
                         >
                           Agregar Orden
                         </Link>
 
-
-                        <Tooltip
-                          title="Ver Ordenes Canceladas"
-                        >
+                        <Tooltip title="Ver Ordenes Canceladas">
                           <button
                             className="btn"
                             style={{
-                              backgroundColor: cancelarOrdenFilter ? '#1ABC9C' : '#e7515a',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              marginLeft: '10px',
-                              padding: '0 10px',
-                              height: '35px',
+                              backgroundColor: cancelarOrdenFilter ? "#1ABC9C" : "#e7515a",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              marginLeft: "10px",
+                              padding: "0 10px",
+                              height: "35px",
                             }}
                             onClick={() => {
                               const newValue = !cancelarOrdenFilter;
                               setCancelarOrdenFilter(newValue);
-                              handleOrdenCancel(newValue ? '1' : '');
+                              handleOrdenCancel(newValue ? "1" : "");
                             }}
                           >
                             {cancelarOrdenFilter ? (
@@ -352,11 +367,11 @@ const VerOrdenes = () => {
                           onClick={handleClearOrders}
                           className={
                             pagadoFilter.length > 0 ||
-                              sucursalFilter.length > 0 ||
-                              laboratorioFilter.length > 0 ||
-                              faseFilter.length > 0 ||
-                              lenteContactoFilter.length > 0 ||
-                              statusFilter.length > 0
+                            sucursalFilter.length > 0 ||
+                            laboratorioFilter.length > 0 ||
+                            faseFilter.length > 0 ||
+                            lenteContactoFilter.length > 0 ||
+                            statusFilter.length > 0
                               ? "btn btn-warning"
                               : "btn"
                           }
@@ -372,10 +387,10 @@ const VerOrdenes = () => {
                       </div>
                     </div>
                     <div className="d-flex justify-content-between">
-                      <div className="d-flex flex-column" style={{ width: '30%' }}>
+                      <div className="d-flex flex-column" style={{ width: "30%" }}>
                         <div className="mb-4">
-                          <label style={{ position: 'relative', width: '100%', display: 'block' }}>
-                            <div style={{ position: 'absolute', right: '8px', top: '7px' }}>
+                          <label style={{ position: "relative", width: "100%", display: "block" }}>
+                            <div style={{ position: "absolute", right: "8px", top: "7px" }}>
                               <svg
                                 className="feather feather-search"
                                 fill="none"
@@ -404,13 +419,13 @@ const VerOrdenes = () => {
                               <button
                                 onClick={handleClearSearch}
                                 style={{
-                                  position: 'absolute',
-                                  right: '25px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
+                                  position: "absolute",
+                                  right: "25px",
+                                  top: "50%",
+                                  transform: "translateY(-50%)",
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
                                 }}
                               >
                                 &#x2715;
@@ -430,25 +445,39 @@ const VerOrdenes = () => {
                             skipReset={true}
                             onApply={handleDateChange}
                             onReset={() => {
-                              dispatch(setFechaRange({ startDate: '', endDate: '' }));
+                              dispatch(setFechaRange({ startDate: "", endDate: "" }));
                             }}
                           />
                         </div>
                       </div>
-                      <div style={{ width: '65%' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                      <div style={{ width: "65%" }}>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, 1fr)",
+                            gap: "20px",
+                          }}
+                        >
                           <div>
                             <div>
                               <div className="mb-4">
                                 <label className="mb-2 font-weight-bold d-block">
-                                  {isCorrections ? "Filtrar Correcciones Laboratorio:" : "Filtrar Ordenes por Laboratorio:"}
+                                  {isCorrections
+                                    ? "Filtrar Correcciones Laboratorio:"
+                                    : "Filtrar Ordenes por Laboratorio:"}
                                 </label>
                                 <Select
                                   mode="multiple"
-                                  style={{ width: '100%' }}
+                                  style={{ width: "100%" }}
                                   placeholder="Filtrar por Laboratorio"
-                                  onChange={isCorrections ? handleCorrectionsChangeLaboratorio : handleLaboratorioChange}
-                                  value={isCorrections ? correctionsFilterLaboratorio : laboratorioFilter}
+                                  onChange={
+                                    isCorrections
+                                      ? handleCorrectionsChangeLaboratorio
+                                      : handleLaboratorioChange
+                                  }
+                                  value={
+                                    isCorrections ? correctionsFilterLaboratorio : laboratorioFilter
+                                  }
                                   allowClear
                                 >
                                   <Select.Option value="Ping">Ping</Select.Option>
@@ -458,17 +487,30 @@ const VerOrdenes = () => {
                                   <Select.Option value="Haseth J&J">Haseth J&J</Select.Option>
                                   <Select.Option value="Alcon">Alcon</Select.Option>
                                   <Select.Option value="B+L">B+L</Select.Option>
+                                  <Select.Option value="Medichub">Medichub</Select.Option>
                                 </Select>
                               </div>
                               <label className="mb-2 font-weight-bold d-block">
-                                {isCorrections ? "Filtrar Correcciones por Sucursal:" : "Filtrar Ordenes por Sucursal:"}
+                                {isCorrections
+                                  ? "Filtrar Correcciones por Sucursal:"
+                                  : "Filtrar Ordenes por Sucursal:"}
                               </label>
                               <Select
                                 mode="multiple"
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 placeholder="Seleccione la sucursal"
-                                onChange={isCorrections ? handleCorrectionsChangeSucursal : handleSucursalChange}
-                                value={isReady ? (isCorrections ? correctionsFilterSucursal : sucursalFilter) : []}
+                                onChange={
+                                  isCorrections
+                                    ? handleCorrectionsChangeSucursal
+                                    : handleSucursalChange
+                                }
+                                value={
+                                  isReady
+                                    ? isCorrections
+                                      ? correctionsFilterSucursal
+                                      : sucursalFilter
+                                    : []
+                                }
                                 allowClear
                                 loading={!isReady}
                                 disabled={!isReady}
@@ -484,31 +526,41 @@ const VerOrdenes = () => {
                           <div>
                             <div className="mb-4">
                               <label className="mb-2 font-weight-bold d-block">
-                                {isCorrections ? "Filtrar Correcciones Tipo de lente:" : "Filtrar Ordenes por Tipo de lente:"}
+                                {isCorrections
+                                  ? "Filtrar Correcciones Tipo de lente:"
+                                  : "Filtrar Ordenes por Tipo de lente:"}
                               </label>
                               <Select
                                 mode="multiple"
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 placeholder="Selecciona el tipo de lente"
-                                onChange={isCorrections ? handleCorrectionsChangeLenteContacto : handleLenteContactoChange}
-                                value={isCorrections ? correctionsFilterLenteContacto : lenteContactoFilter}
+                                onChange={
+                                  isCorrections
+                                    ? handleCorrectionsChangeLenteContacto
+                                    : handleLenteContactoChange
+                                }
+                                value={
+                                  isCorrections
+                                    ? correctionsFilterLenteContacto
+                                    : lenteContactoFilter
+                                }
                                 allowClear
                               >
                                 <Select.Option value="1">
-                                  <div style={{ width: '30px', height: '30px' }}>
+                                  <div style={{ width: "30px", height: "30px" }}>
                                     <img
                                       src="assets/img/recetas/lentesdecontacto.png"
                                       alt="Lente On"
-                                      style={{ width: '50%', height: '50%' }}
+                                      style={{ width: "50%", height: "50%" }}
                                     />
                                   </div>
                                 </Select.Option>
                                 <Select.Option value="0">
-                                  <div style={{ width: '30px', height: '30px' }}>
+                                  <div style={{ width: "30px", height: "30px" }}>
                                     <img
                                       src="assets/img/recetas/lentenormal.png"
                                       alt="Lente Off"
-                                      style={{ width: '50%', height: '50%' }}
+                                      style={{ width: "50%", height: "50%" }}
                                     />
                                   </div>
                                 </Select.Option>
@@ -516,13 +568,17 @@ const VerOrdenes = () => {
                             </div>
                             <div>
                               <label className="mb-2 font-weight-bold d-block">
-                                {isCorrections ? "Filtrar Correcciones por Status:" : "Filtrar Ordenes por Status:"}
+                                {isCorrections
+                                  ? "Filtrar Correcciones por Status:"
+                                  : "Filtrar Ordenes por Status:"}
                               </label>
                               <Select
                                 mode="multiple"
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 placeholder="Filtrar por Status"
-                                onChange={isCorrections ? handleCorrectionsChangeStatus : handleStatusChange}
+                                onChange={
+                                  isCorrections ? handleCorrectionsChangeStatus : handleStatusChange
+                                }
                                 value={isCorrections ? correctionsFilterStatus : statusFilter}
                                 allowClear
                               >
@@ -536,13 +592,17 @@ const VerOrdenes = () => {
                           <div>
                             <div className="mb-4">
                               <label className="mb-2 font-weight-bold d-block">
-                                {isCorrections ? "Filtrar Correcciones por Fase:" : "Filtrar Ordenes por Fase:"}
+                                {isCorrections
+                                  ? "Filtrar Correcciones por Fase:"
+                                  : "Filtrar Ordenes por Fase:"}
                               </label>
                               <Select
                                 mode="multiple"
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 placeholder="Filtrar por Fase"
-                                onChange={isCorrections ? handleCorrectionsChangeFase : handleFaseChange}
+                                onChange={
+                                  isCorrections ? handleCorrectionsChangeFase : handleFaseChange
+                                }
                                 value={isCorrections ? correctionsFilterFase : faseFilter}
                                 allowClear
                               >
@@ -555,13 +615,17 @@ const VerOrdenes = () => {
                             </div>
                             <div>
                               <label className="mb-2 font-weight-bold d-block">
-                                {isCorrections ? "Filtrar Correcciones por Pago:" : "Filtrar Ordenes por Pago:"}
+                                {isCorrections
+                                  ? "Filtrar Correcciones por Pago:"
+                                  : "Filtrar Ordenes por Pago:"}
                               </label>
                               <Select
                                 mode="multiple"
-                                style={{ width: '100%' }}
+                                style={{ width: "100%" }}
                                 placeholder="Seleccione estado de pago"
-                                onChange={isCorrections ? handleCorrectionsChangePagado : handlePagadoChange}
+                                onChange={
+                                  isCorrections ? handleCorrectionsChangePagado : handlePagadoChange
+                                }
                                 value={isCorrections ? correctionsFilterPagado : pagadoFilter}
                                 allowClear
                               >
@@ -583,11 +647,17 @@ const VerOrdenes = () => {
                     faseFiltro={faseFilter}
                     isCorrections={isCorrections}
                     correctionsFiltroFase={isCorrections ? correctionsFilterFase : undefined}
-                    correctionsFiltroLaboratorio={isCorrections ? correctionsFilterLaboratorio : undefined}
-                    correctionsFiltroSucursal={isCorrections ? correctionsFilterSucursal : undefined}
+                    correctionsFiltroLaboratorio={
+                      isCorrections ? correctionsFilterLaboratorio : undefined
+                    }
+                    correctionsFiltroSucursal={
+                      isCorrections ? correctionsFilterSucursal : undefined
+                    }
                     correctionsFiltroStatus={isCorrections ? correctionsFilterStatus : undefined}
                     correctionsFiltroPagado={isCorrections ? correctionsFilterPagado : undefined}
-                    correctionsFiltroLenteContacto={isCorrections ? correctionsFilterLenteContacto : undefined}
+                    correctionsFiltroLenteContacto={
+                      isCorrections ? correctionsFilterLenteContacto : undefined
+                    }
                     lenteContactoFiltro={lenteContactoFilter}
                     statusFiltro={statusFilter}
                     localEndDateFiltro={localEndDate}
@@ -602,7 +672,6 @@ const VerOrdenes = () => {
             </div>
           </div>
         </div>
-
       </div>
       <Modal
         open={showOrden}
@@ -610,47 +679,56 @@ const VerOrdenes = () => {
         width={1600}
         closable={false}
         footer={null}
-        height='100%'
+        height="100%"
         centered={false}
       >
-        {
-          loadingPdf
-            ? <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Skeleton.Node
-                active
-                style={{
-                  width: 1500,
-                  height: 600,
-                  marginBottom: '10px'
-                }}
-              >
-                <div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">
-                    <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1" />
-                    <path d="M4.603 12.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-2.227 7.3 7.3 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a11 11 0 0 0 .98 1.686 5.8 5.8 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.86.86 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.7 5.7 0 0 1-.911-.95 11.6 11.6 0 0 0-1.997.406 11.3 11.3 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.8.8 0 0 1-.58.029m1.379-1.901q-.25.115-.459.238c-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361q.016.032.026.044l.035-.012c.137-.056.355-.235.635-.572a8 8 0 0 0 .45-.606m1.64-1.33a13 13 0 0 1 1.01-.193 12 12 0 0 1-.51-.858 21 21 0 0 1-.5 1.05zm2.446.45q.226.244.435.41c.24.19.407.253.498.256a.1.1 0 0 0 .07-.015.3.3 0 0 0 .094-.125.44.44 0 0 0 .059-.2.1.1 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a4 4 0 0 0-.612-.053zM8.078 5.8a7 7 0 0 0 .2-.828q.046-.282.038-.465a.6.6 0 0 0-.032-.198.5.5 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822q.036.167.09.346z" />
-                  </svg>
-                </div>
-              </Skeleton.Node>
-            </div>
-            : urlPdfOrden
-              ? <iframe
-                src={urlPdfOrden}
-                title=""
-                width="100%"
-                height="800px"
-                style={{ border: 'none' }}
-              />
-              : 'PDF no disponible'
-        }
+        {loadingPdf ? (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Skeleton.Node
+              active
+              style={{
+                width: 1500,
+                height: 600,
+                marginBottom: "10px",
+              }}
+            >
+              <div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-file-pdf"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1" />
+                  <path d="M4.603 12.087a.8.8 0 0 1-.438-.42c-.195-.388-.13-.776.08-1.102.198-.307.526-.568.897-.787a7.7 7.7 0 0 1 1.482-.645 20 20 0 0 0 1.062-2.227 7.3 7.3 0 0 1-.43-1.295c-.086-.4-.119-.796-.046-1.136.075-.354.274-.672.65-.823.192-.077.4-.12.602-.077a.7.7 0 0 1 .477.365c.088.164.12.356.127.538.007.187-.012.395-.047.614-.084.51-.27 1.134-.52 1.794a11 11 0 0 0 .98 1.686 5.8 5.8 0 0 1 1.334.05c.364.065.734.195.96.465.12.144.193.32.2.518.007.192-.047.382-.138.563a1.04 1.04 0 0 1-.354.416.86.86 0 0 1-.51.138c-.331-.014-.654-.196-.933-.417a5.7 5.7 0 0 1-.911-.95 11.6 11.6 0 0 0-1.997.406 11.3 11.3 0 0 1-1.021 1.51c-.29.35-.608.655-.926.787a.8.8 0 0 1-.58.029m1.379-1.901q-.25.115-.459.238c-.328.194-.541.383-.647.547-.094.145-.096.25-.04.361q.016.032.026.044l.035-.012c.137-.056.355-.235.635-.572a8 8 0 0 0 .45-.606m1.64-1.33a13 13 0 0 1 1.01-.193 12 12 0 0 1-.51-.858 21 21 0 0 1-.5 1.05zm2.446.45q.226.244.435.41c.24.19.407.253.498.256a.1.1 0 0 0 .07-.015.3.3 0 0 0 .094-.125.44.44 0 0 0 .059-.2.1.1 0 0 0-.026-.063c-.052-.062-.2-.152-.518-.209a4 4 0 0 0-.612-.053zM8.078 5.8a7 7 0 0 0 .2-.828q.046-.282.038-.465a.6.6 0 0 0-.032-.198.5.5 0 0 0-.145.04c-.087.035-.158.106-.196.283-.04.192-.03.469.046.822q.036.167.09.346z" />
+                </svg>
+              </div>
+            </Skeleton.Node>
+          </div>
+        ) : urlPdfOrden ? (
+          <iframe
+            src={urlPdfOrden}
+            title=""
+            width="100%"
+            height="800px"
+            style={{ border: "none" }}
+          />
+        ) : (
+          "PDF no disponible"
+        )}
 
-        <div style={{ display: 'flex', justifyContent: 'end' }}>
+        <div style={{ display: "flex", justifyContent: "end" }}>
           <button
             onClick={() => {
-              setShowOrden(false)
-              setUrlPdfOrden(null)
+              setShowOrden(false);
+              setUrlPdfOrden(null);
             }}
-            className='btn btn-danger'
-          >Cerrar</button>
+            className="btn btn-danger"
+          >
+            Cerrar
+          </button>
         </div>
       </Modal>
       <Modal
@@ -661,26 +739,28 @@ const VerOrdenes = () => {
         onClose={() => setShowContacto(false)}
         footer={null}
         onCancel={() => setShowContacto(false)}
-        height='100%'
-        centered={false}>
-        <div style={{ marginTop: '20px' }}>
-          <div style={{ marginBottom: '10px', fontWeight: 600, fontSize: '18px' }}>Veces contactada: {contactoOrden.length}</div>
+        height="100%"
+        centered={false}
+      >
+        <div style={{ marginTop: "20px" }}>
+          <div style={{ marginBottom: "10px", fontWeight: 600, fontSize: "18px" }}>
+            Veces contactada: {contactoOrden.length}
+          </div>
           <Table
-            className='Table-Orden-Contacts'
+            className="Table-Orden-Contacts"
             columns={[
-              { title: 'Usuario', dataIndex: 'nombre', key: 'nombre' },
+              { title: "Usuario", dataIndex: "nombre", key: "nombre" },
               {
-                title: 'Fecha',
-                dataIndex: 'created_at',
-                key: 'created_at',
+                title: "Fecha",
+                dataIndex: "created_at",
+                key: "created_at",
                 render: (text, record) => {
-                  return formatDate(text)
-                }
+                  return formatDate(text);
+                },
               },
             ]}
             dataSource={contactoOrden}
           />
-
         </div>
       </Modal>
       <Modal
@@ -697,14 +777,13 @@ const VerOrdenes = () => {
           pagination={{
             current: metabyOrden.page,
             pageSize: metabyOrden.limit,
-            total: metabyOrden.total
+            total: metabyOrden.total,
           }}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: "max-content" }}
         />
       </Modal>
-
-    </div >
-  )
+    </div>
+  );
 }
 
 export default VerOrdenes

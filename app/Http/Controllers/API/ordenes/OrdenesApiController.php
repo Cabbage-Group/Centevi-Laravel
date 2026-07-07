@@ -428,9 +428,9 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw("CASE 
-        WHEN contador_fases.total_fases = 4 
-            AND contador_fases.fases_completadas = 4 
+        DB::raw("CASE
+        WHEN contador_fases.total_fases = 4
+            AND contador_fases.fases_completadas = 4
             AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
@@ -439,9 +439,9 @@ class OrdenesApiController extends Controller
     END as status_primera_fase")
       )
       ->whereRaw('fo.id = (
-            SELECT MIN(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id 
+            SELECT MIN(id)
+            FROM fases_ordenes
+            WHERE ordenes_id = fo.ordenes_id
             AND tipo_fase_orden_id = 1
         )');
 
@@ -452,21 +452,21 @@ class OrdenesApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-            CASE 
-                WHEN fo.status = 1 THEN 
-                    CASE 
-                        WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                            (SELECT tipo_fase_orden 
-                             FROM tipos_fases_ordenes 
+            CASE
+                WHEN fo.status = 1 THEN
+                    CASE
+                        WHEN fo.tipo_fase_orden_id IS NULL THEN
+                            (SELECT tipo_fase_orden
+                             FROM tipos_fases_ordenes
                              ORDER BY id ASC LIMIT 1)
-                        WHEN fo.tipo_fase_orden_id = 4 THEN 
+                        WHEN fo.tipo_fase_orden_id = 4 THEN
                             tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                        ELSE 
-                            (SELECT tipo_fase_orden 
-                             FROM tipos_fases_ordenes 
+                        ELSE
+                            (SELECT tipo_fase_orden
+                             FROM tipos_fases_ordenes
                              WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                     END
-                ELSE 
+                ELSE
                     tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
             END as fase_actual',
         ),
@@ -477,8 +477,8 @@ class OrdenesApiController extends Controller
         'u.nombre as elaborado_por_nombre'
       )
       ->whereRaw('fo.id = (
-        SELECT MAX(id) 
-        FROM fases_ordenes 
+        SELECT MAX(id)
+        FROM fases_ordenes
         WHERE ordenes_id = fo.ordenes_id
     )');
 
@@ -519,9 +519,9 @@ class OrdenesApiController extends Controller
           ->orWhere('pacientes.celular', 'like', "%{$search}%")
           ->orWhere('primeras_fases.status_primera_fase', 'like', "%{$search}%")
           ->orWhere('primeras_fases.laboratorio_primera_fase', 'like', "%{$search}%")
-          ->orWhereRaw("CASE 
+          ->orWhereRaw("CASE
                 WHEN ultimas_fases.fase_actual IS NULL THEN 'Nuevo'
-                ELSE ultimas_fases.fase_actual 
+                ELSE ultimas_fases.fase_actual
                 END LIKE ?", ["%{$search}%"]);
       });
     }
@@ -1327,16 +1327,16 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw("CASE 
-        WHEN contador_fases.total_fases = 4 
-            AND contador_fases.fases_completadas = 4 
+        DB::raw("CASE
+        WHEN contador_fases.total_fases = 4
+            AND contador_fases.fases_completadas = 4
             AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
         ELSE 'sin_status'
     END as status_primera_fase"),
-        DB::raw('CASE 
+        DB::raw('CASE
             WHEN contador_fases.total_fases = 4 THEN 0
             WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 1
             WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 2
@@ -1346,9 +1346,9 @@ class OrdenesApiController extends Controller
 
       )
       ->whereRaw('fo.id = (
-            SELECT MIN(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id 
+            SELECT MIN(id)
+            FROM fases_ordenes
+            WHERE ordenes_id = fo.ordenes_id
             AND tipo_fase_orden_id = 1
         )');
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
@@ -1357,21 +1357,21 @@ class OrdenesApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-          CASE 
-              WHEN fo.status = 1 THEN 
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+          CASE
+              WHEN fo.status = 1 THEN
+                  CASE
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                      WHEN fo.tipo_fase_orden_id = 4 THEN
                           tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+                      ELSE
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                   END
-              ELSE 
+              ELSE
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
         ),
@@ -1380,8 +1380,8 @@ class OrdenesApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-      SELECT MAX(id) 
-      FROM fases_ordenes 
+      SELECT MAX(id)
+      FROM fases_ordenes
       WHERE ordenes_id = fo.ordenes_id
   )');
 
@@ -1396,7 +1396,7 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
+        DB::raw('CASE
                 WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
@@ -1405,9 +1405,9 @@ class OrdenesApiController extends Controller
             END as status_primera_fase')
       )
       ->whereRaw('fo.id = (
-        SELECT MIN(id) 
-        FROM fases_correcciones_ordenes 
-        WHERE correccion_ordenes_id = fo.correccion_ordenes_id 
+        SELECT MIN(id)
+        FROM fases_correcciones_ordenes
+        WHERE correccion_ordenes_id = fo.correccion_ordenes_id
         AND tipo_fase_correccion_orden_id = 1
     )');
 
@@ -1417,17 +1417,17 @@ class OrdenesApiController extends Controller
         'fo.correccion_ordenes_id',
         DB::raw(
           '
-            CASE 
-                WHEN fo.status = 1 THEN 
-                    CASE 
-                        WHEN fo.tipo_fase_correccion_orden_id IS NULL THEN 
+            CASE
+                WHEN fo.status = 1 THEN
+                    CASE
+                        WHEN fo.tipo_fase_correccion_orden_id IS NULL THEN
                             (SELECT tipo_fase_orden FROM tipos_fases_ordenes ORDER BY id ASC LIMIT 1)
-                        WHEN fo.tipo_fase_correccion_orden_id = 4 THEN 
+                        WHEN fo.tipo_fase_correccion_orden_id = 4 THEN
                             tfo.tipo_fase_orden
-                        ELSE 
+                        ELSE
                             (SELECT tipo_fase_orden FROM tipos_fases_ordenes WHERE id = fo.tipo_fase_correccion_orden_id + 1 LIMIT 1)
                     END
-                ELSE 
+                ELSE
                     tfo.tipo_fase_orden
             END as fase_actual'
         ),
@@ -1436,8 +1436,8 @@ class OrdenesApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-        SELECT MAX(id) 
-        FROM fases_correcciones_ordenes 
+        SELECT MAX(id)
+        FROM fases_correcciones_ordenes
         WHERE correccion_ordenes_id = fo.correccion_ordenes_id
     )');
 
@@ -1462,8 +1462,8 @@ class OrdenesApiController extends Controller
           DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
           DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
           DB::raw("CONCAT(
-                ordenes.nro_orden_id, 
-                '-C', 
+                ordenes.nro_orden_id,
+                '-C',
                 ROW_NUMBER() OVER (PARTITION BY correciones_ordenes.ordenes_id ORDER BY correciones_ordenes.created_at)
             ) as correcion_format")
         )
@@ -1548,7 +1548,7 @@ class OrdenesApiController extends Controller
 
     if ($laboratorio !== '') {
       // Validar valores permitidos para laboratorio
-      $validLaboratorios = ['Ping', 'Optilab', 'Centilab', 'Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
+      $validLaboratorios = ['Ping', 'Optilab', 'Centilab', 'Vista Pro', 'Haseth J&J', 'Alcon', 'B+L', 'Medichub'];
 
       if (in_array($laboratorio, $validLaboratorios)) {
         // Filtrar por laboratorio específico
@@ -1671,16 +1671,16 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw("CASE 
-        WHEN contador_fases.total_fases = 4 
-            AND contador_fases.fases_completadas = 4 
+        DB::raw("CASE
+        WHEN contador_fases.total_fases = 4
+            AND contador_fases.fases_completadas = 4
             AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
         ELSE 'sin_status'
     END as status_primera_fase"),
-        DB::raw('CASE 
+        DB::raw('CASE
             WHEN contador_fases.total_fases = 4 THEN 0
             WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 1
             WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 2
@@ -1690,9 +1690,9 @@ class OrdenesApiController extends Controller
 
       )
       ->whereRaw('fo.id = (
-            SELECT MIN(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id 
+            SELECT MIN(id)
+            FROM fases_ordenes
+            WHERE ordenes_id = fo.ordenes_id
             AND tipo_fase_orden_id = 1
         )');
     $ultimaFaseQuery = DB::table('fases_ordenes as fo')
@@ -1701,21 +1701,21 @@ class OrdenesApiController extends Controller
         'fo.ordenes_id',
         DB::raw(
           '
-          CASE 
-              WHEN fo.status = 1 THEN 
-                  CASE 
-                      WHEN fo.tipo_fase_orden_id IS NULL THEN 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+          CASE
+              WHEN fo.status = 1 THEN
+                  CASE
+                      WHEN fo.tipo_fase_orden_id IS NULL THEN
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            ORDER BY id ASC LIMIT 1)
-                      WHEN fo.tipo_fase_orden_id = 4 THEN 
+                      WHEN fo.tipo_fase_orden_id = 4 THEN
                           tfo.tipo_fase_orden  -- Mantiene el nombre original de la fase "4"
-                      ELSE 
-                          (SELECT tipo_fase_orden 
-                           FROM tipos_fases_ordenes 
+                      ELSE
+                          (SELECT tipo_fase_orden
+                           FROM tipos_fases_ordenes
                            WHERE id = fo.tipo_fase_orden_id + 1 LIMIT 1)
                   END
-              ELSE 
+              ELSE
                   tfo.tipo_fase_orden  -- Si el status es 0, mantén la fase actual
           END as fase_actual',
         ),
@@ -1724,8 +1724,8 @@ class OrdenesApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-      SELECT MAX(id) 
-      FROM fases_ordenes 
+      SELECT MAX(id)
+      FROM fases_ordenes
       WHERE ordenes_id = fo.ordenes_id
   )');
 
@@ -1740,7 +1740,7 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw('CASE 
+        DB::raw('CASE
                 WHEN contador_fases.total_fases = 4 AND contador_fases.fases_completadas = 4 THEN "Completado"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN "Ok"
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN "Advertencia"
@@ -1749,9 +1749,9 @@ class OrdenesApiController extends Controller
             END as status_primera_fase')
       )
       ->whereRaw('fo.id = (
-        SELECT MIN(id) 
-        FROM fases_correcciones_ordenes 
-        WHERE correccion_ordenes_id = fo.correccion_ordenes_id 
+        SELECT MIN(id)
+        FROM fases_correcciones_ordenes
+        WHERE correccion_ordenes_id = fo.correccion_ordenes_id
         AND tipo_fase_correccion_orden_id = 1
     )');
 
@@ -1761,17 +1761,17 @@ class OrdenesApiController extends Controller
         'fo.correccion_ordenes_id',
         DB::raw(
           '
-            CASE 
-                WHEN fo.status = 1 THEN 
-                    CASE 
-                        WHEN fo.tipo_fase_correccion_orden_id IS NULL THEN 
+            CASE
+                WHEN fo.status = 1 THEN
+                    CASE
+                        WHEN fo.tipo_fase_correccion_orden_id IS NULL THEN
                             (SELECT tipo_fase_orden FROM tipos_fases_ordenes ORDER BY id ASC LIMIT 1)
-                        WHEN fo.tipo_fase_correccion_orden_id = 4 THEN 
+                        WHEN fo.tipo_fase_correccion_orden_id = 4 THEN
                             tfo.tipo_fase_orden
-                        ELSE 
+                        ELSE
                             (SELECT tipo_fase_orden FROM tipos_fases_ordenes WHERE id = fo.tipo_fase_correccion_orden_id + 1 LIMIT 1)
                     END
-                ELSE 
+                ELSE
                     tfo.tipo_fase_orden
             END as fase_actual'
         ),
@@ -1780,8 +1780,8 @@ class OrdenesApiController extends Controller
         'fo.fecha_fase as fecha_ultima_fase'
       )
       ->whereRaw('fo.id = (
-        SELECT MAX(id) 
-        FROM fases_correcciones_ordenes 
+        SELECT MAX(id)
+        FROM fases_correcciones_ordenes
         WHERE correccion_ordenes_id = fo.correccion_ordenes_id
     )');
 
@@ -1806,8 +1806,8 @@ class OrdenesApiController extends Controller
           DB::raw('SUBSTRING_INDEX(correciones_ordenes.tipo_cristal_oi, " | ", 1) as tipo_cristal_oi_codigo'),
           DB::raw('CASE WHEN ultimas_fases.fase_actual IS NULL THEN "Nuevo" ELSE ultimas_fases.fase_actual END as fase_actual'),
           DB::raw("CONCAT(
-                ordenes.nro_orden_id, 
-                '-C', 
+                ordenes.nro_orden_id,
+                '-C',
                 ROW_NUMBER() OVER (PARTITION BY correciones_ordenes.ordenes_id ORDER BY correciones_ordenes.created_at)
             ) as correcion_format")
         )
@@ -1892,7 +1892,7 @@ class OrdenesApiController extends Controller
 
     if ($laboratorio !== '') {
       // Validar valores permitidos para laboratorio
-      $validLaboratorios = ['Ping', 'Optilab', 'Centilab', 'Vista Pro', 'Haseth J&J', 'Alcon', 'B+L'];
+      $validLaboratorios = ['Ping', 'Optilab', 'Centilab', 'Vista Pro', 'Haseth J&J', 'Alcon', 'B+L', 'Medichub'];
 
       if (in_array($laboratorio, $validLaboratorios)) {
         // Filtrar por laboratorio específico
@@ -2305,67 +2305,67 @@ class OrdenesApiController extends Controller
       ->select(
         'fo2.ordenes_id',
         DB::raw('
-                CASE 
+                CASE
                     WHEN fo2.status = 0 THEN (
-                        SELECT tipo_fase_orden_id 
-                        FROM fases_ordenes 
-                        WHERE ordenes_id = fo2.ordenes_id 
-                        AND id < fo2.id 
-                        ORDER BY id DESC 
+                        SELECT tipo_fase_orden_id
+                        FROM fases_ordenes
+                        WHERE ordenes_id = fo2.ordenes_id
+                        AND id < fo2.id
+                        ORDER BY id DESC
                         LIMIT 1
                     )
-                    ELSE fo2.tipo_fase_orden_id 
+                    ELSE fo2.tipo_fase_orden_id
                 END as ultima_fase_tipo_id
             '),
         DB::raw('
-                CASE 
+                CASE
                     WHEN fo2.status = 0 THEN (
-                        CASE 
+                        CASE
                             WHEN (
-                                SELECT tipo_fase_orden_id 
-                                FROM fases_ordenes 
-                                WHERE ordenes_id = fo2.ordenes_id 
-                                AND id < fo2.id 
-                                ORDER BY id DESC 
+                                SELECT tipo_fase_orden_id
+                                FROM fases_ordenes
+                                WHERE ordenes_id = fo2.ordenes_id
+                                AND id < fo2.id
+                                ORDER BY id DESC
                                 LIMIT 1
                             ) IS NULL THEN \'Nuevo\'
                             WHEN (
-                                SELECT tipo_fase_orden_id 
-                                FROM fases_ordenes 
-                                WHERE ordenes_id = fo2.ordenes_id 
-                                AND id < fo2.id 
-                                ORDER BY id DESC 
+                                SELECT tipo_fase_orden_id
+                                FROM fases_ordenes
+                                WHERE ordenes_id = fo2.ordenes_id
+                                AND id < fo2.id
+                                ORDER BY id DESC
                                 LIMIT 1
                             ) = 1 THEN \'Enviado\'
                             WHEN (
-                                SELECT tipo_fase_orden_id 
-                                FROM fases_ordenes 
-                                WHERE ordenes_id = fo2.ordenes_id 
-                                AND id < fo2.id 
-                                ORDER BY id DESC 
+                                SELECT tipo_fase_orden_id
+                                FROM fases_ordenes
+                                WHERE ordenes_id = fo2.ordenes_id
+                                AND id < fo2.id
+                                ORDER BY id DESC
                                 LIMIT 1
                             ) = 2 THEN \'En Confección\'
                             WHEN (
-                                SELECT tipo_fase_orden_id 
-                                FROM fases_ordenes 
-                                WHERE ordenes_id = fo2.ordenes_id 
-                                AND id < fo2.id 
-                                ORDER BY id DESC 
+                                SELECT tipo_fase_orden_id
+                                FROM fases_ordenes
+                                WHERE ordenes_id = fo2.ordenes_id
+                                AND id < fo2.id
+                                ORDER BY id DESC
                                 LIMIT 1
                             ) = 3 THEN \'Listo\'
                             WHEN (
-                                SELECT tipo_fase_orden_id 
-                                FROM fases_ordenes 
-                                WHERE ordenes_id = fo2.ordenes_id 
-                                AND id < fo2.id 
-                                ORDER BY id DESC 
+                                SELECT tipo_fase_orden_id
+                                FROM fases_ordenes
+                                WHERE ordenes_id = fo2.ordenes_id
+                                AND id < fo2.id
+                                ORDER BY id DESC
                                 LIMIT 1
                             ) = 4 THEN \'Retirado\'
                             ELSE \'Desconocido\'
                         END
                     )
                     ELSE (
-                        CASE 
+                        CASE
                             WHEN fo2.tipo_fase_orden_id IS NULL THEN \'Nuevo\'
                             WHEN fo2.tipo_fase_orden_id = 1 THEN \'Enviado\'
                             WHEN fo2.tipo_fase_orden_id = 2 THEN \'En Confección\'
@@ -2378,8 +2378,8 @@ class OrdenesApiController extends Controller
             ')
       )
       ->whereRaw('fo2.id = (
-            SELECT MAX(id) 
-            FROM fases_ordenes 
+            SELECT MAX(id)
+            FROM fases_ordenes
             WHERE ordenes_id = fo2.ordenes_id
         )');
 
@@ -2399,9 +2399,9 @@ class OrdenesApiController extends Controller
         'contador_fases.total_fases',
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
-        DB::raw("CASE 
+        DB::raw("CASE
                 WHEN contador_fases.total_fases = 5
-                    AND contador_fases.fases_completadas = 5 
+                    AND contador_fases.fases_completadas = 5
                     AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
                 WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
@@ -2410,9 +2410,9 @@ class OrdenesApiController extends Controller
             END as status_primera_fase")
       )
       ->whereRaw('fo.id = (
-            SELECT MIN(id) 
-            FROM fases_ordenes 
-            WHERE ordenes_id = fo.ordenes_id 
+            SELECT MIN(id)
+            FROM fases_ordenes
+            WHERE ordenes_id = fo.ordenes_id
             AND tipo_fase_orden_id = 2
         )');
 
