@@ -24,7 +24,7 @@ import { fetchTerapiasOrtopticaAdultos, createTerapiasOrtopticaAdultos, deleteTe
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { funPermisosObtenidos } from '../../utils/ValidarPermisos';
-import { deleteOrdenes, fetchOrdenesDelPaciente, fetchOrdenTiempoSinOrden, updateOrden, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
+import { deleteOrdenes, fetchOrdenesDelPaciente, fetchOrdenTiempoSinOrden, setOrderId, updateOrden, verCorrecionPdf, verOrdenPdf } from '../../redux/features/ordenes/ordenesSlice';
 import { Button, Modal, Skeleton, Tooltip } from 'antd';
 import PaginationPacientes from './PaginationPacientes';
 import PaginationOrdenesPacientes from './PaginationOrdenesPacientes';
@@ -32,6 +32,7 @@ import { fetchPacientes, fetchPacientesTiempoSinConsultas } from '../../redux/fe
 import InfiniteScrollList from './componentes/historiaPaciente/infiniteScroll';
 import DiagnosticosTableModal from './componentes/historiaPaciente/DiagnosticosTableModal';
 import { resetDiagnosticosPorPaciente } from '../../redux/features/diagnosticos/DiagnosticosSlice';
+import { deleteCorreccionesOrdenes } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -82,6 +83,8 @@ const HistoriaPaciente = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [openHistory, setOpenHistory] = useState(false);
   const [idPaciente, setIdPaciente] = useState();
+  const [isCorreccion, setIsCorreccion] = useState(false);
+  const [numCorrecionActual, setNumCorrecionActual] = useState(null);
 
   let urgencia = {};
   let menor = {};
@@ -595,12 +598,80 @@ const HistoriaPaciente = () => {
     }
   };
 
+  const handleEliminarCorrecionOrden = async (id_orden, index) => {
+    try {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás recuperar esta corrección después de eliminarla!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (result.isConfirmed) {
+        await dispatch(deleteCorreccionesOrdenes(id_orden));
+        await dispatch(fetchOrdenesDelPaciente({
+          id_paciente: id,
+          page: currentPage,
+          limit: 10,
+        })).unwrap();
+
+
+        Swal.fire(
+          'Eliminado!',
+          'La corrección ha sido eliminada.',
+          'success'
+        );
+      }
+    } catch (error) {
+      Swal.fire(
+        'Error',
+        'Hubo un problema al eliminar la corrección.',
+        'error'
+      );
+    }
+  };
+
   const handleVerOrden = async (id_orden) => {
+
+    try {
+      setIsCorreccion(false);
+      setLoadingPdf(true)
+      setShowOrden(true)
+      const url = await dispatch(verOrdenPdf(id_orden))
+      if (url) {
+        setUrlPdfOrden(url.payload)
+      } else {
+        Swal.fire(
+          'Error',
+          'Hubo un problema al visualizar la orden.',
+          'error'
+        );
+      }
+    } catch (error) {
+      console.log(error)
+      Swal.fire(
+        'Error',
+        'Hubo un problema al visualizar la orden.',
+        'error'
+      );
+      setLoadingPdf(false)
+    }
+    setLoadingPdf(false)
+  }
+
+  const handleVerCorrecion = async (id_correcion, numero_correcion) => {
 
     try {
       setLoadingPdf(true)
       setShowOrden(true)
-      const url = await dispatch(verOrdenPdf(id_orden))
+      setIsCorreccion(true);
+      setNumCorrecionActual(numero_correcion);
+      dispatch(setOrderId(id_correcion));
+      const url = await dispatch(verCorrecionPdf({ id_correcion, numero_correcion }))
       if (url) {
         setUrlPdfOrden(url.payload)
       } else {
@@ -2445,7 +2516,14 @@ const HistoriaPaciente = () => {
                                         <td>{pacienteOrden?.sucursal?.nombre || ""}</td>
                                         <td style={{ display: 'flex', alignItems: 'center' }}>
                                           <button
-                                            onClick={() => handleVerOrden(pacienteOrden.id_orden)}
+                                            onClick={() => {
+                                              if (pacienteOrden.es_correccion) {
+                                                handleVerCorrecion(pacienteOrden.id, pacienteOrden.nro_orden_id);
+
+                                              } else {
+                                                handleVerOrden(pacienteOrden.id_orden)
+                                              }
+                                            }}
                                             className="btn btn-primary btnEditarConsultaCG btn mb-2 p-1 mr-2 rounded-circle"
                                           >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-pdf" viewBox="0 0 16 16">
@@ -2455,7 +2533,11 @@ const HistoriaPaciente = () => {
                                           </button>
                                           <div>
                                             <Link
-                                              to={`/orden-receta/${pacienteOrden.id_orden}/${pacienteOrden.nro_orden_id}/${pacienteOrden.id_paciente}`}
+                                              to={
+                                                pacienteOrden.es_correccion
+                                                  ? `/correciones-ordenes/${pacienteOrden?.id}`
+                                                  : `/orden-receta/${pacienteOrden.id_orden}/${pacienteOrden.nro_orden_id}/${pacienteOrden.id_paciente}`
+                                              }
                                             >
                                               <button
                                                 className="btnEditarConsultaCG btn btn-warning mb-2 p-1 mr-2 rounded-circle"
@@ -2485,7 +2567,13 @@ const HistoriaPaciente = () => {
                                               "historiapaciente.eliminarorden",
                                               <button
                                                 key={pacienteOrden.id_orden}
-                                                onClick={() => handleEliminarOrden(pacienteOrden.id_orden)}
+                                                onClick={() => {
+                                                  if (pacienteOrden.es_correccion) {
+                                                    handleEliminarCorrecionOrden(pacienteOrden.id)
+                                                  }else {
+                                                   handleEliminarOrden(pacienteOrden.id_orden)
+                                                  }
+                                                }}
                                                 className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"
                                               >
                                                 <svg
@@ -2515,13 +2603,16 @@ const HistoriaPaciente = () => {
                                         Nro
                                       </th>
                                       <th>
-                                        Consulta
+                                        Nro Orden
                                       </th>
                                       <th>
-                                        Medico
+                                        Pagado
                                       </th>
                                       <th>
-                                        Fecha Atención
+                                        Fecha de creación
+                                      </th>
+                                      <th>
+                                        Sucursal
                                       </th>
                                       <th className="no-content" />
                                     </tr>
