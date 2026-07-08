@@ -304,23 +304,20 @@ const Enviado = forwardRef(({
 
   return (
     <div>
-      <Row
-        style={{ marginBottom: '20px' }}
-        gutter={[16, 16]}
-      >
+      <Row style={{ marginBottom: "20px" }} gutter={[16, 16]}>
         <Col xxl={12} xl={12} md={12}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               <label htmlFor="laboratorio">Selecciona el laboratorio</label>
               <Select
                 showSearch
                 placeholder="Selecciona un laboratorio"
                 options={opcionesLaboratorio}
                 style={{
-                  width: '200px',
-                  height: '30px',
-                  color: 'black',
-                  fontWeight: 'bold',
+                  width: "200px",
+                  height: "30px",
+                  color: "black",
+                  fontWeight: "bold",
                 }}
                 onChange={(value) => setLaboratorio(value)}
                 value={laboratorio}
@@ -375,19 +372,21 @@ const Enviado = forwardRef(({
           </div>
         </Col>
         <Col
-          xxl={12} xl={12} md={12}
+          xxl={12}
+          xl={12}
+          md={12}
           style={{
-            textAlign: 'right'
+            textAlign: "right",
           }}
         >
-          <label htmlFor="inputAddress">
-            Fecha de la fase Listo
-          </label>
+          <label htmlFor="inputAddress">Fecha de la fase Listo</label>
           <div>
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{
-                  marginRight: '10px', cursor: 'pointer', fontSize: '18px'
+                  marginRight: "10px",
+                  cursor: "pointer",
+                  fontSize: "18px",
                 }}
                 onClick={isDisabled ? null : () => actualizarFecha()}
               />
@@ -395,59 +394,64 @@ const Enviado = forwardRef(({
             {fechaActual}
           </div>
           <Divider />
-          <label htmlFor="inputAddress">
-            Fecha de la fase confeccion
-          </label>
+          <label htmlFor="inputAddress">Fecha de la fase confeccion</label>
           <div>
-            {fechaFaseEnviado ? moment(fechaFaseEnviado).format('YYYY-MM-DD HH:mm:ss') : ""}
+            {fechaFaseEnviado ? moment(fechaFaseEnviado).format("YYYY-MM-DD HH:mm:ss") : ""}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'right',
-              alignItems: 'center',
-              gap: '12px'
+              display: "flex",
+              justifyContent: "right",
+              alignItems: "center",
+              gap: "12px",
             }}
           >
             <div
               style={{
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '5px'
+                fontSize: "13px",
+                display: "flex",
+                alignItems: "baseline",
+                gap: "5px",
               }}
             >
-              <span>Días en proceso:</span>
+              <span>Dias en proceso:</span>
               <span
                 style={{
-                  fontWeight: 'bold',
-                  fontSize: '23px',
-                  color: '#262626'
+                  fontWeight: "bold",
+                  fontSize: "23px",
+                  color: "#262626",
                 }}
               >
-                {pacienteOrden?.dias_en_proceso ?? 0}
+                {Number(pacienteOrden?.dias_en_proceso ?? 0).toFixed(2)}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
               <div
                 style={{
-                  width: '15px',
-                  height: '15px',
-                  borderRadius: '100%',
+                  width: "15px",
+                  height: "15px",
+                  borderRadius: "100%",
                   backgroundColor: getColorForStatus(status),
-                  marginRight: '5px',
+                  marginRight: "5px",
                 }}
               ></div>
-              <span>{status || 'Sin estado'}</span>
+              <span>{status || "Sin estado"}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "right",
+              marginTop: "10px",
+            }}
+          >
             <VecesContacto id_orden={orderId} />
             <Button
-              style={{ marginLeft: '10px' }}
+              style={{ marginLeft: "10px" }}
               onClick={handleContactarPaciente}
               disabled={isDisabled}
             >
@@ -457,7 +461,7 @@ const Enviado = forwardRef(({
         </Col>
       </Row>
     </div>
-  )
+  );
 });
 
 export default Enviado

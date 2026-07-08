@@ -192,10 +192,7 @@ const CorreccionListo = ({
 
   return (
     <div>
-      <Row
-        style={{ marginBottom: '20px' }}
-        gutter={[16, 16]}
-      >
+      <Row style={{ marginBottom: "20px" }} gutter={[16, 16]}>
         <Col xxl={12} xl={12} md={12}>
           <label htmlFor="observaciones">
             {modoEdicion ? "Editando observacion" : "Nueva observacion"}
@@ -226,19 +223,21 @@ const CorreccionListo = ({
           </div>
         </Col>
         <Col
-          xxl={12} xl={12} md={12}
+          xxl={12}
+          xl={12}
+          md={12}
           style={{
-            textAlign: 'right'
+            textAlign: "right",
           }}
         >
-          <label htmlFor="inputAddress">
-            Fecha de la fase Listo
-          </label>
+          <label htmlFor="inputAddress">Fecha de la fase Listo</label>
           <div>
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{
-                  marginRight: '10px', cursor: 'pointer', fontSize: '18px'
+                  marginRight: "10px",
+                  cursor: "pointer",
+                  fontSize: "18px",
                 }}
                 onClick={isDisabled ? null : () => actualizarFecha()}
               />
@@ -246,61 +245,66 @@ const CorreccionListo = ({
             {fechaActual}
           </div>
           <Divider />
-          <label htmlFor="inputAddress">
-            Fecha de la fase confeccion
-          </label>
+          <label htmlFor="inputAddress">Fecha de la fase confeccion</label>
           <div>
-            {fechaFaseConfeccion ? moment(fechaFaseConfeccion).format('YYYY-MM-DD HH:mm:ss') : ""}
+            {fechaFaseConfeccion ? moment(fechaFaseConfeccion).format("YYYY-MM-DD HH:mm:ss") : ""}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'right',
-              alignItems: 'center',
-              gap: '12px'
+              display: "flex",
+              justifyContent: "right",
+              alignItems: "center",
+              gap: "12px",
             }}
           >
             <div
               style={{
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '5px'
+                fontSize: "13px",
+                display: "flex",
+                alignItems: "baseline",
+                gap: "5px",
               }}
             >
-              <span>Días en proceso:</span>
+              <span>Dias en proceso:</span>
 
               <span
                 style={{
-                  fontWeight: 'bold',
-                  fontSize: '23px',
-                  color: '#262626'
+                  fontWeight: "bold",
+                  fontSize: "23px",
+                  color: "#262626",
                 }}
               >
-                {correcionOrden?.dias_en_proceso ?? 0}
+                {Number(correcionOrden?.dias_en_proceso ?? 0).toFixed(2)}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
               <div
                 style={{
-                  width: '15px',
-                  height: '15px',
-                  borderRadius: '100%',
+                  width: "15px",
+                  height: "15px",
+                  borderRadius: "100%",
                   backgroundColor: getColorForStatus(status),
-                  marginRight: '5px',
+                  marginRight: "5px",
                 }}
               ></div>
 
-              <span>{status || 'Sin estado'}</span>
+              <span>{status || "Sin estado"}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "right",
+              marginTop: "10px",
+            }}
+          >
             <VecesContactoCorrecciones id={correccionOrderId} />
             <Button
-              style={{ marginLeft: '10px' }}
+              style={{ marginLeft: "10px" }}
               onClick={handleContactarPaciente}
               disabled={isDisabled}
             >
@@ -310,7 +314,7 @@ const CorreccionListo = ({
         </Col>
       </Row>
     </div>
-  )
+  );
 }
 
 export default CorreccionListo

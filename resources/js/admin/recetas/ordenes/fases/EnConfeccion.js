@@ -269,7 +269,7 @@ const EnConfeccion = ({
 
   const basesValidas = () => {
     if (lenteContacto === 1) return true;
-    if (!mostrarBases) return true;      
+    if (!mostrarBases) return true;
     return baseOjoIzquierdoId !== null && baseOjoDerechoId !== null;
   };
   useEffect(() => {
@@ -290,21 +290,20 @@ const EnConfeccion = ({
 
   return (
     <div>
-      <Row
-        style={{ marginBottom: '20px' }}
-        gutter={[16, 16]}
-      >
+      <Row style={{ marginBottom: "20px" }} gutter={[16, 16]}>
         <Col xxl={15} xl={15} md={12}>
           {mostrarBases && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              marginBottom: '20px',
-            }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginBottom: "20px",
+              }}
+            >
               <div>
                 <label htmlFor="laboratorio">
-                  Base Ojo Izquierdo{lenteContacto === 0 ? ' *' : ''}
+                  Base Ojo Izquierdo{lenteContacto === 0 ? " *" : ""}
                 </label>
                 <br />
                 <Select
@@ -318,10 +317,10 @@ const EnConfeccion = ({
                     label: `${base.codigo} - ${base.descripcion}`,
                   }))}
                   style={{
-                    width: '350px',
-                    height: '30px',
-                    color: 'black',
-                    fontWeight: 'bold',
+                    width: "350px",
+                    height: "30px",
+                    color: "black",
+                    fontWeight: "bold",
                   }}
                   onChange={(value) => setBaseOjoIzquierdoId(Number(value))}
                   value={!loading ? baseOjoIzquierdoId : undefined}
@@ -331,7 +330,7 @@ const EnConfeccion = ({
 
               <div>
                 <label htmlFor="otraOpcion">
-                  Base Ojo Derecho{lenteContacto === 0 ? ' *' : ''}
+                  Base Ojo Derecho{lenteContacto === 0 ? " *" : ""}
                 </label>
                 <br />
                 <Select
@@ -345,10 +344,10 @@ const EnConfeccion = ({
                     label: `${base.codigo} - ${base.descripcion}`,
                   }))}
                   style={{
-                    width: '350px',
-                    height: '30px',
-                    color: 'black',
-                    fontWeight: 'bold',
+                    width: "350px",
+                    height: "30px",
+                    color: "black",
+                    fontWeight: "bold",
                   }}
                   onChange={(value) => setBaseOjoDerechoId(Number(value))}
                   value={!loading ? baseOjoDerechoId : undefined}
@@ -358,7 +357,9 @@ const EnConfeccion = ({
             </div>
           )}
           {mostrarBases && lenteContacto === 0 && (!baseOjoIzquierdoId || !baseOjoDerechoId) && (
-            <div style={{ color: 'red', fontSize: '12px', marginBottom: '10px', marginTop: '-10px' }}>
+            <div
+              style={{ color: "red", fontSize: "12px", marginBottom: "10px", marginTop: "-10px" }}
+            >
               * Ambas bases son obligatorias
             </div>
           )}
@@ -391,19 +392,21 @@ const EnConfeccion = ({
           </div>
         </Col>
         <Col
-          xxl={9} xl={9} md={12}
+          xxl={9}
+          xl={9}
+          md={12}
           style={{
-            textAlign: 'right'
+            textAlign: "right",
           }}
         >
-          <label htmlFor="inputAddress">
-            Fecha de la fase confeccion
-          </label>
+          <label htmlFor="inputAddress">Fecha de la fase confeccion</label>
           <div>
             <Tooltip title="Actualizar Fecha">
               <ClockCircleTwoTone
                 style={{
-                  marginRight: '10px', cursor: 'pointer', fontSize: '18px'
+                  marginRight: "10px",
+                  cursor: "pointer",
+                  fontSize: "18px",
                 }}
                 onClick={isDisabled ? null : () => actualizarFecha()}
               />
@@ -411,61 +414,67 @@ const EnConfeccion = ({
             {fechaActual}
           </div>
           <Divider />
-          <label htmlFor="inputAddress">
-            Fecha de ingreso al laboratorio
-          </label>
+          <label htmlFor="inputAddress">Fecha de ingreso al laboratorio</label>
           <div>
-            {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')} {/* Si no hay fecha anterior, se muestra la fecha actual */}
+            {fechaIngresoLaboratorio || moment().format("YYYY-MM-DD HH:mm:ss")}{" "}
+            {/* Si no hay fecha anterior, se muestra la fecha actual */}
           </div>
           <Divider />
           <label htmlFor="status">Status</label>
           <div
             style={{
-              display: 'flex',
-              justifyContent: 'right',
-              alignItems: 'center',
-              gap: '12px'
+              display: "flex",
+              justifyContent: "right",
+              alignItems: "center",
+              gap: "12px",
             }}
           >
             <div
               style={{
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '5px'
+                fontSize: "13px",
+                display: "flex",
+                alignItems: "baseline",
+                gap: "5px",
               }}
             >
-              <span>Días en proceso:</span>
+              <span>Dias en proceso:</span>
 
               <span
                 style={{
-                  fontWeight: 'bold',
-                  fontSize: '23px',
-                  color: '#262626'
+                  fontWeight: "bold",
+                  fontSize: "23px",
+                  color: "#262626",
                 }}
               >
-                {pacienteOrden?.dias_en_proceso ?? 0}
+                {Number(pacienteOrden?.dias_en_proceso ?? 0).toFixed(2)}
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
               <div
                 style={{
-                  width: '15px',
-                  height: '15px',
-                  borderRadius: '100%',
+                  width: "15px",
+                  height: "15px",
+                  borderRadius: "100%",
                   backgroundColor: getColorForStatus(status),
-                  marginRight: '5px',
+                  marginRight: "5px",
                 }}
               ></div>
 
-              <span>{status || 'Sin estado'}</span>
+              <span>{status || "Sin estado"}</span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "right",
+              marginTop: "10px",
+            }}
+          >
             <VecesContacto id_orden={orderId} />
             <Button
-              style={{ marginLeft: '10px' }}
+              style={{ marginLeft: "10px" }}
               onClick={handleContactarPaciente}
               disabled={isDisabled}
             >

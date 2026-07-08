@@ -331,32 +331,28 @@ const CorreccionEnviado = forwardRef(({
     }), [laboratorio, laboratorioOriginal, faseOrdenId, proveedorMaterial, correcionOrden, nombresBasesActuales]);
 
     return (
-        <div>
-            <Row
-                style={{ marginBottom: '20px' }}
-                gutter={[16, 16]}
-            >
-                <Col xxl={15} xl={15} md={12}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <label htmlFor="laboratorio">Selecciona el laboratorio</label>
-                            <Select
-                                showSearch
-                                placeholder="Selecciona un laboratorio"
-                                options={opcionesLaboratorio}
-                                style={{
-                                    width: '200px',
-                                    height: '30px',
-                                    color: 'black',
-                                    fontWeight: 'bold',
-                                }}
-                                onChange={(value) => setLaboratorio(value)}
-                                value={laboratorio}
-                            />
+      <div>
+        <Row style={{ marginBottom: "20px" }} gutter={[16, 16]}>
+          <Col xxl={15} xl={15} md={12}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <label htmlFor="laboratorio">Selecciona el laboratorio</label>
+                <Select
+                  showSearch
+                  placeholder="Selecciona un laboratorio"
+                  options={opcionesLaboratorio}
+                  style={{
+                    width: "200px",
+                    height: "30px",
+                    color: "black",
+                    fontWeight: "bold",
+                  }}
+                  onChange={(value) => setLaboratorio(value)}
+                  value={laboratorio}
+                />
+              </div>
 
-                        </div>
-
-                        {/* {!correcionOrden?.lente_contacto && (
+              {/* {!correcionOrden?.lente_contacto && (
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <label htmlFor="otraOpcion">Selecciona el proveedor de material</label>
                                 <Select
@@ -374,118 +370,123 @@ const CorreccionEnviado = forwardRef(({
                                 />
                             </div>
                         )} */}
-                    </div>
-                    <label htmlFor="observaciones">
-                        {modoEdicion ? "Editando observacion" : "Nueva observacion"}
-                    </label>
-                    <Input.TextArea
-                        rows={5}
-                        placeholder="Escribe una observacion..."
-                        onChange={(e) => setTextoObs(e.target.value)}
-                        value={textoObs}
-                        disabled={isDisabled}
-                        style={{ borderColor: modoEdicion ? "#faad14" : undefined }}
-                    />
-                    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                        <Button
-                            type="primary"
-                            size="small"
-                            loading={guardandoObs}
-                            disabled={!textoObs?.trim()}
-                            onClick={onGuardarObs}
-                        >
-                            {modoEdicion ? "Actualizar" : "Guardar observacion"}
-                        </Button>
-                        {modoEdicion && (
-                            <Button size="small" onClick={onCancelarEdicion}>
-                                Cancelar
-                            </Button>
-                        )}
-                    </div>
-                </Col>
-                <Col
-                    xxl={9} xl={9} md={12}
-                    style={{
-                        textAlign: 'right'
-                    }}
+            </div>
+            <label htmlFor="observaciones">
+              {modoEdicion ? "Editando observacion" : "Nueva observacion"}
+            </label>
+            <Input.TextArea
+              rows={5}
+              placeholder="Escribe una observacion..."
+              onChange={(e) => setTextoObs(e.target.value)}
+              value={textoObs}
+              disabled={isDisabled}
+              style={{ borderColor: modoEdicion ? "#faad14" : undefined }}
+            />
+            <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+              <Button
+                type="primary"
+                size="small"
+                loading={guardandoObs}
+                disabled={!textoObs?.trim()}
+                onClick={onGuardarObs}
+              >
+                {modoEdicion ? "Actualizar" : "Guardar observacion"}
+              </Button>
+              {modoEdicion && (
+                <Button size="small" onClick={onCancelarEdicion}>
+                  Cancelar
+                </Button>
+              )}
+            </div>
+          </Col>
+          <Col
+            xxl={9}
+            xl={9}
+            md={12}
+            style={{
+              textAlign: "right",
+            }}
+          >
+            <label htmlFor="inputAddress">Fecha de la fase confeccion</label>
+            <div>
+              <Tooltip title="Actualizar Fecha">
+                <ClockCircleTwoTone
+                  style={{
+                    marginRight: "10px",
+                    cursor: "pointer",
+                    fontSize: "18px",
+                  }}
+                  onClick={isDisabled ? null : () => actualizarFecha()}
+                />
+              </Tooltip>
+              {fechaActual}
+            </div>
+            <Divider />
+            <label htmlFor="inputAddress">Fecha de ingreso al laboratorio</label>
+            <div>{fechaIngresoLaboratorio || moment().format("YYYY-MM-DD HH:mm:ss")}</div>
+            <Divider />
+            <label htmlFor="status">Status</label>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "right",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "5px",
+                }}
+              >
+                <span>Dias en proceso:</span>
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "23px",
+                    color: "#262626",
+                  }}
                 >
-                    <label htmlFor="inputAddress">
-                        Fecha de la fase confeccion
-                    </label>
-                    <div>
-                        <Tooltip title="Actualizar Fecha">
-                            <ClockCircleTwoTone
-                                style={{
-                                    marginRight: '10px', cursor: 'pointer', fontSize: '18px'
-                                }}
-                                onClick={isDisabled ? null : () => actualizarFecha()}
-                            />
-                        </Tooltip>
-                        {fechaActual}
-                    </div>
-                    <Divider />
-                    <label htmlFor="inputAddress">
-                        Fecha de ingreso al laboratorio
-                    </label>
-                    <div>
-                        {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')}
-                    </div>
-                    <Divider />
-                    <label htmlFor="status">Status</label>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'right',
-                            alignItems: 'center',
-                            gap: '12px'
-                        }}
-                    >
-                        <div
-                            style={{
-                                fontSize: '13px',
-                                display: 'flex',
-                                alignItems: 'baseline',
-                                gap: '5px'
-                            }}
-                        >
-                            <span>Días en proceso:</span>
-                            <span
-                                style={{
-                                    fontWeight: 'bold',
-                                    fontSize: '23px',
-                                    color: '#262626'
-                                }}
-                            >
-                                {correcionOrden?.dias_en_proceso ?? 0}
-                            </span>
-                        </div>
+                  {Number(correcionOrden?.dias_en_proceso ?? 0).toFixed(2)}
+                </span>
+              </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <div
-                                style={{
-                                    width: '15px',
-                                    height: '15px',
-                                    borderRadius: '100%',
-                                    backgroundColor: getColorForStatus(status),
-                                    marginRight: '5px',
-                                }}
-                            ></div>
-                            <span>{status || 'Sin estado'}</span>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'right', marginTop: '10px' }}>
-                        <VecesContactoCorrecciones id={correccionOrderId} />
-                        <Button
-                            style={{ marginLeft: '10px' }}
-                            onClick={handleContactarPaciente}
-                            disabled={isDisabled}
-                        >
-                            Contactar al paciente
-                        </Button>
-                    </div>
-                </Col>
-            </Row>
-        </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    width: "15px",
+                    height: "15px",
+                    borderRadius: "100%",
+                    backgroundColor: getColorForStatus(status),
+                    marginRight: "5px",
+                  }}
+                ></div>
+                <span>{status || "Sin estado"}</span>
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "right",
+                marginTop: "10px",
+              }}
+            >
+              <VecesContactoCorrecciones id={correccionOrderId} />
+              <Button
+                style={{ marginLeft: "10px" }}
+                onClick={handleContactarPaciente}
+                disabled={isDisabled}
+              >
+                Contactar al paciente
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </div>
     );
 });
 
