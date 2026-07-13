@@ -418,7 +418,7 @@ const CorreccionEnConfeccion = ({
                   color: '#262626'
                 }}
               >
-                {correcionOrden?.dias_en_proceso ?? 0}
+                 {Math.round(Number(correcionOrden?.dias_en_proceso ?? 0))}
               </span>
             </div>
 

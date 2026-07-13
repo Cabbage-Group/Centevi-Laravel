@@ -190,6 +190,7 @@
         <th>{{$cilindro_od}}</th>
         <th>{{$eje_od}}</th>
         <th>{{$add_od}}</th>
+        {{-- TODO: confirmar variables correctas para el caso $lente_contacto (Tipo de lente de contacto / Curva Base / Diametro). Actualmente siempre muestra prisma/distancia/altura, que corresponde a lente normal. --}}
         <th>{{$prisma_od}}</th>
         <th>{{$distancia_od}}</th>
         <th>{{$altura_od}}</th>
@@ -257,15 +258,15 @@
             <button class="info-tabla-cristales">{{$tratamientos_oi}}</button>
             @endif
           </td>
-          @if($tipo_corredor)
+        </tr>
+        @if($tipo_corredor)
         <tr>
-          <td>
+          <td colspan="3">
             <div style="font-size:12px; text-align:start">Tipo Corredor:</div>
             <button class="info-tabla-cristales">{{$tipo_corredor}}</button>
           </td>
         </tr>
         @endif
-        </tr>
       </tbody>
     </table>
   </div>
@@ -324,8 +325,8 @@
           style="font-size:12px; text-align:left;white-space: normal; word-wrap: break-word; {{$color == '_' ? 'color:white' : ''}}">{{$color}}</button>
       </div>
     </div>
-    <div style="width:100%;  display: inline-block">
-      <div style="width:24%; display: inline-block">
+    <div style="width:100%; display:flex; align-items:flex-start;">
+      <div style="width:24%; display: inline-block; vertical-align:top;">
         <div style="font-size:12px; display:flex; align-items:center">
           @if($aro_centevi)
           <button
@@ -336,7 +337,7 @@
           <span style="">ARO CENTEVI</span>
         </div>
       </div>
-      <div style="width:24%; display: inline-block">
+      <div style="width:24%; display: inline-block; vertical-align:top;">
         <div style="font-size:12px; display:flex; align-items:center">
           @if($aro_propio)
           <button
@@ -347,35 +348,35 @@
           ARO PROPIO
         </div>
       </div>
-      <div style="width:24%; display: inline-block">
+      <div style="width:24%; display: inline-block; vertical-align:top;">
         <div style="font-size:12px; margin-bottom:5px; color:#888ea8; font-weight:700">CÓDIGO</div>
-        <buton class="boton-item-white"
+        <button class="boton-item-white"
           style="font-size:12px;white-space: normal; word-wrap: break-word; {{$codigo == '_' ? 'color:white' : ''}}">
           {{$codigo}}
-        </buton>
+        </button>
       </div>
       <div style="width:1%; display:inline-block"></div>
-      <div style="width:24%; display: inline-block;">
+      <div style="width:24%; display: inline-block; vertical-align:top;">
         <div style="font-size:12px; margin-bottom:5px; width:100%; color:#888ea8; font-weight:700">MARCA</div>
-        <buton class="boton-item-white"
+        <button class="boton-item-white"
           style="font-size:12px;white-space: normal; word-wrap: break-word; {{$marca == '_' ? 'color:white' : ''}}">
           {{$marca}}
-        </buton>
+        </button>
       </div>
     </div>
-    <div style="width:100%; display:inline-block; margin-top:20px;">
-      <div style="width:60%; display: inline-block; justify-content:center; position:relative; background-color:red">
+    <div style="width:100%; display:inline-block; margin-top:40px;">
+      <div style="width:60%; display: inline-block; justify-content:center; position:relative;">
         <img src="{{ public_path('/assets/img/recetas/lentessinbarrillav2.png') }}" style="width: 100%;" />
         <button
-          style="position:absolute; left:-25px; border:1px solid red; background-color: white; width:70px; top:72px">{{$l_uno}}</button>
+          style="position:absolute; left:-23px; border:1px solid red; background-color: white; width:70px; top:36px">{{$l_uno}}</button>
         <button
-          style="position:absolute; left:82px; border:1px solid red; background-color: white; width:70px; top:-2px">{{$l_dos}}</button>
+          style="position:absolute; left:77px; border:1px solid red; background-color: white; width:70px; top:-36px">{{$l_dos}}</button>
         <button
-          style="position:absolute; left:185px; border:1px solid red; background-color: white; width:70px; top:35px">{{$l_tres}}</button>
+          style="position:absolute; left:185px; border:1px solid red; background-color: white; width:70px; top:5px">{{$l_tres}}</button>
         <button
-          style="position:absolute; left:90px; border:1px solid red; background-color: white; width:70px; top:150px">{{$l_cuatro}}</button>
+          style="position:absolute; left:90px; border:1px solid red; background-color: white; width:70px; top:110px">{{$l_cuatro}}</button>
         <button
-          style="position:absolute; left:300px; border:1px solid red; background-color: white; width:70px; top:71px">{{$l_cinco}}</button>
+          style="position:absolute; left:290px; border:1px solid red; background-color: white; width:70px; top:36px">{{$l_cinco}}</button>
       </div>
       <div style="width:39%; display: inline-block; float:right">
         <div style="width:100%; display: inline-block">

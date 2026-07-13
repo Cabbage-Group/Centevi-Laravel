@@ -354,7 +354,7 @@ const Nuevo = ({
                   color: '#262626'
                 }}
               >
-                {pacienteOrden?.dias_en_proceso ?? 0}
+                {Math.round(Number(pacienteOrden?.dias_en_proceso ?? 0))}
               </span>
             </div>
 
