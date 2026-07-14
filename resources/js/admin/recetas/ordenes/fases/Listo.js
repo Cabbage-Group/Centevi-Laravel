@@ -295,7 +295,7 @@ const Listo = ({
                   color: "#262626",
                 }}
               >
-                {Number(pacienteOrden?.dias_en_proceso ?? 0).toFixed(2)}
+                {Math.round(Number(pacienteOrden?.dias_en_proceso ?? 0))}
               </span>
             </div>
 

@@ -160,7 +160,7 @@
       position: relative;
       width: 80%;
       text-align: center;
-      margin: 5pt auto;
+      margin: 30pt auto;
       height: 130pt;
     }
 
@@ -433,11 +433,11 @@
 
     <div class="lens-diagram">
       <img src="{{ public_path('/assets/img/recetas/lentessinbarrillav2.png') }}" />
-      <button style="left:-4%; top:41%;">{{$l_uno}}</button>
-      <button style="left:20%; top:3%;">{{$l_dos}}</button>
-      <button style="left:45%; top:25%;">{{$l_tres}}</button>
-      <button style="left:20%; top:80%;">{{$l_cuatro}}</button>
-      <button style="left:70%; top:42%;">{{$l_cinco}}</button>
+      <button style="left:-8%; top:23%;">{{$l_uno}}</button>
+      <button style="left:16%; top:-16%;">{{$l_dos}}</button>
+      <button style="left:40%; top:8%;">{{$l_tres}}</button>
+      <button style="left:15%; top:62%;">{{$l_cuatro}}</button>
+      <button style="left:67%; top:23%;">{{$l_cinco}}</button>
     </div>
 
     <div class="field-row" style="width:87%;">

@@ -244,7 +244,7 @@ const CorreccionRetirado = ({ tipoFaseId, isDisabled, correcionOrden }) => {
                   color: "#262626",
                 }}
               >
-                {Number(correcionOrden?.dias_en_proceso ?? 0).toFixed(2)}
+                {Math.round(Number(correcionOrden?.dias_en_proceso ?? 0))}
               </span>
             </div>
 

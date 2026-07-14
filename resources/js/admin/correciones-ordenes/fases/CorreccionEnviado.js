@@ -450,9 +450,56 @@ const CorreccionEnviado = forwardRef(({
                     color: "#262626",
                   }}
                 >
-                  {Number(correcionOrden?.dias_en_proceso ?? 0).toFixed(2)}
-                </span>
-              </div>
+                    <label htmlFor="inputAddress">
+                        Fecha de la fase confeccion
+                    </label>
+                    <div>
+                        <Tooltip title="Actualizar Fecha">
+                            <ClockCircleTwoTone
+                                style={{
+                                    marginRight: '10px', cursor: 'pointer', fontSize: '18px'
+                                }}
+                                onClick={isDisabled ? null : () => actualizarFecha()}
+                            />
+                        </Tooltip>
+                        {fechaActual}
+                    </div>
+                    <Divider />
+                    <label htmlFor="inputAddress">
+                        Fecha de ingreso al laboratorio
+                    </label>
+                    <div>
+                        {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')}
+                    </div>
+                    <Divider />
+                    <label htmlFor="status">Status</label>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'right',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}
+                    >
+                        <div
+                            style={{
+                                fontSize: '13px',
+                                display: 'flex',
+                                alignItems: 'baseline',
+                                gap: '5px'
+                            }}
+                        >
+                            <span>Días en proceso:</span>
+                            <span
+                                style={{
+                                    fontWeight: 'bold',
+                                    fontSize: '23px',
+                                    color: '#262626'
+                                }}
+                            >
+                              {Math.round(Number(correcionOrden?.dias_en_proceso ?? 0))}
+                            </span>
+                        </div>
 
               <div style={{ display: "flex", alignItems: "center" }}>
                 <div
