@@ -1,334 +1,338 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { Col, Divider, Input, Row, Tooltip, Button, Select } from 'antd';
-import moment from 'moment';
-import {
-    ClockCircleTwoTone
-} from '@ant-design/icons';
-import { actualizarDatosFaseCorrecciones } from '../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice';
-import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
-import { createContactoCorreccionOrden } from '../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice';
-import { fetchBases } from '../../../redux/features/bases/basesSlice';
-import VecesContactoCorrecciones from '../VecesContactoCorrecciones';
-import { fetchProveedorMaterial } from '../../../redux/features/proveedor-material/proveedorMaterialSlice';
-import { updateLaboratorioEnviado } from '../../../redux/features/ordenes/fasesOrdenesSlice';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { Col, Divider, Input, Row, Tooltip, Button, Select } from "antd";
+import moment from "moment";
+import { ClockCircleTwoTone } from "@ant-design/icons";
+import { actualizarDatosFaseCorrecciones } from "../../../redux/features/correciones-ordenes/correccionesFasesOrdenesSlice";
+import { fecthTiposFasesOrdenes } from "../../../redux/features/ordenes/tiposFasesOrdenesSlice";
+import { createContactoCorreccionOrden } from "../../../redux/features/contacto-correccion-orden/ContactoCorreccionOrdenSlice";
+import { fetchBases } from "../../../redux/features/bases/basesSlice";
+import VecesContactoCorrecciones from "../VecesContactoCorrecciones";
+import { fetchProveedorMaterial } from "../../../redux/features/proveedor-material/proveedorMaterialSlice";
+import { updateLaboratorioEnviado } from "../../../redux/features/ordenes/fasesOrdenesSlice";
+import Swal from "sweetalert2";
 
-const CorreccionEnviado = forwardRef(({
-    tipoFaseId,
-    isDisabled,
-    correcionOrden,
-    onBasesValidasChange,
-    textoObs,
-    setTextoObs,
-    onGuardarObs,
-    guardandoObs,
-    modoEdicion,
-    onCancelarEdicion
-}, ref) => {
+const CorreccionEnviado = forwardRef(
+  (
+    {
+      tipoFaseId,
+      isDisabled,
+      correcionOrden,
+      onBasesValidasChange,
+      textoObs,
+      setTextoObs,
+      onGuardarObs,
+      guardandoObs,
+      modoEdicion,
+      onCancelarEdicion,
+    },
+    ref
+  ) => {
     const dispatch = useDispatch();
-    const [fechaActual, setFechaActual] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
-    const [fechaCreacion, setFechaCreacion] = useState(moment().format('YYYY-MM-DD HH:mm:ss'));
-    const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState('');
+    const [fechaActual, setFechaActual] = useState(moment().format("YYYY-MM-DD HH:mm:ss"));
+    const [fechaCreacion, setFechaCreacion] = useState(moment().format("YYYY-MM-DD HH:mm:ss"));
+    const [fechaIngresoLaboratorio, setFechaIngresoLaboratorio] = useState("");
     const tiposFasesOrdenes = useSelector((state) => state.tiposFasesOrdenes.tiposFasesOrdenes);
-    const proveedor_material_options_selecteds = useSelector((state) => state.proveedorMaterial.proveedor_material_options_selecteds);
+    const proveedor_material_options_selecteds = useSelector(
+      (state) => state.proveedorMaterial.proveedor_material_options_selecteds
+    );
     const { bases, loading } = useSelector((state) => state.bases);
     const [baseOjoIzquierdoId, setBaseOjoIzquierdoId] = useState(null);
     const [baseOjoDerechoId, setBaseOjoDerechoId] = useState(null);
-    const [observaciones, setObservaciones] = useState('');
+    const [observaciones, setObservaciones] = useState("");
     const { correccionOrderId } = useParams();
-    const [laboratorio, setLaboratorio] = useState('');
+    const [laboratorio, setLaboratorio] = useState("");
     const [faseOrdenId, setFaseOrdenId] = useState();
-    const [celular, setCelular] = useState('');
+    const [celular, setCelular] = useState("");
     const [mensaje, setMensaje] = useState(
-        'Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos'
+      "Buenas Tardes, le escribimos de {sucursal} para informarle que los lentes de el Paciente {nombre} estan listo. Puede pasar a retirarlos en los siguientes horarios:  Lunes a Viernes de 9:00 am a 5:00 pm. sabados de 8:00 am a 12:00 pm. La esperamos, Saludos"
     );
-    const [nombrePaciente, setNombrePaciente] = useState('');
-    const [selectedSucursal, setSelectedSucursal] = useState('');
-    const [ubicacionMaps, setUbicacionMaps] = useState('');
-    const [status, setStatus] = useState('');
-    const idUsuario = localStorage.getItem('id_usuario');
+    const [nombrePaciente, setNombrePaciente] = useState("");
+    const [selectedSucursal, setSelectedSucursal] = useState("");
+    const [ubicacionMaps, setUbicacionMaps] = useState("");
+    const [status, setStatus] = useState("");
+    const idUsuario = localStorage.getItem("id_usuario");
     const [lenteContacto, setLenteContacto] = useState(0);
     const [opcionesLaboratorio, setOpcionesLaboratorio] = useState([]);
-    const [proveedorMaterial, setProveedorMaterial] = useState('');
+    const [proveedorMaterial, setProveedorMaterial] = useState("");
     const [loadingLaboratorio, setLoadingLaboratorio] = useState(false);
-    const [laboratorioOriginal, setLaboratorioOriginal] = useState('');
+    const [laboratorioOriginal, setLaboratorioOriginal] = useState("");
     const nombresBasesActuales = useSelector(
-        (state) => state.correccionesFasesOrdenes.nombresBasesActuales
+      (state) => state.correccionesFasesOrdenes.nombresBasesActuales
     );
     useEffect(() => {
-        dispatch(fetchProveedorMaterial({}))
-    }, [])
-
-
-
-    useEffect(() => {
-        if (correccionOrderId) {
-            dispatch(fecthTiposFasesOrdenes(correccionOrderId));
-        }
-        dispatch(fetchBases({}));
+      dispatch(fetchProveedorMaterial({}));
     }, []);
 
     useEffect(() => {
-        if (correcionOrden) {
-            setSelectedSucursal(correcionOrden?.sucursal)
-            setUbicacionMaps(correcionOrden?.ubicacion)
-            setNombrePaciente(correcionOrden?.paciente_nombre_completo)
-            setCelular(correcionOrden?.celular)
-            setStatus(correcionOrden?.estado)
-            setLenteContacto(correcionOrden?.lente_contacto || 0)
-        }
-    }, [correcionOrden])
+      if (correccionOrderId) {
+        dispatch(fecthTiposFasesOrdenes(correccionOrderId));
+      }
+      dispatch(fetchBases({}));
+    }, []);
 
     useEffect(() => {
-        if (correcionOrden?.lente_contacto) {
-            setOpcionesLaboratorio([
-              { value: "Vista Pro", label: "Vista Pro" },
-              { value: "Haseth J&J", label: "Haseth J&J" },
-              { value: "Alcon", label: "Alcon" },
-              { value: "B+L", label: "B+L" },
-              { value: "Medichub", label: "Medichub" },
-            ]);
-        } else {
-            setOpcionesLaboratorio([
-                { value: 'Centilab', label: 'Centilab' },
-                { value: 'Ping', label: 'Ping' },
-                { value: 'Optilab', label: 'Optilab' },
-            ]);
-        }
+      if (correcionOrden) {
+        setSelectedSucursal(correcionOrden?.sucursal);
+        setUbicacionMaps(correcionOrden?.ubicacion);
+        setNombrePaciente(correcionOrden?.paciente_nombre_completo);
+        setCelular(correcionOrden?.celular);
+        setStatus(correcionOrden?.estado);
+        setLenteContacto(correcionOrden?.lente_contacto || 0);
+      }
+    }, [correcionOrden]);
+
+    useEffect(() => {
+      if (correcionOrden?.lente_contacto) {
+        setOpcionesLaboratorio([
+          { value: "Vista Pro", label: "Vista Pro" },
+          { value: "Haseth J&J", label: "Haseth J&J" },
+          { value: "Alcon", label: "Alcon" },
+          { value: "B+L", label: "B+L" },
+          { value: "Medichub", label: "Medichub" },
+        ]);
+      } else {
+        setOpcionesLaboratorio([
+          { value: "Centilab", label: "Centilab" },
+          { value: "Ping", label: "Ping" },
+          { value: "Optilab", label: "Optilab" },
+        ]);
+      }
     }, [correcionOrden?.lente_contacto]);
 
     useEffect(() => {
-        if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
-            const tipoFaseAnterior = tiposFasesOrdenes.find(fase =>
-                fase.fases_correcciones_ordenes.some(faseOrden =>
-                    faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
-                )
-            );
-            if (tipoFaseAnterior) {
-                const faseOrdenAnterior = tipoFaseAnterior.fases_correcciones_ordenes.find(faseOrden =>
-                    faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
-                );
-                if (faseOrdenAnterior) {
-                    setLaboratorio(faseOrdenAnterior.laboratorio);
-                    setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
-                }
-            }
+      if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
+        const tipoFaseAnterior = tiposFasesOrdenes.find((fase) =>
+          fase.fases_correcciones_ordenes.some(
+            (faseOrden) =>
+              faseOrden.correccion_ordenes_id == correccionOrderId &&
+              faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
+          )
+        );
+        if (tipoFaseAnterior) {
+          const faseOrdenAnterior = tipoFaseAnterior.fases_correcciones_ordenes.find(
+            (faseOrden) =>
+              faseOrden.correccion_ordenes_id == correccionOrderId &&
+              faseOrden.tipo_fase_correccion_orden_id == tipoFaseId - 1
+          );
+          if (faseOrdenAnterior) {
+            setLaboratorio(faseOrdenAnterior.laboratorio);
+            setFechaIngresoLaboratorio(faseOrdenAnterior.fecha_fase);
+          }
         }
+      }
 
-        const faseOrden = tiposFasesOrdenes
-            .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_correcciones_ordenes)
-            .find((fasesOrden) =>
-                fasesOrden.tipo_fase_correccion_orden_id == tipoFaseId
-            );
+      const faseOrden = tiposFasesOrdenes
+        .flatMap((tipoFaseOrden) => tipoFaseOrden.fases_correcciones_ordenes)
+        .find((fasesOrden) => fasesOrden.tipo_fase_correccion_orden_id == tipoFaseId);
     }, [tiposFasesOrdenes, correccionOrderId]);
 
     useEffect(() => {
-        if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
-            const tipoFase = tiposFasesOrdenes.find(fase =>
-                fase.fases_correcciones_ordenes.some(faseOrden =>
-                    faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
-                )
-            );
-            if (tipoFase) {
-                const faseOrden = tipoFase.fases_correcciones_ordenes.find(faseOrden =>
-                    faseOrden.correccion_ordenes_id == correccionOrderId && faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
-                );
-                if (faseOrden) {
-                    setLaboratorio(faseOrden.laboratorio);
-                    setObservaciones(faseOrden.observacion);
-                    setLaboratorioOriginal(faseOrden.laboratorio);
-                    setProveedorMaterial(faseOrden.proveedor_material);
-                    setFechaActual(faseOrden.fecha_fase);
-                    setFechaCreacion(faseOrden.created_at);
-                    setFaseOrdenId(faseOrden.id)
-                }
-            }
+      if (tiposFasesOrdenes && tiposFasesOrdenes.length > 0) {
+        const tipoFase = tiposFasesOrdenes.find((fase) =>
+          fase.fases_correcciones_ordenes.some(
+            (faseOrden) =>
+              faseOrden.correccion_ordenes_id == correccionOrderId &&
+              faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
+          )
+        );
+        if (tipoFase) {
+          const faseOrden = tipoFase.fases_correcciones_ordenes.find(
+            (faseOrden) =>
+              faseOrden.correccion_ordenes_id == correccionOrderId &&
+              faseOrden.tipo_fase_correccion_orden_id == tipoFaseId
+          );
+          if (faseOrden) {
+            setLaboratorio(faseOrden.laboratorio);
+            setObservaciones(faseOrden.observacion);
+            setLaboratorioOriginal(faseOrden.laboratorio);
+            setProveedorMaterial(faseOrden.proveedor_material);
+            setFechaActual(faseOrden.fecha_fase);
+            setFechaCreacion(faseOrden.created_at);
+            setFaseOrdenId(faseOrden.id);
+          }
         }
+      }
     }, [tiposFasesOrdenes, correccionOrderId, tipoFaseId]);
 
     useEffect(() => {
-        const nuevaFase = {
-            tipo_fase_correccion_orden_id: tipoFaseId,
-            laboratorio: laboratorio,
-            observacion: observaciones,
-            proveedor_material: proveedorMaterial,
-            fecha_fase: fechaActual,
-            elaborado_por: idUsuario,
-        };
-        dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
-    }, [
-        observaciones,
-        laboratorio,
-        fechaActual,
-        proveedorMaterial,
-        tipoFaseId,
-        dispatch]
-    );
+      const nuevaFase = {
+        tipo_fase_correccion_orden_id: tipoFaseId,
+        laboratorio: laboratorio,
+        observacion: observaciones,
+        proveedor_material: proveedorMaterial,
+        fecha_fase: fechaActual,
+        elaborado_por: idUsuario,
+      };
+      dispatch(actualizarDatosFaseCorrecciones(nuevaFase));
+    }, [observaciones, laboratorio, fechaActual, proveedorMaterial, tipoFaseId, dispatch]);
 
     useEffect(() => {
-        if (!loading && bases?.length && baseOjoIzquierdoId) {
-            setBaseOjoIzquierdoId(baseOjoIzquierdoId);
-        }
-        if (!loading && bases?.length && baseOjoDerechoId) {
-            setBaseOjoDerechoId(baseOjoDerechoId);
-        }
+      if (!loading && bases?.length && baseOjoIzquierdoId) {
+        setBaseOjoIzquierdoId(baseOjoIzquierdoId);
+      }
+      if (!loading && bases?.length && baseOjoDerechoId) {
+        setBaseOjoDerechoId(baseOjoDerechoId);
+      }
     }, [loading, bases]);
 
     const getColorForStatus = (status) => {
-        const colors = {
-            Ok: 'green',
-            Advertencia: 'yellow',
-            Critico: 'red',
-            Completado: 'blue',
-        };
-        return colors[status] || 'gray'; // Predeterminado: 'gray'
+      const colors = {
+        Ok: "green",
+        Advertencia: "yellow",
+        Critico: "red",
+        Completado: "blue",
+      };
+      return colors[status] || "gray"; // Predeterminado: 'gray'
     };
 
     const generateWhatsAppLink = () => {
-        const telefonoFormateado = `${celular.replace(/[^\d]/g, '')}`;
-        let mensajePersonalizado = mensaje
-            .replace('{nombre}', nombrePaciente)
-            .replace('{sucursal}', selectedSucursal);
+      const telefonoFormateado = `${celular.replace(/[^\d]/g, "")}`;
+      let mensajePersonalizado = mensaje
+        .replace("{nombre}", nombrePaciente)
+        .replace("{sucursal}", selectedSucursal);
 
-        if (ubicacionMaps) {
-            mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
-        }
-        const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
+      if (ubicacionMaps) {
+        mensajePersonalizado += `\n📍 Ubicación: ${ubicacionMaps}`;
+      }
+      const mensajeCodificado = encodeURIComponent(mensajePersonalizado);
 
-
-        return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
+      return `https://wa.me/${telefonoFormateado}?text=${mensajeCodificado}`;
     };
 
-
     const actualizarFecha = async () => {
-        const result = await Swal.fire({
-            title: '¿Estás seguro de actualizar esta fecha?',
-            text: "¡Confirmarás los cambios en los datos!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
-        });
+      const result = await Swal.fire({
+        title: "¿Estás seguro de actualizar esta fecha?",
+        text: "¡Confirmarás los cambios en los datos!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, guardar",
+        cancelButtonText: "Cancelar",
+      });
 
-        if (result.value === true) {
-            const nuevaFecha = moment().format('YYYY-MM-DD HH:mm:ss');
-            setFechaActual(nuevaFecha);
-            await Swal.fire(
-                'Guardado!',
-                'La fecha ha sido actualizada.',
-                'success'
-            );
-        }
-    }
+      if (result.value === true) {
+        const nuevaFecha = moment().format("YYYY-MM-DD HH:mm:ss");
+        setFechaActual(nuevaFecha);
+        await Swal.fire("Guardado!", "La fecha ha sido actualizada.", "success");
+      }
+    };
 
     const handleContactarPaciente = async () => {
-        // Datos para la API
-        const newContactoOrdenData = {
-            correccion_ordenes_id: correcionOrden?.correccion_id,
-            tipo_fase_cr_orden_id: tipoFaseId,
-            usuario_id: idUsuario,
-            cantidad: 1
-        };
+      // Datos para la API
+      const newContactoOrdenData = {
+        correccion_ordenes_id: correcionOrden?.correccion_id,
+        tipo_fase_cr_orden_id: tipoFaseId,
+        usuario_id: idUsuario,
+        cantidad: 1,
+      };
 
-        try {
-            // Llamar a la API
-            await dispatch(createContactoCorreccionOrden(newContactoOrdenData)).unwrap();
-            console.log('Contacto creado exitosamente');
+      try {
+        // Llamar a la API
+        await dispatch(createContactoCorreccionOrden(newContactoOrdenData)).unwrap();
+        console.log("Contacto creado exitosamente");
 
-            // Abrir enlace de WhatsApp
-            window.open(generateWhatsAppLink(), '_blank');
-        } catch (error) {
-            console.error('Error al crear contacto:', error);
-        }
+        // Abrir enlace de WhatsApp
+        window.open(generateWhatsAppLink(), "_blank");
+      } catch (error) {
+        console.error("Error al crear contacto:", error);
+      }
     };
 
     const basesValidas = () => {
-        if (lenteContacto === 1) {
-            return true;
-        }
-        return baseOjoIzquierdoId !== null && baseOjoDerechoId !== null;
+      if (lenteContacto === 1) {
+        return true;
+      }
+      return baseOjoIzquierdoId !== null && baseOjoDerechoId !== null;
     };
 
     useEffect(() => {
-        window.basesValidasEnConfeccion = basesValidas();
+      window.basesValidasEnConfeccion = basesValidas();
     }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
     useEffect(() => {
-        const validas = basesValidas();
-        window.basesValidasEnConfeccion = validas;
+      const validas = basesValidas();
+      window.basesValidasEnConfeccion = validas;
 
-        if (onBasesValidasChange) {
-            onBasesValidasChange(validas);
-        }
+      if (onBasesValidasChange) {
+        onBasesValidasChange(validas);
+      }
     }, [baseOjoIzquierdoId, baseOjoDerechoId, lenteContacto]);
 
-    useImperativeHandle(ref, () => ({
+    useImperativeHandle(
+      ref,
+      () => ({
         getInfoLaboratorio: () => ({
-            laboratorio,
-            laboratorioOriginal,
-            cambio: laboratorio !== laboratorioOriginal,
+          laboratorio,
+          laboratorioOriginal,
+          cambio: laboratorio !== laboratorioOriginal,
         }),
         guardarLaboratorioAlAvanzar: async (faseCorreccionOrdenIdNuevo) => {
-            const idAUsar = faseCorreccionOrdenIdNuevo || faseOrdenId;
-            if (!laboratorio) return false;
-            if (laboratorio === laboratorioOriginal) return true;
+          const idAUsar = faseCorreccionOrdenIdNuevo || faseOrdenId;
+          if (!laboratorio) return false;
+          if (laboratorio === laboratorioOriginal) return true;
 
-            await dispatch(
-                updateLaboratorioEnviado({
-                    id: idAUsar,
-                    laboratorio,
-                    tipo: correcionOrden?.correccion_id ? 'correccion' : 'orden',
-                    id_orden: correcionOrden?.id_orden,
-                    id_correccion: correcionOrden?.correccion_id || null,
-                    observacion: correcionOrden?.observacion_pedido || null,
-                    ojo: correcionOrden?.ojo || 'ambos',
-                    receta_od: [
-                        correcionOrden?.esfera_od,
-                        correcionOrden?.cilindro_od,
-                        correcionOrden?.eje_od
-                            ? `${correcionOrden.eje_od}°`
-                            : null,
-                    ]
-                        .filter(Boolean)
-                        .join(' ') || null,
-                    receta_oi: [
-                        correcionOrden?.esfera_oi,
-                        correcionOrden?.cilindro_oi,
-                        correcionOrden?.eje_oi
-                            ? `${correcionOrden.eje_oi}°`
-                            : null,
-                    ]
-                        .filter(Boolean)
-                        .join(' ') || null,
-                    add_od: correcionOrden?.add_od || null,
-                    add_oi: correcionOrden?.add_oi || null,
-                    prisma_od: correcionOrden?.prisma_od || null,
-                    prisma_oi: correcionOrden?.prisma_oi || null,
-                    material: proveedorMaterial || null,
-                    esfera_od: correcionOrden?.esfera_od || null,
-                    esfera_oi: correcionOrden?.esfera_oi || null,
-                    cilindro_od: correcionOrden?.cilindro_od || null,
-                    cilindro_oi: correcionOrden?.cilindro_oi || null,
-                    eje_od: correcionOrden?.eje_od || null,
-                    eje_oi: correcionOrden?.eje_oi || null,
-                    tipo_cristal_od: correcionOrden?.tipo_cristal_od || null,
-                    tipo_cristal_oi: correcionOrden?.tipo_cristal_oi || null,
-                    material_od: correcionOrden?.material_od || null,
-                    material_oi: correcionOrden?.material_oi || null,
-                    tratamientos_od: correcionOrden?.tratamientos_od || null,
-                    tratamientos_oi: correcionOrden?.tratamientos_oi || null,
-                    tipo_base_od: nombresBasesActuales?.derecha || null,
-                    tipo_base_oi: nombresBasesActuales?.izquierda || null,
-                })
-            ).unwrap();
+          await dispatch(
+            updateLaboratorioEnviado({
+              id: idAUsar,
+              laboratorio,
+              tipo: correcionOrden?.correccion_id ? "correccion" : "orden",
+              id_orden: correcionOrden?.id_orden,
+              id_correccion: correcionOrden?.correccion_id || null,
+              observacion: correcionOrden?.observacion_pedido || null,
+              ojo: correcionOrden?.ojo || "ambos",
+              receta_od:
+                [
+                  correcionOrden?.esfera_od,
+                  correcionOrden?.cilindro_od,
+                  correcionOrden?.eje_od ? `${correcionOrden.eje_od}°` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || null,
+              receta_oi:
+                [
+                  correcionOrden?.esfera_oi,
+                  correcionOrden?.cilindro_oi,
+                  correcionOrden?.eje_oi ? `${correcionOrden.eje_oi}°` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ") || null,
+              add_od: correcionOrden?.add_od || null,
+              add_oi: correcionOrden?.add_oi || null,
+              prisma_od: correcionOrden?.prisma_od || null,
+              prisma_oi: correcionOrden?.prisma_oi || null,
+              material: proveedorMaterial || null,
+              esfera_od: correcionOrden?.esfera_od || null,
+              esfera_oi: correcionOrden?.esfera_oi || null,
+              cilindro_od: correcionOrden?.cilindro_od || null,
+              cilindro_oi: correcionOrden?.cilindro_oi || null,
+              eje_od: correcionOrden?.eje_od || null,
+              eje_oi: correcionOrden?.eje_oi || null,
+              tipo_cristal_od: correcionOrden?.tipo_cristal_od || null,
+              tipo_cristal_oi: correcionOrden?.tipo_cristal_oi || null,
+              material_od: correcionOrden?.material_od || null,
+              material_oi: correcionOrden?.material_oi || null,
+              tratamientos_od: correcionOrden?.tratamientos_od || null,
+              tratamientos_oi: correcionOrden?.tratamientos_oi || null,
+              tipo_base_od: nombresBasesActuales?.derecha || null,
+              tipo_base_oi: nombresBasesActuales?.izquierda || null,
+            })
+          ).unwrap();
 
-            return true;
-        }
-    }), [laboratorio, laboratorioOriginal, faseOrdenId, proveedorMaterial, correcionOrden, nombresBasesActuales]);
+          return true;
+        },
+      }),
+      [
+        laboratorio,
+        laboratorioOriginal,
+        faseOrdenId,
+        proveedorMaterial,
+        correcionOrden,
+        nombresBasesActuales,
+      ]
+    );
 
     return (
       <div>
@@ -442,7 +446,7 @@ const CorreccionEnviado = forwardRef(({
                   gap: "5px",
                 }}
               >
-                <span>Dias en proceso:</span>
+                <span>Días en proceso:</span>
                 <span
                   style={{
                     fontWeight: "bold",
@@ -450,56 +454,9 @@ const CorreccionEnviado = forwardRef(({
                     color: "#262626",
                   }}
                 >
-                    <label htmlFor="inputAddress">
-                        Fecha de la fase confeccion
-                    </label>
-                    <div>
-                        <Tooltip title="Actualizar Fecha">
-                            <ClockCircleTwoTone
-                                style={{
-                                    marginRight: '10px', cursor: 'pointer', fontSize: '18px'
-                                }}
-                                onClick={isDisabled ? null : () => actualizarFecha()}
-                            />
-                        </Tooltip>
-                        {fechaActual}
-                    </div>
-                    <Divider />
-                    <label htmlFor="inputAddress">
-                        Fecha de ingreso al laboratorio
-                    </label>
-                    <div>
-                        {fechaIngresoLaboratorio || moment().format('YYYY-MM-DD HH:mm:ss')}
-                    </div>
-                    <Divider />
-                    <label htmlFor="status">Status</label>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'right',
-                            alignItems: 'center',
-                            gap: '12px'
-                        }}
-                    >
-                        <div
-                            style={{
-                                fontSize: '13px',
-                                display: 'flex',
-                                alignItems: 'baseline',
-                                gap: '5px'
-                            }}
-                        >
-                            <span>Días en proceso:</span>
-                            <span
-                                style={{
-                                    fontWeight: 'bold',
-                                    fontSize: '23px',
-                                    color: '#262626'
-                                }}
-                            >
-                              {Math.round(Number(correcionOrden?.dias_en_proceso ?? 0))}
-                            </span>
-                        </div>
+                  {Math.round(Number(correcionOrden?.dias_en_proceso ?? 0))}
+                </span>
+              </div>
 
               <div style={{ display: "flex", alignItems: "center" }}>
                 <div
@@ -535,7 +492,7 @@ const CorreccionEnviado = forwardRef(({
         </Row>
       </div>
     );
-});
-
+  }
+);
 
 export default CorreccionEnviado;
