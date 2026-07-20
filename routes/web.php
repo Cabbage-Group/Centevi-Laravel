@@ -15,7 +15,7 @@ use App\Http\Controllers\API\consultas\OrtopticaApiController;
 use App\Http\Controllers\API\consultas\BajaVisionApiController;
 use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
-use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
+// use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
 use App\Http\Controllers\API\agenda\AgendaApiController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
@@ -624,6 +624,9 @@ Route::delete('/api/bases/{id}', [BasesApiController::class, 'delete']);
 Route::put('/api/bases/{id}', [BasesApiController::class, 'update']);
 
 Route::prefix('api/pedidos')->group(function () {
+    
+
+    Route::put('/update-laboratorio-enviado/{id}',[OrdenesApiController::class, 'updateLaboratorioEnviado']);
 
     // Route::get('/ordenes-pendientes', [PedidosController::class, 'ordenesPendientes']);
 
@@ -651,7 +654,6 @@ Route::prefix('api/pedidos')->group(function () {
 
     Route::post('/imprimir-pedido', [PedidosController::class, 'imprimirPedido']);
 
-    Route::put('/update-laboratorio-enviado/{id}',[OrdenesApiController::class, 'updateLaboratorioEnviado']);
 });
 
 

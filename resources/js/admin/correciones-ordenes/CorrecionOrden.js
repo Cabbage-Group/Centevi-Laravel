@@ -220,7 +220,8 @@ const CorrecionOrden = () => {
   };
 
   const getOrderPhasesByType = (correccionOrderId) => {
-    return tiposFasesOrdenes.map((tipoFase) => ({
+
+    const data = tiposFasesOrdenes.map((tipoFase) => ({
       tipoFase: tipoFase.tipo_fase_orden,
       fasesOrdenes: tipoFase.fases_correcciones_ordenes
         .filter(
@@ -235,6 +236,7 @@ const CorrecionOrden = () => {
             )?.nombre || "Desconocido",
         })),
     }));
+    return data;
   };
 
   const itemsSteps = getOrderPhasesByType(correccionOrderId).map((fase, index) => {
@@ -317,6 +319,8 @@ const CorrecionOrden = () => {
       <Tooltip title="Click para Guardar Fase">
         <span
           onClick={(e) => {
+
+
             e.stopPropagation();
             avanzarFase(false, false);
           }}
@@ -435,8 +439,8 @@ const CorrecionOrden = () => {
       }
     }
     let textoAdicional = '';
-    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 && 
-      !correcionOrden?.lente_contacto && 
+    if (nuevaDataCorrecciones.tipo_fase_correccion_orden_id === 2 &&
+      !correcionOrden?.lente_contacto &&
       enviadoRef.current?.getInfoLaboratorio) {
       const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
       if (cambio && laboratorio) {
@@ -447,13 +451,13 @@ const CorrecionOrden = () => {
       }
     }
     const result = await Swal.fire({
-      title: completar ? 'Estas seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
-      text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmarás los cambios en los datos!') + textoAdicional,
+      title: completar || nivelStep == 4 ? 'Estas seguro de completar la fase?' : 'Estás seguro de guardar la fase?',
+      text: (completar || nivelStep == 4 ? 'Confirmaras la fase como completada!' : 'Confirmarás los cambios en los datos!') + textoAdicional,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Si, ' + (completar ? 'completar' : 'guardar'),
+      confirmButtonText: 'Si, ' + (completar || nivelStep == 4 ? 'completar' : 'guardar'),
       cancelButtonText: 'Cancelar',
     });
 
@@ -505,6 +509,19 @@ const CorrecionOrden = () => {
           console.log('siguienteFase', siguienteFase)
           await dispatch(createCorreccionesFasesOrdenes(siguienteFase)).unwrap();
         }
+
+        if (completar && nivelStep === 2) {
+          const siguienteFase = {
+            ...nuevaDataConOrderId,
+            status: 0,
+            observacion: "",
+            tipo_fase_correccion_orden_id: nuevaDataCorrecciones.tipo_fase_correccion_orden_id + 1,
+          };
+
+          await dispatch(createCorreccionesFasesOrdenes(siguienteFase)).unwrap();
+        }
+
+
         await Promise.all([
           dispatch(fecthTiposFasesOrdenes(correccionOrderId))
         ]);
@@ -553,7 +570,6 @@ const CorrecionOrden = () => {
 
 
   const handleStepChange = async (clickedStep) => {
-    console.log('clickedStep', clickedStep);
 
     if (Math.abs(clickedStep - nivelStep) > 1) {
       await Swal.fire({

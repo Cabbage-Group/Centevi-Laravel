@@ -43,19 +43,19 @@ const ObservacionesHistorial = ({
       }}>
         <MessageOutlined style={{ color: "#1677ff" }} />
         Historial de observaciones
-        {observaciones.length > 0 && (
+        {(observaciones?.length ?? 0) > 0 && (
           <span style={{
             background: "#1677ff", color: "#fff",
             borderRadius: 999, fontSize: 11,
             padding: "0 7px", lineHeight: "18px",
           }}>
-            {observaciones.length}
+            {observaciones?.length ?? 0}
           </span>
         )}
       </span>
       {loading ? (
         <div style={{ textAlign: "center", padding: 24 }}><Spin /></div>
-      ) : observaciones.length === 0 ? (
+      ) : (observaciones?.length ?? 0) === 0 ? (
         <Empty
           description="Sin observaciones aún"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -85,7 +85,7 @@ const ObservacionesHistorial = ({
                   background: enEdicion
                     ? "#fffbe6"
                     : idx % 2 === 0 ? "#fff" : "#fafafa",
-                  borderBottom: idx < observaciones.length - 1 ? "1px solid #f0f0f0" : "none",
+                  borderBottom: idx < (observaciones?.length ?? 0) - 1 ? "1px solid #f0f0f0" : "none",
                   borderLeft: enEdicion ? "3px solid #faad14" : "3px solid transparent",
                   transition: "background 0.2s, border-left 0.2s",
                 }}

@@ -333,7 +333,7 @@ const Ordenes = () => {
       }
       else if (lastPhase.tipo_fase_orden_id === 5) {
         newStep = 4;
-      }
+      }       
       setNivelStep(newStep);
       setInitialized(true);
     }
@@ -453,6 +453,7 @@ const Ordenes = () => {
   });
 
   const avanzarFase = async (avanzar = true, completar = false) => {
+
     if (nuevaData.tipo_fase_orden_id === 2 && !nuevaData.laboratorio) {
       await Swal.fire({
         title: "Error",
@@ -549,7 +550,7 @@ const Ordenes = () => {
           : 'El pedido cambiará a realizado.';
         textoAdicional = ` · Lab: ${laboratorio} → ${msg}`;
       }
-    }
+    }    
     const result = await Swal.fire({
       title: completar ? 'Estas seguro de completar la fase?' : 'Estas seguro de guardar la fase?',
       text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmaras los cambios en los datos!') + textoAdicional,
@@ -560,6 +561,7 @@ const Ordenes = () => {
       confirmButtonText: "Si, " + (completar ? "completar" : "guardar"),
       cancelButtonText: "Cancelar",
     });
+
     if (result.isConfirmed) {
 
       const status = completar ? 1 : 0;
@@ -597,6 +599,17 @@ const Ordenes = () => {
           const siguienteFase = {
             ...nuevaDataConOrderId,
             status: 1,
+            observacion: "",
+            tipo_fase_orden_id: nuevaData.tipo_fase_orden_id + 1,
+          };
+
+          await dispatch(createFasesOrdenes(siguienteFase)).unwrap();
+        }
+
+        if (completar && nivelStep === 2) {
+          const siguienteFase = {
+            ...nuevaDataConOrderId,
+            status: 0,
             observacion: "",
             tipo_fase_orden_id: nuevaData.tipo_fase_orden_id + 1,
           };
