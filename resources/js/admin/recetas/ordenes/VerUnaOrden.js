@@ -34,7 +34,7 @@ const VerUnaOrden = () => {
   const [fechaSolicitud, setFechaSolicitud] = useState('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
-  const { pacienteOrden } = useSelector((state) => state.ordenes);
+  const { pacienteOrden, statusPacienteOrden } = useSelector((state) => state.ordenes);
   const { status, pacientes } = useSelector((state) => state.pacientes);
   const {
     observaciones,
@@ -114,7 +114,7 @@ const VerUnaOrden = () => {
     setInitialized(false);
   }, [orderId]);
 
-  const itemsSteps = tiposFasesOrdenes?.map((fase,index) => {
+  const itemsSteps = tiposFasesOrdenes?.map((fase, index) => {
     let icon;
     const isCompletedOrActive = index <= nivelStep;
     switch (fase.tipo_fase_orden.toLowerCase()) {
@@ -300,6 +300,7 @@ const VerUnaOrden = () => {
       <VerOrden
         pacienteOrden={pacienteOrden}
         fecha_solicitud={fechaSolicitud}
+        statusPacienteOrden={statusPacienteOrden}
       >
       </VerOrden>
     </div>

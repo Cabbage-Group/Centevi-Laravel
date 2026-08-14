@@ -187,6 +187,14 @@ class VerifyCsrfToken extends Middleware
 
     'http://127.0.0.1:8000/api/marcas/*',
 
+    'http://127.0.0.1:8000/api/marcas/onefit',
+
+    'http://127.0.0.1:8000/api/marcas/onefit/*',
+
+    'http://127.0.0.1:8000/api/marcas/onefit-med',
+
+    'http://127.0.0.1:8000/api/marcas/onefit-med/*',
+
     'http://127.0.0.1:8000/api/tipos-aros',
 
     'http://127.0.0.1:8000/api/tipos-aros/*',

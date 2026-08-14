@@ -60,6 +60,8 @@ use App\Http\Controllers\API\warehouse\WarehouseController;
 use App\Http\Controllers\API\bases\BasesApiController;
 use App\Http\Controllers\API\correccionesObservacionesOrdenes\CorreccionesObservacionController;
 use App\Http\Controllers\API\historial_orden\HistorialOrdenApiController;
+use App\Http\Controllers\API\marcas_onefit\MarcasOnefitApiController;
+use App\Http\Controllers\API\marcas_onefit_med\MarcasOnefitMedApiController;
 use App\Http\Controllers\API\ordenes\OrdenesCentilabApiController;
 use App\Http\Controllers\API\pedidos\PedidosController;
 use App\Http\Controllers\API\ordenesObservaciones\OrdenObservacionController;
@@ -456,6 +458,17 @@ Route::delete('/api/marcas/{id}', [MarcasApiController::class, 'delete']);
 
 Route::put('/api/marcas/{id}', [MarcasApiController::class, 'update']);
 
+Route::get('/api/marcas/onefit', [MarcasOnefitApiController::class, 'index']);
+Route::post('/api/marcas/onefit', [MarcasOnefitApiController::class, 'create']);
+Route::delete('/api/marcas/onefit/{id}', [MarcasOnefitApiController::class, 'delete']);
+Route::put('/api/marcas/onefit/{id}', [MarcasOnefitApiController::class, 'update']);
+
+
+Route::get('/api/marcas/onefit-med', [MarcasOnefitMedApiController::class, 'index']);
+Route::post('/api/marcas/onefit-med', [MarcasOnefitMedApiController::class, 'create']);
+Route::delete('/api/marcas/onefit-med/{id}', [MarcasOnefitMedApiController::class, 'delete']);
+Route::put('/api/marcas/onefit-med/{id}', [MarcasOnefitMedApiController::class, 'update']);
+
 Route::get('/api/tipos-aros', [TiposArosApiController::class, 'index']);
 
 Route::post('/api/tipos-aros', [TiposArosApiController::class, 'create']);
@@ -624,9 +637,9 @@ Route::delete('/api/bases/{id}', [BasesApiController::class, 'delete']);
 Route::put('/api/bases/{id}', [BasesApiController::class, 'update']);
 
 Route::prefix('api/pedidos')->group(function () {
-    
 
-    Route::put('/update-laboratorio-enviado/{id}',[OrdenesApiController::class, 'updateLaboratorioEnviado']);
+
+    Route::put('/update-laboratorio-enviado/{id}', [OrdenesApiController::class, 'updateLaboratorioEnviado']);
 
     // Route::get('/ordenes-pendientes', [PedidosController::class, 'ordenesPendientes']);
 
@@ -653,7 +666,6 @@ Route::prefix('api/pedidos')->group(function () {
     Route::get('/historial/{id_orden}/imprimir', [PedidosController::class, 'imprimirHistorial']);
 
     Route::post('/imprimir-pedido', [PedidosController::class, 'imprimirPedido']);
-
 });
 
 

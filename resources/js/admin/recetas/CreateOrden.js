@@ -18,6 +18,26 @@ import { fetchMateriales } from '../../redux/features/materiales/materialesSlice
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
+import { fetchMarcasOnefit } from '../../redux/features/marcas-onefit/marcasOnefitSlice';
+import { fetchMarcasOnefitMed } from '../../redux/features/marcas-onefit-med/marcasOnefitMedSlice';
+
+// Opciones del selector de tipo de lente
+const TIPO_LENTE_OPTIONS = [
+  { value: 'aro', label: 'Lente Aro' },
+  { value: 'contacto', label: 'Lente de Contacto' },
+  { value: 'onefit', label: 'Lente Escleral OneFit' },
+  { value: 'onefitmed', label: 'Lente Escleral OneFit Med' },
+];
+
+const ONE_FIT_INITIAL = {
+  rx_od: '', poder_od: '', dia_od: '', edge_od: '', pfsd_od: '', cb_od: '', ct_od: '',
+  rx_oi: '', poder_oi: '', dia_oi: '', edge_oi: '', pfsd_oi: '', cb_oi: '', ct_oi: '',
+};
+
+const ONE_FIT_MED_INITIAL = {
+  rx_od: '', sag_od: '', poder_od: '', dia_od: '', mid_od: '', lim_od: '', pfsd_od: '', edg_od: '', ct_od: '',
+  rx_oi: '', sag_oi: '', poder_oi: '', dia_oi: '', mid_oi: '', lim_oi: '', pfsd_oi: '', edg_oi: '', ct_oi: '',
+};
 
 const CreateOrden = () => {
 
@@ -38,15 +58,25 @@ const CreateOrden = () => {
   const { tratamientos_options_selecteds } = useSelector((state) => state.tratamientos)
   const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
   const { marcas_options_selecteds, marcas_lente_normal_options_selecteds } = useSelector((state) => state.marcas)
+  const {
+    marcas_one_fit_options_selecteds,
+  } = useSelector((state) => state.marcasOnefit);
+
+  const {
+    marcas_one_fit_med_options_selecteds,
+  } = useSelector((state) => state.marcasOnefitMed);
+
   const [selectedPaciente, setSelectedPaciente] = useState(parsedId || null);
   const [selectedMarca, setSelectedMarca] = useState(null);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
-  const [lenteContacto, setLenteContacto] = useState(false);
-  const [isRowVisible, setIsRowVisible] = useState(true);
-  const [isImageVisible, setIsImageVisible] = useState(true);
-  const [isAroVisible, setIsAroVisible] = useState(true);
-  const { nro_orden_auto } = useSelector((state) => state.ordenes);
+
+  // Tipo de lente: 'aro' | 'contacto' | 'onefit' | 'onefitmed'
+  const [tipoLente, setTipoLente] = useState('aro');
+  const esAro = tipoLente === 'aro';
+  const esOneFit = tipoLente === 'onefit';
+  const esOneFitMed = tipoLente === 'onefitmed';
+
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [tipoCorredor, setTipoCorredor] = useState('');
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
@@ -58,6 +88,36 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
   const [tieneFactura, setTieneFactura] = useState(false);
+
+  // Valores manuales para Lente Escleral OneFit
+  const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
+  const handleOneFitChange = (field) => (e) => {
+    const { value } = e.target;
+    setOneFitValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Valores manuales para Lente Escleral OneFit Med
+  const [oneFitMedValues, setOneFitMedValues] = useState(ONE_FIT_MED_INITIAL);
+  const handleOneFitMedChange = (field) => (e) => {
+    const { value } = e.target;
+    setOneFitMedValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const marcasOptions = (() => {
+    switch (tipoLente) {
+      case 'contacto':
+        return marcas_options_selecteds || [];
+
+      case 'onefit':
+        return marcas_one_fit_options_selecteds || [];
+
+      case 'onefitmed':
+        return marcas_one_fit_med_options_selecteds || [];
+
+      default:
+        return [];
+    }
+  })();
 
   // Dorado : 186.74.2.218
   // San Judas Tadeo: 190.219.45.142
@@ -102,7 +162,7 @@ const CreateOrden = () => {
     color: "",
     marca: "",
     marca_oi: "",
-    tipo_aro: isRowVisible ? "" : null,
+    tipo_aro: esAro ? "" : null,
     observaciones: "",
     doctor: "",
     l_uno: "",
@@ -110,9 +170,8 @@ const CreateOrden = () => {
     l_tres: "",
     l_cuatro: "",
     l_cinco: "",
-    isRowVisible: isAroVisible,
     nro_cotizacion: "",
-    lenteContacto: false,
+    tipo_lente: 'aro',
     nro_factura: "",
     tieneFactura: 0
   };
@@ -129,8 +188,8 @@ const CreateOrden = () => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string().when('lenteContacto', {
-      is: false,
+    tipo_aro: Yup.string().when('tipo_lente', {
+      is: 'aro',
       then: (schema) => schema.required("Seleccione un tipo de aro"),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -143,8 +202,8 @@ const CreateOrden = () => {
       then: (schema) => schema.required("Coloque un número de factura"),
       otherwise: (schema) => schema.notRequired(),
     }),
-    marca: Yup.string().when('lenteContacto', {
-      is: true,
+    marca: Yup.string().when('tipo_lente', {
+      is: (val) => val !== 'aro',
       then: (schema) => schema.test(
         'at-least-one-marca',
         'Debe seleccionar al menos una marca',
@@ -155,8 +214,8 @@ const CreateOrden = () => {
       ),
       otherwise: (schema) => schema.notRequired(),
     }),
-    marca_oi: Yup.string().when('lenteContacto', {
-      is: true,
+    marca_oi: Yup.string().when('tipo_lente', {
+      is: (val) => val !== 'aro',
       then: (schema) => schema.test(
         'at-least-one-marca',
         'Debe seleccionar al menos una marca',
@@ -256,7 +315,9 @@ const CreateOrden = () => {
     dispatch(fetchMateriales({}))
     dispatch(fetchTratamientos({}))
     dispatch(fetchTiposAros({}))
-    dispatch(fetchMarcas({}))
+    dispatch(fetchMarcas({}));
+    dispatch(fetchMarcasOnefit({}));
+    dispatch(fetchMarcasOnefitMed({}));
   }, []);
 
   const handleSubmit = async (values) => {
@@ -329,10 +390,12 @@ const CreateOrden = () => {
 
         aro_centevi: aroCentevi ? 1 : 0,
         aro_propio: aroCentevi ? 0 : 1,
-        ...(isRowVisible ? { tipo_aro: tipoAro } : {}),
+        ...(esAro ? { tipo_aro: tipoAro } : {}),
+        ...(esOneFit ? { ...oneFitValues } : {}),
+        ...(esOneFitMed ? { ...oneFitMedValues } : {}),
         doctor: doctorSeleccionado,
         elaborado_por: usuario?.usuario?.id_usuario,
-        lente_contacto: lenteContacto,
+        tipo_lente: tipoLente,
       };
 
       console.log('transformedValues:', transformedValues);
@@ -360,34 +423,56 @@ const CreateOrden = () => {
   };
 
 
-  const handleLenteContactoChange = () => {
-    const newLenteContactoState = !lenteContacto;
-    const action = newLenteContactoState ? 'Cambiar a lente contacto' : 'Cambiar a lente normal';
+  const handleTipoLenteChange = (value, setFieldValue) => {
+    if (value === tipoLente) return;
+
+    const nuevoLabel =
+      TIPO_LENTE_OPTIONS.find((o) => o.value === value)?.label || value;
+
     Swal.fire({
-      title: `¿Estás seguro de ${action.toLowerCase()}?`,
-      text: `Esto cambiará al modo ${newLenteContactoState ? 'lente de contacto' : 'lente normal'}.`,
+      title: `¿Estás seguro de cambiar a ${nuevoLabel.toLowerCase()}?`,
+      text: `Esto cambiará el formulario al modo ${nuevoLabel.toLowerCase()}.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: `Sí, ${action.toLowerCase()}`,
+      confirmButtonText: 'Sí, cambiar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
     }).then((result) => {
-      if (result.isConfirmed) {
-        setIsRowVisible(!isRowVisible);
-        setIsImageVisible(!isImageVisible);
-        setLenteContacto(newLenteContactoState);
-        setIsAroVisible(!isAroVisible);
+      if (!result.isConfirmed) return;
 
-        if (!isRowVisible) {
-          setTipoAro(null);
-        }
-        Swal.fire(
-          `${action.charAt(0).toUpperCase() + action.slice(1)}!`,
-          `El valor de lente de contacto ha sido actualizado.`,
-          'success'
-        );
-      }
+      setTipoLente(value);
+      setFieldValue("marca", "");
+      setFieldValue("marca_oi", "");
+      setOneFitValues(ONE_FIT_INITIAL);
+      setOneFitMedValues(ONE_FIT_MED_INITIAL);
+      setTipoAro(null);
+      setFieldValue("tipo_aro", "");
+      setFieldValue("color", "");
+      setFieldValue("aro_centevi", "");
+      setFieldValue("aro_propio", "");
+      setServiciosRealizados([]);
+      setIsLeftEye(false);
+      setSelectedMarca(null);
+      setFieldValue("tipo_cristal_od", "");
+      setFieldValue("tipo_cristal_oi", "");
+      setFieldValue("tipo_corredor", "");
+      setMaterialesSeleccionados([]);
+      setIsLeftEyeMaterial(false);
+      setDoctorSeleccionado(null)
+      setFieldValue("material_od", "");
+      setFieldValue("material_oi", "");
+      setTratamientosFiltros([]);
+      setIsLeftEyeTratamientos(false);
+
+      setFieldValue("tratamientos_od", "");
+      setFieldValue("tratamientos_oi", "");
+
+      Swal.fire(
+        nuevoLabel,
+        `El tipo de lente ha sido actualizado a ${nuevoLabel.toLowerCase()}.`,
+        'success'
+      );
     });
   };
 
@@ -410,8 +495,7 @@ const CreateOrden = () => {
                         <Formik
                           initialValues={{
                             ...initialValues,
-                            isRowVisible: isAroVisible,
-                            lenteContacto: lenteContacto
+                            tipo_lente: tipoLente,
                           }}
                           validationSchema={validationSchema}
                           onSubmit={handleSubmit}
@@ -419,10 +503,10 @@ const CreateOrden = () => {
                         >
 
                           {({ setFieldValue, values, isSubmitting }) => {
-                         
+
                             React.useEffect(() => {
-                              setFieldValue('lenteContacto', lenteContacto);
-                            }, [lenteContacto, setFieldValue]);
+                              setFieldValue('tipo_lente', tipoLente);
+                            }, [tipoLente, setFieldValue]);
                             React.useEffect(() => {
                               setFieldValue('tieneFactura', tieneFactura);
                             }, [tieneFactura, setFieldValue]);
@@ -436,7 +520,6 @@ const CreateOrden = () => {
                                       alt="logo"
                                       className="navbar-logo"
                                       src="img/centevi.png"
-                                      // src={public_path('img/centevi.png')}
                                       style={{
                                         height: '80px',
                                         width: tieneFactura ? '250px' : undefined,
@@ -530,22 +613,16 @@ const CreateOrden = () => {
                                   </div>
 
                                   <div className="col-md-2">
-                                    <h4>Cambiar Tipo de lente</h4>
-                                    <div className="d-flex align-items-center">
-                                      <button
-                                        type="button"
-                                        className="btn btn-success"
-                                        style={{
-                                          height: "40px",
-                                          marginTop: "0",
-                                        }}
-                                        onClick={() => {
-                                          handleLenteContactoChange()
-                                        }}
-                                      >
-                                        {lenteContacto ? 'Cambiar a lente normal' : 'Cambiar a lente de contacto'}
-                                      </button>
-                                    </div>
+                                    <h4>Tipo de lente</h4>
+                                    <Select
+                                      value={tipoLente}
+                                      options={TIPO_LENTE_OPTIONS}
+                                      onChange={(value) => handleTipoLenteChange(value, setFieldValue)}
+                                      style={{
+                                        width: "100%",
+                                        height: "40px",
+                                      }}
+                                    />
                                   </div>
 
 
@@ -575,11 +652,6 @@ const CreateOrden = () => {
                                         color: "black",
                                         fontWeight: "bold",
                                       }}
-                                    // onChange={(e) => {
-                                    //   // const selectedPaciente = pacientes.find(paciente => paciente.id_paciente === parseInt(e.target.value));
-                                    //   // setFieldValue('paciente', e.target.value);
-                                    //   // setFieldValue('id_paciente', selectedPaciente ? selectedPaciente.id_paciente : '');
-                                    // }}
                                     />
 
                                     <ErrorMessage name="id_paciente" component="div" className="text-danger" />
@@ -651,226 +723,297 @@ const CreateOrden = () => {
                                 >
                                   <div className="form-group col-md-12">
                                     <div className="table-responsive">
-                                      <table className="table table-bordered">
-                                        <thead>
-                                          <tr
-                                            style={{
-                                              backgroundColor: '#4361ee'
-                                            }}
-                                          >
-                                            <th
-                                              className="text-center"
+                                      {esOneFit ? (
+                                        <table className="table table-bordered">
+                                          <thead>
+                                            <tr style={{ backgroundColor: '#4361ee' }}>
+                                              <th className="text-center" style={{ color: 'white!important' }}>RX</th>
+                                              <th style={{ color: 'white!important' }}>Poder</th>
+                                              <th style={{ color: 'white!important' }}>DIA</th>
+                                              <th style={{ color: 'white!important' }}>Edge</th>
+                                              <th style={{ color: 'white!important' }}>PFSD</th>
+                                              <th style={{ color: 'white!important' }}>CB</th>
+                                              <th style={{ color: 'white!important' }}>CT</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="text-center">OD</td>
+                                              <td><input className="form-control" value={oneFitValues.poder_od} onChange={handleOneFitChange('poder_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.dia_od} onChange={handleOneFitChange('dia_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.edge_od} onChange={handleOneFitChange('edge_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.pfsd_od} onChange={handleOneFitChange('pfsd_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.cb_od} onChange={handleOneFitChange('cb_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.ct_od} onChange={handleOneFitChange('ct_od')} /></td>
+                                            </tr>
+                                            <tr>
+                                              <td className="text-center">OI</td>
+                                              <td><input className="form-control" value={oneFitValues.poder_oi} onChange={handleOneFitChange('poder_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.dia_oi} onChange={handleOneFitChange('dia_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.edge_oi} onChange={handleOneFitChange('edge_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.pfsd_oi} onChange={handleOneFitChange('pfsd_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.cb_oi} onChange={handleOneFitChange('cb_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.ct_oi} onChange={handleOneFitChange('ct_oi')} /></td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      ) : esOneFitMed ? (
+                                        <table className="table table-bordered">
+                                          <thead>
+                                            <tr style={{ backgroundColor: '#4361ee' }}>
+                                              <th className="text-center" style={{ color: 'white!important' }}>RX</th>
+                                              <th style={{ color: 'white!important' }}>SAG</th>
+                                              <th style={{ color: 'white!important' }}>Poder</th>
+                                              <th style={{ color: 'white!important' }}>DIA</th>
+                                              <th style={{ color: 'white!important' }}>MID</th>
+                                              <th style={{ color: 'white!important' }}>LIM</th>
+                                              <th style={{ color: 'white!important' }}>PFSD</th>
+                                              <th style={{ color: 'white!important' }}>EDG</th>
+                                              <th style={{ color: 'white!important' }}>CT</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="text-center">OD</td>
+                                              <td><input className="form-control" value={oneFitMedValues.sag_od} onChange={handleOneFitMedChange('sag_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.poder_od} onChange={handleOneFitMedChange('poder_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.dia_od} onChange={handleOneFitMedChange('dia_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.mid_od} onChange={handleOneFitMedChange('mid_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.lim_od} onChange={handleOneFitMedChange('lim_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.pfsd_od} onChange={handleOneFitMedChange('pfsd_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.edg_od} onChange={handleOneFitMedChange('edg_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.ct_od} onChange={handleOneFitMedChange('ct_od')} /></td>
+                                            </tr>
+                                            <tr>
+                                              <td className="text-center">OI</td>
+                                              <td><input className="form-control" value={oneFitMedValues.sag_oi} onChange={handleOneFitMedChange('sag_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.poder_oi} onChange={handleOneFitMedChange('poder_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.dia_oi} onChange={handleOneFitMedChange('dia_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.mid_oi} onChange={handleOneFitMedChange('mid_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.lim_oi} onChange={handleOneFitMedChange('lim_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.pfsd_oi} onChange={handleOneFitMedChange('pfsd_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.edg_oi} onChange={handleOneFitMedChange('edg_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.ct_oi} onChange={handleOneFitMedChange('ct_oi')} /></td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      ) : (
+                                        <table className="table table-bordered">
+                                          <thead>
+                                            <tr
                                               style={{
-                                                color: 'white!important',
+                                                backgroundColor: '#4361ee'
                                               }}
                                             >
-                                              RX
-                                            </th>
-                                            <th
-                                              className="text-center"
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              Esfera
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              Cilindro
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              Eje
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              ADD
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                // width: '175px'
-                                              }}
-                                            >
-                                              {isAroVisible ? 'PRISMA' : 'Tipo de lente de contacto'}
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              {isAroVisible ? 'DISTANCIA PUPILAR' : 'Curva Base'}
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              {isAroVisible ? 'ALTURA' : 'Diametro'}
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          <tr>
-                                            <td className="text-center">
-                                              OD
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="esfera_od"
-                                                as="input"
+                                              <th
+                                                className="text-center"
                                                 style={{
-                                                  width: isAroVisible ? '90px' : '120px',
+                                                  color: 'white!important',
                                                 }}
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="cilindro_od"
-
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="eje_od"
-
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="add_od"
-
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="prisma_od"
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td                                         >
-                                              <Field
-                                                className="form-control"
-                                                name="distancia_od"
-                                                as="input"
-                                              // style={{
-                                              //   width: isAroVisible ? '90px' : '120px',
-                                              // }}
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="altura_od"
-                                                as="input"
-                                              />
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td className="text-center">
-                                              OI
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="esfera_oi"
-                                                as="input"
+                                              >
+                                                RX
+                                              </th>
+                                              <th
+                                                className="text-center"
                                                 style={{
-                                                  width: isAroVisible ? '90px' : '120px',
+                                                  color: 'white!important',
+                                                  width: "130px"
                                                 }}
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="cilindro_oi"
+                                              >
+                                                Esfera
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                Cilindro
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                Eje
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                ADD
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                }}
+                                              >
+                                                {esAro ? 'PRISMA' : 'Tipo de lente de contacto'}
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                {esAro ? 'DISTANCIA PUPILAR' : 'Curva Base'}
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                {esAro ? 'ALTURA' : 'Diametro'}
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="text-center">
+                                                OD
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="esfera_od"
+                                                  as="input"
+                                                  style={{
+                                                    width: esAro ? '90px' : '120px',
+                                                  }}
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="cilindro_od"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="eje_oi"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="eje_od"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="add_oi"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="add_od"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                type="text"
-                                                name="prisma_oi"
-                                                as="input"
-                                              />
-                                            </td>
-                                            {isRowVisible ? (
-                                              <td></td>
-                                            ) : (
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="prisma_od"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td                                         >
+                                                <Field
+                                                  className="form-control"
+                                                  name="distancia_od"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="altura_od"
+                                                  as="input"
+                                                />
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td className="text-center">
+                                                OI
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="esfera_oi"
+                                                  as="input"
+                                                  style={{
+                                                    width: esAro ? '90px' : '120px',
+                                                  }}
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="cilindro_oi"
+
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="eje_oi"
+
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="add_oi"
+
+                                                  as="input"
+                                                />
+                                              </td>
                                               <td>
                                                 <Field
                                                   className="form-control"
                                                   type="text"
-                                                  name="distancia_oi"
+                                                  name="prisma_oi"
                                                   as="input"
                                                 />
                                               </td>
-                                            )}
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="altura_oi"
+                                              {esAro ? (
+                                                <td></td>
+                                              ) : (
+                                                <td>
+                                                  <Field
+                                                    className="form-control"
+                                                    type="text"
+                                                    name="distancia_oi"
+                                                    as="input"
+                                                  />
+                                                </td>
+                                              )}
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="altura_oi"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
+                                                  as="input"
+                                                />
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
 
                                 {
-                                  isRowVisible && (
+                                  esAro && (
                                     <div
                                       style={{
                                         border: '2px solid blue',
                                         borderRadius: '25px',
                                         marginTop: '-20px',
                                         padding: '15px'
-                                        // background: 'red'
                                       }}
                                     >
                                       <Row gutter={[16, 16]}>
@@ -923,11 +1066,8 @@ const CreateOrden = () => {
                                           </Select>
                                           <div
                                             style={{
-                                              // display: 'ruby',
                                               marginTop: '10px',
                                               marginBottom: '10px'
-                                            }}
-                                            onClick={() => {
                                             }}
                                           >
                                             {
@@ -938,13 +1078,6 @@ const CreateOrden = () => {
                                                       style={index !== 0 ? { marginTop: '10px', color: 'black' } : { color: 'black' }}
                                                     >
                                                       {servicio.servicio} :
-                                                      {/* {
-                                                      
-                                                  isLeftEye
-                                                  ? (index == 1 ? "Ojo Derecho:" : "Ojo Izquierdo:")
-                                                  : (index == 0 ? "Ojo Derecho:" : "Ojo Izquierdo:")
-                                                } */}
-
                                                     </div>
                                                     <div
                                                       style={{
@@ -956,7 +1089,6 @@ const CreateOrden = () => {
                                                         paddingLeft: '10px',
                                                         paddingRight: '10px',
                                                         borderRadius: '20px',
-                                                        // display: 'flex',
                                                         display: 'table-cell',
                                                         marginRight: '5px',
                                                         marginTop: '5px'
@@ -969,7 +1101,6 @@ const CreateOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
                                                           setServiciosRealizados([])
                                                           setTipoCorredor('')
                                                         }}
@@ -1039,11 +1170,8 @@ const CreateOrden = () => {
                                           </Select>
                                           <div
                                             style={{
-                                              // display: 'ruby',
                                               marginTop: '10px',
                                               marginBottom: '10px'
-                                            }}
-                                            onClick={() => {
                                             }}
                                           >
                                             {
@@ -1066,7 +1194,6 @@ const CreateOrden = () => {
                                                         paddingLeft: '10px',
                                                         paddingRight: '10px',
                                                         borderRadius: '20px',
-                                                        // display: 'flex',
                                                         display: 'table-cell',
                                                         marginRight: '5px',
                                                         marginTop: '5px'
@@ -1079,7 +1206,6 @@ const CreateOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
                                                           setMaterialesSeleccionados([])
                                                         }}
                                                       >
@@ -1123,11 +1249,8 @@ const CreateOrden = () => {
                                           </Select>
                                           <div
                                             style={{
-                                              // display: 'ruby',
                                               marginTop: '10px',
                                               marginBottom: '10px'
-                                            }}
-                                            onClick={() => {
                                             }}
                                           >
                                             {
@@ -1149,7 +1272,6 @@ const CreateOrden = () => {
                                                         paddingLeft: '10px',
                                                         paddingRight: '10px',
                                                         borderRadius: '20px',
-                                                        // display: 'flex',
                                                         display: 'table-cell',
                                                         marginRight: '5px',
                                                         marginTop: '5px'
@@ -1162,7 +1284,6 @@ const CreateOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
                                                           setTratamientosFiltros([])
                                                         }}
                                                       >
@@ -1177,435 +1298,9 @@ const CreateOrden = () => {
                                           </div>
                                         </Col>
                                       </Row>
-
-                                      {/* <div className="row p-1">
-                                  <div className="col-md-2">
-                                    <h6 className="text-center p-2">
-                                      TIPO DE LENTE:
-                                    </h6>
-                                  </div>
-                                  <div className="col-md-2 p-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="monofocal"
-                                          name="tipo_lente"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Monofocal
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2 p-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="bifocal"
-                                          name="tipo_lente"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Bifocal
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2 p-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="interview"
-                                          name="tipo_lente"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Interview
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2 p-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="antifatigue"
-                                          name="tipo_lente"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Antifatigue
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2 p-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="progresivo"
-                                          name="tipo_lente"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Progresivo
-                                      </label>
-                                    </div>
-                                  </div>
-                                </div> */}
                                     </div>
                                   )
                                 }
-
-
-                                {/* <div
-                                className="p-2"
-                                style={{
-                                  border: '2px solid blue',
-                                  borderRadius: '25px',
-                                  marginTop: '10px'
-                                }}
-                              >
-                                <div className="row">
-                                  <div className="col-md-2">
-                                    <h6 className="text-center p-2">
-                                      MATERIAL:
-                                    </h6>
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="cr_39"
-                                          name="material.material_1"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        CR-39
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="policarbonato"
-                                          name="material.material_1"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Policarbonato
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="thin_lite"
-                                          name="material.material_2"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        THIN & LITE
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="super_thin"
-                                          name="material.material_2"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        {' '}SUPER THIN & LITE
-                                      </label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="row p-2">
-                                  <div className="col-md-2">
-                                    <h6 className="text-center p-2" />
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="drivewear"
-                                          name="material.material_1"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        DRIVEWEAR
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="polarizado"
-                                          name="material.material_1"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        POLARIZADO
-                                      </label>
-                                      <div>
-                                        <span>Gris</span>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                        <span>Café</span>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="policolor"
-                                          name="material.material_2"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        POLICOLOR
-                                      </label>
-                                      <div>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                </div>
-                              </div> */}
-
-                                {/*  */}
-                                {/* <div
-                                style={{
-                                  border: '2px solid blue',
-                                  borderRadius: '25px',
-                                  marginTop: '10px',
-                                  padding: '10px 50px'
-                                }}
-                              >
-                                <div className="row p-1">
-                                  <div className="col-md-2">
-                                    <h6 className="text-center p-2">
-                                      TRATAMIENTOS Y FILTROS:
-                                    </h6>
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="transitions"
-                                          name="tratamientos.transitions"
-                                          type="radio"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Transitions
-                                      </label>
-
-                                      <div>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-checkbox checkbox-outline-success">
-                                        <Field
-                                          className="new-control-input"
-                                          value="antireflejo"
-                                          name="tratamientos.antireflejo_t"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Antireflejo
-                                      </label>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-checkbox checkbox-outline-success">
-                                        <Field
-                                          className="new-control-input"
-                                          value="espejado"
-                                          name="tratamientos.espejado"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Espejado
-                                      </label>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="degradante"
-                                          name="tratamientos.degradante"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Degradante
-                                      </label>
-                                    </div>
-                                  </div>
-
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-
-                                      <div
-                                        style={{
-                                          color: 'black'
-                                        }}
-                                      >
-                                        Color
-                                      </div>
-
-                                      <div>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                </div>
-                                <div className="row p-2">
-                                  <div className="col-md-2">
-                                    <h6 className="text-center p-2" />
-                                  </div>
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-checkbox checkbox-outline-success">
-                                        <Field
-                                          className="new-control-input"
-                                          value="fotocromatico"
-                                          name="tratamientos.fotocromatico_t"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Fotocromático
-                                      </label>
-
-                                      <div>
-                                        <span>Gris</span>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                        <span>Café</span>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-checkbox checkbox-outline-success">
-                                        <Field
-                                          className="new-control-input"
-                                          value="uv"
-                                          name="tratamientos.uv"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        UV
-                                      </label>
-                                    </div>
-                                  </div>
-
-
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="tinte"
-                                          name="tratamientos.tinte"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Tinte
-                                      </label>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-                                      <label className="new-control new-radio radio-classic-primary">
-                                        <Field
-                                          className="new-control-input"
-                                          value="uniforme"
-                                          name="tratamientos.uniforme"
-                                          type="checkbox"
-                                        />
-                                        <span className="new-control-indicator" />
-                                        Uniforme
-                                      </label>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-md-2">
-                                    <div className="n-chk">
-
-                                      <div
-                                        style={{
-                                          color: 'black'
-                                        }}
-                                      >
-                                        Intensidad
-                                      </div>
-
-                                      <div>
-                                        <span>
-                                          <Input />
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-
-                                </div>
-                                <div className="row p-2">
-
-                                </div>
-                              </div> */}
-                                {/*  */}
-
-                                {/*  */}
-
 
                                 <div
                                   style={{
@@ -1620,9 +1315,6 @@ const CreateOrden = () => {
                                   >
                                     <Col
                                       xxl={14} xl={14} md={14}
-                                      style={{
-                                        // alignContent: 'center'
-                                      }}
                                     >
                                       <Row
                                         gutter={[16, 16]}
@@ -1639,16 +1331,11 @@ const CreateOrden = () => {
                                           </div>
                                         </Col>
 
-                                        {isAroVisible && (
+                                        {esAro && (
                                           <Col xxl={5} xl={5} md={5}>
                                             <div>
                                               <label className="new-control new-radio radio-classic-primary">
                                                 <b>ARO CENTEVI</b>
-                                                {/* <Checkbox
-                                              className="new-control-input"
-                                            >
-
-                                            </Checkbox> */}
                                                 <Field
                                                   className="new-control-input"
                                                   checked={aroCentevi}
@@ -1664,7 +1351,7 @@ const CreateOrden = () => {
                                             </div>
                                           </Col>
                                         )}
-                                        {isAroVisible && (
+                                        {esAro && (
                                           <Col xxl={5} xl={5} md={5}>
                                             <div>
                                               <label className="new-control new-radio radio-classic-primary">
@@ -1680,13 +1367,9 @@ const CreateOrden = () => {
                                             </div>
                                           </Col>
                                         )}
-                                        {isAroVisible && (
+                                        {esAro && (
                                           <Col xxl={5} xl={5} md={5}>
-                                            <div
-                                              style={{
-                                                // display: 'flex'
-                                              }}
-                                            >
+                                            <div>
                                               <div style={{ marginTop: '-15px' }}>
                                                 <b>CÓDIGO</b>
                                               </div>
@@ -1704,13 +1387,9 @@ const CreateOrden = () => {
                                           </Col>
                                         )}
 
-                                        <Col xxl={isRowVisible ? 9 : 12} xl={isRowVisible ? 9 : 12} md={isRowVisible ? 9 : 12}>
-                                          {isAroVisible && (
-                                            <div
-                                              style={{
-                                                // display: 'flex'
-                                              }}
-                                            >
+                                        <Col xxl={esAro ? 9 : 12} xl={esAro ? 9 : 12} md={esAro ? 9 : 12}>
+                                          {esAro && (
+                                            <div>
                                               <div style={{ marginTop: '-68px' }}>
                                                 <b>COLOR*</b>
                                               </div>
@@ -1723,11 +1402,11 @@ const CreateOrden = () => {
                                               />
                                             </div>
                                           )}
-                                          <div style={{}}>
+                                          <div>
                                             <div style={{ marginTop: '1px' }}>
                                               <b>MARCA</b>
                                             </div>
-                                            {isAroVisible ? (
+                                            {esAro ? (
 
                                               <Field
                                                 className="form-control"
@@ -1740,6 +1419,7 @@ const CreateOrden = () => {
                                                   <div style={{ marginBottom: '5px', fontSize: '12px' }}>Ojo Derecho</div>
                                                   <Select
                                                     name="marca"
+                                                    value={values.marca || undefined}
                                                     placeholder="Selecciona la marca"
                                                     showSearch
                                                     style={{
@@ -1755,9 +1435,9 @@ const CreateOrden = () => {
                                                     filterOption={(input, option) =>
                                                       option.label.toLowerCase().includes(input.toLowerCase())
                                                     }
-                                                    options={marcas_options_selecteds.map(marca => ({
+                                                    options={marcasOptions.map(marca => ({
                                                       value: marca.label,
-                                                      label: marca.label
+                                                      label: marca.label,
                                                     }))}
                                                   />
                                                   <ErrorMessage name="marca" component="div" className="text-danger" />
@@ -1767,6 +1447,7 @@ const CreateOrden = () => {
                                                   <div style={{ marginBottom: '5px', fontSize: '12px' }}>Ojo Izquierdo</div>
                                                   <Select
                                                     name="marca_oi"
+                                                    value={values.marca_oi || undefined}
                                                     placeholder="Selecciona la marca"
                                                     showSearch
                                                     style={{
@@ -1781,9 +1462,9 @@ const CreateOrden = () => {
                                                     filterOption={(input, option) =>
                                                       option.label.toLowerCase().includes(input.toLowerCase())
                                                     }
-                                                    options={marcas_options_selecteds.map(marca => ({
+                                                    options={marcasOptions.map(marca => ({
                                                       value: marca.label,
-                                                      label: marca.label
+                                                      label: marca.label,
                                                     }))}
                                                   />
                                                   <ErrorMessage name="marca_oi" component="div" className="text-danger" />
@@ -1799,117 +1480,13 @@ const CreateOrden = () => {
                                           >
                                             <Col xxl={12} xl={12} md={12}>
                                               <Row>
-                                                {/* <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>METAL COMPLETO</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>PASTA COMPLETO</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>METAL SEMI - AIRE</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>PASTA SEMI - AIRE</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>AL AIRE</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col>
-
-
-                                              <Col xxl={12} xl={12} md={12}>
-                                                <div>
-                                                  <label className="new-control new-radio radio-classic-primary">
-                                                    <b>SEGURIDAD</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label>
-                                                </div>
-                                              </Col> */}
-                                                {isAroVisible && (
+                                                {esAro && (
                                                   <Col xxl={24} xl={24} md={24}>
                                                     <div
                                                       style={{
-                                                        // display: 'flex'
                                                         marginBottom: '10px'
                                                       }}
                                                     >
-                                                      {/* <label className="new-control new-radio radio-classic-primary">
-                                                    <b>MARCA</b>
-                                                    <Field
-                                                      className="new-control-input"
-                                                      value="transitions"
-                                                      name="tratamientos.transitions"
-                                                      type="radio"
-                                                    />
-                                                    <span className="new-control-indicator" />
-                                                  </label> */}
-
-                                                      {/* <Input /> */}
                                                       <b>TIPO DE ARO*:</b>
                                                       <Select
                                                         showSearch
@@ -1998,7 +1575,7 @@ const CreateOrden = () => {
                                         </Col>
                                       </Row>
                                     </Col>
-                                    {isImageVisible && (
+                                    {esAro && (
                                       <Col
                                         xxl={10} xl={10} md={10}
                                         style={{
@@ -2010,14 +1587,12 @@ const CreateOrden = () => {
                                           style={{
                                             width: '470px',
                                             height: '470px',
-                                            // alignContent: "center",
                                           }}
                                         >
                                           <img
                                             src="assets/img/recetas/lentessinbarilla.png"
                                             style={{
                                               width: "120%",
-                                              // height: "80px"
                                             }}
                                           />
                                           <div
@@ -2110,25 +1685,12 @@ const CreateOrden = () => {
                                     )}
                                   </Row>
                                 </div>
-                                {/*  */}
                                 <button
                                   className="btn btn-success mt-3"
                                   type="submit"
                                 >
                                   Crear Receta
                                 </button>
-                                {/* <Button
-                                  className="btn btn-success mt-3"
-                                  type="submit"
-                                  loading={isSubmitting}
-                                  onClick={() => {
-                                    console.log("click");
-                                    refButtonForm.current.click();
-                                    console.log("click");
-                                  }}
-                                >
-                                  Crear Receta
-                                </Button> */}
                               </Form>
                             )
                           }}

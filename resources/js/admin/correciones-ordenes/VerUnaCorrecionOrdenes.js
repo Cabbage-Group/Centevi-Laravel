@@ -23,13 +23,14 @@ import CorreccionEnviado from './fases/CorreccionEnviado';
 import CorreccionObservacionesHistorial from './observaciones/CorreccionObservacioneshistorial';
 import { clearCorreccionesObservaciones, fetchCorreccionesObservacionesOrden } from '../../redux/features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones';
 
+
 const VerUnaCorrecionOrdenes = () => {
 
   const dispatch = useDispatch();
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.fasesOrdenes.nuevaDataCorrecciones);
   const { correccionOrderId } = useParams();
-  const { correcionOrden } = useSelector((state) => state.correcionesordenes);
+  const { correcionOrden, statusCorreccionOrden } = useSelector((state) => state.correcionesordenes);
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
   const [initialized, setInitialized] = useState(false);
@@ -37,6 +38,12 @@ const VerUnaCorrecionOrdenes = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
   const usuarios = useSelector((state) => state.usuarios.usuarios);
+  const [tipoLente, setTipoLente] = useState('aro');
+  const esAro = tipoLente === 'aro';
+  const esOneFit = tipoLente === 'onefit';
+  const esOneFitMed = tipoLente === 'onefitmed';
+  const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
+  const [oneFitMedValues, setOneFitMedValues] = useState(ONE_FIT_MED_INITIAL);
   const {
     correccionesObservaciones,
     statusFetch: statusObservaciones
@@ -132,9 +139,9 @@ const VerUnaCorrecionOrdenes = () => {
   };
 
 
-  const itemsSteps = tiposFasesOrdenes?.map((fase,index) => {
+  const itemsSteps = tiposFasesOrdenes?.map((fase, index) => {
     let icon;
-      const isCompletedOrActive = index <= nivelStep;
+    const isCompletedOrActive = index <= nivelStep;
     switch (fase.tipo_fase_orden.toLowerCase()) {
       case 'nuevo':
         icon = <FileAddOutlined />;
@@ -142,7 +149,7 @@ const VerUnaCorrecionOrdenes = () => {
       case 'enviado':
         icon = <CarOutlined />;
         break;
-         case 'en confección':
+      case 'en confección':
         icon = (
           <>
             <style>{`
@@ -333,6 +340,7 @@ const VerUnaCorrecionOrdenes = () => {
       <VerCorreccionOrdenes
         correcionOrden={correcionOrden}
         fecha_solicitud={fechaSolicitud}
+        statusCorreccionOrden={statusCorreccionOrden}
       >
       </VerCorreccionOrdenes>
     </div>

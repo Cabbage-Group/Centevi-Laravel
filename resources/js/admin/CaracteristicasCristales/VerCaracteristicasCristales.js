@@ -38,6 +38,8 @@ import {
   fetchProveedorMaterial,
   updateProveedorMaterial,
 } from "../../redux/features/proveedor-material/proveedorMaterialSlice";
+import { createMarcasOnefitMed, deleteMarcasOnefitMed, fetchMarcasOnefitMed, updateMarcasOnefitMed } from "../../redux/features/marcas-onefit-med/marcasOnefitMedSlice";
+import { createMarcasOnefit, deleteMarcasOnefit, fetchMarcasOnefit, updateMarcasOnefit } from "../../redux/features/marcas-onefit/marcasOnefitSlice";
 
 const CristalesMaterialesTratamientos = () => {
   const dispatch = useDispatch();
@@ -57,6 +59,18 @@ const CristalesMaterialesTratamientos = () => {
   const { marcas_lente_contacto, marcas_lente_normal, status_marcas } = useSelector(
     (state) => state.marcas
   );
+  const {
+    marcas: marcasOnefit,
+    status_marcas: statusMarcasOnefit,
+  } = useSelector((state) => state.marcasOnefit);
+
+  const {
+    marcas: marcasOnefitMed,
+    status_marcas: statusMarcasOnefitMed,
+  } = useSelector((state) => state.marcasOnefitMed);
+
+  const [tipoMarca, setTipoMarca] = useState("normal");
+
   const { proveedorMaterial, status_proveedorMaterial } = useSelector(
     (state) => state.proveedorMaterial
   );
@@ -81,28 +95,44 @@ const CristalesMaterialesTratamientos = () => {
       case "Cristales":
         dispatch(fetchCristales({ search: debouncedSearchText }));
         break;
+
       case "Materiales":
         dispatch(fetchMateriales({ search: debouncedSearchText }));
         break;
+
       case "Tratamientos":
         dispatch(fetchTratamientos({ search: debouncedSearchText }));
         break;
-      case "MarcasLenteContacto":
-        dispatch(fetchMarcas({ search: debouncedSearchText }));
+
+      case "Marcas":
+        if (tipoMarca === "normal") {
+          dispatch(fetchMarcas({ search: debouncedSearchText }));
+        } else if (tipoMarca === "contacto") {
+          dispatch(fetchMarcas({ search: debouncedSearchText }));
+        } else if (tipoMarca === "onefit") {
+          dispatch(fetchMarcasOnefit({ search: debouncedSearchText }));
+        } else if (tipoMarca === "onefitmed") {
+          dispatch(fetchMarcasOnefitMed({ search: debouncedSearchText }));
+        }
         break;
-      case "MarcasLenteNormal":
-        dispatch(fetchMarcas({ search: debouncedSearchText }));
-        break;
+
       case "TiposAros":
         dispatch(fetchTiposAros({ search: debouncedSearchText }));
         break;
+
       case "ProveedorMaterial":
         dispatch(fetchProveedorMaterial({ search: debouncedSearchText }));
         break;
+
       default:
         break;
     }
-  }, [debouncedSearchText, selectedTable, dispatch]);
+  }, [
+    debouncedSearchText,
+    selectedTable,
+    tipoMarca,
+    dispatch,
+  ]);
 
   // Manejo del modal
   const showModal = (record = null) => {
@@ -123,54 +153,78 @@ const CristalesMaterialesTratamientos = () => {
       if (editingItem) {
         if (selectedTable === "Cristales")
           dispatch(updateCristales({ id: editingItem.id, ...values }));
+
         if (selectedTable === "Materiales")
           dispatch(updateMateriales({ id: editingItem.id, ...values }));
+
         if (selectedTable === "Tratamientos")
           dispatch(updateTratamientos({ id: editingItem.id, ...values }));
-        if (selectedTable === "MarcasLenteContacto")
-          dispatch(updateMarcas({ id: editingItem.id, ...values }));
-        if (selectedTable === "MarcasLenteNormal")
-          dispatch(updateMarcas({ id: editingItem.id, ...values }));
+
+        if (selectedTable === "Marcas") {
+          if (tipoMarca === "normal" || tipoMarca === "contacto") {
+            dispatch(updateMarcas({ id: editingItem.id, ...values }));
+          }
+
+          if (tipoMarca === "onefit") {
+            dispatch(updateMarcasOnefit({
+              id: editingItem.id,
+              ...values,
+            }));
+          }
+
+          if (tipoMarca === "onefitmed") {
+            dispatch(updateMarcasOnefitMed({
+              id: editingItem.id,
+              ...values,
+            }));
+          }
+        }
+
         if (selectedTable === "TiposAros")
           dispatch(updateTiposAros({ id: editingItem.id, ...values }));
+
         if (selectedTable === "ProveedorMaterial")
-          dispatch(updateProveedorMaterial({ id: editingItem.id, ...values }));
+          dispatch(updateProveedorMaterial({
+            id: editingItem.id,
+            ...values,
+          }));
+
         message.success("Actualizado correctamente!");
       } else {
-        if (selectedTable === "Cristales") dispatch(createCristales(values));
-        if (selectedTable === "Materiales") dispatch(createMateriales(values));
-        if (selectedTable === "Tratamientos") dispatch(createTratamientos(values));
-        if (selectedTable === "MarcasLenteContacto") {
-          dispatch(createMarcas(values))
-            .unwrap()
-            .catch((error) => {
-              if (error.errors?.codigo) {
-                message.error("El código ya ha sido registrado.");
-              } else if (error.errors?.nombre) {
-                message.error("El nombre ya ha sido registrado.");
-              } else {
-                message.error("Error al crear la marca de lente de contacto.");
-              }
-            });
+        if (selectedTable === "Cristales") {
+          dispatch(createCristales(values));
         }
-        if (selectedTable === "MarcasLenteNormal") dispatch(createMarcas(values));
+
+        if (selectedTable === "Materiales") {
+          dispatch(createMateriales(values));
+        }
+
+        if (selectedTable === "Tratamientos") {
+          dispatch(createTratamientos(values));
+        }
+
+        if (selectedTable === "Marcas") {
+          if (tipoMarca === "normal" || tipoMarca === "contacto") {
+            dispatch(createMarcas(values));
+          }
+
+          if (tipoMarca === "onefit") {
+            dispatch(createMarcasOnefit(values));
+          }
+
+          if (tipoMarca === "onefitmed") {
+            dispatch(createMarcasOnefitMed(values));
+          }
+        }
+
         if (selectedTable === "TiposAros") {
           dispatch(createTiposAros(values));
         }
+
         if (selectedTable === "ProveedorMaterial") {
-          dispatch(createProveedorMaterial(values))
-            .unwrap()
-            .then(() => {
-              handleCancel();
-            })
-            .catch((error) => {
-              if (error.errors?.nombre) {
-                message.error("El nombre ya ha sido registrado.");
-              } else {
-                message.error("Error al crear el proveedor de material.");
-              }
-            });
+          dispatch(createProveedorMaterial(values));
         }
+
         message.success("Creado correctamente!");
       }
       handleCancel();
@@ -183,14 +237,42 @@ const CristalesMaterialesTratamientos = () => {
       content: "Esto no se puede deshacer",
       okText: "Sí, eliminar",
       cancelText: "Cancelar",
+
       onOk: () => {
-        if (selectedTable === "Cristales") dispatch(deleteCristales(id));
-        if (selectedTable === "Materiales") dispatch(deleteMateriales(id));
-        if (selectedTable === "Tratamientos") dispatch(deleteTratamientos(id));
-        if (selectedTable === "MarcasLenteContacto") dispatch(deleteMarcas(id));
-        if (selectedTable === "MarcasLenteNormal") dispatch(deleteMarcas(id));
-        if (selectedTable === "TiposAros") dispatch(deleteTiposAros(id));
-        if (selectedTable === "ProveedorMaterial") dispatch(deleteProveedorMaterial(id));
+        if (selectedTable === "Cristales") {
+          dispatch(deleteCristales(id));
+        }
+
+        if (selectedTable === "Materiales") {
+          dispatch(deleteMateriales(id));
+        }
+
+        if (selectedTable === "Tratamientos") {
+          dispatch(deleteTratamientos(id));
+        }
+
+        if (selectedTable === "Marcas") {
+          if (tipoMarca === "normal" || tipoMarca === "contacto") {
+            dispatch(deleteMarcas(id));
+          }
+
+          if (tipoMarca === "onefit") {
+            dispatch(deleteMarcasOnefit(id));
+          }
+
+          if (tipoMarca === "onefitmed") {
+            dispatch(deleteMarcasOnefitMed(id));
+          }
+        }
+
+        if (selectedTable === "TiposAros") {
+          dispatch(deleteTiposAros(id));
+        }
+
+        if (selectedTable === "ProveedorMaterial") {
+          dispatch(deleteProveedorMaterial(id));
+        }
+
         message.success("Eliminado correctamente!");
       },
     });
@@ -201,47 +283,68 @@ const CristalesMaterialesTratamientos = () => {
     ...(selectedTable === "Cristales"
       ? [{ title: "Código", dataIndex: "codigo", key: "codigo" }]
       : []),
-    ...(selectedTable === "MarcasLenteContacto" || selectedTable === "MarcasLenteNormal"
+    ...(selectedTable === "Cristales" || selectedTable === "Marcas"
       ? [
-          { title: "Código", dataIndex: "codigo", key: "codigo" },
-          {
-            title: "Lente de Contacto",
-            dataIndex: "lente_contacto",
-            key: "lente_contacto",
-            render: (value) => (value ? "Sí" : "No"),
-          },
-        ]
+        {
+          title: "Código",
+          dataIndex: "codigo",
+          key: "codigo",
+        },
+      ]
       : []),
     { title: "Nombre", dataIndex: "nombre", key: "nombre" },
     {
       title: "Acciones",
       key: "acciones",
       render: (_, record) => (
-        <>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
           <Button
-            className="btn btn-warning btnEditarReceta"
             size="large"
-            icon={<EditOutlined />}
             onClick={() => showModal(record)}
+            icon={
+              <EditOutlined
+                style={{
+                  color: "#fff",
+                  fontSize: 18,
+                }}
+              />
+            }
             style={{
-              marginRight: 8,
+              display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              backgroundColor: "#e2a03f",
+              borderColor: "#ffc107",
+              color: "#fff",
             }}
           />
-
           <Button
-            className="btn btn-danger btnEliminarReceta"
             size="large"
-            icon={<DeleteOutlined />}
-            danger
             onClick={() => handleDelete(record.id)}
+            icon={
+              <DeleteOutlined
+                style={{
+                  color: "#fff",
+                  fontSize: 18,
+                }}
+              />
+            }
             style={{
+              display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              backgroundColor: "#dc3545",
+              borderColor: "#dc3545",
+              color: "#fff",
             }}
           />
-        </>
+        </div>
       ),
     },
   ];
@@ -250,21 +353,42 @@ const CristalesMaterialesTratamientos = () => {
     Cristales: cristales || [],
     Materiales: materiales || [],
     Tratamientos: tratamientos || [],
-    MarcasLenteContacto: marcas_lente_contacto || [],
-    MarcasLenteNormal: marcas_lente_normal || [],
+
+    Marcas:
+      tipoMarca === "normal"
+        ? marcas_lente_normal || []
+        : tipoMarca === "contacto"
+          ? marcas_lente_contacto || []
+          : tipoMarca === "onefit"
+            ? marcasOnefit || []
+            : marcasOnefitMed || [],
+
     TiposAros: tiposAros || [],
     ProveedorMaterial: proveedorMaterial || [],
   };
 
-  const tableLoading = {
-    Cristales: status_cristales,
-    Materiales: status_materiales,
-    Tratamientos: status_tratamientos,
-    MarcasLenteContacto: status_marcas,
-    MarcasLenteNormal: status_marcas,
-    TiposAros: status_tiposAros,
-    ProveedorMaterial: status_proveedorMaterial,
-  }[selectedTable];
+
+  let tableLoading = false;
+
+  if (selectedTable === "Cristales") {
+    tableLoading = status_cristales;
+  } else if (selectedTable === "Materiales") {
+    tableLoading = status_materiales;
+  } else if (selectedTable === "Tratamientos") {
+    tableLoading = status_tratamientos;
+  } else if (selectedTable === "Marcas") {
+    if (tipoMarca === "normal" || tipoMarca === "contacto") {
+      tableLoading = status_marcas;
+    } else if (tipoMarca === "onefit") {
+      tableLoading = statusMarcasOnefit;
+    } else if (tipoMarca === "onefitmed") {
+      tableLoading = statusMarcasOnefitMed;
+    }
+  } else if (selectedTable === "TiposAros") {
+    tableLoading = status_tiposAros;
+  } else if (selectedTable === "ProveedorMaterial") {
+    tableLoading = status_proveedorMaterial;
+  }
 
   return (
     <div style={{ padding: "20px" }}>
@@ -281,14 +405,44 @@ const CristalesMaterialesTratamientos = () => {
             "Cristales",
             "Materiales",
             "Tratamientos",
-            "MarcasLenteContacto",
-            "MarcasLenteNormal",
+            "Marcas",
             "TiposAros",
             "ProveedorMaterial",
           ]}
           value={selectedTable}
-          onChange={setSelectedTable}
+          onChange={(value) => {
+            setSelectedTable(value);
+
+            if (value === "Marcas") {
+              setTipoMarca("normal");
+            }
+          }}
         />
+        {selectedTable === "Marcas" && (
+          <Select
+            value={tipoMarca}
+            onChange={setTipoMarca}
+            style={{ width: 220 }}
+            options={[
+              {
+                value: "normal",
+                label: "Marcas de Lente Normal",
+              },
+              {
+                value: "contacto",
+                label: "Marcas de Lente de Contacto",
+              },
+              {
+                value: "onefit",
+                label: "Marcas OneFit",
+              },
+              {
+                value: "onefitmed",
+                label: "Marcas OneFit Med",
+              },
+            ]}
+          />
+        )}
         <Input
           placeholder={`Buscar en ${selectedTable}`}
           value={searchText}
@@ -336,48 +490,19 @@ const CristalesMaterialesTratamientos = () => {
             </Form.Item>
           )}
 
-          {selectedTable === "MarcasLenteContacto" && (
-            <>
-              <Form.Item
-                name="codigo"
-                label="Código"
-                rules={[{ required: true, message: "Campo obligatorio" }]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="lente_contacto"
-                label="Lente de Contacto"
-                rules={[{ required: true, message: "Campo obligatorio" }]}
-              >
-                <Select>
-                  <Select.Option value={1}>Sí</Select.Option>
-                </Select>
-              </Form.Item>
-            </>
-          )}
-
-          {selectedTable === "MarcasLenteNormal" && (
-            <>
-              <Form.Item
-                name="codigo"
-                label="Código"
-                rules={[{ required: true, message: "Campo obligatorio" }]}
-              >
-                <Input />
-              </Form.Item>
-
-              <Form.Item
-                name="lente_contacto"
-                label="Lente Normal"
-                rules={[{ required: true, message: "Campo obligatorio" }]}
-              >
-                <Select>
-                  <Select.Option value={0}>No</Select.Option>
-                </Select>
-              </Form.Item>
-            </>
+          {selectedTable === "Marcas" && (
+            <Form.Item
+              name="codigo"
+              label="Código"
+              rules={[
+                {
+                  required: true,
+                  message: "Campo obligatorio",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
           )}
           <Form.Item
             name="nombre"

@@ -367,11 +367,11 @@ const VerOrdenes = () => {
                           onClick={handleClearOrders}
                           className={
                             pagadoFilter.length > 0 ||
-                            sucursalFilter.length > 0 ||
-                            laboratorioFilter.length > 0 ||
-                            faseFilter.length > 0 ||
-                            lenteContactoFilter.length > 0 ||
-                            statusFilter.length > 0
+                              sucursalFilter.length > 0 ||
+                              laboratorioFilter.length > 0 ||
+                              faseFilter.length > 0 ||
+                              lenteContactoFilter.length > 0 ||
+                              statusFilter.length > 0
                               ? "btn btn-warning"
                               : "btn"
                           }
@@ -546,22 +546,47 @@ const VerOrdenes = () => {
                                 }
                                 allowClear
                               >
-                                <Select.Option value="1">
-                                  <div style={{ width: "30px", height: "30px" }}>
+                                <Select.Option value="contacto">
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                     <img
                                       src="assets/img/recetas/lentesdecontacto.png"
-                                      alt="Lente On"
-                                      style={{ width: "50%", height: "50%" }}
+                                      alt="Lente de Contacto"
+                                      style={{ width: "24px", height: "24px" }}
                                     />
+                                    <span>Lente de Contacto</span>
                                   </div>
                                 </Select.Option>
-                                <Select.Option value="0">
-                                  <div style={{ width: "30px", height: "30px" }}>
+
+                                <Select.Option value="aro">
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                     <img
                                       src="assets/img/recetas/lentenormal.png"
-                                      alt="Lente Off"
-                                      style={{ width: "50%", height: "50%" }}
+                                      alt="Lente Aro"
+                                      style={{ width: "24px", height: "24px" }}
                                     />
+                                    <span>Lente Aro</span>
+                                  </div>
+                                </Select.Option>
+
+                                <Select.Option value="onefit">
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <img
+                                      src="assets/img/recetas/lenteescleralonefit.svg"
+                                      alt="Lente Escleral OneFit"
+                                      style={{ width: "24px", height: "24px" }}
+                                    />
+                                    <span>Lente Escleral OneFit</span>
+                                  </div>
+                                </Select.Option>
+
+                                <Select.Option value="onefitmed">
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <img
+                                      src="assets/img/recetas/lenteescleralonefitmed.svg"
+                                      alt="Lente Escleral OneFit Med"
+                                      style={{ width: "24px", height: "24px" }}
+                                    />
+                                    <span>Lente Escleral OneFit Med</span>
                                   </div>
                                 </Select.Option>
                               </Select>

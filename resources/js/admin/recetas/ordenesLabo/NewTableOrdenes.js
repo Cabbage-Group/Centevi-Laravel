@@ -277,25 +277,32 @@ const NewTableOrdenes = () => {
     setCurrentPage(1);
   };
 
+  const TIPO_LENTE_ICONOS = {
+    aro: { src: 'assets/img/recetas/lentenormal.png', alt: 'Lente Aro' },
+    contacto: { src: 'assets/img/recetas/lentesdecontacto.png', alt: 'Lente de Contacto' },
+    onefit: { src: 'assets/img/recetas/lenteescleralonefit.svg', alt: 'Lente Escleral OneFit' },
+    onefitmed: { src: 'assets/img/recetas/lenteescleralonefitmed.svg', alt: 'Lente Escleral OneFit Med' },
+  }; 3
+
+
   const columns = [
     {
       title: "N° de Orden",
       dataIndex: "nro_orden_id",
       width: columnWidths.nroOrden,
-      render: (text, record) => (
-        <>
-          {text}
-          <img
-            src={
-              record?.lente_contacto
-                ? "assets/img/recetas/lentesdecontacto.png"
-                : "assets/img/recetas/lentenormal.png"
-            }
-            alt="Lente"
-            style={{ width: "20px", marginLeft: "8px" }}
-          />
-        </>
-      ),
+      render: (text, record) => {
+        const icono = TIPO_LENTE_ICONOS[record?.tipo_lente] || TIPO_LENTE_ICONOS.aro;
+        return (
+          <>
+            {text}
+            <img
+              src={icono.src}
+              alt={icono.alt}
+              style={{ width: "20px", marginLeft: "8px" }}
+            />
+          </>
+        );
+      },
     },
     {
       title: "Fec. de Creación",

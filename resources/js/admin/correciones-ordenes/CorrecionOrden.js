@@ -54,7 +54,7 @@ const CorrecionOrden = () => {
   const { tiposFasesOrdenes } = useSelector((state) => state.tiposFasesOrdenes)
   const nuevaDataCorrecciones = useSelector((state) => state.correccionesFasesOrdenes.nuevaDataCorrecciones);
   const usuarios = useSelector((state) => state.usuarios.usuarios);
-  const { correcionOrden } = useSelector((state) => state.correcionesordenes);
+  const { correcionOrden, statusCorreccionOrden } = useSelector((state) => state.correcionesordenes);
   const { correccionOrderId } = useParams();
   const [nivelStep, setNivelStep] = useState(0)
   const currentTipoFase = tiposFasesOrdenes[nivelStep] || {};
@@ -846,6 +846,7 @@ const CorrecionOrden = () => {
       <EditarCorrecionOrden
         correcionOrden={correcionOrden}
         fecha_solicitud={fechaSolicitud}
+        statusCorreccionOrden={statusCorreccionOrden}
       />
     </div>
   )

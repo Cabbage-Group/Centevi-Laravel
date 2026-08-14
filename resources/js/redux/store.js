@@ -108,6 +108,8 @@ import ordenesPedidosSlice from "./features/pedidos/ordenesPedidosSlice";
 import historialOrdenPedidoSlice from "./features/historial/historialOrdenPedidoSlice";
 import ordenObservacionesSlice from "./features/ordenesObservaciones/ordenObservacionesSlice";
 import correccionesOrdenObservacionesSlice from "./features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones";
+import marcasOnefitMedSlice from "./features/marcas-onefit-med/marcasOnefitMedSlice";
+import marcasOnefitSlice from "./features/marcas-onefit/marcasOnefitSlice";
 
 const store = configureStore({
   reducer: {
@@ -218,6 +220,10 @@ const store = configureStore({
 
     marcas: marcasSlice,
 
+    marcasOnefitMed: marcasOnefitMedSlice,
+
+    marcasOnefit: marcasOnefitSlice,
+
     kpisTipoLente: kpisTipoLenteSlice,
 
     tiposAros: tiposArosSlice,
@@ -263,7 +269,7 @@ const store = configureStore({
 
     ordenObservaciones: ordenObservacionesSlice,
 
-    correccionesOrdenObservaciones :correccionesOrdenObservacionesSlice
+    correccionesOrdenObservaciones: correccionesOrdenObservacionesSlice
   },
 });
 

@@ -8,14 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Ordenes extends Model
 {
   use HasFactory;
-
-  // Nombre de la tabla
   protected $table = 'ordenes';
-
-  // Clave primaria de la tabla
   protected $primaryKey = 'id_orden';
 
-  // Atributos que son asignables en masa
   protected $fillable = [
     'nro_orden_id',
     'codigo_cristal',
@@ -25,6 +20,7 @@ class Ordenes extends Model
     'id_paciente',
     'id_sucursal',
     'elaborado_por',
+
     'esfera_od',
     'esfera_oi',
     'cilindro_od',
@@ -39,6 +35,7 @@ class Ordenes extends Model
     'distancia_oi',
     'altura_od',
     'altura_oi',
+
     'tipo_cristal_od',
     'tipo_cristal_oi',
     'tipo_corredor',
@@ -46,6 +43,7 @@ class Ordenes extends Model
     'material_oi',
     'tratamientos_od',
     'tratamientos_oi',
+
     'aro_centevi',
     'aro_propio',
     'codigo',
@@ -55,13 +53,41 @@ class Ordenes extends Model
     'tipo_aro',
     'doctor',
     'observaciones',
+
     'l_uno',
     'l_dos',
     'l_tres',
     'l_cuatro',
     'l_cinco',
+
+    // OneFit
+    'poder_od',
+    'poder_oi',
+    'dia_od',
+    'dia_oi',
+    'edge_od',
+    'edge_oi',
+    'pfsd_od',
+    'pfsd_oi',
+    'cb_od',
+    'cb_oi',
+    'ct_od',
+    'ct_oi',
+
+    // OneFit Med
+    'sag_od',
+    'sag_oi',
+    'mid_od',
+    'mid_oi',
+    'lim_od',
+    'lim_oi',
+    'edg_od',
+    'edg_oi',
+
     'pagado',
     'lente_contacto',
+    'lente_escleral_onefit_med',
+    'lente_escleral_onefit',
     'correccion',
     'cancelada',
     'codigo_cristal',
@@ -79,6 +105,8 @@ class Ordenes extends Model
     'id_sucursal' => 'integer',
     'elaborado_por' => 'integer',
     'lente_contacto' => 'integer',
+    'lente_escleral_onefit_med' => 'integer',
+    'lente_escleral_onefit' => 'integer',
     'correccion' => 'integer',
     'cancelada' => 'integer',
   ];

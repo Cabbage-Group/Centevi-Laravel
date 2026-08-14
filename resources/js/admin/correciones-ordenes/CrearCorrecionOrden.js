@@ -18,6 +18,20 @@ import { fetchCristales } from '../../redux/features/cristales/cristalesSlice';
 import { fetchMateriales } from '../../redux/features/materiales/materialesSlice';
 import { fetchTratamientos } from '../../redux/features/tratamientos/tratamientosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
+import { fetchMarcasOnefit } from '../../redux/features/marcas-onefit/marcasOnefitSlice';
+import { fetchMarcasOnefitMed } from '../../redux/features/marcas-onefit-med/marcasOnefitMedSlice';
+
+
+
+const ONE_FIT_INITIAL = {
+  poder_od: '', dia_od: '', edge_od: '', pfsd_od: '', cb_od: '', ct_od: '',
+  rx_oi: '', poder_oi: '', dia_oi: '', edge_oi: '', pfsd_oi: '', cb_oi: '', ct_oi: '',
+};
+
+const ONE_FIT_MED_INITIAL = {
+  sag_od: '', poder_od: '', dia_od: '', mid_od: '', lim_od: '', pfsd_od: '', edg_od: '', ct_od: '',
+  sag_oi: '', poder_oi: '', dia_oi: '', mid_oi: '', lim_oi: '', pfsd_oi: '', edg_oi: '', ct_oi: '',
+};
 
 const CreateCorrecionOrden = () => {
 
@@ -46,16 +60,45 @@ const CreateCorrecionOrden = () => {
   const [selectedSucursal, setSelectedSucursal] = useState('');
   const [cedula, setCedula] = useState('');
   const [telefono, setTelefono] = useState('');
-  console.log("location", location.state)
-  console.log(pacienteOrden)
-  // useEffect(() => {
-  //   if (pacienteOrden?.lente_contacto) {
-  //     setLenteContacto(true);
-  //     setIsRowVisible(false);
-  //     setIsImageVisible(false);
-  //     setIsAroVisible(false);
-  //   }
-  // }, [pacienteOrden]);
+  const [tipoLente, setTipoLente] = useState('aro');
+  const esAro = tipoLente === 'aro';
+  const esOneFit = tipoLente === 'onefit';
+  const esOneFitMed = tipoLente === 'onefitmed';
+  const {
+    marcas_one_fit_options_selecteds,
+  } = useSelector((state) => state.marcasOnefit);
+  const {
+    marcas_one_fit_med_options_selecteds,
+  } = useSelector((state) => state.marcasOnefitMed);
+
+  const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
+  const handleOneFitChange = (field) => (e) => {
+    const { value } = e.target;
+    setOneFitValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const [oneFitMedValues, setOneFitMedValues] = useState(ONE_FIT_MED_INITIAL);
+
+  const handleOneFitMedChange = (field) => (e) => {
+    const { value } = e.target;
+    setOneFitMedValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const marcasOptions = (() => {
+    switch (tipoLente) {
+      case 'contacto':
+        return marcas_options_selecteds || [];
+
+      case 'onefit':
+        return marcas_one_fit_options_selecteds || [];
+
+      case 'onefitmed':
+        return marcas_one_fit_med_options_selecteds || [];
+
+      default:
+        return [];
+    }
+  })();
 
   useEffect(() => {
     if (pacientes_options_selecteds.length > 0) {
@@ -71,6 +114,8 @@ const CreateCorrecionOrden = () => {
     dispatch(fetchMateriales({}))
     dispatch(fetchTratamientos({}))
     dispatch(fetchMarcas({}))
+    dispatch(fetchMarcasOnefit({}));
+    dispatch(fetchMarcasOnefitMed({}));
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     if (pacientes_options_selecteds.length === 0) {
       dispatch(fetchPacientes({ page: 1, limit: 50000 }));
@@ -143,6 +188,7 @@ const CreateCorrecionOrden = () => {
     l_cinco: '',
     pagado: '',
     lenteContacto: false,
+    tipo_lente: pacienteOrden.tipo_lente || 'aro',
   };
 
   const [formValues, setFormValues] = useState({
@@ -185,6 +231,7 @@ const CreateCorrecionOrden = () => {
     l_cinco: '',
     pagado: '',
     lenteContacto: false,
+    tipo_lente: pacienteOrden.tipo_lente || 'aro',
   });
 
   useEffect(() => {
@@ -196,6 +243,41 @@ const CreateCorrecionOrden = () => {
       setSelectedMarca(pacienteOrden?.marca);
       setSelectedMarcaOI(pacienteOrden?.marca_oi);
       setLenteContacto(pacienteOrden?.lente_contacto)
+      const tipo = pacienteOrden?.tipo_lente || 'aro';
+      setTipoLente(tipo);
+      setOneFitValues({
+        poder_od: pacienteOrden?.poder_od || '',
+        poder_oi: pacienteOrden?.poder_oi || '',
+        dia_od: pacienteOrden?.dia_od || '',
+        dia_oi: pacienteOrden?.dia_oi || '',
+        edge_od: pacienteOrden?.edge_od || '',
+        edge_oi: pacienteOrden?.edge_oi || '',
+        pfsd_od: pacienteOrden?.pfsd_od || '',
+        pfsd_oi: pacienteOrden?.pfsd_oi || '',
+        cb_od: pacienteOrden?.cb_od || '',
+        cb_oi: pacienteOrden?.cb_oi || '',
+        ct_od: pacienteOrden?.ct_od || '',
+        ct_oi: pacienteOrden?.ct_oi || '',
+      });
+
+      setOneFitMedValues({
+        sag_od: pacienteOrden?.sag_od || '',
+        sag_oi: pacienteOrden?.sag_oi || '',
+        poder_od: pacienteOrden?.poder_od || '',
+        poder_oi: pacienteOrden?.poder_oi || '',
+        dia_od: pacienteOrden?.dia_od || '',
+        dia_oi: pacienteOrden?.dia_oi || '',
+        mid_od: pacienteOrden?.mid_od || '',
+        mid_oi: pacienteOrden?.mid_oi || '',
+        lim_od: pacienteOrden?.lim_od || '',
+        lim_oi: pacienteOrden?.lim_oi || '',
+        pfsd_od: pacienteOrden?.pfsd_od || '',
+        pfsd_oi: pacienteOrden?.pfsd_oi || '',
+        edg_od: pacienteOrden?.edg_od || '',
+        edg_oi: pacienteOrden?.edg_oi || '',
+        ct_od: pacienteOrden?.ct_od || '',
+        ct_oi: pacienteOrden?.ct_oi || '',
+      });
       setServiciosRealizados([
         pacienteOrden?.tipo_cristal_od ? {
           value: pacienteOrden.tipo_cristal_od,
@@ -296,7 +378,7 @@ const CreateCorrecionOrden = () => {
     elaborado_por: Yup.number().nullable(),
     aro_centevi: Yup.number().oneOf([0, 1]),
     aro_propio: Yup.number().oneOf([0, 1]),
-    tipo_aro: Yup.string().when('lenteContacto', {
+    tipo_aro: Yup.string().when('lente_contacto', {
       is: false,
       then: (schema) => schema.required("Seleccione un tipo de aro"),
       otherwise: (schema) => schema.notRequired(),
@@ -304,8 +386,8 @@ const CreateCorrecionOrden = () => {
     doctor: Yup.string()
       .nullable()
       .required("Seleccione un doctor"),
-    marca: Yup.string().when('lenteContacto', {
-      is: true,
+    marca: Yup.string().when('tipo_lente', {
+      is: (val) => val !== 'aro',
       then: (schema) => schema.test(
         'at-least-one-marca',
         'Debe seleccionar al menos una marca',
@@ -316,8 +398,8 @@ const CreateCorrecionOrden = () => {
       ),
       otherwise: (schema) => schema.notRequired(),
     }),
-    marca_oi: Yup.string().when('lenteContacto', {
-      is: true,
+    marca_oi: Yup.string().when('tipo_lente', {
+      is: (val) => val !== 'aro',
       then: (schema) => schema.test(
         'at-least-one-marca',
         'Debe seleccionar al menos una marca',
@@ -450,7 +532,7 @@ const CreateCorrecionOrden = () => {
     const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
     const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label);
     const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label);
-console.log(values)
+    console.log(values)
     const transformedValues = {
       ...values,
       ...(serviciosRealizadosSubmit.length === 1
@@ -506,12 +588,38 @@ console.log(values)
             }
           : {}
       ),
-      aro_centevi: aroCentevi ? 1 : 0,
-      aro_propio: aroCentevi ? 0 : 1,
-      ...(!lenteContacto ? { tipo_aro: tipoAro } : {}),
       doctor: doctorSeleccionado,
       elaborado_por: usuario?.usuario?.id_usuario,
       lente_contacto: lenteContacto,
+      tipo_lente: tipoLente,
+      ...(esAro
+        ? {
+          aro_centevi: aroCentevi ? 1 : 0,
+          aro_propio: aroCentevi ? 0 : 1,
+          tipo_aro: tipoAro,
+        }
+        : {
+          aro_centevi: 0,
+          aro_propio: 0,
+          tipo_aro: null,
+        }
+      ),
+      ...(esOneFit
+        ? {
+          ...oneFitValues,
+        }
+        : {}),
+      ...(esOneFitMed
+        ? {
+          ...oneFitMedValues,
+        }
+        : {}),
+      ...(tipoLente !== 'aro'
+        ? {
+          marca: selectedMarca || '',
+          marca_oi: selectedMarcaOI || '',
+        }
+        : {}),
     };
 
     try {
@@ -653,27 +761,6 @@ console.log(values)
                                       style={{ color: "red", fontSize: "12px" }}
                                     />
                                   </div>
-                                  {/* <div class="col-md-2">
-                                    <h4>Cambiar Tipo de lente</h4>
-                                    <div className="d-flex align-items-center">
-                                      <button
-                                        type="button"
-                                        className="btn btn-success"
-                                        style={{
-                                          height: "40px",
-                                          marginTop: "0",
-                                        }}
-                                        disabled={true}
-                                        onClick={() => {
-                                          handleLenteContactoChange()
-                                          setIsRowVisible(!isRowVisible);
-                                          setFieldValue("isRowVisible", !isRowVisible);
-                                        }}
-                                      >
-                                        {lenteContacto ? ' Cambiar a lente de contacto' : 'Cambiar a lente normal'}
-                                      </button>
-                                    </div>
-                                  </div> */}
                                   <div className="form-group col-md-4" >
                                     <label htmlFor="pacientes">Pacientes*</label>
                                     <Select
@@ -774,219 +861,292 @@ console.log(values)
                                 >
                                   <div className="form-group col-md-12">
                                     <div className="table-responsive">
-                                      <table className="table table-bordered">
-                                        <thead>
-                                          <tr
-                                            style={{
-                                              backgroundColor: '#4361ee'
-                                            }}
-                                          >
-                                            <th
-                                              className="text-center"
+                                      {esOneFit ? (
+                                        <table className="table table-bordered">
+                                          <thead>
+                                            <tr style={{ backgroundColor: '#4361ee' }}>
+                                              <th className="text-center" style={{ color: 'white!important' }}>RX</th>
+                                              <th style={{ color: 'white!important' }}>Poder</th>
+                                              <th style={{ color: 'white!important' }}>DIA</th>
+                                              <th style={{ color: 'white!important' }}>Edge</th>
+                                              <th style={{ color: 'white!important' }}>PFSD</th>
+                                              <th style={{ color: 'white!important' }}>CB</th>
+                                              <th style={{ color: 'white!important' }}>CT</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="text-center">OD</td>
+                                              <td><input className="form-control" value={oneFitValues.poder_od} onChange={handleOneFitChange('poder_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.dia_od} onChange={handleOneFitChange('dia_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.edge_od} onChange={handleOneFitChange('edge_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.pfsd_od} onChange={handleOneFitChange('pfsd_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.cb_od} onChange={handleOneFitChange('cb_od')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.ct_od} onChange={handleOneFitChange('ct_od')} /></td>
+                                            </tr>
+                                            <tr>
+                                              <td className="text-center">OI</td>
+                                              <td><input className="form-control" value={oneFitValues.poder_oi} onChange={handleOneFitChange('poder_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.dia_oi} onChange={handleOneFitChange('dia_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.edge_oi} onChange={handleOneFitChange('edge_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.pfsd_oi} onChange={handleOneFitChange('pfsd_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.cb_oi} onChange={handleOneFitChange('cb_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitValues.ct_oi} onChange={handleOneFitChange('ct_oi')} /></td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      ) : esOneFitMed ? (
+                                        <table className="table table-bordered">
+                                          <thead>
+                                            <tr style={{ backgroundColor: '#4361ee' }}>
+                                              <th className="text-center" style={{ color: 'white!important' }}>RX</th>
+                                              <th style={{ color: 'white!important' }}>SAG</th>
+                                              <th style={{ color: 'white!important' }}>Poder</th>
+                                              <th style={{ color: 'white!important' }}>DIA</th>
+                                              <th style={{ color: 'white!important' }}>MID</th>
+                                              <th style={{ color: 'white!important' }}>LIM</th>
+                                              <th style={{ color: 'white!important' }}>PFSD</th>
+                                              <th style={{ color: 'white!important' }}>EDG</th>
+                                              <th style={{ color: 'white!important' }}>CT</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="text-center">OD</td>
+                                              <td><input className="form-control" value={oneFitMedValues.sag_od} onChange={handleOneFitMedChange('sag_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.poder_od} onChange={handleOneFitMedChange('poder_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.dia_od} onChange={handleOneFitMedChange('dia_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.mid_od} onChange={handleOneFitMedChange('mid_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.lim_od} onChange={handleOneFitMedChange('lim_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.pfsd_od} onChange={handleOneFitMedChange('pfsd_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.edg_od} onChange={handleOneFitMedChange('edg_od')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.ct_od} onChange={handleOneFitMedChange('ct_od')} /></td>
+                                            </tr>
+                                            <tr>
+                                              <td className="text-center">OI</td>
+                                              <td><input className="form-control" value={oneFitMedValues.sag_oi} onChange={handleOneFitMedChange('sag_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.poder_oi} onChange={handleOneFitMedChange('poder_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.dia_oi} onChange={handleOneFitMedChange('dia_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.mid_oi} onChange={handleOneFitMedChange('mid_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.lim_oi} onChange={handleOneFitMedChange('lim_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.pfsd_oi} onChange={handleOneFitMedChange('pfsd_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.edg_oi} onChange={handleOneFitMedChange('edg_oi')} /></td>
+                                              <td><input className="form-control" value={oneFitMedValues.ct_oi} onChange={handleOneFitMedChange('ct_oi')} /></td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      ) : (
+                                        <table className="table table-bordered">
+                                          <thead>
+                                            <tr
                                               style={{
-                                                color: 'white!important',
+                                                backgroundColor: '#4361ee'
                                               }}
                                             >
-                                              RX
-                                            </th>
-                                            <th
-                                              className="text-center"
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              Esfera
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              Cilindro
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              Eje
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              ADD
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                // width: '175px'
-                                              }}
-                                            >
-                                              {!lenteContacto ? 'PRISMA' : 'Tipo de lente de contacto'}
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              {!lenteContacto ? 'DISTANCIA PUPILAR' : 'Curva Base'}
-                                            </th>
-                                            <th
-                                              style={{
-                                                color: 'white!important',
-                                                width: "130px"
-                                              }}
-                                            >
-                                              {!lenteContacto ? 'ALTURA' : 'Diametro'}
-                                            </th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          <tr>
-                                            <td className="text-center">
-                                              OD
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="esfera_od"
-                                                as="input"
+                                              <th
+                                                className="text-center"
                                                 style={{
-                                                  width: !lenteContacto ? '90px' : '120px',
+                                                  color: 'white!important',
                                                 }}
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="cilindro_od"
-
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="eje_od"
-
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="add_od"
-
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="prisma_od"
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td                                         >
-                                              <Field
-                                                className="form-control"
-                                                name="distancia_od"
-                                                as="input"
-                                              // style={{
-                                              //   width: isAroVisible ? '90px' : '120px',
-                                              // }}
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="altura_od"
-                                                as="input"
-                                              />
-                                            </td>
-                                          </tr>
-                                          <tr>
-                                            <td className="text-center">
-                                              OI
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="esfera_oi"
-                                                as="input"
+                                              >
+                                                RX
+                                              </th>
+                                              <th
+                                                className="text-center"
                                                 style={{
-                                                  width: !lenteContacto ? '90px' : '120px',
+                                                  color: 'white!important',
+                                                  width: "130px"
                                                 }}
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="cilindro_oi"
+                                              >
+                                                Esfera
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                Cilindro
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                Eje
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                ADD
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  // width: '175px'
+                                                }}
+                                              >
+                                                {esAro ? 'PRISMA' : 'Tipo de lente de contacto'}
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                {esAro ? 'DISTANCIA PUPILAR' : 'Curva Base'}
+                                              </th>
+                                              <th
+                                                style={{
+                                                  color: 'white!important',
+                                                  width: "130px"
+                                                }}
+                                              >
+                                                {esAro ? 'ALTURA' : 'Diametro'}
+                                              </th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="text-center">
+                                                OD
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="esfera_od"
+                                                  as="input"
+                                                  style={{
+                                                    width: esAro ? '90px' : '120px',
+                                                  }}
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="cilindro_od"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="eje_oi"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="eje_od"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="add_oi"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="add_od"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                type="text"
-                                                name="prisma_oi"
-                                                as="input"
-                                              />
-                                            </td>
-                                            {!lenteContacto ? (
-                                              <td></td>
-                                            ) : (
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="prisma_od"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td                                         >
+                                                <Field
+                                                  className="form-control"
+                                                  name="distancia_od"
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="altura_od"
+                                                  as="input"
+                                                />
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                              <td className="text-center">
+                                                OI
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="esfera_oi"
+                                                  as="input"
+                                                  style={{
+                                                    width: esAro ? '90px' : '120px',
+                                                  }}
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="cilindro_oi"
+
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="eje_oi"
+
+                                                  as="input"
+                                                />
+                                              </td>
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="add_oi"
+
+                                                  as="input"
+                                                />
+                                              </td>
                                               <td>
                                                 <Field
                                                   className="form-control"
                                                   type="text"
-                                                  name="distancia_oi"
+                                                  name="prisma_oi"
                                                   as="input"
                                                 />
                                               </td>
-                                            )}
-                                            <td>
-                                              <Field
-                                                className="form-control"
-                                                name="altura_oi"
+                                              {esAro ? (
+                                                <td></td>
+                                              ) : (
+                                                <td>
+                                                  <Field
+                                                    className="form-control"
+                                                    type="text"
+                                                    name="distancia_oi"
+                                                    as="input"
+                                                  />
+                                                </td>
+                                              )}
+                                              <td>
+                                                <Field
+                                                  className="form-control"
+                                                  name="altura_oi"
 
-                                                as="input"
-                                              />
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
+                                                  as="input"
+                                                />
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
 
                                 {
-                                  !lenteContacto && (
+                                  esAro && (
                                     <div
                                       style={{
                                         border: '2px solid blue',
@@ -1305,7 +1465,7 @@ console.log(values)
                                           </div>
                                         </Col>
 
-                                        {!lenteContacto && (
+                                        {esAro && (
                                           <Col xxl={5} xl={5} md={5}>
                                             <div>
                                               <label className="new-control new-radio radio-classic-primary">
@@ -1325,7 +1485,7 @@ console.log(values)
                                             </div>
                                           </Col>
                                         )}
-                                        {!lenteContacto && (
+                                        {esAro && (
                                           <Col xxl={5} xl={5} md={5}>
                                             <div>
                                               <label className="new-control new-radio radio-classic-primary">
@@ -1341,7 +1501,7 @@ console.log(values)
                                             </div>
                                           </Col>
                                         )}
-                                        {!lenteContacto && (
+                                        {esAro && (
                                           <Col xxl={5} xl={5} md={5}>
                                             <div
                                               style={{
@@ -1365,8 +1525,8 @@ console.log(values)
                                           </Col>
                                         )}
 
-                                        <Col xxl={!lenteContacto ? 9 : 12} xl={!lenteContacto ? 9 : 12} md={!lenteContacto ? 9 : 12}>
-                                          {!lenteContacto && (
+                                        <Col xxl={esAro ? 9 : 12} xl={esAro ? 9 : 12} md={esAro ? 9 : 12}>
+                                          {esAro && (
                                             <div
                                               style={{
                                                 // display: 'flex'
@@ -1388,7 +1548,7 @@ console.log(values)
                                             <div style={{ marginTop: '1px' }}>
                                               <b>MARCA</b>
                                             </div>
-                                            {!lenteContacto ? (
+                                            {esAro ? (
                                               <Field
                                                 className="form-control"
                                                 name="marca"
@@ -1416,9 +1576,9 @@ console.log(values)
                                                     filterOption={(input, option) =>
                                                       option.label.toLowerCase().includes(input.toLowerCase())
                                                     }
-                                                    options={marcas_options_selecteds.map(marca => ({
+                                                    options={marcasOptions.map(marca => ({
                                                       value: marca.label,
-                                                      label: marca.label
+                                                      label: marca.label,
                                                     }))}
                                                   />
                                                   <ErrorMessage name="marca" component="div" className="text-danger" />
@@ -1444,9 +1604,9 @@ console.log(values)
                                                     filterOption={(input, option) =>
                                                       option.label.toLowerCase().includes(input.toLowerCase())
                                                     }
-                                                    options={marcas_options_selecteds.map(marca => ({
+                                                    options={marcasOptions.map(marca => ({
                                                       value: marca.label,
-                                                      label: marca.label
+                                                      label: marca.label,
                                                     }))}
                                                   />
                                                   <ErrorMessage name="marca_oi" component="div" className="text-danger" />
@@ -1463,7 +1623,7 @@ console.log(values)
                                             <Col xxl={12} xl={12} md={12}>
                                               <Row>
 
-                                                {!lenteContacto && (
+                                                {esAro && (
                                                   <Col xxl={24} xl={24} md={24}>
                                                     <div
                                                       style={{
@@ -1562,7 +1722,7 @@ console.log(values)
                                         </Col>
                                       </Row>
                                     </Col>
-                                    {!lenteContacto && (
+                                    {esAro && (
                                       <Col
                                         xxl={10} xl={10} md={10}
                                         style={{

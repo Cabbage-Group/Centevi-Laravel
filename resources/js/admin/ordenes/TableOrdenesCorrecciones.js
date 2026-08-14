@@ -494,6 +494,13 @@ const TableOrdenesCorrecciones = (
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`
   }
 
+  const TIPO_LENTE_ICONOS = {
+    aro: { src: 'assets/img/recetas/lentenormal.png', alt: 'Lente Aro' },
+    contacto: { src: 'assets/img/recetas/lentesdecontacto.png', alt: 'Lente de Contacto' },
+    onefit: { src: 'assets/img/recetas/lenteescleralonefit.svg', alt: 'Lente Escleral OneFit' },
+    onefitmed: { src: 'assets/img/recetas/lenteescleralonefitmed.svg', alt: 'Lente Escleral OneFit Med' },
+  }; 3
+
   const columnWidths = {
     nroOrden: '10%',
     pagado: '10%',
@@ -539,19 +546,16 @@ const TableOrdenesCorrecciones = (
                     style={{ backgroundColor: orden?.cancelada ? '#f8d7da' : 'white' }}>
                     <td>
                       {orden?.nro_orden_id}
-                      {orden?.lente_contacto ? (
-                        <img
-                          src="assets/img/recetas/lentesdecontacto.png"
-                          alt="Lente Contacto True"
-                          style={{ width: '20px', marginLeft: '8px' }}
-                        />
-                      ) : (
-                        <img
-                          src="assets/img/recetas/lentenormal.png"
-                          alt="Lente Contacto False"
-                          style={{ width: '20px', marginLeft: '8px' }}
-                        />
-                      )}
+                      {(() => {
+                        const icono = TIPO_LENTE_ICONOS[orden?.tipo_lente] || TIPO_LENTE_ICONOS.aro;
+                        return (
+                          <img
+                            src={icono.src}
+                            alt={icono.alt}
+                            style={{ width: '20px', marginLeft: '8px' }}
+                          />
+                        );
+                      })()}
                     </td>
                     <td>
                       <div

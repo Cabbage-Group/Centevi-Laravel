@@ -30,7 +30,7 @@ class OrdenesApiController extends Controller
     $page               = $request->input('page', 1);
     $sortColumn         = $request->input('sortColumn', 'id_orden');
     $sortOrder          = $request->input('sortOrder', 'asc');
-    $lenteContacto      = $request->input('lenteContacto', []);
+    $lenteContacto      = $request->input('lenteContacto', []); // ahora recibe strings: 'aro' | 'contacto' | 'onefit' | 'onefitmed'
     $estados            = $request->input('estados', []);
     $pagado             = $request->input('pagado', []);
     $sucursal           = $request->input('sucursal', []);
@@ -40,6 +40,8 @@ class OrdenesApiController extends Controller
     $serviciosFiltrados = $request->input('serviciosFiltrados', []);
     $fecha              = $request->input('fecha', '');
     $cancelada          = $request->input('cancelada', null);
+
+    $TIPOS_LENTE_VALIDOS = ['aro', 'contacto', 'onefit', 'onefitmed'];
 
     $validColumns = ['id_orden', 'nro_orden_id', 'created_at', 'paciente', 'sucursal'];
     if (!in_array($sortColumn, $validColumns)) {
@@ -55,7 +57,6 @@ class OrdenesApiController extends Controller
       'correciones.faseCorreccionOrden.tipoFaseCorreccionOrden',
       'correciones.faseCorreccionOrden.usuario',
     ]);
-
 
     if (!empty($search)) {
       $query->where(function ($q) use ($search) {
@@ -102,7 +103,35 @@ class OrdenesApiController extends Controller
     }
 
     if (!empty($lenteContacto)) {
-      $query->whereIn('lente_contacto', (array) $lenteContacto);
+      $tiposSeleccionados = array_values(array_intersect((array) $lenteContacto, $TIPOS_LENTE_VALIDOS));
+
+      if (!empty($tiposSeleccionados)) {
+        $query->where(function ($q) use ($tiposSeleccionados) {
+          foreach ($tiposSeleccionados as $tipo) {
+            $q->orWhere(function ($qq) use ($tipo) {
+              switch ($tipo) {
+                case 'onefitmed':
+                  $qq->where('lente_escleral_onefit_med', 1);
+                  break;
+                case 'onefit':
+                  $qq->where('lente_escleral_onefit', 1)
+                    ->where('lente_escleral_onefit_med', 0);
+                  break;
+                case 'contacto':
+                  $qq->where('lente_contacto', 1)
+                    ->where('lente_escleral_onefit', 0)
+                    ->where('lente_escleral_onefit_med', 0);
+                  break;
+                default: // aro
+                  $qq->where('lente_contacto', 0)
+                    ->where('lente_escleral_onefit', 0)
+                    ->where('lente_escleral_onefit_med', 0);
+                  break;
+              }
+            });
+          }
+        });
+      }
     }
 
     if (!empty($pagado)) {
@@ -140,8 +169,21 @@ class OrdenesApiController extends Controller
 
     $hayFiltrosCalculados = !empty($fase) || !empty($estados);
 
-    // Closure reutilizable inline para armar las filas de una orden + sus correcciones
-    $buildFilas = function ($orden) use ($tiposFases) {
+    // Helper reutilizable para derivar el tipo de lente a partir de las 3 columnas booleanas
+    $resolverTipoLente = function ($orden) {
+      if ($orden->lente_escleral_onefit_med) {
+        return 'onefitmed';
+      }
+      if ($orden->lente_escleral_onefit) {
+        return 'onefit';
+      }
+      if ($orden->lente_contacto) {
+        return 'contacto';
+      }
+      return 'aro';
+    };
+
+    $buildFilas = function ($orden) use ($tiposFases, $resolverTipoLente) {
       $ultimaFase    = $orden->fasesOrdenes->sortByDesc('tipo_fase_orden_id')->first();
       $estado        = 'Sin estado';
       $siguienteFase = 'Nuevo';
@@ -194,6 +236,7 @@ class OrdenesApiController extends Controller
         'celular'            => $orden->paciente->celular,
         'sucursal'           => $orden->sucursal->nombre,
         'lente_contacto'     => $orden->lente_contacto,
+        'tipo_lente'         => $resolverTipoLente($orden),
         'correcciones'       => $orden->correciones->count(),
         'cancelada'          => $orden->cancelada ?? 0,
         'estado'             => $estado,
@@ -233,7 +276,6 @@ class OrdenesApiController extends Controller
 
       foreach ($orden->correciones as $index => $correccion) {
         $numero = $index + 1;
-
 
         $ultimaFaseCorr = $correccion->faseCorreccionOrden->sortByDesc('tipo_fase_correccion_orden_id')->first();
         $estadoCorr = 'Sin estado';
@@ -287,6 +329,7 @@ class OrdenesApiController extends Controller
           'fase_actual'        => $siguienteFaseCorr,
           'siguiente_fase'     => $siguienteFaseCorr,
           'lente_contacto'     => $orden->lente_contacto,
+          'tipo_lente'         => $resolverTipoLente($orden),
           'correcciones'       => 0,
           'esfera_od'          => $correccion->esfera_od,
           'cilindro_od'        => $correccion->cilindro_od,
@@ -329,7 +372,6 @@ class OrdenesApiController extends Controller
       return $filas;
     };
 
-    // ✅ Sin filtros calculados: paginar directo en DB
     if (!$hayFiltrosCalculados) {
       $ordenesPaginadas = $query->orderBy($sortColumn, $sortOrder)
         ->paginate($limit, ['*'], 'page', $page);
@@ -352,7 +394,6 @@ class OrdenesApiController extends Controller
       ]);
     }
 
-    // Con filtros calculados: traer todo y filtrar en PHP
     $ordenes = $query->orderBy($sortColumn, $sortOrder)
       ->get()
       ->flatMap($buildFilas);
@@ -602,9 +643,12 @@ class OrdenesApiController extends Controller
     $validator = Validator::make($request->all(), [
       "id_paciente" => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
+      'tipo_lente' => 'required|string|in:aro,contacto,onefit,onefitmed',
+
       'nro_cotizacion' => 'required|integer',
       'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
+
       'esfera_od' => 'nullable|string|max:255',
       'esfera_oi' => 'nullable|string|max:255',
       'cilindro_od' => 'nullable|string|max:255',
@@ -619,6 +663,7 @@ class OrdenesApiController extends Controller
       'distancia_oi' => 'nullable|string|max:255',
       'altura_od' => 'nullable|string|max:255',
       'altura_oi' => 'nullable|string|max:255',
+
       'tipo_cristal_od' => 'nullable|string|max:255',
       'tipo_cristal_oi' => 'nullable|string|max:255',
       'tipo_corredor' => 'nullable|string|max:255',
@@ -626,8 +671,10 @@ class OrdenesApiController extends Controller
       'material_oi' => 'nullable|string|max:255',
       'tratamientos_od' => 'nullable|string|max:255',
       'tratamientos_oi' => 'nullable|string|max:255',
+
       'aro_centevi' => 'nullable|integer|min:0|max:1',
       'aro_propio' => 'nullable|integer|min:0|max:1',
+
       'codigo_cristal' => 'nullable|string|max:255',
       'color' => 'nullable|string|max:255',
       'marca' => 'nullable|string|max:255',
@@ -635,11 +682,36 @@ class OrdenesApiController extends Controller
       'tipo_aro' => 'nullable|string|max:255',
       'doctor' => 'nullable|string|max:255',
       'observaciones' => 'nullable|string|max:400',
+
       'l_uno' => 'nullable|string|max:255',
       'l_dos' => 'nullable|string|max:255',
       'l_tres' => 'nullable|string|max:255',
       'l_cuatro' => 'nullable|string|max:255',
       'l_cinco' => 'nullable|string|max:255',
+
+      // OneFit
+      'poder_od' => 'nullable|string|max:100',
+      'poder_oi' => 'nullable|string|max:100',
+      'dia_od' => 'nullable|string|max:100',
+      'dia_oi' => 'nullable|string|max:100',
+      'edge_od' => 'nullable|string|max:100',
+      'edge_oi' => 'nullable|string|max:100',
+      'pfsd_od' => 'nullable|string|max:100',
+      'pfsd_oi' => 'nullable|string|max:100',
+      'cb_od' => 'nullable|string|max:100',
+      'cb_oi' => 'nullable|string|max:100',
+      'ct_od' => 'nullable|string|max:100',
+      'ct_oi' => 'nullable|string|max:100',
+
+      // OneFit Med
+      'sag_od' => 'nullable|string|max:100',
+      'sag_oi' => 'nullable|string|max:100',
+      'mid_od' => 'nullable|string|max:100',
+      'mid_oi' => 'nullable|string|max:100',
+      'lim_od' => 'nullable|string|max:100',
+      'lim_oi' => 'nullable|string|max:100',
+      'edg_od' => 'nullable|string|max:100',
+      'edg_oi' => 'nullable|string|max:100',
     ]);
 
     if ($validator->fails()) {
@@ -647,7 +719,7 @@ class OrdenesApiController extends Controller
         'respuesta' => false,
         'mensaje' => 'Validation errors',
         'data' => $validator->errors(),
-        'mensaje_dev' => "Oops, validation errors occurred."
+        'mensaje_dev' => 'Oops, validation errors occurred.'
       ], 400);
     }
 
@@ -656,8 +728,33 @@ class OrdenesApiController extends Controller
 
       $nroOrden = NroOrden::create([]);
 
+      $tipoLente = $request->input('tipo_lente');
+
+      $lenteContacto = 0;
+      $lenteEscleralOnefit = 0;
+      $lenteEscleralOnefitMed = 0;
+
+      switch ($tipoLente) {
+        case 'contacto':
+          $lenteContacto = 1;
+          break;
+
+        case 'onefit':
+          $lenteEscleralOnefit = 1;
+          break;
+
+        case 'onefitmed':
+          $lenteEscleralOnefitMed = 1;
+          break;
+
+        case 'aro':
+        default:
+          break;
+      }
+
       $defaults = [
         'elaborado_por' => 0,
+
         'esfera_od' => '',
         'esfera_oi' => '',
         'cilindro_od' => '',
@@ -672,6 +769,7 @@ class OrdenesApiController extends Controller
         'distancia_oi' => '',
         'altura_od' => '',
         'altura_oi' => '',
+
         'tipo_cristal_od' => '',
         'tipo_cristal_oi' => '',
         'tipo_corredor' => '',
@@ -679,8 +777,10 @@ class OrdenesApiController extends Controller
         'material_oi' => '',
         'tratamientos_od' => '',
         'tratamientos_oi' => '',
+
         'aro_centevi' => 0,
         'aro_propio' => 0,
+
         'codigo_cristal' => '',
         'color' => '',
         'marca' => '',
@@ -688,24 +788,74 @@ class OrdenesApiController extends Controller
         'tipo_aro' => '',
         'doctor' => '',
         'observaciones' => '',
+
         'l_uno' => '',
         'l_dos' => '',
         'l_tres' => '',
         'l_cuatro' => '',
         'l_cinco' => '',
+
+        // OneFit
+        'poder_od' => '',
+        'poder_oi' => '',
+        'dia_od' => '',
+        'dia_oi' => '',
+        'edge_od' => '',
+        'edge_oi' => '',
+        'pfsd_od' => '',
+        'pfsd_oi' => '',
+        'cb_od' => '',
+        'cb_oi' => '',
+        'ct_od' => '',
+        'ct_oi' => '',
+
+        // OneFit Med
+        'sag_od' => '',
+        'sag_oi' => '',
+        'mid_od' => '',
+        'mid_oi' => '',
+        'lim_od' => '',
+        'lim_oi' => '',
+        'edg_od' => '',
+        'edg_oi' => '',
+
         'pagado' => 2,
-        'lente_contacto' => 0,
+
+        // Estos valores NO vienen del frontend
+        'lente_contacto' => $lenteContacto,
+        'lente_escleral_onefit_med' => $lenteEscleralOnefitMed,
+        'lente_escleral_onefit' => $lenteEscleralOnefit,
+
         'nro_orden_id' => $nroOrden->id,
         'nro_cotizacion' => 0,
         'nro_factura' => ''
       ];
 
+
       $tipoCristalOd = $request->input('tipo_cristal_od');
       $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-      $codigoCristal = $tipoCristalOd ? explode(' | ', $tipoCristalOd)[0] : ($tipoCristalOi ? explode(' | ', $tipoCristalOi)[0] : null);
+      $codigoCristal = $tipoCristalOd
+        ? explode(' | ', $tipoCristalOd)[0]
+        : ($tipoCristalOi
+          ? explode(' | ', $tipoCristalOi)[0]
+          : null);
 
-      $data = array_merge($defaults, $request->all(), ['codigo_cristal' => $codigoCristal]);
+      $data = array_merge(
+        $defaults,
+        $request->except([
+          'tipo_lente',
+          'lente_contacto',
+          'lente_escleral_onefit',
+          'lente_escleral_onefit_med',
+        ]),
+        [
+          'codigo_cristal' => $codigoCristal,
+          'lente_contacto' => $lenteContacto,
+          'lente_escleral_onefit' => $lenteEscleralOnefit,
+          'lente_escleral_onefit_med' => $lenteEscleralOnefitMed,
+        ]
+      );
 
       $orden = Ordenes::create($data);
 
@@ -728,7 +878,6 @@ class OrdenesApiController extends Controller
     }
   }
 
-
   public function updateOrden(Request $request, $id_orden)
   {
     $orden = Ordenes::find($id_orden);
@@ -742,43 +891,99 @@ class OrdenesApiController extends Controller
     }
 
     $validator = Validator::make($request->all(), [
-      "id_paciente" => 'nullable|integer',
+      'id_paciente' => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
       'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
+
       'esfera_od' => 'nullable|string|max:255',
       'esfera_oi' => 'nullable|string|max:255',
+
       'cilindro_od' => 'nullable|string|max:255',
       'cilindro_oi' => 'nullable|string|max:255',
+
       'eje_od' => 'nullable|string|max:255',
       'eje_oi' => 'nullable|string|max:255',
+
       'add_od' => 'nullable|string|max:255',
       'add_oi' => 'nullable|string|max:255',
+
       'prisma_od' => 'nullable|string|max:255',
       'prisma_oi' => 'nullable|string|max:255',
+
       'distancia_od' => 'nullable|string|max:255',
       'distancia_oi' => 'nullable|string|max:255',
+
       'altura_od' => 'nullable|string|max:255',
       'altura_oi' => 'nullable|string|max:255',
+
       'material_od' => 'nullable|string|max:255',
       'material_oi' => 'nullable|string|max:255',
+
       'tratamientos_od' => 'nullable|string|max:255',
       'tratamientos_oi' => 'nullable|string|max:255',
+
       'tipo_cristal_od' => 'nullable|string|max:255',
       'tipo_cristal_oi' => 'nullable|string|max:255',
+
+      'tipo_corredor' => 'nullable|string|max:255',
+
       'aro_centevi' => 'nullable|integer|min:0|max:1',
       'aro_propio' => 'nullable|integer|min:0|max:1',
+
       'codigo' => 'nullable|string|max:255',
       'color' => 'nullable|string|max:255',
-      'marca' => 'nullable|string|max:255',
       'tipo_aro' => 'nullable|string|max:255',
+
+      'marca' => 'nullable|string|max:255',
+      'marca_oi' => 'nullable|string|max:255',
+
       'doctor' => 'nullable|string|max:255',
+
       'observaciones' => 'nullable|string|max:400',
+
       'l_uno' => 'nullable|string|max:255',
       'l_dos' => 'nullable|string|max:255',
       'l_tres' => 'nullable|string|max:255',
       'l_cuatro' => 'nullable|string|max:255',
       'l_cinco' => 'nullable|string|max:255',
+
+
+      'poder_od' => 'nullable|string|max:255',
+      'poder_oi' => 'nullable|string|max:255',
+
+      'dia_od' => 'nullable|string|max:255',
+      'dia_oi' => 'nullable|string|max:255',
+
+      'edge_od' => 'nullable|string|max:255',
+      'edge_oi' => 'nullable|string|max:255',
+
+      'pfsd_od' => 'nullable|string|max:255',
+      'pfsd_oi' => 'nullable|string|max:255',
+
+      'cb_od' => 'nullable|string|max:255',
+      'cb_oi' => 'nullable|string|max:255',
+
+      'ct_od' => 'nullable|string|max:255',
+      'ct_oi' => 'nullable|string|max:255',
+
+      'sag_od' => 'nullable|string|max:255',
+      'sag_oi' => 'nullable|string|max:255',
+
+      'mid_od' => 'nullable|string|max:255',
+      'mid_oi' => 'nullable|string|max:255',
+
+      'lim_od' => 'nullable|string|max:255',
+      'lim_oi' => 'nullable|string|max:255',
+
+      'edg_od' => 'nullable|string|max:255',
+      'edg_oi' => 'nullable|string|max:255',
+
+      'lente_contacto' => 'nullable|integer|min:0|max:1',
+
+      'lente_escleral_onefit' => 'nullable|integer|min:0|max:1',
+
+      'lente_escleral_onefit_med' => 'nullable|integer|min:0|max:1',
     ]);
 
     if ($validator->fails()) {
@@ -790,26 +995,111 @@ class OrdenesApiController extends Controller
     }
 
     try {
+
       DB::beginTransaction();
 
-      // Extraer los valores de tipo_cristal_od y tipo_cristal_oi
-      $tipoCristalOd = $request->input('tipo_cristal_od', $orden->tipo_cristal_od);
-      $tipoCristalOi = $request->input('tipo_cristal_oi', $orden->tipo_cristal_oi);
+      $tipoCristalOd = $request->input(
+        'tipo_cristal_od',
+        $orden->tipo_cristal_od
+      );
 
-      // Obtener el código del cristal preferentemente de tipo_cristal_od, si no, de tipo_cristal_oi
-      $codigoCristal = $tipoCristalOd ? explode(' | ', $tipoCristalOd)[0] : ($tipoCristalOi ? explode(' | ', $tipoCristalOi)[0] : $orden->codigo_cristal);
+      $tipoCristalOi = $request->input(
+        'tipo_cristal_oi',
+        $orden->tipo_cristal_oi
+      );
 
-      // Actualizar los datos
-      $orden->update(array_merge($request->all(), ['codigo_cristal' => $codigoCristal]));
+      $codigoCristal = $orden->codigo_cristal;
+
+      if ($tipoCristalOd) {
+
+        $codigoCristal = explode(
+          ' | ',
+          $tipoCristalOd
+        )[0];
+      } elseif ($tipoCristalOi) {
+
+        $codigoCristal = explode(
+          ' | ',
+          $tipoCristalOi
+        )[0];
+      }
+
+      $data = $request->only([
+        'id_paciente',
+        'id_sucursal',
+        'nro_factura',
+        'elaborado_por',
+        'esfera_od',
+        'esfera_oi',
+        'cilindro_od',
+        'cilindro_oi',
+        'eje_od',
+        'eje_oi',
+        'add_od',
+        'add_oi',
+        'prisma_od',
+        'prisma_oi',
+        'distancia_od',
+        'distancia_oi',
+        'altura_od',
+        'altura_oi',
+        'tipo_cristal_od',
+        'tipo_cristal_oi',
+        'tipo_corredor',
+        'material_od',
+        'material_oi',
+        'tratamientos_od',
+        'tratamientos_oi',
+        'aro_centevi',
+        'aro_propio',
+        'codigo',
+        'color',
+        'tipo_aro',
+        'marca',
+        'marca_oi',
+        'doctor',
+        'observaciones',
+        'l_uno',
+        'l_dos',
+        'l_tres',
+        'l_cuatro',
+        'l_cinco',
+        'poder_od',
+        'poder_oi',
+        'dia_od',
+        'dia_oi',
+        'edge_od',
+        'edge_oi',
+        'pfsd_od',
+        'pfsd_oi',
+        'cb_od',
+        'cb_oi',
+        'ct_od',
+        'ct_oi',
+        'sag_od',
+        'sag_oi',
+        'mid_od',
+        'mid_oi',
+        'lim_od',
+        'lim_oi',
+        'edg_od',
+        'edg_oi',
+        'lente_contacto',
+        'lente_escleral_onefit',
+        'lente_escleral_onefit_med',
+      ]);
+      $data['codigo_cristal'] = $codigoCristal;
+      $orden->update($data);
 
       DB::commit();
 
       return response()->json([
         'respuesta' => true,
         'mensaje' => 'Orden actualizada correctamente',
-        'data' => $orden,
+        'data' => $orden->fresh(),
       ], 200);
     } catch (\Exception $e) {
+
       DB::rollBack();
 
       return response()->json([
@@ -2499,7 +2789,15 @@ class OrdenesApiController extends Controller
         'pacientes.celular as paciente_celular',
         'sucursales.nombre as sucursal_nombre',
         'sucursales.ubicacion_maps as sucursal_ubicacion',
-        'usuarios.nombre as elaborado_por'
+        'usuarios.nombre as elaborado_por',
+        DB::raw("
+        CASE
+            WHEN ordenes.lente_contacto = 1 THEN 'contacto'
+            WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
+            WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
+            ELSE 'aro'
+        END as tipo_lente
+    ")
       )
       ->where('ordenes.id_paciente', $id_paciente)
       ->where('ordenes.nro_orden_id', $nroOrdenId)
@@ -2562,7 +2860,6 @@ class OrdenesApiController extends Controller
 
   public function verOrdenPdf($id_orden)
   {
-
     $orden = Ordenes::join('sucursales', 'sucursales.id_sucursal', 'ordenes.id_sucursal')
       ->join('pacientes', 'pacientes.id_paciente', 'ordenes.id_paciente')
       ->select(
@@ -2573,52 +2870,98 @@ class OrdenesApiController extends Controller
       )
       ->where('ordenes.id_orden', $id_orden)
       ->first();
+
+    if (!$orden) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Orden no encontrada',
+      ], 404);
+    }
+
+    $tipoLente = 'aro';
+
+    if ((int) $orden->lente_contacto === 1) {
+      $tipoLente = 'contacto';
+    } elseif ((int) $orden->lente_escleral_onefit === 1) {
+      $tipoLente = 'onefit';
+    } elseif ((int) $orden->lente_escleral_onefit_med === 1) {
+      $tipoLente = 'onefitmed';
+    }
+
     $data = [
-      'fecha_solicitud' => $orden['created_at'],
-      'nro_orden' => $orden['nro_orden_id'],
-      'lenteContacto' => false,
-      'esfera_od' => $orden['esfera_od'],
-      'cilindro_od' => $orden['cilindro_od'],
-      'eje_od' => $orden['eje_od'],
-      'add_od' => $orden['add_od'],
-      'prisma_od' => $orden['prisma_od'],
-      'distancia_od' => $orden['distancia_od'],
-      'altura_od' => $orden['altura_od'],
-      'esfera_oi' => $orden['esfera_oi'],
-      'cilindro_oi' => $orden['cilindro_oi'],
-      'eje_oi' => $orden['eje_oi'],
-      'add_oi' => $orden['add_oi'],
-      'prisma_oi' => $orden['prisma_oi'],
-      'distancia_oi' => $orden['distancia_oi'],
-      'altura_oi' => $orden['altura_oi'],
-      'material_od' => $orden['material_od'],
-      'material_oi' => $orden['material_oi'],
-      'tipo_cristal_od' => $orden['tipo_cristal_od'],
-      'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
-      'tipo_corredor' => $orden['tipo_corredor'],
-      'l_uno' => $orden['l_uno'] ?? "-",
-      'l_dos' => $orden['l_dos'] ?? "-",
-      'l_tres' => $orden['l_tres'] ?? "-",
-      'l_cuatro' => $orden['l_cuatro'] ?? "-",
-      'l_cinco' => $orden['l_cinco'] ?? "-",
-      'color' => $orden['color'] ?? "_",
-      'codigo' => $orden['codigo'] ?? "_",
-      'marca' => $orden['marca'] ?? "_",
-      'marca_oi' => $orden['marca_oi'] ?? "_",
-      'tipo_aro' => $orden['tipo_aro'] ?? "_",
-      'observaciones' => $orden['observaciones'] ?? "_",
-      'aro_centevi' => $orden['aro_centevi'],
-      'aro_propio' => $orden['aro_propio'],
-      'lente_contacto' => $orden['lente_contacto'],
-      'tratamientos_oi' => $orden['tratamientos_oi'],
-      'tratamientos_od' => $orden['tratamientos_od'],
-      'sucursal' => $orden['nombre'] ?? '',
-      'nombres_apellidos_paciente' => ($orden['nombres'] ? explode(' ', trim($orden['nombres']))[0] : '')
-        . ' '
-        . ($orden['apellidos'] ? explode(' ', trim($orden['apellidos']))[0] : '')
+      'fecha_solicitud' => $orden->created_at,
+      'nro_orden' => $orden->nro_orden_id,
+      'tipo_lente' => $tipoLente,
+      'esfera_od' => $orden->esfera_od,
+      'esfera_oi' => $orden->esfera_oi,
+      'cilindro_od' => $orden->cilindro_od,
+      'cilindro_oi' => $orden->cilindro_oi,
+      'eje_od' => $orden->eje_od,
+      'eje_oi' => $orden->eje_oi,
+      'add_od' => $orden->add_od,
+      'add_oi' => $orden->add_oi,
+      'prisma_od' => $orden->prisma_od,
+      'prisma_oi' => $orden->prisma_oi,
+      'distancia_od' => $orden->distancia_od,
+      'distancia_oi' => $orden->distancia_oi,
+      'altura_od' => $orden->altura_od,
+      'altura_oi' => $orden->altura_oi,
+      'material_od' => $orden->material_od,
+      'material_oi' => $orden->material_oi,
+      'tipo_cristal_od' => $orden->tipo_cristal_od,
+      'tipo_cristal_oi' => $orden->tipo_cristal_oi,
+      'tratamientos_od' => $orden->tratamientos_od,
+      'tratamientos_oi' => $orden->tratamientos_oi,
+      'tipo_corredor' => $orden->tipo_corredor,
+      'poder_od' => $orden->poder_od,
+      'poder_oi' => $orden->poder_oi,
+      'dia_od' => $orden->dia_od,
+      'dia_oi' => $orden->dia_oi,
+      'edge_od' => $orden->edge_od,
+      'edge_oi' => $orden->edge_oi,
+      'pfsd_od' => $orden->pfsd_od,
+      'pfsd_oi' => $orden->pfsd_oi,
+      'cb_od' => $orden->cb_od,
+      'cb_oi' => $orden->cb_oi,
+      'ct_od' => $orden->ct_od,
+      'ct_oi' => $orden->ct_oi,
+      'sag_od' => $orden->sag_od,
+      'sag_oi' => $orden->sag_oi,
+      'mid_od' => $orden->mid_od,
+      'mid_oi' => $orden->mid_oi,
+      'lim_od' => $orden->lim_od,
+      'lim_oi' => $orden->lim_oi,
+      'edg_od' => $orden->edg_od,
+      'edg_oi' => $orden->edg_oi,
+      'l_uno' => $orden->l_uno ?? "-",
+      'l_dos' => $orden->l_dos ?? "-",
+      'l_tres' => $orden->l_tres ?? "-",
+      'l_cuatro' => $orden->l_cuatro ?? "-",
+      'l_cinco' => $orden->l_cinco ?? "-",
+      'color' => $orden->color ?? "_",
+      'codigo' => $orden->codigo ?? "_",
+      'marca' => $orden->marca ?? "_",
+      'marca_oi' => $orden->marca_oi ?? "_",
+      'tipo_aro' => $orden->tipo_aro ?? "_",
+      'observaciones' => $orden->observaciones ?? "_",
+      'aro_centevi' => $orden->aro_centevi,
+      'aro_propio' => $orden->aro_propio,
+      'lente_contacto' => $orden->lente_contacto,
+      'lente_escleral_onefit' => $orden->lente_escleral_onefit,
+      'lente_escleral_onefit_med' => $orden->lente_escleral_onefit_med,
+      'sucursal' => $orden->nombre ?? '',
+
+      'nombres_apellidos_paciente' => ($orden->nombres
+        ? explode(' ', trim($orden->nombres))[0]
+        : '')
+        . ' ' .
+        ($orden->apellidos
+          ? explode(' ', trim($orden->apellidos))[0]
+          : '')
     ];
 
     $pdf = Pdf::loadView('pdf/ordenPdf', $data);
+
     return $pdf->stream('orden.pdf', [
       'Content-Type' => 'application/pdf',
       'Content-Disposition' => 'inline; filename="orden_' . $id_orden . '.pdf"'
@@ -2697,7 +3040,6 @@ class OrdenesApiController extends Controller
 
   public function verOrdenPdfSize($id_orden)
   {
-
     $orden = Ordenes::join('sucursales', 'sucursales.id_sucursal', 'ordenes.id_sucursal')
       ->join('pacientes', 'pacientes.id_paciente', 'ordenes.id_paciente')
       ->select(
@@ -2708,51 +3050,103 @@ class OrdenesApiController extends Controller
       )
       ->where('ordenes.id_orden', $id_orden)
       ->first();
+
+    if (!$orden) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Orden no encontrada',
+      ], 404);
+    }
+
+    $tipoLente = 'aro';
+
+    if ((int) $orden->lente_contacto === 1) {
+      $tipoLente = 'contacto';
+    } elseif ((int) $orden->lente_escleral_onefit === 1) {
+      $tipoLente = 'onefit';
+    } elseif ((int) $orden->lente_escleral_onefit_med === 1) {
+      $tipoLente = 'onefitmed';
+    }
+
     $data = [
-      'fecha_solicitud' => $orden['created_at'],
-      'nro_orden' => $orden['nro_orden_id'],
-      'lenteContacto' => false,
-      'esfera_od' => $orden['esfera_od'],
-      'cilindro_od' => $orden['cilindro_od'],
-      'eje_od' => $orden['eje_od'],
-      'add_od' => $orden['add_od'],
-      'prisma_od' => $orden['prisma_od'],
-      'distancia_od' => $orden['distancia_od'],
-      'altura_od' => $orden['altura_od'],
-      'esfera_oi' => $orden['esfera_oi'],
-      'cilindro_oi' => $orden['cilindro_oi'],
-      'eje_oi' => $orden['eje_oi'],
-      'add_oi' => $orden['add_oi'],
-      'prisma_oi' => $orden['prisma_oi'],
-      'distancia_oi' => $orden['distancia_oi'],
-      'altura_oi' => $orden['altura_oi'],
-      'material_od' => $orden['material_od'],
-      'material_oi' => $orden['material_oi'],
-      'tipo_cristal_od' => $orden['tipo_cristal_od'],
-      'tipo_cristal_oi' => $orden['tipo_cristal_oi'],
-      'l_uno' => $orden['l_uno'] ?? "-",
-      'l_dos' => $orden['l_dos'] ?? "-",
-      'l_tres' => $orden['l_tres'] ?? "-",
-      'l_cuatro' => $orden['l_cuatro'] ?? "-",
-      'l_cinco' => $orden['l_cinco'] ?? "-",
-      'color' => $orden['color'] ?? "_",
-      'codigo' => $orden['codigo'] ?? "_",
-      'marca' => $orden['marca'] ?? "_",
-      'marca' => $orden['marca_oi'] ?? "_",
-      'tipo_aro' => $orden['tipo_aro'] ?? "_",
-      'observaciones' => $orden['observaciones'] ?? "_",
-      'aro_centevi' => $orden['aro_centevi'],
-      'aro_propio' => $orden['aro_propio'],
-      'lente_contacto' => $orden['lente_contacto'],
-      'tratamientos_oi' => $orden['tratamientos_oi'],
-      'tratamientos_od' => $orden['tratamientos_od'],
-      'sucursal' => $orden['nombre'] ?? '',
-      'nombres_apellidos_paciente' => ($orden['nombres'] ? explode(' ', trim($orden['nombres']))[0] : '')
-        . ' '
-        . ($orden['apellidos'] ? explode(' ', trim($orden['apellidos']))[0] : '')
+      'fecha_solicitud' => $orden->created_at,
+      'nro_orden' => $orden->nro_orden_id,
+
+      'tipo_lente' => $tipoLente,
+      'esfera_od' => $orden->esfera_od,
+      'esfera_oi' => $orden->esfera_oi,
+      'cilindro_od' => $orden->cilindro_od,
+      'cilindro_oi' => $orden->cilindro_oi,
+      'eje_od' => $orden->eje_od,
+      'eje_oi' => $orden->eje_oi,
+      'add_od' => $orden->add_od,
+      'add_oi' => $orden->add_oi,
+      'prisma_od' => $orden->prisma_od,
+      'prisma_oi' => $orden->prisma_oi,
+      'distancia_od' => $orden->distancia_od,
+      'distancia_oi' => $orden->distancia_oi,
+      'altura_od' => $orden->altura_od,
+      'altura_oi' => $orden->altura_oi,
+
+      'material_od' => $orden->material_od,
+      'material_oi' => $orden->material_oi,
+      'tipo_cristal_od' => $orden->tipo_cristal_od,
+      'tipo_cristal_oi' => $orden->tipo_cristal_oi,
+      'tratamientos_od' => $orden->tratamientos_od,
+      'tratamientos_oi' => $orden->tratamientos_oi,
+      'tipo_corredor' => $orden->tipo_corredor,
+      'poder_od' => $orden->poder_od,
+      'poder_oi' => $orden->poder_oi,
+      'dia_od' => $orden->dia_od,
+      'dia_oi' => $orden->dia_oi,
+      'edge_od' => $orden->edge_od,
+      'edge_oi' => $orden->edge_oi,
+      'pfsd_od' => $orden->pfsd_od,
+      'pfsd_oi' => $orden->pfsd_oi,
+      'cb_od' => $orden->cb_od,
+      'cb_oi' => $orden->cb_oi,
+      'ct_od' => $orden->ct_od,
+      'ct_oi' => $orden->ct_oi,
+      'sag_od' => $orden->sag_od,
+      'sag_oi' => $orden->sag_oi,
+      'mid_od' => $orden->mid_od,
+      'mid_oi' => $orden->mid_oi,
+      'lim_od' => $orden->lim_od,
+      'lim_oi' => $orden->lim_oi,
+      'edg_od' => $orden->edg_od,
+      'edg_oi' => $orden->edg_oi,
+
+      'l_uno' => $orden->l_uno ?? "-",
+      'l_dos' => $orden->l_dos ?? "-",
+      'l_tres' => $orden->l_tres ?? "-",
+      'l_cuatro' => $orden->l_cuatro ?? "-",
+      'l_cinco' => $orden->l_cinco ?? "-",
+
+      'color' => $orden->color ?? "_",
+      'codigo' => $orden->codigo ?? "_",
+      'marca' => $orden->marca ?? "_",
+      'marca_oi' => $orden->marca_oi ?? "_",
+      'tipo_aro' => $orden->tipo_aro ?? "_",
+
+      'observaciones' => $orden->observaciones ?? "_",
+      'aro_centevi' => $orden->aro_centevi,
+      'aro_propio' => $orden->aro_propio,
+      'lente_contacto' => $orden->lente_contacto,
+      'lente_escleral_onefit' => $orden->lente_escleral_onefit,
+      'lente_escleral_onefit_med' => $orden->lente_escleral_onefit_med,
+      'sucursal' => $orden->nombre ?? '',
+      'nombres_apellidos_paciente' => ($orden->nombres
+        ? explode(' ', trim($orden->nombres))[0]
+        : '')
+        . ' ' .
+        ($orden->apellidos
+          ? explode(' ', trim($orden->apellidos))[0]
+          : '')
     ];
 
-    $pdf = Pdf::loadView('pdf/ordenPdfSize', $data)->setPaper([0, 0, 226.77, 841.89]);
+    $pdf = Pdf::loadView('pdf/ordenPdfSize', $data)
+      ->setPaper([0, 0, 226.77, 841.89]);
+
     return $pdf->stream('orden.pdf', [
       'Content-Type' => 'application/pdf',
       'Content-Disposition' => 'inline; filename="orden_' . $id_orden . '.pdf"'

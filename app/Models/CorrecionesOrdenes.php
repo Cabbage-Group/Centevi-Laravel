@@ -5,11 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
- class CorrecionesOrdenes extends Model
+class CorrecionesOrdenes extends Model
 {
   use HasFactory;
 
-  // Nombre de la tabla
   protected $table = 'correciones_ordenes';
 
   protected $fillable = [
@@ -32,13 +31,13 @@ use Illuminate\Database\Eloquent\Model;
     'altura_oi',
     'tipo_cristal_od',
     'tipo_cristal_oi',
+    'codigo_cristal',
     'material_od',
     'material_oi',
     'tratamientos_od',
     'tratamientos_oi',
     'aro_centevi',
     'aro_propio',
-    'codigo_cristal',
     'codigo',
     'color',
     'marca',
@@ -51,12 +50,31 @@ use Illuminate\Database\Eloquent\Model;
     'l_tres',
     'l_cuatro',
     'l_cinco',
+    'poder_od',
+    'poder_oi',
+    'dia_od',
+    'dia_oi',
+    'edge_od',
+    'edge_oi',
+    'pfsd_od',
+    'pfsd_oi',
+    'cb_od',
+    'cb_oi',
+    'ct_od',
+    'ct_oi',
+    'sag_od',
+    'sag_oi',
+    'mid_od',
+    'mid_oi',
+    'lim_od',
+    'lim_oi',
+    'edg_od',
+    'edg_oi',
     'pagado',
     'id_pedido',
-    'observacion_pedido'
+    'observacion_pedido',
   ];
 
-  // Atributos que deben ser convertidos a tipos nativos
   protected $casts = [
     'elaborado_por' => 'integer',
     'ordenes_id' => 'integer',

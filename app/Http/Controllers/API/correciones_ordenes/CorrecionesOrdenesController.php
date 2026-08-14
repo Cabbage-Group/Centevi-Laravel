@@ -292,6 +292,7 @@ class CorrecionesOrdenesController extends Controller
     $validator = Validator::make($request->all(), [
       'ordenes_id' => 'required|exists:ordenes,id_orden',
       'elaborado_por' => 'nullable|integer',
+
       'esfera_od' => 'nullable|string|max:500',
       'esfera_oi' => 'nullable|string|max:500',
       'cilindro_od' => 'nullable|string|max:255',
@@ -305,6 +306,7 @@ class CorrecionesOrdenesController extends Controller
       'distancia_od' => 'nullable|string|max:255',
       'distancia_oi' => 'nullable|string|max:255',
       'altura_od' => 'nullable|string|max:255',
+
       'altura_oi' => 'nullable|string|max:255',
       'tipo_cristal_od' => 'nullable|string|max:255',
       'tipo_cristal_oi' => 'nullable|string|max:255',
@@ -327,6 +329,26 @@ class CorrecionesOrdenesController extends Controller
       'l_cuatro' => 'nullable|string|max:255',
       'l_cinco' => 'nullable|string|max:255',
       'codigo_cristal' => 'nullable|string|max:255',
+      'poder_od' => 'nullable|string|max:100',
+      'poder_oi' => 'nullable|string|max:100',
+      'dia_od' => 'nullable|string|max:100',
+      'dia_oi' => 'nullable|string|max:100',
+      'edge_od' => 'nullable|string|max:100',
+      'edge_oi' => 'nullable|string|max:100',
+      'pfsd_od' => 'nullable|string|max:100',
+      'pfsd_oi' => 'nullable|string|max:100',
+      'cb_od' => 'nullable|string|max:100',
+      'cb_oi' => 'nullable|string|max:100',
+      'ct_od' => 'nullable|string|max:100',
+      'ct_oi' => 'nullable|string|max:100',
+      'sag_od' => 'nullable|string|max:100',
+      'sag_oi' => 'nullable|string|max:100',
+      'mid_od' => 'nullable|string|max:100',
+      'mid_oi' => 'nullable|string|max:100',
+      'lim_od' => 'nullable|string|max:100',
+      'lim_oi' => 'nullable|string|max:100',
+      'edg_od' => 'nullable|string|max:100',
+      'edg_oi' => 'nullable|string|max:100',
     ]);
 
     if ($validator->fails()) {
@@ -339,6 +361,7 @@ class CorrecionesOrdenesController extends Controller
     }
 
     $data = $request->all();
+
     $defaults = [
       'elaborado_por' => 0,
       'esfera_od' => '',
@@ -377,20 +400,53 @@ class CorrecionesOrdenesController extends Controller
       'l_cuatro' => '',
       'l_cinco' => '',
       'pagado' => '',
-      'lente_contacto' => 0
-
+      'poder_od' => '',
+      'poder_oi' => '',
+      'dia_od' => '',
+      'dia_oi' => '',
+      'edge_od' => '',
+      'edge_oi' => '',
+      'pfsd_od' => '',
+      'pfsd_oi' => '',
+      'cb_od' => '',
+      'cb_oi' => '',
+      'ct_od' => '',
+      'ct_oi' => '',
+      'sag_od' => '',
+      'sag_oi' => '',
+      'mid_od' => '',
+      'mid_oi' => '',
+      'lim_od' => '',
+      'lim_oi' => '',
+      'edg_od' => '',
+      'edg_oi' => '',
     ];
 
     $tipoCristalOd = $request->input('tipo_cristal_od');
     $tipoCristalOi = $request->input('tipo_cristal_oi');
 
-    $codigoCristal = $tipoCristalOd ? explode(' | ', $tipoCristalOd)[0] : ($tipoCristalOi ? explode(' | ', $tipoCristalOi)[0] : null);
+    $codigoCristal = $tipoCristalOd
+      ? explode(' | ', $tipoCristalOd)[0]
+      : (
+        $tipoCristalOi
+        ? explode(' | ', $tipoCristalOi)[0]
+        : null
+      );
 
-    $data = array_merge($defaults, $request->all(), ['codigo_cristal' => $codigoCristal]);
+    $data = array_merge(
+      $defaults,
+      $request->all(),
+      [
+        'codigo_cristal' => $codigoCristal
+      ]
+    );
 
     $correccion = CorrecionesOrdenes::create($data);
 
-    Ordenes::where('id_orden', $data['ordenes_id'])->update(['correccion' => true]);
+    Ordenes::where('id_orden', $data['ordenes_id'])
+      ->update([
+        'correccion' => true
+      ]);
 
     return response()->json([
       'success' => true,
@@ -918,6 +974,18 @@ class CorrecionesOrdenesController extends Controller
 
     $elaboradoPorFase = $ultimaFase && $ultimaFase->usuario ? $ultimaFase->usuario->nombre : null;
 
+    $tipoLente = 'aro';
+
+    if ($correccion->orden) {
+      if ($correccion->orden->lente_contacto == 1) {
+        $tipoLente = 'contacto';
+      } elseif ($correccion->orden->lente_escleral_onefit_med == 1) {
+        $tipoLente = 'onefitmed';
+      } elseif ($correccion->orden->lente_escleral_onefit == 1) {
+        $tipoLente = 'onefit';
+      }
+    }
+
     $estado = 'Sin estado';
 
     if ($ultimaFase) {
@@ -1010,6 +1078,27 @@ class CorrecionesOrdenesController extends Controller
         'l_cuatro' => $correccion->l_cuatro,
         'l_cinco' => $correccion->l_cinco,
         'dias_en_proceso' => $diasEnProceso,
+        'sag_od' => $correccion->sag_od,
+        'sag_oi' => $correccion->sag_oi,
+        'poder_od' => $correccion->poder_od,
+        'poder_oi' => $correccion->poder_oi,
+        'dia_od' => $correccion->dia_od,
+        'dia_oi' => $correccion->dia_oi,
+        'mid_od' => $correccion->mid_od,
+        'mid_oi' => $correccion->mid_oi,
+        'lim_od' => $correccion->lim_od,
+        'lim_oi' => $correccion->lim_oi,
+        'pfsd_od' => $correccion->pfsd_od,
+        'pfsd_oi' => $correccion->pfsd_oi,
+        'edg_od' => $correccion->edg_od,
+        'edg_oi' => $correccion->edg_oi,
+        'ct_od' => $correccion->ct_od,
+        'ct_oi' => $correccion->ct_oi,
+        'cb_od' => $correccion->cb_od,
+        'cb_oi' => $correccion->cb_oi,
+        'edge_od' => $correccion->edge_od,
+        'edge_oi' => $correccion->edge_oi,
+        'tipo_lente' => $tipoLente,
       ]
     ]);
   }
