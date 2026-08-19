@@ -925,7 +925,7 @@ class OrdenesApiController extends Controller
 
       'tipo_cristal_od' => 'nullable|string|max:255',
       'tipo_cristal_oi' => 'nullable|string|max:255',
-
+      'pagado' => 'nullable|integer|min:0|max:1',
       'tipo_corredor' => 'nullable|string|max:255',
 
       'aro_centevi' => 'nullable|integer|min:0|max:1',
@@ -1087,6 +1087,7 @@ class OrdenesApiController extends Controller
         'lente_contacto',
         'lente_escleral_onefit',
         'lente_escleral_onefit_med',
+        'pagado',
       ]);
       $data['codigo_cristal'] = $codigoCristal;
       $orden->update($data);
