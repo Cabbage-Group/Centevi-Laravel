@@ -132,6 +132,7 @@ const OptionsOrdenesLabo = ({
                 <Select.Option value="Alcon">Alcon</Select.Option>
                 <Select.Option value="B+L">B+L</Select.Option>
                 <Select.Option value="Medichub">Medichub</Select.Option>
+                <Select.Option value="Keratos">Keratos</Select.Option>
               </Select>
             </div>
 
@@ -190,98 +191,98 @@ const OptionsOrdenesLabo = ({
                     <span>Lente Escleral OneFit Med</span>
                   </div>
                 </Select.Option>
-            </Select>
-          </div>
+              </Select>
+            </div>
 
-        </div>
-      </Col>
-
-      <Col xxl={6} xl={6} md={6}>
-        <div>
-          <div className="mb-4">
-            <label className="mb-2 font-weight-bold d-block">
-              {"Fase:"}
-            </label>
-            <Select
-              mode="multiple"
-              style={{ width: '100%' }}
-              placeholder="por Fase"
-              onChange={handleFaseChange}
-              value={faseFilter}
-              allowClear
-            >
-              <Select.Option value="Nuevo">Nuevo</Select.Option>
-              <Select.Option value="Nuevo">Enviado</Select.Option>
-              <Select.Option value="Listo">Listo</Select.Option>
-              <Select.Option value="En Confección">En confeccion</Select.Option>
-              <Select.Option value="Retirado">Retirado</Select.Option>
-            </Select>
           </div>
+        </Col>
+
+        <Col xxl={6} xl={6} md={6}>
           <div>
-            <label className="mb-2 font-weight-bold d-block">
-              {"Status:"}
-            </label>
-            <Select
-              mode="multiple"
-              style={{ width: '100%' }}
-              placeholder="por Status"
-              onChange={handleStatusChange}
-              value={statusFilter}
-              allowClear
-            >
-              <Select.Option value="OK">OK</Select.Option>
-              <Select.Option value="Advertencia">Advertencia</Select.Option>
-              <Select.Option value="Crítico">Crítico</Select.Option>
-              <Select.Option value="Completado">Completado</Select.Option>
-            </Select>
+            <div className="mb-4">
+              <label className="mb-2 font-weight-bold d-block">
+                {"Fase:"}
+              </label>
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="por Fase"
+                onChange={handleFaseChange}
+                value={faseFilter}
+                allowClear
+              >
+                <Select.Option value="Nuevo">Nuevo</Select.Option>
+                <Select.Option value="Nuevo">Enviado</Select.Option>
+                <Select.Option value="Listo">Listo</Select.Option>
+                <Select.Option value="En Confección">En confeccion</Select.Option>
+                <Select.Option value="Retirado">Retirado</Select.Option>
+              </Select>
+            </div>
+            <div>
+              <label className="mb-2 font-weight-bold d-block">
+                {"Status:"}
+              </label>
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="por Status"
+                onChange={handleStatusChange}
+                value={statusFilter}
+                allowClear
+              >
+                <Select.Option value="OK">OK</Select.Option>
+                <Select.Option value="Advertencia">Advertencia</Select.Option>
+                <Select.Option value="Crítico">Crítico</Select.Option>
+                <Select.Option value="Completado">Completado</Select.Option>
+              </Select>
+            </div>
           </div>
-        </div>
-      </Col>
-      <Col xxl={8} xl={8} md={8}>
-        <div>
-          <div className="mb-4">
-            <label className="mb-2 font-weight-bold d-block">
-              {"Sucursal:"}
-            </label>
-            <Select
-              mode="multiple"
-              style={{ width: '100%' }}
-              placeholder="Seleccione la sucursal"
-              onChange={handleSucursalChange}
-              value={sucursalFilter}
-              allowClear
-            >
-              {sucursales_option_selects.map((sucursal) => (
-                <Option key={sucursal.value} value={sucursal.value}>
-                  {sucursal.label}
-                </Option>
-              ))}
-            </Select>
-          </div>
-
+        </Col>
+        <Col xxl={8} xl={8} md={8}>
           <div>
-            <label className="mb-2 font-weight-bold d-block">
-              {"Proveedor:"}
-            </label>
-            <Select
-              mode="multiple"
-              style={{ width: '100%' }}
-              placeholder="Seleccione estado de pago"
-              onChange={handleProveedorChange}
-              value={proveedorFilter}
-              allowClear
-            >
-              {proveedor_material_options_selecteds.map((proveedor) => (
-                <Option key={proveedor.value} value={proveedor.label}>
-                  {proveedor.label}
-                </Option>
-              ))}
-            </Select>
+            <div className="mb-4">
+              <label className="mb-2 font-weight-bold d-block">
+                {"Sucursal:"}
+              </label>
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="Seleccione la sucursal"
+                onChange={handleSucursalChange}
+                value={sucursalFilter}
+                allowClear
+              >
+                {sucursales_option_selects.map((sucursal) => (
+                  <Option key={sucursal.value} value={sucursal.value}>
+                    {sucursal.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+
+            <div>
+              <label className="mb-2 font-weight-bold d-block">
+                {"Proveedor:"}
+              </label>
+              <Select
+                mode="multiple"
+                style={{ width: '100%' }}
+                placeholder="Seleccione estado de pago"
+                onChange={handleProveedorChange}
+                value={proveedorFilter}
+                allowClear
+              >
+                {proveedor_material_options_selecteds.map((proveedor) => (
+                  <Option key={proveedor.value} value={proveedor.label}>
+                    {proveedor.label}
+                  </Option>
+                ))}
+              </Select>
+            </div>
           </div>
-        </div>
-      </Col>
-    </Row>
-      {/* </div> */ }
+        </Col>
+      </Row>
+      {/* </div> */}
     </div >
   )
 }

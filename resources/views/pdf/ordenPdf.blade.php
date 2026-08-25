@@ -424,7 +424,7 @@
     }
 
     .contacto-campo {
-      width: 100%;
+      width: 60%;
       margin-bottom: 8px;
     }
 
@@ -521,9 +521,9 @@
           <th>{{ $cilindro_od }}</th>
           <th>{{ $eje_od }}</th>
           <th>{{ $add_od }}</th>
-          <th>{{ $tipo_lente_contacto_od ?? $tipo_contacto_od ?? '-' }}</th>
-          <th>{{ $curva_base_od ?? '-' }}</th>
-          <th>{{ $diametro_od ?? '-' }}</th>
+          <th>{{ $prisma_od }}</th>
+          <th>{{ $distancia_od ?? '-' }}</th>
+          <th>{{ $altura_od ?? '-' }}</th>
         </tr>
         <tr class="row-table">
           <th>OI</th>
@@ -531,9 +531,9 @@
           <th>{{ $cilindro_oi }}</th>
           <th>{{ $eje_oi }}</th>
           <th>{{ $add_oi }}</th>
-          <th>{{ $tipo_lente_contacto_oi ?? $tipo_contacto_oi ?? '-' }}</th>
-          <th>{{ $curva_base_oi ?? '-' }}</th>
-          <th>{{ $diametro_oi ?? '-' }}</th>
+          <th>{{ $prisma_oi }}</th>
+          <th>{{ $distancia_oi }}</th>
+          <th>{{ $altura_oi ?? '-' }}</th>
         </tr>
       @else
         <tr class="header-table">
@@ -864,9 +864,6 @@
               {{ ($marca_oi ?? '_') === '_' ? '' : $marca_oi }}
             </div>
           </div>
-        </div>
-
-        <div class="contacto-columna">
           <div class="contacto-campo">
             <div class="aro-label">OBSERVACIONES</div>
             <div class="boton-item-white aro-observaciones">
@@ -874,6 +871,8 @@
             </div>
           </div>
         </div>
+
+    
       </div>
     </div>
   @endif

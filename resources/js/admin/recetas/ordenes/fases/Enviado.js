@@ -80,7 +80,6 @@ const Enviado = forwardRef(({
     }
   }, [pacienteOrden])
 
-
   useEffect(() => {
     if (pacienteOrden?.lente_contacto) {
       setOpcionesLaboratorio([
@@ -90,6 +89,14 @@ const Enviado = forwardRef(({
         { value: 'B+L', label: 'B+L' },
         { value: 'Medichub', label: 'Medichub' },
       ]);
+    } else if (
+      pacienteOrden?.tipo_lente === 'onefit' ||
+      pacienteOrden?.tipo_lente === 'onefitmed'
+    ) {
+      setOpcionesLaboratorio([
+        { value: 'Keratos', label: 'Keratos' },
+        { value: 'Vista Pro', label: 'Vista Pro' },
+      ]);
     } else {
       setOpcionesLaboratorio([
         { value: 'Centilab', label: 'Centilab' },
@@ -97,8 +104,7 @@ const Enviado = forwardRef(({
         { value: 'Optilab', label: 'Optilab' },
       ]);
     }
-  }, [pacienteOrden?.lente_contacto]);
-
+  }, [pacienteOrden?.lente_contacto, pacienteOrden?.tipo_lente]);
   useEffect(() => {
     if (selectedPaciente) {
       const pacienteSeleccionado = pacientesData.find(

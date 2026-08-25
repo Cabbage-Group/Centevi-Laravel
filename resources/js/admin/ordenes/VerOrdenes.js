@@ -488,6 +488,7 @@ const VerOrdenes = () => {
                                   <Select.Option value="Alcon">Alcon</Select.Option>
                                   <Select.Option value="B+L">B+L</Select.Option>
                                   <Select.Option value="Medichub">Medichub</Select.Option>
+                                  <Select.Option value="Keratos">Keratos</Select.Option>
                                 </Select>
                               </div>
                               <label className="mb-2 font-weight-bold d-block">

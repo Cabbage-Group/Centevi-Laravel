@@ -92,6 +92,15 @@ const CorreccionEnviado = forwardRef(
           { value: "B+L", label: "B+L" },
           { value: "Medichub", label: "Medichub" },
         ]);
+
+      } else if (
+        correcionOrden?.tipo_lente === 'onefit' ||
+        correcionOrden?.tipo_lente === 'onefitmed'
+      ) {
+        setOpcionesLaboratorio([
+          { value: 'Keratos', label: 'Keratos' },
+          { value: 'Vista Pro', label: 'Vista Pro' },
+        ]);
       } else {
         setOpcionesLaboratorio([
           { value: "Centilab", label: "Centilab" },
