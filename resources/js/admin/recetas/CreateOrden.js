@@ -242,15 +242,19 @@ const CreateOrden = () => {
 
 
   const handleSelectChange = (value, option) => {
-    const newEntry = {
-      servicio: isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO",
-      label: option.label,
-    };
+    const ojoActual = isLeftEye ? "OJO IZQUIERDO" : "OJO DERECHO";
+    const newEntry = { servicio: ojoActual, label: option.label };
 
-    if (serviciosRealizados.length < 2) {
-      setServiciosRealizados((prev) => [...prev, newEntry]);
-      setIsLeftEye(!isLeftEye);
-    }
+    setServiciosRealizados((prev) => {
+      const indexFind = prev.findIndex((s) => s.servicio === ojoActual);
+      if (indexFind !== -1) {
+        const copy = [...prev];
+        copy[indexFind] = newEntry;
+        return copy;
+      }
+      return [...prev, newEntry];
+    });
+    setIsLeftEye(!isLeftEye);
   };
 
   const tipoCristalMultifocal = () => {
@@ -260,27 +264,45 @@ const CreateOrden = () => {
   };
 
   const handleSelectChangeMaterial = (value, option) => {
-    const newEntryMateriales = {
-      servicio: isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO",
-      label: option.label,
-    };
+    const ojoActual = isLeftEyeMaterial ? "OJO IZQUIERDO" : "OJO DERECHO";
+    const newEntryMateriales = { servicio: ojoActual, label: option.label };
 
-    if (materialesSeleccionados.length < 2) {
-      setMaterialesSeleccionados((prev) => [...prev, newEntryMateriales]);
-      setIsLeftEyeMaterial(!isLeftEyeMaterial);
-    }
+    setMaterialesSeleccionados((prev) => {
+      const indexFind = prev.findIndex((s) => s.servicio === ojoActual);
+      if (indexFind !== -1) {
+        const copy = [...prev];
+        copy[indexFind] = newEntryMateriales;
+        return copy;
+      }
+      return [...prev, newEntryMateriales];
+    });
+    setIsLeftEyeMaterial(!isLeftEyeMaterial);
   };
 
-  const handleSelectChangeTratamientos = (value, option) => {
-    const newEntryTratamientos = {
-      servicio: isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO",
-      label: option.label,
-    };
 
-    if (tratamientosFiltros.length < 2) {
-      setTratamientosFiltros((prev) => [...prev, newEntryTratamientos]);
-      setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
-    }
+  const handleSelectChangeTratamientos = (value, option) => {
+    const ojoActual = isLeftEyeTratamientos ? "OJO IZQUIERDO" : "OJO DERECHO";
+    const newEntryTratamientos = { servicio: ojoActual, label: option.label };
+
+    setTratamientosFiltros((prev) => {
+      const indexFind = prev.findIndex((s) => s.servicio === ojoActual);
+      if (indexFind !== -1) {
+        const copy = [...prev];
+        copy[indexFind] = newEntryTratamientos;
+        return copy;
+      }
+      return [...prev, newEntryTratamientos];
+    });
+    setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
+  };
+
+  const extraerPorOjo = (lista) => {
+    const od = lista.find((item) => item.servicio === "OJO DERECHO");
+    const oi = lista.find((item) => item.servicio === "OJO IZQUIERDO");
+    return {
+      od: od ? od.label : "",
+      oi: oi ? oi.label : "",
+    };
   };
 
 
@@ -322,71 +344,24 @@ const CreateOrden = () => {
 
   const handleSubmit = async (values) => {
     try {
-      console.log('values', values);
-
-      const serviciosRealizadosSubmit = serviciosRealizados.map(s => s.label);
-      const materialesSeleccionadosSubmit = materialesSeleccionados.map(s => s.label);
-      const tratamientosFiltrosSubmit = tratamientosFiltros.map(s => s.label);
+      const cristalPorOjo = extraerPorOjo(serviciosRealizados);
+      const materialPorOjo = extraerPorOjo(materialesSeleccionados);
+      const tratamientoPorOjo = extraerPorOjo(tratamientosFiltros);
 
       const transformedValues = {
         ...values,
         id_paciente: selectedPaciente,
 
-        ...(serviciosRealizadosSubmit.length === 1
-          ? (!isLeftEye
-            ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] }
-            : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
-          )
-          : serviciosRealizadosSubmit.length === 2
-            ? isLeftEye
-              ? {
-                tipo_cristal_oi: serviciosRealizadosSubmit[0],
-                tipo_cristal_od: serviciosRealizadosSubmit[1],
-              }
-              : {
-                tipo_cristal_od: serviciosRealizadosSubmit[0],
-                tipo_cristal_oi: serviciosRealizadosSubmit[1],
-              }
-            : {}
-        ),
+        tipo_cristal_od: cristalPorOjo.od,
+        tipo_cristal_oi: cristalPorOjo.oi,
+
+        material_od: materialPorOjo.od,
+        material_oi: materialPorOjo.oi,
+
+        tratamientos_od: tratamientoPorOjo.od,
+        tratamientos_oi: tratamientoPorOjo.oi,
 
         tipo_corredor: tipoCorredor,
-
-        ...(materialesSeleccionadosSubmit.length === 1
-          ? (!isLeftEyeMaterial
-            ? { material_oi: materialesSeleccionadosSubmit[0] }
-            : { material_od: materialesSeleccionadosSubmit[0] }
-          )
-          : materialesSeleccionadosSubmit.length === 2
-            ? isLeftEyeMaterial
-              ? {
-                material_oi: materialesSeleccionadosSubmit[0],
-                material_od: materialesSeleccionadosSubmit[1],
-              }
-              : {
-                material_od: materialesSeleccionadosSubmit[0],
-                material_oi: materialesSeleccionadosSubmit[1],
-              }
-            : {}
-        ),
-
-        ...(tratamientosFiltrosSubmit.length === 1
-          ? (!isLeftEyeTratamientos
-            ? { tratamientos_oi: tratamientosFiltrosSubmit[0] }
-            : { tratamientos_od: tratamientosFiltrosSubmit[0] }
-          )
-          : tratamientosFiltrosSubmit.length === 2
-            ? isLeftEyeTratamientos
-              ? {
-                tratamientos_oi: tratamientosFiltrosSubmit[0],
-                tratamientos_od: tratamientosFiltrosSubmit[1],
-              }
-              : {
-                tratamientos_od: tratamientosFiltrosSubmit[0],
-                tratamientos_oi: tratamientosFiltrosSubmit[1],
-              }
-            : {}
-        ),
 
         aro_centevi: aroCentevi ? 1 : 0,
         aro_propio: aroCentevi ? 0 : 1,
@@ -398,22 +373,19 @@ const CreateOrden = () => {
         tipo_lente: tipoLente,
       };
 
-      console.log('transformedValues:', transformedValues);
-
       const response = await dispatch(createOrdenes(transformedValues)).unwrap();
 
       Swal.fire({
         icon: 'success',
         title: 'Receta creada',
         html: `La receta se ha creado exitosamente. Número de orden: 
-        <b style="font-size: 25px;">${response.data[0].nro_orden_id}</b>`,
+      <b style="font-size: 25px;">${response.data[0].nro_orden_id}</b>`,
       }).then(() => {
         navigate(-1);
       });
 
     } catch (error) {
       console.error('Error al crear receta:', error);
-
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -1101,8 +1073,12 @@ const CreateOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          setServiciosRealizados([])
-                                                          setTipoCorredor('')
+                                                          setServiciosRealizados((prev) => {
+                                                            const restante = prev.filter((s) => s.servicio !== servicio.servicio);
+                                                            const siguesMultifocal = restante.some((s) => s.label.toLowerCase().includes("multifocal"));
+                                                            if (!siguesMultifocal) setTipoCorredor('');
+                                                            return restante;
+                                                          });
                                                         }}
                                                       >
                                                         <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -1206,7 +1182,7 @@ const CreateOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          setMaterialesSeleccionados([])
+                                                          setMaterialesSeleccionados((prev) => prev.filter((s) => s.servicio !== servicio.servicio));
                                                         }}
                                                       >
                                                         <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -1284,7 +1260,7 @@ const CreateOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          setTratamientosFiltros([])
+                                                          setTratamientosFiltros((prev) => prev.filter((s) => s.servicio !== servicio.servicio));
                                                         }}
                                                       >
                                                         <CloseCircleTwoTone twoToneColor="#eb2f96" />

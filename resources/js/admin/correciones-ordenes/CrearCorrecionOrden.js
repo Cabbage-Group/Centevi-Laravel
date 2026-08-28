@@ -526,99 +526,37 @@ const CreateCorrecionOrden = () => {
     setIsLeftEyeTratamientos(!isLeftEyeTratamientos);
   };
 
+  const extraerPorOjo = (lista) => {
+    const od = lista.find((item) => item.ojo === "Ojo Derecho");
+    const oi = lista.find((item) => item.ojo === "Ojo Izquierdo");
+    return { od: od ? od.label : "", oi: oi ? oi.label : "" };
+  };
 
 
   const handleSubmit = async (values) => {
-    const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
-    const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label);
-    const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label);
-    console.log(values)
+    const cristalPorOjo = extraerPorOjo(serviciosRealizados);
+    const materialPorOjo = extraerPorOjo(materialesSeleccionados);
+    const tratamientoPorOjo = extraerPorOjo(tratamientosFiltros);
+
     const transformedValues = {
       ...values,
-      ...(serviciosRealizadosSubmit.length === 1
-        ? (!isLeftEye
-          ? { tipo_cristal_oi: serviciosRealizadosSubmit[0] }
-          : { tipo_cristal_od: serviciosRealizadosSubmit[0] }
-        )
-        : serviciosRealizadosSubmit.length === 2
-          ? isLeftEye
-            ? {
-              tipo_cristal_oi: serviciosRealizadosSubmit[0],
-              tipo_cristal_od: serviciosRealizadosSubmit[1]
-            }
-            : {
-              tipo_cristal_od: serviciosRealizadosSubmit[0],
-              tipo_cristal_oi: serviciosRealizadosSubmit[1]
-            }
-          : {}
-      ),
-
-      ...(materialesSeleccionadosSubmit.length === 1
-        ? (!isLeftEyeMaterial
-          ? { material_oi: materialesSeleccionadosSubmit[0] }
-          : { material_od: materialesSeleccionadosSubmit[0] }
-        )
-        : materialesSeleccionadosSubmit.length === 2
-          ? isLeftEyeMaterial
-            ? {
-              material_oi: materialesSeleccionadosSubmit[0],
-              material_od: materialesSeleccionadosSubmit[1]
-            }
-            : {
-              material_od: materialesSeleccionadosSubmit[0],
-              material_oi: materialesSeleccionadosSubmit[1]
-            }
-          : {}
-      ),
-
-      ...(tratamientosFiltrosSubmit.length === 1
-        ? (!isLeftEyeTratamientos
-          ? { tratamientos_oi: tratamientosFiltrosSubmit[0] }
-          : { tratamientos_od: tratamientosFiltrosSubmit[0] }
-        )
-        : tratamientosFiltrosSubmit.length === 2
-          ? isLeftEyeTratamientos
-            ? {
-              tratamientos_oi: tratamientosFiltrosSubmit[0],
-              tratamientos_od: tratamientosFiltrosSubmit[1]
-            }
-            : {
-              tratamientos_od: tratamientosFiltrosSubmit[0],
-              tratamientos_oi: tratamientosFiltrosSubmit[1]
-            }
-          : {}
-      ),
+      tipo_cristal_od: cristalPorOjo.od,
+      tipo_cristal_oi: cristalPorOjo.oi,
+      material_od: materialPorOjo.od,
+      material_oi: materialPorOjo.oi,
+      tratamientos_od: tratamientoPorOjo.od,
+      tratamientos_oi: tratamientoPorOjo.oi,
       doctor: doctorSeleccionado,
       elaborado_por: usuario?.usuario?.id_usuario,
       lente_contacto: lenteContacto,
       tipo_lente: tipoLente,
       ...(esAro
-        ? {
-          aro_centevi: aroCentevi ? 1 : 0,
-          aro_propio: aroCentevi ? 0 : 1,
-          tipo_aro: tipoAro,
-        }
-        : {
-          aro_centevi: 0,
-          aro_propio: 0,
-          tipo_aro: null,
-        }
-      ),
-      ...(esOneFit
-        ? {
-          ...oneFitValues,
-        }
-        : {}),
-      ...(esOneFitMed
-        ? {
-          ...oneFitMedValues,
-        }
-        : {}),
+        ? { aro_centevi: aroCentevi ? 1 : 0, aro_propio: aroCentevi ? 0 : 1, tipo_aro: tipoAro }
+        : { aro_centevi: 0, aro_propio: 0, tipo_aro: null }),
+      ...(esOneFit ? { ...oneFitValues } : {}),
+      ...(esOneFitMed ? { ...oneFitMedValues } : {}),
       ...(tipoLente !== 'aro'
-        ? {
-          marca: selectedMarca || '',
-          marca_oi: selectedMarcaOI || '',
-        }
+        ? { marca: selectedMarca || '', marca_oi: selectedMarcaOI || '' }
         : {}),
     };
 
@@ -1246,8 +1184,7 @@ const CreateCorrecionOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
-                                                          setServiciosRealizados([])
+                                                          setServiciosRealizados(prev => prev.filter(s => s.ojo !== servicio.ojo));
                                                         }}
                                                       >
                                                         <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -1330,8 +1267,7 @@ const CreateCorrecionOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
-                                                          setMaterialesSeleccionados([])
+                                                          setMaterialesSeleccionados(prev => prev.filter(s => s.ojo !== servicio.ojo));
                                                         }}
                                                       >
                                                         <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -1413,8 +1349,7 @@ const CreateCorrecionOrden = () => {
                                                           cursor: 'pointer'
                                                         }}
                                                         onClick={() => {
-                                                          // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
-                                                          setTratamientosFiltros([])
+                                                          setTratamientosFiltros(prev => prev.filter(s => s.ojo !== servicio.ojo));
                                                         }}
                                                       >
                                                         <CloseCircleTwoTone twoToneColor="#eb2f96" />

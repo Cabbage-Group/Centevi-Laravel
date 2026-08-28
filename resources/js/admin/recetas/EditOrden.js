@@ -18,6 +18,7 @@ import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 import { fetchMarcasOnefit } from '../../redux/features/marcas-onefit/marcasOnefitSlice';
 import { fetchMarcasOnefitMed } from '../../redux/features/marcas-onefit-med/marcasOnefitMedSlice';
+import { fetchAnticiposDisponibles } from '../../redux/features/anticipos/anticiposSlice';
 
 
 
@@ -74,6 +75,8 @@ const EditOrden = ({
   const esAro = tipoLente === 'aro';
   const esOneFit = tipoLente === 'onefit';
   const esOneFitMed = tipoLente === 'onefitmed';
+
+
   const {
     marcas_one_fit_options_selecteds,
   } = useSelector((state) => state.marcasOnefit);
@@ -110,10 +113,15 @@ const EditOrden = ({
     }
   })();
 
-  useEffect(() => {
-    const hasRightEye = serviciosRealizados.some(servicio => servicio.ojo === "Ojo Derecho");
-    setIsLeftEye(hasRightEye);
-  }, [serviciosRealizados]);
+
+  const extraerPorOjo = (lista) => {
+    const od = lista.find((item) => item.ojo === "Ojo Derecho");
+    const oi = lista.find((item) => item.ojo === "Ojo Izquierdo");
+    return {
+      od: od ? od.label : "",
+      oi: oi ? oi.label : "",
+    };
+  };
 
   const [formValues, setFormValues] = useState({
     nro_orden: '',
@@ -463,84 +471,23 @@ const EditOrden = ({
   }, []);
 
   const handleSubmit = async (values) => {
-    const serviciosRealizadosSubmit = serviciosRealizados.map(servicio => servicio.label);
-    const materialesSeleccionadosSubmit = materialesSeleccionados.map(servicio => servicio.label)
-    const tratamientosFiltrosSubmit = tratamientosFiltros.map(servicio => servicio.label)
+    const cristalPorOjo = extraerPorOjo(serviciosRealizados);
+    const materialPorOjo = extraerPorOjo(materialesSeleccionados);
+    const tratamientoPorOjo = extraerPorOjo(tratamientosFiltros);
     const transformedValues = {
       ...values,
       id_paciente: selectedPaciente,
-      ...(serviciosRealizadosSubmit.length === 1
-        ? (!isLeftEye
-          ? {
-            tipo_cristal_oi: serviciosRealizadosSubmit[0],
-            tipo_cristal_od: ""
-          }
-          : {
-            tipo_cristal_od: serviciosRealizadosSubmit[0],
-            tipo_cristal_oi: ""
-          }
-        )
-        : serviciosRealizadosSubmit.length === 2
-          ? isLeftEye
-            ? {
-              tipo_cristal_oi: serviciosRealizadosSubmit[0],
-              tipo_cristal_od: serviciosRealizadosSubmit[1]
-            }
-            : {
-              tipo_cristal_od: serviciosRealizadosSubmit[0],
-              tipo_cristal_oi: serviciosRealizadosSubmit[1]
-            }
-          : {}
-      ),
+
+      tipo_cristal_od: cristalPorOjo.od,
+      tipo_cristal_oi: cristalPorOjo.oi,
+
+      material_od: materialPorOjo.od,
+      material_oi: materialPorOjo.oi,
+
+      tratamientos_od: tratamientoPorOjo.od,
+      tratamientos_oi: tratamientoPorOjo.oi,
 
       tipo_corredor: tipoCorredor,
-      ...(materialesSeleccionadosSubmit.length === 1
-        ? (!isLeftEyeMaterial
-          ? {
-            material_oi: materialesSeleccionadosSubmit[0],
-            material_od: ""
-          }
-          : {
-            material_od: materialesSeleccionadosSubmit[0],
-            material_oi: ""
-          }
-        )
-        : materialesSeleccionadosSubmit.length === 2
-          ? isLeftEyeMaterial
-            ? {
-              material_oi: materialesSeleccionadosSubmit[0],
-              material_od: materialesSeleccionadosSubmit[1]
-            }
-            : {
-              material_od: materialesSeleccionadosSubmit[0],
-              material_oi: materialesSeleccionadosSubmit[1]
-            }
-          : {}
-      ),
-
-      ...(tratamientosFiltrosSubmit.length === 1
-        ? (!isLeftEyeTratamientos
-          ? {
-            tratamientos_oi: tratamientosFiltrosSubmit[0],
-            tratamientos_od: ""
-          }
-          : {
-            tratamientos_od: tratamientosFiltrosSubmit[0],
-            tratamientos_oi: ""
-          }
-        )
-        : tratamientosFiltrosSubmit.length === 2
-          ? isLeftEyeTratamientos
-            ? {
-              tratamientos_oi: tratamientosFiltrosSubmit[0],
-              tratamientos_od: tratamientosFiltrosSubmit[1]
-            }
-            : {
-              tratamientos_od: tratamientosFiltrosSubmit[0],
-              tratamientos_oi: tratamientosFiltrosSubmit[1]
-            }
-          : {}
-      ),
       doctor: doctorSeleccionado,
       elaborado_por: usuario?.usuario?.id_usuario,
       lente_contacto: lenteContacto,
@@ -555,25 +502,15 @@ const EditOrden = ({
           aro_centevi: 0,
           aro_propio: 0,
           tipo_aro: null,
-        }
-      ),
-      ...(esOneFit
-        ? {
-          ...oneFitValues,
-        }
-        : {}),
-      ...(esOneFitMed
-        ? {
-          ...oneFitMedValues,
-        }
-        : {}),
+        }),
+      ...(esOneFit ? { ...oneFitValues } : {}),
+      ...(esOneFitMed ? { ...oneFitMedValues } : {}),
       ...(tipoLente !== 'aro'
         ? {
           marca: selectedMarca || '',
           marca_oi: selectedMarcaOI || '',
         }
         : {}),
-        
     };
 
     try {
@@ -1279,9 +1216,12 @@ const EditOrden = ({
                                                             cursor: 'pointer'
                                                           }}
                                                           onClick={() => {
-                                                            // setServiciosRealizados([...serviciosRealizados.filter(serv => serv.value !== servicio.value)])
-                                                            setServiciosRealizados([])
-                                                            setTipoCorredor('');
+                                                            setServiciosRealizados(prev => {
+                                                              const restante = prev.filter(serv => serv.ojo !== servicio.ojo);
+                                                              const siguesMultifocal = restante.some(s => s.label.toLowerCase().includes("multifocal"));
+                                                              if (!siguesMultifocal) setTipoCorredor('');
+                                                              return restante;
+                                                            });
                                                           }}
                                                         >
                                                           <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -1394,8 +1334,7 @@ const EditOrden = ({
                                                             cursor: 'pointer'
                                                           }}
                                                           onClick={() => {
-                                                            // setMaterialesSeleccionados([...materialesSeleccionados.filter(serv => serv.value !== servicio.value)])
-                                                            setMaterialesSeleccionados([])
+                                                            setMaterialesSeleccionados(prev => prev.filter(mat => mat.ojo !== servicio.ojo));
                                                           }}
                                                         >
                                                           <CloseCircleTwoTone twoToneColor="#eb2f96" />
@@ -1483,8 +1422,7 @@ const EditOrden = ({
                                                             cursor: 'pointer'
                                                           }}
                                                           onClick={() => {
-                                                            // setTratamientosFiltros([...tratamientosFiltros.filter(serv => serv.value !== servicio.value)])
-                                                            setTratamientosFiltros([])
+                                                            setTratamientosFiltros(prev => prev.filter(trat => trat.ojo !== servicio.ojo));
                                                           }}
                                                         >
                                                           <CloseCircleTwoTone twoToneColor="#eb2f96" />
