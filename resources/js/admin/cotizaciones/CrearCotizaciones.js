@@ -798,9 +798,8 @@ const CrearCotizacion = () => {
   return (
     <Card title={<Title level={2}>Cotizaciones</Title>}>
       <Form
-        onForm={form}
+        form={form}
         layout="vertical"
-
         onFinish={onFinish}
       >
         <Row gutter={16}>

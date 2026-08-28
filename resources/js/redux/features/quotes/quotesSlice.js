@@ -136,6 +136,29 @@ export const findQuotesByIdAndUpdate = createAsyncThunk(
   }
 )
 
+export const convertQuote = createAsyncThunk(
+  'quotes/convertQuote',
+  async ({ quote_id, id_sucursal }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API}/quote/convert-order`,
+        {
+          quote_id,
+          id_sucursal
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || {
+          message: 'Error desconocido al convertir la cotización'
+        }
+      );
+    }
+  }
+);
+
 const quotesSlice = createSlice({
   name: 'quotes',
   initialState: {
@@ -156,6 +179,11 @@ const quotesSlice = createSlice({
     error: null,
     errorCreate: null,
     codigoInterfuerzaList: [],
+    convertOrderStatus: 'idle',
+    convertOrderError: null,
+    convertedOrder: null,
+    convertedOrderTotal: null,
+    anticiposDisponibles: [],
   },
   reducers: {
     setPage: (state, action) => {
@@ -265,6 +293,29 @@ const quotesSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message;
       })
+      .addCase(convertQuote.pending, (state) => {
+        state.convertOrderStatus = 'loading';
+        state.convertOrderError = null;
+      })
+
+      .addCase(convertQuote.fulfilled, (state, action) => {
+        state.convertOrderStatus = 'succeeded';
+
+        state.convertedOrder = action.payload.orden;
+        state.convertedOrderTotal = action.payload.total;
+        state.anticiposDisponibles = action.payload.anticipos_disponibles || [];
+
+        state.convertOrderError = null;
+      })
+
+      .addCase(convertQuote.rejected, (state, action) => {
+        state.convertOrderStatus = 'failed';
+
+        state.convertOrderError =
+          action.payload?.message ||
+          action.error?.message ||
+          'Error al convertir la cotización a orden';
+      });
   },
 });
 

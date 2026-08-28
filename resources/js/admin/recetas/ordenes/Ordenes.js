@@ -57,6 +57,8 @@ import { clearObservaciones, createObservacionOrden, deleteObservacionOrden, fet
 import ObservacionesHistorial from "./observaciones/Observacioneshistorial";
 import Enviado from "./fases/Enviado";
 import { useRef } from "react";
+import AnticiposOrdenTable from "../AnticiposOrdenTable";
+import { fetchAnticiposDisponibles } from "../../../redux/features/anticipos/anticiposSlice";
 
 const Ordenes = () => {
   const dispatch = useDispatch();
@@ -95,6 +97,7 @@ const Ordenes = () => {
   const [guardandoObs, setGuardandoObs] = useState(false);
   const [editandoObs, setEditandoObs] = useState(null);
   const { permisos } = useSelector((state) => state.auth);
+  const { list: anticiposDisponibles, status: statusAnticipos } = useSelector((state) => state.anticipos);
   const {
     pagadoFiltro,
     sucursalFiltro,
@@ -121,7 +124,15 @@ const Ordenes = () => {
     endDateLabo,
 
   } = location.state || {};
-  console.log('tiposFasesOrdenes', tiposFasesOrdenes)
+
+
+  // junto a los demás useEffect que dependen de selectedPaciente
+  useEffect(() => {
+    if (selectedPaciente) {
+      dispatch(fetchAnticiposDisponibles(selectedPaciente));
+    }
+  }, [selectedPaciente, dispatch]);
+
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente);
@@ -333,7 +344,7 @@ const Ordenes = () => {
       }
       else if (lastPhase.tipo_fase_orden_id === 5) {
         newStep = 4;
-      }       
+      }
       setNivelStep(newStep);
       setInitialized(true);
     }
@@ -539,10 +550,10 @@ const Ordenes = () => {
           return;
         }
       }
-    } 
+    }
 
     let textoAdicional = '';
-    if (nuevaData.tipo_fase_orden_id === 2 && !pacienteOrden?.lente_contacto &&  enviadoRef.current?.getInfoLaboratorio ) {
+    if (nuevaData.tipo_fase_orden_id === 2 && !pacienteOrden?.lente_contacto && enviadoRef.current?.getInfoLaboratorio) {
       const { laboratorio, cambio } = enviadoRef.current.getInfoLaboratorio();
       if (cambio && laboratorio) {
         const msg = laboratorio === 'Centilab'
@@ -550,7 +561,7 @@ const Ordenes = () => {
           : 'El pedido cambiará a realizado.';
         textoAdicional = ` · Lab: ${laboratorio} → ${msg}`;
       }
-    }    
+    }
     const result = await Swal.fire({
       title: completar ? 'Estas seguro de completar la fase?' : 'Estas seguro de guardar la fase?',
       text: (completar ? 'Confirmaras la fase como completada!' : 'Confirmaras los cambios en los datos!') + textoAdicional,
@@ -749,6 +760,8 @@ const Ordenes = () => {
     }
   };
 
+
+  console.log('pacienteorden>>>>>>>>>', pacienteOrden)
   return (
     <div>
       <Row>
@@ -918,6 +931,17 @@ const Ordenes = () => {
           />
         </div>
       </Row>
+      {pacienteOrden && (
+        <AnticiposOrdenTable
+          ordenId={orderId}
+          idPaciente={selectedPaciente}
+          anticipos={anticiposDisponibles}
+          totalCotizacion={pacienteOrden?.cotizacion_total}
+          ordenAnticiposActuales={pacienteOrden?.orden_anticipos || []}
+          loading={statusAnticipos === 'loading'}
+          onSaved={() => dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden }))}
+        />
+      )}
       <EditOrden
         pacienteOrden={pacienteOrden}
         fecha_solicitud={fechaSolicitud}

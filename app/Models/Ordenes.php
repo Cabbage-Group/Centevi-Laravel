@@ -156,4 +156,9 @@ class Ordenes extends Model
     return $this->hasMany(OrdenObservacion::class, 'ordenes_id', 'id_orden')
       ->orderBy('created_at', 'asc');
   }
+
+  public function ordenAnticipos()
+  {
+      return $this->hasMany(OrdenAnticipo::class, 'id_orden', 'id_orden');
+  }
 }

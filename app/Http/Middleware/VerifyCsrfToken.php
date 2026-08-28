@@ -299,6 +299,8 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/ordenes/*/observaciones/*',
 
     'http://127.0.0.1:8000/api/correciones-ordenes/*/observaciones',
-    'http://127.0.0.1:8000/api/correciones-ordenes/*/observaciones/*'
+    'http://127.0.0.1:8000/api/correciones-ordenes/*/observaciones/*',
+    'http://127.0.0.1:8000/api/quote/convert-order',
+    'http://127.0.0.1:8000/api/orden-anticipos/ordenes/*/guardarAnticipos'
   ];
 }

@@ -285,7 +285,7 @@ const ordenesSlice = createSlice({
   name: 'ordenes',
   initialState: {
     data: [],
-    ordenes: [],
+    ordenes: [], 
     pacienteOrdenes: [],
     pacienteOrden: {},
     OrderIDPaciente: null,
@@ -312,6 +312,9 @@ const ordenesSlice = createSlice({
     errorPacienteOrden: null,
     sortOrder: 'desc',
     sortColumn: 'created_at',
+    loadingAnticipos: false,
+    errorAnticipos: null,
+    ordenConAnticipos: null,
   },
   reducers: {
     setOrden(state, action) {
@@ -475,6 +478,7 @@ const ordenesSlice = createSlice({
         state.status_prueba = 'failed';
         state.error_prueba = action.error.message;
       });
+
   },
 });
 

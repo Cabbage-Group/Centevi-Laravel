@@ -2767,6 +2767,7 @@ class OrdenesApiController extends Controller
       ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
       ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+      ->leftJoin('quotes', 'ordenes.nro_cotizacion', '=', 'quotes.id')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
       ->leftJoinSub($ultimaFaseQuery, 'ultima_fase', 'ordenes.id_orden', '=', 'ultima_fase.ordenes_id')
       ->leftJoinSub($fechaRetiradoQuery, 'fase_retirado', 'ordenes.id_orden', '=', 'fase_retirado.ordenes_id')
@@ -2776,29 +2777,28 @@ class OrdenesApiController extends Controller
         DB::raw("COALESCE(ultima_fase.ultima_fase_tipo_id, 0) as ultima_fase_tipo_id"),
         DB::raw("COALESCE(ultima_fase.ultima_fase_nombre, 'Nuevo') as ultima_fase_nombre"),
         DB::raw("
-            CASE
-                WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
-                    AND fase_retirado.fecha_retirado IS NOT NULL
-                THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
-
-                ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
-            END as dias_en_proceso
-        "),
-
+        CASE
+            WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
+                AND fase_retirado.fecha_retirado IS NOT NULL
+            THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
+            ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
+        END as dias_en_proceso
+    "),
         'pacientes.nombres as paciente_nombres',
         'pacientes.apellidos as paciente_apellidos',
         'pacientes.celular as paciente_celular',
         'sucursales.nombre as sucursal_nombre',
         'sucursales.ubicacion_maps as sucursal_ubicacion',
         'usuarios.nombre as elaborado_por',
+        'quotes.Total as cotizacion_total',
         DB::raw("
-        CASE
-            WHEN ordenes.lente_contacto = 1 THEN 'contacto'
-            WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
-            WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
-            ELSE 'aro'
-        END as tipo_lente
-    ")
+    CASE
+        WHEN ordenes.lente_contacto = 1 THEN 'contacto'
+        WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
+        WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
+        ELSE 'aro'
+    END as tipo_lente
+")
       )
       ->where('ordenes.id_paciente', $id_paciente)
       ->where('ordenes.nro_orden_id', $nroOrdenId)
@@ -2811,8 +2811,21 @@ class OrdenesApiController extends Controller
         }
         return $value;
       })->toArray();
-    }
 
+      $orden['orden_anticipos'] = DB::table('orden_anticipos')
+        ->join('anticipos', 'orden_anticipos.id_anticipo', '=', 'anticipos.id_anticipo')
+        ->where('orden_anticipos.id_orden', $orden['id_orden'])
+        ->select(
+          'orden_anticipos.id_anticipo',
+          'orden_anticipos.monto_aplicado',
+          'anticipos.referencia',
+          'anticipos.fecha',
+          'anticipos.tipo',
+          'anticipos.monto'
+        )
+        ->get()
+        ->toArray();
+    }
     if (!$orden) {
       return response()->json([
         'respuesta' => false,

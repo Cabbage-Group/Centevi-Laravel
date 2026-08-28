@@ -17,6 +17,7 @@ use App\Http\Controllers\API\consultas\OptometriaGeneralApiController;
 use App\Http\Controllers\API\consultas\ConsultaGenericaController;
 // use App\Http\Controllers\Admin\HistoriaClinica\HistoriaClinicaController;
 use App\Http\Controllers\API\agenda\AgendaApiController;
+use App\Http\Controllers\API\anticipos\AnticiposApiController;
 use App\Http\Controllers\API\contacto_orden\ContactosOrdenesApiController;
 use App\Http\Controllers\API\correciones_ordenes\CorrecionesOrdenesController;
 use App\Http\Controllers\API\cristales\CristalesApiController;
@@ -62,6 +63,8 @@ use App\Http\Controllers\API\correccionesObservacionesOrdenes\CorreccionesObserv
 use App\Http\Controllers\API\historial_orden\HistorialOrdenApiController;
 use App\Http\Controllers\API\marcas_onefit\MarcasOnefitApiController;
 use App\Http\Controllers\API\marcas_onefit_med\MarcasOnefitMedApiController;
+use App\Http\Controllers\API\ordenAnticipo\OrdenAnticipoController;
+use App\Http\Controllers\API\ordenAnticipo\OrdenApiAnticipoController;
 use App\Http\Controllers\API\ordenes\OrdenesCentilabApiController;
 use App\Http\Controllers\API\pedidos\PedidosController;
 use App\Http\Controllers\API\ordenesObservaciones\OrdenObservacionController;
@@ -71,6 +74,8 @@ Route::get('/api/usuarios', [UsuariosApiController::class, 'usuarios']);
 Route::get('/api/usuarios-doctor', [UsuariosApiController::class, 'usuariosDoctor']);
 Route::get('/api/pacientes', [PacientesApiController::class, 'pacientes']);
 Route::get('/api/exportar-pacientes-v2', [PacientesApiController::class, 'exportPacientesExcel']);
+
+Route::get('/api/pacientes/{idPaciente}/anticipos-disponibles', [PacientesApiController::class, 'disponibles']);
 
 Route::get('/api/pacientes/{id}', [PacientesApiController::class, 'VerPaciente']);
 
@@ -582,6 +587,10 @@ Route::post('/api/crear/quote/centevi', [QuoterApiController::class, 'crearQoute
 
 Route::put('/api/update/quote/centevi/{id}', [QuoterApiController::class, 'updateEstadoInterfuerza']);
 
+Route::post('/api/quote/convert-order', [QuoterApiController::class, 'convertToOrder']);
+
+
+
 // rutas quoteTimeline - seguimiento de cotizacion
 Route::get('/api/quote-timeline/for-quote/{quoteId}', [QuoteTimelineApiController::class, 'getAllQuoteTimelinesByQuoteId']);
 
@@ -666,6 +675,25 @@ Route::prefix('api/pedidos')->group(function () {
     Route::get('/historial/{id_orden}/imprimir', [PedidosController::class, 'imprimirHistorial']);
 
     Route::post('/imprimir-pedido', [PedidosController::class, 'imprimirPedido']);
+});
+
+Route::prefix('/api/anticipos')->group(function () {
+
+    Route::get('/', [AnticiposApiController::class, 'index']);
+    Route::get('/{id}', [AnticiposApiController::class, 'show']);
+    Route::post('/', [AnticiposApiController::class, 'store']);
+    Route::put('/{id}', [AnticiposApiController::class, 'update']);
+    Route::delete('/{id}', [AnticiposApiController::class, 'destroy']);
+});
+
+Route::prefix('/api/orden-anticipos')->group(function () {
+
+    Route::post('/by-paciente', [OrdenApiAnticipoController::class, 'resumenFinanciero']);
+
+    Route::post(
+        '/ordenes/{orden}/guardarAnticipos',
+        [OrdenApiAnticipoController::class, 'guardarAnticipos']
+    );
 });
 
 

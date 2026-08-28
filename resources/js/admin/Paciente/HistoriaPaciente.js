@@ -33,6 +33,8 @@ import InfiniteScrollList from './componentes/historiaPaciente/infiniteScroll';
 import DiagnosticosTableModal from './componentes/historiaPaciente/DiagnosticosTableModal';
 import { resetDiagnosticosPorPaciente } from '../../redux/features/diagnosticos/DiagnosticosSlice';
 import { deleteCorreccionesOrdenes } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
+import { fetchResumenFinanciero } from '../../redux/features/anticipos/anticiposSlice.js';
+import ResumenFinancieroPaciente from './componentes/historiaPaciente/ResumenFinancieroPaciente.js';
 
 const formatToDateDisplay = (dateStr) => {
   if (!dateStr) return '';
@@ -85,6 +87,7 @@ const HistoriaPaciente = () => {
   const [idPaciente, setIdPaciente] = useState();
   const [isCorreccion, setIsCorreccion] = useState(false);
   const [numCorrecionActual, setNumCorrecionActual] = useState(null);
+  const { resumen: resumenFinanciero } = useSelector((state) => state.anticipos);
 
   let urgencia = {};
   let menor = {};
@@ -106,6 +109,12 @@ const HistoriaPaciente = () => {
       setAge(calculatedAge);
     }
   }, [verPaciente]);
+
+  useEffect(() => {
+    if (id && id !== 'undefined') {
+      dispatch(fetchResumenFinanciero(id));
+    }
+  }, [id, dispatch]);
 
   useEffect(() => {
 
@@ -2431,6 +2440,22 @@ const HistoriaPaciente = () => {
                           <div className="row">
                             <div className="col-xl-12 col-md-12 col-sm-12 col-12">
                               <h3>
+                                SALDOS Y ANTICIPOS:
+                              </h3>
+                            </div>
+                          </div>
+                        </div>
+
+                        <ResumenFinancieroPaciente resumen={resumenFinanciero} />
+
+                        <div
+                          className="widget-header mt-0"
+                          style={{
+                          }}
+                        >
+                          <div className="row">
+                            <div className="col-xl-12 col-md-12 col-sm-12 col-12">
+                              <h3>
                                 ORDENES:
                               </h3>
                             </div>
@@ -2570,8 +2595,8 @@ const HistoriaPaciente = () => {
                                                 onClick={() => {
                                                   if (pacienteOrden.es_correccion) {
                                                     handleEliminarCorrecionOrden(pacienteOrden.id)
-                                                  }else {
-                                                   handleEliminarOrden(pacienteOrden.id_orden)
+                                                  } else {
+                                                    handleEliminarOrden(pacienteOrden.id_orden)
                                                   }
                                                 }}
                                                 className="btnEliminarConsultaCG btn btn-danger mb-2 p-1 mr-2 rounded-circle"

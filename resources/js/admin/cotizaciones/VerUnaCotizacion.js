@@ -15,13 +15,15 @@ import {
   Col,
   Switch
 } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
-import { fetchExchangeRate, VerUnaQuote } from '../../redux/features/quotes/quotesSlice';
+import { convertQuote, fetchExchangeRate, VerUnaQuote } from '../../redux/features/quotes/quotesSlice';
 import { useNavigate, useParams } from 'react-router-dom';
+import CrearOrdenModal from './components/CrearOrdenModal';
+import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -31,15 +33,19 @@ const VerUnaCotizacion = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { exchangeRate, quote } = useSelector((state) => state.quotes);
+  const { sucursales_option_selects } = useSelector((state) => state.sucursales);
   const nombre = localStorage.getItem('nombre');
   const [lines, setLines] = useState([]);
   const { id } = useParams();
-
+  const [openCrearOrden, setOpenCrearOrden] = useState(false);
+  const [idSucursal, setIdSucursal] = useState(null);
+  const [ordenCreada, setOrdenCreada] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
       dispatch(VerUnaQuote(id));
+      dispatch(fetchSucursales({ page: 1, limit: 100 }));
     }
   }, [id]);
 
@@ -66,13 +72,14 @@ const VerUnaCotizacion = () => {
       });
 
       if (quote?.lines && Array.isArray(quote.lines)) {
-        setLines(quote.lines.map((line, index) => ({
-          key: index,
-          ...line
-        })));
+        setLines(quote.lines.map((line, index) => ({ key: index, ...line })));
+      }
+      if (quote?.orden) {
+        setOrdenCreada(quote.orden);
       }
     }
   }, [form, nombre, exchangeRate, quote]);
+
 
   useEffect(() => {
     dispatch(fetchPacientes({ page: 1, limit: 50000 }))
@@ -81,6 +88,44 @@ const VerUnaCotizacion = () => {
   useEffect(() => {
     dispatch(fetchExchangeRate());
   }, []);
+
+  const handleCrearOrden = async () => {
+    console.log('quote2::', quote);
+
+    if (!quote?.id || !idSucursal) {
+      message.warning('Seleccione una sucursal');
+      return;
+    }
+
+    try {
+      const result = await dispatch(
+        convertQuote({
+          quote_id: quote.id,
+          id_sucursal: idSucursal,
+        })
+      ).unwrap();
+
+      console.log('Respuesta convertir orden:', result);
+
+      if (!result?.orden) {
+        console.error('No se encontró la orden:', result);
+        message.error('La orden fue creada pero no se pudo obtener la información');
+        return;
+      }
+
+      // Guardamos TODA la orden
+      setOrdenCreada(result.orden);
+
+    } catch (error) {
+      console.error('Error al convertir cotización:', error);
+
+      message.error(
+        error?.message || 'No se pudo convertir la cotización en orden'
+      );
+    }
+  };
+
+
 
   const columns = [
     {
@@ -263,7 +308,39 @@ const VerUnaCotizacion = () => {
   ];
 
   return (
-    <Card title={<Title level={2}>Cotizaciones</Title>}>
+    <Card
+      title={
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+          }}
+        >
+          <Title level={2} style={{ margin: 0 }}>
+            Cotizaciones
+          </Title>
+
+          <Button
+            type="primary"
+            onClick={() => {
+              if (ordenCreada) {
+                navigate(
+                  `/orden-receta/${ordenCreada.id_orden}/${ordenCreada.nro_orden_id}/${ordenCreada.id_paciente}`
+                );
+              } else {
+                setOpenCrearOrden(true);
+              }
+            }}
+          >
+            {ordenCreada
+              ? `Ver orden ${ordenCreada.nro_orden_id}`
+              : 'Crear orden'}
+          </Button>
+        </div>
+      }
+    >
       <Form
         form={form}
         layout="vertical"
@@ -553,8 +630,32 @@ const VerUnaCotizacion = () => {
           </Space>
         </Form.Item>
       </Form>
+      <CrearOrdenModal
+        open={openCrearOrden}
+        onCancel={() => setOpenCrearOrden(false)}
+        quote={quote}
+        sucursales={sucursales_option_selects}
+        idSucursal={idSucursal}
+        setIdSucursal={setIdSucursal}
+        onCrearOrden={handleCrearOrden}
+        ordenCreada={ordenCreada}
+        onVerOrden={(orden) => {
+          console.log('Ver orden:', orden);
+
+          navigate(
+            `/orden-receta/${orden.id_orden}/${orden.nro_orden_id}/${orden.id_paciente}`
+          );
+        }}
+        onVerListaOrdenes={() => {
+          navigate(
+            `/ordenes`
+          );
+        }}
+      />
     </Card>
+
   );
 };
+
 
 export default VerUnaCotizacion;

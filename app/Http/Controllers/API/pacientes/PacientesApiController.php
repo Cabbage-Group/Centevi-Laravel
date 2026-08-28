@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\pacientes;
 
 use App\Http\Controllers\Controller;
+use App\Models\Anticipo;
 use App\Models\BajaVision;
 use App\Models\Citas;
 use Illuminate\Http\Request;
@@ -2908,5 +2909,28 @@ class PacientesApiController extends Controller
       'respuesta' => true,
       'tiempo' => $totalMeses . ' meses ' . $diff->d . ' días'
     ]);
+  }
+
+  public function disponibles(int $idPaciente)
+  {
+    $paciente = Pacientes::findOrFail($idPaciente);
+
+    $anticipos = Anticipo::where('id_paciente', $idPaciente)
+      ->where('estado', 'ACTIVE')
+      ->with('ordenAnticipos')
+      ->orderBy('fecha', 'asc')
+      ->get()
+      ->map(fn($a) => [
+        'id_anticipo' => $a->id_anticipo,
+        'referencia'  => $a->referencia,
+        'fecha'       => $a->fecha->format('Y-m-d'),
+        'tipo'        => $a->tipo,
+        'monto'       => (float) $a->monto,
+        'disponible'  => $a->disponible,
+      ])
+      ->filter(fn($a) => $a['disponible'] > 0)
+      ->values();
+
+    return response()->json($anticipos);
   }
 }

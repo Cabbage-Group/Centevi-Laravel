@@ -104,6 +104,7 @@ import UpdateCotizacion from "../admin/cotizaciones/UpdateCotizacion.js";
 import Bases from "../admin/bases/Bases.js";
 import OrdenesCentilab from "../admin/recetas/ordenesCentilab/OrdenesCentilab.js";
 import VerOrdenesPedidos from "../admin/pedidos/VerOrdenesPedidos.js";
+import TableAnticipos from "../admin/anticipos/TableAnticipos.js";
 
 const RoutesApp = () => {
   const dispatch = useDispatch();
@@ -395,6 +396,12 @@ const RoutesApp = () => {
             path="/actualizar-cotizacion/:id"
             element={<Sidebar component={<UpdateCotizacion />} />}
           />
+
+          <Route
+            path="/table-anticipos"
+            element={<Sidebar component={<TableAnticipos />} />}
+          />
+
           <Route path="/ordenes-labo" element={<Sidebar component={<NewTableOrdenes />} />} />
           <Route path="/ordenes-centilab" element={<Sidebar component={<OrdenesCentilab />} />} />
           <Route

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\API\quotes;
 
 use App\Http\Controllers\Controller;
+use App\Models\Anticipo;
+use App\Models\NroOrden;
+use App\Models\Ordenes;
+use App\Models\Pacientes;
 use App\Models\Quote;
 use App\Models\Usuarios;
 use App\Models\Sucursales;
@@ -12,6 +16,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class QuoterApiController extends Controller
 {
@@ -73,17 +78,17 @@ class QuoterApiController extends Controller
 
   public function verUnaCotizacion($id)
   {
-    $quote = Quote::with(['lines', 'paciente'])->findOrFail($id);
+    $quote = Quote::with(['lines', 'paciente', 'orden'])->findOrFail($id);
 
-     $sucursal = null;
+    $sucursal = null;
     if ($quote->Vendedor) {
-        $usuario = Usuarios::find($quote->Vendedor);
-        if ($usuario && $usuario->sucursal) {
-            $sucursal = Sucursales::find($usuario->sucursal);
-        }
+      $usuario = Usuarios::find($quote->Vendedor);
+      if ($usuario && $usuario->sucursal) {
+        $sucursal = Sucursales::find($usuario->sucursal);
+      }
     }
     $quote->sucursal = $sucursal;
-    
+
     return response()->json($quote);
   }
 
@@ -198,8 +203,69 @@ class QuoterApiController extends Controller
     return response()->json(['message' => 'Quote deleted']);
   }
 
-  public function verifyQuoteInterfuerza()
-  {
+  public function verifyQuoteInterfuerza() {}
 
+  public function convertToOrder(Request $request)
+  {
+    $request->validate([
+      'quote_id'    => 'required|integer|exists:quotes,id',
+      'id_sucursal' => 'required|integer',
+    ]);
+
+    try {
+      DB::beginTransaction();
+
+      $quote = Quote::findOrFail($request->quote_id);
+
+      $paciente = Pacientes::where('codigo', $quote->Cliente)->firstOrFail();
+
+      // Crear número de orden igual que createOrdenes
+      $nroOrden = NroOrden::create([]);
+
+      $orden = Ordenes::create([
+        'nro_cotizacion' => $quote->id,
+        'id_paciente'    => $paciente->id_paciente,
+        'id_sucursal'    => $request->id_sucursal,
+        'elaborado_por'  => auth()->id(),
+        'pagado'         => 2,
+        'nro_orden_id'   => $nroOrden->id,
+      ]);
+
+      DB::commit();
+
+      return response()->json([
+        'orden' => $orden,
+        'total' => $quote->Total,
+        'anticipos_disponibles' => $this->anticiposDisponibles(
+          $paciente->id_paciente
+        ),
+      ]);
+    } catch (\Exception $e) {
+      DB::rollBack();
+
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Error al convertir la cotización en orden',
+        'mensaje_dev' => $e->getMessage(),
+      ], 500);
+    }
+  }
+
+  private function anticiposDisponibles(int $idPaciente)
+  {
+    return Anticipo::where('id_paciente', $idPaciente)
+      ->where('estado', 'ACTIVE')
+      ->with('ordenAnticipos')
+      ->get()
+      ->map(fn($a) => [
+        'id_anticipo' => $a->id_anticipo,
+        'referencia'  => $a->referencia,
+        'fecha'       => $a->fecha,
+        'tipo'        => $a->tipo,
+        'monto'       => $a->monto,
+        'disponible'  => $a->disponible,
+      ])
+      ->filter(fn($a) => $a['disponible'] > 0)
+      ->values();
   }
 }

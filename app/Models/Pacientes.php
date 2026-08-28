@@ -51,4 +51,9 @@ class Pacientes extends Model
     'estado' => 'boolean',
     'fecha_creacion' => 'date',
   ];
+
+  public function anticipos()
+  {
+    return $this->hasMany(Anticipo::class, 'id_paciente', 'id_paciente');
+  }
 }

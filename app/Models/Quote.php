@@ -46,4 +46,9 @@ class Quote extends Model
   {
     return $this->belongsTo(Pacientes::class, 'Cliente', 'codigo');
   }
+
+  public function orden()
+  {
+    return $this->hasOne(Ordenes::class, 'nro_cotizacion', 'id');
+  }
 }

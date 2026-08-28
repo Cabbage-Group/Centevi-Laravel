@@ -110,6 +110,7 @@ import ordenObservacionesSlice from "./features/ordenesObservaciones/ordenObserv
 import correccionesOrdenObservacionesSlice from "./features/correccionesOrdenesObservaciones/correccionesOrdenesObservaciones";
 import marcasOnefitMedSlice from "./features/marcas-onefit-med/marcasOnefitMedSlice";
 import marcasOnefitSlice from "./features/marcas-onefit/marcasOnefitSlice";
+import anticiposSlice from "./features/anticipos/anticiposSlice";
 
 const store = configureStore({
   reducer: {
@@ -269,7 +270,9 @@ const store = configureStore({
 
     ordenObservaciones: ordenObservacionesSlice,
 
-    correccionesOrdenObservaciones: correccionesOrdenObservacionesSlice
+    correccionesOrdenObservaciones: correccionesOrdenObservacionesSlice,
+
+    anticipos: anticiposSlice
   },
 });
 
