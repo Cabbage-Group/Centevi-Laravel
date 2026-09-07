@@ -616,6 +616,8 @@ Route::post('/api/verify/quotes', [interfuerzaApiControllerQuotes::class, 'findQ
 
 Route::put('/api/quotes/{id}/update', [interfuerzaApiControllerQuotes::class, 'actualizarQuote']);
 
+Route::get('/api/quotes/interfuerza/{id}', [interfuerzaApiControllerQuotes::class, 'getQuoteById']);
+
 Route::get('/api/ventas', [VentasApiController::class, 'reportes']);
 
 Route::post('/api/ventas/download-data', [VentasApiController::class, 'export']);

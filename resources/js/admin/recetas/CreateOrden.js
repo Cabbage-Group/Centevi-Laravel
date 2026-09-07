@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { createOrdenes } from '../../redux/features/ordenes/ordenesSlice';
-import { fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
+import { fetchPacienteByCodigoInterfuerza, fetchPacientes } from '../../redux/features/pacientes/pacientesSlice';
 import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -20,6 +20,8 @@ import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchMarcasOnefit } from '../../redux/features/marcas-onefit/marcasOnefitSlice';
 import { fetchMarcasOnefitMed } from '../../redux/features/marcas-onefit-med/marcasOnefitMedSlice';
+import CotizacionInterfuerzaResumen from './components/CotizacionInterfuerzaResumen';
+import { fetchInterfuerzaQuoteById } from '../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice';
 
 // Opciones del selector de tipo de lente
 const TIPO_LENTE_OPTIONS = [
@@ -88,6 +90,8 @@ const CreateOrden = () => {
   const [isLeftEyeMaterial, setIsLeftEyeMaterial] = useState(false);
   const [isLeftEyeTratamientos, setIsLeftEyeTratamientos] = useState(false);
   const [tieneFactura, setTieneFactura] = useState(false);
+  const [cotizacionInterfuerza, setCotizacionInterfuerza] = useState(null);
+  const [loadingCotizacion, setLoadingCotizacion] = useState(false);
 
   // Valores manuales para Lente Escleral OneFit
   const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
@@ -482,9 +486,65 @@ const CreateOrden = () => {
                             React.useEffect(() => {
                               setFieldValue('tieneFactura', tieneFactura);
                             }, [tieneFactura, setFieldValue]);
+                            React.useEffect(() => {
+                              const nro = values.nro_cotizacion;
+
+                              if (!nro) {
+                                setCotizacionInterfuerza(null);
+                                setLoadingCotizacion(false);
+                                return;
+                              }
+
+                              setLoadingCotizacion(true);
+
+                              const timeout = setTimeout(() => {
+                                dispatch(fetchInterfuerzaQuoteById(nro))
+                                  .unwrap()
+                                  .then((data) => {
+                                    setCotizacionInterfuerza(data);
+
+                                    const clienteInterfuerza = data?.interfuerza?.[0]?.Quote?.Cliente;
+                                    console.log('Cliente Interfuerza:', clienteInterfuerza);
+                                    if (clienteInterfuerza) {
+                                      dispatch(fetchPacienteByCodigoInterfuerza(clienteInterfuerza))
+                                        .unwrap()
+                                        .then((res) => {
+                                          const pacienteEncontrado = res?.data?.[0];
+                                          if (pacienteEncontrado) {
+                                            setSelectedPaciente(pacienteEncontrado.id_paciente);
+                                            setFieldValue('id_paciente', pacienteEncontrado.id_paciente);
+                                          } else {
+                                            setClienteInterfuerzaSinVincular(clienteInterfuerza); // nuevo estado
+                                            Swal.fire({
+                                              icon: 'warning',
+                                              title: 'Paciente no sincronizado',
+                                              html: `La cotización pertenece al cliente <b>${clienteInterfuerza}</b> de Interfuerza, pero ningún paciente local tiene ese código.<br><br>Selecciona manualmente al paciente correcto abajo — al guardarlo se vinculará automáticamente para futuras consultas.`,
+                                            });
+                                          }
+                                        })
+                                        .catch(() => {
+                                        });
+                                    }
+                                  })
+                                  .catch(() => {
+                                    setCotizacionInterfuerza(null);
+                                  })
+                                  .finally(() => {
+                                    setLoadingCotizacion(false);
+                                  });
+                              }, 600);
+
+                              return () => clearTimeout(timeout);
+                            }, [values.nro_cotizacion]);
+
                             return (
                               <Form
                               >
+
+                                <CotizacionInterfuerzaResumen
+                                  loading={loadingCotizacion}
+                                  cotizacion={cotizacionInterfuerza}
+                                />
                                 <div className="form-row" style={{ marginBottom: "2rem" }}>
 
                                   <div className={tieneFactura ? "col-md-2" : "col-md-4"}>

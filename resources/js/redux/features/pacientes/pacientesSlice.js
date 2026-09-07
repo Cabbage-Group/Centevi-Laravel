@@ -15,11 +15,7 @@ export const fetchPacientes = createAsyncThunk(
     obtenerBloques = 0
   }) => {
     const params = { page, limit, sortOrder, sortColumn, search, obtenerBloques };
-
-    if (doctor) {
-      params.doctor = doctor;
-    }
-
+    if (doctor) params.doctor = doctor;
     const response = await axios.get(`${API}/pacientes`, { params });
     return response.data;
   }
@@ -74,6 +70,23 @@ export const fetchPacientesTiempoSinConsultas = createAsyncThunk(
   }
 );
 
+export const fetchPacienteByCodigoInterfuerza = createAsyncThunk(
+  "pacientes/fetchPacienteByCodigoInterfuerza",
+  async (codigoInterfuerza, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API}/pacientes`, {
+        params: { codigo_interfuerza: codigoInterfuerza, limit: 1 },
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue({ message: "Error desconocido" });
+    }
+  }
+);
+
 const pacientesSlice = createSlice({
   name: "pacientes",
   initialState: {
@@ -92,6 +105,8 @@ const pacientesSlice = createSlice({
     error: null,
     search: "",
     doctor: "",
+    paciente_por_cotizacion: null,
+    status_paciente_por_cotizacion: "idle",
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -110,11 +125,11 @@ const pacientesSlice = createSlice({
           ({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
             id_paciente && nombres && apellidos && nro_cedula
               ? {
-                  value: id_paciente,
-                  label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
-                  nro_cedula,
-                  ...rest,
-                }
+                value: id_paciente,
+                label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
+                nro_cedula,
+                ...rest,
+              }
               : { ...rest }
         );
         state.pacientes_options_agenda = action.payload.data
@@ -122,14 +137,14 @@ const pacientesSlice = createSlice({
           .map(({ id_paciente, nro_cedula, nombres, apellidos, ...rest }) =>
             id_paciente && nombres && apellidos && nro_cedula
               ? {
-                  id: id_paciente,
-                  label: `${nombres} ${apellidos}`,
-                  value: id_paciente,
-                  nro_cedula,
-                  nombres,
-                  apellidos,
-                  ...rest,
-                }
+                id: id_paciente,
+                label: `${nombres} ${apellidos}`,
+                value: id_paciente,
+                nro_cedula,
+                nombres,
+                apellidos,
+                ...rest,
+              }
               : null
           )
           .filter(Boolean)
@@ -139,10 +154,10 @@ const pacientesSlice = createSlice({
           .map(({ id_paciente, nro_cedula, nombres, apellidos, codigo, ...rest }) =>
             id_paciente && nombres && apellidos && nro_cedula
               ? {
-                  value: codigo,
-                  label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
-                  ...rest,
-                }
+                value: codigo,
+                label: `Numero Cedula: ${nro_cedula} || Nombres: ${nombres} ${apellidos}`,
+                ...rest,
+              }
               : { ...rest }
           );
       })
@@ -205,8 +220,21 @@ const pacientesSlice = createSlice({
       .addCase(fetchPacientesTiempoSinConsultas.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(fetchPacienteByCodigoInterfuerza.pending, (state) => {
+        state.status_paciente_por_cotizacion = "loading";
+      })
+      .addCase(fetchPacienteByCodigoInterfuerza.fulfilled, (state, action) => {
+        state.status_paciente_por_cotizacion = "succeeded";
+        state.paciente_por_cotizacion = action.payload.data?.[0] || null;
+      })
+      .addCase(fetchPacienteByCodigoInterfuerza.rejected, (state, action) => {
+        state.status_paciente_por_cotizacion = "failed";
+        state.paciente_por_cotizacion = null;
       });
   },
 });
+
+export const { limpiarPacientePorCotizacion } = pacientesSlice.actions;
 
 export default pacientesSlice.reducer;

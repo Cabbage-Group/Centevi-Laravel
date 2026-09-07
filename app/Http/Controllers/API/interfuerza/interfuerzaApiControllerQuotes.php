@@ -274,4 +274,50 @@ class interfuerzaApiControllerQuotes extends Controller
       ], 500);
     }
   }
+
+  public function getQuoteById(Request $request, $id)
+  {
+    if (empty($id)) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Debe enviar el id de la cotización.'
+      ], 400);
+    }
+
+    $payload = [
+      "class" => "GET",
+      "action" => "quote",
+      "id" => $id
+    ];
+
+    $response = $this->interfuerza->request($payload);
+
+    if (!$response->successful()) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Error al consultar la cotización en Interfuerza',
+        'details' => $response->json(),
+      ], $response->status());
+    }
+
+    $body = $response->json();
+    $quoteData = $body['quote'] ?? null;
+
+    // Interfuerza devuelve array vacío cuando el id no existe o no fue enviado
+    if (empty($quoteData)) {
+      return response()->json([
+        'success' => false,
+        'message' => "No se encontró la cotización con id {$id} en Interfuerza",
+      ], 404);
+    }
+
+    $localQuote = Quote::where('codigo_interfuerza', $id)->first();
+
+    return response()->json([
+      'success' => true,
+      'interfuerza' => $quoteData,
+      'exists_locally' => (bool) $localQuote,
+      'local_quote' => $localQuote,
+    ]);
+  }
 }

@@ -53,9 +53,7 @@ class PacientesApiController extends Controller
     $search = $request->query('search', '');
     $estado = $request->query('estado', 1);
     $obtenerBloques = $request->query('obtenerBloques');
-
-
-    // Validar parámetros
+    $codigoInterfuerza = $request->query('codigo_interfuerza', '');
     $request->validate([
       'page' => 'integer|min:1',
       'limit' => 'integer|min:1|max:50000',
@@ -63,11 +61,15 @@ class PacientesApiController extends Controller
       'sortColumn' => 'string|in:sucursal,id_paciente,doctor,nombres,apellidos,nro_cedula,email,nro_seguro,fecha_nacimiento,genero,lugar_nacimiento,direccion,ocupacion,telefono,celular,medico,urgencia,menor,fecha_creacion',
       'search' => 'string|nullable|max:255',
       'nameFilter' => 'string|nullable|max:255',
+      'codigo_interfuerza' => 'string|nullable|max:50',
     ]);
 
     $data = Pacientes::query();
 
-    // Filtro de búsqueda general
+    if (!empty($codigoInterfuerza)) {
+      $data->where('codigo', '=', $codigoInterfuerza);
+    }
+
     if (!empty($search)) {
       $searchClean = preg_replace('/[^A-Za-z0-9]/', '', $search);
       $nameParts = explode(' ', $search);
@@ -101,8 +103,6 @@ class PacientesApiController extends Controller
       $paciente['nombre_completo'] = "{$paciente['nombres']} {$paciente['apellidos']}";
 
       if ($obtenerBloques == 1) {
-
-        // Contar terapias por paciente
         $bloquesBajaVision = DB::table('terapias_bajav')
           ->where('id_paciente', $paciente['id_paciente'])
           ->count();
@@ -117,7 +117,6 @@ class PacientesApiController extends Controller
 
         $totalBloques = $bloquesBajaVision + $bloquesOrtopticaAdultos + $bloquesOrtopticaNeonatos;
 
-        // Agregar al resultado
         $paciente['N_Bloques_Baja_Vision'] = $bloquesBajaVision;
         $paciente['N_Bloques_Ortoptica_Adultos'] = $bloquesOrtopticaAdultos;
         $paciente['N_Bloques_Ortoptica_Neonatos'] = $bloquesOrtopticaNeonatos;
