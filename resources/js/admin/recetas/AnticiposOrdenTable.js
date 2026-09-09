@@ -5,6 +5,10 @@ import { LoadingOutlined } from '@ant-design/icons';
 import Swal from 'sweetalert2';
 import { fetchAnticiposDisponibles, guardarAnticipos } from '../../redux/features/anticipos/anticiposSlice';
 
+
+const toCents = (n) => Math.round(Number(n || 0) * 100);
+const fromCents = (c) => c / 100;
+
 const AnticiposOrdenTable = ({
     ordenId,
     idPaciente,
@@ -19,6 +23,7 @@ const AnticiposOrdenTable = ({
     const [saving, setSaving] = useState(false);
 
     const anticiposList = Array.isArray(anticipos) ? anticipos : [];
+    const totalCotizacionCents = toCents(totalCotizacion);
 
     const usadoOriginalPorAnticipo = useMemo(() => {
         const map = {};
@@ -34,9 +39,23 @@ const AnticiposOrdenTable = ({
         }
     }, [usadoOriginalPorAnticipo, loading]);
 
+    const totalAplicadoCents = useMemo(
+        () => Object.values(montos).reduce((sum, m) => sum + toCents(m), 0),
+        [montos]
+    );
+    const totalAplicado = fromCents(totalAplicadoCents);
+
+ 
     const getEffectiveMax = (record) => {
         const usadoOriginal = usadoOriginalPorAnticipo[record.id_anticipo] || 0;
-        return Number(record.disponible) + usadoOriginal;
+        const maxPorAnticipoCents = toCents(record.disponible) + toCents(usadoOriginal);
+
+        if (!totalCotizacionCents) return fromCents(maxPorAnticipoCents);
+
+        const aplicadoEnOtrosCents = totalAplicadoCents - toCents(montos[record.id_anticipo] || 0);
+        const saldoRestanteCents = Math.max(0, totalCotizacionCents - aplicadoEnOtrosCents);
+
+        return fromCents(Math.min(maxPorAnticipoCents, saldoRestanteCents));
     };
 
     const handleMontoChange = (record, value) => {
@@ -48,19 +67,15 @@ const AnticiposOrdenTable = ({
         setMontos((prev) => ({ ...prev, [record.id_anticipo]: monto }));
     };
 
-    const totalAplicado = useMemo(
-        () => Object.values(montos).reduce((sum, m) => sum + (Number(m) || 0), 0),
-        [montos]
-    );
-
     const totalAnticipos = useMemo(
-        () => anticiposList.reduce((sum, a) => sum + Number(a.monto), 0),
+        () => fromCents(anticiposList.reduce((sum, a) => sum + toCents(a.monto), 0)),
         [anticiposList]
     );
 
-    const creditoDisponible = totalAnticipos - totalAplicado;
-    const saldoPorCobrar = Math.max(0, Number(totalCotizacion || 0) - totalAplicado);
-    const quedaPagado = saldoPorCobrar <= 0;
+    const creditoDisponible = fromCents(toCents(totalAnticipos) - totalAplicadoCents);
+    const saldoPorCobrarCents = Math.max(0, totalCotizacionCents - totalAplicadoCents);
+    const saldoPorCobrar = fromCents(saldoPorCobrarCents);
+    const quedaPagado = saldoPorCobrarCents <= 0;
 
     const handleGuardar = async () => {
         if (loading) return;
@@ -119,8 +134,9 @@ const AnticiposOrdenTable = ({
             key: 'disponible',
             render: (_, record) => {
                 const usadoAqui = Number(montos[record.id_anticipo] || 0);
-                const effectiveMax = getEffectiveMax(record);
-                return `$${(effectiveMax - usadoAqui).toFixed(2)}`;
+                const usadoOriginal = usadoOriginalPorAnticipo[record.id_anticipo] || 0;
+                const maxPorAnticipo = fromCents(toCents(record.disponible) + toCents(usadoOriginal));
+                return `$${fromCents(toCents(maxPorAnticipo) - toCents(usadoAqui)).toFixed(2)}`;
             },
         },
     ];

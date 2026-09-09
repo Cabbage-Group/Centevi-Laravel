@@ -7,7 +7,7 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
-import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
+import { Col, Input, Row, Select, Checkbox, Button, Alert } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { CloseCircleTwoTone } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
@@ -22,6 +22,7 @@ import { fetchMarcasOnefit } from '../../redux/features/marcas-onefit/marcasOnef
 import { fetchMarcasOnefitMed } from '../../redux/features/marcas-onefit-med/marcasOnefitMedSlice';
 import CotizacionInterfuerzaResumen from './components/CotizacionInterfuerzaResumen';
 import { fetchInterfuerzaQuoteById } from '../../redux/features/interfuerza/interfuerzaQuotes/interfuerzaQuotesSlice';
+import { actualizarAnticiposRecientes, clearAnticiposDisponibles, fetchAnticiposDisponibles, guardarAnticipos } from '../../redux/features/anticipos/anticiposSlice';
 
 // Opciones del selector de tipo de lente
 const TIPO_LENTE_OPTIONS = [
@@ -67,7 +68,13 @@ const CreateOrden = () => {
   const {
     marcas_one_fit_med_options_selecteds,
   } = useSelector((state) => state.marcasOnefitMed);
-
+  const {
+    historialCompleto,
+    syncRecientesStatus,
+    list: anticiposDisponibles,
+    loadingAnticiposDisponibles,
+    status: statusAnticipos
+  } = useSelector((state) => state.anticipos);
   const [selectedPaciente, setSelectedPaciente] = useState(parsedId || null);
   const [selectedMarca, setSelectedMarca] = useState(null);
   const [telefono, setTelefono] = useState('');
@@ -92,9 +99,28 @@ const CreateOrden = () => {
   const [tieneFactura, setTieneFactura] = useState(false);
   const [cotizacionInterfuerza, setCotizacionInterfuerza] = useState(null);
   const [loadingCotizacion, setLoadingCotizacion] = useState(false);
-
-  // Valores manuales para Lente Escleral OneFit
+  const [montosAnticipos, setMontosAnticipos] = useState({});
   const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
+
+  useEffect(() => {
+    if (selectedPaciente) {
+      dispatch(fetchAnticiposDisponibles(selectedPaciente));
+    } else {
+      dispatch(clearAnticiposDisponibles());
+    }
+    setMontosAnticipos({});
+  }, [selectedPaciente, dispatch]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearAnticiposDisponibles());
+    };
+  }, [dispatch]);
+
+  const handleMontoAnticipoChange = (idAnticipo, monto) => {
+    setMontosAnticipos((prev) => ({ ...prev, [idAnticipo]: monto }));
+  };
+
   const handleOneFitChange = (field) => (e) => {
     const { value } = e.target;
     setOneFitValues((prev) => ({ ...prev, [field]: value }));
@@ -333,6 +359,8 @@ const CreateOrden = () => {
   }, [selectedPaciente, pacientes]);
 
 
+
+
   useEffect(() => {
     dispatch(fetchSucursales({ page: 1, limit: 100 }));
     dispatch(fetchPacientes({ page: 1, limit: 50000 }));
@@ -344,6 +372,10 @@ const CreateOrden = () => {
     dispatch(fetchMarcas({}));
     dispatch(fetchMarcasOnefit({}));
     dispatch(fetchMarcasOnefitMed({}));
+    dispatch(actualizarAnticiposRecientes({}))
+      .unwrap()
+      .catch(() => {
+      });
   }, []);
 
   const handleSubmit = async (values) => {
@@ -379,15 +411,29 @@ const CreateOrden = () => {
 
       const response = await dispatch(createOrdenes(transformedValues)).unwrap();
 
+      const nuevaOrden = response.data[0];
+
+      const aplicaciones = Object.entries(montosAnticipos)
+        .map(([id_anticipo, monto_aplicado]) => ({ id_anticipo: Number(id_anticipo), monto_aplicado: Number(monto_aplicado) }))
+        .filter((a) => a.monto_aplicado > 0);
+
+      if (aplicaciones.length > 0) {
+        try {
+          await dispatch(guardarAnticipos({ ordenId: nuevaOrden.id_orden, aplicaciones })).unwrap();
+        } catch (errorAnticipos) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Orden creada, pero los anticipos no se guardaron',
+            text: errorAnticipos?.message || 'Aplícalos manualmente desde la edición de la orden.',
+          });
+        }
+      }
+
       Swal.fire({
         icon: 'success',
         title: 'Receta creada',
-        html: `La receta se ha creado exitosamente. Número de orden: 
-      <b style="font-size: 25px;">${response.data[0].nro_orden_id}</b>`,
-      }).then(() => {
-        navigate(-1);
-      });
-
+        html: `La receta se ha creado exitosamente. Número de orden: <b style="font-size: 25px;">${nuevaOrden.nro_orden_id}</b>`,
+      }).then(() => navigate(-1));
     } catch (error) {
       console.error('Error al crear receta:', error);
       Swal.fire({
@@ -544,7 +590,27 @@ const CreateOrden = () => {
                                 <CotizacionInterfuerzaResumen
                                   loading={loadingCotizacion}
                                   cotizacion={cotizacionInterfuerza}
+                                  anticipos={anticiposDisponibles}
+                                  montosAnticipos={montosAnticipos}
+                                  onMontoAnticipoChange={handleMontoAnticipoChange}
+                                  loadingAnticipos={loadingAnticiposDisponibles}
                                 />
+                                {!historialCompleto && (
+                                  <div style={{ marginBottom: '1rem' }}>
+                                    <Alert
+                                      type="warning"
+                                      showIcon
+                                      message="Migración histórica de anticipos incompleta"
+                                      description="Algunos anticipos antiguos de Interfuerza podrían no estar sincronizados. Ve a la pantalla de Anticipos y ejecuta 'Migrar Anticipos' para completarla."
+                                      closable
+                                    />
+                                  </div>
+                                )}
+                                {/* {syncRecientesStatus === 'loading' && (
+                                  <div style={{ marginBottom: '1rem', color: '#888', fontSize: '12px' }}>
+                                    Sincronizando anticipos recientes...
+                                  </div>
+                                )} */}
                                 <div className="form-row" style={{ marginBottom: "2rem" }}>
 
                                   <div className={tieneFactura ? "col-md-2" : "col-md-4"}>

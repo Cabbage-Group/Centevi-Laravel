@@ -2925,9 +2925,8 @@ class PacientesApiController extends Controller
         'fecha'       => $a->fecha->format('Y-m-d'),
         'tipo'        => $a->tipo,
         'monto'       => (float) $a->monto,
-        'disponible'  => $a->disponible,
+        'disponible'  => (float) $a->disponible,
       ])
-      ->filter(fn($a) => $a['disponible'] > 0)
       ->values();
 
     return response()->json($anticipos);

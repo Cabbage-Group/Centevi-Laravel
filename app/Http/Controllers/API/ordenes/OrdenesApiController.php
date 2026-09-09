@@ -645,7 +645,7 @@ class OrdenesApiController extends Controller
       'id_sucursal' => 'nullable|integer',
       'tipo_lente' => 'required|string|in:aro,contacto,onefit,onefitmed',
 
-      'nro_cotizacion' => 'required|integer',
+      'nro_cotizacion' => 'required|string|max:100',
       'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
 
@@ -2767,7 +2767,7 @@ class OrdenesApiController extends Controller
       ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
       ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
-      ->leftJoin('quotes', 'ordenes.nro_cotizacion', '=', 'quotes.id')
+      ->leftJoin('quotes', 'ordenes.nro_cotizacion', '=', 'quotes.codigo_interfuerza')
       ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
       ->leftJoinSub($ultimaFaseQuery, 'ultima_fase', 'ordenes.id_orden', '=', 'ultima_fase.ordenes_id')
       ->leftJoinSub($fechaRetiradoQuery, 'fase_retirado', 'ordenes.id_orden', '=', 'fase_retirado.ordenes_id')
@@ -2777,13 +2777,13 @@ class OrdenesApiController extends Controller
         DB::raw("COALESCE(ultima_fase.ultima_fase_tipo_id, 0) as ultima_fase_tipo_id"),
         DB::raw("COALESCE(ultima_fase.ultima_fase_nombre, 'Nuevo') as ultima_fase_nombre"),
         DB::raw("
-        CASE
-            WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
-                AND fase_retirado.fecha_retirado IS NOT NULL
-            THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
-            ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
-        END as dias_en_proceso
-    "),
+            CASE
+                WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
+                    AND fase_retirado.fecha_retirado IS NOT NULL
+                THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
+                ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
+            END as dias_en_proceso
+        "),
         'pacientes.nombres as paciente_nombres',
         'pacientes.apellidos as paciente_apellidos',
         'pacientes.celular as paciente_celular',
@@ -2792,13 +2792,13 @@ class OrdenesApiController extends Controller
         'usuarios.nombre as elaborado_por',
         'quotes.Total as cotizacion_total',
         DB::raw("
-    CASE
-        WHEN ordenes.lente_contacto = 1 THEN 'contacto'
-        WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
-        WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
-        ELSE 'aro'
-    END as tipo_lente
-")
+            CASE
+                WHEN ordenes.lente_contacto = 1 THEN 'contacto'
+                WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
+                WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
+                ELSE 'aro'
+            END as tipo_lente
+        ")
       )
       ->where('ordenes.id_paciente', $id_paciente)
       ->where('ordenes.nro_orden_id', $nroOrdenId)

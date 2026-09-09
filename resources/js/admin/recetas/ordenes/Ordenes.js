@@ -58,7 +58,7 @@ import ObservacionesHistorial from "./observaciones/Observacioneshistorial";
 import Enviado from "./fases/Enviado";
 import { useRef } from "react";
 import AnticiposOrdenTable from "../AnticiposOrdenTable";
-import { fetchAnticiposDisponibles } from "../../../redux/features/anticipos/anticiposSlice";
+import { clearAnticiposDisponibles, fetchAnticiposDisponibles } from "../../../redux/features/anticipos/anticiposSlice";
 
 const Ordenes = () => {
   const dispatch = useDispatch();
@@ -125,13 +125,17 @@ const Ordenes = () => {
 
   } = location.state || {};
 
-
-  // junto a los demás useEffect que dependen de selectedPaciente
   useEffect(() => {
     if (selectedPaciente) {
       dispatch(fetchAnticiposDisponibles(selectedPaciente));
     }
   }, [selectedPaciente, dispatch]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearAnticiposDisponibles());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     if (pacienteOrden) {

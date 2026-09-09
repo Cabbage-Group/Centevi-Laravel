@@ -681,13 +681,44 @@ Route::prefix('api/pedidos')->group(function () {
 
 Route::prefix('/api/anticipos')->group(function () {
 
-    Route::get('/', [AnticiposApiController::class, 'index']);
-    Route::get('/{id}', [AnticiposApiController::class, 'show']);
-    Route::post('/', [AnticiposApiController::class, 'store']);
-    Route::put('/{id}', [AnticiposApiController::class, 'update']);
-    Route::delete('/{id}', [AnticiposApiController::class, 'destroy']);
-});
+    Route::get('/interfuerza-anticipos', [
+        AnticiposApiController::class,
+        'fetchAnticiposInterfuerza'
+    ]);
 
+    Route::post('/interfuerza/migration', [
+        AnticiposApiController::class,
+        'migrationAnticiposInterfuerza'
+    ]);
+
+    Route::post('/interfuerza/actualizar-recientes', [AnticiposApiController::class, 'actualizarAnticiposRecientes']);
+
+    // CRUD
+    Route::get('/', [
+        AnticiposApiController::class,
+        'index'
+    ]);
+
+    Route::get('/{id}', [
+        AnticiposApiController::class,
+        'show'
+    ]);
+
+    Route::post('/', [
+        AnticiposApiController::class,
+        'store'
+    ]);
+
+    Route::put('/{id}', [
+        AnticiposApiController::class,
+        'update'
+    ]);
+
+    Route::delete('/{id}', [
+        AnticiposApiController::class,
+        'destroy'
+    ]);
+});
 Route::prefix('/api/orden-anticipos')->group(function () {
 
     Route::post('/by-paciente', [OrdenApiAnticipoController::class, 'resumenFinanciero']);

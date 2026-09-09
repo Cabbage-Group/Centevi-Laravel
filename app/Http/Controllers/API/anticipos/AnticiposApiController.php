@@ -4,11 +4,23 @@ namespace App\Http\Controllers\API\anticipos;
 
 use App\Http\Controllers\Controller;
 use App\Models\Anticipo;
+use App\Models\InterfuerzaSyncState;
+use App\Models\Pacientes;
+use App\Services\AnticiposSyncService;
+use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class AnticiposApiController extends Controller
 {
+    protected InterfuerzaService $interfuerza;
+
+    public function __construct(InterfuerzaService $interfuerza)
+    {
+        $this->interfuerza = $interfuerza;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -66,6 +78,7 @@ class AnticiposApiController extends Controller
             }
             $anticipos = $query
                 ->orderBy($sortColumn, $sortOrder)
+                ->orderBy('id_anticipo', 'desc')
                 ->paginate($limit, ['*'], 'page', $page);
 
             return response()->json([
@@ -247,6 +260,142 @@ class AnticiposApiController extends Controller
                 'message' => 'Error al eliminar el anticipo',
                 'errors' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+
+    public function fetchAnticiposInterfuerza(Request $request)
+    {
+        $page = $request->input('page', 1);
+        $limit = $request->input('limit', 25);
+
+        $response = $this->interfuerza->request([
+            'class'  => 'GET',
+            'action' => 'payments',
+            'page'   => $page,
+            'limit'  => $limit,
+        ]);
+
+        if (!$response->successful()) {
+            return response()->json([
+                'error'  => 'Error consultando Interfuerza',
+                'status' => $response->status(),
+            ], 502);
+        }
+
+        $body = $response->json();
+
+        $payments = $body['payments'] ?? [];
+
+        return response()->json([
+            'data'           => $payments,
+            'count'          => (int) ($body['count'] ?? 0),
+            'page'           => (int) $page,
+            'total_pagina'   => count($payments),
+            'limit'          => (int) $limit,
+        ]);
+    }
+
+    public function migrationAnticiposInterfuerza(Request $request)
+    {
+        $data           = $request->input('data', []);
+        $page           = $request->input('page');
+        $esUltimaPagina = $request->boolean('es_ultima_pagina');
+        $huboErrores    = $request->boolean('hubo_errores');
+        $totalEnPagina  = $request->input('total_pagina'); // total de payments (no solo anticipos) que trajo esta página
+        $limitPagina    = (int) $request->input('limit', 25);
+
+        if ($page === null || $totalEnPagina === null) {
+            return response()->json(['error' => 'Faltan page o total_pagina'], 400);
+        }
+
+        try {
+            $migrados      = 0;
+            $sincronizados = 0;
+            $pendientes    = 0;
+
+            foreach ($data as $registro) {
+                $referencia    = $registro['referencia'] ?? null;
+                $codigoCliente = $registro['codigo_cliente'] ?? null;
+
+                if (!$referencia) {
+                    continue;
+                }
+
+                $paciente = $codigoCliente
+                    ? Pacientes::where('codigo', $codigoCliente)->first()
+                    : null;
+
+                Anticipo::updateOrCreate(
+                    ['referencia' => $referencia],
+                    [
+                        'id_paciente'        => $paciente?->id_paciente,
+                        'codigo_interfuerza' => $codigoCliente,
+                        'pagina_interfuerza' => $page,
+                        'sincronizado'       => (bool) $paciente,
+                        'tipo'               => 'ADVANCE',
+                        'monto'              => $registro['monto'] ?? 0,
+                        'fecha'              => $registro['fecha'] ?? now()->toDateString(),
+                        'estado'             => $registro['estado'] ?? 'ACTIVE',
+                    ]
+                );
+
+                $migrados++;
+                $paciente ? $sincronizados++ : $pendientes++;
+            }
+
+            $estado = InterfuerzaSyncState::firstOrCreate(
+                ['recurso' => 'anticipos'],
+                [
+                    'ultima_pagina'          => 0,
+                    'ultima_pagina_revisada' => 0,
+                    'ultima_pagina_completa' => null,
+                    'ultimo_total'           => 0,
+                    'historial_completo'     => false,
+                ]
+            );
+
+            // ultima_pagina: solo se mueve si esta página SÍ trajo anticipos
+            if (!empty($data) && $page > $estado->ultima_pagina) {
+                $estado->ultima_pagina = $page;
+            }
+
+            // ultima_pagina_revisada: avanza siempre, tenga o no anticipos
+            if ($page >= ($estado->ultima_pagina_revisada ?? 0)) {
+                $estado->ultima_pagina_revisada = $page;
+                $estado->ultima_pagina_completa = $totalEnPagina >= $limitPagina;
+            }
+
+            if ($esUltimaPagina && !$huboErrores) {
+                $estado->historial_completo = true;
+            }
+
+            $estado->ultima_sincronizacion = now();
+            $estado->save();
+
+            return response()->json([
+                'message'       => 'Página migrada',
+                'page'          => $page,
+                'migrados'      => $migrados,
+                'sincronizados' => $sincronizados,
+                'pendientes'    => $pendientes,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function actualizarAnticiposRecientes(Request $request, AnticiposSyncService $sync)
+    {
+        try {
+            $resultado = $sync->sincronizarRecientes($request->input('limit', 100));
+
+            return response()->json(array_merge(
+                ['message' => 'Anticipos actualizados'],
+                $resultado
+            ));
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

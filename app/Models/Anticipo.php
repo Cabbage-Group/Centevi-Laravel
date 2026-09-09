@@ -10,15 +10,27 @@ class Anticipo extends Model
     protected $table = 'anticipos';
     protected $primaryKey = 'id_anticipo';
 
+
     protected $fillable = [
-        'id_paciente', 'id_sucursal', 'referencia', 'tipo',
-        'monto', 'estado', 'fecha', 'created_by',
+        'id_paciente',
+        'id_sucursal',
+        'referencia',
+        'codigo_interfuerza',
+        'pagina_interfuerza',
+        'sincronizado',
+        'tipo',
+        'monto',
+        'estado',
+        'fecha',
+        'created_by',
     ];
 
     protected $casts = [
         'monto' => 'decimal:2',
         'fecha' => 'date',
+        'sincronizado' => 'boolean',
     ];
+
 
     public function paciente()
     {
@@ -35,4 +47,3 @@ class Anticipo extends Model
         return round($this->monto - $this->ordenAnticipos->sum('monto_aplicado'), 2);
     }
 }
-

@@ -8,7 +8,7 @@ export const fetchAnticipos = createAsyncThunk(
   async (
     {
       page = 1,
-      limit = 18,
+      limit = 25,
       sortColumn = 'created_at',
       sortOrder = 'desc',
       searchTerm = '',
@@ -178,6 +178,82 @@ export const fetchResumenFinanciero = createAsyncThunk(
   }
 );
 
+
+export const fetchInterfuerzaAnticipos = createAsyncThunk(
+  'anticipos/fetchInterfuerzaAnticipos',
+  async ({ page = 1 } = {}, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API}/anticipos/interfuerza-anticipos`, {
+        params: { page },
+      });
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || {
+          message: 'Error al consultar Interfuerza',
+        }
+      );
+    }
+  }
+);
+
+export const migrationAnticiposInterfuerza = createAsyncThunk(
+  'anticipos/migrationAnticiposInterfuerza',
+  async (
+    {
+      page,
+      data,
+      total_pagina,
+      limit = 25,
+      es_ultima_pagina,
+      hubo_errores
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await axios.post(
+        `${API}/anticipos/interfuerza/migration`,
+        {
+          page,
+          data,
+          total_pagina,
+          limit,
+          es_ultima_pagina,
+          hubo_errores
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || {
+          message: 'Error al migrar la página'
+        }
+      );
+    }
+  }
+);
+
+export const actualizarAnticiposRecientes = createAsyncThunk(
+  'anticipos/actualizarAnticiposRecientes',
+  async ({ limit = 25 } = {}, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API}/anticipos/interfuerza/actualizar-recientes`,
+        { limit }
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'Error al actualizar anticipos recientes' }
+      );
+    }
+  }
+);
+
+
 const anticiposSlice = createSlice({
   name: 'anticipos',
 
@@ -187,13 +263,13 @@ const anticiposSlice = createSlice({
     anticipo: null,
     id_paciente: '',
     page: 1,
-    limit: 18,
+    limit: 25,
     sortColumn: 'created_at',
     sortOrder: 'desc',
     searchTerm: '',
     meta: {
       total: 0,
-      limit: 18,
+      limit: 25,
       page: 1,
       last_page: 1,
     },
@@ -201,6 +277,10 @@ const anticiposSlice = createSlice({
     status: 'idle',
     guardando: false,
     error: null,
+    interfuerzaTotal: 0,
+    interfuerzaStatus: 'idle',
+    interfuerzaError: null,
+    historialCompleto: true
   },
 
   reducers: {
@@ -224,6 +304,9 @@ const anticiposSlice = createSlice({
     setPaciente: (state, action) => {
       state.id_paciente = action.payload;
       state.page = 1;
+    },
+    clearAnticiposDisponibles: (state) => {
+      state.list = [];
     },
   },
 
@@ -374,6 +457,43 @@ const anticiposSlice = createSlice({
 
       .addCase(fetchResumenFinanciero.fulfilled, (state, action) => {
         state.resumen = action.payload;
+      })
+
+      // NUEVO
+      .addCase(fetchInterfuerzaAnticipos.pending, (state) => {
+        state.interfuerzaStatus = 'loading';
+        state.interfuerzaError = null;
+      })
+
+      .addCase(fetchInterfuerzaAnticipos.fulfilled, (state, action) => {
+        console.log('fetchInterfuerzaAnticipos.fulfilled', action.payload);
+        state.interfuerzaStatus = 'succeeded';
+        state.interfuerzaTotal = action.payload?.count || 0;
+      })
+
+      .addCase(fetchInterfuerzaAnticipos.rejected, (state, action) => {
+        state.interfuerzaStatus = 'failed';
+        state.interfuerzaError =
+          action.payload?.message || 'Error al consultar Interfuerza';
+      })
+
+      .addCase(migrationAnticiposInterfuerza.rejected, (state, action) => {
+        state.interfuerzaError =
+          action.payload?.message || 'Error al migrar la página';
+      })
+      .addCase(actualizarAnticiposRecientes.pending, (state) => {
+        state.syncRecientesStatus = 'loading';
+      })
+
+      .addCase(actualizarAnticiposRecientes.fulfilled, (state, action) => {
+        state.syncRecientesStatus = 'succeeded';
+        state.historialCompleto = action.payload?.historial_completo ?? state.historialCompleto;
+      })
+
+      .addCase(actualizarAnticiposRecientes.rejected, (state, action) => {
+        state.syncRecientesStatus = 'failed';
+        state.interfuerzaError =
+          action.payload?.message || 'Error al actualizar anticipos recientes';
       });
   },
 });
@@ -384,6 +504,7 @@ export const {
   setSearchTerm,
   setPaciente,
   clearAnticipo,
+  clearAnticiposDisponibles,
 } = anticiposSlice.actions;
 
 export default anticiposSlice.reducer;

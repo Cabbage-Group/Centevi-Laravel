@@ -18,7 +18,7 @@ import { fetchTiposAros } from '../../redux/features/tipos-aros/tiposArosSlice';
 import { fetchMarcas } from '../../redux/features/marcas/marcasSlice';
 import { fetchMarcasOnefit } from '../../redux/features/marcas-onefit/marcasOnefitSlice';
 import { fetchMarcasOnefitMed } from '../../redux/features/marcas-onefit-med/marcasOnefitMedSlice';
-import { fetchAnticiposDisponibles } from '../../redux/features/anticipos/anticiposSlice';
+import { actualizarAnticiposRecientes, fetchAnticiposDisponibles } from '../../redux/features/anticipos/anticiposSlice';
 
 
 
@@ -468,6 +468,10 @@ const EditOrden = ({
     dispatch(fetchMarcas({}))
     dispatch(fetchMarcasOnefit({}));
     dispatch(fetchMarcasOnefitMed({}));
+    dispatch(actualizarAnticiposRecientes({}))
+      .unwrap()
+      .catch(() => {
+      });
   }, []);
 
   const handleSubmit = async (values) => {
