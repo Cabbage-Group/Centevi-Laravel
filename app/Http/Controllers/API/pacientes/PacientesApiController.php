@@ -17,6 +17,7 @@ use App\Models\ConsultaGenerica;
 use App\Models\RefraccionGeneral;
 use App\Models\OptometriaNeonatos;
 use App\Models\OrtopticaAdultos;
+use App\Services\AnticiposSyncService;
 use App\Services\InterfuerzaClientCreator;
 use App\Services\InterfuerzaCreateService;
 use App\Services\InterfuerzaService;
@@ -2910,7 +2911,7 @@ class PacientesApiController extends Controller
     ]);
   }
 
-  public function disponibles(int $idPaciente)
+  public function disponibles(int $idPaciente, AnticiposSyncService $sync)
   {
     $paciente = Pacientes::findOrFail($idPaciente);
 
@@ -2918,7 +2919,12 @@ class PacientesApiController extends Controller
       ->where('estado', 'ACTIVE')
       ->with('ordenAnticipos')
       ->orderBy('fecha', 'asc')
-      ->get()
+      ->get();
+
+    $sync->verificarEstados($anticipos);
+
+    $anticipos = $anticipos
+      ->where('estado', 'ACTIVE')
       ->map(fn($a) => [
         'id_anticipo' => $a->id_anticipo,
         'referencia'  => $a->referencia,

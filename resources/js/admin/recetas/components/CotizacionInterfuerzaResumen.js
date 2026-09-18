@@ -22,6 +22,10 @@ const CotizacionInterfuerzaResumen = ({
 }) => {
     const anticiposList = Array.isArray(anticipos) ? anticipos : [];
 
+    const anticiposDisponiblesList = anticiposList.filter(
+        (a) => toCents(a.disponible) > 0
+    );
+
     const quote = cotizacion?.interfuerza?.[0]?.Quote || {};
     const totalCotizacionCents = toCents(quote.Total);
     const totalCotizacion = fromCents(totalCotizacionCents);
@@ -87,18 +91,22 @@ const CotizacionInterfuerzaResumen = ({
 
     const totalAnticiposCents = useMemo(
         () =>
-            anticiposList.reduce(
+            anticiposDisponiblesList.reduce(
                 (sum, a) => sum + toCents(a.monto),
                 0
             ),
-        [anticiposList]
+        [anticiposDisponiblesList]
     );
 
     const totalAnticipos = fromCents(totalAnticiposCents);
 
-    const creditoDisponibleCents = Math.max(
-        0,
-        totalAnticiposCents - totalAplicadoCents
+    const creditoDisponibleCents = useMemo(
+        () =>
+            anticiposDisponiblesList.reduce(
+                (sum, a) => sum + toCents(a.disponible),
+                0
+            ),
+        [anticiposDisponiblesList]
     );
 
     const creditoDisponible = fromCents(creditoDisponibleCents);
@@ -116,7 +124,9 @@ const CotizacionInterfuerzaResumen = ({
 
     const mostrarCotizacion = loading || cotizacion;
     const mostrarAnticipos =
-        loadingAnticipos || anticiposList.length > 0;
+        loadingAnticipos ||
+        anticiposList.length > 0 ||
+        !!cotizacion;
 
     if (!mostrarCotizacion && !mostrarAnticipos) {
         return null;
@@ -293,7 +303,7 @@ const CotizacionInterfuerzaResumen = ({
 
                     <Table
                         columns={columnsAnticipos}
-                        dataSource={anticiposList.map((a) => ({
+                        dataSource={anticiposDisponiblesList.map((a) => ({
                             ...a,
                             key: a.id_anticipo,
                         }))}

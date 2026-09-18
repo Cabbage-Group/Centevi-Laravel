@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Anticipo;
 use App\Models\InterfuerzaSyncState;
 use App\Models\Pacientes;
+use Illuminate\Support\Facades\Log;
 
 class AnticiposSyncService
 {
@@ -89,7 +90,7 @@ class AnticiposSyncService
             $payments = $response->json()['payments'] ?? [];
 
             $anticipos = collect($payments)->filter(
-                fn ($p) => strtoupper($p['Payment']['Type'] ?? '') === 'ADVANCE'
+                fn($p) => strtoupper($p['Payment']['Type'] ?? '') === 'ADVANCE'
             );
 
             foreach ($anticipos as $registro) {
@@ -140,5 +141,118 @@ class AnticiposSyncService
             'pendientes'         => $pendientes,
             'historial_completo' => true,
         ];
+    }
+
+    public function verificarEstados(\Illuminate\Support\Collection $anticipos, int $limit = 25): void
+    {
+        Log::info('verificarEstados: inicio', [
+            'total_anticipos' => $anticipos->count(),
+            'limit' => $limit,
+        ]);
+
+        $porPagina = $anticipos
+            ->whereNotNull('pagina_interfuerza')
+            ->groupBy('pagina_interfuerza');
+
+        Log::info('verificarEstados: anticipos agrupados', [
+            'total_paginas' => $porPagina->count(),
+            'total_sin_pagina' => $anticipos->whereNull('pagina_interfuerza')->count(),
+        ]);
+
+        foreach ($porPagina as $pagina => $grupo) {
+            Log::info('verificarEstados: consultando InterFuerza', [
+                'pagina' => $pagina,
+                'cantidad_anticipos' => $grupo->count(),
+                'referencias' => $grupo->pluck('referencia')->values()->toArray(),
+            ]);
+
+            $response = $this->interfuerza->request([
+                'class' => 'GET',
+                'action' => 'payments',
+                'page' => $pagina,
+                'limit' => $limit,
+            ]);
+
+            Log::info('verificarEstados: respuesta InterFuerza', [
+                'pagina' => $pagina,
+                'status_http' => $response->status(),
+                'successful' => $response->successful(),
+            ]);
+
+            if (!$response->successful()) {
+                Log::warning('verificarEstados: consulta fallida', [
+                    'pagina' => $pagina,
+                    'response' => $response->body(),
+                ]);
+
+                continue;
+            }
+
+            $paymentsResponse = $response->json()['payments'] ?? [];
+
+            Log::info('verificarEstados: pagos recibidos', [
+                'pagina' => $pagina,
+                'cantidad_pagos' => count($paymentsResponse),
+            ]);
+
+            $payments = collect($paymentsResponse)
+                ->keyBy(fn($p) => $p['Payment']['id'] ?? null);
+
+            foreach ($grupo as $anticipo) {
+                Log::info('verificarEstados: buscando anticipo', [
+                    'anticipo_id_local' => $anticipo->id,
+                    'referencia' => $anticipo->referencia,
+                    'estado_local' => $anticipo->estado,
+                    'pagina_interfuerza' => $anticipo->pagina_interfuerza,
+                ]);
+
+                $remoto = $payments->get($anticipo->referencia);
+
+                if (!$remoto) {
+                    Log::warning('verificarEstados: pago no encontrado', [
+                        'referencia_buscada' => $anticipo->referencia,
+                        'pagina' => $pagina,
+                    ]);
+
+                    continue;
+                }
+
+                Log::info('verificarEstados: pago encontrado', [
+                    'referencia' => $anticipo->referencia,
+                    'payment_id' => $remoto['Payment']['id'] ?? null,
+                    'status_remoto' => $remoto['Payment']['Status'] ?? null,
+                ]);
+
+                $estadoRemoto = strtoupper($remoto['Payment']['Status'] ?? '') === 'DELETED'
+                    ? 'CANCELLED'
+                    : 'ACTIVE';
+
+                Log::info('verificarEstados: comparación de estados', [
+                    'referencia' => $anticipo->referencia,
+                    'estado_local' => $anticipo->estado,
+                    'estado_remoto' => $estadoRemoto,
+                ]);
+
+                if ($estadoRemoto !== $anticipo->estado) {
+                    $anticipo->update([
+                        'estado' => $estadoRemoto,
+                    ]);
+
+                    Log::info('verificarEstados: estado actualizado', [
+                        'anticipo_id_local' => $anticipo->id,
+                        'referencia' => $anticipo->referencia,
+                        'estado_anterior' => $anticipo->estado,
+                        'estado_nuevo' => $estadoRemoto,
+                    ]);
+                } else {
+                    Log::info('verificarEstados: estado sin cambios', [
+                        'referencia' => $anticipo->referencia,
+                        'estado' => $anticipo->estado,
+                    ]);
+                }
+            }
+        }
+
+        Log::info('verificarEstados: finalizado');
     }
 }
