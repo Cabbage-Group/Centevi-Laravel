@@ -535,7 +535,14 @@ const CreateOrden = () => {
                             React.useEffect(() => {
                               const nro = values.nro_cotizacion;
 
-                              if (!nro) {
+                              const selectedSucursal = sucursales.find(
+                                (sucursal) => sucursal.id_sucursal === parseInt(values.id_sucursal)
+                              );
+                              const esSucursalPaitilla = selectedSucursal
+                                ? selectedSucursal.nombre.toLowerCase().includes('paitilla')
+                                : false;
+
+                              if (!nro || !esSucursalPaitilla) {
                                 setCotizacionInterfuerza(null);
                                 setLoadingCotizacion(false);
                                 return;
@@ -578,10 +585,10 @@ const CreateOrden = () => {
                                   .finally(() => {
                                     setLoadingCotizacion(false);
                                   });
-                              }, 600);
+                              }, 1000);
 
                               return () => clearTimeout(timeout);
-                            }, [values.nro_cotizacion]);
+                            }, [values.nro_cotizacion, values.id_sucursal, sucursales]);
 
                             return (
                               <Form
