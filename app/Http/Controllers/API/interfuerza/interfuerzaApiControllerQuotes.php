@@ -285,9 +285,9 @@ class interfuerzaApiControllerQuotes extends Controller
     }
 
     $payload = [
-      'class' => 'GET',
-      'action' => 'quote',
-      'id' => $id
+      "class" => "GET",
+      "action" => "quote",
+      "id" => $id
     ];
 
     $response = $this->interfuerza->request($payload);
@@ -310,22 +310,12 @@ class interfuerzaApiControllerQuotes extends Controller
       ], 404);
     }
 
-    $localQuote = Quote::where(
-      'codigo_interfuerza',
-      $id
-    )->first();
-
-    if (!$localQuote) {
-      return response()->json([
-        'success' => false,
-        'message' => "La cotización {$id} existe en Interfuerza pero no existe en el sistema local.",
-      ], 404);
-    }
+    $localQuote = Quote::where('codigo_interfuerza', $id)->first();
 
     return response()->json([
       'success' => true,
       'interfuerza' => $quoteData,
-      'exists_locally' => true,
+      'exists_locally' => (bool) $localQuote,
       'local_quote' => $localQuote,
     ]);
   }

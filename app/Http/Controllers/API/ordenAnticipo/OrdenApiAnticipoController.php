@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\OrdenAnticipo;
 use App\Models\Anticipo;
 use App\Models\Ordenes;
+use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class OrdenApiAnticipoController extends Controller
@@ -436,52 +438,169 @@ class OrdenApiAnticipoController extends Controller
         ]);
     }
 
-    public function guardarAnticipos(Request $request, Ordenes $orden)
+    public function guardarAnticipos(Request $request, Ordenes $orden, InterfuerzaService $interfuerza)
     {
+        Log::info('INICIO guardarAnticipos', [
+            'orden_id' => $orden->id_orden,
+            'nro_cotizacion' => $orden->nro_cotizacion,
+            'request' => $request->all(),
+        ]);
+
         $data = $request->validate([
             'aplicaciones' => 'required|array',
             'aplicaciones.*.id_anticipo' => 'required|exists:anticipos,id_anticipo',
             'aplicaciones.*.monto_aplicado' => 'required|numeric|min:0',
         ]);
 
-        DB::transaction(function () use ($data, $orden) {
+        $quoteResponse = $interfuerza->request([
+            'class' => 'GET',
+            'action' => 'quote',
+            'id' => $orden->nro_cotizacion,
+        ]);
+
+        Log::info('Respuesta cotización Interfuerza', [
+            'status' => $quoteResponse->status(),
+            'successful' => $quoteResponse->successful(),
+            'body' => $quoteResponse->json(),
+        ]);
+
+        if (!$quoteResponse->successful()) {
+            Log::error('Error consultando cotización Interfuerza');
+
+            throw ValidationException::withMessages([
+                'aplicaciones' => 'No se pudo consultar la cotización en Interfuerza.',
+            ]);
+        }
+
+        $quoteData = $quoteResponse->json()['quote'] ?? null;
+
+        if (empty($quoteData)) {
+            Log::error('Cotización vacía en Interfuerza', [
+                'nro_cotizacion' => $orden->nro_cotizacion,
+            ]);
+
+            throw ValidationException::withMessages([
+                'aplicaciones' => "No se encontró la cotización {$orden->nro_cotizacion} en Interfuerza.",
+            ]);
+        }
+
+        $quote = $quoteData[0]['Quote'] ?? null;
+        $totalCotizacion = (float) ($quote['Total'] ?? 0);
+
+        Log::info('Total cotización obtenido', [
+            'quote' => $quote,
+            'total_cotizacion' => $totalCotizacion,
+        ]);
+
+        DB::transaction(function () use ($data, $orden, $totalCotizacion) {
             $totalAplicado = 0;
 
             foreach ($data['aplicaciones'] as $item) {
-                $anticipo = Anticipo::with('ordenAnticipos')->findOrFail($item['id_anticipo']);
+                $anticipo = Anticipo::with('ordenAnticipos')
+                    ->findOrFail($item['id_anticipo']);
 
                 $disponibleSinEstaOrden = $anticipo->disponible
-                    + $anticipo->ordenAnticipos->where('id_orden', $orden->id_orden)->sum('monto_aplicado');
+                    + $anticipo->ordenAnticipos
+                    ->where('id_orden', $orden->id_orden)
+                    ->sum('monto_aplicado');
+
+                Log::info('Validando anticipo', [
+                    'orden_id' => $orden->id_orden,
+                    'anticipo_id' => $anticipo->id_anticipo,
+                    'referencia' => $anticipo->referencia,
+                    'monto_solicitado' => $item['monto_aplicado'],
+                    'disponible' => $anticipo->disponible,
+                    'disponible_sin_esta_orden' => $disponibleSinEstaOrden,
+                ]);
 
                 if ($item['monto_aplicado'] > $disponibleSinEstaOrden) {
+                    Log::warning('Anticipo sin saldo suficiente', [
+                        'anticipo_id' => $anticipo->id_anticipo,
+                        'monto_solicitado' => $item['monto_aplicado'],
+                        'disponible' => $disponibleSinEstaOrden,
+                    ]);
+
                     throw ValidationException::withMessages([
                         'aplicaciones' => "El anticipo {$anticipo->referencia} no tiene saldo suficiente.",
                     ]);
                 }
 
                 OrdenAnticipo::updateOrCreate(
-                    ['id_orden' => $orden->id_orden, 'id_anticipo' => $anticipo->id_anticipo],
-                    ['monto_aplicado' => $item['monto_aplicado'], 'created_by' => auth()->id()]
+                    [
+                        'id_orden' => $orden->id_orden,
+                        'id_anticipo' => $anticipo->id_anticipo,
+                    ],
+                    [
+                        'monto_aplicado' => $item['monto_aplicado'],
+                        'created_by' => auth()->id(),
+                    ]
                 );
 
-                $totalAplicado += $item['monto_aplicado'];
+                $totalAplicado += (float) $item['monto_aplicado'];
+
+                Log::info('Anticipo aplicado', [
+                    'anticipo_id' => $anticipo->id_anticipo,
+                    'monto_aplicado' => $item['monto_aplicado'],
+                    'total_aplicado_acumulado' => $totalAplicado,
+                ]);
             }
 
             OrdenAnticipo::where('id_orden', $orden->id_orden)
-                ->whereNotIn('id_anticipo', collect($data['aplicaciones'])->pluck('id_anticipo'))
+                ->whereNotIn(
+                    'id_anticipo',
+                    collect($data['aplicaciones'])->pluck('id_anticipo')
+                )
                 ->delete();
 
-            $totalCotizacion = DB::table('quotes')
-                ->where('id', $orden->nro_cotizacion)
-                ->value('Total');
+            Log::info('Totales antes de actualizar pagado', [
+                'orden_id' => $orden->id_orden,
+                'total_cotizacion' => $totalCotizacion,
+                'total_aplicado' => $totalAplicado,
+                'supera_total' => $totalCotizacion > 0 && $totalAplicado > $totalCotizacion,
+                'alcanza_total' => $totalCotizacion > 0 && $totalAplicado >= $totalCotizacion,
+            ]);
 
-            $saldoPorCobrar = ($totalCotizacion ?? 0) - $totalAplicado;
+            if ($totalCotizacion > 0 && $totalAplicado > $totalCotizacion) {
+                Log::warning('Total aplicado supera cotización', [
+                    'total_aplicado' => $totalAplicado,
+                    'total_cotizacion' => $totalCotizacion,
+                ]);
 
-            if ($saldoPorCobrar <= 0) {
-                $orden->update(['pagado' => 1]);
+                throw ValidationException::withMessages([
+                    'aplicaciones' => "El total aplicado ({$totalAplicado}) supera el total de la cotización ({$totalCotizacion}).",
+                ]);
             }
+
+            $pagado = (
+                $totalCotizacion > 0 &&
+                $totalAplicado >= $totalCotizacion
+            ) ? 1 : 2;
+
+            Log::info('Valor pagado calculado', [
+                'total_cotizacion' => $totalCotizacion,
+                'total_aplicado' => $totalAplicado,
+                'pagado_calculado' => $pagado,
+            ]);
+
+            $updated = $orden->update([
+                'pagado' => $pagado,
+            ]);
+
+            Log::info('Orden actualizada', [
+                'orden_id' => $orden->id_orden,
+                'update_result' => $updated,
+                'pagado_despues_update' => $orden->fresh()->pagado,
+            ]);
         });
 
-        return response()->json(['ok' => true, 'orden' => $orden->fresh('ordenAnticipos')]);
+        Log::info('FIN guardarAnticipos', [
+            'orden_id' => $orden->id_orden,
+            'pagado_final' => $orden->fresh()->pagado,
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'orden' => $orden->fresh('ordenAnticipos'),
+        ]);
     }
 }

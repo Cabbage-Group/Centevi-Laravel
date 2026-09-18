@@ -104,7 +104,6 @@ class QuoterApiController extends Controller
         'Bodega' => 'required|string',
         'Status' => 'nullable|string',
         'Date' => 'nullable|date',
-        'Expira' => 'nullable|date',
         'Comentario' => 'nullable|string',
         'SubTotal' => 'nullable|numeric',
         'Discount' => 'nullable|numeric',
@@ -117,42 +116,111 @@ class QuoterApiController extends Controller
         'Currency' => 'nullable|string',
         'Currency_Rate' => 'nullable|numeric',
         'extraData' => 'nullable|string',
+        'codigo_interfuerza' => 'required|string',
         'Lines' => 'nullable|array'
       ]);
 
-      $quote = Quote::create($data);
+      $existente = Quote::where(
+        'codigo_interfuerza',
+        $data['codigo_interfuerza']
+      )->first();
 
-      foreach ($data['Lines'] as $index => $line) {
+      if ($existente) {
+        return response()->json([
+          'message' => 'La cotización ya existe localmente.',
+          'quote' => $existente->load('lines'),
+          'already_exists' => true
+        ], 200);
+      }
+
+      DB::beginTransaction();
+
+      $quote = Quote::create([
+        'Cliente' => $data['Cliente'],
+        'Bodega' => $data['Bodega'],
+        'Status' => $data['Status'] ?? null,
+        'Date' => $data['Date'] ?? null,
+        'Expira' => now()->addDays(30)->toDateString(),
+        'Comentario' => $data['Comentario'] ?? null,
+        'SubTotal' => $data['SubTotal'] ?? 0,
+        'Discount' => $data['Discount'] ?? 0,
+        'Taxes' => $data['Taxes'] ?? 0,
+        'Total' => $data['Total'] ?? 0,
+        'Abono' => $data['Abono'] ?? 0,
+        'Reservar_Productos' => $data['Reservar_Productos'] ?? null,
+        'Type' => $data['Type'] ?? null,
+        'Vendedor' => $data['Vendedor'] ?? null,
+        'Currency' => $data['Currency'] ?? null,
+        'Currency_Rate' => $data['Currency_Rate'] ?? null,
+        'extraData' => $data['extraData'] ?? null,
+        'codigo_interfuerza' => $data['codigo_interfuerza'],
+      ]);
+
+      foreach ($data['Lines'] ?? [] as $index => $line) {
         if (!is_array($line)) {
+          DB::rollBack();
+
           return response()->json([
-            'message' => "Invalid line format at index $index",
+            'message' => "Invalid line format at index {$index}",
             'line' => $line
           ], 422);
         }
 
-        $quote->lines()->create($line);
+        $quote->lines()->create([
+          'Codigo' => $line['Codigo'] ?? null,
+          'Descripcion' => $line['Descripcion'] ?? null,
+          'Item_Number' => $line['Item_Number'] ?? null,
+          'Nombre' => $line['Nombre'] ?? null,
+          'Marca' => $line['Marca'] ?? null,
+          'Category_L1' => $line['Category_L1'] ?? null,
+          'Category_L2' => $line['Category_L2'] ?? null,
+          'Category_L3' => $line['Category_L3'] ?? null,
+          'Unidades' => $line['Unidades'] ?? 0,
+          'Precio_Unitario' => $line['Precio_Unitario'] ?? 0,
+          'Discount' => $line['Discount'] ?? 0,
+          'DiscountFactor' => $line['DiscountFactor'] ?? 0,
+          'TaxID' => $line['TaxID'] ?? null,
+          'TaxName' => $line['TaxName'] ?? null,
+          'TaxFactor' => $line['TaxFactor'] ?? 0,
+          'TaxValue' => $line['TaxValue'] ?? 0,
+          'Total' => $line['Total'] ?? 0,
+        ]);
       }
+
+      DB::commit();
 
       return response()->json([
         'message' => 'Quote created successfully',
-        'quote' => $quote->load('lines')
+        'quote' => $quote->load('lines'),
+        'already_exists' => false
       ], 201);
     } catch (ValidationException $e) {
+      DB::rollBack();
+
       return response()->json([
         'message' => 'Validation failed',
         'errors' => $e->errors()
       ], 422);
     } catch (QueryException $e) {
+      DB::rollBack();
+
       Log::error(
         'Database error on quote creation',
         ['error' => $e->getMessage()]
       );
+
       return response()->json([
         'message' => 'Database error while creating quote',
         'error' => $e->getMessage()
       ], 500);
     } catch (Exception $e) {
-      Log::error('Unexpected error on quote creation', ['error' => $e->getMessage()]);
+      DB::rollBack();
+
+      Log::error(
+        'Unexpected error on quote creation',
+        ['error' => $e->getMessage()]
+      );
+
       return response()->json([
         'message' => 'Unexpected error occurred',
         'error' => $e->getMessage()

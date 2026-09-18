@@ -19,9 +19,20 @@ use App\Models\CorrecionesOrdenes;
 use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Pedido;
 use App\Models\ProveedorMaterial;
+use App\Services\InterfuerzaService;
+use League\Uri\Http;
 
 class OrdenesApiController extends Controller
 {
+
+  protected $interfuerza;
+
+
+
+  public function __construct(InterfuerzaService $interfuerza)
+  {
+    $this->interfuerza = $interfuerza;
+  }
 
   public function obtenerOrdenes(Request $request)
   {
@@ -2617,7 +2628,9 @@ class OrdenesApiController extends Controller
 
   public function obtenerOrdenPaciente($id_paciente, $nroOrdenId)
   {
-    $pacienteExists = DB::table('pacientes')->where('id_paciente', $id_paciente)->exists();
+    $pacienteExists = DB::table('pacientes')
+      ->where('id_paciente', $id_paciente)
+      ->exists();
 
     if (!$pacienteExists) {
       return response()->json([
@@ -2638,92 +2651,102 @@ class OrdenesApiController extends Controller
       )
       ->groupBy('ordenes_id');
 
-    // Subconsulta para obtener la última fase activa
     $ultimaFaseQuery = DB::table('fases_ordenes as fo2')
       ->select(
         'fo2.ordenes_id',
         DB::raw('
-                CASE
-                    WHEN fo2.status = 0 THEN (
-                        SELECT tipo_fase_orden_id
-                        FROM fases_ordenes
-                        WHERE ordenes_id = fo2.ordenes_id
-                        AND id < fo2.id
-                        ORDER BY id DESC
-                        LIMIT 1
-                    )
-                    ELSE fo2.tipo_fase_orden_id
-                END as ultima_fase_tipo_id
-            '),
-        DB::raw('
-                CASE
-                    WHEN fo2.status = 0 THEN (
-                        CASE
-                            WHEN (
-                                SELECT tipo_fase_orden_id
-                                FROM fases_ordenes
-                                WHERE ordenes_id = fo2.ordenes_id
-                                AND id < fo2.id
-                                ORDER BY id DESC
-                                LIMIT 1
-                            ) IS NULL THEN \'Nuevo\'
-                            WHEN (
-                                SELECT tipo_fase_orden_id
-                                FROM fases_ordenes
-                                WHERE ordenes_id = fo2.ordenes_id
-                                AND id < fo2.id
-                                ORDER BY id DESC
-                                LIMIT 1
-                            ) = 1 THEN \'Enviado\'
-                            WHEN (
-                                SELECT tipo_fase_orden_id
-                                FROM fases_ordenes
-                                WHERE ordenes_id = fo2.ordenes_id
-                                AND id < fo2.id
-                                ORDER BY id DESC
-                                LIMIT 1
-                            ) = 2 THEN \'En Confección\'
-                            WHEN (
-                                SELECT tipo_fase_orden_id
-                                FROM fases_ordenes
-                                WHERE ordenes_id = fo2.ordenes_id
-                                AND id < fo2.id
-                                ORDER BY id DESC
-                                LIMIT 1
-                            ) = 3 THEN \'Listo\'
-                            WHEN (
-                                SELECT tipo_fase_orden_id
-                                FROM fases_ordenes
-                                WHERE ordenes_id = fo2.ordenes_id
-                                AND id < fo2.id
-                                ORDER BY id DESC
-                                LIMIT 1
-                            ) = 4 THEN \'Retirado\'
-                            ELSE \'Desconocido\'
-                        END
-                    )
-                    ELSE (
-                        CASE
-                            WHEN fo2.tipo_fase_orden_id IS NULL THEN \'Nuevo\'
-                            WHEN fo2.tipo_fase_orden_id = 1 THEN \'Enviado\'
-                            WHEN fo2.tipo_fase_orden_id = 2 THEN \'En Confección\'
-                            WHEN fo2.tipo_fase_orden_id = 3 THEN \'Listo\'
-                            WHEN fo2.tipo_fase_orden_id = 4 THEN \'Retirado\'
-                            ELSE \'Desconocido\'
-                        END
-                    )
-                END as ultima_fase_nombre
-            ')
-      )
-      ->whereRaw('fo2.id = (
-            SELECT MAX(id)
+        CASE
+          WHEN fo2.status = 0 THEN (
+            SELECT tipo_fase_orden_id
             FROM fases_ordenes
             WHERE ordenes_id = fo2.ordenes_id
-        )');
+              AND id < fo2.id
+            ORDER BY id DESC
+            LIMIT 1
+          )
+          ELSE fo2.tipo_fase_orden_id
+        END as ultima_fase_tipo_id
+      '),
+        DB::raw('
+        CASE
+          WHEN fo2.status = 0 THEN (
+            CASE
+              WHEN (
+                SELECT tipo_fase_orden_id
+                FROM fases_ordenes
+                WHERE ordenes_id = fo2.ordenes_id
+                  AND id < fo2.id
+                ORDER BY id DESC
+                LIMIT 1
+              ) IS NULL THEN \'Nuevo\'
+              WHEN (
+                SELECT tipo_fase_orden_id
+                FROM fases_ordenes
+                WHERE ordenes_id = fo2.ordenes_id
+                  AND id < fo2.id
+                ORDER BY id DESC
+                LIMIT 1
+              ) = 1 THEN \'Enviado\'
+              WHEN (
+                SELECT tipo_fase_orden_id
+                FROM fases_ordenes
+                WHERE ordenes_id = fo2.ordenes_id
+                  AND id < fo2.id
+                ORDER BY id DESC
+                LIMIT 1
+              ) = 2 THEN \'En Confección\'
+              WHEN (
+                SELECT tipo_fase_orden_id
+                FROM fases_ordenes
+                WHERE ordenes_id = fo2.ordenes_id
+                  AND id < fo2.id
+                ORDER BY id DESC
+                LIMIT 1
+              ) = 3 THEN \'Listo\'
+              WHEN (
+                SELECT tipo_fase_orden_id
+                FROM fases_ordenes
+                WHERE ordenes_id = fo2.ordenes_id
+                  AND id < fo2.id
+                ORDER BY id DESC
+                LIMIT 1
+              ) = 4 THEN \'Retirado\'
+              ELSE \'Desconocido\'
+            END
+          )
+          ELSE (
+            CASE
+              WHEN fo2.tipo_fase_orden_id IS NULL THEN \'Nuevo\'
+              WHEN fo2.tipo_fase_orden_id = 1 THEN \'Enviado\'
+              WHEN fo2.tipo_fase_orden_id = 2 THEN \'En Confección\'
+              WHEN fo2.tipo_fase_orden_id = 3 THEN \'Listo\'
+              WHEN fo2.tipo_fase_orden_id = 4 THEN \'Retirado\'
+              ELSE \'Desconocido\'
+            END
+          )
+        END as ultima_fase_nombre
+      ')
+      )
+      ->whereRaw('fo2.id = (
+      SELECT MAX(id)
+      FROM fases_ordenes
+      WHERE ordenes_id = fo2.ordenes_id
+    )');
 
     $primeraFaseQuery = DB::table('fases_ordenes as fo')
-      ->join('tipos_fases_ordenes as tfo', 'fo.tipo_fase_orden_id', '=', 'tfo.id')
-      ->leftJoinSub($contadorFasesQuery, 'contador_fases', 'fo.ordenes_id', '=', 'contador_fases.ordenes_id')
+      ->join(
+        'tipos_fases_ordenes as tfo',
+        'fo.tipo_fase_orden_id',
+        '=',
+        'tfo.id'
+      )
+      ->leftJoinSub(
+        $contadorFasesQuery,
+        'contador_fases',
+        'fo.ordenes_id',
+        '=',
+        'contador_fases.ordenes_id'
+      )
       ->leftJoin('fases_ordenes as fase4', function ($join) {
         $join->on('fo.ordenes_id', '=', 'fase4.ordenes_id')
           ->where('fase4.tipo_fase_orden_id', 5)
@@ -2738,21 +2761,21 @@ class OrdenesApiController extends Controller
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
         DB::raw("CASE
-                WHEN contador_fases.total_fases = 5
-                    AND contador_fases.fases_completadas = 5
-                    AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
-                WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
-                ELSE 'sin_status'
-            END as status_primera_fase")
+        WHEN contador_fases.total_fases = 5
+          AND contador_fases.fases_completadas = 5
+          AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
+        WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
+        ELSE 'sin_status'
+      END as status_primera_fase")
       )
       ->whereRaw('fo.id = (
-            SELECT MIN(id)
-            FROM fases_ordenes
-            WHERE ordenes_id = fo.ordenes_id
-            AND tipo_fase_orden_id = 2
-        )');
+      SELECT MIN(id)
+      FROM fases_ordenes
+      WHERE ordenes_id = fo.ordenes_id
+        AND tipo_fase_orden_id = 2
+    )');
 
     $fechaRetiradoQuery = DB::table('fases_ordenes')
       ->select(
@@ -2767,65 +2790,59 @@ class OrdenesApiController extends Controller
       ->leftJoin('usuarios', 'ordenes.elaborado_por', '=', 'usuarios.id_usuario')
       ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
       ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
-      ->leftJoin('quotes', 'ordenes.nro_cotizacion', '=', 'quotes.codigo_interfuerza')
-      ->leftJoinSub($primeraFaseQuery, 'primeras_fases', 'ordenes.id_orden', '=', 'primeras_fases.ordenes_id')
-      ->leftJoinSub($ultimaFaseQuery, 'ultima_fase', 'ordenes.id_orden', '=', 'ultima_fase.ordenes_id')
-      ->leftJoinSub($fechaRetiradoQuery, 'fase_retirado', 'ordenes.id_orden', '=', 'fase_retirado.ordenes_id')
+      ->leftJoinSub(
+        $primeraFaseQuery,
+        'primeras_fases',
+        'ordenes.id_orden',
+        '=',
+        'primeras_fases.ordenes_id'
+      )
+      ->leftJoinSub(
+        $ultimaFaseQuery,
+        'ultima_fase',
+        'ordenes.id_orden',
+        '=',
+        'ultima_fase.ordenes_id'
+      )
+      ->leftJoinSub(
+        $fechaRetiradoQuery,
+        'fase_retirado',
+        'ordenes.id_orden',
+        '=',
+        'fase_retirado.ordenes_id'
+      )
       ->select(
         'ordenes.*',
         'primeras_fases.*',
         DB::raw("COALESCE(ultima_fase.ultima_fase_tipo_id, 0) as ultima_fase_tipo_id"),
         DB::raw("COALESCE(ultima_fase.ultima_fase_nombre, 'Nuevo') as ultima_fase_nombre"),
         DB::raw("
-            CASE
-                WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
-                    AND fase_retirado.fecha_retirado IS NOT NULL
-                THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
-                ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
-            END as dias_en_proceso
-        "),
+        CASE
+          WHEN COALESCE(ultima_fase.ultima_fase_tipo_id, 0) = 5
+            AND fase_retirado.fecha_retirado IS NOT NULL
+          THEN DATEDIFF(fase_retirado.fecha_retirado, ordenes.created_at)
+          ELSE DATEDIFF(CURRENT_DATE, ordenes.created_at)
+        END as dias_en_proceso
+      "),
         'pacientes.nombres as paciente_nombres',
         'pacientes.apellidos as paciente_apellidos',
         'pacientes.celular as paciente_celular',
         'sucursales.nombre as sucursal_nombre',
         'sucursales.ubicacion_maps as sucursal_ubicacion',
         'usuarios.nombre as elaborado_por',
-        'quotes.Total as cotizacion_total',
         DB::raw("
-            CASE
-                WHEN ordenes.lente_contacto = 1 THEN 'contacto'
-                WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
-                WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
-                ELSE 'aro'
-            END as tipo_lente
-        ")
+        CASE
+          WHEN ordenes.lente_contacto = 1 THEN 'contacto'
+          WHEN ordenes.lente_escleral_onefit_med = 1 THEN 'onefitmed'
+          WHEN ordenes.lente_escleral_onefit = 1 THEN 'onefit'
+          ELSE 'aro'
+        END as tipo_lente
+      ")
       )
       ->where('ordenes.id_paciente', $id_paciente)
       ->where('ordenes.nro_orden_id', $nroOrdenId)
       ->first();
 
-    if ($orden) {
-      $orden = collect($orden)->map(function ($value, $key) {
-        if (in_array($key, ['nro_orden', 'ordenes_id', 'pagado', 'id_paciente', 'id_sucursal', 'lente_contacto', 'correccion'])) {
-          return (int) $value;
-        }
-        return $value;
-      })->toArray();
-
-      $orden['orden_anticipos'] = DB::table('orden_anticipos')
-        ->join('anticipos', 'orden_anticipos.id_anticipo', '=', 'anticipos.id_anticipo')
-        ->where('orden_anticipos.id_orden', $orden['id_orden'])
-        ->select(
-          'orden_anticipos.id_anticipo',
-          'orden_anticipos.monto_aplicado',
-          'anticipos.referencia',
-          'anticipos.fecha',
-          'anticipos.tipo',
-          'anticipos.monto'
-        )
-        ->get()
-        ->toArray();
-    }
     if (!$orden) {
       return response()->json([
         'respuesta' => false,
@@ -2836,6 +2853,67 @@ class OrdenesApiController extends Controller
         ]
       ], 404);
     }
+
+    $orden = collect($orden)->map(function ($value, $key) {
+      if (in_array($key, [
+        'nro_orden',
+        'ordenes_id',
+        'pagado',
+        'id_paciente',
+        'id_sucursal',
+        'lente_contacto',
+        'correccion'
+      ])) {
+        return (int) $value;
+      }
+
+      return $value;
+    })->toArray();
+
+    $orden['cotizacion_total'] = null;
+
+    if (!empty($orden['nro_cotizacion'])) {
+      try {
+        $payload = [
+          'class' => 'GET',
+          'action' => 'quote',
+          'id' => $orden['nro_cotizacion']
+        ];
+
+        $response = $this->interfuerza->request($payload);
+
+        if ($response->successful()) {
+          $body = $response->json();
+          $quoteData = $body['quote'] ?? null;
+          $interfuerzaQuote = $quoteData[0]['Quote'] ?? null;
+
+          if ($interfuerzaQuote) {
+            $orden['cotizacion_total'] = $interfuerzaQuote['Total'] ?? null;
+          }
+        }
+      } catch (\Throwable $e) {
+        $orden['cotizacion_total'] = null;
+      }
+    }
+
+    $orden['orden_anticipos'] = DB::table('orden_anticipos')
+      ->join(
+        'anticipos',
+        'orden_anticipos.id_anticipo',
+        '=',
+        'anticipos.id_anticipo'
+      )
+      ->where('orden_anticipos.id_orden', $orden['id_orden'])
+      ->select(
+        'orden_anticipos.id_anticipo',
+        'orden_anticipos.monto_aplicado',
+        'anticipos.referencia',
+        'anticipos.fecha',
+        'anticipos.tipo',
+        'anticipos.monto'
+      )
+      ->get()
+      ->toArray();
 
     return response()->json([
       'respuesta' => true,
