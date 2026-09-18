@@ -9,7 +9,7 @@ import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select, Checkbox, Button, Alert, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import { CloseCircleTwoTone } from '@ant-design/icons';
+import { CloseCircleTwoTone, LoadingOutlined } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -103,6 +103,7 @@ const CreateOrden = () => {
   const [montosAnticipos, setMontosAnticipos] = useState({});
   const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
   const [loadingAnticiposCotizacion, setLoadingAnticiposCotizacion] = useState(false);
+  const [guardandoOrden, setGuardandoOrden] = useState(false);
 
   useEffect(() => {
     setMontosAnticipos({});
@@ -382,7 +383,10 @@ const CreateOrden = () => {
     });
   }, []);
 
+
   const handleSubmit = async (values) => {
+    setGuardandoOrden(true);
+
     try {
       const cristalPorOjo = extraerPorOjo(serviciosRealizados);
       const materialPorOjo = extraerPorOjo(materialesSeleccionados);
@@ -414,7 +418,6 @@ const CreateOrden = () => {
       };
 
       const response = await dispatch(createOrdenes(transformedValues)).unwrap();
-
       const nuevaOrden = response.data[0];
 
       const aplicaciones = Object.entries(montosAnticipos)
@@ -422,10 +425,25 @@ const CreateOrden = () => {
         .filter((a) => a.monto_aplicado > 0);
 
       if (aplicaciones.length > 0) {
+        Swal.fire({
+          title: 'Aplicando anticipos...',
+          text: 'La orden se creó correctamente, aplicando los anticipos seleccionados.',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         try {
           await dispatch(guardarAnticipos({ ordenId: nuevaOrden.id_orden, aplicaciones })).unwrap();
+          Swal.close();
         } catch (errorAnticipos) {
-          Swal.fire({
+          Swal.close();
+
+          // Se espera a que el usuario cierre este modal antes de mostrar el de éxito
+          await Swal.fire({
             icon: 'warning',
             title: 'Orden creada, pero los anticipos no se guardaron',
             text: errorAnticipos?.message || 'Aplícalos manualmente desde la edición de la orden.',
@@ -433,11 +451,13 @@ const CreateOrden = () => {
         }
       }
 
-      Swal.fire({
+      await Swal.fire({
         icon: 'success',
         title: 'Receta creada',
         html: `La receta se ha creado exitosamente. Número de orden: <b style="font-size: 25px;">${nuevaOrden.nro_orden_id}</b>`,
-      }).then(() => navigate(-1));
+      });
+
+      navigate(-1);
     } catch (error) {
       console.error('Error al crear receta:', error);
       Swal.fire({
@@ -445,6 +465,8 @@ const CreateOrden = () => {
         title: 'Error',
         text: error?.message || 'Hubo un problema al crear la receta. Por favor, intenta de nuevo.',
       });
+    } finally {
+      setGuardandoOrden(false);
     }
   };
 
@@ -502,7 +524,15 @@ const CreateOrden = () => {
     });
   };
 
-
+  const antIcon = (
+    <LoadingOutlined
+      style={{
+        fontSize: 40,
+        color: "#52c41a",
+      }}
+      spin
+    />
+  );
 
   return (
     <div className="admin-data-content" data-select2-id="15">
@@ -520,7 +550,8 @@ const CreateOrden = () => {
                       <div className="widget-content widget-content-area" >
                         {initialLoading ? (
                           <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                            <Spin size="large" tip="Cargando datos..." />
+                            {antIcon}
+                            <div style={{ marginTop: '12px', color: '#666' }}>Cargando datos...</div>
                           </div>
                         ) : (
                           <Formik
@@ -552,18 +583,20 @@ const CreateOrden = () => {
                                   dispatch(clearAnticiposDisponibles());
                                   return;
                                 }
-                              const selectedSucursal = sucursales.find(
-                                (sucursal) => sucursal.id_sucursal === parseInt(values.id_sucursal)
-                              );
-                              const esSucursalPaitilla = selectedSucursal
-                                ? selectedSucursal.nombre.toLowerCase().includes('paitilla')
-                                : false;
 
-                              if (!nro || !esSucursalPaitilla) {
-                                setCotizacionInterfuerza(null);
-                                setLoadingCotizacion(false);
-                                return;
-                              }
+                                const selectedSucursal = sucursales.find(
+                                  (sucursal) => sucursal.id_sucursal === parseInt(values.id_sucursal)
+                                );
+                                const esSucursalPaitilla = selectedSucursal
+                                  ? selectedSucursal.nombre.toLowerCase().includes('paitilla')
+                                  : false;
+
+                                if (!esSucursalPaitilla) {
+                                  setCotizacionInterfuerza(null);
+                                  setLoadingCotizacion(false);
+                                  setLoadingAnticiposCotizacion(false);
+                                  return;
+                                }
 
                                 setLoadingCotizacion(true);
                                 setLoadingAnticiposCotizacion(true);
@@ -576,8 +609,7 @@ const CreateOrden = () => {
                                     .then((data) => {
                                       setCotizacionInterfuerza(data);
 
-                                      const clienteInterfuerza =
-                                        data?.interfuerza?.[0]?.Quote?.Cliente;
+                                      const clienteInterfuerza = data?.interfuerza?.[0]?.Quote?.Cliente;
 
                                       if (!clienteInterfuerza) {
                                         setLoadingAnticiposCotizacion(false);
@@ -585,9 +617,7 @@ const CreateOrden = () => {
                                         return;
                                       }
 
-                                      return dispatch(
-                                        fetchPacienteByCodigoInterfuerza(clienteInterfuerza)
-                                      )
+                                      return dispatch(fetchPacienteByCodigoInterfuerza(clienteInterfuerza))
                                         .unwrap()
                                         .then((res) => {
                                           const pacienteEncontrado = res?.data?.[0];
@@ -601,7 +631,6 @@ const CreateOrden = () => {
                                               title: 'Paciente no vinculado',
                                               text: 'No se encontró un paciente vinculado con esta cotización.',
                                             });
-
                                             return;
                                           }
 
@@ -610,9 +639,7 @@ const CreateOrden = () => {
                                           setSelectedPaciente(pacienteId);
                                           setFieldValue('id_paciente', pacienteId);
 
-                                          return dispatch(
-                                            fetchAnticiposDisponibles(pacienteId)
-                                          )
+                                          return dispatch(fetchAnticiposDisponibles(pacienteId))
                                             .unwrap()
                                             .finally(() => {
                                               setLoadingAnticiposCotizacion(false);
@@ -623,7 +650,7 @@ const CreateOrden = () => {
                                           dispatch(clearAnticiposDisponibles());
                                         });
                                     })
-                                    .catch((error) => {
+                                    .catch(() => {
                                       setCotizacionInterfuerza(null);
                                       setLoadingAnticiposCotizacion(false);
                                       dispatch(clearAnticiposDisponibles());
@@ -634,7 +661,7 @@ const CreateOrden = () => {
                                 }, 600);
 
                                 return () => clearTimeout(timeout);
-                              }, [values.nro_cotizacion]);
+                              }, [values.nro_cotizacion, values.id_sucursal, sucursales]);
                               return (
                                 <Form
                                 >
@@ -1884,8 +1911,22 @@ const CreateOrden = () => {
                                   <button
                                     className="btn btn-success mt-3"
                                     type="submit"
+                                    disabled={guardandoOrden}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      padding: '6px 16px',
+                                      fontSize: '13px',
+                                    }}
                                   >
-                                    Crear Receta
+                                    {guardandoOrden ? (
+                                      <>
+                                        <LoadingOutlined style={{ fontSize: 16, color: '#fff' }} spin /> Guardando orden...
+                                      </>
+                                    ) : (
+                                      'Crear Receta'
+                                    )}
                                   </button>
                                 </Form>
                               )
