@@ -552,6 +552,18 @@ const CreateOrden = () => {
                                   dispatch(clearAnticiposDisponibles());
                                   return;
                                 }
+                              const selectedSucursal = sucursales.find(
+                                (sucursal) => sucursal.id_sucursal === parseInt(values.id_sucursal)
+                              );
+                              const esSucursalPaitilla = selectedSucursal
+                                ? selectedSucursal.nombre.toLowerCase().includes('paitilla')
+                                : false;
+
+                              if (!nro || !esSucursalPaitilla) {
+                                setCotizacionInterfuerza(null);
+                                setLoadingCotizacion(false);
+                                return;
+                              }
 
                                 setLoadingCotizacion(true);
                                 setLoadingAnticiposCotizacion(true);
@@ -615,14 +627,6 @@ const CreateOrden = () => {
                                       setCotizacionInterfuerza(null);
                                       setLoadingAnticiposCotizacion(false);
                                       dispatch(clearAnticiposDisponibles());
-
-                                      Swal.fire({
-                                        icon: 'error',
-                                        title: 'Cotización no disponible',
-                                        text:
-                                          error?.message ||
-                                          'No se pudo consultar la cotización.',
-                                      });
                                     })
                                     .finally(() => {
                                       setLoadingCotizacion(false);
@@ -656,6 +660,42 @@ const CreateOrden = () => {
                                     </div>
                                   )}
                                   {/* {syncRecientesStatus === 'loading' && (
+                                  })
+                                  .catch(() => {
+                                    setCotizacionInterfuerza(null);
+                                  })
+                                  .finally(() => {
+                                    setLoadingCotizacion(false);
+                                  });
+                              }, 1000);
+
+                              return () => clearTimeout(timeout);
+                            }, [values.nro_cotizacion, values.id_sucursal, sucursales]);
+
+                            return (
+                              <Form
+                              >
+
+                                <CotizacionInterfuerzaResumen
+                                  loading={loadingCotizacion}
+                                  cotizacion={cotizacionInterfuerza}
+                                  anticipos={anticiposDisponibles}
+                                  montosAnticipos={montosAnticipos}
+                                  onMontoAnticipoChange={handleMontoAnticipoChange}
+                                  loadingAnticipos={loadingAnticiposDisponibles}
+                                />
+                                {!historialCompleto && (
+                                  <div style={{ marginBottom: '1rem' }}>
+                                    <Alert
+                                      type="warning"
+                                      showIcon
+                                      message="Migración histórica de anticipos incompleta"
+                                      description="Algunos anticipos antiguos de Interfuerza podrían no estar sincronizados. Ve a la pantalla de Anticipos y ejecuta 'Migrar Anticipos' para completarla."
+                                      closable
+                                    />
+                                  </div>
+                                )}
+                                {/* {syncRecientesStatus === 'loading' && (
                                   <div style={{ marginBottom: '1rem', color: '#888', fontSize: '12px' }}>
                                     Sincronizando anticipos recientes...
                                   </div>
