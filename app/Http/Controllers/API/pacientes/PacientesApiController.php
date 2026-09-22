@@ -2916,7 +2916,7 @@ class PacientesApiController extends Controller
     $paciente = Pacientes::findOrFail($idPaciente);
 
     $anticipos = Anticipo::where('id_paciente', $idPaciente)
-      ->where('estado', 'ACTIVE')
+      ->where('estado', 'PEND-APPLY')
       ->with('ordenAnticipos')
       ->orderBy('fecha', 'asc')
       ->get();
@@ -2924,7 +2924,7 @@ class PacientesApiController extends Controller
     $sync->verificarEstados($anticipos);
 
     $anticipos = $anticipos
-      ->where('estado', 'ACTIVE')
+      ->where('estado', 'PEND-APPLY')
       ->map(fn($a) => [
         'id_anticipo' => $a->id_anticipo,
         'referencia'  => $a->referencia,

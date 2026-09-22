@@ -302,14 +302,20 @@ class AnticiposApiController extends Controller
         $page           = $request->input('page');
         $esUltimaPagina = $request->boolean('es_ultima_pagina');
         $huboErrores    = $request->boolean('hubo_errores');
-        $totalEnPagina  = $request->input('total_pagina'); // total de payments (no solo anticipos) que trajo esta página
+        $totalEnPagina  = $request->input('total_pagina');
         $limitPagina    = (int) $request->input('limit', 25);
 
         if ($page === null || $totalEnPagina === null) {
-            return response()->json(['error' => 'Faltan page o total_pagina'], 400);
+            return response()->json([
+                'error' => 'Faltan page o total_pagina'
+            ], 400);
         }
 
         try {
+            if ((int) $page === 1) {
+                InterfuerzaSyncState::query()->delete();
+            }
+
             $migrados      = 0;
             $sincronizados = 0;
             $pendientes    = 0;
@@ -327,7 +333,9 @@ class AnticiposApiController extends Controller
                     : null;
 
                 Anticipo::updateOrCreate(
-                    ['referencia' => $referencia],
+                    [
+                        'referencia' => $referencia
+                    ],
                     [
                         'id_paciente'        => $paciente?->id_paciente,
                         'codigo_interfuerza' => $codigoCliente,
@@ -341,11 +349,18 @@ class AnticiposApiController extends Controller
                 );
 
                 $migrados++;
-                $paciente ? $sincronizados++ : $pendientes++;
+
+                if ($paciente) {
+                    $sincronizados++;
+                } else {
+                    $pendientes++;
+                }
             }
 
             $estado = InterfuerzaSyncState::firstOrCreate(
-                ['recurso' => 'anticipos'],
+                [
+                    'recurso' => 'anticipos'
+                ],
                 [
                     'ultima_pagina'          => 0,
                     'ultima_pagina_revisada' => 0,
@@ -355,12 +370,10 @@ class AnticiposApiController extends Controller
                 ]
             );
 
-            // ultima_pagina: solo se mueve si esta página SÍ trajo anticipos
             if (!empty($data) && $page > $estado->ultima_pagina) {
                 $estado->ultima_pagina = $page;
             }
 
-            // ultima_pagina_revisada: avanza siempre, tenga o no anticipos
             if ($page >= ($estado->ultima_pagina_revisada ?? 0)) {
                 $estado->ultima_pagina_revisada = $page;
                 $estado->ultima_pagina_completa = $totalEnPagina >= $limitPagina;
@@ -371,6 +384,7 @@ class AnticiposApiController extends Controller
             }
 
             $estado->ultima_sincronizacion = now();
+
             $estado->save();
 
             return response()->json([
@@ -381,7 +395,9 @@ class AnticiposApiController extends Controller
                 'pendientes'    => $pendientes,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

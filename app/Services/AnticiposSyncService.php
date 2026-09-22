@@ -52,13 +52,10 @@ class AnticiposSyncService
         $ultimaRevisada = $estado->ultima_pagina_revisada;
 
         if ($ultimaRevisada === null) {
-            // Nunca se ha corrido: no hay nada "reciente" que rastrear todavía.
             $paginaInicio = $totalPaginasActual;
         } elseif ((bool) $estado->ultima_pagina_completa) {
-            // La última página revisada ya estaba llena (25/25): avanzo a la siguiente.
             $paginaInicio = $ultimaRevisada + 1;
         } else {
-            // Quedó incompleta: la re-reviso por si le llegaron los datos que faltaban.
             $paginaInicio = $ultimaRevisada;
         }
 
@@ -83,7 +80,6 @@ class AnticiposSyncService
                 ]);
 
             if (!$response->successful()) {
-                // No avanzamos el cursor más allá de aquí; la próxima corrida reintenta desde este punto.
                 break;
             }
 
@@ -114,7 +110,7 @@ class AnticiposSyncService
                         'tipo'               => 'ADVANCE',
                         'monto'              => $pago['Monto'] ?? 0,
                         'fecha'              => $pago['Fecha'],
-                        'estado'             => strtoupper($pago['Status'] ?? '') === 'DELETED' ? 'CANCELLED' : 'ACTIVE',
+                        'estado' => strtoupper($pago['Status'] ?? ''),
                     ]
                 );
 
@@ -200,7 +196,7 @@ class AnticiposSyncService
 
             foreach ($grupo as $anticipo) {
                 Log::info('verificarEstados: buscando anticipo', [
-                    'anticipo_id_local' => $anticipo->id,
+                    'anticipo_id_local' => $anticipo->id_anticipo,
                     'referencia' => $anticipo->referencia,
                     'estado_local' => $anticipo->estado,
                     'pagina_interfuerza' => $anticipo->pagina_interfuerza,
@@ -223,9 +219,9 @@ class AnticiposSyncService
                     'status_remoto' => $remoto['Payment']['Status'] ?? null,
                 ]);
 
-                $estadoRemoto = strtoupper($remoto['Payment']['Status'] ?? '') === 'DELETED'
-                    ? 'CANCELLED'
-                    : 'ACTIVE';
+                $estadoRemoto = strtoupper(
+                    $remoto['Payment']['Status'] ?? ''
+                );
 
                 Log::info('verificarEstados: comparación de estados', [
                     'referencia' => $anticipo->referencia,
@@ -233,15 +229,17 @@ class AnticiposSyncService
                     'estado_remoto' => $estadoRemoto,
                 ]);
 
-                if ($estadoRemoto !== $anticipo->estado) {
+                if ($estadoRemoto !== '' && $estadoRemoto !== $anticipo->estado) {
+                    $estadoAnterior = $anticipo->estado;
+
                     $anticipo->update([
                         'estado' => $estadoRemoto,
                     ]);
 
                     Log::info('verificarEstados: estado actualizado', [
-                        'anticipo_id_local' => $anticipo->id,
+                        'anticipo_id_local' => $anticipo->id_anticipo,
                         'referencia' => $anticipo->referencia,
-                        'estado_anterior' => $anticipo->estado,
+                        'estado_anterior' => $estadoAnterior,
                         'estado_nuevo' => $estadoRemoto,
                     ]);
                 } else {

@@ -127,10 +127,7 @@ const TableAnticipos = () => {
                     codigo_cliente: p.Payment.Cliente,
                     monto: p.Payment.Monto,
                     fecha: p.Payment.Fecha,
-                    estado:
-                        (p.Payment.Status || "").toUpperCase() === "DELETED"
-                            ? "CANCELLED"
-                            : "ACTIVE",
+                    estado: (p.Payment.Status || "ACTIVE").toUpperCase(),
                 }));
 
             await dispatch(

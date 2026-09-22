@@ -399,7 +399,7 @@ class OrdenApiAnticipoController extends Controller
         $idPaciente = $data['id_paciente'];
 
         $anticipos = Anticipo::where('id_paciente', $idPaciente)
-            ->where('estado', 'ACTIVE')
+            ->where('estado', 'PEND-APPLY')
             ->with('ordenAnticipos')
             ->orderBy('fecha', 'asc')
             ->get();

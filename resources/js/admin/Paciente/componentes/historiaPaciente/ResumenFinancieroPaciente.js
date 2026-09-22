@@ -16,15 +16,15 @@ const ResumenFinancieroPaciente = ({ resumen }) => {
             render: (estado) => (
                 <span
                     style={{
-                        background: estado === 'ACTIVE' ? '#e6f7ee' : '#fbe6e6',
-                        color: estado === 'ACTIVE' ? '#1a7f4b' : '#c0392b',
+                        background: estado === 'PEND-APPLY' ? '#e6f7ee' : '#fbe6e6',
+                        color: estado === 'PEND-APPLY' ? '#1a7f4b' : '#c0392b',
                         padding: '2px 10px',
                         borderRadius: '10px',
                         fontSize: '12px',
                         fontWeight: 'bold',
                     }}
                 >
-                    {estado === 'ACTIVE' ? 'ACTIVO' : estado}
+                    {estado === 'PEND-APPLY' ? 'ACTIVO' : estado}
                 </span>
             ),
         },
