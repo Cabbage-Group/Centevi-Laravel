@@ -30,7 +30,11 @@ const ListaPaciente = () => {
   }, [searchText]);
 
   useEffect(() => {
-    dispatch(fetchPacientes({ page: currentPage, limit: 20, search: debouncedSearchText }));
+    dispatch(fetchPacientes({ 
+      page: currentPage, limit: 20, 
+      search: debouncedSearchText, sortColumn: "fecha_creacion", 
+      sortOrder: "desc" 
+    }));
   }, [currentPage, debouncedSearchText, dispatch]);
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -48,7 +52,15 @@ const ListaPaciente = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(eliminarPaciente(id_paciente))
-          .then(() => Swal.fire("Eliminado", "El paciente ha sido eliminado.", "success"))
+          .unwrap()
+          .then(() => {
+            dispatch(fetchPacientes({
+              page: currentPage, limit: 20,
+              search: debouncedSearchText, sortColumn: "fecha_creacion",
+              sortOrder: "desc"
+            }));
+            Swal.fire("Eliminado", "El paciente ha sido eliminado.", "success");
+          })
           .catch(() => Swal.fire("Error", "Hubo un problema al eliminar el paciente.", "error"));
       }
     });
@@ -81,7 +93,10 @@ const ListaPaciente = () => {
           } else {
             Swal.fire("Verificación exitosa", resultAction.payload.message, "success");
           }
-          dispatch(fetchPacientes({ page: currentPage, limit: 10, search: debouncedSearchText }));
+          dispatch(fetchPacientes({ 
+            page: currentPage, limit: 10, search: debouncedSearchText, 
+            sortColumn: "fecha_creacion", sortOrder: "desc" 
+          }));
         } catch (error) {
           Swal.close();
           Swal.fire(

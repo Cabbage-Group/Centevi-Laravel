@@ -18,7 +18,7 @@ class AnticiposApiController extends Controller
 
     public function __construct(InterfuerzaService $interfuerza)
     {
-        $this->interfuerza = $interfuerza;
+        $this->interfuerza = $interfuerza->withConfig(InterfuerzaService::V4_URL, InterfuerzaService::V4_TOKEN);
     }
 
     public function index(Request $request)

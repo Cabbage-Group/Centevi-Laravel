@@ -21,10 +21,12 @@ class InterfuerzaController extends Controller
     InterfuerzaCreateService $interfuerzaCreateService,
     InterfuerzaClientCreator $interfuerzaClientCreator
   ) {
-    $this->interfuerzaService = $interfuerzaService;
-    $this->interfuerzaCreateService = $interfuerzaCreateService;
-    $this->interfuerzaClientCreator = $interfuerzaClientCreator;
+    // Este controlador usa la API v4 de Interfuerza
+    $this->interfuerzaService = $interfuerzaService->withConfig(InterfuerzaService::V4_URL, InterfuerzaService::V4_TOKEN);
+    $this->interfuerzaCreateService = $interfuerzaCreateService->withConfig(InterfuerzaService::V4_URL, InterfuerzaService::V4_TOKEN);
+    $this->interfuerzaClientCreator = new InterfuerzaClientCreator($this->interfuerzaCreateService);
   }
+
 
   private function utf8ize($mixed)
   {

@@ -13,7 +13,80 @@ class AnticiposSyncService
 
     public function __construct(InterfuerzaService $interfuerza)
     {
-        $this->interfuerza = $interfuerza;
+        $this->interfuerza = $interfuerza->withConfig(InterfuerzaService::V4_URL, InterfuerzaService::V4_TOKEN);
+    }
+
+    public const MAX_PAGINAS_CLIENTE = 5;
+    private const POR_PAGINA_CLIENTE = 25;
+
+    /**
+     * Sincroniza los anticipos (ADVANCE) de un cliente de Interfuerza a la BD local.
+     *
+     * @throws \OverflowException si el cliente supera MAX_PAGINAS_CLIENTE páginas
+     * @throws \RuntimeException si Interfuerza responde con error
+     */
+    public function sincronizarPorCliente(Pacientes $paciente): int
+    {
+        $codigo = $paciente->codigo;
+        if (!$codigo) {
+            return 0;
+        }
+
+        $consultar = fn(int $pagina) => $this->interfuerza->request([
+            'class'   => 'GET',
+            'action'  => 'payments',
+            'filters' => [
+                ['field' => 'Cliente', 'type' => '=', 'value' => $codigo],
+            ],
+            'page'    => (string) $pagina,
+        ]);
+
+        $primera = $consultar(1);
+        if (!$primera->successful()) {
+            throw new \RuntimeException('Error consultando Interfuerza: ' . $primera->status());
+        }
+
+        $count        = (int) ($primera->json()['count'] ?? 0);
+        $totalPaginas = max(1, (int) ceil($count / self::POR_PAGINA_CLIENTE));
+
+        if ($totalPaginas > self::MAX_PAGINAS_CLIENTE) {
+            throw new \OverflowException(
+                'La información de este paciente supera el límite permitido. Contacte con un administrador para evaluar el caso.'
+            );
+        }
+
+        $payments = $primera->json()['payments'] ?? [];
+        for ($pagina = 2; $pagina <= $totalPaginas; $pagina++) {
+            $response = $consultar($pagina);
+            if (!$response->successful()) {
+                throw new \RuntimeException('Error consultando Interfuerza (página ' . $pagina . '): ' . $response->status());
+            }
+            $payments = array_merge($payments, $response->json()['payments'] ?? []);
+        }
+
+        $guardados = 0;
+        foreach ($payments as $registro) {
+            $pago = $registro['Payment'] ?? [];
+            if (strtoupper($pago['Type'] ?? '') !== 'ADVANCE' || empty($pago['id'])) {
+                continue;
+            }
+
+            Anticipo::updateOrCreate(
+                ['referencia' => $pago['id']],
+                [
+                    'id_paciente'        => $paciente->id_paciente,
+                    'codigo_interfuerza' => $pago['Cliente'] ?? $codigo,
+                    'sincronizado'       => true,
+                    'tipo'               => 'ADVANCE',
+                    'monto'              => $pago['Monto'] ?? 0,
+                    'fecha'              => $pago['Fecha'],
+                    'estado'             => strtoupper($pago['Status'] ?? ''),
+                ]
+            );
+            $guardados++;
+        }
+
+        return $guardados;
     }
 
     public function sincronizarRecientes(int $limit = 25): array

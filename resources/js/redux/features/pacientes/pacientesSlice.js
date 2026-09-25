@@ -8,8 +8,8 @@ export const fetchPacientes = createAsyncThunk(
   async ({
     page = 1,
     limit = 50000,
-    sortOrder = "asc",
-    sortColumn = "nombres",
+    sortOrder = "desc",
+    sortColumn = "fecha_creacion",
     search = "",
     doctor = null,
     obtenerBloques = 0

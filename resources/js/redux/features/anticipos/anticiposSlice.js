@@ -455,8 +455,17 @@ const anticiposSlice = createSlice({
         state.guardando = false;
       })
 
+      .addCase(fetchResumenFinanciero.pending, (state) => {
+        state.resumenLoading = true;
+      })
+
       .addCase(fetchResumenFinanciero.fulfilled, (state, action) => {
         state.resumen = action.payload;
+        state.resumenLoading = false;
+      })
+
+      .addCase(fetchResumenFinanciero.rejected, (state) => {
+        state.resumenLoading = false;
       })
 
       // NUEVO

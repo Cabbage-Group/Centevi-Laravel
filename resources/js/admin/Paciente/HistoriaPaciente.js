@@ -87,7 +87,7 @@ const HistoriaPaciente = () => {
   const [idPaciente, setIdPaciente] = useState();
   const [isCorreccion, setIsCorreccion] = useState(false);
   const [numCorrecionActual, setNumCorrecionActual] = useState(null);
-  const { resumen: resumenFinanciero } = useSelector((state) => state.anticipos);
+  const { resumen: resumenFinanciero, resumenLoading } = useSelector((state) => state.anticipos);
 
   let urgencia = {};
   let menor = {};
@@ -112,7 +112,17 @@ const HistoriaPaciente = () => {
 
   useEffect(() => {
     if (id && id !== 'undefined') {
-      dispatch(fetchResumenFinanciero(id));
+      dispatch(fetchResumenFinanciero(id))
+        .unwrap()
+        .catch((error) => {
+          if (error?.limite_excedido) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Límite excedido',
+              text: error.message,
+            });
+          }
+        });
     }
   }, [id, dispatch]);
 
@@ -2446,7 +2456,7 @@ const HistoriaPaciente = () => {
                           </div>
                         </div>
 
-                        <ResumenFinancieroPaciente resumen={resumenFinanciero} />
+                        <ResumenFinancieroPaciente resumen={resumenFinanciero} loading={resumenLoading} />
 
                         <div
                           className="widget-header mt-0"

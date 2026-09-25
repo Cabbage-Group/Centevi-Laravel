@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\OrdenAnticipo;
 use App\Models\Anticipo;
 use App\Models\Ordenes;
+use App\Models\Pacientes;
+use App\Services\AnticiposSyncService;
 use App\Services\InterfuerzaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -390,7 +392,7 @@ class OrdenApiAnticipoController extends Controller
     }
 
     // app/Http/Controllers/OrdenAnticipoController.php
-    public function resumenFinanciero(Request $request)
+    public function resumenFinanciero(Request $request, AnticiposSyncService $sync)
     {
         $data = $request->validate([
             'id_paciente' => 'required|integer|exists:pacientes,id_paciente',
@@ -398,11 +400,28 @@ class OrdenApiAnticipoController extends Controller
 
         $idPaciente = $data['id_paciente'];
 
-        $anticipos = Anticipo::where('id_paciente', $idPaciente)
-            ->where('estado', 'PEND-APPLY')
+        try {
+            $sync->sincronizarPorCliente(Pacientes::findOrFail($idPaciente));
+        } catch (\OverflowException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'limite_excedido' => true,
+            ], 422);
+        } catch (\Throwable $e) {
+            // Si Interfuerza falla, se continúa con los datos locales
+            Log::error('Error sincronizando anticipos del paciente', [
+                'id_paciente' => $idPaciente,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $todosAnticipos = Anticipo::where('id_paciente', $idPaciente)
             ->with('ordenAnticipos')
             ->orderBy('fecha', 'asc')
             ->get();
+
+        // Los totales se calculan sobre los anticipos pendientes de aplicar
+        $anticipos = $todosAnticipos->where('estado', 'PEND-APPLY');
 
         $recibidos = $anticipos->sum('monto');
         $aplicado  = $anticipos->sum(fn($a) => $a->ordenAnticipos->sum('monto_aplicado'));
@@ -426,7 +445,7 @@ class OrdenApiAnticipoController extends Controller
             'aplicado_a_ordenes'  => round($aplicado, 2),
             'credito_disponible'  => round($recibidos - $aplicado, 2),
             'saldo_por_pagar'     => round($saldoPorPagar, 2),
-            'detalle' => $anticipos->map(fn($a) => [
+            'detalle' => $todosAnticipos->map(fn($a) => [
                 'referencia' => $a->referencia,
                 'fecha'      => $a->fecha->format('Y-m-d'),
                 'tipo'       => $a->tipo,
@@ -451,6 +470,8 @@ class OrdenApiAnticipoController extends Controller
             'aplicaciones.*.id_anticipo' => 'required|exists:anticipos,id_anticipo',
             'aplicaciones.*.monto_aplicado' => 'required|numeric|min:0',
         ]);
+
+        $interfuerza = $interfuerza->withConfig(InterfuerzaService::V4_URL, InterfuerzaService::V4_TOKEN);
 
         $quoteResponse = $interfuerza->request([
             'class' => 'GET',

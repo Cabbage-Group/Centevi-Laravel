@@ -97,6 +97,9 @@ class PacientesApiController extends Controller
     }
 
     $data->orderBy($sortColumn, $sortOrder);
+    if ($sortColumn === 'fecha_creacion') {
+      $data->orderBy('id_paciente', $sortOrder);
+    }
     $pacientes = $data->paginate($limit, ['*'], 'page', $page);
     $formattedData = $pacientes->items();
 
@@ -2915,13 +2918,32 @@ class PacientesApiController extends Controller
   {
     $paciente = Pacientes::findOrFail($idPaciente);
 
+    $sincronizado = false;
+    try {
+      $sync->sincronizarPorCliente($paciente);
+      $sincronizado = (bool) $paciente->codigo;
+    } catch (\OverflowException $e) {
+      return response()->json([
+        'message' => $e->getMessage(),
+        'limite_excedido' => true,
+      ], 422);
+    } catch (\Throwable $e) {
+      // Si Interfuerza falla, se continúa con los datos locales
+      Log::error('Error sincronizando anticipos del paciente', [
+        'id_paciente' => $idPaciente,
+        'error' => $e->getMessage(),
+      ]);
+    }
+
     $anticipos = Anticipo::where('id_paciente', $idPaciente)
       ->where('estado', 'PEND-APPLY')
       ->with('ordenAnticipos')
       ->orderBy('fecha', 'asc')
       ->get();
 
-    $sync->verificarEstados($anticipos);
+    if (!$sincronizado) {
+      $sync->verificarEstados($anticipos);
+    }
 
     $anticipos = $anticipos
       ->where('estado', 'PEND-APPLY')

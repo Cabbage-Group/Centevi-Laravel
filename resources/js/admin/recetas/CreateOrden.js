@@ -645,9 +645,16 @@ const CreateOrden = () => {
                                               setLoadingAnticiposCotizacion(false);
                                             });
                                         })
-                                        .catch(() => {
+                                        .catch((error) => {
                                           setLoadingAnticiposCotizacion(false);
                                           dispatch(clearAnticiposDisponibles());
+                                          if (error?.limite_excedido) {
+                                            Swal.fire({
+                                              icon: 'warning',
+                                              title: 'Límite excedido',
+                                              text: error.message,
+                                            });
+                                          }
                                         });
                                     })
                                     .catch(() => {
