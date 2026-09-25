@@ -401,17 +401,80 @@ class AnticiposApiController extends Controller
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function actualizarAnticiposRecientes(Request $request, AnticiposSyncService $sync)
     {
         try {
-            $resultado = $sync->sincronizarRecientes($request->input('limit', 100));
+            $resultado = $sync->sincronizarRecientes(
+                $request->input('limit', 100)
+            );
 
-            return response()->json(array_merge(
-                ['message' => 'Anticipos actualizados'],
-                $resultado
-            ));
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            $data = [
+                'message' => 'Anticipos actualizados',
+                'resultado' => $resultado
+            ];
+
+            // Convertimos a JSON nosotros mismos
+            $json = json_encode(
+                $data,
+                JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE
+            );
+
+            // Si json_encode falla
+            if ($json === false) {
+                $json = json_encode([
+                    'error' => 'No se pudo convertir el resultado a JSON',
+                    'json_error' => json_last_error_msg()
+                ]);
+            }
+
+            return response(
+                $json,
+                200,
+                [
+                    'Content-Type' => 'application/json; charset=UTF-8'
+                ]
+            );
+        } catch (\Throwable $e) {
+
+            // NO usar response()->json() aquí
+            $error = [
+                'error' => 'Error al actualizar anticipos',
+                'message' => mb_convert_encoding(
+                    $e->getMessage(),
+                    'UTF-8',
+                    'UTF-8'
+                ),
+                'line' => $e->getLine()
+            ];
+
+            $json = json_encode(
+                $error,
+                JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE
+            );
+
+            return response(
+                $json,
+                500,
+                [
+                    'Content-Type' => 'application/json; charset=UTF-8'
+                ]
+            );
         }
     }
 }
