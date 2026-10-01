@@ -20,6 +20,7 @@ use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Pedido;
 use App\Models\ProveedorMaterial;
 use App\Services\InterfuerzaService;
+use App\Services\AnticiposSyncService;
 use League\Uri\Http;
 
 class OrdenesApiController extends Controller
@@ -887,6 +888,28 @@ class OrdenesApiController extends Controller
         'mensaje_dev' => $e->getMessage()
       ], 500);
     }
+  }
+
+  public function validarAnticipos($id_orden)
+  {
+    try {
+      $noCerrados = app(AnticiposSyncService::class)->anticiposNoCerradosDeOrden((int) $id_orden);
+    } catch (\Throwable $e) {
+      Log::error('Error verificando anticipos de la orden en Interfuerza', ['id_orden' => $id_orden, 'error' => $e->getMessage()]);
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'No se pudo verificar el estado de los anticipos en Interfuerza. Intente nuevamente.',
+      ], 502);
+    }
+
+    return response()->json([
+      'respuesta' => true,
+      'pendientes' => $noCerrados->map(fn($a) => [
+        'referencia' => $a->referencia,
+        'monto' => $a->monto,
+        'estado' => $a->estado,
+      ])->values(),
+    ]);
   }
 
   public function updateOrden(Request $request, $id_orden)

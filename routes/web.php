@@ -312,6 +312,7 @@ Route::post('/api/ordenes', [OrdenesApiController::class, 'createOrdenes']);
 Route::post('/api/verOrdenes', [OrdenesApiController::class, 'ordenes']);
 
 Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
+Route::get('/api/ordenes/{id}/validar-anticipos', [OrdenesApiController::class, 'validarAnticipos']);
 
 Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden']);
 

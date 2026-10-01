@@ -194,7 +194,7 @@ export const impricionAutomatica = createAsyncThunk(
 
 export const updateOrden = createAsyncThunk(
   'ordenes/updateOrdenes',
-  async ({ id_orden, data }) => {
+  async ({ id_orden, data }, { rejectWithValue }) => {
     try {
       console.log('data:', data)
       const response = await axios.put(`${API}/ordenes/${id_orden}`, data);
@@ -202,7 +202,7 @@ export const updateOrden = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error('Error updating orden:', error.response?.data || error.message);
-      throw error;
+      return rejectWithValue(error.response?.data || { mensaje: error.message });
     }
   }
 );

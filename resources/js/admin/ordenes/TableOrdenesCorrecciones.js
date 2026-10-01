@@ -8,13 +8,15 @@ import {
 } from '@ant-design/icons';
 import { deleteOrdenes, fecthOrdenes, fetchContactoOrdenesDelPaciente, updateOrden, verOrdenPdf, setFechaRange, setOrden, setOrdenPor, verCorrecionPdf, verOrdenPdfSize, setOrderId, verOrdenPdfSmall, impricionAutomatica, updateOrdeneCancelada } from '../../redux/features/ordenes/ordenesSlice.js';
 import { deleteCorreccionesOrdenes, fecthCorrecionesOrdenes, fetchContactoCorreccionesOrdenesDelPaciente, fetchCorreccionesByOrdenId, verOrdenCorrecionPdfSize } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice.js';
-import { Modal, Tooltip, Skeleton, Table, Typography, Button, message } from 'antd';
+import { Modal, Tooltip, Skeleton, Table, Typography, Button, message, Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import PaginationOrdenes from './PaginationOrdenes.js';
 import { funPermisosObtenidos, funPermisosObtenidosBoolean } from '../../utils/ValidarPermisos.js';
 import '../../../css/tables/TableOrdenes.css'
 import API_LOCAL from '../../config/configSvLocal.js';
+import axios from 'axios';
+import API from '../../config/config.js';
 
 const { Paragraph, Text } = Typography;
 
@@ -55,6 +57,7 @@ const TableOrdenesCorrecciones = (
   const [loadingPdfSmall, setLoadingPdfSmall] = useState(false)
   const [ordenSeleccionada, setOrdenSeleccionada] = useState({})
   const [loadingImprecion, setLoadingImprecion] = useState(false)
+  const [validandoAnticipos, setValidandoAnticipos] = useState(false)
   const {
     ordenes,
     status,
@@ -179,23 +182,70 @@ const TableOrdenesCorrecciones = (
     }
   };
 
+  const mostrarAnticiposPendientes = (pendientes) => {
+    const filas = pendientes.map((a) => `
+      <tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;font-weight:600">${a.referencia}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right">${Number(a.monto || 0).toFixed(2)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:center">
+          <span style="background:#fff4e5;color:#b45309;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600">${a.estado || 'SIN ESTADO'}</span>
+        </td>
+      </tr>`).join('');
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Anticipos sin aplicar',
+      width: 560,
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#3085d6',
+      html: `
+        <p style="margin:0 0 12px;color:#555">
+          La orden no puede pasar a <b>pagado</b> porque ${pendientes.length === 1 ? 'hay 1 anticipo que no fue aplicado' : `hay ${pendientes.length} anticipos que no fueron aplicados`} en Interfuerza (deben estar en <b>CLOSED</b>).
+        </p>
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+          <thead>
+            <tr style="background:#f5f6f8;color:#333">
+              <th style="padding:8px 10px;text-align:left">Referencia</th>
+              <th style="padding:8px 10px;text-align:right">Monto</th>
+              <th style="padding:8px 10px;text-align:center">Estado</th>
+            </tr>
+          </thead>
+          <tbody>${filas}</tbody>
+        </table>`,
+    });
+  };
+
   const handlePagoToggle = async (id_orden, estadoActual) => {
-    try {
-      const estado = parseInt(estadoActual);
-      let nuevoEstado;
-      if (estado === 0) {
-        nuevoEstado = 2;
-      } else if (estado === 2) {
-        nuevoEstado = 1;
-      } else {
-        nuevoEstado = 0;
+    const estado = parseInt(estadoActual);
+    let nuevoEstado;
+    if (estado === 0) {
+      nuevoEstado = 2;
+    } else if (estado === 2) {
+      nuevoEstado = 1;
+    } else {
+      nuevoEstado = 0;
+    }
+
+    // De abonado a pagado: validar anticipos antes de llamar a cualquier otra api
+    if (estado === 2 && nuevoEstado === 1) {
+      try {
+        setValidandoAnticipos(true);
+        const { data } = await axios.get(`${API}/ordenes/${id_orden}/validar-anticipos`);
+        setValidandoAnticipos(false);
+        if (data?.pendientes?.length > 0) {
+          mostrarAnticiposPendientes(data.pendientes);
+          return;
+        }
+      } catch (err) {
+        setValidandoAnticipos(false);
+        console.error('Error al validar anticipos:', err);
+        Swal.fire('Error', err?.response?.data?.mensaje || 'No se pudo validar los anticipos de la orden.', 'error');
+        return;
       }
+    }
 
-      const payload = {
-        pagado: nuevoEstado
-      };
-
-      await dispatch(updateOrden({ id_orden, data: payload })).unwrap();
+    try {
+      await dispatch(updateOrden({ id_orden, data: { pagado: nuevoEstado } })).unwrap();
       dispatch(fecthOrdenes({
         page: currentPage,
         limit: 20,
@@ -213,6 +263,7 @@ const TableOrdenesCorrecciones = (
       }));
     } catch (err) {
       console.error('Error al actualizar el estado de pagado:', err);
+      Swal.fire('Error', err?.mensaje || 'No se pudo actualizar el estado de pago.', 'error');
     }
   };
 
@@ -520,9 +571,16 @@ const TableOrdenesCorrecciones = (
       id="zero-config_wrapper"
     >
       <div className="table-responsive">
-        {status === 'loading' && <p>Loading...</p>}
-        {status === 'failed' && <p>Error: {error}</p>}
-        {status === 'succeeded' && (
+        {validandoAnticipos && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Spin size="large" tip="Validando anticipos en Interfuerza...">
+              <div style={{ padding: 50 }} />
+            </Spin>
+          </div>
+        )}
+        {status === 'loading' && !(ordenes?.length > 0) && <p>Loading...</p>}
+        {status === 'failed' && !(ordenes?.length > 0) && <p>Error: {error}</p>}
+        {(status === 'succeeded' || ordenes?.length > 0) && (
           <table className="table dt-table-hover tablaSucursal dataTable table-ordenes">
             <thead>
               <tr >

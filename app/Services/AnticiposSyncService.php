@@ -326,4 +326,45 @@ class AnticiposSyncService
 
         Log::info('verificarEstados: finalizado');
     }
+
+    /**
+     * Refresca desde Interfuerza los anticipos aplicados a una orden y devuelve
+     * los que todavía no están en estado CLOSED.
+     *
+     * @throws \RuntimeException si no se pudo consultar Interfuerza
+     */
+    public function anticiposNoCerradosDeOrden(int $idOrden): \Illuminate\Support\Collection
+    {
+        $idsAnticipos = \App\Models\OrdenAnticipo::where('id_orden', $idOrden)
+            ->pluck('id_anticipo')
+            ->unique();
+
+        if ($idsAnticipos->isEmpty()) {
+            return collect();
+        }
+
+        $anticipos = Anticipo::whereIn('id_anticipo', $idsAnticipos)->get();
+
+        // Sincroniza por cliente (trae el estado actual de todos sus pagos)
+        $pacientes = Pacientes::whereIn('id_paciente', $anticipos->pluck('id_paciente')->filter()->unique())->get();
+        foreach ($pacientes as $paciente) {
+            try {
+                $this->sincronizarPorCliente($paciente);
+            } catch (\OverflowException $e) {
+                // Cliente con demasiados pagos: se verifican solo por página
+                $this->verificarEstados($anticipos->where('id_paciente', $paciente->id_paciente));
+            }
+        }
+
+        // Anticipos sin paciente local: se verifican por página
+        $sinPaciente = $anticipos->whereNull('id_paciente');
+        if ($sinPaciente->isNotEmpty()) {
+            $this->verificarEstados($sinPaciente);
+        }
+
+        return Anticipo::whereIn('id_anticipo', $idsAnticipos)
+            ->get()
+            ->filter(fn($a) => strtoupper((string) $a->estado) !== 'CLOSED')
+            ->values();
+    }
 }
