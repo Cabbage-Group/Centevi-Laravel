@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { InputNumber, Button, Table, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import Swal from 'sweetalert2';
+import ResumenCards from './components/ResumenCards';
 import {
     fetchAnticiposDisponibles,
     guardarAnticipos
@@ -16,6 +17,8 @@ const AnticiposOrdenTable = ({
     idPaciente,
     anticipos = [],
     totalCotizacion,
+    pagado = false,
+    cotizacion = {},
     ordenAnticiposActuales = [],
     loading = false,
     onSaved
@@ -358,20 +361,14 @@ const AnticiposOrdenTable = ({
     );
 
     const saldoPorCobrarCents =
-        Math.max(
-            0,
-            totalCotizacionCents -
-                totalAplicadoCents
-        );
+        pagado ? 0 : Math.max(0, totalCotizacionCents - totalAplicadoCents);
 
     const saldoPorCobrar = fromCents(
         saldoPorCobrarCents
     );
 
     const quedaPagado =
-        totalCotizacionCents > 0 &&
-        totalAplicadoCents >=
-            totalCotizacionCents;
+        pagado || (totalCotizacionCents > 0 && totalAplicadoCents >= totalCotizacionCents);
 
     console.log('========== RESUMEN FINAL ==========');
     console.log(
@@ -730,6 +727,19 @@ const AnticiposOrdenTable = ({
                 </div>
             )}
 
+            {cotizacion?.nro && (
+                <ResumenCards
+                    title="Cotización Interfuerza"
+                    items={[
+                        { label: 'Cotización', value: cotizacion.nro },
+                        { label: 'Estado', value: cotizacion.estado || '-' },
+                        { label: 'Fecha', value: cotizacion.fecha || '-' },
+                        { label: 'SubTotal', value: `$${Number(cotizacion.subtotal || 0).toFixed(2)}` },
+                        { label: 'Total cotización', value: `$${Number(totalCotizacion || 0).toFixed(2)}`, valueColor: '#1677ff' },
+                    ]}
+                />
+            )}
+
             <div
                 style={{
                     display: 'flex',
@@ -770,67 +780,21 @@ const AnticiposOrdenTable = ({
                 size="small"
             />
 
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent:
-                        'center',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '12px 40px',
-                    marginTop: '20px',
-                    padding: '12px 20px',
-                    textAlign: 'center',
-                }}
-            >
-                <div>
-                    <b>
-                        Total anticipos:
-                    </b>{' '}
-                    $
-                    {totalAnticipos.toFixed(
-                        2
-                    )}
-                </div>
-
-                <div>
-                    <b>
-                        Aplicado a esta orden:
-                    </b>{' '}
-                    $
-                    {totalAplicado.toFixed(
-                        2
-                    )}
-                </div>
-
-                <div>
-                    <b>
-                        Crédito disponible:
-                    </b>{' '}
-                    $
-                    {creditoDisponible.toFixed(
-                        2
-                    )}
-                </div>
-
-                <div
-                    style={{
-                        color:
-                            quedaPagado
-                                ? 'green'
-                                : 'red'
-                    }}
-                >
-                    <b>
-                        Saldo por cobrar:
-                    </b>{' '}
-                    $
-                    {saldoPorCobrar.toFixed(
-                        2
-                    )}{' '}
-                    {quedaPagado &&
-                        '(quedará PAGADO)'}
-                </div>
+            <div style={{ marginTop: '20px' }}>
+                <ResumenCards
+                    items={[
+                        { label: 'Total anticipos', value: `$${Number(totalAnticipos || 0).toFixed(2)}` },
+                        { label: 'Aplicado a esta orden', value: `$${Number(totalAplicado || 0).toFixed(2)}` },
+                        { label: 'Crédito disponible', value: `$${Number(creditoDisponible || 0).toFixed(2)}` },
+                        {
+                            label: 'Saldo por cobrar',
+                            value: `$${Number(saldoPorCobrar || 0).toFixed(2)}`,
+                            color: quedaPagado ? '#52c41a' : '#ff4d4f',
+                            valueColor: quedaPagado ? '#389e0d' : '#cf1322',
+                            hint: quedaPagado ? 'Quedará PAGADO' : undefined,
+                        },
+                    ]}
+                />
             </div>
         </div>
     );

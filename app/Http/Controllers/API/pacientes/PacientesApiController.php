@@ -2060,7 +2060,24 @@ class PacientesApiController extends Controller
 
       ->leftJoin('servicios_proximos_optometria_neonatos', 'optometria_neonatos.id_consulta', '=', 'servicios_proximos_optometria_neonatos.optometriaNeonatos_id')
       ->leftJoin('servicios_realizados_optometria_neonatos', 'optometria_neonatos.id_consulta', '=', 'servicios_realizados_optometria_neonatos.optometriaNeonatos_id')
-      ->groupBy('optometria_neonatos.id_consulta')
+      ->groupBy(
+          'optometria_neonatos.id_consulta',
+          'pacientes.id_paciente',
+          'pacientes.nombres',
+          'pacientes.email',
+          'pacientes.apellidos',
+          'pacientes.nro_cedula',
+          'pacientes.celular',
+          'optometria_neonatos.fecha_atencion',
+          'optometria_neonatos.doctor',
+          'sucursales.nombre',
+          'optometria_neonatos.hubo_contacto',
+          'usuarios.nombre',
+          'optometria_neonatos.nota_contacto',
+          'optometria_neonatos.fecha_contacto',
+          'optometria_neonatos.fecha_proxima_consulta',
+          'optometria_neonatos.se_agendo'
+        )
       ->where(function ($query) use ($fecha, $search, $doctor, $sucursales, $doctores, $hubo_contacto, $el_Contacto) {
         if ($fecha !== null) {
           if (strpos($fecha, ' - ') !== false) {
@@ -2139,7 +2156,24 @@ class PacientesApiController extends Controller
 
         ->leftJoin('servicios_proximos_optometria_pediatrica', 'optometria_pediatrica.id_consulta', '=', 'servicios_proximos_optometria_pediatrica.optometriaPediatrica_id')
         ->leftJoin('servicios_realizados_optometria_pediatrica', 'optometria_pediatrica.id_consulta', '=', 'servicios_realizados_optometria_pediatrica.optometriaPediatrica_id')
-        ->groupBy('optometria_pediatrica.id_consulta')
+        ->groupBy(
+          'optometria_pediatrica.id_consulta',
+          'pacientes.id_paciente',
+          'pacientes.nombres',
+          'pacientes.email',
+          'pacientes.apellidos',
+          'pacientes.nro_cedula',
+          'pacientes.celular',
+          'optometria_pediatrica.fecha_atencion',
+          'optometria_pediatrica.doctor',
+          'sucursales.nombre',
+          'optometria_pediatrica.hubo_contacto',
+          'usuarios.nombre',
+          'optometria_pediatrica.nota_contacto',
+          'optometria_pediatrica.fecha_contacto',
+          'optometria_pediatrica.fecha_proxima_consulta',
+          'optometria_pediatrica.se_agendo'
+        )
 
         ->where(function ($query) use ($fecha, $search, $doctor, $doctores, $sucursales, $hubo_contacto, $el_Contacto) {
           if ($fecha !== null) {
@@ -2216,7 +2250,24 @@ class PacientesApiController extends Controller
 
         ->leftJoin('servicios_proximos_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_proximos_ortoptica_adultos.ortopticaAdultos_id')
         ->leftJoin('servicios_realizados_ortoptica_adultos', 'ortoptica_adultos.id_consulta', '=', 'servicios_realizados_ortoptica_adultos.ortopticaAdultos_id')
-        ->groupBy('ortoptica_adultos.id_consulta')
+        ->groupBy(
+          'ortoptica_adultos.id_consulta',
+          'pacientes.id_paciente',
+          'pacientes.nombres',
+          'pacientes.email',
+          'pacientes.apellidos',
+          'pacientes.nro_cedula',
+          'pacientes.celular',
+          'ortoptica_adultos.fecha_atencion',
+          'ortoptica_adultos.doctor',
+          'sucursales.nombre',
+          'ortoptica_adultos.hubo_contacto',
+          'usuarios.nombre',
+          'ortoptica_adultos.nota_contacto',
+          'ortoptica_adultos.fecha_contacto',
+          'ortoptica_adultos.fecha_proxima_consulta',
+          'ortoptica_adultos.se_agendo'
+        )
 
         ->where(function ($query) use ($fecha, $search, $doctor, $doctores, $sucursales, $hubo_contacto, $el_Contacto) {
           if ($fecha !== null) {
@@ -2293,7 +2344,24 @@ class PacientesApiController extends Controller
 
         ->leftJoin('servicios_proximos_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_proximos_historias_clinicas.historiaclinica_id')
         ->leftJoin('servicios_realizados_historias_clinicas', 'consultagenerica.id_consulta', '=', 'servicios_realizados_historias_clinicas.historiaclinica_id')
-        ->groupBy('consultagenerica.id_consulta')
+        ->groupBy(
+          'consultagenerica.id_consulta',
+          'pacientes.id_paciente',
+          'pacientes.nombres',
+          'pacientes.email',
+          'pacientes.apellidos',
+          'pacientes.nro_cedula',
+          'pacientes.celular',
+          'consultagenerica.fecha_atencion',
+          'consultagenerica.doctor',
+          'sucursales.nombre',
+          'consultagenerica.hubo_contacto',
+          'usuarios.nombre',
+          'consultagenerica.nota_contacto',
+          'consultagenerica.fecha_contacto',
+          'consultagenerica.fecha_proxima_consulta',
+          'consultagenerica.se_agendo'
+        )
 
         ->where(function ($query) use ($fecha, $search, $doctor, $doctores, $sucursales, $hubo_contacto, $el_Contacto) {
           if ($fecha !== null) {
@@ -2370,7 +2438,24 @@ class PacientesApiController extends Controller
 
         ->leftJoin('servicios_proximos_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_proximos_optometria_general.optometriageneral_id')
         ->leftJoin('servicios_realizados_optometria_general', 'refracciongeneral.id_consulta', '=', 'servicios_realizados_optometria_general.optometriageneral_id')
-        ->groupBy('refracciongeneral.id_consulta')
+        ->groupBy(
+          'refracciongeneral.id_consulta',
+          'pacientes.id_paciente',
+          'pacientes.nombres',
+          'pacientes.email',
+          'pacientes.apellidos',
+          'pacientes.nro_cedula',
+          'pacientes.celular',
+          'refracciongeneral.fecha_atencion',
+          'refracciongeneral.doctor',
+          'sucursales.nombre',
+          'refracciongeneral.hubo_contacto',
+          'usuarios.nombre',
+          'refracciongeneral.nota_contacto',
+          'refracciongeneral.fecha_contacto',
+          'refracciongeneral.fecha_proxima_consulta',
+          'refracciongeneral.se_agendo'
+        )
 
         ->where(function ($query) use ($fecha, $search, $doctor, $doctores, $sucursales, $hubo_contacto, $el_Contacto) {
           if ($fecha !== null) {

@@ -941,6 +941,13 @@ const Ordenes = () => {
           idPaciente={selectedPaciente}
           anticipos={anticiposDisponibles}
           totalCotizacion={pacienteOrden?.cotizacion_total}
+          pagado={Number(pacienteOrden?.pagado) === 1}
+          cotizacion={{
+            nro: pacienteOrden?.nro_cotizacion,
+            estado: pacienteOrden?.cotizacion_estado,
+            fecha: pacienteOrden?.cotizacion_fecha,
+            subtotal: pacienteOrden?.cotizacion_subtotal,
+          }}
           ordenAnticiposActuales={pacienteOrden?.orden_anticipos || []}
           loading={statusAnticipos === 'loading'}
           onSaved={() => dispatch(fetchOrdenDelPaciente({ id_paciente: idPaciente, nro_orden_id: nroOrden }))}

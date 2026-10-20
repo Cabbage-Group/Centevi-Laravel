@@ -51,23 +51,22 @@ const ProximasCitas = () => {
     dispatch(fetchUsuarios({}))
   }, []);
 
+  const buildFetchParams = () => ({
+    page: currentPage,
+    limit: 20,
+    orden,
+    ordenPor,
+    startDate,
+    endDate,
+    search: localSearch,
+    sucursales: sucursalFilter,
+    doctores: doctoresFilter,
+    hubo_contacto: seContactoFilter,
+    el_Contacto: elContactoFilter
+  });
+
   useEffect(() => {
-    const fetchParams = {
-      page: currentPage,
-      limit: 20,
-      orden,
-      ordenPor,
-      startDate,
-      endDate,
-      search: localSearch,
-      sucursales: sucursalFilter,
-      doctores: doctoresFilter,
-      hubo_contacto: seContactoFilter,
-      el_Contacto: elContactoFilter
-
-
-    };
-    dispatch(fetchProximasCitas(fetchParams));
+    dispatch(fetchProximasCitas(buildFetchParams()));
     dispatch(fetchServicios({}));
   }, [dispatch,
     localSearch,
@@ -175,7 +174,7 @@ const ProximasCitas = () => {
             console.log('Contacto actualizado exitosamente');
             dispatch(updateCitaContacto({ id_consulta: proximaCita.ID_CONSULTA, hubo_contacto: 1 }));
             Swal.fire('Contacto confirmado', '', 'success');
-            dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch })); // Actualiza los datos
+            dispatch(fetchProximasCitas(buildFetchParams())); // Actualiza los datos
           })
           .catch(() => {
             Swal.fire('Error al confirmar contacto', '', 'error');
@@ -212,7 +211,7 @@ const ProximasCitas = () => {
               console.log('Cita agendada exitosamente');
               dispatch(updateCitaAgendada({ id_consulta: proximaCita.ID_CONSULTA, se_agendo: 1 }));
               Swal.fire('Cita agendada', '', 'success');
-              dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch }));
+              dispatch(fetchProximasCitas(buildFetchParams()));
             })
             .catch((error) => {
               console.error('Error al agendar cita:', error.message);
@@ -695,7 +694,7 @@ const ProximasCitas = () => {
             }))
               .then(() => {
                 Swal.fire('Contacto confirmado', '', 'success');
-                dispatch(fetchProximasCitas({ page: currentPage, limit: 20, orden, ordenPor, startDate, endDate, search: localSearch })); // Actualiza los datos
+                dispatch(fetchProximasCitas(buildFetchParams())); // Actualiza los datos
               })
               .catch(() => {
                 Swal.fire('Error al confirmar contacto', '', 'error');

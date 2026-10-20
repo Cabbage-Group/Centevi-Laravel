@@ -38,12 +38,6 @@ const VerUnaCorrecionOrdenes = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [currentPhase, setCurrentPhase] = useState(0);
   const usuarios = useSelector((state) => state.usuarios.usuarios);
-  const [tipoLente, setTipoLente] = useState('aro');
-  const esAro = tipoLente === 'aro';
-  const esOneFit = tipoLente === 'onefit';
-  const esOneFitMed = tipoLente === 'onefitmed';
-  const [oneFitValues, setOneFitValues] = useState(ONE_FIT_INITIAL);
-  const [oneFitMedValues, setOneFitMedValues] = useState(ONE_FIT_MED_INITIAL);
   const {
     correccionesObservaciones,
     statusFetch: statusObservaciones

@@ -7,9 +7,9 @@ import { fetchSucursales } from '../../redux/features/sucursales/sucursalesSlice
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import * as Yup from 'yup';
-import { Col, Input, Row, Select, Checkbox, Button } from 'antd';
+import { Col, Input, Row, Select, Checkbox, Button, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import { CloseCircleTwoTone } from '@ant-design/icons';
+import { CloseCircleTwoTone, LoadingOutlined } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { useLocation } from 'react-router-dom';
 import { EyeOutlined } from '@ant-design/icons';

@@ -79,13 +79,17 @@ const CreateOrden = () => {
   const [selectedMarca, setSelectedMarca] = useState(null);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [cargando, setCargando] = useState({
+    sucursales: true, pacientes: true, usuarios: true, cristales: true, materiales: true,
+    tratamientos: true, tiposAros: true, marcas: true, marcasOnefit: true, marcasOnefitMed: true,
+  });
 
   // Tipo de lente: 'aro' | 'contacto' | 'onefit' | 'onefitmed'
   const [tipoLente, setTipoLente] = useState('aro');
   const esAro = tipoLente === 'aro';
   const esOneFit = tipoLente === 'onefit';
   const esOneFitMed = tipoLente === 'onefitmed';
+  const cargandoMarcas = esOneFit ? cargando.marcasOnefit : esOneFitMed ? cargando.marcasOnefitMed : cargando.marcas;
 
   const [serviciosRealizados, setServiciosRealizados] = useState([]);
   const [tipoCorredor, setTipoCorredor] = useState('');
@@ -202,6 +206,7 @@ const CreateOrden = () => {
     l_tres: "",
     l_cuatro: "",
     l_cinco: "",
+    prefijo_cotizacion: "COT",
     nro_cotizacion: "",
     tipo_lente: 'aro',
     nro_factura: "",
@@ -364,25 +369,31 @@ const CreateOrden = () => {
 
 
   useEffect(() => {
-    const promesas = [
-      dispatch(fetchSucursales({ page: 1, limit: 100 })),
-      dispatch(fetchPacientes({ page: 1, limit: 50000 })),
-      dispatch(fetchUsuarios({})),
-      dispatch(fetchCristales({})),
-      dispatch(fetchMateriales({})),
-      dispatch(fetchTratamientos({})),
-      dispatch(fetchTiposAros({})),
-      dispatch(fetchMarcas({})),
-      dispatch(fetchMarcasOnefit({})),
-      dispatch(fetchMarcasOnefitMed({})),
-      dispatch(actualizarAnticiposRecientes({})),
-    ];
-
-    Promise.allSettled(promesas).finally(() => {
-      setInitialLoading(false);
+    const peticiones = {
+      sucursales: fetchSucursales({ page: 1, limit: 100 }),
+      pacientes: fetchPacientes({ page: 1, limit: 50000 }),
+      usuarios: fetchUsuarios({}),
+      cristales: fetchCristales({}),
+      materiales: fetchMateriales({}),
+      tratamientos: fetchTratamientos({}),
+      tiposAros: fetchTiposAros({}),
+      marcas: fetchMarcas({}),
+      marcasOnefit: fetchMarcasOnefit({}),
+      marcasOnefitMed: fetchMarcasOnefitMed({}),
+    };
+    Object.entries(peticiones).forEach(([key, action]) => {
+      Promise.resolve(dispatch(action)).finally(() => {
+        setCargando((prev) => ({ ...prev, [key]: false }));
+      });
     });
+    dispatch(actualizarAnticiposRecientes({}));
   }, []);
 
+
+  const unirCotizacion = (prefijo, nro) => {
+    const numero = (nro ?? "").trim();
+    return numero ? `${(prefijo ?? "").trim()}${numero}` : "";
+  };
 
   const handleSubmit = async (values) => {
     setGuardandoOrden(true);
@@ -392,8 +403,15 @@ const CreateOrden = () => {
       const materialPorOjo = extraerPorOjo(materialesSeleccionados);
       const tratamientoPorOjo = extraerPorOjo(tratamientosFiltros);
 
+      const quoteInterfuerza = cotizacionInterfuerza?.interfuerza?.[0]?.Quote || {};
+      const toMonto = (v) => {
+        const n = Number(String(v ?? '').replace(/,/g, ''));
+        return v === undefined || v === null || v === '' || Number.isNaN(n) ? null : n;
+      };
+      const { prefijo_cotizacion, ...valoresSinPrefijo } = values;
       const transformedValues = {
-        ...values,
+        ...valoresSinPrefijo,
+        nro_cotizacion: unirCotizacion(values.prefijo_cotizacion, values.nro_cotizacion),
         id_paciente: selectedPaciente,
 
         tipo_cristal_od: cristalPorOjo.od,
@@ -415,6 +433,10 @@ const CreateOrden = () => {
         doctor: doctorSeleccionado,
         elaborado_por: usuario?.usuario?.id_usuario,
         tipo_lente: tipoLente,
+        cotizacion_estado: quoteInterfuerza.Status ?? null,
+        cotizacion_fecha: quoteInterfuerza.Date ?? null,
+        cotizacion_subtotal: toMonto(quoteInterfuerza.SubTotal),
+        cotizacion_total: toMonto(quoteInterfuerza.Total),
       };
 
       const response = await dispatch(createOrdenes(transformedValues)).unwrap();
@@ -548,12 +570,6 @@ const CreateOrden = () => {
                   <div className="statbox widget box box-shadow">
                     <div className="widget-header">
                       <div className="widget-content widget-content-area" >
-                        {initialLoading ? (
-                          <div style={{ textAlign: 'center', padding: '100px 0' }}>
-                            {antIcon}
-                            <div style={{ marginTop: '12px', color: '#666' }}>Cargando datos...</div>
-                          </div>
-                        ) : (
                           <Formik
                             initialValues={{
                               ...initialValues,
@@ -573,7 +589,7 @@ const CreateOrden = () => {
                                 setFieldValue('tieneFactura', tieneFactura);
                               }, [tieneFactura, setFieldValue]);
                               React.useEffect(() => {
-                                const nro = values.nro_cotizacion?.trim();
+                                const nro = unirCotizacion(values.prefijo_cotizacion, values.nro_cotizacion);
 
                                 if (!nro) {
                                   setCotizacionInterfuerza(null);
@@ -598,15 +614,18 @@ const CreateOrden = () => {
                                   return;
                                 }
 
-                                setLoadingCotizacion(true);
-                                setLoadingAnticiposCotizacion(true);
-                                setMontosAnticipos({});
-                                dispatch(clearAnticiposDisponibles());
-
+                                let cancelado = false;
+                                // Debounce: solo consulta la API cuando el usuario deja de escribir por 1 segundo
                                 const timeout = setTimeout(() => {
+                                  setLoadingCotizacion(true);
+                                  setLoadingAnticiposCotizacion(true);
+                                  setMontosAnticipos({});
+                                  dispatch(clearAnticiposDisponibles());
+
                                   dispatch(fetchInterfuerzaQuoteById(nro))
                                     .unwrap()
                                     .then((data) => {
+                                      if (cancelado) return;
                                       setCotizacionInterfuerza(data);
 
                                       const clienteInterfuerza = data?.interfuerza?.[0]?.Quote?.Cliente;
@@ -620,6 +639,7 @@ const CreateOrden = () => {
                                       return dispatch(fetchPacienteByCodigoInterfuerza(clienteInterfuerza))
                                         .unwrap()
                                         .then((res) => {
+                                          if (cancelado) return;
                                           const pacienteEncontrado = res?.data?.[0];
 
                                           if (!pacienteEncontrado) {
@@ -646,6 +666,7 @@ const CreateOrden = () => {
                                             });
                                         })
                                         .catch((error) => {
+                                          if (cancelado) return;
                                           setLoadingAnticiposCotizacion(false);
                                           dispatch(clearAnticiposDisponibles());
                                           if (error?.limite_excedido) {
@@ -658,17 +679,21 @@ const CreateOrden = () => {
                                         });
                                     })
                                     .catch(() => {
+                                      if (cancelado) return;
                                       setCotizacionInterfuerza(null);
                                       setLoadingAnticiposCotizacion(false);
                                       dispatch(clearAnticiposDisponibles());
                                     })
                                     .finally(() => {
-                                      setLoadingCotizacion(false);
+                                      if (!cancelado) setLoadingCotizacion(false);
                                     });
-                                }, 600);
+                                }, 1000);
 
-                                return () => clearTimeout(timeout);
-                              }, [values.nro_cotizacion, values.id_sucursal, sucursales]);
+                                return () => {
+                                  cancelado = true;
+                                  clearTimeout(timeout);
+                                };
+                              }, [values.prefijo_cotizacion, values.nro_cotizacion, values.id_sucursal, sucursales]);
                               return (
                                 <Form
                                 >
@@ -761,28 +786,51 @@ const CreateOrden = () => {
 
                                     <div className={tieneFactura ? "col-md-2" : "col-md-2"}>
                                       <h4>Nro. Cotización*</h4>
-                                      <Field name="nro_cotizacion">
-                                        {({ field }) => (
-                                          <input
-                                            {...field}
-                                            type="text"
-                                            placeholder="Ingrese el número de cotización"
-                                            className="form-control"
-                                            disabled={
-                                              loadingCotizacion ||
-                                              loadingAnticiposCotizacion ||
-                                              loadingAnticiposDisponibles
-                                            }
-                                            style={{
-                                              fontWeight: "bold",
-                                              marginBottom: "1rem",
-                                              height: "40px",
-                                              fontSize: "12px",
-                                              paddingLeft: "8px",
-                                            }}
-                                          />
-                                        )}
-                                      </Field>
+                                      <div style={{ display: "flex", gap: "4px", marginBottom: "1rem" }}>
+                                        <Field name="prefijo_cotizacion">
+                                          {({ field }) => (
+                                            <input
+                                              {...field}
+                                              type="text"
+                                              className="form-control"
+                                              disabled={
+                                                loadingCotizacion ||
+                                                loadingAnticiposCotizacion ||
+                                                loadingAnticiposDisponibles
+                                              }
+                                              style={{
+                                                fontWeight: "bold",
+                                                height: "40px",
+                                                fontSize: "12px",
+                                                paddingLeft: "8px",
+                                                width: "60px",
+                                                flex: "0 0 60px",
+                                              }}
+                                            />
+                                          )}
+                                        </Field>
+                                        <Field name="nro_cotizacion">
+                                          {({ field }) => (
+                                            <input
+                                              {...field}
+                                              type="text"
+                                              placeholder="Ingrese el número de cotización"
+                                              className="form-control"
+                                              disabled={
+                                                loadingCotizacion ||
+                                                loadingAnticiposCotizacion ||
+                                                loadingAnticiposDisponibles
+                                              }
+                                              style={{
+                                                fontWeight: "bold",
+                                                height: "40px",
+                                                fontSize: "12px",
+                                                paddingLeft: "8px",
+                                              }}
+                                            />
+                                          )}
+                                        </Field>
+                                      </div>
                                       <ErrorMessage
                                         name="nro_cotizacion"
                                         component="div"
@@ -864,7 +912,8 @@ const CreateOrden = () => {
                                           setFieldValue("nro_factura", "");
                                         }}
                                         placeholder="Seleccione el paciente"
-                                        loading={pacientes_options_selecteds.length === 0}
+                                        loading={cargando.pacientes}
+                                        disabled={cargando.pacientes}
                                         filterOption={(input, option) => {
                                           const searchTerms = input.toLowerCase().split(' ');
                                           return searchTerms.every(term =>
@@ -891,13 +940,14 @@ const CreateOrden = () => {
                                         as="select"
                                         name="id_sucursal"
                                         className="form-control"
+                                        disabled={cargando.sucursales}
                                         onChange={(e) => {
                                           const selectedSucursal = sucursales.find(sucursal => sucursal.id_sucursal === parseInt(e.target.value));
                                           setFieldValue('id_sucursal', e.target.value);
                                           setFieldValue('direccion', selectedSucursal ? selectedSucursal.nombre : '');
                                         }}
                                       >
-                                        <option value="">Seleccionar sucursal</option>
+                                        <option value="">{cargando.sucursales ? 'Cargando sucursales...' : 'Seleccionar sucursal'}</option>
                                         {sucursales.map((sucursal) => (
                                           <option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>{sucursal.nombre}</option>
                                         ))}
@@ -1284,6 +1334,8 @@ const CreateOrden = () => {
                                               }}
                                               optionFilterProp="label"
                                               onChange={handleSelectChange}
+                                              loading={cargando.cristales}
+                                              disabled={cargando.cristales}
                                               options={cristales_options_selecteds.map(servicio => ({
                                                 value: servicio.value,
                                                 label: servicio.label
@@ -1392,6 +1444,8 @@ const CreateOrden = () => {
                                               }}
                                               optionFilterProp="label"
                                               onChange={handleSelectChangeMaterial}
+                                              loading={cargando.materiales}
+                                              disabled={cargando.materiales}
                                               options={materiales_options_selecteds.map(servicio => ({
                                                 value: servicio.value,
                                                 label: servicio.label
@@ -1471,6 +1525,8 @@ const CreateOrden = () => {
                                               }}
                                               optionFilterProp="label"
                                               onChange={handleSelectChangeTratamientos}
+                                              loading={cargando.tratamientos}
+                                              disabled={cargando.tratamientos}
                                               options={tratamientos_options_selecteds.map(servicio => ({
                                                 value: servicio.value,
                                                 label: servicio.label
@@ -1650,7 +1706,9 @@ const CreateOrden = () => {
                                                     <Select
                                                       name="marca"
                                                       value={values.marca || undefined}
-                                                      placeholder="Selecciona la marca"
+                                                      placeholder={cargandoMarcas ? "Cargando marcas..." : "Selecciona la marca"}
+                                                      loading={cargandoMarcas}
+                                                      disabled={cargandoMarcas}
                                                       showSearch
                                                       style={{
                                                         width: "100%",
@@ -1678,7 +1736,9 @@ const CreateOrden = () => {
                                                     <Select
                                                       name="marca_oi"
                                                       value={values.marca_oi || undefined}
-                                                      placeholder="Selecciona la marca"
+                                                      placeholder={cargandoMarcas ? "Cargando marcas..." : "Selecciona la marca"}
+                                                      loading={cargandoMarcas}
+                                                      disabled={cargandoMarcas}
                                                       showSearch
                                                       style={{
                                                         width: "100%",
@@ -1720,7 +1780,9 @@ const CreateOrden = () => {
                                                         <b>TIPO DE ARO*:</b>
                                                         <Select
                                                           showSearch
-                                                          placeholder="Selecciona el tipo de aro"
+                                                          placeholder={cargando.tiposAros ? "Cargando..." : "Selecciona el tipo de aro"}
+                                                          loading={cargando.tiposAros}
+                                                          disabled={cargando.tiposAros}
                                                           value={tipoAro}
                                                           options={tipo_aro_options_selecteds}
                                                           style={{
@@ -1750,7 +1812,9 @@ const CreateOrden = () => {
                                                       <b>DOCTOR*:</b>
                                                       <Select
                                                         showSearch
-                                                        placeholder="Seleccione el doctor"
+                                                        placeholder={cargando.usuarios ? "Cargando doctores..." : "Seleccione el doctor"}
+                                                        loading={cargando.usuarios}
+                                                        disabled={cargando.usuarios}
                                                         value={doctorSeleccionado}
                                                         options={usuarios_doctores_options_selecteds}
                                                         style={{
@@ -1939,7 +2003,6 @@ const CreateOrden = () => {
                               )
                             }}
                           </Formik>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -1954,4 +2017,4 @@ const CreateOrden = () => {
   )
 }
 
-export default CreateOrden
+export default CreateOrden

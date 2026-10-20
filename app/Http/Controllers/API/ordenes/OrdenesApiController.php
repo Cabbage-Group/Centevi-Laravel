@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\ordenes;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ordenes;
+use App\Models\Anticipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\TiposFasesOrdenes;
@@ -658,6 +659,10 @@ class OrdenesApiController extends Controller
       'tipo_lente' => 'required|string|in:aro,contacto,onefit,onefitmed',
 
       'nro_cotizacion' => 'required|string|max:100',
+      'cotizacion_estado' => 'nullable|string|max:100',
+      'cotizacion_fecha' => 'nullable|string|max:50',
+      'cotizacion_subtotal' => 'nullable|numeric',
+      'cotizacion_total' => 'nullable|numeric',
       'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
 
@@ -1159,7 +1164,12 @@ class OrdenesApiController extends Controller
     }
 
     try {
+      DB::beginTransaction();
+
       $pedidoId = $orden->id_pedido;
+
+      // Liberar los anticipos aplicados a esta orden (FK fk_oa_orden)
+      DB::table('orden_anticipos')->where('id_orden', $orden->id_orden)->delete();
 
       $orden->delete();
 
@@ -1176,12 +1186,16 @@ class OrdenesApiController extends Controller
         }
       }
 
+      DB::commit();
+
       return response()->json([
         'respuesta' => true,
         'mensaje' => 'Orden eliminada correctamente',
         'mensaje_dev' => null,
       ], 200);
     } catch (\Exception $e) {
+      DB::rollBack();
+
       return response()->json([
         'respuesta' => false,
         'mensaje' => 'Error al eliminar la orden',
@@ -2893,7 +2907,11 @@ class OrdenesApiController extends Controller
       return $value;
     })->toArray();
 
-    $orden['cotizacion_total'] = null;
+    // Valores guardados al crear la orden; si Interfuerza responde se actualizan con los vigentes
+    $orden['cotizacion_estado'] = $orden['cotizacion_estado'] ?? null;
+    $orden['cotizacion_fecha'] = $orden['cotizacion_fecha'] ?? null;
+    $orden['cotizacion_subtotal'] = $orden['cotizacion_subtotal'] ?? null;
+    $orden['cotizacion_total'] = $orden['cotizacion_total'] ?? null;
 
     if (!empty($orden['nro_cotizacion'])) {
       try {
@@ -2911,11 +2929,14 @@ class OrdenesApiController extends Controller
           $interfuerzaQuote = $quoteData[0]['Quote'] ?? null;
 
           if ($interfuerzaQuote) {
-            $orden['cotizacion_total'] = $interfuerzaQuote['Total'] ?? null;
+            $orden['cotizacion_estado'] = $interfuerzaQuote['Status'] ?? $orden['cotizacion_estado'];
+            $orden['cotizacion_fecha'] = $interfuerzaQuote['Date'] ?? $orden['cotizacion_fecha'];
+            $orden['cotizacion_subtotal'] = $interfuerzaQuote['SubTotal'] ?? $orden['cotizacion_subtotal'];
+            $orden['cotizacion_total'] = $interfuerzaQuote['Total'] ?? $orden['cotizacion_total'];
           }
         }
       } catch (\Throwable $e) {
-        $orden['cotizacion_total'] = null;
+        // Se mantienen los valores guardados en la orden
       }
     }
 
@@ -3420,13 +3441,64 @@ class OrdenesApiController extends Controller
 
     // Alternar el estado de cancelada
     $orden->cancelada = !$orden->cancelada;
-    $orden->save();
+
+    $anticiposLiberados = 0;
+
+    DB::transaction(function () use ($orden, &$anticiposLiberados) {
+      $orden->save();
+
+      if ($orden->cancelada) {
+        $anticiposLiberados = $this->liberarAnticiposOrden($orden);
+      }
+    });
 
     return response()->json([
       'respuesta' => true,
       'mensaje' => 'Orden actualizada correctamente',
+      'anticipos_liberados' => $anticiposLiberados,
       'data' => $orden
     ], 200);
+  }
+
+  /**
+   * Libera los anticipos aplicados a una orden cancelada para que puedan usarse en otra,
+   * excepto los que en Interfuerza ya están CLOSED.
+   */
+  private function liberarAnticiposOrden(Ordenes $orden): int
+  {
+    $idsAnticipos = DB::table('orden_anticipos')
+      ->where('id_orden', $orden->id_orden)
+      ->pluck('id_anticipo');
+
+    if ($idsAnticipos->isEmpty()) {
+      return 0;
+    }
+
+    $anticipos = Anticipo::whereIn('id_anticipo', $idsAnticipos)->get();
+
+    // Refrescar el estado desde Interfuerza; si falla se usa el estado local
+    try {
+      app(AnticiposSyncService::class)->verificarEstados($anticipos);
+      $anticipos = $anticipos->map->fresh();
+    } catch (\Throwable $e) {
+      Log::warning('No se pudo verificar el estado de los anticipos al cancelar la orden', [
+        'id_orden' => $orden->id_orden,
+        'error' => $e->getMessage(),
+      ]);
+    }
+
+    $idsLiberar = $anticipos
+      ->filter(fn($a) => strtoupper((string) $a->estado) !== 'CLOSED')
+      ->pluck('id_anticipo');
+
+    if ($idsLiberar->isEmpty()) {
+      return 0;
+    }
+
+    return DB::table('orden_anticipos')
+      ->where('id_orden', $orden->id_orden)
+      ->whereIn('id_anticipo', $idsLiberar)
+      ->delete();
   }
 
   public function diasOMesesDesdeUltimaOrden($id_paciente)

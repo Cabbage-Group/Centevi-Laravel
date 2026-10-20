@@ -17,6 +17,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { fecthTiposFasesOrdenes } from '../../../redux/features/ordenes/tiposFasesOrdenesSlice';
 import { fetchPacientes } from '../../../redux/features/pacientes/pacientesSlice';
 import VerOrden from '../VerOrden';
+import CotizacionOrdenResumen from '../components/CotizacionOrdenResumen';
 import { fetchOrdenDelPaciente } from '../../../redux/features/ordenes/ordenesSlice';
 import Enviado from './fases/Enviado';
 import ObservacionesHistorial from './observaciones/Observacioneshistorial';
@@ -297,6 +298,11 @@ const VerUnaOrden = () => {
         </div>
       </Row>
 
+      {pacienteOrden?.nro_cotizacion ? (
+        <div style={{ background: 'white', margin: '10px', padding: '15px', borderRadius: '5px' }}>
+          <CotizacionOrdenResumen pacienteOrden={pacienteOrden} />
+        </div>
+      ) : null}
       <VerOrden
         pacienteOrden={pacienteOrden}
         fecha_solicitud={fechaSolicitud}

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Spin, InputNumber, Table } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+import ResumenCards from './ResumenCards';
 
 const toCents = (n) => Math.round(Number(n || 0) * 100);
 const fromCents = (c) => c / 100;
@@ -228,46 +229,16 @@ const CotizacionInterfuerzaResumen = ({
                     )}
 
                     {!loading && cotizacion && (
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                flexWrap: 'wrap',
-                                gap: '12px 40px',
-                                padding: '12px 20px',
-                                border: '2px solid blue',
-                                borderRadius: '25px',
-                                textAlign: 'center',
-                            }}
-                        >
-                            <div>
-                                <b>Cotización:</b>{' '}
-                                {quote.id || '-'}
-                            </div>
-
-                            <div>
-                                <b>Estado:</b>{' '}
-                                {quote.Status || '-'}
-                            </div>
-
-                            <div>
-                                <b>Fecha:</b>{' '}
-                                {quote.Date || '-'}
-                            </div>
-
-                            <div>
-                                <b>SubTotal:</b> $
-                                {fromCents(
-                                    toCents(quote.SubTotal)
-                                ).toFixed(2)}
-                            </div>
-
-                            <div style={{ color: '#1677ff' }}>
-                                <b>Total cotización:</b> $
-                                {totalCotizacion.toFixed(2)}
-                            </div>
-                        </div>
+                        <ResumenCards
+                            title="Cotización Interfuerza"
+                            items={[
+                                { label: 'Cotización', value: quote.id || '-' },
+                                { label: 'Estado', value: quote.Status || '-' },
+                                { label: 'Fecha', value: quote.Date || '-' },
+                                { label: 'SubTotal', value: `$${fromCents(toCents(quote.SubTotal)).toFixed(2)}` },
+                                { label: 'Total cotización', value: `$${totalCotizacion.toFixed(2)}`, valueColor: '#1677ff' },
+                            ]}
+                        />
                     )}
                 </div>
             )}
@@ -312,47 +283,23 @@ const CotizacionInterfuerzaResumen = ({
                         size="small"
                     />
 
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '12px 40px',
-                            marginTop: '20px',
-                            padding: '12px 20px',
-                            textAlign: 'center',
-                        }}
-                    >
-                        <div>
-                            <b>Total anticipos:</b> $
-                            {totalAnticipos.toFixed(2)}
-                        </div>
-
-                        <div>
-                            <b>Se aplicará a esta orden:</b> $
-                            {totalAplicado.toFixed(2)}
-                        </div>
-
-                        <div>
-                            <b>Crédito disponible:</b> $
-                            {creditoDisponible.toFixed(2)}
-                        </div>
-
-                        {totalCotizacionCents > 0 && (
-                            <div
-                                style={{
-                                    color: quedaPagado
-                                        ? 'green'
-                                        : 'red',
-                                }}
-                            >
-                                <b>Saldo por cobrar:</b> $
-                                {saldoPorCobrar.toFixed(2)}{' '}
-                                {quedaPagado &&
-                                    '(quedará PAGADO)'}
-                            </div>
-                        )}
+                    <div style={{ marginTop: '20px' }}>
+                        <ResumenCards
+                            items={[
+                                { label: 'Total anticipos', value: `$${totalAnticipos.toFixed(2)}` },
+                                { label: 'Se aplicará a esta orden', value: `$${totalAplicado.toFixed(2)}` },
+                                { label: 'Crédito disponible', value: `$${creditoDisponible.toFixed(2)}` },
+                                ...(totalCotizacionCents > 0
+                                    ? [{
+                                        label: 'Saldo por cobrar',
+                                        value: `$${saldoPorCobrar.toFixed(2)}`,
+                                        color: quedaPagado ? '#52c41a' : '#ff4d4f',
+                                        valueColor: quedaPagado ? '#389e0d' : '#cf1322',
+                                        hint: quedaPagado ? 'Quedará PAGADO' : undefined,
+                                    }]
+                                    : []),
+                            ]}
+                        />
                     </div>
                 </div>
             )}
