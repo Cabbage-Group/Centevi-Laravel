@@ -396,6 +396,17 @@ const CreateOrden = () => {
   };
 
   const handleSubmit = async (values) => {
+    const totalCotizacion = Number(String(cotizacionInterfuerza?.interfuerza?.[0]?.Quote?.Total ?? '').replace(/,/g, '')) || 0;
+    const montoAnticiposAplicado = Object.values(montosAnticipos).reduce((acc, m) => acc + (Number(m) || 0), 0);
+    if (totalCotizacion > 0 && montoAnticiposAplicado <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Anticipo requerido',
+        text: 'La cotización tiene un monto mayor a 0.00. Debes seleccionar un anticipo o aplicar un monto antes de crear la orden.',
+      });
+      return;
+    }
+
     setGuardandoOrden(true);
 
     try {
@@ -603,11 +614,13 @@ const CreateOrden = () => {
                                 const selectedSucursal = sucursales.find(
                                   (sucursal) => sucursal.id_sucursal === parseInt(values.id_sucursal)
                                 );
-                                const esSucursalPaitilla = selectedSucursal
-                                  ? selectedSucursal.nombre.toLowerCase().includes('paitilla')
-                                  : false;
+                                const nombreSucursal = selectedSucursal ? selectedSucursal.nombre.toLowerCase() : '';
+                                const esSucursalConFactura =
+                                  nombreSucursal.includes('paitilla') ||
+                                  nombreSucursal.includes('villa lucre') ||
+                                  nombreSucursal.includes('san judas tadeo');
 
-                                if (!esSucursalPaitilla) {
+                                if (!esSucursalConFactura) {
                                   setCotizacionInterfuerza(null);
                                   setLoadingCotizacion(false);
                                   setLoadingAnticiposCotizacion(false);

@@ -335,7 +335,9 @@ class AnticiposSyncService
      */
     public function anticiposNoCerradosDeOrden(int $idOrden): \Illuminate\Support\Collection
     {
+        // Solo anticipos realmente aplicados (se guardan filas con monto 0 de los no seleccionados)
         $idsAnticipos = \App\Models\OrdenAnticipo::where('id_orden', $idOrden)
+            ->where('monto_aplicado', '>', 0)
             ->pluck('id_anticipo')
             ->unique();
 

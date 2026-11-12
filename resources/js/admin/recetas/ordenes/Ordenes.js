@@ -941,6 +941,7 @@ const Ordenes = () => {
           idPaciente={selectedPaciente}
           anticipos={anticiposDisponibles}
           totalCotizacion={pacienteOrden?.cotizacion_total}
+          totalCotizacionInicial={pacienteOrden?.cotizacion_total_inicial}
           pagado={Number(pacienteOrden?.pagado) === 1}
           cotizacion={{
             nro: pacienteOrden?.nro_cotizacion,

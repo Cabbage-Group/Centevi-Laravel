@@ -1,0 +1,240 @@
+.of-wrapper {
+  --of-primary: #4361ee;
+  --of-primary-soft: #eef1fd;
+  --of-text: #1f2937;
+  --of-muted: #6b7280;
+  --of-border: #e5e7eb;
+  --of-surface: #ffffff;
+  --of-success: #1abc9c;
+  --of-warning: #e2a03f;
+  --of-danger: #e7515a;
+
+  padding: 20px 4px;
+  color: var(--of-text);
+}
+
+.of-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.of-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--of-text);
+}
+
+.of-subtitle {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--of-muted);
+}
+
+.of-panel {
+  background: var(--of-surface);
+  border: 1px solid var(--of-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.of-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.of-filter label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--of-muted);
+  margin-bottom: 4px;
+}
+
+.of-filter .ant-select,
+.of-filter .ant-input-affix-wrapper,
+.of-date {
+  width: 100%;
+}
+
+.of-date {
+  height: 32px;
+  padding: 4px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--of-text);
+  background: #fff;
+}
+
+.of-date:focus {
+  outline: none;
+  border-color: var(--of-primary);
+}
+
+.of-filter-search {
+  grid-column: span 2;
+}
+
+.of-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--of-border);
+}
+
+.of-export {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.of-export .ant-btn {
+  color: var(--of-primary);
+  border-color: var(--of-border);
+}
+
+.of-export .ant-btn:hover {
+  background: var(--of-primary-soft) !important;
+  border-color: var(--of-primary) !important;
+}
+
+.of-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.of-card {
+  background: var(--of-surface);
+  border: 1px solid var(--of-border);
+  border-left: 4px solid var(--of-primary);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.of-card--aplicado {
+  border-left-color: var(--of-success);
+}
+
+.of-card--saldo {
+  border-left-color: var(--of-danger);
+}
+
+.of-card-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--of-muted);
+}
+
+.of-card-value {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.of-card-foot {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--of-muted);
+}
+
+.of-table .ant-table-thead > tr > th {
+  background: #f9fafb;
+  color: var(--of-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.of-table .ant-table-tbody > tr > td {
+  font-size: 13px;
+}
+
+.of-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.of-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.of-badge--pagado {
+  background: #e6f8f4;
+  color: #0e8a72;
+}
+
+.of-badge--abonado {
+  background: #fdf3e3;
+  color: #b07415;
+}
+
+.of-badge--cortesia {
+  background: #f1f2f4;
+  color: var(--of-muted);
+}
+
+.of-fase {
+  color: var(--of-primary);
+  font-weight: 500;
+}
+
+.of-sync {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.of-sync--info {
+  background: var(--of-primary-soft);
+  border: 1px solid #d6dcfb;
+  color: var(--of-primary);
+}
+
+.of-sync--warning {
+  background: #fdf3e3;
+  border: 1px solid #f3cf95;
+  color: #b07415;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.of-sync--warning:hover {
+  background: #fbe8c8;
+}
+
+.of-sync--warning b {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .of-filter-search {
+    grid-column: span 1;
+  }
+}

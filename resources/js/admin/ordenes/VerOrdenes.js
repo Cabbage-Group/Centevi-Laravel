@@ -8,6 +8,7 @@ import DateRangePicker from '../reportes/DateRangePicker';
 import { fecthCorrecionesOrdenes, fetchCorreccionesByOrdenId } from '../../redux/features/correciones-ordenes/correcionesOrdenesSlice';
 import CollapsibleTable from './TableOrdenesCorrecciones';
 import TableOrdenesCorrecciones from './TableOrdenesCorrecciones';
+import VerificarPagosAnticipos from './VerificarPagosAnticipos';
 
 const VerOrdenes = () => {
   const dispatch = useDispatch();
@@ -202,6 +203,8 @@ const VerOrdenes = () => {
     setModalData(null);
   };
 
+  const [refreshOrdenes, setRefreshOrdenes] = useState(0);
+
   const handleClearOrders = () => {
     setPagadoFilter([]);
     setSucursalFilter([]);
@@ -360,6 +363,10 @@ const VerOrdenes = () => {
                       </div>
 
                       <div className="d-flex gap-2">
+                        <VerificarPagosAnticipos
+                          onFinish={() => setRefreshOrdenes((prev) => prev + 1)}
+                          buttonProps={{ style: { height: 'auto' } }}
+                        />
                         <button className="btn btn-success" onClick={handleToggleCorrections}>
                           {isCorrections ? "Filtrar por Fase" : "Filtrar Correcciones por Fase"}
                         </button>
@@ -612,6 +619,7 @@ const VerOrdenes = () => {
                                 <Select.Option value="Advertencia">Advertencia</Select.Option>
                                 <Select.Option value="Crítico">Crítico</Select.Option>
                                 <Select.Option value="Completado">Completado</Select.Option>
+                                <Select.Option value="Sin estado">Sin estado</Select.Option>
                               </Select>
                             </div>
                           </div>
@@ -666,6 +674,7 @@ const VerOrdenes = () => {
                     </div>
                   </div>
                   <TableOrdenesCorrecciones
+                    refreshKey={refreshOrdenes}
                     search={debouncedSearch}
                     pagadoFiltro={pagadoFilter}
                     sucursalFiltro={sucursalFilter}

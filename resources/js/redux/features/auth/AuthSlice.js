@@ -4,12 +4,13 @@ import API from '../../../config/config.js';
 
 export const fetchLogin = createAsyncThunk(
   'auth/login',
-  async (data) => {
-    const response = await axios.post(`${API}/login`, data);
-    console.log("response: --");
-    console.log(response);
-
-    return response.data;
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API}/login`, data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || null);
+    }
   }
 );
 
@@ -77,7 +78,10 @@ const AuthSlice = createSlice({
       .addCase(fetchLogin.rejected, (state, action) => {
         state.status = 'failed';
         state.fetchUsuario = true;
-        state.error = action.error.message;
+        const rpta = action.payload;
+        state.error = rpta?.mensaje
+          ? (rpta.mensaje_dev && typeof rpta.mensaje_dev === 'string' ? `${rpta.mensaje}. ${rpta.mensaje_dev}` : rpta.mensaje)
+          : 'Error al ingresar, vuelve a intentarlo';
       })
 
 
@@ -112,9 +116,12 @@ const AuthSlice = createSlice({
       .addCase(fetchValidarToken.rejected, (state, action) => {
         state.status = 'failed';
         state.fetchUsuario = true;
-        state.error = action.error.message;
-        localStorage.clear()
-        window.location.reload();
+        state.error = null;
+        // Limpia token_user, usuario y demás datos de sesión
+        localStorage.clear();
+        if (window.location.pathname !== '/login') {
+          window.location.replace('/login');
+        }
       })
 
       .addCase(validateUserAuth.fulfilled, (state, action) => {

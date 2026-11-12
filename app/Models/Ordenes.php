@@ -19,6 +19,7 @@ class Ordenes extends Model
     'cotizacion_fecha',
     'cotizacion_subtotal',
     'cotizacion_total',
+    'cotizacion_total_inicial',
     'saldo_por_cobrar',
     'nro_factura',
     'nro_orden',

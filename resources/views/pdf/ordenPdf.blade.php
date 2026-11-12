@@ -493,11 +493,15 @@
   <div style="margin-bottom:5px; margin-top:-10px; color:#3b3f5c; font-size:13px;">
     <div>
       <span style="font-weight:700;">Paciente:</span>
-      <span>{{ ucwords(strtolower($nombres_apellidos_paciente)) }}</span>
+      <span>{{ stripos($nombres_apellidos_paciente ?? '', 'optidac') !== false ? '' : ucwords(strtolower($nombres_apellidos_paciente)) }}</span>
     </div>
     <div>
       <span style="font-weight:700;">Sucursal:</span>
       <span>{{ $sucursal }}</span>
+      <span style="float:right;">
+        <span style="font-weight:700;">Nro. Cotización:</span>
+        <span>{{ $nro_cotizacion ?? '-' }}</span>
+      </span>
     </div>
   </div>
 

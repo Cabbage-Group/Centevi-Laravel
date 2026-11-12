@@ -1,8 +1,43 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { FaStar, FaRegStar } from 'react-icons/fa';
+import { message } from 'antd';
+import { toggleFavorito } from '../../redux/features/favoritos/favoritosSlice';
+import { buscarModuloPorUrl } from '../../utils/sidebarModulos';
+import BotonRegresar from './BotonRegresar';
+import './SidebarBuscador.css';
+
+const tituloDesdeUrl = (pathname) =>
+  pathname
+    .split('/')
+    .filter(Boolean)[0]
+    ?.replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (letra) => letra.toUpperCase()) || 'Inicio';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  const favoritos = useSelector((state) => state.favoritos.items);
+  const esFavorito = favoritos.some((f) => f.url === pathname);
+
+  const onToggleFavorito = async () => {
+    const id_usuario = Number(localStorage.getItem('id_usuario'));
+    const modulo = buscarModuloPorUrl(pathname);
+
+    try {
+      const res = await dispatch(toggleFavorito({
+        id_usuario,
+        url: pathname,
+        titulo: modulo?.titulo || tituloDesdeUrl(pathname),
+        modulo: modulo?.modulo || null,
+      })).unwrap();
+      message.success(res.favorito ? 'Agregado a favoritos' : 'Quitado de favoritos');
+    } catch (error) {
+      message.error('No se pudo actualizar favoritos');
+    }
+  };
   return (
     <div className="content-container">
       <div className="col layout-top-spacing colo-12">
@@ -23,8 +58,17 @@ const Navbar = () => {
                     </span>
                   </div>
                 </a>
+                <BotonRegresar />
               </div>
-              <div className="header-actions">
+              <div className="header-actions" style={{ display: 'flex', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className={`nav-fav-btn ${esFavorito ? 'activo' : ''}`}
+                  title={esFavorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                  onClick={onToggleFavorito}
+                >
+                  {esFavorito ? <FaStar /> : <FaRegStar />}
+                </button>
                 <div className="nav-item dropdown user-profile-dropdown">
                   <a
                     aria-expanded="false"

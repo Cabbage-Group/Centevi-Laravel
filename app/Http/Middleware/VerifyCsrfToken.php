@@ -304,6 +304,9 @@ class VerifyCsrfToken extends Middleware
     'http://127.0.0.1:8000/api/orden-anticipos/ordenes/*/guardarAnticipos',
     'http://127.0.0.1:8000/api/anticipos/interfuerza/migration',
     'http://127.0.0.1:8000/api/anticipos/interfuerza/actualizar-recientes',
+    'http://127.0.0.1:8000/api/favoritos/toggle',
+    'http://127.0.0.1:8000/api/ordenes-abonadas/verificar-lote',
+    'http://127.0.0.1:8000/api/favoritos/*',
     'http://127.0.0.1:8000/api/orden-anticipos/by-paciente'
   ];
 }

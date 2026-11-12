@@ -78,6 +78,15 @@ class LoginApiController extends Controller
       ], 401);
     }
 
+    if ((int) $usuario->estado !== 1) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Usuario desactivado',
+        'data' => [],
+        'mensaje_dev' => 'El usuario se encuentra desactivado, contacte al administrador'
+      ], 403);
+    }
+
     // // Generar token con Laravel Sanctum
     // $token = $usuario->createToken('auth_token')->plainTextToken;
     $usuario->token = $this->generarCodigoAleatorio();
@@ -134,6 +143,15 @@ class LoginApiController extends Controller
   public function validarUser(Request $request)
   {
     $usuario = Usuarios::where('usuario', $request->usuario)->first();
+
+    if ($usuario && (int) $usuario->estado !== 1) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Usuario desactivado',
+        'data' => [],
+        'mensaje_dev' => 'El usuario se encuentra desactivado, contacte al administrador'
+      ], 403);
+    }
 
     if ($usuario && $usuario->token) {
 

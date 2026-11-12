@@ -54,6 +54,8 @@ use App\Http\Controllers\API\tipos_aros\TiposArosApiController;
 use App\Http\Controllers\API\quotes\QuotePdfController;
 use App\Http\Controllers\API\quotes_timelines\QuoteTimelineApiController;
 use App\Http\Controllers\API\reportes\ReporteDiagnosticosController;
+use App\Http\Controllers\API\reportes\ReporteOrdenesFinancierasController;
+use App\Http\Controllers\API\favoritos\FavoritosApiController;
 use App\Http\Controllers\API\tratamientos\TratamientosApiController;
 use App\Http\Controllers\API\whatsapp\WhatsappApiController;
 use App\Http\Controllers\API\ventas\VentasApiController;
@@ -192,6 +194,15 @@ Route::delete('/api/ObtometriaGeneral/{id}', [OptometriaGeneralApiController::cl
 Route::get('/api/reportes/reporte-diagnosticos', [ReporteDiagnosticosController::class, 'obtenerReporteDiagnosticos']);
 Route::get('/api/reportes/reporte-diagnosticos/exportar', [ReporteDiagnosticosController::class, 'exportarExcelDiagnosticos']);
 
+// REPORTE DE ORDENES FINANCIERAS
+Route::get('/api/reportes/ordenes-financieras', [ReporteOrdenesFinancierasController::class, 'index']);
+Route::get('/api/reportes/ordenes-financieras/opciones', [ReporteOrdenesFinancierasController::class, 'opciones']);
+
+// FAVORITOS POR USUARIO (sidebar / navbar)
+Route::get('/api/favoritos', [FavoritosApiController::class, 'index']);
+Route::post('/api/favoritos/toggle', [FavoritosApiController::class, 'toggle']);
+Route::delete('/api/favoritos/{id}', [FavoritosApiController::class, 'destroy']);
+
 Route::get('/api/ver-consultagenerica/{id}/{id_consulta}', [ConsultaGenericaController::class, 'VerConsultaGenerica']);
 Route::get('/api/mostrar-consultagenerica', [ConsultaGenericaController::class, 'mostrarconsultagenerica']);
 Route::post('/api/consultagenerica', [ConsultaGenericaController::class, 'Crearconsultagenerica']);
@@ -313,6 +324,10 @@ Route::post('/api/verOrdenes', [OrdenesApiController::class, 'ordenes']);
 
 Route::put('/api/ordenes/{id}', [OrdenesApiController::class, 'updateOrden']);
 Route::get('/api/ordenes/{id}/validar-anticipos', [OrdenesApiController::class, 'validarAnticipos']);
+Route::get('/api/ordenes-abonadas/con-anticipos', [OrdenesApiController::class, 'ordenesAbonadasConAnticipos']);
+Route::post('/api/ordenes-abonadas/verificar-lote', [OrdenesApiController::class, 'verificarPagosAnticiposLote']);
+Route::get('/api/ordenes-abonadas/verificar-todas', [OrdenesApiController::class, 'verificarPagosAnticiposCron']);
+Route::post('/api/ordenes/{id}/verificar-pago-anticipos', [OrdenesApiController::class, 'verificarPagoAnticiposOrden']);
 
 Route::delete('/api/ordenes/{id}', [OrdenesApiController::class, 'deleteOrden']);
 

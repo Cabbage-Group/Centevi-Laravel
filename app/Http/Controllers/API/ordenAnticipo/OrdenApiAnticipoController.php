@@ -606,6 +606,8 @@ class OrdenApiAnticipoController extends Controller
             $updated = $orden->update([
                 'pagado' => $pagado,
                 'saldo_por_cobrar' => max(round($totalCotizacion - $totalAplicado, 2), 0),
+                'cotizacion_total' => $totalCotizacion,
+                'cotizacion_total_inicial' => $orden->cotizacion_total_inicial ?? $orden->cotizacion_total ?? $totalCotizacion,
             ]);
 
             Log::info('Orden actualizada', [

@@ -6,6 +6,8 @@ import ValidarPermisos from "../../utils/ValidarPermisos";
 import { fetchValidarToken, validateUserAuth } from "../../redux/features/auth/AuthSlice";
 import getIp from "../../redux/features/utils/getIp";
 import { fetchConversations } from "../../redux/features/mensajes/mensajesSlice";
+import { fetchFavoritos } from "../../redux/features/favoritos/favoritosSlice";
+import SidebarBuscador from "./SidebarBuscador";
 
 const Sidebar = (props) => {
   const id_usuario = localStorage.getItem("id_usuario");
@@ -23,6 +25,14 @@ const Sidebar = (props) => {
   useEffect(() => {
     dispatch(fetchConversations(Number(id_usuario)));
   }, []);
+
+  const favoritosStatus = useSelector((state) => state.favoritos.status);
+
+  useEffect(() => {
+    if (id_usuario && favoritosStatus === "idle") {
+      dispatch(fetchFavoritos(Number(id_usuario)));
+    }
+  }, [id_usuario, favoritosStatus]);
 
   useEffect(() => {
     const token = localStorage.getItem("token_user");
@@ -110,6 +120,8 @@ const Sidebar = (props) => {
                 INICIO 2-4.0
               </a>
             </li>
+
+            <SidebarBuscador />
 
             <li className="menu">
               <a className="menu-toggle" data-active="false" href="#pacientes">
@@ -1117,6 +1129,33 @@ const Sidebar = (props) => {
                       </svg>
                     </span>
                     Pacientes
+                  </Link>
+                </li>
+              )}
+
+              {ValidarPermisos(
+                "sidebar.reportes.ordenes-financieras",
+                <li>
+                  <Link to={"/reportes/ordenes-financieras"}>
+                    <span className="icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="feather feather-git-commit"
+                      >
+                        <circle cx="12" cy="12" r="4" />
+                        <line x1="1.05" y1="12" x2="7" y2="12" />
+                        <line x1="17.01" y1="12" x2="22.96" y2="12" />
+                      </svg>
+                    </span>
+                    Órdenes financieras
                   </Link>
                 </li>
               )}

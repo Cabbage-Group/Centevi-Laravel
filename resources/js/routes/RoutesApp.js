@@ -100,6 +100,7 @@ import TableWareHouses from "../admin/cotizaciones/wareHouses/TableWareHouses.js
 import VerDiagnosticos from "../admin/diagnosticos/VerDiagnosticos.js";
 import Diagnosticos from "../admin/reportes/diagnosticos/Diagnosticos.js";
 import ReportePacientes from "../admin/reportes/pacientes/ReportePacientes.js";
+import OrdenesFinancieras from "../admin/reportes/ordenesFinancieras/OrdenesFinancieras.js";
 import UpdateCotizacion from "../admin/cotizaciones/UpdateCotizacion.js";
 import Bases from "../admin/bases/Bases.js";
 import OrdenesCentilab from "../admin/recetas/ordenesCentilab/OrdenesCentilab.js";
@@ -276,6 +277,7 @@ const RoutesApp = () => {
           <Route path="/reporte-ordenes" element={<Sidebar component={<ReporteOrdenes />} />} />
           <Route path="/reporte-diagnosticos" element={<Sidebar component={<Diagnosticos />} />} />
           <Route path="/reporte-pacientes" element={<Sidebar component={<ReportePacientes />} />} />
+          <Route path="/reportes/ordenes-financieras" element={<Sidebar component={<OrdenesFinancieras />} />} />
 
           <Route
             path="/ver-sesion-terapia/:id_paciente/:id_terapia/:id_sesion"

@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { status, usuario } = useSelector((state) => state.auth);
+  const { status, usuario, error } = useSelector((state) => state.auth);
 
   const initialValues = {};
 
@@ -104,7 +104,7 @@ const Login = () => {
               {
                 status == 'failed' ? (
                   <Alert
-                    message="Error al ingresar, vuelve a intentarlo" type="error"
+                    message={error || "Error al ingresar, vuelve a intentarlo"} type="error"
                     style={{ color: '#721c24', paddingTop: '15px', paddingBottom: '15px' }}
                   />
                 ) : (

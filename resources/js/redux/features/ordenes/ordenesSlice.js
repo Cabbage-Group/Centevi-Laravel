@@ -4,6 +4,9 @@ import API from '../../../config/config.js';
 import API_LOCAL from '../../../config/configSvLocal.js';
 import { update } from 'lodash';
 
+// Controlador de la última petición de órdenes: al lanzar un nuevo filtro se cancela la anterior
+let ordenesCancelSource = null;
+
 export const fecthOrdenes = createAsyncThunk(
   'ordenes/fecthordenes',
   async ({
@@ -26,6 +29,9 @@ export const fecthOrdenes = createAsyncThunk(
   }) => {
     const fecha = startDate && endDate ? `${startDate} - ${endDate}` : '';
 
+    ordenesCancelSource?.cancel();
+    ordenesCancelSource = axios.CancelToken.source();
+
     const response = await axios.post(`${API}/obtener-ordenes`,
       {
         page,
@@ -43,7 +49,8 @@ export const fecthOrdenes = createAsyncThunk(
         proveedor,
         cancelada,
         serviciosFiltrados
-      },);
+      },
+      { cancelToken: ordenesCancelSource.token });
     return response.data;
   }
 );
@@ -78,8 +85,8 @@ export const createOrdenes = createAsyncThunk(
       const response = await axios.post(`${API}/ordenes`, data);
       return response.data;
     } catch (error) {
-      console.error('Error creating orden:', error.response.data);
-      throw error;
+      console.error('Error creating orden:', error.response?.data);
+      throw new Error(error.response?.data?.mensaje || error.message);
     }
   }
 );
@@ -302,6 +309,7 @@ const ordenesSlice = createSlice({
     search_term_ordenes: '',
     search_prueba: '',
     status: 'idle',
+    ordenesRequestId: null,
     statusPacienteOrdenes: 'idle',
     statusPacienteOrden: 'idle',
     status_prueba: '',
@@ -349,10 +357,13 @@ const ordenesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fecthOrdenes.pending, (state) => {
+      .addCase(fecthOrdenes.pending, (state, action) => {
         state.status = 'loading';
+        state.ordenesRequestId = action.meta.requestId;
       })
       .addCase(fecthOrdenes.fulfilled, (state, action) => {
+        // Ignora respuestas de filtros anteriores que lleguen tarde
+        if (action.meta.requestId !== state.ordenesRequestId) return;
         state.status = 'succeeded';
         state.ordenes = action.payload.data;
         state.meta = action.payload.meta;
@@ -369,6 +380,7 @@ const ordenesSlice = createSlice({
         );
       })
       .addCase(fecthOrdenes.rejected, (state, action) => {
+        if (action.meta.requestId !== state.ordenesRequestId) return;
         state.status = 'failed';
         state.error = action.error.message;
       })

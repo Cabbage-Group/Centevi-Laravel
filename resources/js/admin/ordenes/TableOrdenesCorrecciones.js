@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   CheckOutlined,
@@ -22,6 +22,7 @@ const { Paragraph, Text } = Typography;
 
 const TableOrdenesCorrecciones = (
   {
+    refreshKey,
     search,
     pagadoFiltro,
     sucursalFiltro,
@@ -80,6 +81,72 @@ const TableOrdenesCorrecciones = (
   const [urlPdfOrden, setUrlPdfOrden] = useState(null)
   const [loadingPdf, setLoadingPdf] = useState(false)
   const currentPage = currentPageTable;
+
+  // ===== Validación automática de pagos (anticipos CLOSED) de la página visible =====
+  const [autoValidacion, setAutoValidacion] = useState({ corriendo: false, ultima: null });
+  const [autoRefresh, setAutoRefresh] = useState(0);
+  const idsAbonadasRef = useRef([]);
+  const primeraValidacionRef = useRef(true);
+  const autoValidacionCorriendoRef = useRef(false);
+  const autoValidacionAbortRef = useRef(null);
+
+  const validarPagosVisibles = useCallback(async () => {
+    const ids = idsAbonadasRef.current;
+    if (!ids.length || autoValidacionCorriendoRef.current) return;
+
+    autoValidacionCorriendoRef.current = true;
+    const controller = new AbortController();
+    autoValidacionAbortRef.current = controller;
+    setAutoValidacion((prev) => ({ ...prev, corriendo: true }));
+
+    try {
+      const { data } = await axios.post(
+        `${API}/ordenes-abonadas/verificar-lote`,
+        { ids },
+        { signal: controller.signal }
+      );
+      if (data.pasaron_a_pagado > 0) {
+        message.success(`${data.pasaron_a_pagado} orden(es) pasaron a pagado (anticipos en CLOSED).`);
+        setAutoRefresh((prev) => prev + 1);
+      }
+      setAutoValidacion({ corriendo: false, ultima: new Date() });
+    } catch (err) {
+      setAutoValidacion((prev) => ({ ...prev, corriendo: false }));
+    } finally {
+      autoValidacionCorriendoRef.current = false;
+    }
+  }, []);
+
+  // Solo las órdenes abonadas de la página que se está mostrando (el backend filtra las que tienen anticipos)
+  const idsAbonadasKey = (ordenes || [])
+    .filter((o) => parseInt(o?.pagado) === 2 && !o?.cancelada)
+    .map((o) => o.id_orden)
+    .join(',');
+
+  // Primera carga: valida al instante. Luego, cada vez que cambia la data (filtro/página),
+  // espera 10 seg con la misma información antes de validar.
+  useEffect(() => {
+    if (status !== 'succeeded') return undefined;
+    idsAbonadasRef.current = idsAbonadasKey ? idsAbonadasKey.split(',').map(Number) : [];
+
+    if (primeraValidacionRef.current) {
+      primeraValidacionRef.current = false;
+      validarPagosVisibles();
+      return undefined;
+    }
+
+    const timer = setTimeout(validarPagosVisibles, 10000);
+    return () => clearTimeout(timer);
+  }, [ordenes, status, idsAbonadasKey, validarPagosVisibles]);
+
+  // Cada 60 seg se valida la página visible, haya o no cambios de filtro
+  useEffect(() => {
+    const interval = setInterval(validarPagosVisibles, 60000);
+    return () => {
+      clearInterval(interval);
+      autoValidacionAbortRef.current?.abort();
+    };
+  }, [validarPagosVisibles]);
   const [showContacto, setShowContacto] = useState(false);
   const [showContactoCorreccion, setShowContactoCorrecion] = useState(false);
   const [activo, setActivo] = useState(false);
@@ -117,7 +184,9 @@ const TableOrdenesCorrecciones = (
     laboratorioFiltro,
     cancelarOrdenFilter,
     startDate,
-    endDate
+    endDate,
+    refreshKey,
+    autoRefresh
   ]);
 
   useEffect(() => {
@@ -578,7 +647,21 @@ const TableOrdenesCorrecciones = (
             </Spin>
           </div>
         )}
-        {status === 'loading' && !(ordenes?.length > 0) && <p>Loading...</p>}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 6, minHeight: 20, fontSize: 12, color: '#888ea8', marginBottom: 4 }}>
+          {autoValidacion.corriendo ? (
+            <>
+              <Spin size="small" />
+              <span>Validando pagos de anticipos en Interfuerza...</span>
+            </>
+          ) : autoValidacion.ultima ? (
+            <span>
+              <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#1abc9c', marginRight: 6 }} />
+              Pagos validados automáticamente a las {autoValidacion.ultima.toLocaleTimeString()}
+            </span>
+          ) : null}
+        </div>
+        <Spin spinning={status === 'loading'} tip="Cargando órdenes..." size="large">
+        {status === 'loading' && !(ordenes?.length > 0) && <div style={{ minHeight: 200 }} />}
         {status === 'failed' && !(ordenes?.length > 0) && <p>Error: {error}</p>}
         {(status === 'succeeded' || ordenes?.length > 0) && (
           <table className="table dt-table-hover tablaSucursal dataTable table-ordenes">
@@ -1006,6 +1089,7 @@ const TableOrdenesCorrecciones = (
             </tfoot>
           </table>
         )}
+        </Spin>
         <PaginationOrdenes
           meta={meta}
           currentPage={currentPage}

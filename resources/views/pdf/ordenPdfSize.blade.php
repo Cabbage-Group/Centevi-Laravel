@@ -627,7 +627,7 @@
 
       <span
         style="font-family:'Segoe UI', sans-serif;">
-        {{ ucwords(strtolower($nombres_apellidos_paciente)) }}
+        {{ stripos($nombres_apellidos_paciente ?? '', 'optidac') !== false ? '' : ucwords(strtolower($nombres_apellidos_paciente)) }}
       </span>
 
     </div>
@@ -642,6 +642,20 @@
       <span
         style="font-family:'Segoe UI', sans-serif;">
         {{ $sucursal }}
+      </span>
+
+    </div>
+
+    <div style="color:#3b3f5c;font-size:8pt;">
+
+      <span
+        style="font-family:'Segoe UI', sans-serif; font-weight:700">
+        Nro. Cotización:
+      </span>
+
+      <span
+        style="font-family:'Segoe UI', sans-serif;">
+        {{ $nro_cotizacion ?? '-' }}
       </span>
 
     </div>

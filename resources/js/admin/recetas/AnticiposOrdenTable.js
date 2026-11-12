@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { InputNumber, Button, Table, Spin } from 'antd';
+import { InputNumber, Button, Table, Spin, Popover } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import Swal from 'sweetalert2';
 import ResumenCards from './components/ResumenCards';
@@ -17,6 +17,7 @@ const AnticiposOrdenTable = ({
     idPaciente,
     anticipos = [],
     totalCotizacion,
+    totalCotizacionInicial,
     pagado = false,
     cotizacion = {},
     ordenAnticiposActuales = [],
@@ -33,6 +34,30 @@ const AnticiposOrdenTable = ({
         : [];
 
     const totalCotizacionCents = toCents(totalCotizacion);
+
+    const totalCotizacionCambio =
+        totalCotizacionInicial !== null &&
+        totalCotizacionInicial !== undefined &&
+        toCents(totalCotizacionInicial) !== totalCotizacionCents;
+
+    const totalCotizacionTexto = `$${Number(totalCotizacion || 0).toFixed(2)}`;
+
+    const totalCotizacionValue = totalCotizacionCambio ? (
+        <Popover
+            trigger="click"
+            title="El total de la cotización cambió"
+            content={
+                <div style={{ fontSize: '13px' }}>
+                    <div>Monto inicial: <b>${Number(totalCotizacionInicial || 0).toFixed(2)}</b></div>
+                    <div>Monto actual: <b>{totalCotizacionTexto}</b></div>
+                </div>
+            }
+        >
+            <span style={{ cursor: 'pointer', textDecoration: 'underline dotted' }}>
+                {totalCotizacionTexto}
+            </span>
+        </Popover>
+    ) : totalCotizacionTexto;
 
     console.log('========== ANTICIPOS ORDEN RENDER ==========');
     console.log('ordenId:', ordenId);
@@ -735,7 +760,12 @@ const AnticiposOrdenTable = ({
                         { label: 'Estado', value: cotizacion.estado || '-' },
                         { label: 'Fecha', value: cotizacion.fecha || '-' },
                         { label: 'SubTotal', value: `$${Number(cotizacion.subtotal || 0).toFixed(2)}` },
-                        { label: 'Total cotización', value: `$${Number(totalCotizacion || 0).toFixed(2)}`, valueColor: '#1677ff' },
+                        {
+                            label: 'Total cotización',
+                            value: totalCotizacionValue,
+                            valueColor: totalCotizacionCambio ? '#d46b08' : '#1677ff',
+                            hint: totalCotizacionCambio ? 'Cambió · clic para ver' : undefined,
+                        },
                     ]}
                 />
             )}

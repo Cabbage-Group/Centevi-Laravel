@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Models\CorrecionesOrdenes;
 use App\Models\FasesCorreccionesOrdenes;
 use App\Models\Pedido;
@@ -196,24 +197,38 @@ class OrdenesApiController extends Controller
       return 'aro';
     };
 
-    $buildFilas = function ($orden) use ($tiposFases, $resolverTipoLente) {
-      $ultimaFase    = $orden->fasesOrdenes->sortByDesc('tipo_fase_orden_id')->first();
+    // Calcula [estado, siguienteFase] de una orden a partir de sus fases.
+    // Se usa tanto en la pasada liviana de filtros como al construir las filas.
+    $calcularEstadoOrden = function ($fases) use ($tiposFases) {
+      $ultimaFase    = $fases->sortByDesc('tipo_fase_orden_id')->first();
       $estado        = 'Sin estado';
       $siguienteFase = 'Nuevo';
 
-      if ($ultimaFase) {
-        $diasDiferencia = now()->diffInDays($ultimaFase->fecha_fase);
+      // Mismo criterio que status_primera_fase en obtenerOrdenPaciente:
+      // se toma la primera fase tipo 2 (MIN(id)) y DATEDIFF por días calendario.
+      // Si aún no existe el registro de Enviado, se toma la fase Nuevo completada.
+      $primeraFaseTipo2 = $fases->where('tipo_fase_orden_id', 2)->sortBy('id')->first()
+        ?? $fases->where('tipo_fase_orden_id', 1)->where('status', 1)->sortBy('id')->first();
 
-        if ($ultimaFase->tipo_fase_orden_id == 5) {
-          $estado = 'Completado';
-        } elseif ($diasDiferencia <= 6) {
+      // En fase Retirado (existe registro tipo 5) la orden siempre está completada,
+      // aunque le falten registros de fases intermedias.
+      if ($fases->contains(fn($f) => $f->tipo_fase_orden_id == 5)) {
+        $estado = 'Completado';
+      } elseif ($primeraFaseTipo2 && !empty($primeraFaseTipo2->fecha_fase)) {
+        $fechaFase      = Carbon::parse(Carbon::parse($primeraFaseTipo2->fecha_fase)->format('Y-m-d'), 'UTC');
+        $hoy            = Carbon::parse(today()->format('Y-m-d'), 'UTC');
+        $diasDiferencia = (int) round($fechaFase->diffInDays($hoy, false));
+
+        if ($diasDiferencia <= 6) {
           $estado = 'OK';
         } elseif ($diasDiferencia == 7) {
           $estado = 'Advertencia';
         } else {
           $estado = 'Crítico';
         }
+      }
 
+      if ($ultimaFase) {
         if ($ultimaFase->tipo_fase_orden_id == 5) {
           $siguienteFase = 'Retirado';
         } elseif ($ultimaFase->tipo_fase_orden_id == 4) {
@@ -228,6 +243,50 @@ class OrdenesApiController extends Controller
           $siguienteFase = $tiposFases[$nuevoTipoFase] ?? 'Finalizado';
         }
       }
+
+      return [$estado, $siguienteFase];
+    };
+
+    // Calcula [estado, siguienteFase] de una corrección a partir de sus fases.
+    $calcularEstadoCorreccion = function ($fases) use ($tiposFases) {
+      $ultimaFaseCorr    = $fases->sortByDesc('tipo_fase_correccion_orden_id')->first();
+      $estadoCorr        = 'Sin estado';
+      $siguienteFaseCorr = 'Nuevo';
+
+      if ($ultimaFaseCorr) {
+        $diasC = now()->diffInDays($ultimaFaseCorr->fecha_fase);
+
+        if ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 5) {
+          $estadoCorr = 'Completado';
+        } elseif ($diasC <= 6) {
+          $estadoCorr = 'OK';
+        } elseif ($diasC == 7) {
+          $estadoCorr = 'Advertencia';
+        } elseif ($diasC >= 8) {
+          $estadoCorr = 'Crítico';
+        }
+
+        if ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 5) {
+          $siguienteFaseCorr = 'Retirado';
+        } elseif ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 4) {
+          $siguienteFaseCorr = 'Listo';
+        } elseif ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 1 && $ultimaFaseCorr->status == 0) {
+          $siguienteFaseCorr = 'Nuevo';
+        } else {
+          $nuevoTipoFaseC = ($ultimaFaseCorr->status == 1 && $ultimaFaseCorr->tipo_fase_correccion_orden_id < 4)
+            ? $ultimaFaseCorr->tipo_fase_correccion_orden_id + 1
+            : $ultimaFaseCorr->tipo_fase_correccion_orden_id;
+
+          $siguienteFaseCorr = $tiposFases[$nuevoTipoFaseC] ?? 'Finalizado';
+        }
+      }
+
+      return [$ultimaFaseCorr, $estadoCorr, $siguienteFaseCorr];
+    };
+
+    $buildFilas = function ($orden) use ($resolverTipoLente, $calcularEstadoOrden, $calcularEstadoCorreccion) {
+      $ultimaFase = $orden->fasesOrdenes->sortByDesc('tipo_fase_orden_id')->first();
+      [$estado, $siguienteFase] = $calcularEstadoOrden($orden->fasesOrdenes);
 
       $filas = [[
         'id_orden'           => $orden->id_orden,
@@ -290,37 +349,8 @@ class OrdenesApiController extends Controller
       foreach ($orden->correciones as $index => $correccion) {
         $numero = $index + 1;
 
-        $ultimaFaseCorr = $correccion->faseCorreccionOrden->sortByDesc('tipo_fase_correccion_orden_id')->first();
-        $estadoCorr = 'Sin estado';
-        $siguienteFaseCorr = 'Nuevo';
+        [$ultimaFaseCorr, $estadoCorr, $siguienteFaseCorr] = $calcularEstadoCorreccion($correccion->faseCorreccionOrden);
 
-        if ($ultimaFaseCorr) {
-          $diasC = now()->diffInDays($ultimaFaseCorr->fecha_fase);
-
-          if ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 5) {
-            $estadoCorr = 'Completado';
-          } elseif ($diasC <= 6) {
-            $estadoCorr = 'OK';
-          } elseif ($diasC == 7) {
-            $estadoCorr = 'Advertencia';
-          } elseif ($diasC >= 8) {
-            $estadoCorr = 'Crítico';
-          }
-
-          if ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 5) {
-            $siguienteFaseCorr = 'Retirado';
-          } elseif ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 4) {
-            $siguienteFaseCorr = 'Listo';
-          } elseif ($ultimaFaseCorr->tipo_fase_correccion_orden_id == 1 && $ultimaFaseCorr->status == 0) {
-            $siguienteFaseCorr = 'Nuevo';
-          } else {
-            $nuevoTipoFaseC = ($ultimaFaseCorr->status == 1 && $ultimaFaseCorr->tipo_fase_correccion_orden_id < 4)
-              ? $ultimaFaseCorr->tipo_fase_correccion_orden_id + 1
-              : $ultimaFaseCorr->tipo_fase_correccion_orden_id;
-
-            $siguienteFaseCorr = $tiposFases[$nuevoTipoFaseC] ?? 'Finalizado';
-          }
-        }
         $filas[] = [
           'id_orden'           => "c-{$correccion->id}-{$orden->id_orden}",
           'id_real'            => $correccion->id,
@@ -407,28 +437,75 @@ class OrdenesApiController extends Controller
       ]);
     }
 
-    $ordenes = $query->orderBy($sortColumn, $sortOrder)
+    // Pasada liviana: solo se cargan las columnas necesarias para calcular estado/fase
+    // de cada fila (orden y correcciones). El detalle completo se carga solo para la página actual.
+    $filasLivianas = (clone $query)
+      ->setEagerLoads([])
+      ->select('ordenes.id_orden')
+      ->with([
+        'fasesOrdenes:id,ordenes_id,tipo_fase_orden_id,status,fecha_fase',
+        'correciones:id,ordenes_id',
+        'correciones.faseCorreccionOrden:id,correccion_ordenes_id,tipo_fase_correccion_orden_id,status,fecha_fase',
+      ])
+      ->orderBy($sortColumn, $sortOrder)
       ->get()
-      ->flatMap($buildFilas);
+      ->flatMap(function ($orden) use ($calcularEstadoOrden, $calcularEstadoCorreccion) {
+        [$estado, $siguienteFase] = $calcularEstadoOrden($orden->fasesOrdenes);
+        $filas = [[
+          'key'             => (string) $orden->id_orden,
+          'id_orden'        => $orden->id_orden,
+          'es_correccion'   => false,
+          'estado'          => $estado,
+          'tipo_fase_orden' => $siguienteFase,
+        ]];
+
+        foreach ($orden->correciones as $correccion) {
+          [, $estadoCorr, $siguienteFaseCorr] = $calcularEstadoCorreccion($correccion->faseCorreccionOrden);
+          $filas[] = [
+            'key'             => "c-{$correccion->id}-{$orden->id_orden}",
+            'id_orden'        => $orden->id_orden,
+            'es_correccion'   => true,
+            'estado'          => $estadoCorr,
+            'tipo_fase_orden' => $siguienteFaseCorr,
+          ];
+        }
+
+        return $filas;
+      });
 
     if (!empty($fase)) {
-      $ordenes = $ordenes->whereIn('tipo_fase_orden', (array) $fase)->values();
+      $filasLivianas = $filasLivianas->whereIn('tipo_fase_orden', (array) $fase)->values();
     }
 
     if (!empty($estados)) {
-      $ordenes = $ordenes->whereIn('estado', (array) $estados)->values();
+      $filasLivianas = $filasLivianas->whereIn('estado', (array) $estados)->values();
     }
 
-    $total            = $ordenes->count();
-    $ordenesPaginadas = $ordenes->slice(($page - 1) * $limit, $limit)->values();
+    $totalFilas = $filasLivianas->count();
+    // El card "Órdenes" cuenta solo órdenes (sin filas de corrección), igual que sin filtros
+    $total      = $filasLivianas->where('es_correccion', false)->count();
+    $filasPagina = $filasLivianas->slice(($page - 1) * $limit, $limit)->values();
+
+    // Carga completa solo de las órdenes que aparecen en la página
+    $filasCompletas = $query
+      ->whereIn('id_orden', $filasPagina->pluck('id_orden')->unique()->values())
+      ->get()
+      ->flatMap($buildFilas)
+      ->keyBy(fn($fila) => (string) $fila['id_orden']);
+
+    $ordenesPaginadas = $filasPagina
+      ->map(fn($fila) => $filasCompletas->get($fila['key']))
+      ->filter()
+      ->values();
 
     return response()->json([
       'data' => $ordenesPaginadas,
       'meta' => [
         'total'         => $total,
+        'total_filas'   => $totalFilas,
         'limit'         => $limit,
         'page'          => $page,
-        'last_page'     => ceil($total / $limit),
+        'last_page'     => ceil($totalFilas / $limit),
         'sortColumn'    => $sortColumn,
         'sortOrder'     => $sortOrder,
         'search'        => $search,
@@ -740,6 +817,17 @@ class OrdenesApiController extends Controller
       ], 400);
     }
 
+    $nroCotizacion = trim($request->input('nro_cotizacion'));
+
+    $ordenConCotizacion = Ordenes::where('nro_cotizacion', $nroCotizacion)->first();
+
+    if ($ordenConCotizacion) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => "La cotización {$nroCotizacion} ya esta asignada a la orden {$ordenConCotizacion->nro_orden_id}, favor de revisar el número de cotización.",
+      ], 409);
+    }
+
     try {
       DB::beginTransaction();
 
@@ -871,6 +959,7 @@ class OrdenesApiController extends Controller
           'lente_contacto' => $lenteContacto,
           'lente_escleral_onefit' => $lenteEscleralOnefit,
           'lente_escleral_onefit_med' => $lenteEscleralOnefitMed,
+          'cotizacion_total_inicial' => $request->input('cotizacion_total'),
         ]
       );
 
@@ -914,6 +1003,208 @@ class OrdenesApiController extends Controller
         'monto' => $a->monto,
         'estado' => $a->estado,
       ])->values(),
+    ]);
+  }
+
+  // Fecha desde la que se revisan las órdenes abonadas con anticipos
+  private const FECHA_INICIO_VERIFICACION_PAGOS = '2026-10-01';
+
+  // Órdenes abonadas (pagado = 2), no canceladas, con anticipos aplicados, desde el 01/10/2026
+  public function ordenesAbonadasConAnticipos()
+  {
+    $ordenes = DB::table('ordenes')
+      ->leftJoin('pacientes', 'ordenes.id_paciente', '=', 'pacientes.id_paciente')
+      ->leftJoin('sucursales', 'ordenes.id_sucursal', '=', 'sucursales.id_sucursal')
+      ->joinSub(
+        DB::table('orden_anticipos')
+          ->select('id_orden', DB::raw('COUNT(*) as total_anticipos'), DB::raw('SUM(monto_aplicado) as total_aplicado'))
+          ->where('monto_aplicado', '>', 0)
+          ->groupBy('id_orden'),
+        'ap',
+        'ordenes.id_orden',
+        '=',
+        'ap.id_orden'
+      )
+      ->where('ordenes.pagado', 2)
+      ->where(fn($q) => $q->where('ordenes.cancelada', 0)->orWhereNull('ordenes.cancelada'))
+      ->where('ordenes.created_at', '>=', self::FECHA_INICIO_VERIFICACION_PAGOS)
+      ->orderBy('ordenes.created_at')
+      ->select(
+        'ordenes.id_orden',
+        'ordenes.nro_orden_id',
+        'ordenes.nro_cotizacion',
+        'ordenes.created_at as fecha_orden',
+        'sucursales.nombre as sucursal',
+        DB::raw("TRIM(CONCAT(COALESCE(pacientes.nombres, ''), ' ', COALESCE(pacientes.apellidos, ''))) as paciente"),
+        'ap.total_anticipos',
+        'ap.total_aplicado'
+      )
+      ->get();
+
+    return response()->json([
+      'respuesta' => true,
+      'desde' => self::FECHA_INICIO_VERIFICACION_PAGOS,
+      'data' => $ordenes,
+    ]);
+  }
+
+  // Para crontab: verifica TODAS las órdenes abonadas con anticipos aplicados desde el 01/10/2026
+  // hasta hoy (misma lógica del botón). Usa un lock para que dos ejecuciones no se acumulen.
+  public function verificarPagosAnticiposCron()
+  {
+    $lock = Cache::lock('cron-verificar-pagos-anticipos', 60 * 60);
+
+    if (!$lock->get()) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'Ya hay una verificación en curso. Se omite esta ejecución.',
+      ], 409);
+    }
+
+    try {
+      set_time_limit(0);
+      $inicio = now();
+
+      $ids = collect($this->ordenesAbonadasConAnticipos()->getData(true)['data'])->pluck('id_orden');
+
+      $resultados = $ids->map(function ($id) {
+        $res = $this->verificarPagoAnticiposOrden($id)->getData(true);
+
+        return [
+          'id_orden' => $id,
+          'resultado' => $res['resultado'] ?? 'error',
+          'mensaje' => $res['mensaje'] ?? null,
+        ];
+      })->values();
+
+      $resumen = [
+        'desde' => self::FECHA_INICIO_VERIFICACION_PAGOS,
+        'hasta' => now()->toDateString(),
+        'verificadas' => $resultados->count(),
+        'pasaron_a_pagado' => $resultados->where('resultado', 'pagado')->count(),
+        'siguen_abonado' => $resultados->where('resultado', 'pendiente')->count(),
+        'omitidas' => $resultados->where('resultado', 'omitida')->count(),
+        'errores' => $resultados->where('resultado', 'error')->count(),
+        'duracion_segundos' => $inicio->diffInSeconds(now()),
+      ];
+
+      Log::info('Cron verificación de pagos de anticipos', $resumen);
+
+      return response()->json([
+        'respuesta' => true,
+        'resumen' => $resumen,
+        'data' => $resultados,
+      ]);
+    } finally {
+      $lock->release();
+    }
+  }
+
+  // Verifica solo las órdenes indicadas (las visibles en la tabla de /ordenes) que estén
+  // abonadas y tengan anticipos aplicados. Misma lógica que verificarPagoAnticiposOrden.
+  public function verificarPagosAnticiposLote(Request $request)
+  {
+    $request->validate([
+      'ids' => 'required|array|max:100',
+      'ids.*' => 'integer',
+    ]);
+
+    $candidatas = DB::table('ordenes')
+      ->whereIn('id_orden', $request->input('ids'))
+      ->where('pagado', 2)
+      ->where(fn($q) => $q->where('cancelada', 0)->orWhereNull('cancelada'))
+      ->whereExists(function ($q) {
+        $q->select(DB::raw(1))
+          ->from('orden_anticipos')
+          ->whereColumn('orden_anticipos.id_orden', 'ordenes.id_orden')
+          ->where('orden_anticipos.monto_aplicado', '>', 0);
+      })
+      ->pluck('id_orden');
+
+    $resultados = $candidatas->map(function ($id) {
+      $res = $this->verificarPagoAnticiposOrden($id)->getData(true);
+
+      return [
+        'id_orden' => $id,
+        'resultado' => $res['resultado'] ?? 'error',
+        'mensaje' => $res['mensaje'] ?? null,
+      ];
+    })->values();
+
+    return response()->json([
+      'respuesta' => true,
+      'verificadas' => $resultados->count(),
+      'pasaron_a_pagado' => $resultados->where('resultado', 'pagado')->count(),
+      'data' => $resultados,
+    ]);
+  }
+
+  // Misma lógica que el botón abonado -> pagado: si todos los anticipos de la orden
+  // están CLOSED en Interfuerza, la orden pasa a pagado (1); si no, queda igual.
+  public function verificarPagoAnticiposOrden($id_orden)
+  {
+    $orden = Ordenes::find($id_orden);
+
+    if (!$orden) {
+      return response()->json(['respuesta' => false, 'resultado' => 'error', 'mensaje' => 'Orden no encontrada'], 404);
+    }
+
+    if ((int) $orden->pagado !== 2) {
+      return response()->json([
+        'respuesta' => true,
+        'resultado' => 'omitida',
+        'mensaje' => 'La orden ya no está en abonado',
+        'pendientes' => [],
+      ]);
+    }
+
+    $tieneAnticiposAplicados = DB::table('orden_anticipos')
+      ->where('id_orden', $id_orden)
+      ->where('monto_aplicado', '>', 0)
+      ->exists();
+
+    if (!$tieneAnticiposAplicados) {
+      return response()->json([
+        'respuesta' => true,
+        'resultado' => 'omitida',
+        'mensaje' => 'La orden no tiene anticipos aplicados',
+        'pendientes' => [],
+      ]);
+    }
+
+    try {
+      $noCerrados = app(AnticiposSyncService::class)->anticiposNoCerradosDeOrden((int) $id_orden);
+    } catch (\Throwable $e) {
+      Log::error('Error verificando anticipos de la orden en Interfuerza', ['id_orden' => $id_orden, 'error' => $e->getMessage()]);
+      return response()->json([
+        'respuesta' => false,
+        'resultado' => 'error',
+        'mensaje' => 'No se pudo verificar el estado de los anticipos en Interfuerza.',
+      ], 502);
+    }
+
+    if ($noCerrados->isNotEmpty()) {
+      return response()->json([
+        'respuesta' => true,
+        'resultado' => 'pendiente',
+        'mensaje' => $noCerrados->count() === 1
+          ? 'Hay 1 anticipo que no está en CLOSED'
+          : "Hay {$noCerrados->count()} anticipos que no están en CLOSED",
+        'pendientes' => $noCerrados->map(fn($a) => [
+          'referencia' => $a->referencia,
+          'monto' => $a->monto,
+          'estado' => $a->estado,
+        ])->values(),
+      ]);
+    }
+
+    $orden->update(['pagado' => 1]);
+
+    return response()->json([
+      'respuesta' => true,
+      'resultado' => 'pagado',
+      'mensaje' => 'Todos los anticipos están en CLOSED. La orden pasó a pagado',
+      'pendientes' => [],
     ]);
   }
 
@@ -2798,20 +3089,22 @@ class OrdenesApiController extends Controller
         'contador_fases.fases_completadas',
         DB::raw('DATEDIFF(CURRENT_DATE, fo.fecha_fase) as dias_transcurridos'),
         DB::raw("CASE
-        WHEN contador_fases.total_fases = 5
-          AND contador_fases.fases_completadas = 5
-          AND fase4.ordenes_id IS NOT NULL THEN 'Completado'
+        WHEN EXISTS (
+          SELECT 1 FROM fases_ordenes
+          WHERE ordenes_id = fo.ordenes_id AND tipo_fase_orden_id = 5
+        ) THEN 'Completado'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) <= 6 THEN 'Ok'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) = 7 THEN 'Advertencia'
         WHEN DATEDIFF(CURRENT_DATE, fo.fecha_fase) >= 8 THEN 'Critico'
         ELSE 'sin_status'
       END as status_primera_fase")
       )
-      ->whereRaw('fo.id = (
-      SELECT MIN(id)
-      FROM fases_ordenes
-      WHERE ordenes_id = fo.ordenes_id
-        AND tipo_fase_orden_id = 2
+      // El conteo arranca en la fase Enviado (tipo 2); si aún no existe su registro,
+      // se toma la fase Nuevo completada (momento en que la orden pasó a Enviado).
+      ->whereRaw('fo.id = COALESCE(
+      (SELECT MIN(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id AND tipo_fase_orden_id = 2),
+      (SELECT MIN(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id AND tipo_fase_orden_id = 1 AND status = 1),
+      (SELECT MIN(id) FROM fases_ordenes WHERE ordenes_id = fo.ordenes_id AND tipo_fase_orden_id = 5)
     )');
 
     $fechaRetiradoQuery = DB::table('fases_ordenes')
@@ -2921,7 +3214,9 @@ class OrdenesApiController extends Controller
           'id' => $orden['nro_cotizacion']
         ];
 
-        $response = $this->interfuerza->request($payload);
+        $response = $this->interfuerza
+          ->withConfig(InterfuerzaService::V4_URL, InterfuerzaService::V4_TOKEN)
+          ->request($payload);
 
         if ($response->successful()) {
           $body = $response->json();
@@ -2932,7 +3227,20 @@ class OrdenesApiController extends Controller
             $orden['cotizacion_estado'] = $interfuerzaQuote['Status'] ?? $orden['cotizacion_estado'];
             $orden['cotizacion_fecha'] = $interfuerzaQuote['Date'] ?? $orden['cotizacion_fecha'];
             $orden['cotizacion_subtotal'] = $interfuerzaQuote['SubTotal'] ?? $orden['cotizacion_subtotal'];
+            // El primer total conocido se conserva; cotizacion_total queda con el último
+            $orden['cotizacion_total_inicial'] = $orden['cotizacion_total_inicial']
+              ?? $orden['cotizacion_total']
+              ?? $interfuerzaQuote['Total']
+              ?? null;
             $orden['cotizacion_total'] = $interfuerzaQuote['Total'] ?? $orden['cotizacion_total'];
+
+            Ordenes::where('id_orden', $orden['id_orden'])->update([
+              'cotizacion_estado' => $orden['cotizacion_estado'],
+              'cotizacion_fecha' => $orden['cotizacion_fecha'],
+              'cotizacion_subtotal' => $orden['cotizacion_subtotal'],
+              'cotizacion_total' => $orden['cotizacion_total'],
+              'cotizacion_total_inicial' => $orden['cotizacion_total_inicial'],
+            ]);
           }
         }
       } catch (\Throwable $e) {
@@ -3087,6 +3395,7 @@ class OrdenesApiController extends Controller
       'lente_escleral_onefit_med' => $orden->lente_escleral_onefit_med,
       'sucursal' => $orden->nombre ?? '',
 
+      'nro_cotizacion' => $orden->nro_cotizacion,
       'nombres_apellidos_paciente' => ($orden->nombres
         ? explode(' ', trim($orden->nombres))[0]
         : '')
@@ -3271,6 +3580,7 @@ class OrdenesApiController extends Controller
       'lente_escleral_onefit' => $orden->lente_escleral_onefit,
       'lente_escleral_onefit_med' => $orden->lente_escleral_onefit_med,
       'sucursal' => $orden->nombre ?? '',
+      'nro_cotizacion' => $orden->nro_cotizacion,
       'nombres_apellidos_paciente' => ($orden->nombres
         ? explode(' ', trim($orden->nombres))[0]
         : '')

@@ -102,6 +102,8 @@ import ventasSlice from "./features/ventas/VentasSlice";
 import DiagnosticosReducer from "./features/diagnosticos/DiagnosticosSlice";
 import warehousesSlice from "./features/warehouses/warehousesSlice";
 import diagnosticosSlice from "./features/reportes/Diagnosticos/diagnosticosSlice";
+import ordenesFinancierasReducer from "./features/reportes/ordenesFinancieras/ordenesFinancierasSlice";
+import favoritosReducer from "./features/favoritos/favoritosSlice";
 import basesSlice from "./features/bases/basesSlice";
 import ordenesCentilabSlice from "./features/ordenes/ordenesCentilab/ordenesCentilabSlice";
 import ordenesPedidosSlice from "./features/pedidos/ordenesPedidosSlice";
@@ -259,6 +261,8 @@ const store = configureStore({
 
     diagnosticos: DiagnosticosReducer,
     reporteDiagnosticos: diagnosticosSlice,
+    reporteOrdenesFinancieras: ordenesFinancierasReducer,
+    favoritos: favoritosReducer,
 
     bases: basesSlice,
 
