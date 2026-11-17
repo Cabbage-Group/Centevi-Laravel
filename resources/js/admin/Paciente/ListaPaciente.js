@@ -19,6 +19,7 @@ const ListaPaciente = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
+  const [tipoRegistro, setTipoRegistro] = useState("");
   const usuario = localStorage.getItem("usuario");
 
   useEffect(() => {
@@ -33,9 +34,9 @@ const ListaPaciente = () => {
     dispatch(fetchPacientes({ 
       page: currentPage, limit: 20, 
       search: debouncedSearchText, sortColumn: "fecha_creacion", 
-      sortOrder: "desc" 
+      sortOrder: "desc", tipo_registro: tipoRegistro
     }));
-  }, [currentPage, debouncedSearchText, dispatch]);
+  }, [currentPage, debouncedSearchText, tipoRegistro, dispatch]);
 
   const handlePageChange = (page) => setCurrentPage(page);
 
@@ -57,7 +58,7 @@ const ListaPaciente = () => {
             dispatch(fetchPacientes({
               page: currentPage, limit: 20,
               search: debouncedSearchText, sortColumn: "fecha_creacion",
-              sortOrder: "desc"
+              sortOrder: "desc", tipo_registro: tipoRegistro
             }));
             Swal.fire("Eliminado", "El paciente ha sido eliminado.", "success");
           })
@@ -95,7 +96,7 @@ const ListaPaciente = () => {
           }
           dispatch(fetchPacientes({ 
             page: currentPage, limit: 10, search: debouncedSearchText, 
-            sortColumn: "fecha_creacion", sortOrder: "desc" 
+            sortColumn: "fecha_creacion", sortOrder: "desc", tipo_registro: tipoRegistro
           }));
         } catch (error) {
           Swal.close();
@@ -175,6 +176,16 @@ const ListaPaciente = () => {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
             />
+            <select
+              style={{ ...styles.searchInput, maxWidth: 200 }}
+              value={tipoRegistro}
+              onChange={(e) => { setTipoRegistro(e.target.value); setCurrentPage(1); }}
+            >
+              <option value="">Todos los tipos</option>
+              <option value="cliente/paciente">Cliente/Paciente</option>
+              <option value="paciente">Paciente</option>
+              <option value="cliente">Cliente</option>
+            </select>
             {/* <button style={styles.excelButton} onClick={handleDescargarExcel}>
               <FaFileExcel size={16} style={{ marginRight: 6 }} />
               Descargar Excel

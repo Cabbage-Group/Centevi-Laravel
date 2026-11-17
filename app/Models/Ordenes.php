@@ -11,6 +11,26 @@ class Ordenes extends Model
   protected $table = 'ordenes';
   protected $primaryKey = 'id_orden';
 
+  /**
+   * Un paciente pre-registrado desde la agenda (estado = 0) pasa a activo
+   * cuando se le registra actividad clínica o comercial, para que no quede oculto del listado.
+   */
+  protected static function booted()
+  {
+    // Si la orden no trae cliente (sucursales sin cotización), el cliente es el mismo paciente
+    static::creating(function ($orden) {
+      if (empty($orden->id_cliente) && $orden->id_paciente) {
+        $orden->id_cliente = $orden->id_paciente;
+      }
+    });
+
+    static::created(function ($registro) {
+      if ($registro->id_paciente) {
+        Pacientes::where('id_paciente', $registro->id_paciente)->where('estado', 0)->update(['estado' => 1]);
+      }
+    });
+  }
+
   protected $fillable = [
     'nro_orden_id',
     'codigo_cristal',
@@ -24,6 +44,7 @@ class Ordenes extends Model
     'nro_factura',
     'nro_orden',
     'id_paciente',
+    'id_cliente',
     'id_sucursal',
     'elaborado_por',
 

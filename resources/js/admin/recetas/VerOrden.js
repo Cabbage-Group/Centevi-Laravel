@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select, Checkbox, Button, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import ClientePacienteSelect from './ClientePacienteSelect';
 import { CloseCircleTwoTone, LoadingOutlined } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { useLocation } from 'react-router-dom';
@@ -36,6 +37,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden, statusPacienteOrden }) => {
   const { usuario } = useSelector((state) => state.auth);
   const { usuarios_doctores_options_selecteds } = useSelector((state) => state.usuarios);
   const [selectedPaciente, setSelectedPaciente] = useState('');
+  const [selectedCliente, setSelectedCliente] = useState('');
   const [selectedSucursal, setSelectedSucursal] = useState('');
   const [telefono, setTelefono] = useState('');
   const [mensaje, setMensaje] = useState('Sr(a) paciente {nombre}, sus lentes estan listos para retirar, puede pasar a retirarlos en la sucursal {sucursal');
@@ -130,6 +132,7 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden, statusPacienteOrden }) => {
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente);
+      setSelectedCliente(pacienteOrden?.id_cliente || pacienteOrden?.id_paciente);
       setSelectedSucursal(pacienteOrden?.id_sucursal);
       setDoctorSeleccionado(pacienteOrden?.doctor);
       setTipoAro(pacienteOrden?.tipo_aro);
@@ -519,31 +522,12 @@ const VerOrden = ({ fecha_solicitud, pacienteOrden, statusPacienteOrden }) => {
                                     />
                                   </div>
 
-                                  <div className="form-group col-md-4" >
-                                    <label htmlFor="pacientes">Pacientes*</label>
-                                    <Select
-                                      showSearch
-                                      value={selectedPaciente}
-                                      disabled
-                                      placeholder="Seleccione el paciente"
-                                      filterOption={(input, option) => {
-                                        const searchTerms = input.toLowerCase().split(' ');
-                                        return searchTerms.every(term =>
-                                          (option?.label ?? '').toLowerCase().includes(term)
-                                        );
-                                      }}
-                                      options={pacientes_options_selecteds}
-                                      style={{
-                                        width: "100%",
-                                        height: "48px",
-                                        color: "black",
-                                        fontWeight: "bold",
-                                      }}
-                                    />
-
-                                    <ErrorMessage name="id_paciente" component="div" className="text-danger" />
-
-                                  </div>
+                                  <ClientePacienteSelect
+                                    options={pacientes_options_selecteds}
+                                    cliente={selectedCliente}
+                                    paciente={selectedPaciente}
+                                    disabled
+                                  />
 
                                   <div className="form-group col-md-4" >
                                     <label htmlFor="sucursales">Sucursal*</label>

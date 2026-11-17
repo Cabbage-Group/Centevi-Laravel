@@ -309,9 +309,14 @@ class AgendaApiController extends Controller
     }
 
     if ($nuevaCedula && !$pacienteId) {
-      $cedulaYaExiste = Pacientes::where('nro_cedula', $nuevaCedula)->exists();
+      $nuevaCedula = Pacientes::normalizarCedula($nuevaCedula);
+      $pacienteExistente = Pacientes::buscarPorCedula($nuevaCedula);
 
-      if (!$cedulaYaExiste) {
+      if ($pacienteExistente) {
+        // Reutilizar el expediente existente en lugar de dejar la cita sin paciente
+        $request->merge(['paciente_id' => $pacienteExistente->id_paciente]);
+        $pacienteId = $pacienteExistente->id_paciente;
+      } else {
         $nuevoPaciente = Pacientes::create([
           'nro_cedula' => $nuevaCedula,
           'nombres' => $request->input('nombres', ''),
@@ -344,9 +349,7 @@ class AgendaApiController extends Controller
       }
 
       if ($pacienteActual->nro_cedula !== $nuevaCedula) {
-        $cedulaExiste = Pacientes::where('nro_cedula', $nuevaCedula)
-          ->where('id_paciente', '!=', $pacienteId)
-          ->exists();
+        $cedulaExiste = Pacientes::buscarPorCedula($nuevaCedula, (int) $pacienteId) !== null;
 
         if ($cedulaExiste) {
           return response()->json([

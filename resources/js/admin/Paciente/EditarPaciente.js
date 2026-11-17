@@ -21,6 +21,7 @@ const EditarPaciente = () => {
   const [formData, setFormData] = useState({
     sucursal: "1",
     doctor: "",
+    tipo_registro: "cliente/paciente",
     nombres: '',
     apellidos: '',
     email: '',
@@ -76,6 +77,7 @@ const EditarPaciente = () => {
       setFormData({
         sucursal: verPaciente.sucursal || '',
         doctor: verPaciente.doctor || '',
+        tipo_registro: verPaciente.tipo_registro || 'cliente/paciente',
         nombres: verPaciente.nombres || '',
         apellidos: verPaciente.apellidos || '',
         email: verPaciente.email || '',
@@ -136,6 +138,9 @@ const EditarPaciente = () => {
       };
     });
   };
+
+  // Igual que en crear paciente: un "Cliente" no muestra los datos propios de paciente
+  const esSoloCliente = formData.tipo_registro === 'cliente';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -204,6 +209,25 @@ const EditarPaciente = () => {
                         </div>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-4">
+                            <label className="labelBold" htmlFor="tipo_registro">
+                              Tipo de registro <span className="text-danger" title="Campo obligatorio">*</span>
+                            </label>
+                            <select
+                              className="form-control labelBold"
+                              id="tipo_registro"
+                              name="tipo_registro"
+                              value={formData.tipo_registro}
+                              onChange={handleChange}
+                              required
+                            >
+                              <option value="cliente/paciente">Cliente/Paciente</option>
+                              <option value="paciente">Paciente</option>
+                              <option value="cliente">Cliente</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="form-row mb-4">
+                          <div className="form-group col-md-4">
                             <label className="labelBold" htmlFor="nombres">
                               Nombre
                             </label>
@@ -251,6 +275,7 @@ const EditarPaciente = () => {
                               onChange={handleChange}
                             />
                           </div>
+                          {!esSoloCliente && (
                           <div className="form-group col-md-3">
                             <label htmlFor="nro_seguro">Nro.Seguro Social</label>
                             <input
@@ -262,6 +287,7 @@ const EditarPaciente = () => {
                               onChange={handleChange}
                             />
                           </div>
+                          )}
                           <div className="form-group col-md-3">
                             <label htmlFor="fecha_nacimiento">Fecha de Nacimiento</label>
                             <input
@@ -272,6 +298,7 @@ const EditarPaciente = () => {
                               onChange={handleChange}
                             />
                           </div>
+                          {!esSoloCliente && (
                           <div className="form-group col-md-3">
                             <label htmlFor="genero">Genero</label>
                             <input
@@ -283,8 +310,10 @@ const EditarPaciente = () => {
                               onChange={handleChange}
                             />
                           </div>
+                          )}
                         </div>
                         <div className="form-row mb-4">
+                          {!esSoloCliente && (
                           <div className="form-group col-md-4">
                             <label htmlFor="lugar_nacimiento">Lugar de Nacimiento</label>
                             <input
@@ -296,6 +325,8 @@ const EditarPaciente = () => {
                               onChange={handleChange}
                             />
                           </div>
+                          )}
+                          {!esSoloCliente && (
                           <div className="form-group col-md-4">
                             <label htmlFor="direccion">Dirección</label>
                             <input
@@ -307,6 +338,7 @@ const EditarPaciente = () => {
                               onChange={handleChange}
                             />
                           </div>
+                          )}
                           <div className="form-group col-md-4">
                             <label htmlFor="ocupacion">Ocupación</label>
                             <input
@@ -341,6 +373,8 @@ const EditarPaciente = () => {
                             />
                           </div>
                         </div>
+                        {!esSoloCliente && (
+                        <>
                         <div className="form-row mb-4">
                           <div className="form-group col-md-4">
                             <label htmlFor="medico">Médico</label>
@@ -453,6 +487,8 @@ const EditarPaciente = () => {
                             />
                           </div>
                         </div>
+                        </>
+                        )}
                         <button type="submit" className="btn btn-success mt-3">
                           Editar Paciente
                         </button>

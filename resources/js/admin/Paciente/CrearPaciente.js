@@ -9,7 +9,10 @@ const CrearPaciente = () => {
   const dispatch = useDispatch();
   const usuario = localStorage.getItem("usuario");
   const { error } = useSelector((state) => state.crearPacientes);
+  const CAMPOS_SOLO_PACIENTE = ['nro_seguro', 'genero', 'lugar_nacimiento', 'direccion', 'medico', 'urgencia', 'menor'];
+
   const initialValues = {
+    tipo_registro: "cliente/paciente",
     sucursal: "",
     doctor: localStorage.getItem('nombre'),
     nombres: "",
@@ -57,12 +60,16 @@ const CrearPaciente = () => {
         return acc;
       }, {});
 
+      if (cleanedValues.tipo_registro === 'cliente') {
+        CAMPOS_SOLO_PACIENTE.forEach((campo) => delete cleanedValues[campo]);
+      }
+
       const nroCedula = cleanedValues.nro_cedula;
       const cedulaExists = await dispatch(verificarCedula(nroCedula)).unwrap();
 
       cleanedValues.estadoPaciente = cedulaExists;
 
-      if (cedulaExists.estado_paciente === 'activo') {
+      if (cedulaExists === 'activo') {
         Swal.fire({
           icon: 'warning',
           title: 'Cédula existente',
@@ -85,7 +92,8 @@ const CrearPaciente = () => {
         }
       });
 
-      await dispatch(crearPacientes({ ...cleanedValues, usuario })).unwrap();
+      const respuestaCreacion = await dispatch(crearPacientes({ ...cleanedValues, usuario })).unwrap();
+      const idPacienteGuardado = respuestaCreacion?.data?.[0]?.id_paciente;
       await dispatch(fetchPacientes({ page: 1, limit: 50000 }));
 
       await Swal.fire({
@@ -109,7 +117,8 @@ const CrearPaciente = () => {
 
       const respuestaInterfuerza = await dispatch(fetchInterfuerza({
         ruc: nroCedula,
-        usuario
+        usuario,
+        id_paciente: idPacienteGuardado
       })).unwrap();
 
       setTimeout(() => {
@@ -190,19 +199,42 @@ const CrearPaciente = () => {
                       </div>
                     </div>
                     <div className="widget-content widget-content-area">
+                      <p className="text-muted mb-4">
+                        Los campos marcados con <span className="text-danger">*</span> son obligatorios.
+                      </p>
                       <Formik
                         initialValues={initialValues}
                         onSubmit={handleSubmit}
                       >
-                        {({ setFieldValue, resetForm }) => (
+                        {({ setFieldValue, resetForm, values, isSubmitting }) => {
+                          const esSoloCliente = values.tipo_registro === 'cliente';
+                          return (
                           <Form
                             method="post"
                             role="form"
                           >
                             <div className="form-row mb-4">
                               <div className="form-group col-md-4">
+                                <label htmlFor="tipo_registro">
+                                  Tipo de registro <span className="text-danger" title="Campo obligatorio">*</span>
+                                </label>
+                                <Field
+                                  className="form-control"
+                                  id="tipo_registro"
+                                  name="tipo_registro"
+                                  as="select"
+                                  required
+                                >
+                                  <option value="cliente/paciente">Cliente/Paciente</option>
+                                  <option value="paciente">Paciente</option>
+                                  <option value="cliente">Cliente</option>
+                                </Field>
+                              </div>
+                            </div>
+                            <div className="form-row mb-4">
+                              <div className="form-group col-md-4">
                                 <label htmlFor="nombres">
-                                  Nombres
+                                  Nombres <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control nombres"
@@ -214,7 +246,7 @@ const CrearPaciente = () => {
                               </div>
                               <div className="form-group col-md-4">
                                 <label htmlFor="apellidos">
-                                  Apellidos
+                                  Apellidos <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -226,7 +258,7 @@ const CrearPaciente = () => {
                               </div>
                               <div className="form-group col-md-4">
                                 <label htmlFor="email">
-                                  Email
+                                  Email <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -240,7 +272,7 @@ const CrearPaciente = () => {
                             <div className="form-row mb-4">
                               <div className="form-group col-md-3">
                                 <label htmlFor="nro_cedula">
-                                  Nro.Cédula
+                                  Nro.Cédula <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -251,6 +283,7 @@ const CrearPaciente = () => {
                                   as="input"
                                 />
                               </div>
+                              {!esSoloCliente && (
                               <div className="form-group col-md-3">
                                 <label htmlFor="nro_seguro">
                                   Nro.Seguro Social
@@ -262,9 +295,10 @@ const CrearPaciente = () => {
                                   as="input"
                                 />
                               </div>
+                              )}
                               <div className="form-group col-md-3">
                                 <label>
-                                  Fecha de Nacimiento
+                                  Fecha de Nacimiento <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -273,6 +307,7 @@ const CrearPaciente = () => {
                                   type="date"
                                 />
                               </div>
+                              {!esSoloCliente && (
                               <div className="form-group col-md-3">
                                 <label htmlFor="inputAddress">
                                   Género
@@ -283,7 +318,9 @@ const CrearPaciente = () => {
                                   as="input"
                                 />
                               </div>
+                              )}
                             </div>
+                            {!esSoloCliente && (
                             <div className="form-row mb-4">
                               <div className="form-group col-md-4">
                                 <label htmlFor="lugarNacimiento">
@@ -308,10 +345,11 @@ const CrearPaciente = () => {
                                 />
                               </div>
                             </div>
+                            )}
                             <div className="form-row mb-4">
                               <div className="form-group col-md-4">
                                 <label htmlFor="ocupacion">
-                                  Ocupación
+                                  Ocupación <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -323,7 +361,7 @@ const CrearPaciente = () => {
                               </div>
                               <div className="form-group col-md-4">
                                 <label htmlFor="telefono">
-                                  Teléfono
+                                  Teléfono <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -335,7 +373,7 @@ const CrearPaciente = () => {
                               </div>
                               <div className="form-group col-md-4">
                                 <label htmlFor="celular">
-                                  Celular
+                                  Celular <span className="text-danger" title="Campo obligatorio">*</span>
                                 </label>
                                 <Field
                                   className="form-control"
@@ -346,6 +384,8 @@ const CrearPaciente = () => {
                                 />
                               </div>
                             </div>
+                            {!esSoloCliente && (
+                            <>
                             <div className="form-row mb-4">
                               <div className="form-group col-md-6">
                                 <label htmlFor="medico">
@@ -444,18 +484,22 @@ const CrearPaciente = () => {
                                 />
                               </div>
                             </div>
+                            </>
+                            )}
                             <div className="form-row">
                               <div className="form-group col-md-12">
                                 <button
                                   type="submit"
                                   className="btn btn-primary"
+                                  disabled={isSubmitting}
                                 >
-                                  Guardar Paciente
+                                  {isSubmitting ? 'Guardando...' : 'Guardar Paciente'}
                                 </button>
                               </div>
                             </div>
                           </Form>
-                        )}
+                          );
+                        }}
                       </Formik>
                     </div>
                   </div>

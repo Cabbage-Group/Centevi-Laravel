@@ -12,10 +12,12 @@ export const fetchPacientes = createAsyncThunk(
     sortColumn = "fecha_creacion",
     search = "",
     doctor = null,
-    obtenerBloques = 0
+    obtenerBloques = 0,
+    tipo_registro = ""
   }) => {
     const params = { page, limit, sortOrder, sortColumn, search, obtenerBloques };
     if (doctor) params.doctor = doctor;
+    if (tipo_registro) params.tipo_registro = tipo_registro;
     const response = await axios.get(`${API}/pacientes`, { params });
     return response.data;
   }
@@ -41,9 +43,9 @@ export const eliminarPaciente = createAsyncThunk(
 
 export const fetchInterfuerza = createAsyncThunk(
   "pacientes/fetchInterfuerza",
-  async ({ ruc, usuario }, { rejectWithValue }) => {
+  async ({ ruc, usuario, id_paciente }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API}/verificar-interfuerza`, { ruc, usuario });
+      const response = await axios.post(`${API}/verificar-interfuerza`, { ruc, usuario, id_paciente });
       return response.data;
     } catch (error) {
       if (error.response) {

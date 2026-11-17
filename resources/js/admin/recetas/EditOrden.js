@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select, Spin, Button } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import ClientePacienteSelect, { esCliente, esPaciente, useSyncClientePaciente } from './ClientePacienteSelect';
 import { CloseCircleTwoTone, LoadingOutlined } from '@ant-design/icons';
 import { EyeOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -53,6 +54,30 @@ const EditOrden = ({
   const { tipo_aro_options_selecteds } = useSelector((state) => state.tiposAros)
   const { marcas_options_selecteds } = useSelector((state) => state.marcas)
   const [selectedPaciente, setSelectedPaciente] = useState(null);
+
+  const [selectedCliente, setSelectedCliente] = useState(null);
+  const { inicializar: inicializarSyncCliente, debeSincronizar } = useSyncClientePaciente();
+  const opcionPacientePorId = (id) => pacientes_options_selecteds.find((o) => o.value === id);
+  const aplicarPaciente = (value, setFieldValue) => {
+    setSelectedPaciente(value);
+    setFieldValue('id_paciente', value);
+  };
+  const aplicarCliente = (value, setFieldValue) => {
+    setSelectedCliente(value);
+    setFieldValue('id_cliente', value);
+  };
+  const handleClienteChange = (value, setFieldValue) => {
+    aplicarCliente(value, setFieldValue);
+    if (debeSincronizar('cliente') && esPaciente(opcionPacientePorId(value))) {
+      aplicarPaciente(value, setFieldValue);
+    }
+  };
+  const handlePacienteChange = (value, setFieldValue) => {
+    aplicarPaciente(value, setFieldValue);
+    if (debeSincronizar('paciente') && esCliente(opcionPacientePorId(value))) {
+      aplicarCliente(value, setFieldValue);
+    }
+  };
   const [selectedSucursal, setSelectedSucursal] = useState('');
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
@@ -172,6 +197,8 @@ const EditOrden = ({
   useEffect(() => {
     if (pacienteOrden) {
       setSelectedPaciente(pacienteOrden?.id_paciente);
+      setSelectedCliente(pacienteOrden?.id_cliente || pacienteOrden?.id_paciente);
+      inicializarSyncCliente(pacienteOrden?.id_cliente, pacienteOrden?.id_paciente);
       setSelectedSucursal(pacienteOrden?.id_sucursal);
       setDoctorSeleccionado(pacienteOrden?.doctor);
       setTipoAro(pacienteOrden?.tipo_aro);
@@ -262,6 +289,7 @@ const EditOrden = ({
         nro_cotizacion: pacienteOrden.nro_cotizacion || '',
         nro_factura: pacienteOrden.nro_factura || '',
         id_paciente: pacienteOrden.id_paciente || '',
+        id_cliente: pacienteOrden.id_cliente || pacienteOrden.id_paciente || '',
         id_sucursal: pacienteOrden.id_sucursal || '',
         esfera_od: pacienteOrden.esfera_od || '',
         esfera_oi: pacienteOrden.esfera_oi || '',
@@ -481,6 +509,7 @@ const EditOrden = ({
     const transformedValues = {
       ...values,
       id_paciente: selectedPaciente,
+      id_cliente: selectedCliente || null,
 
       tipo_cristal_od: cristalPorOjo.od,
       tipo_cristal_oi: cristalPorOjo.oi,
@@ -725,34 +754,13 @@ const EditOrden = ({
                                         style={{ color: "red", fontSize: "12px" }}
                                       />
                                     </div>
-                                    <div className="form-group col-md-4" >
-                                      <label htmlFor="pacientes">Pacientes*</label>
-                                      <Select
-                                        showSearch
-                                        value={selectedPaciente}
-                                        onChange={(value) => {
-                                          setSelectedPaciente(value);
-                                          setFieldValue("id_paciente", value);
-                                        }}
-                                        placeholder="Seleccione el paciente"
-                                        filterOption={(input, option) => {
-                                          const searchTerms = input.toLowerCase().split(' ');
-                                          return searchTerms.every(term =>
-                                            (option?.label ?? '').toLowerCase().includes(term)
-                                          );
-                                        }}
-                                        options={pacientes_options_selecteds}
-                                        style={{
-                                          width: "100%",
-                                          height: "48px",
-                                          color: "black",
-                                          fontWeight: "bold",
-                                        }}
-                                      />
-
-                                      <ErrorMessage name="id_paciente" component="div" className="text-danger" />
-
-                                    </div>
+                                    <ClientePacienteSelect
+                                      options={pacientes_options_selecteds}
+                                      cliente={selectedCliente}
+                                      paciente={selectedPaciente}
+                                      onClienteChange={(value) => handleClienteChange(value, setFieldValue)}
+                                      onPacienteChange={(value) => handlePacienteChange(value, setFieldValue)}
+                                    />
 
 
                                     <div className="form-group col-md-4" >

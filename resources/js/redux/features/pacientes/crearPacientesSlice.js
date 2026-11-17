@@ -18,6 +18,22 @@ export const verificarCedula = createAsyncThunk(
 
 
 
+// Igual que verificarCedula pero devuelve también el id del paciente encontrado
+export const verificarCedulaDetalle = createAsyncThunk(
+  'pacientes/verificarCedulaDetalle',
+  async (nroCedula, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API}/verificar-cedula`, { nro_cedula: nroCedula });
+      return {
+        estado: response.data.estado_paciente,
+        idPaciente: response.data.data?.id_paciente ?? null,
+      };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const crearPacientes = createAsyncThunk(
   'pacientes/crearPacientes',
   async (data, { rejectWithValue }) => {

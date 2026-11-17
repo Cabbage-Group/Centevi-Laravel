@@ -67,7 +67,9 @@ class InterfuerzaController extends Controller
     }
 
     $data = $response->json();
-    $paciente = Pacientes::where('nro_cedula', $ruc)->first();
+    // Se usa el paciente exacto que se acaba de crear/editar; la cédula es solo respaldo
+    $idPaciente = $request->input('id_paciente');
+    $paciente = $idPaciente ? Pacientes::find($idPaciente) : Pacientes::buscarPorCedula($ruc);
 
     if (empty($data['customers']) || count($data['customers']) === 0) {
       if ($paciente) {
@@ -117,6 +119,24 @@ class InterfuerzaController extends Controller
     $interfuerzaId = $data['customers'][0]['Cliente'] ?? null;
 
     if ($interfuerzaId) {
+      $otro = Pacientes::where('codigo', $interfuerzaId)
+        ->where('id_paciente', '!=', $paciente->id_paciente)
+        ->first();
+
+      if ($otro) {
+        // No mover el código a otro registro: eso separa anticipos e historial
+        Log::warning('Código de Interfuerza ya asignado a otro paciente', [
+          'codigo' => $interfuerzaId,
+          'paciente_solicitado' => $paciente->id_paciente,
+          'paciente_con_codigo' => $otro->id_paciente,
+        ]);
+
+        return response()->json([
+          'message' => "El cliente de Interfuerza {$interfuerzaId} ya está vinculado al paciente ID {$otro->id_paciente}. Posible duplicado: debe fusionarse.",
+          'paciente' => $this->utf8ize($paciente->toArray()),
+        ]);
+      }
+
       $paciente->codigo = $interfuerzaId;
     }
     

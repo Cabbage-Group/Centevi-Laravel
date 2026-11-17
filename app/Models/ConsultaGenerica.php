@@ -15,6 +15,19 @@ class ConsultaGenerica extends Model
   // Clave primaria de la tabla
   protected $primaryKey = 'id_consulta';
 
+  /**
+   * Un paciente pre-registrado desde la agenda (estado = 0) pasa a activo
+   * cuando se le registra actividad clínica o comercial, para que no quede oculto del listado.
+   */
+  protected static function booted()
+  {
+    static::created(function ($registro) {
+      if ($registro->paciente) {
+        Pacientes::where('id_paciente', $registro->paciente)->where('estado', 0)->update(['estado' => 1]);
+      }
+    });
+  }
+
   public $timestamps = false;
 
   // Atributos que son asignables en masa

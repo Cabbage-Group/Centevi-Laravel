@@ -64,7 +64,7 @@ import axios from "axios";
 import getIp from "../../redux/features/utils/getIp";
 import {
   crearPacientes,
-  verificarCedula,
+  verificarCedulaDetalle,
 } from "../../redux/features/pacientes/crearPacientesSlice";
 import debounce from "lodash/debounce";
 import { Link } from "react-router-dom";
@@ -1012,9 +1012,29 @@ Tarjeta (Clave,Visa o Mastercard)
     if (createCedula !== null && values.nroCedula.trim() !== "") {
       console.log("values1:", values);
       try {
-        const response = await dispatch(verificarCedula(createCedula)).unwrap();
+        const verificacion = await dispatch(verificarCedulaDetalle(createCedula)).unwrap();
+        const response = verificacion.estado;
 
-        console.log("response:", response);
+        console.log("response:", verificacion);
+
+        if (response === "inactivo" && verificacion.idPaciente) {
+          // Ya existe un pre-registro con esta cédula: se reutiliza en lugar de crear un duplicado
+          const result = await Swal.fire({
+            title: "Paciente ya registrado",
+            text: "Esta cédula ya tiene un registro (pre-registro de agenda). La cita se asignará a ese paciente. ¿Continuar?",
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonText: "Sí, agendar",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+          });
+
+          if (result.isConfirmed) {
+            continueAgendarEvent(values, verificacion.idPaciente);
+          }
+          return;
+        }
 
         if (response === "activo") {
           Swal.fire({

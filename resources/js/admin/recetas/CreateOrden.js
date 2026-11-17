@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import * as Yup from 'yup';
 import { Col, Input, Row, Select, Checkbox, Button, Alert, Spin } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import ClientePacienteSelect, { esCliente, esPaciente, esSucursalConCotizacion, useSyncClientePaciente } from './ClientePacienteSelect';
 import { CloseCircleTwoTone, LoadingOutlined } from '@ant-design/icons';
 import { fetchUsuarios } from '../../redux/features/usuarios/usuariosSlice';
 import { EyeOutlined } from '@ant-design/icons';
@@ -76,6 +77,31 @@ const CreateOrden = () => {
     status: statusAnticipos
   } = useSelector((state) => state.anticipos);
   const [selectedPaciente, setSelectedPaciente] = useState(parsedId || null);
+
+  const [selectedCliente, setSelectedCliente] = useState(parsedId || null);
+  const { inicializar: inicializarSyncCliente, debeSincronizar } = useSyncClientePaciente();
+  const opcionPacientePorId = (id) => pacientes_options_selecteds.find((o) => o.value === id);
+  const aplicarPaciente = (value, setFieldValue, limpiarFactura = true) => {
+    setSelectedPaciente(value);
+    setFieldValue('id_paciente', value);
+    if (limpiarFactura) setFieldValue('nro_factura', '');
+  };
+  const aplicarCliente = (value, setFieldValue) => {
+    setSelectedCliente(value);
+    setFieldValue('id_cliente', value);
+  };
+  const handleClienteChange = (value, setFieldValue) => {
+    aplicarCliente(value, setFieldValue);
+    if (debeSincronizar('cliente') && esPaciente(opcionPacientePorId(value))) {
+      aplicarPaciente(value, setFieldValue);
+    }
+  };
+  const handlePacienteChange = (value, setFieldValue, limpiarFactura = true) => {
+    aplicarPaciente(value, setFieldValue, limpiarFactura);
+    if (debeSincronizar('paciente') && esCliente(opcionPacientePorId(value))) {
+      aplicarCliente(value, setFieldValue);
+    }
+  };
   const [selectedMarca, setSelectedMarca] = useState(null);
   const [telefono, setTelefono] = useState('');
   const [cedula, setCedula] = useState('');
@@ -162,6 +188,7 @@ const CreateOrden = () => {
 
   const initialValues = {
     id_paciente: parsedId || "",
+    id_cliente: parsedId || "",
     id_sucursal:
       localStorage.getItem('ip') == '186.74.2.218'
         ? "7"
@@ -424,6 +451,10 @@ const CreateOrden = () => {
         ...valoresSinPrefijo,
         nro_cotizacion: unirCotizacion(values.prefijo_cotizacion, values.nro_cotizacion),
         id_paciente: selectedPaciente,
+        // En sucursales sin cotización no se muestra "Cliente": el cliente es el mismo paciente
+        id_cliente: esSucursalConCotizacion(sucursales, values.id_sucursal)
+          ? (selectedCliente || selectedPaciente || null)
+          : (selectedPaciente || null),
 
         tipo_cristal_od: cristalPorOjo.od,
         tipo_cristal_oi: cristalPorOjo.oi,
@@ -611,14 +642,7 @@ const CreateOrden = () => {
                                   return;
                                 }
 
-                                const selectedSucursal = sucursales.find(
-                                  (sucursal) => sucursal.id_sucursal === parseInt(values.id_sucursal)
-                                );
-                                const nombreSucursal = selectedSucursal ? selectedSucursal.nombre.toLowerCase() : '';
-                                const esSucursalConFactura =
-                                  nombreSucursal.includes('paitilla') ||
-                                  nombreSucursal.includes('villa lucre') ||
-                                  nombreSucursal.includes('san judas tadeo');
+                                const esSucursalConFactura = esSucursalConCotizacion(sucursales, values.id_sucursal);
 
                                 if (!esSucursalConFactura) {
                                   setCotizacionInterfuerza(null);
@@ -669,8 +693,7 @@ const CreateOrden = () => {
 
                                           const pacienteId = pacienteEncontrado.id_paciente;
 
-                                          setSelectedPaciente(pacienteId);
-                                          setFieldValue('id_paciente', pacienteId);
+                                          handlePacienteChange(pacienteId, setFieldValue, false);
 
                                           return dispatch(fetchAnticiposDisponibles(pacienteId))
                                             .unwrap()
@@ -913,38 +936,15 @@ const CreateOrden = () => {
                                     </div>
 
 
-                                    <div className="form-group col-md-4" >
-                                      <label htmlFor="pacientes">Pacientes*</label>
-                                      <Select
-                                        showSearch
-                                        value={pacientes_options_selecteds.length > 0 ? selectedPaciente : undefined}
-                                        onChange={(value) => {
-                                          console.log('value:', value)
-                                          setSelectedPaciente(value);
-                                          setFieldValue("id_paciente", value);
-                                          setFieldValue("nro_factura", "");
-                                        }}
-                                        placeholder="Seleccione el paciente"
-                                        loading={cargando.pacientes}
-                                        disabled={cargando.pacientes}
-                                        filterOption={(input, option) => {
-                                          const searchTerms = input.toLowerCase().split(' ');
-                                          return searchTerms.every(term =>
-                                            (option?.label ?? '').toLowerCase().includes(term)
-                                          );
-                                        }}
-                                        options={pacientes_options_selecteds}
-                                        style={{
-                                          width: "100%",
-                                          height: "48px",
-                                          color: "black",
-                                          fontWeight: "bold",
-                                        }}
-                                      />
-
-                                      <ErrorMessage name="id_paciente" component="div" className="text-danger" />
-
-                                    </div>
+                                    <ClientePacienteSelect
+                                      options={pacientes_options_selecteds}
+                                      cliente={selectedCliente}
+                                      paciente={selectedPaciente}
+                                      onClienteChange={(value) => handleClienteChange(value, setFieldValue)}
+                                      onPacienteChange={(value) => handlePacienteChange(value, setFieldValue)}
+                                      loading={cargando.pacientes}
+                                      mostrarCliente={esSucursalConCotizacion(sucursales, values.id_sucursal)}
+                                    />
 
 
                                     <div className="form-group col-md-4" >
@@ -2030,4 +2030,4 @@ const CreateOrden = () => {
   )
 }
 
-export default CreateOrden
+export default CreateOrden

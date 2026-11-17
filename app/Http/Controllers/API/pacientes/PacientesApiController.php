@@ -18,6 +18,7 @@ use App\Models\RefraccionGeneral;
 use App\Models\OptometriaNeonatos;
 use App\Models\OrtopticaAdultos;
 use App\Services\AnticiposSyncService;
+use App\Services\PacienteFusionService;
 use App\Services\InterfuerzaClientCreator;
 use App\Services\InterfuerzaCreateService;
 use App\Services\InterfuerzaService;
@@ -55,6 +56,7 @@ class PacientesApiController extends Controller
     $estado = $request->query('estado', 1);
     $obtenerBloques = $request->query('obtenerBloques');
     $codigoInterfuerza = $request->query('codigo_interfuerza', '');
+    $tipoRegistro = $request->query('tipo_registro', '');
     $request->validate([
       'page' => 'integer|min:1',
       'limit' => 'integer|min:1|max:50000',
@@ -63,9 +65,14 @@ class PacientesApiController extends Controller
       'search' => 'string|nullable|max:255',
       'nameFilter' => 'string|nullable|max:255',
       'codigo_interfuerza' => 'string|nullable|max:50',
+      'tipo_registro' => 'nullable|in:cliente,paciente,cliente/paciente',
     ]);
 
     $data = Pacientes::query();
+
+    if (!empty($tipoRegistro)) {
+      $data->where('tipo_registro', '=', $tipoRegistro);
+    }
 
     if (!empty($codigoInterfuerza)) {
       $data->where('codigo', '=', $codigoInterfuerza);
@@ -365,6 +372,7 @@ class PacientesApiController extends Controller
       'nro_cedula' => 'nullable|string',
       'estado' => 'nullable',
       'usuario' => 'nullable',
+      'tipo_registro' => 'nullable|in:cliente,paciente,cliente/paciente',
       'estadoPaciente' => 'required|string|in:no_existe,inactivo,activo'
     ]);
 
@@ -400,66 +408,76 @@ class PacientesApiController extends Controller
       'menor' => '',
       'fecha_creacion' => now()->format('Y/m/d'),
       'nro_cedula' => '',
+      'tipo_registro' => 'cliente/paciente',
       'estado' => 1
     ];
 
     $data = array_merge($defaults, $data);
+    $data['nro_cedula'] = Pacientes::normalizarCedula($data['nro_cedula']);
 
-    if ($estadoPaciente === 'activo') {
+    // Se vuelve a verificar en el servidor (no se confía en estadoPaciente del cliente)
+    // y con un candado por cédula para evitar duplicados por doble envío.
+    $lock = Pacientes::esCedulaReal($data['nro_cedula'])
+      ? Cache::lock('crear_paciente_' . md5(Pacientes::claveCedula($data['nro_cedula'])), 15)
+      : null;
+
+    if ($lock && !$lock->block(10)) {
       return response()->json([
         'respuesta' => false,
-        'mensaje' => 'El número de cédula ya está registrado y activo',
+        'mensaje' => 'Ya se está registrando un paciente con esa cédula, intente de nuevo.',
         'data' => [],
         'estado_paciente' => $estadoPaciente,
-        'mensaje_dev' => 'Paciente ya activo con ese número de cédula'
-      ], 400);
+        'mensaje_dev' => 'Lock ocupado'
+      ], 409);
     }
 
-    if ($estadoPaciente === 'inactivo') {
-      $paciente = Pacientes::where('nro_cedula', $data['nro_cedula'])->first();
+    try {
+      $existente = Pacientes::buscarPorCedula($data['nro_cedula']);
 
-      if ($paciente) {
-        $paciente->update($data);
+      if ($existente && $existente->estado) {
+        return response()->json([
+          'respuesta' => false,
+          'mensaje' => 'El número de cédula ya está registrado y activo',
+          'data' => [$existente],
+          'estado_paciente' => 'activo',
+          'mensaje_dev' => 'Paciente ya activo con ese número de cédula'
+        ], 400);
+      }
+
+      if ($existente) {
+        // Reactivar: solo se sobrescriben los campos que el usuario envió con valor,
+        // para no borrar datos que ya existían en el expediente.
+        $campos = collect($request->only($existente->getFillable()))
+          ->reject(fn($v) => is_null($v) || (is_string($v) && trim($v) === '') || $v === '""' || $v === 'null')
+          ->except(['fecha_creacion', 'codigo', 'interfuerza'])
+          ->all();
+        $campos['nro_cedula'] = $data['nro_cedula'];
+        $campos['estado'] = $request->has('estado') ? (filter_var($request->input('estado'), FILTER_VALIDATE_BOOLEAN) ? 1 : 0) : 1;
+
+        $existente->update($campos);
 
         return response()->json([
           'respuesta' => true,
           'message' => 'Paciente reactivado y actualizado correctamente',
-          'data' => [$paciente],
-          'estado_paciente' => $estadoPaciente,
+          'data' => [$existente->fresh()],
+          'estado_paciente' => 'inactivo',
           'mensaje_dev' => null
         ], 200);
-      } else {
-        return response()->json([
-          'respuesta' => false,
-          'mensaje' => 'Paciente no encontrado para reactivación',
-          'data' => [],
-          'estado_paciente' => $estadoPaciente,
-          'mensaje_dev' => 'No se encontró paciente con esa cédula'
-        ], 404);
       }
-    }
 
-    if ($estadoPaciente === 'no_existe') {
       $paciente = Pacientes::create($data);
 
       return response()->json([
         'respuesta' => true,
         'message' => 'Paciente registrado correctamente',
         'data' => [$paciente],
-        'estado_paciente' => $estadoPaciente,
+        'estado_paciente' => 'no_existe',
         'mensaje_dev' => null
       ], 201);
+    } finally {
+      $lock?->release();
     }
-
-    return response()->json([
-      'respuesta' => false,
-      'mensaje' => 'Estado del paciente no reconocido',
-      'data' => [],
-      'estado_paciente' => $estadoPaciente,
-      'mensaje_dev' => 'EstadoPaciente inválido'
-    ], 400);
   }
-
 
   public function verificarCedula(Request $request)
   {
@@ -476,9 +494,7 @@ class PacientesApiController extends Controller
       ], 400);
     }
 
-    $nroCedula = $request->input('nro_cedula');
-
-    $paciente = Pacientes::where('nro_cedula', $nroCedula)->first();
+    $paciente = Pacientes::buscarPorCedula($request->input('nro_cedula'));
 
     if (!$paciente) {
       return response()->json([
@@ -494,7 +510,7 @@ class PacientesApiController extends Controller
         'respuesta'        => false,
         'mensaje'          => 'El paciente ya existe pero está inactivo.',
         'estado_paciente'  => 'inactivo',
-        'data'             => ['exists' => true]
+        'data'             => ['exists' => true, 'id_paciente' => $paciente->id_paciente]
       ], 200);
     }
 
@@ -502,7 +518,7 @@ class PacientesApiController extends Controller
       'respuesta'        => true,
       'mensaje'          => 'El paciente ya existe y está activo.',
       'estado_paciente'  => 'activo',
-      'data'             => ['exists' => true]
+      'data'             => ['exists' => true, 'id_paciente' => $paciente->id_paciente]
     ], 200);
   }
 
@@ -528,7 +544,7 @@ class PacientesApiController extends Controller
       'medico' => 'nullable|string|max:255',
       'urgencia' => 'nullable|string',
       'menor' => 'nullable|string',
-
+      'tipo_registro' => 'nullable|in:cliente,paciente,cliente/paciente',
     ]);
 
     // Retornar errores de validación si los hay
@@ -572,8 +588,27 @@ class PacientesApiController extends Controller
       'medico' => $request->filled('medico') ? $request->medico : '',
       'urgencia' => $request->filled('urgencia') ? $request->urgencia : '',
       'menor' => $request->filled('menor') ? $request->menor : '',
-      "fecha_creacion" => now()
     ];
+
+    // Solo se cambia si viene en la petición, para no pisar el valor actual
+    if ($request->filled('tipo_registro')) {
+      $data['tipo_registro'] = $request->tipo_registro;
+    }
+
+    // No permitir que la edición deje dos pacientes con la misma cédula
+    if ($request->filled('nro_cedula')) {
+      $data['nro_cedula'] = Pacientes::normalizarCedula($request->nro_cedula);
+      $cambioCedula = Pacientes::claveCedula($paciente->nro_cedula) !== Pacientes::claveCedula($data['nro_cedula']);
+      $otro = $cambioCedula ? Pacientes::buscarPorCedula($data['nro_cedula'], $paciente->id_paciente) : null;
+      if ($otro) {
+        return response()->json([
+          'respuesta' => false,
+          'mensaje' => "La cédula {$data['nro_cedula']} ya pertenece al paciente {$otro->nombres} {$otro->apellidos} (ID {$otro->id_paciente}).",
+          'data' => [],
+          'mensaje_dev' => 'Cédula duplicada'
+        ], 409);
+      }
+    }
 
 
     $paciente->update($data);
@@ -599,6 +634,15 @@ class PacientesApiController extends Controller
         'data' => [],
         'mensaje_dev' => null
       ], 404);
+    }
+
+    // No borrar expedientes con historial: se perderían consultas, órdenes, anticipos o documentos
+    if (app(PacienteFusionService::class)->tieneHistorial((int) $id)) {
+      return response()->json([
+        'respuesta' => false,
+        'mensaje' => 'El paciente tiene historial clínico, órdenes, anticipos o documentos y no puede eliminarse. Si es un duplicado, debe fusionarse.',
+        'mensaje_dev' => 'Paciente con historial'
+      ], 409);
     }
 
     Citas::where('paciente_id', $id)->delete();

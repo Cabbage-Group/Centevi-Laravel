@@ -732,6 +732,7 @@ class OrdenesApiController extends Controller
   {
     $validator = Validator::make($request->all(), [
       "id_paciente" => 'nullable|integer',
+      'id_cliente' => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
       'tipo_lente' => 'required|string|in:aro,contacto,onefit,onefitmed',
 
@@ -1222,6 +1223,7 @@ class OrdenesApiController extends Controller
 
     $validator = Validator::make($request->all(), [
       'id_paciente' => 'nullable|integer',
+      'id_cliente' => 'nullable|integer',
       'id_sucursal' => 'nullable|integer',
       'nro_factura' => 'nullable|string|max:144',
       'elaborado_por' => 'nullable|integer',
@@ -1356,6 +1358,7 @@ class OrdenesApiController extends Controller
 
       $data = $request->only([
         'id_paciente',
+        'id_cliente',
         'id_sucursal',
         'nro_factura',
         'elaborado_por',
